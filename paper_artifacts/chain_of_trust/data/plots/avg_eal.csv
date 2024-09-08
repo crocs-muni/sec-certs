@@ -1,0 +1,406 @@
+,year_from,category,n_certs,eal_number,smartcard_category
+0,1997.0,Access control,0,,Other 14 categories
+1,1997.0,Biometrics,0,,Other 14 categories
+2,1997.0,Boundary protection,1,5.0,Other 14 categories
+3,1997.0,Data Protection,0,,Other 14 categories
+4,1997.0,Databases,0,,Other 14 categories
+5,1997.0,Detection Devices and Systems,0,,Other 14 categories
+6,1997.0,"ICs, Smartcards",0,,"ICs, Smartcards"
+7,1997.0,Key Management Systems,0,,Other 14 categories
+8,1997.0,Mobility,0,,Other 14 categories
+9,1997.0,Multi-Function Devices,0,,Other 14 categories
+10,1997.0,Network(-related) devices,0,,Other 14 categories
+11,1997.0,Operating Systems,0,,Other 14 categories
+12,1997.0,Other Devices and Systems,0,,Other 14 categories
+13,1997.0,Products for Digital Signatures,0,,Other 14 categories
+14,1997.0,Trusted Computing,0,,Other 14 categories
+15,1998.0,Access control,0,,Other 14 categories
+16,1998.0,Biometrics,0,,Other 14 categories
+17,1998.0,Boundary protection,1,2.0,Other 14 categories
+18,1998.0,Data Protection,0,,Other 14 categories
+19,1998.0,Databases,1,6.0,Other 14 categories
+20,1998.0,Detection Devices and Systems,0,,Other 14 categories
+21,1998.0,"ICs, Smartcards",0,,"ICs, Smartcards"
+22,1998.0,Key Management Systems,0,,Other 14 categories
+23,1998.0,Mobility,0,,Other 14 categories
+24,1998.0,Multi-Function Devices,0,,Other 14 categories
+25,1998.0,Network(-related) devices,0,,Other 14 categories
+26,1998.0,Operating Systems,0,,Other 14 categories
+27,1998.0,Other Devices and Systems,0,,Other 14 categories
+28,1998.0,Products for Digital Signatures,0,,Other 14 categories
+29,1998.0,Trusted Computing,0,,Other 14 categories
+30,1999.0,Access control,0,,Other 14 categories
+31,1999.0,Biometrics,0,,Other 14 categories
+32,1999.0,Boundary protection,3,0.6666666666666666,Other 14 categories
+33,1999.0,Data Protection,2,0.0,Other 14 categories
+34,1999.0,Databases,0,,Other 14 categories
+35,1999.0,Detection Devices and Systems,0,,Other 14 categories
+36,1999.0,"ICs, Smartcards",5,1.6,"ICs, Smartcards"
+37,1999.0,Key Management Systems,1,4.0,Other 14 categories
+38,1999.0,Mobility,0,,Other 14 categories
+39,1999.0,Multi-Function Devices,0,,Other 14 categories
+40,1999.0,Network(-related) devices,0,,Other 14 categories
+41,1999.0,Operating Systems,1,6.0,Other 14 categories
+42,1999.0,Other Devices and Systems,0,,Other 14 categories
+43,1999.0,Products for Digital Signatures,0,,Other 14 categories
+44,1999.0,Trusted Computing,0,,Other 14 categories
+45,2000.0,Access control,0,,Other 14 categories
+46,2000.0,Biometrics,0,,Other 14 categories
+47,2000.0,Boundary protection,4,4.0,Other 14 categories
+48,2000.0,Data Protection,2,6.0,Other 14 categories
+49,2000.0,Databases,1,6.0,Other 14 categories
+50,2000.0,Detection Devices and Systems,0,,Other 14 categories
+51,2000.0,"ICs, Smartcards",11,5.2727272727272725,"ICs, Smartcards"
+52,2000.0,Key Management Systems,2,4.0,Other 14 categories
+53,2000.0,Mobility,0,,Other 14 categories
+54,2000.0,Multi-Function Devices,0,,Other 14 categories
+55,2000.0,Network(-related) devices,1,0.0,Other 14 categories
+56,2000.0,Operating Systems,1,6.0,Other 14 categories
+57,2000.0,Other Devices and Systems,0,,Other 14 categories
+58,2000.0,Products for Digital Signatures,0,,Other 14 categories
+59,2000.0,Trusted Computing,0,,Other 14 categories
+60,2001.0,Access control,0,,Other 14 categories
+61,2001.0,Biometrics,0,,Other 14 categories
+62,2001.0,Boundary protection,2,6.5,Other 14 categories
+63,2001.0,Data Protection,1,5.0,Other 14 categories
+64,2001.0,Databases,1,6.0,Other 14 categories
+65,2001.0,Detection Devices and Systems,0,,Other 14 categories
+66,2001.0,"ICs, Smartcards",15,4.333333333333333,"ICs, Smartcards"
+67,2001.0,Key Management Systems,2,4.0,Other 14 categories
+68,2001.0,Mobility,0,,Other 14 categories
+69,2001.0,Multi-Function Devices,0,,Other 14 categories
+70,2001.0,Network(-related) devices,1,6.0,Other 14 categories
+71,2001.0,Operating Systems,0,,Other 14 categories
+72,2001.0,Other Devices and Systems,5,2.0,Other 14 categories
+73,2001.0,Products for Digital Signatures,0,,Other 14 categories
+74,2001.0,Trusted Computing,0,,Other 14 categories
+75,2002.0,Access control,1,6.0,Other 14 categories
+76,2002.0,Biometrics,0,,Other 14 categories
+77,2002.0,Boundary protection,8,4.375,Other 14 categories
+78,2002.0,Data Protection,3,0.0,Other 14 categories
+79,2002.0,Databases,1,6.0,Other 14 categories
+80,2002.0,Detection Devices and Systems,1,2.0,Other 14 categories
+81,2002.0,"ICs, Smartcards",20,7.4,"ICs, Smartcards"
+82,2002.0,Key Management Systems,3,5.666666666666667,Other 14 categories
+83,2002.0,Mobility,0,,Other 14 categories
+84,2002.0,Multi-Function Devices,0,,Other 14 categories
+85,2002.0,Network(-related) devices,4,4.0,Other 14 categories
+86,2002.0,Operating Systems,5,5.0,Other 14 categories
+87,2002.0,Other Devices and Systems,4,2.0,Other 14 categories
+88,2002.0,Products for Digital Signatures,0,,Other 14 categories
+89,2002.0,Trusted Computing,0,,Other 14 categories
+90,2003.0,Access control,0,,Other 14 categories
+91,2003.0,Biometrics,0,,Other 14 categories
+92,2003.0,Boundary protection,16,5.375,Other 14 categories
+93,2003.0,Data Protection,4,1.5,Other 14 categories
+94,2003.0,Databases,3,6.666666666666667,Other 14 categories
+95,2003.0,Detection Devices and Systems,2,3.0,Other 14 categories
+96,2003.0,"ICs, Smartcards",12,7.5,"ICs, Smartcards"
+97,2003.0,Key Management Systems,4,4.75,Other 14 categories
+98,2003.0,Mobility,0,,Other 14 categories
+99,2003.0,Multi-Function Devices,1,2.0,Other 14 categories
+100,2003.0,Network(-related) devices,3,3.3333333333333335,Other 14 categories
+101,2003.0,Operating Systems,8,6.75,Other 14 categories
+102,2003.0,Other Devices and Systems,10,3.0,Other 14 categories
+103,2003.0,Products for Digital Signatures,0,,Other 14 categories
+104,2003.0,Trusted Computing,0,,Other 14 categories
+105,2004.0,Access control,3,2.6666666666666665,Other 14 categories
+106,2004.0,Biometrics,0,,Other 14 categories
+107,2004.0,Boundary protection,8,5.125,Other 14 categories
+108,2004.0,Data Protection,4,5.75,Other 14 categories
+109,2004.0,Databases,5,4.6,Other 14 categories
+110,2004.0,Detection Devices and Systems,2,2.5,Other 14 categories
+111,2004.0,"ICs, Smartcards",22,7.2272727272727275,"ICs, Smartcards"
+112,2004.0,Key Management Systems,5,4.0,Other 14 categories
+113,2004.0,Mobility,0,,Other 14 categories
+114,2004.0,Multi-Function Devices,7,3.7142857142857144,Other 14 categories
+115,2004.0,Network(-related) devices,11,3.6363636363636362,Other 14 categories
+116,2004.0,Operating Systems,13,4.6923076923076925,Other 14 categories
+117,2004.0,Other Devices and Systems,13,3.6923076923076925,Other 14 categories
+118,2004.0,Products for Digital Signatures,8,4.5,Other 14 categories
+119,2004.0,Trusted Computing,0,,Other 14 categories
+120,2005.0,Access control,8,2.875,Other 14 categories
+121,2005.0,Biometrics,0,,Other 14 categories
+122,2005.0,Boundary protection,17,5.647058823529412,Other 14 categories
+123,2005.0,Data Protection,6,3.1666666666666665,Other 14 categories
+124,2005.0,Databases,8,6.75,Other 14 categories
+125,2005.0,Detection Devices and Systems,4,2.0,Other 14 categories
+126,2005.0,"ICs, Smartcards",30,7.7,"ICs, Smartcards"
+127,2005.0,Key Management Systems,1,2.0,Other 14 categories
+128,2005.0,Mobility,0,,Other 14 categories
+129,2005.0,Multi-Function Devices,5,2.0,Other 14 categories
+130,2005.0,Network(-related) devices,14,3.142857142857143,Other 14 categories
+131,2005.0,Operating Systems,13,5.538461538461538,Other 14 categories
+132,2005.0,Other Devices and Systems,40,3.95,Other 14 categories
+133,2005.0,Products for Digital Signatures,8,4.375,Other 14 categories
+134,2005.0,Trusted Computing,0,,Other 14 categories
+135,2006.0,Access control,8,4.5,Other 14 categories
+136,2006.0,Biometrics,0,,Other 14 categories
+137,2006.0,Boundary protection,15,5.6,Other 14 categories
+138,2006.0,Data Protection,3,4.0,Other 14 categories
+139,2006.0,Databases,6,1.8333333333333333,Other 14 categories
+140,2006.0,Detection Devices and Systems,3,4.666666666666667,Other 14 categories
+141,2006.0,"ICs, Smartcards",35,7.514285714285714,"ICs, Smartcards"
+142,2006.0,Key Management Systems,4,6.25,Other 14 categories
+143,2006.0,Mobility,0,,Other 14 categories
+144,2006.0,Multi-Function Devices,22,3.0454545454545454,Other 14 categories
+145,2006.0,Network(-related) devices,12,3.1666666666666665,Other 14 categories
+146,2006.0,Operating Systems,11,6.0,Other 14 categories
+147,2006.0,Other Devices and Systems,42,3.5952380952380953,Other 14 categories
+148,2006.0,Products for Digital Signatures,10,6.0,Other 14 categories
+149,2006.0,Trusted Computing,0,,Other 14 categories
+150,2007.0,Access control,14,4.071428571428571,Other 14 categories
+151,2007.0,Biometrics,0,,Other 14 categories
+152,2007.0,Boundary protection,12,5.583333333333333,Other 14 categories
+153,2007.0,Data Protection,3,6.666666666666667,Other 14 categories
+154,2007.0,Databases,9,4.777777777777778,Other 14 categories
+155,2007.0,Detection Devices and Systems,7,3.5714285714285716,Other 14 categories
+156,2007.0,"ICs, Smartcards",51,7.529411764705882,"ICs, Smartcards"
+157,2007.0,Key Management Systems,0,,Other 14 categories
+158,2007.0,Mobility,0,,Other 14 categories
+159,2007.0,Multi-Function Devices,19,3.263157894736842,Other 14 categories
+160,2007.0,Network(-related) devices,21,3.380952380952381,Other 14 categories
+161,2007.0,Operating Systems,20,5.25,Other 14 categories
+162,2007.0,Other Devices and Systems,56,4.0,Other 14 categories
+163,2007.0,Products for Digital Signatures,13,6.153846153846154,Other 14 categories
+164,2007.0,Trusted Computing,0,,Other 14 categories
+165,2008.0,Access control,16,4.4375,Other 14 categories
+166,2008.0,Biometrics,1,2.0,Other 14 categories
+167,2008.0,Boundary protection,8,5.75,Other 14 categories
+168,2008.0,Data Protection,14,3.9285714285714284,Other 14 categories
+169,2008.0,Databases,7,6.0,Other 14 categories
+170,2008.0,Detection Devices and Systems,7,3.0,Other 14 categories
+171,2008.0,"ICs, Smartcards",72,7.666666666666667,"ICs, Smartcards"
+172,2008.0,Key Management Systems,6,4.0,Other 14 categories
+173,2008.0,Mobility,0,,Other 14 categories
+174,2008.0,Multi-Function Devices,19,2.8947368421052633,Other 14 categories
+175,2008.0,Network(-related) devices,19,4.315789473684211,Other 14 categories
+176,2008.0,Operating Systems,20,5.9,Other 14 categories
+177,2008.0,Other Devices and Systems,23,3.608695652173913,Other 14 categories
+178,2008.0,Products for Digital Signatures,9,5.666666666666667,Other 14 categories
+179,2008.0,Trusted Computing,0,,Other 14 categories
+180,2009.0,Access control,13,5.3076923076923075,Other 14 categories
+181,2009.0,Biometrics,0,,Other 14 categories
+182,2009.0,Boundary protection,10,6.3,Other 14 categories
+183,2009.0,Data Protection,16,3.9375,Other 14 categories
+184,2009.0,Databases,12,5.75,Other 14 categories
+185,2009.0,Detection Devices and Systems,7,3.5714285714285716,Other 14 categories
+186,2009.0,"ICs, Smartcards",74,7.972972972972973,"ICs, Smartcards"
+187,2009.0,Key Management Systems,3,5.333333333333333,Other 14 categories
+188,2009.0,Mobility,0,,Other 14 categories
+189,2009.0,Multi-Function Devices,16,4.0,Other 14 categories
+190,2009.0,Network(-related) devices,21,4.714285714285714,Other 14 categories
+191,2009.0,Operating Systems,10,6.5,Other 14 categories
+192,2009.0,Other Devices and Systems,32,4.03125,Other 14 categories
+193,2009.0,Products for Digital Signatures,9,6.555555555555555,Other 14 categories
+194,2009.0,Trusted Computing,1,7.0,Other 14 categories
+195,2010.0,Access control,3,4.333333333333333,Other 14 categories
+196,2010.0,Biometrics,1,3.0,Other 14 categories
+197,2010.0,Boundary protection,13,5.461538461538462,Other 14 categories
+198,2010.0,Data Protection,9,5.444444444444445,Other 14 categories
+199,2010.0,Databases,3,6.333333333333333,Other 14 categories
+200,2010.0,Detection Devices and Systems,5,2.6,Other 14 categories
+201,2010.0,"ICs, Smartcards",91,7.923076923076923,"ICs, Smartcards"
+202,2010.0,Key Management Systems,3,7.0,Other 14 categories
+203,2010.0,Mobility,0,,Other 14 categories
+204,2010.0,Multi-Function Devices,23,4.260869565217392,Other 14 categories
+205,2010.0,Network(-related) devices,14,4.214285714285714,Other 14 categories
+206,2010.0,Operating Systems,9,5.888888888888889,Other 14 categories
+207,2010.0,Other Devices and Systems,40,3.925,Other 14 categories
+208,2010.0,Products for Digital Signatures,7,5.857142857142857,Other 14 categories
+209,2010.0,Trusted Computing,0,,Other 14 categories
+210,2011.0,Access control,17,4.235294117647059,Other 14 categories
+211,2011.0,Biometrics,0,,Other 14 categories
+212,2011.0,Boundary protection,19,5.2631578947368425,Other 14 categories
+213,2011.0,Data Protection,10,4.4,Other 14 categories
+214,2011.0,Databases,4,5.0,Other 14 categories
+215,2011.0,Detection Devices and Systems,7,3.5714285714285716,Other 14 categories
+216,2011.0,"ICs, Smartcards",89,7.752808988764045,"ICs, Smartcards"
+217,2011.0,Key Management Systems,3,4.333333333333333,Other 14 categories
+218,2011.0,Mobility,0,,Other 14 categories
+219,2011.0,Multi-Function Devices,22,4.909090909090909,Other 14 categories
+220,2011.0,Network(-related) devices,33,4.606060606060606,Other 14 categories
+221,2011.0,Operating Systems,8,7.25,Other 14 categories
+222,2011.0,Other Devices and Systems,47,4.127659574468085,Other 14 categories
+223,2011.0,Products for Digital Signatures,6,5.333333333333333,Other 14 categories
+224,2011.0,Trusted Computing,0,,Other 14 categories
+225,2012.0,Access control,10,5.0,Other 14 categories
+226,2012.0,Biometrics,0,,Other 14 categories
+227,2012.0,Boundary protection,20,5.7,Other 14 categories
+228,2012.0,Data Protection,14,3.5714285714285716,Other 14 categories
+229,2012.0,Databases,6,5.5,Other 14 categories
+230,2012.0,Detection Devices and Systems,13,3.769230769230769,Other 14 categories
+231,2012.0,"ICs, Smartcards",87,7.839080459770115,"ICs, Smartcards"
+232,2012.0,Key Management Systems,6,6.666666666666667,Other 14 categories
+233,2012.0,Mobility,0,,Other 14 categories
+234,2012.0,Multi-Function Devices,30,4.6,Other 14 categories
+235,2012.0,Network(-related) devices,35,4.771428571428571,Other 14 categories
+236,2012.0,Operating Systems,13,6.538461538461538,Other 14 categories
+237,2012.0,Other Devices and Systems,57,4.2631578947368425,Other 14 categories
+238,2012.0,Products for Digital Signatures,10,3.3,Other 14 categories
+239,2012.0,Trusted Computing,2,7.0,Other 14 categories
+240,2013.0,Access control,9,3.2222222222222223,Other 14 categories
+241,2013.0,Biometrics,0,,Other 14 categories
+242,2013.0,Boundary protection,14,4.928571428571429,Other 14 categories
+243,2013.0,Data Protection,5,4.6,Other 14 categories
+244,2013.0,Databases,5,5.2,Other 14 categories
+245,2013.0,Detection Devices and Systems,2,4.5,Other 14 categories
+246,2013.0,"ICs, Smartcards",115,8.330434782608696,"ICs, Smartcards"
+247,2013.0,Key Management Systems,2,4.5,Other 14 categories
+248,2013.0,Mobility,0,,Other 14 categories
+249,2013.0,Multi-Function Devices,21,4.809523809523809,Other 14 categories
+250,2013.0,Network(-related) devices,21,3.761904761904762,Other 14 categories
+251,2013.0,Operating Systems,7,6.428571428571429,Other 14 categories
+252,2013.0,Other Devices and Systems,29,4.275862068965517,Other 14 categories
+253,2013.0,Products for Digital Signatures,6,4.166666666666667,Other 14 categories
+254,2013.0,Trusted Computing,0,,Other 14 categories
+255,2014.0,Access control,5,3.0,Other 14 categories
+256,2014.0,Biometrics,0,,Other 14 categories
+257,2014.0,Boundary protection,6,4.666666666666667,Other 14 categories
+258,2014.0,Data Protection,7,2.7142857142857144,Other 14 categories
+259,2014.0,Databases,1,7.0,Other 14 categories
+260,2014.0,Detection Devices and Systems,1,3.0,Other 14 categories
+261,2014.0,"ICs, Smartcards",95,8.294736842105262,"ICs, Smartcards"
+262,2014.0,Key Management Systems,1,7.0,Other 14 categories
+263,2014.0,Mobility,0,,Other 14 categories
+264,2014.0,Multi-Function Devices,35,3.742857142857143,Other 14 categories
+265,2014.0,Network(-related) devices,23,4.086956521739131,Other 14 categories
+266,2014.0,Operating Systems,8,5.625,Other 14 categories
+267,2014.0,Other Devices and Systems,23,2.782608695652174,Other 14 categories
+268,2014.0,Products for Digital Signatures,3,7.0,Other 14 categories
+269,2014.0,Trusted Computing,1,7.0,Other 14 categories
+270,2015.0,Access control,5,2.6,Other 14 categories
+271,2015.0,Biometrics,0,,Other 14 categories
+272,2015.0,Boundary protection,6,4.0,Other 14 categories
+273,2015.0,Data Protection,14,2.142857142857143,Other 14 categories
+274,2015.0,Databases,3,4.333333333333333,Other 14 categories
+275,2015.0,Detection Devices and Systems,4,4.75,Other 14 categories
+276,2015.0,"ICs, Smartcards",85,8.505882352941176,"ICs, Smartcards"
+277,2015.0,Key Management Systems,2,4.5,Other 14 categories
+278,2015.0,Mobility,2,0.0,Other 14 categories
+279,2015.0,Multi-Function Devices,26,3.076923076923077,Other 14 categories
+280,2015.0,Network(-related) devices,29,3.689655172413793,Other 14 categories
+281,2015.0,Operating Systems,7,6.142857142857143,Other 14 categories
+282,2015.0,Other Devices and Systems,36,3.1666666666666665,Other 14 categories
+283,2015.0,Products for Digital Signatures,5,5.8,Other 14 categories
+284,2015.0,Trusted Computing,3,7.0,Other 14 categories
+285,2016.0,Access control,5,2.8,Other 14 categories
+286,2016.0,Biometrics,0,,Other 14 categories
+287,2016.0,Boundary protection,5,5.6,Other 14 categories
+288,2016.0,Data Protection,8,3.0,Other 14 categories
+289,2016.0,Databases,1,3.0,Other 14 categories
+290,2016.0,Detection Devices and Systems,1,3.0,Other 14 categories
+291,2016.0,"ICs, Smartcards",113,8.451327433628318,"ICs, Smartcards"
+292,2016.0,Key Management Systems,1,3.0,Other 14 categories
+293,2016.0,Mobility,4,0.0,Other 14 categories
+294,2016.0,Multi-Function Devices,46,3.130434782608696,Other 14 categories
+295,2016.0,Network(-related) devices,26,3.730769230769231,Other 14 categories
+296,2016.0,Operating Systems,7,4.428571428571429,Other 14 categories
+297,2016.0,Other Devices and Systems,45,2.6444444444444444,Other 14 categories
+298,2016.0,Products for Digital Signatures,4,6.0,Other 14 categories
+299,2016.0,Trusted Computing,11,7.0,Other 14 categories
+300,2017.0,Access control,5,2.2,Other 14 categories
+301,2017.0,Biometrics,0,,Other 14 categories
+302,2017.0,Boundary protection,6,4.833333333333333,Other 14 categories
+303,2017.0,Data Protection,14,1.4285714285714286,Other 14 categories
+304,2017.0,Databases,5,4.4,Other 14 categories
+305,2017.0,Detection Devices and Systems,0,,Other 14 categories
+306,2017.0,"ICs, Smartcards",102,8.735294117647058,"ICs, Smartcards"
+307,2017.0,Key Management Systems,0,,Other 14 categories
+308,2017.0,Mobility,15,0.5333333333333333,Other 14 categories
+309,2017.0,Multi-Function Devices,42,3.3333333333333335,Other 14 categories
+310,2017.0,Network(-related) devices,32,2.96875,Other 14 categories
+311,2017.0,Operating Systems,6,5.0,Other 14 categories
+312,2017.0,Other Devices and Systems,48,2.1458333333333335,Other 14 categories
+313,2017.0,Products for Digital Signatures,4,5.25,Other 14 categories
+314,2017.0,Trusted Computing,10,6.8,Other 14 categories
+315,2018.0,Access control,6,0.6666666666666666,Other 14 categories
+316,2018.0,Biometrics,0,,Other 14 categories
+317,2018.0,Boundary protection,1,13.0,Other 14 categories
+318,2018.0,Data Protection,6,4.166666666666667,Other 14 categories
+319,2018.0,Databases,1,2.0,Other 14 categories
+320,2018.0,Detection Devices and Systems,2,3.5,Other 14 categories
+321,2018.0,"ICs, Smartcards",100,8.55,"ICs, Smartcards"
+322,2018.0,Key Management Systems,0,,Other 14 categories
+323,2018.0,Mobility,3,0.0,Other 14 categories
+324,2018.0,Multi-Function Devices,22,2.909090909090909,Other 14 categories
+325,2018.0,Network(-related) devices,15,2.466666666666667,Other 14 categories
+326,2018.0,Operating Systems,10,3.5,Other 14 categories
+327,2018.0,Other Devices and Systems,56,2.392857142857143,Other 14 categories
+328,2018.0,Products for Digital Signatures,7,7.0,Other 14 categories
+329,2018.0,Trusted Computing,13,7.769230769230769,Other 14 categories
+330,2019.0,Access control,6,1.8333333333333333,Other 14 categories
+331,2019.0,Biometrics,0,,Other 14 categories
+332,2019.0,Boundary protection,7,4.857142857142857,Other 14 categories
+333,2019.0,Data Protection,6,3.0,Other 14 categories
+334,2019.0,Databases,0,,Other 14 categories
+335,2019.0,Detection Devices and Systems,1,3.0,Other 14 categories
+336,2019.0,"ICs, Smartcards",90,8.833333333333334,"ICs, Smartcards"
+337,2019.0,Key Management Systems,2,2.5,Other 14 categories
+338,2019.0,Mobility,10,0.7,Other 14 categories
+339,2019.0,Multi-Function Devices,19,3.0526315789473686,Other 14 categories
+340,2019.0,Network(-related) devices,17,2.8823529411764706,Other 14 categories
+341,2019.0,Operating Systems,13,3.923076923076923,Other 14 categories
+342,2019.0,Other Devices and Systems,60,2.65,Other 14 categories
+343,2019.0,Products for Digital Signatures,10,7.1,Other 14 categories
+344,2019.0,Trusted Computing,12,6.916666666666667,Other 14 categories
+345,2020.0,Access control,1,5.0,Other 14 categories
+346,2020.0,Biometrics,0,,Other 14 categories
+347,2020.0,Boundary protection,9,4.333333333333333,Other 14 categories
+348,2020.0,Data Protection,9,2.5555555555555554,Other 14 categories
+349,2020.0,Databases,3,4.333333333333333,Other 14 categories
+350,2020.0,Detection Devices and Systems,2,2.5,Other 14 categories
+351,2020.0,"ICs, Smartcards",128,8.6796875,"ICs, Smartcards"
+352,2020.0,Key Management Systems,0,,Other 14 categories
+353,2020.0,Mobility,5,0.0,Other 14 categories
+354,2020.0,Multi-Function Devices,22,3.272727272727273,Other 14 categories
+355,2020.0,Network(-related) devices,30,4.166666666666667,Other 14 categories
+356,2020.0,Operating Systems,5,2.0,Other 14 categories
+357,2020.0,Other Devices and Systems,60,2.45,Other 14 categories
+358,2020.0,Products for Digital Signatures,9,6.0,Other 14 categories
+359,2020.0,Trusted Computing,4,6.0,Other 14 categories
+360,2021.0,Access control,1,4.0,Other 14 categories
+361,2021.0,Biometrics,0,,Other 14 categories
+362,2021.0,Boundary protection,8,5.5,Other 14 categories
+363,2021.0,Data Protection,4,3.75,Other 14 categories
+364,2021.0,Databases,3,2.6666666666666665,Other 14 categories
+365,2021.0,Detection Devices and Systems,3,4.333333333333333,Other 14 categories
+366,2021.0,"ICs, Smartcards",121,8.685950413223141,"ICs, Smartcards"
+367,2021.0,Key Management Systems,2,5.0,Other 14 categories
+368,2021.0,Mobility,9,0.8888888888888888,Other 14 categories
+369,2021.0,Multi-Function Devices,23,2.5652173913043477,Other 14 categories
+370,2021.0,Network(-related) devices,33,2.8181818181818183,Other 14 categories
+371,2021.0,Operating Systems,9,2.888888888888889,Other 14 categories
+372,2021.0,Other Devices and Systems,59,2.9322033898305087,Other 14 categories
+373,2021.0,Products for Digital Signatures,11,6.363636363636363,Other 14 categories
+374,2021.0,Trusted Computing,3,5.666666666666667,Other 14 categories
+375,2022.0,Access control,1,3.0,Other 14 categories
+376,2022.0,Biometrics,0,,Other 14 categories
+377,2022.0,Boundary protection,8,5.375,Other 14 categories
+378,2022.0,Data Protection,5,4.0,Other 14 categories
+379,2022.0,Databases,3,5.666666666666667,Other 14 categories
+380,2022.0,Detection Devices and Systems,0,,Other 14 categories
+381,2022.0,"ICs, Smartcards",120,8.775,"ICs, Smartcards"
+382,2022.0,Key Management Systems,4,5.5,Other 14 categories
+383,2022.0,Mobility,14,0.6428571428571429,Other 14 categories
+384,2022.0,Multi-Function Devices,10,3.6,Other 14 categories
+385,2022.0,Network(-related) devices,18,5.166666666666667,Other 14 categories
+386,2022.0,Operating Systems,9,4.888888888888889,Other 14 categories
+387,2022.0,Other Devices and Systems,45,3.088888888888889,Other 14 categories
+388,2022.0,Products for Digital Signatures,12,5.75,Other 14 categories
+389,2022.0,Trusted Computing,10,7.0,Other 14 categories
+390,2023.0,Access control,2,0.5,Other 14 categories
+391,2023.0,Biometrics,0,,Other 14 categories
+392,2023.0,Boundary protection,7,7.0,Other 14 categories
+393,2023.0,Data Protection,1,2.0,Other 14 categories
+394,2023.0,Databases,1,7.0,Other 14 categories
+395,2023.0,Detection Devices and Systems,1,5.0,Other 14 categories
+396,2023.0,"ICs, Smartcards",110,8.881818181818181,"ICs, Smartcards"
+397,2023.0,Key Management Systems,1,6.0,Other 14 categories
+398,2023.0,Mobility,10,2.1,Other 14 categories
+399,2023.0,Multi-Function Devices,6,3.0,Other 14 categories
+400,2023.0,Network(-related) devices,19,5.473684210526316,Other 14 categories
+401,2023.0,Operating Systems,5,3.6,Other 14 categories
+402,2023.0,Other Devices and Systems,31,4.645161290322581,Other 14 categories
+403,2023.0,Products for Digital Signatures,10,6.6,Other 14 categories
+404,2023.0,Trusted Computing,2,6.0,Other 14 categories
