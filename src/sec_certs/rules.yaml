@@ -589,6 +589,8 @@ asymmetric_crypto:
 pq_crypto:
   ClassicMcEliece:
     - "Classic[ -]McEliece"
+  CRYSTALS:
+    - "CRYSTALS"
   Kyber:
     - "(CRYSTALS-)?(Kyber|KYBER)"
   NTRU:
