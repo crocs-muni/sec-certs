@@ -631,7 +631,8 @@ pq_crypto:
     - "XMSS(MT)?"
   LMS:
     - "LMS"
-
+  PQC:
+    - "(PQC|Post-Quantum Cryptography)"
 #####
 # Hash-function, grouped by hash-function class (SHA, MD) or competition (PHC).
 #####
