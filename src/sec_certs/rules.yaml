@@ -587,6 +587,10 @@ asymmetric_crypto:
 # Post-quantum crypto primitive, grouped by primitive, from NIST-PQC.
 #####
 pq_crypto:
+  CRYSTALS:
+    - "CRYSTALS"
+  FIPS:
+    - "ML-KEM|ML-DSA|SLH-DSA"
   ClassicMcEliece:
     - "Classic[ -]McEliece"
   CRYSTALS:
@@ -867,7 +871,7 @@ crypto_library:
     - "BearSSL"
   Botan:
     - "Botan"
-  Crypto++:
+  "Crypto++":
     - "Crypto\\+\\+"
   wolfSSL:
     - "wolfSSL"
@@ -904,6 +908,8 @@ vulnerability:
     - "Minerva"
   TPM-Fail:
     - "TPM[\\.-]Fail"
+  EUCLEAK:
+    - "EUCLEAK"
 
 #####
 # A side-channel analysis related term, grouped into SCA, FI and other.
