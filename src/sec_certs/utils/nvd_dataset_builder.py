@@ -111,8 +111,8 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         dct = {"resultsPerPage": self._RESULTS_PER_PAGE}
 
         if self._start_mod_date and self._end_mod_date:
-            dct["startModDate"] = self._start_mod_date.isoformat()
-            dct["endModDate"] = self._end_mod_date.isoformat()
+            dct["lastModStartDate"] = self._start_mod_date.isoformat()
+            dct["lastModEndDate"] = self._end_mod_date.isoformat()
 
         return dct
 

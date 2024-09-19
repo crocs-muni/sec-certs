@@ -587,8 +587,12 @@ asymmetric_crypto:
 # Post-quantum crypto primitive, grouped by primitive, from NIST-PQC.
 #####
 pq_crypto:
+  FIPS:
+    - "ML-KEM|ML-DSA|SLH-DSA"
   ClassicMcEliece:
     - "Classic[ -]McEliece"
+  CRYSTALS:
+    - "CRYSTALS"
   Kyber:
     - "(CRYSTALS-)?(Kyber|KYBER)"
   NTRU:
@@ -629,7 +633,8 @@ pq_crypto:
     - "XMSS(MT)?"
   LMS:
     - "LMS"
-
+  PQC:
+    - "(PQC|Post-Quantum Cryptography)"
 #####
 # Hash-function, grouped by hash-function class (SHA, MD) or competition (PHC).
 #####
@@ -864,7 +869,7 @@ crypto_library:
     - "BearSSL"
   Botan:
     - "Botan"
-  Crypto++:
+  "Crypto++":
     - "Crypto\\+\\+"
   wolfSSL:
     - "wolfSSL"
@@ -901,6 +906,8 @@ vulnerability:
     - "Minerva"
   TPM-Fail:
     - "TPM[\\.-]Fail"
+  EUCLEAK:
+    - "EUCLEAK"
 
 #####
 # A side-channel analysis related term, grouped into SCA, FI and other.
