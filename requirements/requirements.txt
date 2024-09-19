@@ -58,6 +58,8 @@ deprecated==1.2.14
     # via pikepdf
 distro==1.8.0
     # via tabula-py
+exceptiongroup==1.2.2
+    # via ipython
 executing==2.0.1
     # via stack-data
 fonttools==4.45.0
@@ -282,6 +284,8 @@ thinc==8.2.1
     # via spacy
 threadpoolctl==3.2.0
     # via scikit-learn
+tomli==2.0.1
+    # via setuptools-scm
 tornado==6.4.1
     # via
     #   ipykernel
@@ -305,6 +309,7 @@ typer==0.9.0
     #   weasel
 typing-extensions==4.8.0
     # via
+    #   cloudpathlib
     #   pydantic
     #   pydantic-core
     #   setuptools-scm

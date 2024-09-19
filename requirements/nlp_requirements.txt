@@ -1,3 +1,5 @@
+aiohappyeyeballs==2.4.0
+    # via aiohttp
 aiohttp==3.10.2
     # via
     #   datasets
@@ -14,6 +16,8 @@ appnope==0.1.3
     #   ipython
 asttokens==2.4.1
     # via stack-data
+async-timeout==4.0.3
+    # via aiohttp
 attrs==23.1.0
     # via
     #   aiohttp
@@ -103,6 +107,8 @@ distro==1.8.0
     # via tabula-py
 evaluate==0.4.1
     # via setfit
+exceptiongroup==1.2.2
+    # via ipython
 executing==2.0.1
     # via stack-data
 filelock==3.13.1
@@ -126,8 +132,6 @@ fsspec[http]==2023.10.0
     #   torch
 graphviz==0.20.1
     # via catboost
-greenlet==3.0.1
-    # via sqlalchemy
 holoviews==1.18.1
     # via umap-learn
 html5lib==1.1
@@ -469,7 +473,7 @@ rpds-py==0.13.1
     # via
     #   jsonschema
     #   referencing
-safetensors==0.4.0
+safetensors==0.4.5
     # via transformers
 scikit-image==0.22.0
     # via umap-learn
@@ -547,12 +551,14 @@ tifffile==2023.9.26
     # via scikit-image
 tokenizers==0.15.0
     # via transformers
+tomli==2.0.1
+    # via setuptools-scm
 toolz==0.12.0
     # via
     #   dask
     #   datashader
     #   partd
-torch==2.2.0
+torch==2.1.1
     # via
     #   sentence-transformers
     #   torchvision
@@ -594,6 +600,7 @@ typer==0.9.0
 typing-extensions==4.8.0
     # via
     #   alembic
+    #   cloudpathlib
     #   huggingface-hub
     #   panel
     #   pydantic
