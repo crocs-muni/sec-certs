@@ -31,6 +31,7 @@ The project 'sec-cert' started in 2019 with the goal of providing automatic proc
 ## Contents
 
 1. [Cryptographic capabilities](#cryptographic-capabilities)
+   - [Multi-party security](#multi-party-security)    
    - [Post-quantum cryptography](#post-quantum-cryptography)    
 3. [Vulnerabilites assesment](#vulnerabilites-assesment)
    - [ROCA vulnerability](#roca-vulnerability)    
@@ -39,6 +40,14 @@ The project 'sec-cert' started in 2019 with the goal of providing automatic proc
 _________________________________________________
 
 ## Cryptographic capabilities
+
+### Multi-party security
+- [Multi-party security use [CC]](https://sec-certs.org/cc/ftsearch/?q="multiparty" OR "SMPC" OR "Multi-Party" OR "FROST"&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=%22multiparty%22%20OR%20%22SMPC%22%20OR%20%22Multi-Party%22%20OR%20%22FROST%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+  <br>
+ ```"multiparty" OR "SMPC" OR "Multi-Party" OR "FROST"```
+  <br> 
+Certificates mentioning generically any multiparty execution, hopefully in security or even cryptographic context. 
+
 
 ### Post-quantum cryptography
 - [Post-quantum algorithms support [CC]](https://sec-certs.org/cc/ftsearch/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
