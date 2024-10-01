@@ -86,12 +86,12 @@ def _get(url: str, session=None, **kwargs) -> Response:
     return _getq(url, None, session, **kwargs)
 
 
-def _get_page(url: str, session=None) -> BeautifulSoup:
-    return BeautifulSoup(_get(url, session).content, "html5lib")
+def _get_page(url: str, session=None, **kwargs) -> BeautifulSoup:
+    return BeautifulSoup(_get(url, session, **kwargs).content, "html5lib")
 
 
-def _get_hash(url: str, session=None) -> bytes:
-    resp = _get(url, session)
+def _get_hash(url: str, session=None, **kwargs) -> bytes:
+    resp = _get(url, session, **kwargs)
     h = hashlib.sha256()
     for chunk in resp.iter_content():
         h.update(chunk)
@@ -1066,7 +1066,7 @@ def _get_korea(  # noqa: C901
     product_class: int, enhanced: bool, artifacts: bool
 ) -> list[dict[str, Any]]:
     session = requests.session()
-    session.get(constants.CC_KOREA_EN_URL)
+    session.get(constants.CC_KOREA_EN_URL, verify=False)
     # Get base page
     url = constants.CC_KOREA_CERTIFIED_URL + f"?product_class={product_class}"
     soup = _get_page(url, session=session)
@@ -1076,7 +1076,7 @@ def _get_korea(  # noqa: C901
     while pages:
         page = pages.pop()
         csrf = soup.find("form", id="fm").find("input", attrs={"name": "csrf"})["value"]
-        resp = session.post(url, data={"csrf": csrf, "selectPage": page, "product_class": product_class})
+        resp = session.post(url, data={"csrf": csrf, "selectPage": page, "product_class": product_class}, verify=False)
         soup = BeautifulSoup(resp.content, "html5lib")
         tbody = soup.find("table", class_="cpl").find("tbody")
         for tr in tbody.find_all("tr"):
@@ -1098,7 +1098,7 @@ def _get_korea(  # noqa: C901
                 e: dict[str, Any] = {}
                 if not cert["product_link"]:
                     continue
-                cert_page = _get_page(cert["product_link"], session)
+                cert_page = _get_page(cert["product_link"], session=session)
                 main = cert_page.find("div", class_="mainContent")
                 table = main.find("table", class_="shortenedWidth")
                 v = e
