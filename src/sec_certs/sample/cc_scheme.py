@@ -621,13 +621,18 @@ def _get_japan(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
         tds = tr.find_all("td")
         if not tds:
             continue
-        if len(tds) == 6:
+        if len(tds) in (6, 7):
             cert: dict[str, Any] = {
                 "cert_id": sns(tds[0].text),
                 "supplier": sns(tds[1].text),
                 "toe_overseas_name": sns(tds[2].text),
-                "claim": sns(tds[4].text),
             }
+            if len(tds) == 6:
+                cert["expiration_date"] = sns(tds[5].text)
+                cert["claim"] = sns(tds[4].text)
+            else:
+                cert["expiration_date"] = sns(tds[4].text)
+                cert["claim"] = sns(tds[5].text)
             cert_date = sns(tds[3].text)
             toe_a = tds[2].find("a")
             if toe_a and "href" in toe_a.attrs:
