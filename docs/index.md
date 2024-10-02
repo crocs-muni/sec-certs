@@ -32,6 +32,7 @@ installation.md
 quickstart.md
 configuration.md
 user_guide.md
+search_examples.md
 ```
 
 ```{toctree}
