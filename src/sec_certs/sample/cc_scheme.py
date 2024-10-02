@@ -222,7 +222,15 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
 
 def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
-    base_soup = _get_page(url)
+    session = requests.session()
+    challenge_soup = _get_page(constants.CC_ANSSI_BASE_URL, session=session)
+    bln_script = challenge_soup.find("head").find_all("script")[1]
+    bln_match = re.search(r"\"value\":\"([a-zA-Z0-9_-]+)\"", bln_script.string)
+    if not bln_match:
+        raise ValueError("Balleen challenge missing")
+    bln_value = bln_match.group(1)
+    session.cookies.set("bln_challengejs", bln_value, domain="cyber.gouv.fr")
+    base_soup = _get_page(url, session=session)
     pager = base_soup.find("nav", class_="pager")
     last_page_a = re.search("[0-9]+", pager.find("a", title="Aller à la dernière page").text)
     if not last_page_a:
@@ -230,7 +238,7 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
     pages = int(last_page_a.group())
     results = []
     for page in range(pages + 1):
-        soup = _get_page(url + f"?page={page}")
+        soup = _get_page(url + f"?page={page}", session=session)
         for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
             cert: dict[str, Any] = {
                 "product": sns(row.find("h3").text),
@@ -255,7 +263,7 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
                     cert["expiration_date"] = value
             if enhanced:
                 e: dict[str, Any] = {}
-                cert_page = _get_page(cert["url"])
+                cert_page = _get_page(cert["url"], session=session)
                 infos = cert_page.find("div", class_="product-infos-wrapper")
                 for tr in infos.find_all("tr"):
                     label = tr.find("th").text
@@ -290,15 +298,15 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
                     if "Rapport de certification" in a.text:
                         e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                         if artifacts:
-                            e["report_hash"] = _get_hash(e["report_link"]).hex()
+                            e["report_hash"] = _get_hash(e["report_link"], session=session).hex()
                     elif "Cible de sécurité" in a.text:
                         e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                         if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"]).hex()
+                            e["target_hash"] = _get_hash(e["target_link"], session=session).hex()
                     elif "Certificat" in a.text:
                         e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                         if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"]).hex()
+                            e["cert_hash"] = _get_hash(e["cert_link"], session=session).hex()
                 cert["enhanced"] = e
             results.append(cert)
     return results
