@@ -86,12 +86,12 @@ def _get(url: str, session=None, **kwargs) -> Response:
     return _getq(url, None, session, **kwargs)
 
 
-def _get_page(url: str, session=None) -> BeautifulSoup:
-    return BeautifulSoup(_get(url, session).content, "html5lib")
+def _get_page(url: str, session=None, **kwargs) -> BeautifulSoup:
+    return BeautifulSoup(_get(url, session, **kwargs).content, "html5lib")
 
 
-def _get_hash(url: str, session=None) -> bytes:
-    resp = _get(url, session)
+def _get_hash(url: str, session=None, **kwargs) -> bytes:
+    resp = _get(url, session, **kwargs)
     h = hashlib.sha256()
     for chunk in resp.iter_content():
         h.update(chunk)
@@ -222,7 +222,15 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
 
 def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
-    base_soup = _get_page(url)
+    session = requests.session()
+    challenge_soup = _get_page(constants.CC_ANSSI_BASE_URL, session=session)
+    bln_script = challenge_soup.find("head").find_all("script")[1]
+    bln_match = re.search(r"\"value\":\"([a-zA-Z0-9_-]+)\"", bln_script.string)
+    if not bln_match:
+        raise ValueError("Balleen challenge missing")
+    bln_value = bln_match.group(1)
+    session.cookies.set("bln_challengejs", bln_value, domain="cyber.gouv.fr")
+    base_soup = _get_page(url, session=session)
     pager = base_soup.find("nav", class_="pager")
     last_page_a = re.search("[0-9]+", pager.find("a", title="Aller à la dernière page").text)
     if not last_page_a:
@@ -230,7 +238,7 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
     pages = int(last_page_a.group())
     results = []
     for page in range(pages + 1):
-        soup = _get_page(url + f"?page={page}")
+        soup = _get_page(url + f"?page={page}", session=session)
         for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
             cert: dict[str, Any] = {
                 "product": sns(row.find("h3").text),
@@ -255,7 +263,7 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
                     cert["expiration_date"] = value
             if enhanced:
                 e: dict[str, Any] = {}
-                cert_page = _get_page(cert["url"])
+                cert_page = _get_page(cert["url"], session=session)
                 infos = cert_page.find("div", class_="product-infos-wrapper")
                 for tr in infos.find_all("tr"):
                     label = tr.find("th").text
@@ -290,15 +298,15 @@ def _get_france(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
                     if "Rapport de certification" in a.text:
                         e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                         if artifacts:
-                            e["report_hash"] = _get_hash(e["report_link"]).hex()
+                            e["report_hash"] = _get_hash(e["report_link"], session=session).hex()
                     elif "Cible de sécurité" in a.text:
                         e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                         if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"]).hex()
+                            e["target_hash"] = _get_hash(e["target_link"], session=session).hex()
                     elif "Certificat" in a.text:
                         e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                         if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"]).hex()
+                            e["cert_hash"] = _get_hash(e["cert_link"], session=session).hex()
                 cert["enhanced"] = e
             results.append(cert)
     return results
@@ -621,13 +629,18 @@ def _get_japan(url, enhanced, artifacts) -> list[dict[str, Any]]:  # noqa: C901
         tds = tr.find_all("td")
         if not tds:
             continue
-        if len(tds) == 6:
+        if len(tds) in (6, 7):
             cert: dict[str, Any] = {
                 "cert_id": sns(tds[0].text),
                 "supplier": sns(tds[1].text),
                 "toe_overseas_name": sns(tds[2].text),
-                "claim": sns(tds[4].text),
             }
+            if len(tds) == 6:
+                cert["expiration_date"] = sns(tds[5].text)
+                cert["claim"] = sns(tds[4].text)
+            else:
+                cert["expiration_date"] = sns(tds[4].text)
+                cert["claim"] = sns(tds[5].text)
             cert_date = sns(tds[3].text)
             toe_a = tds[2].find("a")
             if toe_a and "href" in toe_a.attrs:
@@ -1061,7 +1074,7 @@ def _get_korea(  # noqa: C901
     product_class: int, enhanced: bool, artifacts: bool
 ) -> list[dict[str, Any]]:
     session = requests.session()
-    session.get(constants.CC_KOREA_EN_URL)
+    session.get(constants.CC_KOREA_EN_URL, verify=False)
     # Get base page
     url = constants.CC_KOREA_CERTIFIED_URL + f"?product_class={product_class}"
     soup = _get_page(url, session=session)
@@ -1071,7 +1084,7 @@ def _get_korea(  # noqa: C901
     while pages:
         page = pages.pop()
         csrf = soup.find("form", id="fm").find("input", attrs={"name": "csrf"})["value"]
-        resp = session.post(url, data={"csrf": csrf, "selectPage": page, "product_class": product_class})
+        resp = session.post(url, data={"csrf": csrf, "selectPage": page, "product_class": product_class}, verify=False)
         soup = BeautifulSoup(resp.content, "html5lib")
         tbody = soup.find("table", class_="cpl").find("tbody")
         for tr in tbody.find_all("tr"):
@@ -1093,7 +1106,7 @@ def _get_korea(  # noqa: C901
                 e: dict[str, Any] = {}
                 if not cert["product_link"]:
                     continue
-                cert_page = _get_page(cert["product_link"], session)
+                cert_page = _get_page(cert["product_link"], session=session)
                 main = cert_page.find("div", class_="mainContent")
                 table = main.find("table", class_="shortenedWidth")
                 v = e
