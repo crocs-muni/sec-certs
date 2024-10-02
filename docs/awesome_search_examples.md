@@ -22,7 +22,7 @@ The project 'sec-cert' started in 2019 with the goal of providing automatic proc
 ```
 
 ### Format and notation
-> **Search string goal [CC/FIPS]** (hyperlinked to search on sec-certs.org page), :snowflake: (result of search visualized in graph of references)
+> **Search string goal: Common Criteria** (hyperlinked to search on sec-certs.org page) **( :snowflake: )**(result of search visualized in graph of references)**, FIPS140  ( :snowflake: )**
 > <br>
 > `whole search string` (for manual cut&paste)
 > <br>
@@ -42,7 +42,7 @@ _________________________________________________
 ## Cryptographic capabilities
 
 ### Multi-party security
-- [Multi-party security use [CC]](https://sec-certs.org/cc/ftsearch/?q="multiparty" OR "SMPC" OR "Multi-Party" OR "FROST"&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=%22multiparty%22%20OR%20%22SMPC%22%20OR%20%22Multi-Party%22%20OR%20%22FROST%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+- Multi-party security use: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=%22multiparty%22%20OR%20%22SMPC%22%20OR%20%22Multi-Party%22%20OR%20%22FROST%22&cat=abcdefghijklmop&status=any&type=any) ([:snowflake:](https://sec-certs.org/cc/network/?q=%22multiparty%22%20OR%20%22SMPC%22%20OR%20%22Multi-Party%22%20OR%20%22FROST%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), [FIPS140](https://sec-certs.org/fips/ftsearch/?q=%22multiparty%22%20OR%20%22SMPC%22%20OR%20%22Multi-Party%22%20OR%20%22FROST%22&cat=abcdef&status=Any&type=any) ([:snowflake:](https://sec-certs.org/fips/network/?q=%22multiparty%22%20OR%20%22SMPC%22%20OR%20%22Multi-Party%22%20OR%20%22FROST%22&cat=abcdef&status=Any&type=any&search=fulltext))
   <br>
  ```"multiparty" OR "SMPC" OR "Multi-Party" OR "FROST"```
   <br> 
@@ -50,7 +50,7 @@ Certificates mentioning generically any multiparty execution, hopefully in secur
 
 
 ### Post-quantum cryptography
-- [Post-quantum algorithms support [CC]](https://sec-certs.org/cc/ftsearch/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+- Post-quantum algorithms support: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdefghijklmop&status=any&type=any) ([:snowflake:](https://sec-certs.org/cc/network/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), [FIPS140](https://sec-certs.org/fips/ftsearch/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdef&status=Any&type=any) ([:snowflake:](https://sec-certs.org/fips/network/?q=%22post%20quantum%22%20OR%20%22post-quantum%22%20OR%20%22PQC%22%20OR%20%22KYBER%22%20OR%20%22SPHINCS%22%20OR%20%22NTRU%22%20OR%20%22XMSS%22%20OR%20%22LWE%22%20OR%20%22CSIDH%22%20OR%20%22BLISS%22%20OR%20%22RLCE%22%20OR%20%22McEliece%22%20OR%20%22CRYSTALS%22%20OR%20%22Dilithium%22&cat=abcdef&status=Any&type=any&search=fulltext))
   <br>
  ```"post quantum" OR "post-quantum" OR "PQC" OR "KYBER" OR "SPHINCS" OR "NTRU" OR "XMSS" OR "LWE" OR "CSIDH" OR "BLISS" OR "RLCE" OR "McEliece" OR "CRYSTALS" OR "Dilithium"```
   <br> 
@@ -61,25 +61,25 @@ Certificates mentioning post-quantum cryptographic algorithms support.
 ### ROCA vulnerability
 ROCA [CVE-2017-15361](https://nvd.nist.gov/vuln/detail/CVE-2017-15361) is private key recovery vulnerability present in Infineon RSALib library used by smartcard and TPM devices between roughly 2004 and 2017. More details available [here](https://crocs.fi.muni.cz/papers/rsa_ccs17). 
 
-- [ROCA-vulnerable Infineon RSALib library v1.02.013 [CC]](https://sec-certs.org/cc/ftsearch/?q=v1.02.013&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=%22v1.02.013%E2%80%9C%20&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+- ROCA-vulnerable Infineon RSALib library v1.02.013: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.013&cat=abcdefghijklmop&status=any&type=any) ([:snowflake:](https://sec-certs.org/cc/network/?q=%22v1.02.013%E2%80%9C%20&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), [FIPS140](https://sec-certs.org/fips/ftsearch/?q=v1.02.013&cat=abcdefghijklmop&status=Any&type=any) ([:snowflake:](https://sec-certs.org/fips/network/?q=v1.02.013&cat=abcdefghijklmop&status=Any&type=any&search=fulltext))
   <br>
  ```v1.02.013```
   <br> 
 Certificates mentioning confirmed vulnerable version of Infineon RSALib 1.02.013 library.
 
-- [ROCA-vulnerable Infineon RSALib library and similar (wildcard) v1.02.0?? [CC]](https://sec-certs.org/cc/ftsearch/?q=v1.02.0**&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=v1.02.0**&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+- ROCA-vulnerable Infineon RSALib library and similar (wildcard) v1.02.0??: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.0**&cat=abcdefghijklmop&status=any&type=any) ([:snowflake:](https://sec-certs.org/cc/network/?q=v1.02.0**&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), [FIPS140](https://sec-certs.org/fips/ftsearch/?q=v1.02.0**&cat=abcdefghijklmop&status=Any&type=any) ([:snowflake:](https://sec-certs.org/fips/network/?q=v1.02.0**&cat=abcdefghijklmop&status=Any&type=any&search=fulltext))
   <br>
  ```v1.02.0**```
   <br> 
 Certificates mentioning Infineon RSALib 1.02.013 and other similar library versions. Versions v1.02.008, v1.02.010, v1.02.014 possibly also vulnerable.
 
-- [ROCA-vulnerable (likely) Infineon RSALib libraries other than v1.02.013 [CC]](https://sec-certs.org/cc/ftsearch/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+- ROCA-vulnerable (likely) Infineon RSALib libraries other than v1.02.013: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=any&type=any) ([:snowflake:](https://sec-certs.org/cc/network/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), [FIPS140](https://sec-certs.org/fips/ftsearch/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=Any&type=any) ([:snowflake:](https://sec-certs.org/fips/network/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=Any&type=any&search=fulltext))
   <br>
  ```v1.02.0** NOT v1.02.013```
   <br> 
 Certificates mentioning posibly vulnerable RSALib version other than v1.02.013. Versions v1.02.008, v1.02.010, v1.02.014 possibly also vulnerable.
 
-- [Certificate IDs from Austria report 163484 [CC]](https://sec-certs.org/cc/ftsearch/?q=%22BSI-DSZ-CC-0833-2013%22%20OR%20%22BSI-DSZ-CC-0921-2014%22%20OR%20%22BSI-DSZ-CC-0782-2012%22%20OR%20%22BSI-DSZ-CC-0758-2012%22%20OR%20%22ANSSI-CC-2013%2F55%22&cat=abcdefghijklmop&status=any&type=any), [:snowflake:](https://sec-certs.org/cc/network/?q=%22BSI-DSZ-CC-0833-2013%22%20OR%20%22BSI-DSZ-CC-0921-2014%22%20OR%20%22BSI-DSZ-CC-0782-2012%22%20OR%20%22BSI-DSZ-CC-0758-2012%22%20OR%20%22ANSSI-CC-2013%2F55%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)
+- Certificate IDs from Austria report 163484: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=%22BSI-DSZ-CC-0833-2013%22%20OR%20%22BSI-DSZ-CC-0921-2014%22%20OR%20%22BSI-DSZ-CC-0782-2012%22%20OR%20%22BSI-DSZ-CC-0758-2012%22%20OR%20%22ANSSI-CC-2013%2F55%22&cat=abcdefghijklmop&status=any&type=any) ([:snowflake:](https://sec-certs.org/cc/network/?q=%22BSI-DSZ-CC-0833-2013%22%20OR%20%22BSI-DSZ-CC-0921-2014%22%20OR%20%22BSI-DSZ-CC-0782-2012%22%20OR%20%22BSI-DSZ-CC-0758-2012%22%20OR%20%22ANSSI-CC-2013%2F55%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS140
   <br>
  ```"BSI-DSZ-CC-0833-2013" OR "BSI-DSZ-CC-0921-2014" OR "BSI-DSZ-CC-0782-2012" OR "BSI-DSZ-CC-0758-2012" OR "ANSSI-CC-2013/55"```
   <br> 
