@@ -10,7 +10,7 @@
     <script type="text/javascript" src="{{ url_for("static", filename="network.js") }}"></script>
 {% endblock %}
 {% block metadata %}
-	<meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
     <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
@@ -58,6 +58,19 @@
             </div>
             <div>
                 <h1>{{ cert["name"]|default("", true) }}</h1>
+
+                <a href="{{ url_for("cc.entry", hashid=hashid) }}" class="btn btn-outline-secondary" title="Link by id"
+                   data-bs-toggle="tooltip" data-bs-placement="top"> <i class="fas fa-share"></i> Link</a>
+                {% if cert["heuristics"]["cert_id"] %}
+                    <a href="{{ url_for("cc.entry_id", cert_id=cert["heuristics"]["cert_id"]) }}"
+                       class="btn btn-outline-secondary" title="Link by certificate id" data-bs-toggle="tooltip"
+                       data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
+                {% endif %}
+                {% if cert["name"] %}
+                    <a href="{{ url_for("cc.entry_name", name=cert["name"]) }}" class="btn btn-outline-secondary"
+                       title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
+                            class="fas fa-share"></i> Link by certificate name</a>
+                {% endif %}
 
                 {% if cves %}
                     <div class="alert alert-warning mt-4">

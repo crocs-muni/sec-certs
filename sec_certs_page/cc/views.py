@@ -528,7 +528,7 @@ def entry_feed(hashid):
         return abort(404)
 
 
-@cc.route("/id/<string:cert_id>")
+@cc.route("/id/<path:cert_id>")
 def entry_id(cert_id):
     with sentry_sdk.start_span(op="mongo", description="Find certs"):
         ids = list(mongo.db.cc.find({"heuristics.cert_id": cert_id}, {"_id": 1}))
@@ -544,7 +544,7 @@ def entry_id(cert_id):
         return abort(404)
 
 
-@cc.route("/name/<string:name>")
+@cc.route("/name/<path:name>")
 def entry_name(name):
     with sentry_sdk.start_span(op="mongo", description="Find certs"):
         ids = list(mongo.db.cc.find({"name": name}, {"_id": 1}))
