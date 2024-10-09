@@ -5,12 +5,18 @@
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
-            <p class="lead">There are several certificates that share the name "<i>{{ name }}</i>":</p>
+            <h1>Disambiguation</h1>
+            <p class="lead">There are several certificates that share the {{ attr_name }} "<i>{{ attr_value }}</i>":</p>
             <ol>
                 {% for cert in certs %}
-                    <li><a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cert["name"] }}</a>, {{ render_status(cert["status"]) }}, {{ cert["not_valid_before"]|strftime("%d.%m.%Y") }} - {{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</li>
+                    <li>
+                        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cert["name"] }}</a>, {{ cert["heuristics"]["cert_id"] }} , {{ render_status(cert["status"]) }}, {{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}
+                        - {{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</li>
                 {% endfor %}
             </ol>
+            {% if certs|length == 2 %}
+                <a href="{{ url_for("cc.compare", one_hashid=certs[0]["_id"], other_hashid=certs[1]["_id"]) }}" class="btn btn-primary"><i class="fas fa-fw fa-scale-balanced" aria-hidden="true"></i> Compare the certificates</a>
+            {% endif %}
         </div>
     </main>
 {% endblock %}

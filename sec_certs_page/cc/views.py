@@ -530,10 +530,16 @@ def entry_feed(hashid):
 
 @cc.route("/id/<string:cert_id>")
 def entry_id(cert_id):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        doc = mongo.db.cc.find_one({"heuristics.cert_id": cert_id}, {"_id": 1})
-    if doc:
-        return redirect(url_for("cc.entry", hashid=doc["_id"]))
+    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+        ids = list(mongo.db.cc.find({"heuristics.cert_id": cert_id}, {"_id": 1}))
+    if ids:
+        if len(ids) == 1:
+            return redirect(url_for("cc.entry", hashid=ids[0]["_id"]))
+        else:
+            docs = list(map(load, mongo.db.cc.find({"_id": {"$in": list(map(itemgetter("_id"), ids))}})))
+            return render_template(
+                "cc/entry/disambiguate.html.jinja2", certs=docs, attr_value=cert_id, attr_name="certificate ID"
+            )
     else:
         return abort(404)
 
@@ -547,7 +553,7 @@ def entry_name(name):
             return redirect(url_for("cc.entry", hashid=ids[0]["_id"]))
         else:
             docs = list(map(load, mongo.db.cc.find({"_id": {"$in": list(map(itemgetter("_id"), ids))}})))
-            return render_template("cc/entry/disambiguate.html.jinja2", certs=docs, name=name)
+            return render_template("cc/entry/disambiguate.html.jinja2", certs=docs, attr_value=name, attr_name="name")
     else:
         return abort(404)
 
