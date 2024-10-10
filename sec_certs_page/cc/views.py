@@ -388,6 +388,24 @@ def entry(hashid):
         with sentry_sdk.start_span(op="network", description="Find network"):
             cc_map = get_cc_map()
             cert_network = cc_map.get(hashid, {})
+        with sentry_sdk.start_span(op="mongo", description="Find related certificates"):
+            exact = list(
+                mongo.db.cc.find(
+                    {"$or": [{"name": doc["name"]}, {"heuristics.cert_id": doc["heuristics"]["cert_id"]}]},
+                    {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
+                )
+            )
+            related = list(
+                filter(
+                    lambda cert: cert["score"] > 4,
+                    mongo.db.cc.find(
+                        {"$text": {"$search": doc["name"]}},
+                        {"score": {"$meta": "textScore"}, "_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
+                        sort=[("score", {"$meta": "textScore"})],
+                    ),
+                )
+            )
+            similar = {cert["dgst"]: cert for cert in exact + related if cert["dgst"] != doc["dgst"]}.values()
         name = doc["name"] if doc["name"] else ""
         return render_template(
             "cc/entry/index.html.jinja2",
@@ -403,6 +421,7 @@ def entry(hashid):
             json=StorageFormat(raw_doc).to_json_mapping(),
             network=cert_network,
             title=f"{name} | sec-certs.org",
+            similar=similar,
         )
     else:
         return abort(404)

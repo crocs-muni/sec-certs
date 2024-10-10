@@ -345,6 +345,41 @@
                         {{ render_cves(cves) }}
                     </div>
                 {% endif %}
+                {% if similar %}
+                    <div data-cs-name="Similar certificates">
+                        <h4 class="anchor" id="similar">Similar certificates</h4>
+                        <table class="table table-striped my-2">
+                            <thead class="table-light">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Certificate ID</th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            {% for similar_cert in similar %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}">{{ similar_cert["name"] }}</a>
+                                        {% if similar_cert["name"] == cert["name"] %}
+                                            <span class="badge rounded-pill bg-info text-dark"
+                                                  title="Certificate name matches exactly." data-bs-toggle="tooltip"><i
+                                                    class="fas fa-equals"></i></span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ similar_cert["heuristics"]["cert_id"] }}
+                                        {% if similar_cert["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] %}
+                                            <span class="badge rounded-pill bg-info text-dark"
+                                                  title="Certificate ID matches exactly." data-bs-toggle="tooltip"><i
+                                                    class="fas fa-equals"></i></span>
+                                        {% endif %}
+                                    </td>
+                                    <td><a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}" class="btn btn-primary">Compare</a></td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% endif %}
                 {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
                     <div data-cs-name="Scheme data">
                         <h4>Scheme data
