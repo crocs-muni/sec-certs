@@ -389,9 +389,14 @@ def entry(hashid):
             cc_map = get_cc_map()
             cert_network = cc_map.get(hashid, {})
         with sentry_sdk.start_span(op="mongo", description="Find related certificates"):
+            exact_queries = []
+            if doc["name"]:
+                exact_queries.append({"name": doc["name"]})
+            if doc["heuristics"]["cert_id"]:
+                exact_queries.append({"heuristics.cert_id": doc["heuristics"]["cert_id"]})
             exact = list(
                 mongo.db.cc.find(
-                    {"$or": [{"name": doc["name"]}, {"heuristics.cert_id": doc["heuristics"]["cert_id"]}]},
+                    {"$or": exact_queries},
                     {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
                 )
             )
