@@ -365,6 +365,26 @@
                                                   title="Certificate name matches exactly." data-bs-toggle="tooltip"><i
                                                     class="fas fa-equals"></i></span>
                                         {% endif %}
+                                        {% if "state" in similar_cert %}
+                                            {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["pdf_hash"] == cert["state"]["cert"]["pdf_hash"] %}
+                                                <span class="badge rounded-pill bg-info text-dark"
+                                                      title="Certificate PDF file matches exactly."
+                                                      data-bs-toggle="tooltip"><i
+                                                        class="fas fa-file-alt"></i></span>
+                                            {% endif %}
+                                            {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["pdf_hash"] == cert["state"]["report"]["pdf_hash"] %}
+                                                <span class="badge rounded-pill bg-info text-dark"
+                                                      title="Certification report PDF file matches exactly."
+                                                      data-bs-toggle="tooltip"><i
+                                                        class="fas fa-file-alt"></i></span>
+                                            {% endif %}
+                                            {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["pdf_hash"] == cert["state"]["st"]["pdf_hash"] %}
+                                                <span class="badge rounded-pill bg-info text-dark"
+                                                      title="Security target PDF file matches exactly."
+                                                      data-bs-toggle="tooltip"><i
+                                                        class="fas fa-file-alt"></i></span>
+                                            {% endif %}
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {{ similar_cert["heuristics"]["cert_id"] }}
@@ -374,7 +394,9 @@
                                                     class="fas fa-equals"></i></span>
                                         {% endif %}
                                     </td>
-                                    <td><a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}" class="btn btn-primary">Compare</a></td>
+                                    <td>
+                                        <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
+                                           class="btn btn-primary">Compare</a></td>
                                 </tr>
                             {% endfor %}
                         </table>

@@ -400,6 +400,27 @@ def entry(hashid):
                     {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
                 )
             )
+            doc_hash_queries = []
+            if doc["state"]["cert"]["pdf_hash"]:
+                doc_hash_queries.append({"state.cert.pdf_hash": doc["state"]["cert"]["pdf_hash"]})
+            if doc["state"]["report"]["pdf_hash"]:
+                doc_hash_queries.append({"state.report.pdf_hash": doc["state"]["report"]["pdf_hash"]})
+            if doc["state"]["st"]["pdf_hash"]:
+                doc_hash_queries.append({"state.st.pdf_hash": doc["state"]["st"]["pdf_hash"]})
+            doc_hash_match = list(
+                mongo.db.cc.find(
+                    {"$or": doc_hash_queries},
+                    {
+                        "_id": 1,
+                        "name": 1,
+                        "dgst": 1,
+                        "heuristics.cert_id": 1,
+                        "state.cert.pdf_hash": 1,
+                        "state.report.pdf_hash": 1,
+                        "state.st.pdf_hash": 1,
+                    },
+                )
+            )
             related = list(
                 filter(
                     lambda cert: cert["score"] > 4,
@@ -410,7 +431,9 @@ def entry(hashid):
                     ),
                 )
             )
-            similar = {cert["dgst"]: cert for cert in exact + related if cert["dgst"] != doc["dgst"]}.values()
+            similar = {
+                cert["dgst"]: cert for cert in exact + doc_hash_match + related if cert["dgst"] != doc["dgst"]
+            }.values()
         name = doc["name"] if doc["name"] else ""
         return render_template(
             "cc/entry/index.html.jinja2",
