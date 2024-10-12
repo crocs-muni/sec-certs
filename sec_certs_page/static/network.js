@@ -62,7 +62,7 @@ class CertificateNetwork {
     }
 
 
-    render(element_id, width, height) {
+    render(element_id, width, height, collapse) {
         const element = d3.select("#" + element_id);
         const colorFunc = _.partial(color, this.data.highlighted, this.statuses);
 
@@ -168,6 +168,10 @@ class CertificateNetwork {
 
         element.append(() => svg.node());
 
+        const collapseBox = d3.create("div")
+            .classed("collapse " + (collapse ? "" : "show"), true)
+            .attr("id", "reference-collapse");
+
         const statusBox = d3.create("div")
             .classed("mx-3 my-3", true);
 
@@ -191,7 +195,7 @@ class CertificateNetwork {
             this.filter.status = event.target.value;
         });
 
-        element.append(() => statusBox.node());
+        collapseBox.append(() => statusBox.node());
 
         const referenceBox = d3.create("div")
             .classed("mx-3 my-3", true);
@@ -243,7 +247,7 @@ class CertificateNetwork {
             }
         });
 
-        element.append(() => referenceBox.node());
+        collapseBox.append(() => referenceBox.node());
 
         const categoryBox = d3.create("div")
             .classed("mx-3 my-3", true);
@@ -303,7 +307,7 @@ class CertificateNetwork {
             this.filter.categories = new Set();
         });
 
-        element.append(() => categoryBox.node());
+        collapseBox.append(() => categoryBox.node());
 
         const refreshButton = d3.create("button")
             .classed("btn btn-primary mx-3 my-3", true)
@@ -313,7 +317,25 @@ class CertificateNetwork {
             this.update();
         })
 
-        element.append(() => refreshButton.node());
+        collapseBox.append(() => refreshButton.node());
+
+        if (collapse) {
+            const advancedButton = d3.create("button")
+                .classed("btn btn-outline-primary mx-3 my-3", true)
+                .attr("data-bs-toggle", "collapse")
+                .attr("data-bs-target", "reference-collapse")
+                .attr("type", "button")
+                .attr("id", "reference-collapse-button")
+                .on("click", function () {
+                    new bootstrap.Collapse("#reference-collapse");
+                });
+            advancedButton.append("i").classed("fas fa-sliders", true);
+            advancedButton.append("span").text(" Advanced options");
+
+            element.append(() => advancedButton.node());
+        }
+
+        element.append(() => collapseBox.node());
     }
 
     update() {
@@ -402,7 +424,7 @@ class CertificateNetwork {
     }
 }
 
-function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, width, height) {
+function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, width, height, collapse) {
     return Promise.all([d3.json(data_url), d3.json(types_url), d3.json(status_url), d3.json(refTypes_url)]).then(values => {
         let data = values[0];
         let types = values[1];
@@ -410,7 +432,7 @@ function createNetwork(element_id, data_url, types_url, status_url, refTypes_url
         let refTypes = values[3];
         if (("nodes" in data) && ("links" in data)) {
             let network = new CertificateNetwork(data, types, statuses, refTypes);
-            network.render(element_id, width, height);
+            network.render(element_id, width, height, collapse);
             return network;
         } else {
             console.log("Something went wrong.");
