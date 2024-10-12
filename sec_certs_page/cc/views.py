@@ -389,21 +389,21 @@ def entry(hashid):
             cc_map = get_cc_map()
             cert_network = cc_map.get(hashid, {})
         with sentry_sdk.start_span(op="mongo", description="Find related certificates"):
+            similar_projection = {
+                "_id": 1,
+                "name": 1,
+                "dgst": 1,
+                "heuristics.cert_id": 1,
+                "state.cert.pdf_hash": 1,
+                "state.report.pdf_hash": 1,
+                "state.st.pdf_hash": 1,
+            }
             exact_queries = []
             if doc["name"]:
                 exact_queries.append({"name": doc["name"]})
             if doc["heuristics"]["cert_id"]:
                 exact_queries.append({"heuristics.cert_id": doc["heuristics"]["cert_id"]})
-            exact = (
-                list(
-                    mongo.db.cc.find(
-                        {"$or": exact_queries},
-                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
-                    )
-                )
-                if exact_queries
-                else []
-            )
+            exact = list(mongo.db.cc.find({"$or": exact_queries}, similar_projection)) if exact_queries else []
             doc_hash_queries = []
             if doc["state"]["cert"]["pdf_hash"]:
                 doc_hash_queries.append({"state.cert.pdf_hash": doc["state"]["cert"]["pdf_hash"]})
@@ -412,22 +412,7 @@ def entry(hashid):
             if doc["state"]["st"]["pdf_hash"]:
                 doc_hash_queries.append({"state.st.pdf_hash": doc["state"]["st"]["pdf_hash"]})
             doc_hash_match = (
-                list(
-                    mongo.db.cc.find(
-                        {"$or": doc_hash_queries},
-                        {
-                            "_id": 1,
-                            "name": 1,
-                            "dgst": 1,
-                            "heuristics.cert_id": 1,
-                            "state.cert.pdf_hash": 1,
-                            "state.report.pdf_hash": 1,
-                            "state.st.pdf_hash": 1,
-                        },
-                    )
-                )
-                if doc_hash_queries
-                else []
+                list(mongo.db.cc.find({"$or": doc_hash_queries}, similar_projection)) if doc_hash_queries else []
             )
             related = (
                 list(
@@ -435,7 +420,7 @@ def entry(hashid):
                         lambda cert: cert["score"] > 4,
                         mongo.db.cc.find(
                             {"$text": {"$search": doc["name"]}},
-                            {"score": {"$meta": "textScore"}, "_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
+                            {"score": {"$meta": "textScore"}, **similar_projection},
                             sort=[("score", {"$meta": "textScore"})],
                         ),
                     )
