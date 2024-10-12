@@ -45,14 +45,13 @@ class Indexer:  # pragma: no cover
     cert_schema: str
 
     @abstractmethod
-    def create_document(self, dgst, document, cert, content):
-        ...
+    def create_document(self, dgst, document, cert, content): ...
 
     def reindex(self, to_reindex):
         logger.info(f"Reindexing {len(to_reindex)} {self.cert_schema} files.")
         updated = 0
         with whoosh_index.writer() as writer:
-            for dgst, document in to_reindex:
+            for i, (dgst, document) in enumerate(to_reindex):
                 fpath = entry_file_path(dgst, self.dataset_path, document, "txt")
                 try:
                     with fpath.open("r") as f:
@@ -62,6 +61,8 @@ class Indexer:  # pragma: no cover
                 cert = mongo.db[self.cert_schema].find_one({"_id": dgst})
                 writer.update_document(**self.create_document(dgst, document, cert, content))
                 updated += 1
+                if i % 100 == 0:
+                    logger.info(f"{i}: updated {updated}.")
         logger.info(f"Reindexed {updated} out of {len(to_reindex)} {self.cert_schema} files.")
 
 
@@ -207,24 +208,19 @@ class Updater:  # pragma: no cover
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
     @abstractmethod
-    def process(self, dset, paths):
-        ...
+    def process(self, dset, paths): ...
 
     @abstractmethod
-    def dataset_state(self, dset):
-        ...
+    def dataset_state(self, dset): ...
 
     @abstractmethod
-    def notify(self, run_id):
-        ...
+    def notify(self, run_id): ...
 
     @abstractmethod
-    def reindex(self, to_reindex):
-        ...
+    def reindex(self, to_reindex): ...
 
     @abstractmethod
-    def archive(self, paths):
-        ...
+    def archive(self, paths): ...
 
     def update(self):
         try:
@@ -494,8 +490,7 @@ class Archiver:  # pragma: no cover
             logger.info(f"Finished archiving {path}")
 
     @abstractmethod
-    def archive_custom(self, paths, tmpdir):
-        ...
+    def archive_custom(self, paths, tmpdir): ...
 
 
 def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: float = 60 * 10):  # pragma: no cover
