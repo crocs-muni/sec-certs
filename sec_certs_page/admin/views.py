@@ -163,6 +163,19 @@ def feedback():
     return render_template("admin/feedback.html.jinja2", pagination=pagination, entries=entries)
 
 
+@admin.route("/config")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".config", "Config")
+def config():
+    config_data = dict(current_app.config)
+    config_text = "\n".join(
+        f"{key} = {value!r}" if ("SECRET" not in key) and ("AUTH" not in key) else f"{key} = ...hidden..."
+        for key, value in config_data.items()
+    )
+    return render_template("admin/config.html.jinja2", config_text=config_text)
+
+
 @admin.route("/login", methods=["GET", "POST"])
 @register_breadcrumb(admin, ".login", "Login")
 def login():
