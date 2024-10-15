@@ -157,11 +157,17 @@
                 {% endif %}
             {% endwith %}
             {% if crumbs %}
-                <div class="col-10 mx-auto px-3 pt-3 pb-2 fw-lighter">
+                <div class="col-10 mx-auto px-3 pt-3 pb-2 fw-lighter d-flex justify-content-between align-items-baseline">
+                    {% block crumbs_left %}
+                    <div>
                     {%- for breadcrumb in breadcrumbs -%}
                         <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
                         {{ '/ ' if not loop.last }}
                     {%- endfor -%}
+                    </div>
+                    {% endblock %}
+                    {% block crumbs_right %}
+                    {% endblock %}
                 </div>
             {% endif %}
             {% block content %}

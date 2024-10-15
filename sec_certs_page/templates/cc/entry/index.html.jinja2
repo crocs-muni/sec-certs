@@ -50,6 +50,22 @@
         <a class="nav-link" href="#raw-data-head">Raw data</a>
     </li>
 {% endblock %}
+{% block crumbs_right %}
+    <div class="btn-group" role="group">
+        <a href="{{ url_for("cc.entry", hashid=hashid) }}" class="btn btn-outline-secondary btn-sm" title="Link by id"
+           data-bs-toggle="tooltip" data-bs-placement="top"> <i class="fas fa-share"></i> Link</a>
+        {% if cert["heuristics"]["cert_id"] %}
+            <a href="{{ url_for("cc.entry_id", cert_id=cert["heuristics"]["cert_id"]) }}"
+               class="btn btn-outline-secondary btn-sm" title="Link by certificate id" data-bs-toggle="tooltip"
+               data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
+        {% endif %}
+        {% if cert["name"] %}
+            <a href="{{ url_for("cc.entry_name", name=cert["name"]) }}" class="btn btn-outline-secondary btn-sm"
+               title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
+                    class="fas fa-share"></i> Link by certificate name</a>
+        {% endif %}
+    </div>
+{% endblock %}
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
@@ -59,18 +75,7 @@
             <div>
                 <h1>{{ cert["name"]|default("", true) }}</h1>
 
-                <a href="{{ url_for("cc.entry", hashid=hashid) }}" class="btn btn-outline-secondary" title="Link by id"
-                   data-bs-toggle="tooltip" data-bs-placement="top"> <i class="fas fa-share"></i> Link</a>
-                {% if cert["heuristics"]["cert_id"] %}
-                    <a href="{{ url_for("cc.entry_id", cert_id=cert["heuristics"]["cert_id"]) }}"
-                       class="btn btn-outline-secondary" title="Link by certificate id" data-bs-toggle="tooltip"
-                       data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
-                {% endif %}
-                {% if cert["name"] %}
-                    <a href="{{ url_for("cc.entry_name", name=cert["name"]) }}" class="btn btn-outline-secondary"
-                       title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
-                            class="fas fa-share"></i> Link by certificate name</a>
-                {% endif %}
+
 
                 {% if cves %}
                     <div class="alert alert-warning mt-4">
@@ -92,7 +97,8 @@
                         this one in the current listing:
                         <ul class="my-2">
                             {% for other in same %}
-                                <li><a href="{{ url_for("cc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>, {{ other["heuristics"]["cert_id"] }}
+                                <li>
+                                    <a href="{{ url_for("cc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>, {{ other["heuristics"]["cert_id"] }}
                                 </li>
                             {% endfor %}
                         </ul>
