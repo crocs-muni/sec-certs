@@ -232,10 +232,9 @@ class Updater:  # pragma: no cover
         start = datetime.now()
         paths = self.make_dataset_paths()
 
-        skip_update = self.skip_update and paths["output_path"].exists()
-        if skip_update:
-            dset = self.dset_class.from_json(paths["output_path"])
-            dset.root_dir = paths["dset_path"]
+        if self.skip_update:
+            logger.info("Skipping update due to config.")
+            return
         else:
             dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
 
