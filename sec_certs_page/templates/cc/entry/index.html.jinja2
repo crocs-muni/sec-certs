@@ -428,12 +428,12 @@
                         </table>
                         {% if similar|length > 5 %}
                             <div id="similarity-toggle" class="d-flex justify-content-center">
-                                <div class="d-inline-flex flex-column">
+                                <div class="d-inline-flex flex-column" >
                                     <span class="text-muted">Showing 5 out of {{ similar|length }}.</span>
                                     <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
                                             data-bs-target=".similarity-collapse" aria-expanded="false"
                                             aria-controls=".similarity-collapse"
-                                            onclick="$('#similarity-toggle').hide()">Show all
+                                            onclick="$('#similarity-toggle').toggleClass('d-flex').hide()">Show all
                                     </button>
                                 </div>
                             </div>
