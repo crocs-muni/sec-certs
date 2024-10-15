@@ -81,6 +81,25 @@
                     </div>
                 {% endif %}
 
+                {% if removed and same %}
+                    <div class="alert alert-secondary mt-4">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        This certificate has disappeared from the Common Criteria portal listing<sup
+                            title="Likely due to the certifying scheme updating some of its fields."
+                            data-bs-toggle="tooltip">*</sup>.
+                        However, there {% if same|length > 1 %}are certificates that match{% else %}is a certificate
+                        that matches{% endif %}
+                        this one in the current listing:
+                        <ul class="my-2">
+                            {% for other in same %}
+                                <li><a href="{{ url_for("cc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>, {{ other["heuristics"]["cert_id"] }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <span style="margin-left: 20px">You can also examine other <a href="#similar">similar certificates</a> below.</span>
+                    </div>
+                {% endif %}
+
                 <div class="row pt-5">
                     <div class="col-12 col-md-6">
                         <h2 class="anchor" id="csv-info">CSV information
