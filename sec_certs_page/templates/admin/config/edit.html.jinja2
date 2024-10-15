@@ -1,0 +1,43 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1>Config edit</h1>
+            <form action="{{ url_for(".config_edit") }}" method="post" name="config" id="config">
+                {{ form.hidden_tag() }}
+                <div>
+                    <label for="username" class="form-label">Key</label>
+                    {{ form.key(class_="form-control") }}
+                </div>
+                <div>
+                    <label for="password" class="form-label">Value</label>
+                    {{ form.value(class_="form-control") }}
+                </div>
+
+                <div>
+                    <label for="type" class="form-label">Type</label>
+                    {{ form.type(class_="form-control") }}
+                </div>
+                <button class="btn btn-primary" type="submit">Submit</button>
+                <button class="btn btn-warning" id="delete" type="button">Delete</button>
+            </form>
+        </div>
+    </main>
+    <script>
+        $("#delete").on("click", function () {
+            $.ajax("{{ url_for(".config_edit") }}", {
+                    type: "DELETE",
+                    data: $("#config").serialize(),
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token() }}"
+                    },
+                    success: function () {
+                        window.location.href = "{{ url_for(".config") }}";
+                    }
+                }
+            )
+        })
+    </script>
+{% endblock %}

@@ -8,7 +8,7 @@ from flask import current_app
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
-from .. import mongo
+from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks import Archiver, Indexer, Notifier, Updater, actor
@@ -22,7 +22,7 @@ class CCMixin:  # pragma: no cover
         self.collection = "cc"
         self.diff_collection = "cc_diff"
         self.log_collection = "cc_log"
-        self.skip_update = current_app.config["CC_SKIP_UPDATE"]
+        self.skip_update = runtime_config["CC_SKIP_UPDATE"]
         self.dset_class = CCDataset
         self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
         self.cert_schema = "cc"
@@ -42,7 +42,7 @@ class CCRenderer(DiffRenderer, CCMixin):  # pragma: no cover
             "state": ("state of the certificate object", False),
             "heuristics": ("computed heuristics", True),
             "maintenance_updates": ("Maintenance Updates of the certificate", True),
-            "protection_profiles": ("Protection profiles of the certificate", True),
+            "protection_profiles": ("Protection Profiles of the certificate", True),
             "status": ("Status", False),
             "not_valid_after": ("Valid until date", False),
             "not_valid_before": ("Valid from date", False),

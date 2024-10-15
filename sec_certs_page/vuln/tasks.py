@@ -14,6 +14,7 @@ from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
 
+from .. import runtime_config
 from ..common.objformats import ObjFormat
 from ..common.tasks import actor
 from . import mongo
@@ -23,7 +24,7 @@ logger: Logger = logging.getLogger(__name__)
 
 @actor("cve_update", "cve_update", "updates", timedelta(hours=2))
 def update_cve_data() -> None:  # pragma: no cover
-    if current_app.config["CVE_SKIP_UPDATE"]:
+    if runtime_config["CVE_SKIP_UPDATE"]:
         logger.info("Skipping update due to config.")
         return
     instance_path = Path(current_app.instance_path)
@@ -69,7 +70,7 @@ def update_cve_data() -> None:  # pragma: no cover
 
 @actor("cpe_update", "cpe_update", "updates", timedelta(hours=2))
 def update_cpe_data() -> None:  # pragma: no cover
-    if current_app.config["CPE_SKIP_UPDATE"]:
+    if runtime_config["CPE_SKIP_UPDATE"]:
         logger.info("Skipping update due to config.")
         return
     instance_path = Path(current_app.instance_path)
@@ -116,7 +117,7 @@ def update_cpe_data() -> None:  # pragma: no cover
 
 @actor("cpe_match_update", "cpe_match_update", "updates", timedelta(hours=2))
 def update_cpe_match_data() -> None:  # pragma: no cover
-    if current_app.config["CPE_MATCH_SKIP_UPDATE"]:
+    if runtime_config["CPE_MATCH_SKIP_UPDATE"]:
         logger.info("Skipping update due to config.")
         return
     instance_path = Path(current_app.instance_path)

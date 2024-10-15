@@ -6,11 +6,11 @@ from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, identity_changed
 
-from .. import mongo, redis
+from .. import mongo, redis, runtime_config
 from ..common.objformats import StorageFormat
 from ..common.views import Pagination
 from . import admin
-from .forms import LoginForm
+from .forms import ConfigEditForm, LoginForm
 from .user import User
 
 admin_permission = Permission(RoleNeed("admin"))
@@ -170,10 +170,74 @@ def feedback():
 def config():
     config_data = dict(current_app.config)
     config_text = "\n".join(
-        f"{key} = {value!r}" if ("SECRET" not in key) and ("AUTH" not in key) else f"{key} = ...hidden..."
+        (
+            f"{key} = {value!r}"
+            if ("SECRET" not in key) and ("AUTH" not in key) and ("PASSWORD" not in key)
+            else f"{key} = ...hidden..."
+        )
         for key, value in config_data.items()
     )
-    return render_template("admin/config.html.jinja2", config_text=config_text)
+    runtime_config_data = dict(runtime_config)
+    runtime_config_text = "\n".join(
+        (
+            f"{key} = {value!r}"
+            if ("SECRET" not in key) and ("AUTH" not in key) and ("PASSWORD" not in key)
+            else f"{key} = ...hidden..."
+        )
+        for key, value in runtime_config_data.items()
+    )
+    return render_template(
+        "admin/config/index.html.jinja2", config_text=config_text, runtime_config_text=runtime_config_text
+    )
+
+
+@admin.route("/config/edit", methods=["GET", "POST", "DELETE"])
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".config.edit", "Edit")
+def config_edit():
+    form = ConfigEditForm()
+    if form.is_submitted():
+        if request.method == "DELETE":
+            if form.key.data in runtime_config:
+                del runtime_config[form.key.data]
+                return redirect(url_for("admin.config"), code=303)
+            else:
+                flash(f"Key {form.key.data} does not exist and can not be deleted.", "error")
+                return render_template("admin/config/edit.html.jinja2", form=form)
+        elif request.method == "POST" and form.validate():
+            if form.type.data == "string":
+                runtime_config[form.key.data] = str(form.value.data)
+            elif form.type.data == "int":
+                try:
+                    runtime_config[form.key.data] = int(form.value.data)
+                except ValueError:
+                    flash("Bad value format for int.", "error")
+                    return render_template("admin/config/edit.html.jinja2", form=form)
+            elif form.type.data == "float":
+                try:
+                    runtime_config[form.key.data] = float(form.value.data)
+                except ValueError:
+                    flash("Bad value format for float.", "error")
+                    return render_template("admin/config/edit.html.jinja2", form=form)
+            elif form.type.data == "boolean":
+                try:
+                    if form.value.data in ("true", "True", "T", "t", "1"):
+                        runtime_config[form.key.data] = True
+                    elif form.value.data in ("false", "False", "F", "f", 0):
+                        runtime_config[form.key.data] = False
+                    else:
+                        raise ValueError
+                except ValueError:
+                    flash("Bad value format for boolean.", "error")
+                    return render_template("admin/config/edit.html.jinja2", form=form)
+            return redirect(url_for("admin.config"))
+        else:
+            return render_template("admin/config/edit.html.jinja2", form=form)
+    else:
+        form.key.data = request.args.get("key")
+        form.value.data = request.args.get("value")
+        return render_template("admin/config/edit.html.jinja2", form=form)
 
 
 @admin.route("/login", methods=["GET", "POST"])

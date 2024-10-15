@@ -10,7 +10,7 @@ from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 from sec_certs.utils.helpers import get_sha256_filepath
 
-from .. import mongo
+from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
@@ -25,7 +25,7 @@ class FIPSMixin:  # pragma: no cover
         self.collection = "fips"
         self.diff_collection = "fips_diff"
         self.log_collection = "fips_log"
-        self.skip_update = current_app.config["FIPS_SKIP_UPDATE"]
+        self.skip_update = runtime_config["FIPS_SKIP_UPDATE"]
         self.dset_class = FIPSDataset
         self.dataset_path = current_app.config["DATASET_PATH_FIPS_DIR"]
         self.cert_schema = "fips"
@@ -59,7 +59,7 @@ def notify(run_id):  # pragma: no cover
 
 @actor("fips_iut_update", "fips_iut_update", "updates", timedelta(hours=1))
 def update_iut_data():  # pragma: no cover
-    if current_app.config["FIPS_IUT_SKIP_UPDATE"]:
+    if runtime_config["FIPS_IUT_SKIP_UPDATE"]:
         logger.info("Skipping update due to config.")
         return
     snapshot = IUTSnapshot.from_web()
@@ -69,7 +69,7 @@ def update_iut_data():  # pragma: no cover
 
 @actor("fips_mip_update", "fips_mip_update", "updates", timedelta(hours=1))
 def update_mip_data():  # pragma: no cover
-    if current_app.config["FIPS_MIP_SKIP_UPDATE"]:
+    if runtime_config["FIPS_MIP_SKIP_UPDATE"]:
         logger.info("Skipping update due to config.")
         return
     snapshot = MIPSnapshot.from_web()

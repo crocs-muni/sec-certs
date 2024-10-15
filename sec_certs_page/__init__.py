@@ -38,6 +38,7 @@ from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
+from .common.config import RuntimeConfig
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration
 
@@ -107,6 +108,9 @@ public(broker=broker)
 
 redis: FlaskRedis = FlaskRedis(app)
 public(redis=redis)
+
+runtime_config: RuntimeConfig = RuntimeConfig(app)
+public(runtime_config=runtime_config)
 
 assets: Assets = Assets(app)
 public(assets=assets)

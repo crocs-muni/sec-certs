@@ -1,0 +1,21 @@
+{% extends "base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1>Config</h1>
+            <div class="my">
+                <pre class="listing"><code>{{ config_text }}</code></pre>
+            </div>
+            <h1>Runtime config</h1>
+            <p>These values override the config ones above.</p>
+            <p>Note that it makes sense to override only some of the config values during runtime. Currently
+                that is all of the <code>*_SKIP_UPDATE</code> only.</p>
+            <a href="{{ url_for(".config_edit") }}" class="btn btn-primary">Edit</a>
+            <div class="my-2">
+                <pre class="listing"><code>{{ runtime_config_text }}</code></pre>
+            </div>
+        </div>
+    </main>
+{% endblock %}
