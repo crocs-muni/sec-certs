@@ -4,7 +4,7 @@ from dramatiq import Broker
 from dramatiq.middleware import default_middleware
 from sentry_dramatiq import DramatiqIntegration as OriginalDramatiqIntegration
 from sentry_dramatiq import SentryMiddleware
-from sentry_sdk import Hub, push_scope
+from sentry_sdk import Hub, new_scope
 from sentry_sdk.tracing import Span
 
 
@@ -15,7 +15,7 @@ class NoChildSpan(Span):
 
 @contextmanager
 def suppress_child_spans():
-    with push_scope() as scope:
+    with new_scope() as scope:
         scope.span = NoChildSpan()
         try:
             yield
