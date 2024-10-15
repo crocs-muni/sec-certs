@@ -23,6 +23,9 @@ logger: Logger = logging.getLogger(__name__)
 
 @actor("cve_update", "cve_update", "updates", timedelta(hours=2))
 def update_cve_data() -> None:  # pragma: no cover
+    if current_app.config["CVE_SKIP_UPDATE"]:
+        logger.info("Skipping update due to config.")
+        return
     instance_path = Path(current_app.instance_path)
     cve_path = instance_path / current_app.config["DATASET_PATH_CVE"]
     cve_compressed_path = instance_path / current_app.config["DATASET_PATH_CVE_COMPRESSED"]
@@ -66,6 +69,9 @@ def update_cve_data() -> None:  # pragma: no cover
 
 @actor("cpe_update", "cpe_update", "updates", timedelta(hours=2))
 def update_cpe_data() -> None:  # pragma: no cover
+    if current_app.config["CPE_SKIP_UPDATE"]:
+        logger.info("Skipping update due to config.")
+        return
     instance_path = Path(current_app.instance_path)
     cpe_path = instance_path / current_app.config["DATASET_PATH_CPE"]
     cpe_compressed_path = instance_path / current_app.config["DATASET_PATH_CPE_COMPRESSED"]
@@ -110,6 +116,9 @@ def update_cpe_data() -> None:  # pragma: no cover
 
 @actor("cpe_match_update", "cpe_match_update", "updates", timedelta(hours=2))
 def update_cpe_match_data() -> None:  # pragma: no cover
+    if current_app.config["CPE_MATCH_SKIP_UPDATE"]:
+        logger.info("Skipping update due to config.")
+        return
     instance_path = Path(current_app.instance_path)
     match_path = instance_path / current_app.config["DATASET_PATH_CPE_MATCH"]
     match_compressed_path = instance_path / current_app.config["DATASET_PATH_CPE_MATCH_COMPRESSED"]

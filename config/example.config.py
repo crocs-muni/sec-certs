@@ -92,6 +92,11 @@ SUBSCRIPTIONS_ENABLED = True
 # Whether to skip the actual update (from remote CC and FIPS servers) in the nightly update task. Useful for debugging.
 CC_SKIP_UPDATE = False
 FIPS_SKIP_UPDATE = False
+FIPS_IUT_SKIP_UPDATE = False
+FIPS_MIP_SKIP_UPDATE = False
+CVE_SKIP_UPDATE = False
+CPE_SKIP_UPDATE = False
+CPE_MATCH_SKIP_UPDATE = False
 
 # Whether to anonymize the site (for review).
 ANONYMOUS = False

@@ -59,6 +59,9 @@ def notify(run_id):  # pragma: no cover
 
 @actor("fips_iut_update", "fips_iut_update", "updates", timedelta(hours=1))
 def update_iut_data():  # pragma: no cover
+    if current_app.config["FIPS_IUT_SKIP_UPDATE"]:
+        logger.info("Skipping update due to config.")
+        return
     snapshot = IUTSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
     mongo.db.fips_iut.insert_one(snap_data)
@@ -66,6 +69,9 @@ def update_iut_data():  # pragma: no cover
 
 @actor("fips_mip_update", "fips_mip_update", "updates", timedelta(hours=1))
 def update_mip_data():  # pragma: no cover
+    if current_app.config["FIPS_MIP_SKIP_UPDATE"]:
+        logger.info("Skipping update due to config.")
+        return
     snapshot = MIPSnapshot.from_web()
     snap_data = ObjFormat(snapshot).to_raw_format().to_working_format().to_storage_format().get()
     mongo.db.fips_mip.insert_one(snap_data)
@@ -112,23 +118,29 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
         to_reindex = set()
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
             if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(
-                    op="fips.get_certs", description="Get certs from web"
-                ), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(op="fips.get_certs", description="Get certs from web"),
+                    suppress_child_spans(),
+                ):
                     dset.get_certs_from_web(update_json=False)
-                with sentry_sdk.start_span(
-                    op="fips.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, Algo)"
-                ), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(
+                        op="fips.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, Algo)"
+                    ),
+                    suppress_child_spans(),
+                ):
                     dset.process_auxiliary_datasets(update_json=False)
-                with sentry_sdk.start_span(
-                    op="fips.download_artifacts", description="Download artifacts"
-                ), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(op="fips.download_artifacts", description="Download artifacts"),
+                    suppress_child_spans(),
+                ):
                     dset.download_all_artifacts(update_json=False)
                 with sentry_sdk.start_span(op="fips.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(
-                    op="fips.analyze", description="Analyze certificates"
-                ), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(op="fips.analyze", description="Analyze certificates"),
+                    suppress_child_spans(),
+                ):
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
