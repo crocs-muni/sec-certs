@@ -161,8 +161,7 @@
                                                                 class="badge bg-primary text-dark text-decoration-none"
                                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                                 title="Display reference graph with affected certificates highlighted"
-                                                                href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}"><i
-                                    class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
+                                                                href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}">Display network</a></h3>
                             <ul>
                                 {% for cert in cc_certs %}
                                     <li>
@@ -178,8 +177,7 @@
                                                          class="badge bg-primary text-dark text-decoration-none"
                                                          data-bs-toggle="tooltip" data-bs-placement="top"
                                                          title="Display reference graph with affected certificates highlighted"
-                                                         href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}"><i
-                                    class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
+                                                         href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}">Display network</a></h3>
                             <ul>
                                 {% for cert in fips_certs %}
                                     <li>

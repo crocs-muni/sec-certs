@@ -33,8 +33,7 @@
                                     all
                                     certificates transitively referencing or being referenced by the search result
                                     certificates.</p>
-                                <a href="{{ url_for(".search") }}?{{ query|safe }}" class="btn btn-primary"><i
-                                        class="fas fa-flask fa-fw fa-spin"></i> Go back to search</a>
+                                <a href="{{ url_for(".search") }}?{{ query|safe }}" class="btn btn-primary">Go back to search</a>
                             {% elif request.args.get("search") == "fulltext" %}
                                 <p>The certificates shown are part of the results of a search query and their (weak)
                                     reference
@@ -42,16 +41,14 @@
                                     all
                                     certificates transitively referencing or being referenced by the search result
                                     certificates.</p>
-                                <a href="{{ url_for(".fulltext_search") }}?{{ query|safe }}" class="btn btn-primary"><i
-                                        class="fas fa-flask fa-fw fa-spin"></i> Go back to search</a>
+                                <a href="{{ url_for(".fulltext_search") }}?{{ query|safe }}" class="btn btn-primary">Go back to search</a>
                             {% elif request.args.get("search") == "cve" and request.args.get("cve") %}
                                 <p>The certificates highlighted are affected by <b>{{ request.args["cve"] }}</b>.
                                     The graph shows them and their (weak) reference
                                     graph components. This means that also all
                                     certificates transitively referencing or being referenced by the affected
                                     certificates.</p>
-                                <a href="{{ url_for("vuln.cve", cve_id=request.args["cve"]) }}" class="btn btn-primary"><i
-                                        class="fas fa-flask fa-fw fa-spin"></i> Go back to CVE</a>
+                                <a href="{{ url_for("vuln.cve", cve_id=request.args["cve"]) }}" class="btn btn-primary"> Go back to CVE</a>
                             {% endif %}
                             <a href="{{ url_for(".network") }}" class="btn btn-secondary"> Clear</a>
                         </div>
