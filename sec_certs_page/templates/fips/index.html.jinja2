@@ -57,7 +57,7 @@
                         <div class="card h-100">
                             <div class="card-body">
                                 <h4 class="card-title">References</h4>
-                                <p class="card-text" style="margin-bottom: 2.5rem;">Explore an interactive graph of references in FIPS 140
+                                <p class="card-text">Explore an interactive graph of references in FIPS 140
                                     certificates.</p>
                                 <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
                                         class="fas fa-network-wired fa-fw"></i> Go</a>
@@ -82,6 +82,7 @@
                                 <p class="card-text" style="margin-bottom: 2.5rem;">Look at a random FIPS 140 certificate.</p>
                                 <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
                                         class="fas fa-dice fa-fw"></i> Go</a>
+                                <a href="{{ url_for(".entry", hashid="1625f9db144171f7") }}" class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
                             </div>
                         </div>
                     </div>
@@ -93,7 +94,7 @@
                 <div class="col-12 col-md-6">
                     <h3 class="anchor" id="data">Data</h3>
                     <p>
-                        The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
+                        The full dataset used on this site can be downloaded here. It is updated weekly
                         and all the pages and data on this site are extracted from it. It is a JSON file as produced
                         by the <code>sec-certs fips</code> command from the tool. Documentation for the tool,
                         including a quick-start guide, can be found on
