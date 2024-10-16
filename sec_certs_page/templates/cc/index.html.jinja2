@@ -42,48 +42,61 @@
                 <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">Search</h4>
-                                <p class="card-text">Search and browse through the certificates and our extracted
+                                <p class="card-text flex-grow-1">Search and browse through the certificates and our
+                                    extracted
                                     metadata.</p>
-                                <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
-                                        class="fas fa-search fa-fw"></i> Go</a>
-                                <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary"
-                                   title="Fulltext search" data-bs-toggle="tooltip">Fulltext</a>
+                                <div>
+                                    <a href="{{ url_for(".search") }}" class="btn btn-primary" title="Basic search" data-bs-toggle="tooltip"><i
+                                            class="fas fa-search fa-fw"></i> Go</a>
+                                    <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary"
+                                       title="Fulltext search" data-bs-toggle="tooltip"><i
+                                            class="fas fa-search-plus fa-fw"></i> Fulltext</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">References</h4>
-                                <p class="card-text">Explore an interactive graph of references in Common Criteria
+                                <p class="card-text flex-grow-1">Explore an interactive graph of references in Common
+                                    Criteria
                                     certificates.</p>
-                                <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
-                                        class="fas fa-network-wired fa-fw"></i> Go</a>
+                                <div>
+                                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
+                                            class="fas fa-network-wired fa-fw"></i> Go</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">Analysis</h4>
-                                <p class="card-text">View a part of our results of our analysis of the Common Criteria
+                                <p class="card-text flex-grow-1">View a part of our results of our analysis of the
+                                    Common Criteria
                                     certificate data.</p>
-                                <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
-                                        class="fas fa-chart-line fa-fw"></i> Go</a>
+                                <div>
+                                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
+                                            class="fas fa-chart-line fa-fw"></i> Go</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">Random</h4>
-                                <p class="card-text" style="margin-bottom: 2.5rem;">Look at a random Common Criteria
+                                <p class="card-text flex-grow-1">Look at a random Common Criteria
                                     certificate.</p>
-                                <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
-                                        class="fas fa-dice fa-fw"></i> Go</a>
-                                <a href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}" class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
+                                <div>
+                                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
+                                            class="fas fa-dice fa-fw"></i> Go</a>
+                                    <a href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}"
+                                       class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -98,7 +111,7 @@
                         The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
                         and all the pages and data on this site are extracted from it. It is a JSON file as produced
                         by the <code>sec-certs cc</code> command from the tool. Documentation for the tool,
-                        including a quick-start guide, can be found on
+                        including a quick-start guide, can be found
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
                     </p>
                     {% if last_ok_run %}
@@ -110,10 +123,10 @@
                             and it contains {{ last_ok_run["length"] }} certificates.
                         </p>
                     {% endif %}
-                    <table class="table">
+                    <table class="table table-borderless">
                         <tr>
                             <td>
-                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
+                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
                                         class="fas fa-file-alt"></i>
                                     Main dataset</a>
                             </td>
@@ -124,7 +137,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><a href="{{ url_for(".maintenance_updates") }}" role="button" class="btn btn-primary"><i
+                            <td><a href="{{ url_for(".maintenance_updates") }}" role="button" class="btn btn-primary w-100"><i
                                     class="fas fa-file-alt"></i>
                                 Maintenance updates</a>
                             </td>
@@ -135,7 +148,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{ url_for(".schemes") }}" role="button" class="btn btn-primary"><i
+                                <a href="{{ url_for(".schemes") }}" role="button" class="btn btn-primary w-100"><i
                                         class="fas fa-file-alt"></i>
                                     Scheme data</a>
                             </td>
@@ -147,14 +160,15 @@
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary">
+                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary w-100">
                                     <i class="fas fa-file-archive"></i> Full datasset
                                 </a>
                             </td>
                             <td>
                                 The full dataset contains all the datasets mentioned above as well as the certification
                                 artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
-                                Download this if you want to do your own processing on top of the data provided by our tooling.
+                                Download this if you want to do your own processing on top of the data provided by our
+                                tooling.
                             </td>
                         </tr>
                     </table>

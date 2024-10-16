@@ -42,46 +42,59 @@
                 <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">Search</h4>
-                                <p class="card-text">Search and browse through the certificates and our extracted
+                                <p class="card-text flex-grow-1">Search and browse through the certificates and our
+                                    extracted
                                     metadata.</p>
-                                <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
-                                        class="fas fa-search fa-fw"></i> Go</a>
-                                <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary" title="Fulltext search" data-bs-toggle="tooltip">Fulltext</a>
+                                <div>
+                                    <a href="{{ url_for(".search") }}" class="btn btn-primary" title="Basic search" data-bs-toggle="tooltip"><i
+                                            class="fas fa-search fa-fw"></i> Go</a>
+                                    <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary"
+                                       title="Fulltext search" data-bs-toggle="tooltip"><i
+                                            class="fas fa-search-plus fa-fw"></i> Fulltext</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">References</h4>
-                                <p class="card-text">Explore an interactive graph of references in FIPS 140
+                                <p class="card-text flex-grow-1">Explore an interactive graph of references in FIPS 140
                                     certificates.</p>
-                                <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
-                                        class="fas fa-network-wired fa-fw"></i> Go</a>
+                                <div>
+                                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
+                                            class="fas fa-network-wired fa-fw"></i> Go</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">Analysis</h4>
-                                <p class="card-text">View a part of our results of our analysis of the FIPS 140
+                                <p class="card-text flex-grow-1">View a part of our results of our analysis of the FIPS
+                                    140
                                     certificate data.</p>
-                                <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
-                                        class="fas fa-chart-line fa-fw"></i> Go</a>
+                                <div>
+                                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
+                                            class="fas fa-chart-line fa-fw"></i> Go</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">Random</h4>
-                                <p class="card-text" style="margin-bottom: 2.5rem;">Look at a random FIPS 140 certificate.</p>
-                                <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
-                                        class="fas fa-dice fa-fw"></i> Go</a>
-                                <a href="{{ url_for(".entry", hashid="1625f9db144171f7") }}" class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
+                                <p class="card-text flex-grow-1">Look at a random FIPS 140 certificate.</p>
+                                <div>
+                                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
+                                            class="fas fa-dice fa-fw"></i> Go</a>
+                                    <a href="{{ url_for(".entry", hashid="1625f9db144171f7") }}"
+                                       class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -96,21 +109,22 @@
                         The full dataset used on this site can be downloaded here. It is updated weekly
                         and all the pages and data on this site are extracted from it. It is a JSON file as produced
                         by the <code>sec-certs fips</code> command from the tool. Documentation for the tool,
-                        including a quick-start guide, can be found on
+                        including a quick-start guide, can be found
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
                     </p>
                     {% if last_ok_run %}
                         <p>
                             The dataset was last successfully updated
                             at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
-                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the sec-certs tool
+                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the
+                            sec-certs tool
                             and it contains {{ last_ok_run["length"] }} certificates.
                         </p>
                     {% endif %}
-                    <table class="table">
+                    <table class="table table-borderless">
                         <tr>
                             <td>
-                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
+                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
                                         class="fas fa-file-alt"></i>
                                     Main dataset</a>
                             </td>
@@ -121,14 +135,15 @@
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary">
+                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary w-100">
                                     <i class="fas fa-file-archive"></i> Full datasset
                                 </a>
                             </td>
                             <td>
                                 The full dataset contains the dataset mentioned above as well as the certification
                                 artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
-                                Download this if you want to do your own processing on top of the data provided by our tooling.
+                                Download this if you want to do your own processing on top of the data provided by our
+                                tooling.
                             </td>
                         </tr>
                     </table>
@@ -138,7 +153,7 @@
                     <h3 class="anchor" id="mip-iut">MIP and IUT</h3>
                     <p>The FIPS 140 Modules In Process (MIP) and Implementations Under Test (IUT) lists provide
                         information about modules currently undergoing NIST CMVP evaluation. We crawl theese lists
-                        daily and provide a log of snapshots</p>
+                        daily and provide a log of snapshots.</p>
                     <a href="{{ url_for(".mip_index") }}" role="button" class="btn btn-primary"><i
                             class="fas fa-fw fa-list"></i>
                         MIP</a>

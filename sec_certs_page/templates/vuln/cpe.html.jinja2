@@ -170,39 +170,49 @@
                     <div class="row g-4 row-cols-1 row-cols-lg-4">
                         <div class="col">
                             <div class="card h-100">
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column justify-content-between">
                                     <h4 class="card-title">Common Criteria</h4>
-                                    <p class="card-text">Want to explore Common Criteria certificates?</p>
-                                    <a href="{{ url_for("cc.index") }}" class="btn btn-primary">Go</a>
+                                    <p class="card-text flex-grow-1">Want to explore Common Criteria certificates?</p>
+                                    <div>
+                                        <a href="{{ url_for("cc.index") }}" class="btn btn-primary">Go</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="card h-100">
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column justify-content-between">
                                     <h4 class="card-title">Protection Profiles</h4>
-                                    <p class="card-text">Want to explore Protection Profiles of Common Criteria
+                                    <p class="card-text flex-grow-1">Want to explore Protection Profiles of Common
+                                        Criteria
                                         certificates?</p>
-                                    <a href="{{ url_for("pp.index") }}" class="btn btn-primary">Go</a>
+                                    <div>
+                                        <a href="{{ url_for("pp.index") }}" class="btn btn-primary">Go</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="card h-100">
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column justify-content-between">
                                     <h4 class="card-title">FIPS 140</h4>
-                                    <p class="card-text">Want to explore FIPS 140-2 and 140-3 certificates?</p>
-                                    <a href="{{ url_for("fips.index") }}" class="btn btn-primary">Go</a>
+                                    <p class="card-text flex-grow-1">Want to explore FIPS 140-2 and 140-3
+                                        certificates?</p>
+                                    <div>
+                                        <a href="{{ url_for("fips.index") }}" class="btn btn-primary">Go</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="card h-100">
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column justify-content-between">
                                     <h4 class="card-title">Vulnerabilities</h4>
-                                    <p class="card-text">Want to explore how vulnerabilities affect certified
-                                        products?</p>
-                                    <a href="{{ url_for("vuln.index") }}" class="btn btn-primary">Go</a>
+                                    <p class="card-text flex-grow-1">Want to explore how vulnerabilities affect
+                                        certified products?</p>
+                                    <div>
+                                        <a href="{{ url_for("vuln.index") }}" class="btn btn-primary">Go</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
