@@ -158,9 +158,9 @@
                         <div class="my-4" data-cs-name="Vulnerable CC certificates">
                             <h3>Common Criteria certificates <a style="font-size: 0.5em; vertical-align: middle"
                                                                 tabindex="0"
-                                                                class="badge bg-warning text-dark text-decoration-none"
+                                                                class="badge bg-primary text-dark text-decoration-none"
                                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                title="Experimental feature: Display reference graph with affected certificates highlighted"
+                                                                title="Display reference graph with affected certificates highlighted"
                                                                 href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}"><i
                                     class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
                             <ul>
@@ -175,9 +175,9 @@
                     {% if fips_certs %}
                         <div class="my-4" data-cs-name="Vulnerable FIPS certificates">
                             <h3>FIPS 140 certificates <a style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                                         class="badge bg-warning text-dark text-decoration-none"
+                                                         class="badge bg-primary text-dark text-decoration-none"
                                                          data-bs-toggle="tooltip" data-bs-placement="top"
-                                                         title="Experimental feature: Display reference graph with affected certificates highlighted"
+                                                         title="Display reference graph with affected certificates highlighted"
                                                          href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}"><i
                                     class="fas fa-flask fa-fw fa-spin"></i> Display network</a></h3>
                             <ul>
