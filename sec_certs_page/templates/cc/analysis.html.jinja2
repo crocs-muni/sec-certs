@@ -1,4 +1,4 @@
-{% extends "base.html.jinja2" %}
+{% extends "crowdsourced.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
 {% set canonical = True %}
@@ -13,13 +13,13 @@
             For more, see our <a href="{{ url_for("about", _anchor="research") }}">research</a> and
                 the <a href="https://sec-certs.org/docs/notebooks/examples/est_solution.html">notebooks</a> in our documentation.
             </p>
-            <div class="row mt-4 mb-4">
+            <div class="row mt-4 mb-4" data-cs-name="Categories plot">
                 <div class="col border ml-3 mr-3">
                     <h2>Categories</h2>
                     <div id="categories"></div>
                 </div>
             </div>
-            <div class="row mt-4 mb-4">
+            <div class="row mt-4 mb-4" data-cs-name="Certified items plot">
                 <div class="col border ml-3 mr-3">
                     <h2>Certified</h2>
                     <div id="certified"></div>
