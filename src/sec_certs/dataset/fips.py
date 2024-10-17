@@ -4,6 +4,8 @@ import datetime
 import itertools
 import logging
 import shutil
+import tarfile
+import tempfile
 from pathlib import Path
 from typing import Final
 
@@ -220,6 +222,34 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         Fetches the fresh snapshot of FIPSDataset from mirror.
         """
         return cls.from_web(config.fips_latest_snapshot, "Downloading FIPS Dataset", "fips_latest_dataset.json")
+
+    @classmethod
+    def from_web_latest_full(cls, path: str | Path) -> FIPSDataset:
+        """
+        Fetches the full (and fresh) archive of the FIPSDataset from sec-certs.org, including the PDFs and auxiliary datasets.
+
+        Note that this is quite large (several gigabytes).
+        """
+        if not path:
+            raise ValueError("Path needs to be defined.")
+        path = Path(path)
+        if not path.exists():
+            path.mkdir(parents=True)
+        if not path.is_dir():
+            raise ValueError("Path needs to be a directory.")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / "fips.tar.gz"
+            res = helpers.download_file(
+                config.fips_latest_full_archive,
+                dset_path,
+                show_progress_bar=True,
+                progress_bar_desc="Downloading FIPS archive",
+            )
+            if res != constants.RESPONSE_OK:
+                raise ValueError("Download failed.")
+            with tarfile.open(dset_path, "r:gz") as tar:
+                tar.extractall(path)
+            return cls.from_json(path / "dataset.json")
 
     def _set_local_paths(self) -> None:
         super()._set_local_paths()

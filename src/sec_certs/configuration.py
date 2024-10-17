@@ -46,6 +46,10 @@ class Configuration(BaseSettings):
         "https://sec-certs.org/cc/dataset.json",
         description="URL from where to fetch the latest snapshot of fully processed CC dataset.",
     )
+    cc_latest_full_archive: AnyHttpUrl = Field(
+        "https://sec-certs.org/cc/cc.tar.gz",
+        description="URL from where to fetch the latest full archive of fully processed CC dataset.",
+    )
     cc_maintenances_latest_snapshot: AnyHttpUrl = Field(
         "https://sec-certs.org/cc/maintenance_updates.json",
         description="URL from where to fetch the latest snapshot of CC maintenance updates",
@@ -56,6 +60,10 @@ class Configuration(BaseSettings):
     )
     fips_latest_snapshot: AnyHttpUrl = Field(
         "https://sec-certs.org/fips/dataset.json", description="URL for the latest snapshot of FIPS dataset."
+    )
+    fips_latest_full_archive: AnyHttpUrl = Field(
+        "https://sec-certs.org/fips/fips.tar.gz",
+        description="URL from where to fetch the latest full archive of fully processed FIPS dataset.",
     )
     fips_iut_dataset: AnyHttpUrl = Field(
         "https://sec-certs.org/fips/iut/dataset.json", description="URL for the dataset of FIPS IUT data."

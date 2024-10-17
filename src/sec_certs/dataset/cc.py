@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import locale
 import shutil
+import tarfile
 import tempfile
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -253,6 +254,34 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         """
         return cls.from_web(config.cc_latest_snapshot, "Downloading CC Dataset", "cc_latest_dataset.json")
 
+    @classmethod
+    def from_web_latest_full(cls, path: str | Path) -> CCDataset:
+        """
+        Fetches the full (and fresh) archive of the CCDataset from sec-certs.org, including the PDFs and auxiliary datasets.
+
+        Note that this is quite large (several gigabytes).
+        """
+        if not path:
+            raise ValueError("Path needs to be defined.")
+        path = Path(path)
+        if not path.exists():
+            path.mkdir(parents=True)
+        if not path.is_dir():
+            raise ValueError("Path needs to be a directory.")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dset_path = Path(tmp_dir) / "cc.tar.gz"
+            res = helpers.download_file(
+                config.cc_latest_full_archive,
+                dset_path,
+                show_progress_bar=True,
+                progress_bar_desc="Downloading CC archive",
+            )
+            if res != constants.RESPONSE_OK:
+                raise ValueError("Download failed.")
+            with tarfile.open(dset_path, "r:gz") as tar:
+                tar.extractall(path)
+            return cls.from_json(path / "dataset.json")
+
     def _set_local_paths(self):
         super()._set_local_paths()
 
@@ -261,6 +290,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
         if self.auxiliary_datasets.mu_dset:
             self.auxiliary_datasets.mu_dset.root_dir = self.mu_dataset_dir
+
+        if self.auxiliary_datasets.scheme_dset:
+            self.auxiliary_datasets.scheme_dset.json_path = self.scheme_dataset_path
 
         for cert in self:
             cert.set_local_paths(
@@ -271,7 +303,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
                 self.targets_txt_dir,
                 self.certificates_txt_dir,
             )
-        # TODO: This forgets to set local paths for other auxiliary datasets
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
