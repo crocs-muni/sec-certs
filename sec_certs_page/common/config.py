@@ -30,6 +30,11 @@ class RuntimeConfig(object):
     def __iter__(self):
         yield from map(lambda s: s.decode("utf-8"), self.redis.hkeys("runtime_config"))
 
+    def get(self, key, default=None):
+        if self.redis.hexists("runtime_config", key):
+            return pickle.loads(self.redis.hget("runtime_config", key))
+        return current_app.config.get(key, default)
+
     def keys(self):
         return list(self)
 

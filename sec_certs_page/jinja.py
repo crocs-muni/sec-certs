@@ -4,12 +4,12 @@ from datetime import date, datetime
 
 import sentry_sdk
 from flag import flag
-from flask import request
+from flask import current_app, request
 from flask_principal import Permission, RoleNeed
 from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
-from . import app
+from . import app, runtime_config
 
 
 @app.template_global("country_to_flag")
@@ -85,6 +85,11 @@ def sentry_baggage():
 def endpoint():
     rule = str(request.url_rule)
     return re.sub("<.*?>", "*", rule)
+
+
+@app.template_global("event_navbar")
+def event_navbar():
+    return runtime_config.get("EVENT_NAVBAR")
 
 
 release = get_default_release()

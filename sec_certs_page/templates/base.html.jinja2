@@ -102,8 +102,29 @@
     {% endblock %}
 </head>
 
-<body data-spy="scroll" data-target="#navbar" data-offset="57" class="position-relative">
+<body data-bs-spy="scroll" data-bs-target="#navbar" data-bs-offset="57" class="position-relative">
 <div class="d-flex" id="wrapper">
+    {% if event_navbar() %}
+    <nav id="event-navbar" class="navbar navbar-expand-lg navbar-light bg-warning text-dark fixed-top" style="top: 56px; display: none">
+        <div class="container-fluid justify-content-start" id="event-navbar-text">
+            {{ event_navbar()|safe }}
+            <button type="button" class="btn-close ms-auto me-2" aria-label="Close" id="event-navbar-close" title="Close"></button>
+        </div>
+        <script>
+            $(function () {
+                let storedEventText = localStorage.getItem("event_navbar_text");
+                if (storedEventText !== $("#event-navbar-text").text()) {
+                    $("#event-navbar").show();
+                }
+
+                $("#event-navbar-close").on("click", function() {
+                    $("#event-navbar").hide();
+                    localStorage.setItem("event_navbar_text", $("#event-navbar-text").text());
+                });
+            });
+        </script>
+    </nav>
+    {% endif %}
     <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for("index") }}"><img
