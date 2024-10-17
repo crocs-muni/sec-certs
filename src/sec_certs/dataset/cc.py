@@ -872,7 +872,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     ) -> ProtectionProfileDataset:
         """
         Downloads new snapshot of dataset with processed protection profiles (if it doesn't exist) and links PPs
-        with certificates within self. Assigns PPs to all certificates
+        with certificates within self. Assigns PPs to all certificates, based on name and fname match.
 
         :param bool to_download: If dataset should be downloaded or fetched from json, defaults to True
         :param bool keep_metadata: If json related to the PP dataset should be kept on drive, defaults to True
@@ -886,10 +886,15 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         else:
             pp_dataset = ProtectionProfileDataset.from_json(self.pp_dataset_path)
 
+        # Map protection profiles to their name and file name for matching to certs.
+        pps = {(pp.pp_name, sanitization.sanitize_link_fname(pp.pp_link)): pp for pp in pp_dataset}
+
         for cert in self:
             if cert.protection_profiles is None:
                 raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
-            cert.protection_profiles = {pp_dataset.pps.get((x.pp_name, x.pp_link), x) for x in cert.protection_profiles}
+            cert.protection_profiles = {
+                pps.get((x.pp_name, sanitization.sanitize_link_fname(x.pp_link)), x) for x in cert.protection_profiles
+            }
 
         if not keep_metadata:
             self.pp_dataset_path.unlink()

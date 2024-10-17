@@ -684,7 +684,7 @@ class CCCertificate(
     @classmethod
     def from_html_row(cls, row: Tag, status: str, category: str) -> CCCertificate:
         """
-        Creates a CC sample from html row of commoncriteria.org webpage.
+        Creates a CC sample from html row of commoncriteriaportal.org webpage.
         """
 
         cells = list(row.find_all("td"))
