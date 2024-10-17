@@ -49,6 +49,22 @@
         <a class="nav-link" href="#raw-data-head">Raw data</a>
     </li>
 {% endblock %}
+{% block crumbs_right %}
+    <div class="btn-group" role="group">
+        <a href="{{ url_for("fips.entry", hashid=hashid) }}" class="btn btn-outline-secondary btn-sm" title="Link by id"
+           data-bs-toggle="tooltip" data-bs-placement="top"> <i class="fas fa-share"></i> Link</a>
+        {% if cert["cert_id"] %}
+            <a href="{{ url_for("fips.entry_id", cert_id=cert["cert_id"]) }}"
+               class="btn btn-outline-secondary btn-sm" title="Link by certificate id" data-bs-toggle="tooltip"
+               data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
+        {% endif %}
+        {% if cert["web_data"]["module_name"] %}
+            <a href="{{ url_for("fips.entry_name", name=cert["web_data"]["module_name"]) }}" class="btn btn-outline-secondary btn-sm"
+               title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
+                    class="fas fa-share"></i> Link by certificate name</a>
+        {% endif %}
+    </div>
+{% endblock %}
 {% block content %}
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
