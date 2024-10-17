@@ -17,6 +17,11 @@
                         {{ cert["web_data"]["date_sunset"]|strftime("%d.%m.%Y") }}{% endif %}</li>
                 {% endfor %}
             </ol>
+            {% if certs|length == 2 %}
+                <a href="{{ url_for("fips.compare", one_hashid=certs[0]["_id"], other_hashid=certs[1]["_id"]) }}"
+                   class="btn btn-primary"><i class="fas fa-fw fa-scale-balanced" aria-hidden="true"></i> Compare the
+                    certificates</a>
+            {% endif %}
         </div>
     </main>
 {% endblock %}

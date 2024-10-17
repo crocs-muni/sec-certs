@@ -75,8 +75,6 @@
             <div>
                 <h1>{{ cert["name"]|default("", true) }}</h1>
 
-
-
                 {% if cves %}
                     <div class="alert alert-warning mt-4">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -95,13 +93,19 @@
                         However, there {% if same|length > 1 %}are certificates that match{% else %}is a certificate
                         that matches{% endif %}
                         this one in the current listing:
-                        <ul class="my-2">
+                        <table class="table table-secondary table-borderless mt-3 ms-3">
                             {% for other in same %}
-                                <li>
-                                    <a href="{{ url_for("cc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>, {{ other["heuristics"]["cert_id"] }}
-                                </li>
+                                <tr>
+                                    <td class="align-middle">
+                                        <a href="{{ url_for("cc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>
+                                    </td>
+                                    <td class="align-middle">{{ other["heuristics"]["cert_id"] }}</td>
+                                    <td>
+                                        <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
+                                           class="btn btn-outline-secondary">Compare</a></td>
+                                </tr>
                             {% endfor %}
-                        </ul>
+                        </table>
                         <span style="margin-left: 20px">You can also examine other <a href="#similar">similar certificates</a> below.</span>
                     </div>
                 {% endif %}
@@ -428,7 +432,7 @@
                         </table>
                         {% if similar|length > 5 %}
                             <div id="similarity-toggle" class="d-flex justify-content-center">
-                                <div class="d-inline-flex flex-column" >
+                                <div class="d-inline-flex flex-column">
                                     <span class="text-muted">Showing 5 out of {{ similar|length }}.</span>
                                     <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
                                             data-bs-target=".similarity-collapse" aria-expanded="false"
