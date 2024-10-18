@@ -18,7 +18,9 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.model.reference_finder import ReferenceFinder
-from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
+from sec_certs.model.transitive_vulnerability_finder import (
+    TransitiveVulnerabilityFinder,
+)
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
@@ -215,11 +217,33 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         return [FIPSCertificate(int(cert_id)) for cert_id in cert_ids]
 
     @classmethod
-    def from_web_latest(cls) -> FIPSDataset:
+    def from_web_latest(
+        cls,
+        path: str | Path | None = None,
+        auxiliary_datasets: bool = False,
+        artifacts: bool = False,
+    ) -> FIPSDataset:
         """
-        Fetches the fresh snapshot of FIPSDataset from mirror.
+        Fetches the fresh snapshot of FIPSDataset from sec-certs.org.
+
+        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
+
+        :::{note}
+        Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
+        :::
+
+        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
+        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
+        :param artifacts: Whether to also download artifacts (i.e. PDFs).
         """
-        return cls.from_web(config.fips_latest_snapshot, "Downloading FIPS Dataset", "fips_latest_dataset.json")
+        return cls.from_web(
+            config.fips_latest_full_archive,
+            config.fips_latest_snapshot,
+            "Downloading FIPS",
+            path,
+            auxiliary_datasets,
+            artifacts,
+        )
 
     def _set_local_paths(self) -> None:
         super()._set_local_paths()
@@ -283,7 +307,10 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         )
         self.update_with_certs(processed_certs)
 
-    @staged(logger, "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.")
+    @staged(
+        logger,
+        "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.",
+    )
     def _compute_transitive_vulnerabilities(self) -> None:
         transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: str(cert.cert_id))
         transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.policy_processed_references)
@@ -306,12 +333,16 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
 
         policy_reference_finder = ReferenceFinder()
         policy_reference_finder.fit(
-            self.certs, lambda cert: str(cert.cert_id), lambda cert: cert.heuristics.policy_prunned_references
+            self.certs,
+            lambda cert: str(cert.cert_id),
+            lambda cert: cert.heuristics.policy_prunned_references,
         )
 
         module_reference_finder = ReferenceFinder()
         module_reference_finder.fit(
-            self.certs, lambda cert: str(cert.cert_id), lambda cert: cert.heuristics.module_prunned_references
+            self.certs,
+            lambda cert: str(cert.cert_id),
+            lambda cert: cert.heuristics.module_prunned_references,
         )
 
         for cert in self:
@@ -323,7 +354,10 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
             )
 
     def to_pandas(self) -> pd.DataFrame:
-        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=FIPSCertificate.pandas_columns)
+        df = pd.DataFrame(
+            [x.pandas_tuple for x in self.certs.values()],
+            columns=FIPSCertificate.pandas_columns,
+        )
         df = df.set_index("dgst")
 
         df.date_validation = pd.to_datetime(df.date_validation, errors="coerce")
@@ -333,7 +367,12 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         df = df.loc[~(df.embodiment == "*")]
 
         df = df.astype(
-            {"type": "category", "status": "category", "standard": "category", "embodiment": "category"}
+            {
+                "type": "category",
+                "status": "category",
+                "standard": "category",
+                "embodiment": "category",
+            }
         ).fillna(value=np.nan)
 
         df.level = df.level.fillna(value=np.nan).astype("float")

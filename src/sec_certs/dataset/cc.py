@@ -80,13 +80,21 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         """
         Return self serialized into pandas DataFrame
         """
-        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CCCertificate.pandas_columns)
+        df = pd.DataFrame(
+            [x.pandas_tuple for x in self.certs.values()],
+            columns=CCCertificate.pandas_columns,
+        )
         df = df.set_index("dgst")
 
         df.not_valid_before = pd.to_datetime(df.not_valid_before, errors="coerce")
         df.not_valid_after = pd.to_datetime(df.not_valid_after, errors="coerce")
         df = df.astype(
-            {"category": "category", "status": "category", "scheme": "category", "cert_lab": "category"}
+            {
+                "category": "category",
+                "status": "category",
+                "scheme": "category",
+                "cert_lab": "category",
+            }
         ).fillna(value=np.nan)
         df = df.loc[
             ~df.manufacturer.isnull()
@@ -212,7 +220,10 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         "cc_pp_collaborative.html": BASE_URL + "/pps/collaborativePP.cfm?cpp=1",
         "cc_pp_archived.html": BASE_URL + "/pps/index.cfm?archived=1",
     }
-    PP_CSV = {"cc_pp_active.csv": BASE_URL + "/pps/pps.csv", "cc_pp_archived.csv": BASE_URL + "/pps/pps-archived.csv"}
+    PP_CSV = {
+        "cc_pp_active.csv": BASE_URL + "/pps/pps.csv",
+        "cc_pp_archived.csv": BASE_URL + "/pps/pps-archived.csv",
+    }
 
     @property
     def active_html_tuples(self) -> list[tuple[str, Path]]:
@@ -247,11 +258,33 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "archived" in y]
 
     @classmethod
-    def from_web_latest(cls) -> CCDataset:
+    def from_web_latest(
+        cls,
+        path: str | Path | None = None,
+        auxiliary_datasets: bool = False,
+        artifacts: bool = False,
+    ) -> CCDataset:
         """
-        Fetches the fresh snapshot of CCDataset from sec-certs.org
+        Fetches the fresh snapshot of CCDataset from sec-certs.org.
+
+        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
+
+        :::{note}
+        Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
+        :::
+
+        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
+        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
+        :param artifacts: Whether to also download artifacts (i.e. PDFs).
         """
-        return cls.from_web(config.cc_latest_snapshot, "Downloading CC Dataset", "cc_latest_dataset.json")
+        return cls.from_web(
+            config.cc_latest_full_archive,
+            config.cc_latest_snapshot,
+            "Downloading CC",
+            path,
+            auxiliary_datasets,
+            artifacts,
+        )
 
     def _set_local_paths(self):
         super()._set_local_paths()
@@ -262,6 +295,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         if self.auxiliary_datasets.mu_dset:
             self.auxiliary_datasets.mu_dset.root_dir = self.mu_dataset_dir
 
+        if self.auxiliary_datasets.scheme_dset:
+            self.auxiliary_datasets.scheme_dset.json_path = self.scheme_dataset_path
+
         for cert in self:
             cert.set_local_paths(
                 self.reports_pdf_dir,
@@ -271,7 +307,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
                 self.targets_txt_dir,
                 self.certificates_txt_dir,
             )
-        # TODO: This forgets to set local paths for other auxiliary datasets
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
@@ -308,7 +343,11 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     @serialize
     @staged(logger, "Downloading and processing CSV and HTML files of certificates.")
     def get_certs_from_web(
-        self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True, get_archived: bool = True
+        self,
+        to_download: bool = True,
+        keep_metadata: bool = True,
+        get_active: bool = True,
+        get_archived: bool = True,
     ) -> None:
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
@@ -410,7 +449,10 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             ["not_valid_before", "not_valid_after", "maintenance_date"]
         ].apply(pd.to_datetime, errors="coerce")
 
-        df["dgst"] = df.apply(lambda row: helpers.get_first_16_bytes_sha256(_get_primary_key_str(row)), axis=1)
+        df["dgst"] = df.apply(
+            lambda row: helpers.get_first_16_bytes_sha256(_get_primary_key_str(row)),
+            axis=1,
+        )
 
         df_base = df.loc[~df.is_maintenance].copy()
         df_main = df.loc[df.is_maintenance].copy()
@@ -444,7 +486,10 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         for x in df_main.itertuples():
             updates[x.dgst].add(
                 CCCertificate.MaintenanceReport(
-                    x.maintenance_date.date(), x.maintenance_title, x.maintenance_report_link, x.maintenance_st_link
+                    x.maintenance_date.date(),
+                    x.maintenance_title,
+                    x.maintenance_report_link,
+                    x.maintenance_st_link,
                 )
             )
 
@@ -538,7 +583,22 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
 
         cert_status = "active" if "active" in str(file) else "archived"
 
-        cc_cat_abbreviations = ["AC", "BP", "DP", "DB", "DD", "IC", "KM", "MD", "MF", "NS", "OS", "OD", "DG", "TC"]
+        cc_cat_abbreviations = [
+            "AC",
+            "BP",
+            "DP",
+            "DB",
+            "DD",
+            "IC",
+            "KM",
+            "MD",
+            "MF",
+            "NS",
+            "OS",
+            "OD",
+            "DG",
+            "TC",
+        ]
         cc_table_ids = ["tbl" + x for x in cc_cat_abbreviations]
         cc_categories = [
             "Access Control Devices and Systems",
@@ -774,18 +834,27 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         self._extract_pdf_frontpage()
         self._extract_pdf_keywords()
 
-    @staged(logger, "Computing heuristics: Deriving information about laboratories involved in certification.")
+    @staged(
+        logger,
+        "Computing heuristics: Deriving information about laboratories involved in certification.",
+    )
     def _compute_cert_labs(self) -> None:
         certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         for cert in certs_to_process:
             cert.compute_heuristics_cert_lab()
 
-    @staged(logger, "Computing heuristics: Deriving information about certificate ids from artifacts.")
+    @staged(
+        logger,
+        "Computing heuristics: Deriving information about certificate ids from artifacts.",
+    )
     def _compute_normalized_cert_ids(self) -> None:
         for cert in self:
             cert.compute_heuristics_cert_id()
 
-    @staged(logger, "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.")
+    @staged(
+        logger,
+        "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.",
+    )
     def _compute_transitive_vulnerabilities(self):
         transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: cert.heuristics.cert_id)
         transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.report_references)
@@ -851,7 +920,11 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             finder.fit(self.certs, lambda cert: cert.heuristics.cert_id, ref_lookup(kw_source))  # type: ignore
 
             for dgst in self.certs:
-                setattr(self.certs[dgst].heuristics, dep_attr, finder.predict_single_cert(dgst, keep_unknowns=False))
+                setattr(
+                    self.certs[dgst].heuristics,
+                    dep_attr,
+                    finder.predict_single_cert(dgst, keep_unknowns=False),
+                )
 
     @serialize
     def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
@@ -915,7 +988,9 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
                 itertools.chain.from_iterable(CCMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs)
             )
             update_dset = CCDatasetMaintenanceUpdates(
-                {x.dgst: x for x in updates}, root_dir=self.mu_dataset_dir, name="maintenance_updates"
+                {x.dgst: x for x in updates},
+                root_dir=self.mu_dataset_dir,
+                name="maintenance_updates",
             )
         else:
             update_dset = CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path)
@@ -983,18 +1058,28 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         raise NotImplementedError
 
     def get_certs_from_web(
-        self, to_download: bool = True, keep_metadata: bool = True, get_active: bool = True, get_archived: bool = True
+        self,
+        to_download: bool = True,
+        keep_metadata: bool = True,
+        get_active: bool = True,
+        get_archived: bool = True,
     ) -> None:
         raise NotImplementedError
 
     @classmethod
     def from_json(cls, input_path: str | Path, is_compressed: bool = False) -> CCDatasetMaintenanceUpdates:
-        dset = cast(CCDatasetMaintenanceUpdates, ComplexSerializableType.from_json(input_path, is_compressed))
+        dset = cast(
+            CCDatasetMaintenanceUpdates,
+            ComplexSerializableType.from_json(input_path, is_compressed),
+        )
         dset._root_dir = Path(input_path).parent.absolute()
         return dset
 
     def to_pandas(self) -> pd.DataFrame:
-        df = pd.DataFrame([x.pandas_tuple for x in self.certs.values()], columns=CCMaintenanceUpdate.pandas_columns)
+        df = pd.DataFrame(
+            [x.pandas_tuple for x in self.certs.values()],
+            columns=CCMaintenanceUpdate.pandas_columns,
+        )
         df = df.set_index("dgst")
         df.index.name = "dgst"
 
@@ -1002,11 +1087,29 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         return df.fillna(value=np.nan)
 
     @classmethod
-    def from_web_latest(cls) -> CCDatasetMaintenanceUpdates:
+    def from_web_latest(
+        cls,
+        path: str | Path | None = None,
+        auxiliary_datasets: bool = False,
+        artifacts: bool = False,
+    ) -> CCDatasetMaintenanceUpdates:
+        if auxiliary_datasets or artifacts:
+            raise ValueError(
+                "Maintenance update dataset does not support downloading artifacts or other auxiliary datasets."
+            )
+        if path:
+            path = Path(path)
+            if not path.exists():
+                path.mkdir(parents=True)
+            if not path.is_dir():
+                raise ValueError("Path needs to be a directory.")
         with tempfile.TemporaryDirectory() as tmp_dir:
-            dset_path = Path(tmp_dir) / "cc_maintenances_latest_dataset.json"
+            dset_path = Path(tmp_dir) / "maintenance_updates.json"
             helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)
-            return cls.from_json(dset_path)
+            dset = cls.from_json(dset_path)
+            if path:
+                dset.move_dataset(path)
+            return dset
 
     def get_n_maintenances_df(self) -> pd.DataFrame:
         """
