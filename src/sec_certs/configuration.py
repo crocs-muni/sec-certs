@@ -31,7 +31,9 @@ class Configuration(BaseSettings):
         description=" During validation we don't connect certificates with validation dates difference higher than _this_.",
     )
     n_threads: int = Field(
-        -1, description="How many threads to use for parallel computations. Set to -1 to use all logical cores.", ge=-1
+        -1,
+        description="How many threads to use for parallel computations. Set to -1 to use all logical cores.",
+        ge=-1,
     )
     cpe_matching_threshold: int = Field(
         92,
@@ -40,7 +42,9 @@ class Configuration(BaseSettings):
         le=100,
     )
     cpe_n_max_matches: int = Field(
-        99, description="Maximum number of candidate CPE items that may be related to given certificate, >0", gt=0
+        99,
+        description="Maximum number of candidate CPE items that may be related to given certificate, >0",
+        gt=0,
     )
     cc_latest_snapshot: AnyHttpUrl = Field(
         "https://sec-certs.org/cc/dataset.json",
@@ -59,29 +63,36 @@ class Configuration(BaseSettings):
         description="URL from where to fetch the latest snapshot of the PP dataset.",
     )
     fips_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/fips/dataset.json", description="URL for the latest snapshot of FIPS dataset."
+        "https://sec-certs.org/fips/dataset.json",
+        description="URL for the latest snapshot of FIPS dataset.",
     )
     fips_latest_full_archive: AnyHttpUrl = Field(
         "https://sec-certs.org/fips/fips.tar.gz",
         description="URL from where to fetch the latest full archive of fully processed FIPS dataset.",
     )
     fips_iut_dataset: AnyHttpUrl = Field(
-        "https://sec-certs.org/fips/iut/dataset.json", description="URL for the dataset of FIPS IUT data."
+        "https://sec-certs.org/fips/iut/dataset.json",
+        description="URL for the dataset of FIPS IUT data.",
     )
     fips_iut_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/fips/iut/latest.json", description="URL for the latest snapshot of FIPS IUT data."
+        "https://sec-certs.org/fips/iut/latest.json",
+        description="URL for the latest snapshot of FIPS IUT data.",
     )
     fips_mip_dataset: AnyHttpUrl = Field(
-        "https://sec-certs.org/fips/mip/dataset.json", description="URL for the dataset of FIPS MIP data"
+        "https://sec-certs.org/fips/mip/dataset.json",
+        description="URL for the dataset of FIPS MIP data",
     )
     fips_mip_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/fips/mip/latest.json", description="URL for the latest snapshot of FIPS MIP data"
+        "https://sec-certs.org/fips/mip/latest.json",
+        description="URL for the latest snapshot of FIPS MIP data",
     )
     cpe_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/vuln/cpe/cpe.json.gz", description="URL for the latest snapshot of CPEDataset."
+        "https://sec-certs.org/vuln/cpe/cpe.json.gz",
+        description="URL for the latest snapshot of CPEDataset.",
     )
     cve_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/vuln/cve/cve.json.gz", description="URL for the latest snapshot of CVEDataset."
+        "https://sec-certs.org/vuln/cve/cve.json.gz",
+        description="URL for the latest snapshot of CVEDataset.",
     )
     cpe_match_latest_snapshot: AnyHttpUrl = Field(
         "https://sec-certs.org/vuln/cpe/cpe_match.json.gz",
@@ -99,14 +110,16 @@ class Configuration(BaseSettings):
         ge=0,
     )
     ignore_first_page: bool = Field(
-        True, description="During keyword search, first page usually contains addresses - ignore it."
+        True,
+        description="During keyword search, first page usually contains addresses - ignore it.",
     )
     cc_reference_annotator_dir: Optional[Path] = Field(  # noqa: UP007
         None,
         description="Path to directory with serialized reference annotator model. If set to `null`, tool will search default directory for the given dataset.",
     )
     cc_reference_annotator_should_train: bool = Field(
-        True, description="True if new reference annotator model shall be build, False otherwise."
+        True,
+        description="True if new reference annotator model shall be build, False otherwise.",
     )
     cc_matching_threshold: int = Field(
         90,
@@ -117,14 +130,15 @@ class Configuration(BaseSettings):
     cc_use_proxy: bool = Field(False, description="Download CC artifacts through the sec-certs.org proxy.")
     fips_use_proxy: bool = Field(False, description="Download FIPS artifacts through the sec-certs.org proxy.")
     enable_progress_bars: bool = Field(
-        True, description="If true, progress bars will be printed to stdout during computation."
+        True,
+        description="If true, progress bars will be printed to stdout during computation.",
     )
     nvd_api_key: Optional[str] = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
     preferred_source_nvd_datasets: Literal["sec-certs", "api"] = Field(
         "sec-certs",
         description="If set to `sec-certs`, will fetch CPE and CVE datasets from sec-certs.org."
         + " If set to `api`, will fetch these resources from NVD API. It is advised to set an"
-        + " `nvd_api_key` when setting this to `nvd`.",
+        + " `nvd_api_key` when setting this to `api`.",
     )
 
     def _get_nondefault_keys(self) -> set[str]:

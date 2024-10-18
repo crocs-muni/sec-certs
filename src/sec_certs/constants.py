@@ -7,6 +7,7 @@ REF_ANNOTATION_MODES = Literal["training", "evaluation", "production", "cross-va
 REF_EMBEDDING_METHOD = Literal["tf_idf", "transformer"]
 
 
+# This stupid thing should die in a fire...
 DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 
 RESPONSE_OK = 200

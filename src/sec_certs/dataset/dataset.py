@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import shutil
+import tarfile
 import tempfile
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
@@ -23,9 +24,17 @@ from sec_certs.dataset.cve import CVEDataset
 from sec_certs.model.cpe_matching import CPEClassifier
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
-from sec_certs.serialization.json import ComplexSerializableType, get_class_fullname, serialize
+from sec_certs.serialization.json import (
+    ComplexSerializableType,
+    get_class_fullname,
+    serialize,
+)
 from sec_certs.utils import helpers
-from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNvdDatasetBuilder, CveNvdDatasetBuilder
+from sec_certs.utils.nvd_dataset_builder import (
+    CpeMatchNvdDatasetBuilder,
+    CpeNvdDatasetBuilder,
+    CveNvdDatasetBuilder,
+)
 from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
 
@@ -170,16 +179,74 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         return str(type(self).__name__) + ":" + self.name + ", " + str(len(self)) + " certificates"
 
     @classmethod
-    def from_web(cls: type[DatasetSubType], url: str, progress_bar_desc: str, filename: str) -> DatasetSubType:
+    def from_web(  # noqa
+        cls: type[DatasetSubType],
+        archive_url: str,
+        snapshot_url: str,
+        progress_bar_desc: str,
+        path: None | str | Path = None,
+        auxiliary_datasets: bool = False,
+        artifacts: bool = False,
+    ) -> DatasetSubType:
         """
-        Fetches a fully processed dataset instance from static site that hosts it.
+        Fetches the fresh dataset snapshot from sec-certs.org.
+
+        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
+
+        :::{note}
+        Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
+        :::
+
+        :param archive_url: The URL of the full dataset archive.
+        :param snapshot_url: The URL of the full dataset snapshot.
+        :param progress_bar_desc: Description of the download progress bar.
+        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
+        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
+        :param artifacts: Whether to also download artifacts (i.e. PDFs).
         """
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            dset_path = Path(tmp_dir) / filename
-            helpers.download_file(url, dset_path, show_progress_bar=True, progress_bar_desc=progress_bar_desc)
-            dset = cls.from_json(dset_path)
-            dset.root_dir = constants.DUMMY_NONEXISTING_PATH
-            return dset
+        if (artifacts or auxiliary_datasets) and path is None:
+            raise ValueError("Path needs to be defined if artifacts or auxiliary datasets are to be downloaded.")
+        if artifacts and not auxiliary_datasets:
+            raise ValueError("Auxiliary datasets need to be downloaded if artifacts are to be downloaded.")
+        if path is not None:
+            path = Path(path)
+            if not path.exists():
+                path.mkdir(parents=True)
+            if not path.is_dir():
+                raise ValueError("Path needs to be a directory.")
+        if artifacts:
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                dset_path = Path(tmp_dir) / "dataset.tar.gz"
+                res = helpers.download_file(
+                    archive_url,
+                    dset_path,
+                    show_progress_bar=True,
+                    progress_bar_desc=progress_bar_desc,
+                )
+                if res != constants.RESPONSE_OK:
+                    raise ValueError(f"Download failed: {res}")
+                with tarfile.open(dset_path, "r:gz") as tar:
+                    tar.extractall(str(path))
+                dset = cls.from_json(path / "dataset.json")  # type: ignore
+                if auxiliary_datasets:
+                    dset.process_auxiliary_datasets(download_fresh=False)
+        else:
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                dset_path = Path(tmp_dir) / "dataset.json"
+                helpers.download_file(
+                    snapshot_url,
+                    dset_path,
+                    show_progress_bar=True,
+                    progress_bar_desc=progress_bar_desc,
+                )
+                dset = cls.from_json(dset_path)
+                if path:
+                    dset.move_dataset(path)
+                else:
+                    dset.root_dir = constants.DUMMY_NONEXISTING_PATH
+            if auxiliary_datasets:
+                dset.process_auxiliary_datasets(download_fresh=True)
+        return dset
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -204,7 +271,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
     @classmethod
     def from_json(cls: type[DatasetSubType], input_path: str | Path, is_compressed: bool = False) -> DatasetSubType:
-        dset = cast("DatasetSubType", ComplexSerializableType.from_json(input_path, is_compressed))
+        dset = cast(
+            "DatasetSubType",
+            ComplexSerializableType.from_json(input_path, is_compressed),
+        )
         dset._root_dir = Path(input_path).parent.absolute()
         dset._set_local_paths()
         return dset
@@ -411,7 +481,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         if download_fresh:
             if config.preferred_source_nvd_datasets == "api":
-                logger.info("Fetchnig CPE Match feed from NVD APi.")
+                logger.info("Fetching CPE Match feed from NVD APi.")
                 with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cpe_match_dict = builder.build_dataset(cpe_match_dict)
             else:
@@ -444,8 +514,16 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
         Computes matching CPEs for the certificates.
         """
         WINDOWS_WEAK_CPES: set[CPE] = {
-            CPE("", "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*", "Microsoft Windows on X64"),
-            CPE("", "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*", "Microsoft Windows on X86"),
+            CPE(
+                "",
+                "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x64:*",
+                "Microsoft Windows on X64",
+            ),
+            CPE(
+                "",
+                "cpe:2.3:o:microsoft:windows:-:*:*:*:*:*:x86:*",
+                "Microsoft Windows on X86",
+            ),
         }
 
         def filter_condition(cpe: CPE) -> bool:
