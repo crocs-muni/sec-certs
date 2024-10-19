@@ -228,9 +228,8 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
 
         Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
 
-        :::{note}
-        Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
-        :::
+        .. note::
+            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
 
         :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
         :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).

@@ -193,9 +193,8 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
 
-        :::{note}
-        Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
-        :::
+        .. note::
+            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
 
         :param archive_url: The URL of the full dataset archive.
         :param snapshot_url: The URL of the full dataset snapshot.
@@ -437,10 +436,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 logger.info("Fetching new CPE records from NVD API.")
                 with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cpe_dataset = builder.build_dataset(cpe_dataset)
+                cpe_dataset.to_json()
             else:
                 logger.info("Preparing CPEDataset from sec-certs.org.")
                 cpe_dataset = CPEDataset.from_web(self.cpe_dataset_path)
-            cpe_dataset.to_json()
 
         return cpe_dataset
 
@@ -462,10 +461,10 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 logger.info("Fetching new CVE records from NVD API.")
                 with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                     cve_dataset = builder.build_dataset(cve_dataset)
+                cve_dataset.to_json()
             else:
                 logger.info("Preparing CVEDataset from sec-certs.org")
                 cve_dataset = CVEDataset.from_web(self.cve_dataset_path)
-            cve_dataset.to_json()
 
         return cve_dataset
 

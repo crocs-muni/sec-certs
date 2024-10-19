@@ -6,7 +6,7 @@
 ```
 
 ```{tip}
-The examples related to this package can be found at [model notebook](./../notebooks/examples/model.ipynb).
+The examples related to this package can be found in the [model notebook](./../notebooks/examples/model.ipynb).
 ```
 
 ## CPEClassifier
