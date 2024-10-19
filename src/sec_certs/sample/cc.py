@@ -484,7 +484,8 @@ class CCCertificate(
     @property
     def actual_sars(self) -> set[SAR] | None:
         """
-        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs
+        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs.
+
         :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
         """
         sars = {}
@@ -543,7 +544,7 @@ class CCCertificate(
     def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
-        Assuming that html source has better protection profiles, they overwrite CSV info
+        Assuming that html source has better protection profiles, they overwrite CSV info.
         On other values the sanity checks are made.
         """
         if self != other:

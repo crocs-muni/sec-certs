@@ -193,9 +193,8 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
 
         Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
 
-        :::{note}
-        Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
-        :::
+        .. note::
+            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
 
         :param archive_url: The URL of the full dataset archive.
         :param snapshot_url: The URL of the full dataset snapshot.
