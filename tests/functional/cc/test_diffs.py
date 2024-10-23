@@ -29,7 +29,7 @@ def test_cc_compare_render(client):
         assert render_compare(cert_one, cert_other, []) is not None
 
 
-@pytest.mark.parametrize("dgst", ["d492f0e3e19d32f6", "2ff8ceac4a6ca519", "0adbded2df213f16", "fb8945b7036e2361"])
+@pytest.mark.parametrize("dgst", ["1412d1d9e0d553c1", "44f677892bb84ce5", "f1174ac2e100bc5c", "f0c22e3e4abad667"])
 def test_cc_diff_reconstruction(dgst):
     new_diff = mongo.db.cc_diff.find_one({"dgst": dgst, "type": "new"})
     change_diffs = mongo.db.cc_diff.find({"dgst": dgst, "type": "change"}).sort([("timestamp", pymongo.ASCENDING)])

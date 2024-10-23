@@ -86,7 +86,7 @@ def test_old_entry(client: FlaskClient):
 
 @pytest.mark.remote
 def test_entry(client: FlaskClient):
-    hashid = "3da6e0f0f97b3d2f"
+    hashid = "3d1b01ce576f605d"
     cert_id = "BSI-DSZ-CC-1091-2018"
     cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"
     hid_resp = client.get(f"/cc/{hashid}/", follow_redirects=True)
@@ -122,16 +122,16 @@ def test_entry_name_disambiguation(client: FlaskClient):
 
 @pytest.mark.remote
 def test_entry_graph(client: FlaskClient):
-    resp = client.get("/cc/602ff222d105acd3/graph.json")
+    resp = client.get("/cc/663b9c1bde7447b3/graph.json")
     assert resp.is_json
     nodes = resp.json["nodes"]
     assert len(nodes) == 1
-    assert nodes[0]["id"] == "602ff222d105acd3"
+    assert nodes[0]["id"] == "663b9c1bde7447b3"
     links = resp.json["links"]
     assert len(links) == 0
 
 
 @pytest.mark.remote
 def test_compare(client: FlaskClient):
-    resp = client.get("/cc/compare/eb8fabc9b0ad1879/760bf71ae0e88703/")
+    resp = client.get("/cc/compare/dba20653348d0d12/eeff5b346faba43f/")
     assert resp.status_code == 200

@@ -534,6 +534,9 @@ def single_queue(queue_name: str, timeout: float = 60 * 10):  # pragma: no cover
         @wraps(f)
         def wrapper(*args, **kwargs):
             msg = CurrentMessage.get_current_message()
+            if msg is None:
+                # If we are testing and not in a worker, just execute
+                return f(*args, **kwargs)
             retries = msg.options.get("retries", 0)
             lock: Lock = redis.lock(queue_name, timeout=timeout)
             acq = lock.acquire(blocking=False)

@@ -7,7 +7,7 @@ from sec_certs_page import mail, mongo
 from sec_certs_page.cc.tasks import notify
 
 
-@pytest.fixture(params=["54f754dc95137c47", "2e14077d8d2ed82f"])
+@pytest.fixture(params=["6ca52f5450bedb2f", "e778cd5e29cebbf2"])
 def certificate(request):
     return mongo.db.cc.find_one({"_id": request.param})
 
