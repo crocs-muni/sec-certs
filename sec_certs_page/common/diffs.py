@@ -1,5 +1,7 @@
+from itertools import zip_longest
 from logging import getLogger
-from typing import Mapping, Tuple
+from operator import itemgetter
+from typing import Mapping, Tuple, Any
 
 from flask import render_template
 from jsondiff import diff as jdiff
@@ -199,6 +201,7 @@ def render_compare(one, other, k1_order):
     def walk(o, a, b, path=()):
         if isinstance(o, dict) and isinstance(a, dict) and isinstance(b, dict):
             keys = set().union(o.keys(), a.keys(), b.keys())
+            to_walk = []
             for k in keys:
                 if k in symbols._all_symbols_:
                     if path in changes:
@@ -209,7 +212,6 @@ def render_compare(one, other, k1_order):
                             changes[path]["ok"] += o[k]
                     else:
                         changes[path] = {"action": repr(k), "ok": o[k], "a": a, "b": b}
-                    # print("action", k, path, o[k], a, b)
                     continue
                 if k not in o:
                     new_path = tuple((*path, k))
@@ -217,23 +219,50 @@ def render_compare(one, other, k1_order):
                         if new_path in changes:
                             raise ValueError("Bad diff!")
                         changes[new_path] = {"action": "same", "ak": a[k]}
-                        # print("same", new_path, a[k], b[k])
                         continue
                     else:
-                        # print("ignoring", tuple((*path, k)))
                         continue
+                to_walk.append(k)
+            for k in to_walk:
                 walk(o[k], a[k], b[k], tuple((*path, k)))
+        elif isinstance(o, dict) and isinstance(a, set) and isinstance(b, set):
+            for k in o.keys():
+                if k in symbols._all_symbols_:
+                    if path in changes:
+                        changes[path]["action"] = "modify"
+                        if isinstance(o[k], (dict, set)):
+                            changes[path]["ok"].update(o[k])
+                        else:
+                            changes[path]["ok"] += o[k]
+                    else:
+                        changes[path] = {"action": repr(k), "ok": o[k], "a": a, "b": b}
+        elif isinstance(o, dict) and isinstance(a, list) and isinstance(b, list):
+            for k in o.keys():
+                if k in symbols._all_symbols_:
+                    if path in changes:
+                        changes[path]["action"] = "modify"
+                        if isinstance(o[k], dict):
+                            changes[path]["ok"].update(o[k])
+                        else:
+                            changes[path]["ok"] += list(map(itemgetter(1), o[k]))
+                    else:
+                        changes[path] = {"action": repr(k), "ok": list(map(itemgetter(1), o[k])), "a": a, "b": b}
+                elif isinstance(k, int):
+                    walk(o[k], a[k], b[k], tuple((*path, k)))
         elif isinstance(o, list) and (not isinstance(a, list) or not isinstance(b, list)):
             if path in changes:
                 raise ValueError("Bad diff!")
-            changes[path] = {"action": "different", "o": o, "a": a, "b": b}
-            # print("leaf", path, o, a, b)
+            if path[:-1] in changes:
+                change = changes[path[:-1]]
+                hv = change.setdefault("hv", [])
+                hv.append(path[-1])
+            else:
+                changes[path] = {"action": "different", "o": o, "a": a, "b": b}
         elif isinstance(o, (tuple, list, set)):
-            for new_o, new_a, new_b in zip(o, a, b):
-                walk(new_o, new_a, new_b, path)
+            for i, (new_o, new_a, new_b) in enumerate(zip_longest(o, a, b)):
+                walk(new_o, new_a, new_b, tuple((*path, i)))
         else:
             pass
-            # print("here", path, o, a, b)
 
     walk(diff, one, other)
     pairs = list(changes.items())

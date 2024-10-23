@@ -1,5 +1,5 @@
 {% extends "base.html.jinja2" %}
-{% macro render_one(path, one, highlight=None) %}
+{% macro render_one(path, one, highlight=None, highlight_value=None) %}
     {% if path[-1] == "extracted_sars" and one %}
         {% for v in one %}
             {{ v["family"] }}.{{ v["level"] }}{% if not loop.last %}, {% endif %}
@@ -7,19 +7,25 @@
     {% elif one is mapping %}
         <ul>
             {% for k, v in one.items() %}
-                <li>{% if highlight and k in highlight %}<b>{{ k }}: {{ render_one(path, v) }}</b>{% else %}{{ k }}:
-                    {{ render_one(path, v) }}{% endif %}</li>
+                <li>{% if highlight and k in highlight %}
+                    <b>{{ k }}: {{ render_one(path, v) }}</b>
+                    {% elif highlight_value and k in highlight_value %}
+                    {{ k }}: <b>{{ render_one(path, v) }}</b>
+                    {% else %}
+                    {{ k }}: {{ render_one(path, v) }}
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     {% elif one is string %}
         {{ one }}
     {% elif one is sequence %}
         {% for a in one %}
-            {{ a }}{% if not loop.last %}, {% endif %}
+            {% if highlight and a in highlight %}<b>{{ render_one(path, a) }}</b>{% else %}{{ render_one(path, a) }}{% endif %}{% if not loop.last %}, {% endif %}
         {% endfor %}
     {% elif one is iterable %}
         {% for a in one %}
-            {{ a }}{% if not loop.last %}, {% endif %}
+            {% if highlight and a in highlight %}<b>{{ render_one(path, a) }}</b>{% else %}{{ render_one(path, a) }}{% endif %}{% if not loop.last %}, {% endif %}
         {% endfor %}
     {% else %}
         {{ one }}
@@ -76,18 +82,18 @@
                                     <td class="table-warning fw-bold">{{ render_one(path, val["b"]) }}</td>
                                 {% elif action == "insert" or action == "add" %}
                                     {# add, discard (set),  insert, delete (list, dict)  #}
-                                    <td class="table-success">{{ render_one(path, val["a"]) }}</td>
+                                    <td class="table-success">{{ render_one(path, val["a"], highlight_value=val["hv"]) }}</td>
                                     <td class="table-success">
-                                        {{ render_one(path, val["b"], val["ok"]) }}
+                                        {{ render_one(path, val["b"], val["ok"], highlight_value=val["hv"]) }}
                                     </td>
                                 {% elif action == "delete" or action == "discard" %}
-                                    <td class="table-danger">{{ render_one(path, val["a"], val["ok"]) }}</td>
+                                    <td class="table-danger">{{ render_one(path, val["a"], val["ok"], highlight_value=val["hv"]) }}</td>
                                     <td class="table-danger">
-                                        {{ render_one(path, val["b"]) }}
+                                        {{ render_one(path, val["b"], highlight_value=val["hv"]) }}
                                     </td>
                                 {% elif action == "modify" %}
-                                    <td class="table-warning">{{ render_one(path, val["a"], val["ok"]) }}</td>
-                                    <td class="table-warning">{{ render_one(path, val["b"], val["ok"]) }}</td>
+                                    <td class="table-warning">{{ render_one(path, val["a"], val["ok"], highlight_value=val["hv"]) }}</td>
+                                    <td class="table-warning">{{ render_one(path, val["b"], val["ok"], highlight_value=val["hv"]) }}</td>
                                 {% endif %}
                             </tr>
                         {% endfor %}
