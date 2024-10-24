@@ -21,6 +21,11 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
     implementation_name: str
     validation_date: date
 
+    description: str
+    version: str
+    type: str
+    algorithm_capabilities: str
+
     pandas_columns: ClassVar[list[str]] = [
         "dgst",
         "alg_number",
@@ -28,6 +33,10 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
         "vendor",
         "implementation_name",
         "validation_date",
+        "description",
+        "version",
+        "type",
+        "algorithm_capabilities",
     ]
 
     @property
@@ -39,6 +48,10 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
             self.vendor,
             self.implementation_name,
             self.validation_date,
+            self.description,
+            self.version,
+            self.type,
+            self.algorithm_capabilities,
         )
 
     @property
