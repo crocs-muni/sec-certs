@@ -99,6 +99,83 @@
           ]
         }
         </script>
+        <script>
+    (() => {
+        'use strict'
+
+                const getStoredTheme = () => localStorage.getItem('theme')
+        const setStoredTheme = theme => localStorage.setItem('theme', theme)
+
+          const getPreferredTheme = () => {
+            const storedTheme = getStoredTheme()
+            if (storedTheme) {
+              return storedTheme
+            }
+
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+
+          const setTheme = theme => {
+            if (theme === 'auto') {
+              document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+            } else {
+              document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+          }
+
+          setTheme(getPreferredTheme())
+
+          const showActiveTheme = (theme, focus = false) => {
+            const themeSwitcher = document.querySelector('#theme')
+
+            if (!themeSwitcher) {
+              return
+            }
+
+            const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+            const activeIcon = document.querySelector(`[data-bs-theme-value="${theme}"] i`)
+            themeSwitcher.replaceChildren(activeIcon.cloneNode())
+
+            document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+              element.classList.remove('active')
+              element.setAttribute('aria-pressed', 'false')
+            })
+
+            btnToActive.classList.add('active')
+            btnToActive.setAttribute('aria-pressed', 'true')
+
+            const themeSwitcherLabel = `(${btnToActive.dataset.bsThemeValue})`
+            themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+
+            if (focus) {
+              themeSwitcher.focus()
+            }
+          }
+
+          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const storedTheme = getStoredTheme()
+            if (storedTheme !== 'light' && storedTheme !== 'dark') {
+              setTheme(getPreferredTheme())
+            }
+          })
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showActiveTheme(getPreferredTheme())
+
+        document.querySelectorAll('[data-bs-theme-value]')
+          .forEach(toggle => {
+            toggle.addEventListener('click', () => {
+              const theme = toggle.getAttribute('data-bs-theme-value')
+              console.log("changing");
+              console.log(theme);
+              setStoredTheme(theme)
+              setTheme(theme)
+              showActiveTheme(theme, true)
+            })
+          })
+      })
+    })()
+</script>
     {% endblock %}
 </head>
 
@@ -153,6 +230,14 @@
                     <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-secondary px-4 nav-button"
                        role="button"><i
                             class="fa fa-file"></i> Docs</a>
+                    <div class="dropdown">
+                        <button id="theme" class="nav-link dropdown-toggle text-secondary" type="button" data-bs-toggle="dropdown"></button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto"><i class="fas fa-circle-half-stroke"></i> Auto</button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"><i class="fas fa-sun"></i> Light</button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"><i class="fas fa-moon"></i> Dark</button></li>
+                        </ul>
+                    </div>
             </div>
         </div>
     </nav>

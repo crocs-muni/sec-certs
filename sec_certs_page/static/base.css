@@ -72,6 +72,10 @@
     transition: margin .25s ease;
 }
 
+[data-bs-theme="dark"] #feedback .card {
+    background-color: #101010;
+}
+
 #feedback .card.collapsed {
     margin-right: -300px;
 }
@@ -202,7 +206,6 @@ body {
     font-weight: 600;
 }
 
-
 .callout {
     padding: 1.25rem;
     margin-top: 1.25rem;
@@ -210,6 +213,11 @@ body {
     color: inherit;
     background-color: var(--bs-gray-100);
     border-left: 0.25rem solid var(--bs-gray-300);
+}
+
+[data-bs-theme="dark"] .callout {
+    background-color: var(--bs-gray-800);
+    border-left: 0.25rem solid var(--bs-gray-700);
 }
 
 .callout-primary {
