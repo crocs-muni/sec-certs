@@ -10,8 +10,9 @@
             </div>
             <h1>Runtime config</h1>
             <p>These values override the config ones above.</p>
-            <p>Note that it makes sense to override only some of the config values during runtime. Currently
-                that is all of the <code>*_SKIP_UPDATE</code> only.</p>
+            <p>Note that it makes sense to override only some of the config values during runtime. Currently,
+                that is all of the <code>*_SKIP_UPDATE</code> options as well as the <code>EVENT_NAVBAR</code> option
+                that expects a HTML string that will be added as the contents of a temporary sub-navbar.</p>
             <a href="{{ url_for(".config_edit") }}" class="btn btn-primary">Edit</a>
             <div class="my-2">
                 <pre class="listing"><code>{{ runtime_config_text }}</code></pre>

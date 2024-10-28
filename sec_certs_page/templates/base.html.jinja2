@@ -100,82 +100,99 @@
         }
         </script>
         <script>
-    (() => {
-        'use strict'
+        (() => {
+            'use strict'
 
-        const getStoredTheme = () => localStorage.getItem('theme')
-        const setStoredTheme = theme => {localStorage.setItem('theme', theme); localStorage.setItem('mode', theme)}
-
-          const getPreferredTheme = () => {
-            const storedTheme = getStoredTheme()
-            if (storedTheme) {
-              return storedTheme
+            const getStoredTheme = () => localStorage.getItem('theme')
+            const setStoredTheme = theme => {
+                localStorage.setItem('theme', theme);
+                localStorage.setItem('mode', theme)
             }
 
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          }
+            const getPreferredTheme = () => {
+                const storedTheme = getStoredTheme()
+                if (storedTheme) {
+                    return storedTheme
+                }
 
-          const setTheme = theme => {
-            if (theme === 'auto') {
-              document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
-            } else {
-              document.documentElement.setAttribute('data-bs-theme', theme)
-            }
-          }
-
-          setTheme(getPreferredTheme())
-
-          const showActiveTheme = (theme, focus = false) => {
-            const themeSwitcher = document.querySelector('#theme')
-
-            if (!themeSwitcher) {
-              return
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
             }
 
-            const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-            const activeIcon = document.querySelector(`[data-bs-theme-value="${theme}"] i`)
-            themeSwitcher.replaceChildren(activeIcon.cloneNode())
+            const setTheme = theme => {
+                if (theme === 'auto') {
+                    document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', theme)
+                }
+            }
 
-            document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-              element.classList.remove('active')
-              element.setAttribute('aria-pressed', 'false')
+            setTheme(getPreferredTheme())
+
+            const showActiveTheme = (theme, focus = false) => {
+                const themeSwitcher = document.querySelector('#theme')
+
+                if (!themeSwitcher) {
+                    return
+                }
+
+                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                const activeIcon = document.querySelector(`[data-bs-theme-value="${theme}"] i`)
+                themeSwitcher.replaceChildren(activeIcon.cloneNode())
+
+                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                    element.classList.remove('active')
+                    element.setAttribute('aria-pressed', 'false')
+                })
+
+                btnToActive.classList.add('active')
+                btnToActive.setAttribute('aria-pressed', 'true')
+
+                const themeSwitcherLabel = `(${btnToActive.dataset.bsThemeValue})`
+                themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+
+                if (focus) {
+                    themeSwitcher.focus()
+                }
+            }
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                const storedTheme = getStoredTheme()
+                if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                    setTheme(getPreferredTheme())
+                }
             })
 
-            btnToActive.classList.add('active')
-            btnToActive.setAttribute('aria-pressed', 'true')
+            window.addEventListener('DOMContentLoaded', () => {
+                showActiveTheme(getPreferredTheme())
 
-            const themeSwitcherLabel = `(${btnToActive.dataset.bsThemeValue})`
-            themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-
-            if (focus) {
-              themeSwitcher.focus()
-            }
-          }
-
-          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            const storedTheme = getStoredTheme()
-            if (storedTheme !== 'light' && storedTheme !== 'dark') {
-              setTheme(getPreferredTheme())
-            }
-          })
-
-    window.addEventListener('DOMContentLoaded', () => {
-        showActiveTheme(getPreferredTheme())
-
-        document.querySelectorAll('[data-bs-theme-value]')
-          .forEach(toggle => {
-            toggle.addEventListener('click', () => {
-              const theme = toggle.getAttribute('data-bs-theme-value')
-              console.log("changing");
-              console.log(theme);
-              setStoredTheme(theme)
-              setTheme(theme)
-              showActiveTheme(theme, true)
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            setStoredTheme(theme)
+                            setTheme(theme)
+                            showActiveTheme(theme, true)
+                        })
+                    })
             })
-          })
-      })
-    })()
-</script>
+
+            window.addEventListener('DOMContentLoaded', () => {
+                let storedEventText = localStorage.getItem("event_navbar_text");
+                let eventElement = document.getElementById("event-navbar");
+                let textElement = document.getElementById("event-navbar-text");
+
+                if (storedEventText !== textElement.textContent) {
+                    eventElement.style.display = "flex";
+                }
+
+                let closeElement = document.getElementById("event-navbar-close");
+                closeElement.addEventListener("click", () => {
+                    eventElement.style.display = "none";
+                    localStorage.setItem("event_navbar_text", textElement.textContent);
+                });
+            });
+        })()
+    </script>
     {% endblock %}
 </head>
 
@@ -187,19 +204,6 @@
             {{ event_navbar()|safe }}
             <button type="button" class="btn-close ms-auto me-2" aria-label="Close" id="event-navbar-close" title="Close"></button>
         </div>
-        <script>
-            $(function () {
-                let storedEventText = localStorage.getItem("event_navbar_text");
-                if (storedEventText !== $("#event-navbar-text").text()) {
-                    $("#event-navbar").show();
-                }
-
-                $("#event-navbar-close").on("click", function() {
-                    $("#event-navbar").hide();
-                    localStorage.setItem("event_navbar_text", $("#event-navbar-text").text());
-                });
-            });
-        </script>
     </nav>
     {% endif %}
     <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
