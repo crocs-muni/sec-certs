@@ -9,6 +9,26 @@
     margin-left: 0 !important;
 }
 
+[data-bs-theme="dark"] #navbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.part-logo {
+    filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+[data-bs-theme="dark"] .part-logo {
+    filter: invert(100%) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+[data-bs-theme="dark"] #crocs-logo {
+    filter: invert(100%);
+}
+
+[data-bs-theme="dark"] #muni-logo {
+    filter: invert(80%);
+}
+
 #wrapper {
     overflow-x: hidden;
 }
@@ -258,4 +278,9 @@ body {
 .callout-dark {
     background-color: var(--bs-dark-bg-subtle);
     border-left: 0.25rem solid var(--bs-dark-border-subtle);
+}
+
+[data-bs-theme="dark"] .row.bg-dark {
+    /* 240, 46, 170 */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19), 0 -4px 8px 0 rgba(0, 0, 0, 0.2), 0 -6px 20px 0 rgba(0, 0, 0, 0.19);
 }

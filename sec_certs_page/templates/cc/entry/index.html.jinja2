@@ -512,7 +512,7 @@
                 {% elif not network or network|length <= 1 %}
                     <p>No references are available for this certificate.</p>
                 {% else %}
-                    <div class="border">
+                    <div class="border rounded">
                         <div id="network"></div>
                     </div>
                     <script>
@@ -580,7 +580,7 @@
                     <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
                        title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-                <pre id="raw-data" class="listing collapse mt-3"><code>{{ json|tojson(indent=2) }}</code></pre>
+                <pre id="raw-data" class="border rounded listing collapse mt-3"><code>{{ json|tojson(indent=2) }}</code></pre>
             </div>
             <script>
                 let certificate_data = {

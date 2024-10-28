@@ -103,8 +103,8 @@
     (() => {
         'use strict'
 
-                const getStoredTheme = () => localStorage.getItem('theme')
-        const setStoredTheme = theme => localStorage.setItem('theme', theme)
+        const getStoredTheme = () => localStorage.getItem('theme')
+        const setStoredTheme = theme => {localStorage.setItem('theme', theme); localStorage.setItem('mode', theme)}
 
           const getPreferredTheme = () => {
             const storedTheme = getStoredTheme()
@@ -231,7 +231,7 @@
                        role="button"><i
                             class="fa fa-file"></i> Docs</a>
                     <div class="dropdown">
-                        <button id="theme" class="nav-link dropdown-toggle text-secondary" type="button" data-bs-toggle="dropdown"></button>
+                        <button id="theme" class="nav-link dropdown-toggle text-secondary" type="button" data-bs-toggle="dropdown" title="Change theme"></button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto"><i class="fas fa-circle-half-stroke"></i> Auto</button></li>
                             <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"><i class="fas fa-sun"></i> Light</button></li>
@@ -397,21 +397,26 @@
                 {% block footer %}
                     <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <a id="crocs-logo" href="https://crocs.fi.muni.cz">
-                                <img src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
+                            <a href="https://crocs.fi.muni.cz"  target="_blank" rel="noopener">
+                                <img id="crocs-logo" src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
                                      alt="Centre for Research on Cryptography and Security" style="width: 100%" loading="lazy"/>
                             </a>
                         </div>
                         <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <p class="fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener">GitHub</a>.</p>
-                            <p class="fw-light">Developed with Flask &amp; MongoDB.</p>
+                            <a href="https://muni.cz"  target="_blank" rel="noopener">
+                            <img id="muni-logo" src="{{ url_for("static", filename="img/muni.svg") }}"
+                                alt="Masaryk University" style="width: 100%" loading="lazy"/>
+                            </a>
+                            <p class="mt-3 mb-0 fw-light">Check out our <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener">GitHub</a>.</p>
+                            {#
                             <p class="fw-light">Running on <a href="https://cloud.metacentrum.cz/" target="_blank" rel="noopener">MetaCentrum Cloud</a>.</p>
+                             #}
                             {% if current_user.is_authenticated %}
-                                <p class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;"
-                                                       title="Lemme out"><i class="fas fa-sign-out-alt"></i></a></p>
+                                <span class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;"
+                                                       title="Lemme out"><i class="fas fa-sign-out-alt"></i></a></span>
                             {% else %}
-                                <p class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;"
-                                                       title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></p>
+                                <span class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;"
+                                                       title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></span>
                             {% endif %}
                         </div>
                     </div>

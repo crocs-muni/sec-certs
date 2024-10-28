@@ -106,13 +106,13 @@ class CertificateNetwork {
         const g = svg.append("g");
 
         this.numNodes = svg.append("text")
-            .attr("fill", "#000")
+            .attr("fill", "currentColor")
             .attr("x", 5)
             .attr("y", 15)
             .text("Nodes: " + this.data.nodes.length);
 
         this.numLinks = svg.append("text")
-            .attr("fill", "#000")
+            .attr("fill", "currentColor")
             .attr("x", 5)
             .attr("y", 30)
             .text("Edges: " + this.data.links.length);
@@ -153,7 +153,7 @@ class CertificateNetwork {
                 this.nodeGroup.each(function (d, i) {
                     if (i === newClosest.index) {
                         d3.select(this).select("text").attr("visibility", null);
-                        d3.select(this).select("use").attr("fill", "#000");
+                        d3.select(this).select("use").attr("fill", "currentColor");
                     } else if (closest !== null && i === closest.index) {
                         d3.select(this).select("text").attr("visibility", "hidden");
                         d3.select(this).select("use").attr("fill", colorFunc);
@@ -387,7 +387,7 @@ class CertificateNetwork {
                         .attr("fill", "#f00")
                         .attr("visibility", d => d.vuln ? "visible" : "hidden");
                     g.append("text")
-                        .attr("fill", "#000")
+                        .attr("fill", "currentColor")
                         .attr("visibility", "hidden")
                         .append("tspan")
                         .text(d => d.certid)
