@@ -21,7 +21,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
-from ..common.diffs import render_compare
+from ..common.diffs import fips_diff_method, render_compare
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     Pagination,
@@ -181,10 +181,9 @@ def compare(one_hashid: str, other_hashid: str):
         return abort(404)
     doc_one = load(raw_one)
     doc_other = load(raw_other)
-    k1_order = ["cert_id", "web_data", "pdf_data", "state", "heuristics", "_type", "dgst"]
     return render_template(
         "common/compare.html.jinja2",
-        changes=render_compare(doc_one, doc_other, k1_order),
+        changes=render_compare(doc_one, doc_other, fips_diff_method),
         cert_one=doc_one,
         cert_other=doc_other,
         name_one=doc_one["web_data"]["module_name"],

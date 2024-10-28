@@ -21,7 +21,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
-from ..common.diffs import render_compare
+from ..common.diffs import cc_diff_method, render_compare
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     entry_download_certificate_pdf,
@@ -273,30 +273,9 @@ def compare(one_hashid: str, other_hashid: str):
         return abort(404)
     doc_one = load(raw_one)
     doc_other = load(raw_other)
-    k1_order = [
-        "name",
-        "category",
-        "not_valid_before",
-        "not_valid_after",
-        "scheme",
-        "st_link",
-        "status",
-        "manufacturer",
-        "manufacturer_web",
-        "security_level",
-        "report_link",
-        "cert_link",
-        "protection_profiles",
-        "maintenance_updates",
-        "state",
-        "heuristics",
-        "pdf_data",
-        "_type",
-        "dgst",
-    ]
     return render_template(
         "common/compare.html.jinja2",
-        changes=render_compare(doc_one, doc_other, k1_order),
+        changes=render_compare(doc_one, doc_other, cc_diff_method),
         cert_one=doc_one,
         cert_other=doc_other,
         name_one=doc_one["name"],

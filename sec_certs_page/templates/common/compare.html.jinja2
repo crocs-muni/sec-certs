@@ -9,11 +9,11 @@
             {% for k, v in one.items() %}
                 <li>{% if highlight and k in highlight %}
                     <b>{{ k }}: {{ render_one(path, v) }}</b>
-                    {% elif highlight_value and k in highlight_value %}
+                {% elif highlight_value and k in highlight_value %}
                     {{ k }}: <b>{{ render_one(path, v) }}</b>
-                    {% else %}
+                {% else %}
                     {{ k }}: {{ render_one(path, v) }}
-                    {% endif %}
+                {% endif %}
                 </li>
             {% endfor %}
         </ul>
@@ -21,17 +21,49 @@
         {{ one }}
     {% elif one is sequence %}
         {% for a in one %}
-            {% if highlight and a in highlight %}<b>{{ render_one(path, a) }}</b>{% else %}{{ render_one(path, a) }}{% endif %}{% if not loop.last %}, {% endif %}
+            {% if highlight and a in highlight %}<b>{{ render_one(path, a) }}</b>{% else %}
+                {{ render_one(path, a) }}{% endif %}{% if not loop.last %}, {% endif %}
         {% endfor %}
     {% elif one is iterable %}
         {% for a in one %}
-            {% if highlight and a in highlight %}<b>{{ render_one(path, a) }}</b>{% else %}{{ render_one(path, a) }}{% endif %}{% if not loop.last %}, {% endif %}
+            {% if highlight and a in highlight %}<b>{{ render_one(path, a) }}</b>{% else %}
+                {{ render_one(path, a) }}{% endif %}{% if not loop.last %}, {% endif %}
         {% endfor %}
     {% else %}
         {{ one }}
     {% endif %}
 {% endmacro %}
+{% block title %}
+    <title>Comparing certificates | sec-certs.org</title>
+{% endblock %}
 {% block content %}
+    <style>
+        .not-equal .left {
+            background-color: var(--bs-danger-bg-subtle);
+        }
+
+        .not-equal .right {
+            background-color: var(--bs-success-bg-subtle);
+        }
+
+        .left span, .right span {
+            padding: 2px;
+        }
+
+        .not-equal .left .change {
+            background-color: var(--bs-red-200);
+            border-radius: 3px;
+        }
+
+        .not-equal .right .change {
+            background-color: var(--bs-green-200);
+            border-radius: 3px;
+        }
+
+        .left a, .right a {
+            color: var(--bs-dark);
+        }
+    </style>
     <main>
         <div class="col-10 mx-auto p-3 py-md-5">
             <div class="alert alert-warning d-sm-none" role="alert">
@@ -42,20 +74,23 @@
                 <h1>Comparing certificates <span
                         class="badge bg-warning text-dark fs-4"><i class="fas fa-flask"></i> Experimental feature</span>
                 </h1>
-                <p class="lead">You are comparing two certificates. By default, only different attributes are shown. Use
+                <p class="lead">You are comparing two certificates. By default, only differing attributes are shown. Use
                     the button below to show/hide all attributes.</p>
                 <div class="col-12 col-md-6">
-                    <button id="toggle-same" class="btn btn-primary">Toggle same</button>
+                    <button id="toggle-equal" class="btn btn-primary">Toggle equal</button>
+
                 </div>
+                <span class="equal" style="display: none">Showing all attributes.</span>
+                <span class="equal">Showing only differing attributes.</span>
             </div>
 
             <div class="row pt-5">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered compare-table">
                         <colgroup>
-                            <col style="width: 40%">
                             <col style="width: 30%">
-                            <col style="width: 30%">
+                            <col style="width: 35%">
+                            <col style="width: 35%">
                         </colgroup>
                         <thead>
                         <tr>
@@ -69,32 +104,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for path, val in changes if path[-1] != "_type" %}
-                            {% set action = val["action"] %}
-                            <tr class="action-{{ action }} text-break"
-                                style="{% if action == "same" %}display: none{% endif %}">
-                                <td>{{ path | join("/") }}</td>
-                                {% if action == "same" %}
-                                    <td>{{ render_one(path, val["ak"]) }}</td>
-                                    <td>{{ render_one(path, val["ak"]) }}</td>
-                                {% elif action == "different" %}
-                                    <td class="table-warning fw-bold">{{ render_one(path, val["a"]) }}</td>
-                                    <td class="table-warning fw-bold">{{ render_one(path, val["b"]) }}</td>
-                                {% elif action == "insert" or action == "add" %}
-                                    {# add, discard (set),  insert, delete (list, dict)  #}
-                                    <td class="table-success">{{ render_one(path, val["a"], highlight_value=val["hv"]) }}</td>
-                                    <td class="table-success">
-                                        {{ render_one(path, val["b"], val["ok"], highlight_value=val["hv"]) }}
-                                    </td>
-                                {% elif action == "delete" or action == "discard" %}
-                                    <td class="table-danger">{{ render_one(path, val["a"], val["ok"], highlight_value=val["hv"]) }}</td>
-                                    <td class="table-danger">
-                                        {{ render_one(path, val["b"], highlight_value=val["hv"]) }}
-                                    </td>
-                                {% elif action == "modify" %}
-                                    <td class="table-warning">{{ render_one(path, val["a"], val["ok"], highlight_value=val["hv"]) }}</td>
-                                    <td class="table-warning">{{ render_one(path, val["b"], val["ok"], highlight_value=val["hv"]) }}</td>
-                                {% endif %}
+                        {% for path, val in changes.items() %}
+                            <tr class="{% if val["equal"] %}equal{% else %}not-equal{% endif %} text-break"
+                                style="{% if val["equal"] %}display: none{% endif %}">
+                                <td class="attr">{{ path | join("/") }}</td>
+                                <td class="left">{{ val["left"] }}</td>
+                                <td class="right">{{ val["right"] }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -104,8 +119,8 @@
         </div>
     </main>
     <script>
-        $("#toggle-same").click(function () {
-            $(".action-same").toggle(500);
+        $("#toggle-equal").click(function () {
+            $(".equal").toggle(500);
         });
     </script>
 {% endblock %}

@@ -1,12 +1,12 @@
 from itertools import zip_longest
 from logging import getLogger
-from operator import itemgetter
-from typing import Mapping, Tuple, Any
+from typing import Any, Mapping, Tuple
 
-from flask import render_template
-from jsondiff import diff as jdiff
+from flask import render_template, url_for
 from jsondiff import symbols
-from markupsafe import Markup
+from markupsafe import Markup, escape
+from sec_certs.cert_rules import cc_rules, fips_rules
+from sec_certs.utils.extract import scheme_frontpage_functions
 
 from ..common.objformats import WorkingFormat
 
@@ -194,78 +194,604 @@ class DiffRenderer:
             raise ValueError("Invalid diff type")
 
 
-def render_compare(one, other, k1_order):
-    diff = jdiff(one, other, syntax="symmetric")
+def bold(a: Any) -> Markup:
+    return Markup(f"<b>{escape(a)}</b>")
+
+
+def normal(a: Any) -> Markup:
+    return escape(a)
+
+
+def comma_separate(values):
+    return Markup(", ".join(map(str, values)))
+
+
+def diff_none():
+    return None
+
+
+def diff_int():
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return (normal if equal else bold)(a)
+
+    return compare, render
+
+
+def diff_bool():
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return (normal if equal else bold)(a)
+
+    return compare, render
+
+
+def diff_str():
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return (normal if equal else bold)(a)
+
+    return compare, render
+
+
+def diff_ident():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        if equal:
+            return Markup(f'<span title="{escape(a)}" data-bs-toggle="tooltip">Equal</span>')
+        else:
+            return Markup(f'<span title="{escape(a)}" data-bs-toggle="tooltip"><b>Different</b></span>')
+
+    return compare_str, render
+
+
+def diff_url():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        if a:
+            return Markup(f'<a href="{a}" target="_blank" rel="noopener">{render_str(equal, a, b)}</a>')
+        else:
+            return render_str(equal, a, b)
+
+    return compare_str, render
+
+
+def diff_set(elem_diff):
+    _, render_elem = elem_diff
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return comma_separate([render_elem(elem in b if b else False, elem, None) for elem in a]) if a else escape("{}")
+
+    return compare, render
+
+
+def diff_list(elem_diff):
+    compare_elem, render_elem = elem_diff
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return (
+            comma_separate(
+                [
+                    render_elem(compare_elem(a_elem, b_elem), a_elem, b_elem)
+                    for a_elem, b_elem in zip_longest(a, b if b else [])
+                ]
+            )
+            if a
+            else escape("[]")
+        )
+
+    return compare, render
+
+
+def diff_keywords():
+    def compare(a, b):
+        return a == b
+
+    compare_set, render_set = diff_set(diff_str())
+    compare_list, render_list = diff_list(diff_str())
+    compare_int, render_int = diff_int()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        def render_dict(one, other):
+            if not one:
+                return Markup("")
+            if not other:
+                other = {}
+            items = []
+            for key, val in sorted(one.items()):
+                label = (bold if key not in other else normal)(key)
+                change = False
+                span = False
+                if isinstance(val, dict):
+                    other_val = other.get(key, {})
+                    item = render_dict(val, other_val)
+                elif isinstance(val, set):
+                    other_val = other.get(key, set())
+                    item = render_set(compare_set(val, other_val), val, other_val)
+                elif isinstance(val, list):
+                    other_val = other.get(key, [])
+                    item = render_list(compare_list(val, other_val), val, other_val)
+                else:
+                    other_val = other.get(key, None)
+                    item = render_int(compare_int(val, other_val), val, other_val)
+                    span = True
+                    change = val != other_val
+                if span:
+                    if change:
+                        line = f'<span class="change">{label}: {item}</span>'
+                    else:
+                        line = f"<span>{label}: {item}</span>"
+                else:
+                    line = f"{label}: {item}"
+                items.append(Markup(f"<li>{line}</li>"))
+            item_string = "\n".join(items)
+            return Markup(f"<ul>{item_string}</ul>")
+
+        return render_dict(a, b)
+
+    return compare, render
+
+
+def diff_pdf_meta():
+    metas = {
+        "pdf_is_encrypted": diff_bool(),
+        "pdf_number_of_pages": diff_int(),
+        "pdf_file_size_bytes": diff_int(),
+        "pdf_hyperlinks": diff_set(diff_url()),
+    }
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return render_dict(a, b, metas=metas)
+
+    return compare, render
+
+
+def diff_date():
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return (normal if equal else bold)(escape(a.strftime("%d.%m.%Y")) if a is not None else Markup())
+
+    return compare, render
+
+
+def diff_cve():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return Markup(
+            f"<a href=\"{url_for('vuln.cve', cve_id=a)}\" title=\"Navigate to CVE\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+        )
+
+    return compare_str, render
+
+
+def diff_cpe():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return Markup(
+            f"<a href=\"{url_for('vuln.cpe', cpe_id=a)}\"title=\"Navigate to CPE\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+        )
+
+    return compare_str, render
+
+
+def diff_fips_cert_id():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        if a:
+            return Markup(
+                f"<a href=\"{url_for('fips.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            )
+        else:
+            return render_str(equal, a, b)
+
+    return compare_str, render
+
+
+def diff_fips_dgst():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return Markup(
+            f"<a href=\"{url_for('fips.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+        )
+
+    return compare_str, render
+
+
+def diff_fips_validation_history():
+    metas = {
+        "_type": diff_none(),
+        "date": diff_date(),
+        "validation_type": diff_str(),
+        "lab": diff_str(),
+    }
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        items = []
+        for update_a, update_b in zip(a, b):
+            items.append(render_dict(update_a, update_b, metas=metas))
+        return Markup("<hr/>\n".join(items))
+
+    return compare, render
+
+
+def diff_cc_cert_id(link: bool = True):
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        if a and link:
+            return Markup(
+                f"<a href=\"{url_for('cc.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            )
+        else:
+            return render_str(equal, a, b)
+
+    return compare_str, render
+
+
+def diff_cc_dgst():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return Markup(
+            f"<a href=\"{url_for('cc.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+        )
+
+    return compare_str, render
+
+
+def diff_cc_sar():
+    _, render_str = diff_str()
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return render_str(equal, f"{a['family']}.{a['level']}", None)
+
+    return compare, render
+
+
+def render_dict(a, b, metas=None):
+    compare_str, render_str = diff_str()
+
+    if not a:
+        return Markup("")
+    if not b:
+        b = {}
+    items = []
+    for key, val in sorted(a.items()):
+        label = (bold if key not in b else normal)(key)
+        other_val = b.get(key, None)
+        change = val != other_val
+        if metas and key in metas:
+            differ = metas[key]
+            if differ is None:
+                continue
+            compare_meta, render_meta = differ
+            item = render_meta(compare_meta(val, other_val), val, other_val)
+        else:
+            item = render_str(compare_str(val, other_val), val, other_val)
+        if change:
+            line = f'<span class="change">{label}: {item}</span>'
+        else:
+            line = f"<span>{label}: {item}</span>"
+        items.append(Markup(f"<li>{line}</li>"))
+
+    item_string = "\n".join(items)
+    return Markup(f"<ul>{item_string}</ul>")
+
+
+def diff_cc_frontpage():
+    metas = {
+        "cert_id": diff_cc_cert_id(link=False),
+        "cc_security_level": diff_str(),
+        "cc_version": diff_str(),
+        "cert_lab": diff_str(),
+        "cert_item": diff_str(),
+        "cert_item_version": diff_str(),
+        "developer": diff_str(),
+        "ref_protection_profiles": diff_str(),
+    }
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        items = []
+        for scheme in scheme_frontpage_functions:
+            adata = a.get(scheme) if a is not None else None
+            bdata = b.get(scheme) if b is not None else None
+            if adata is None and bdata is None:
+                continue
+            item = render_dict(adata, bdata, metas=metas)
+            items.append(Markup(f"<li>{scheme}: {item}</li>"))
+        item_string = "\n".join(items)
+        return Markup(f"<ul>{item_string}</ul>")
+
+    return compare, render
+
+
+def diff_cc_scheme_data():
+    metas = {
+        "enhanced": (lambda a, b: a == b, lambda equal, a, b: render_dict(a, b)),
+        "url": diff_url(),
+        "report_link": diff_url(),
+        "target_link": diff_url(),
+        "cert_link": diff_url(),
+    }
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return render_dict(a, b, metas=metas)
+
+    return compare, render
+
+
+def diff_cc_mus():
+    metas = {
+        "_type": diff_none(),
+        "maintenance_date": diff_date(),
+        "maintenance_title": diff_str(),
+        "maintenance_report_link": diff_url(),
+        "maintenance_st_link": diff_url(),
+    }
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        items = []
+        for mu in a:
+            if mu not in b:
+                other = {}
+            else:
+                other = mu
+            items.append(render_dict(mu, other, metas=metas))
+        return Markup("<hr/>\n".join(items))
+
+    return compare, render
+
+
+def diff_cc_pps():
+    metas = {
+        "_type": diff_none(),
+        "pp_name": diff_str(),
+        "pp_eal": diff_str(),
+        "pp_link": diff_url(),
+        "pp_ids": diff_set(diff_str()),
+    }
+
+    def compare(a, b):
+        return a == b
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        items = []
+        for pp in a:
+            if pp not in b:
+                other = {}
+            else:
+                other = pp
+            items.append(render_dict(pp, other, metas=metas))
+        return Markup("<hr/>\n".join(items))
+
+    return compare, render
+
+
+cc_diff_method = {
+    "_type": diff_none(),
+    "name": diff_str(),
+    "category": diff_str(),
+    "scheme": diff_str(),
+    "status": diff_str(),
+    "not_valid_after": diff_date(),
+    "not_valid_before": diff_date(),
+    "cert_link": diff_url(),
+    "report_link": diff_url(),
+    "st_link": diff_url(),
+    "manufacturer": diff_str(),
+    "manufacturer_web": diff_url(),
+    "security_level": diff_set(diff_str()),
+    "dgst": diff_cc_dgst(),
+    "heuristics": {
+        "_type": diff_none(),
+        "annotated_references": diff_none(),
+        "cert_id": diff_cc_cert_id(),
+        "cert_lab": diff_list(diff_str()),
+        "cpe_matches": diff_set(diff_cpe()),
+        "direct_transitive_cves": diff_set(diff_cve()),
+        "extracted_sars": diff_set(diff_cc_sar()),
+        "extracted_versions": diff_set(diff_str()),
+        "indirect_transitive_cves": diff_set(diff_cve()),
+        "related_cves": diff_set(diff_cve()),
+        "report_references": {
+            "_type": diff_none(),
+            "directly_referenced_by": diff_set(diff_cc_cert_id()),
+            "directly_referencing": diff_set(diff_cc_cert_id()),
+            "indirectly_referenced_by": diff_set(diff_cc_cert_id()),
+            "indirectly_referencing": diff_set(diff_cc_cert_id()),
+        },
+        "scheme_data": diff_cc_scheme_data(),
+        "st_references": {
+            "_type": diff_none(),
+            "directly_referenced_by": diff_set(diff_cc_cert_id()),
+            "directly_referencing": diff_set(diff_cc_cert_id()),
+            "indirectly_referenced_by": diff_set(diff_cc_cert_id()),
+            "indirectly_referencing": diff_set(diff_cc_cert_id()),
+        },
+        "verified_cpe_matches": diff_set(diff_cpe()),
+    },
+    "maintenance_updates": diff_cc_mus(),
+    "protection_profiles": diff_cc_pps(),
+    "pdf_data": {
+        "_type": diff_none(),
+        "cert_filename": diff_str(),
+        "cert_frontpage": diff_cc_frontpage(),
+        "cert_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
+        "cert_metadata": diff_pdf_meta(),
+        "report_filename": diff_str(),
+        "report_frontpage": diff_cc_frontpage(),
+        "report_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
+        "report_metadata": diff_pdf_meta(),
+        "st_filename": diff_str(),
+        "st_frontpage": diff_cc_frontpage(),
+        "st_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
+        "st_metadata": diff_pdf_meta(),
+    },
+    "state": {
+        "_type": diff_none(),
+        "cert": {
+            "_type": diff_none(),
+            "convert_garbage": diff_bool(),
+            "convert_ok": diff_bool(),
+            "download_ok": diff_bool(),
+            "extract_ok": diff_bool(),
+            "pdf_hash": diff_ident(),
+            "txt_hash": diff_ident(),
+        },
+        "report": {
+            "_type": diff_none(),
+            "convert_garbage": diff_bool(),
+            "convert_ok": diff_bool(),
+            "download_ok": diff_bool(),
+            "extract_ok": diff_bool(),
+            "pdf_hash": diff_ident(),
+            "txt_hash": diff_ident(),
+        },
+        "st": {
+            "_type": diff_none(),
+            "convert_garbage": diff_bool(),
+            "convert_ok": diff_bool(),
+            "download_ok": diff_bool(),
+            "extract_ok": diff_bool(),
+            "pdf_hash": diff_ident(),
+            "txt_hash": diff_ident(),
+        },
+    },
+}
+
+fips_diff_method = {
+    "_type": diff_none(),
+    "cert_id": diff_fips_cert_id(),
+    "dgst": diff_fips_dgst(),
+    "heuristics": {
+        "_type": diff_none(),
+        "algorithms": diff_set(diff_str()),
+        "cpe_matches": diff_set(diff_cpe()),
+        "direct_transitive_cves": diff_set(diff_cve()),
+        "extracted_versions": diff_set(diff_str()),
+        "indirect_transitive_cves": diff_set(diff_cve()),
+        "module_processed_references": {
+            "_type": diff_none(),
+            "directly_referenced_by": diff_set(diff_fips_cert_id()),
+            "directly_referencing": diff_set(diff_fips_cert_id()),
+            "indirectly_referenced_by": diff_set(diff_fips_cert_id()),
+            "indirectly_referencing": diff_set(diff_fips_cert_id()),
+        },
+        "module_prunned_references": diff_set(diff_int()),
+        "policy_processed_references": {
+            "_type": diff_none(),
+            "directly_referenced_by": diff_set(diff_fips_cert_id()),
+            "directly_referencing": diff_set(diff_fips_cert_id()),
+            "indirectly_referenced_by": diff_set(diff_fips_cert_id()),
+            "indirectly_referencing": diff_set(diff_fips_cert_id()),
+        },
+        "policy_prunned_references": diff_set(diff_int()),
+        "related_cves": diff_set(diff_cve()),
+        "verified_cpe_matches": diff_set(diff_cpe()),
+    },
+    "pdf_data": {
+        "_type": diff_none(),
+        "keywords": {kw_group: diff_keywords() for kw_group in fips_rules},
+        "policy_metadata": diff_pdf_meta(),
+    },
+    "state": {
+        "_type": diff_none(),
+        "module_download_ok": diff_bool(),
+        "module_extract_ok": diff_bool(),
+        "policy_convert_garbage": diff_bool(),
+        "policy_convert_ok": diff_bool(),
+        "policy_download_ok": diff_bool(),
+        "policy_extract_ok": diff_bool(),
+        "policy_pdf_hash": diff_ident(),
+        "policy_txt_hash": diff_ident(),
+    },
+    "web_data": {
+        "_type": diff_none(),
+        "caveat": diff_str(),
+        "certificate_pdf_url": diff_url(),
+        "date_sunset": diff_date(),
+        "description": diff_str(),
+        "embodiment": diff_str(),
+        "exceptions": diff_list(diff_str()),
+        "fw_versions": diff_list(diff_str()),
+        "historical_reason": diff_str(),
+        "hw_versions": diff_list(diff_str()),
+        "level": diff_int(),
+        "mentioned_certs": diff_keywords(),
+        "module_name": diff_str(),
+        "module_type": diff_str(),
+        "revoked_link": diff_url(),
+        "revoked_reason": diff_str(),
+        "standard": diff_str(),
+        "status": diff_str(),
+        "sw_versions": diff_str(),
+        "tested_conf": diff_list(diff_str()),
+        "validation_history": diff_fips_validation_history(),
+        "vendor": diff_str(),
+        "vendor_url": diff_url(),
+    },
+}
+
+
+def render_compare(one, other, diff_method):
     changes = {}
 
-    def walk(o, a, b, path=()):
-        if isinstance(o, dict) and isinstance(a, dict) and isinstance(b, dict):
-            keys = set().union(o.keys(), a.keys(), b.keys())
-            to_walk = []
-            for k in keys:
-                if k in symbols._all_symbols_:
-                    if path in changes:
-                        changes[path]["action"] = "modify"
-                        if isinstance(o[k], dict):
-                            changes[path]["ok"].update(o[k])
-                        else:
-                            changes[path]["ok"] += o[k]
-                    else:
-                        changes[path] = {"action": repr(k), "ok": o[k], "a": a, "b": b}
-                    continue
-                if k not in o:
-                    new_path = tuple((*path, k))
-                    if k in a and k in b:
-                        if new_path in changes:
-                            raise ValueError("Bad diff!")
-                        changes[new_path] = {"action": "same", "ak": a[k]}
-                        continue
-                    else:
-                        continue
-                to_walk.append(k)
-            for k in to_walk:
-                walk(o[k], a[k], b[k], tuple((*path, k)))
-        elif isinstance(o, dict) and isinstance(a, set) and isinstance(b, set):
-            for k in o.keys():
-                if k in symbols._all_symbols_:
-                    if path in changes:
-                        changes[path]["action"] = "modify"
-                        if isinstance(o[k], (dict, set)):
-                            changes[path]["ok"].update(o[k])
-                        else:
-                            changes[path]["ok"] += o[k]
-                    else:
-                        changes[path] = {"action": repr(k), "ok": o[k], "a": a, "b": b}
-        elif isinstance(o, dict) and isinstance(a, list) and isinstance(b, list):
-            for k in o.keys():
-                if k in symbols._all_symbols_:
-                    if path in changes:
-                        changes[path]["action"] = "modify"
-                        if isinstance(o[k], dict):
-                            changes[path]["ok"].update(o[k])
-                        else:
-                            changes[path]["ok"] += list(map(itemgetter(1), o[k]))
-                    else:
-                        changes[path] = {"action": repr(k), "ok": list(map(itemgetter(1), o[k])), "a": a, "b": b}
-                elif isinstance(k, int):
-                    walk(o[k], a[k], b[k], tuple((*path, k)))
-        elif isinstance(o, list) and (not isinstance(a, list) or not isinstance(b, list)):
-            if path in changes:
-                raise ValueError("Bad diff!")
-            if path[:-1] in changes:
-                change = changes[path[:-1]]
-                hv = change.setdefault("hv", [])
-                hv.append(path[-1])
+    def walk(tree, a, b, path=()):
+        for key, value in tree.items():
+            new_path = path + (key,)
+            if isinstance(value, dict):
+                subtree = value
+                walk(subtree, a[key], b[key], new_path)
             else:
-                changes[path] = {"action": "different", "o": o, "a": a, "b": b}
-        elif isinstance(o, (tuple, list, set)):
-            for i, (new_o, new_a, new_b) in enumerate(zip_longest(o, a, b)):
-                walk(new_o, new_a, new_b, tuple((*path, i)))
-        else:
-            pass
+                differ = value
+                if differ is None:
+                    # Simple ignore
+                    continue
+                else:
+                    compare, render = differ
+                    aval = a[key] if a is not None else None
+                    bval = b[key] if b is not None else None
+                    equal = compare(aval, bval)
+                    left, right = render(equal, aval, bval), render(equal, bval, aval)
+                    changes[new_path] = {"left": left, "right": right, "equal": equal}
 
-    walk(diff, one, other)
-    pairs = list(changes.items())
-    # magic
-    pairs.sort(key=lambda pair: (k1_order.index(pair[0][0]), pair[0][1:]) if pair[0][0] in k1_order else pair[0][0])
-    return pairs
+    walk(diff_method, one, other)
+    return changes
