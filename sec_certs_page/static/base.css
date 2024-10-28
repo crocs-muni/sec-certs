@@ -156,7 +156,7 @@
     font-family: 'Font Awesome 5 Free Solid';
     content: '\f007';
     margin: 0 10px 0 -25px;
-    color: black;
+    color: var(--bs-body-color);
 }
 
 .outgoing-list {
@@ -167,7 +167,7 @@
     font-family: 'Font Awesome 5 Free Solid';
     content: '\f061';
     margin: 0 10px 0 -25px;
-    color: white;
+    color: var(--bs-body-color);
 }
 
 .incoming-list {
@@ -178,7 +178,7 @@
     font-family: 'Font Awesome 5 Free Solid';
     content: '\f060';
     margin: 0 10px 0 -25px;
-    color: white;
+    color: var(--bs-body-color);
 }
 
 #content .listing {
