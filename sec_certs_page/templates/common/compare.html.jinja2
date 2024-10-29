@@ -38,30 +38,58 @@
 {% endblock %}
 {% block content %}
     <style>
-        .not-equal .left {
-            background-color: var(--bs-danger-bg-subtle);
-        }
-
-        .not-equal .right {
-            background-color: var(--bs-success-bg-subtle);
-        }
-
         .left span, .right span {
             padding: 2px;
         }
 
-        .not-equal .left .change {
-            background-color: var(--bs-red-200);
-            border-radius: 3px;
-        }
+        .not-equal {
+            .left {
+                background-color: var(--bs-danger-bg-subtle);
 
-        .not-equal .right .change {
-            background-color: var(--bs-green-200);
-            border-radius: 3px;
+                .change {
+                    background-color: var(--bs-red-200);
+                    border-radius: 3px;
+                }
+            }
+
+            .right {
+                background-color: var(--bs-success-bg-subtle);
+
+                .change {
+                    background-color: var(--bs-green-200);
+                    border-radius: 3px;
+                }
+            }
         }
 
         .left a, .right a {
             color: var(--bs-dark);
+        }
+
+        [data-bs-theme="dark"] {
+            .not-equal {
+                .left {
+                    background-color: var(--bs-danger-bg-subtle);
+
+                    .change {
+                        background-color: color-mix(in srgb, var(--bs-red-500) 60%, var(--bs-danger-bg-subtle));
+                        border-radius: 3px;
+                    }
+                }
+
+                .right {
+                    background-color: var(--bs-success-bg-subtle);
+
+                    .change {
+                        background-color: color-mix(in srgb, var(--bs-green-500) 60%, var(--bs-success-bg-subtle));
+                        border-radius: 3px;
+                    }
+                }
+            }
+
+            .left a, .right a {
+                color: var(--bs-light);
+            }
         }
     </style>
     <main>
@@ -98,9 +126,11 @@
                             <th class="fs-3 text-break">{{ name_one }} <br/>{{ cert_one["heuristics"]["cert_id"] }} <a
                                     href="{{ url_for(".entry", hashid=hashid_one) }}" class="btn btn-primary badge"><i
                                     class="fas fa-file"></i></a></th>
-                            <th class="fs-3 text-break">{{ name_other }} <br/>{{ cert_other["heuristics"]["cert_id"] }} <a
-                                    href="{{ url_for(".entry", hashid=hashid_other) }}" class="btn btn-primary badge"><i
-                                    class="fas fa-file"></i></a></th>
+                            <th class="fs-3 text-break">{{ name_other }} <br/>{{ cert_other["heuristics"]["cert_id"] }}
+                                <a
+                                        href="{{ url_for(".entry", hashid=hashid_other) }}"
+                                        class="btn btn-primary badge"><i
+                                        class="fas fa-file"></i></a></th>
                         </tr>
                         </thead>
                         <tbody>

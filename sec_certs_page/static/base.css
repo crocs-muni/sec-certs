@@ -281,6 +281,21 @@ body {
 }
 
 [data-bs-theme="dark"] .row.bg-dark {
-    /* 240, 46, 170 */
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19), 0 -4px 8px 0 rgba(0, 0, 0, 0.2), 0 -6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.hide-light {
+    display: none;
+}
+
+[data-bs-theme="dark"] .hide-light {
+    display: initial;
+}
+
+.hide-dark {
+    display: initial;
+}
+
+[data-bs-theme="dark"] .hide-dark {
+    display: none;
 }

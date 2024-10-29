@@ -31,10 +31,12 @@
                             for Research on Cryptography and Security</a> at Masaryk University. The work was supported
                             by
                             the <a href="https://cybersec4europe.eu/" target="_blank" rel="noopener">CyberSec4Europe</a>
-                            project,
-                            <a href="https://research.redhat.com/" target="_blank" rel="noopener">Red Hat Research</a>
-                            as well as the Internal grant agency of Masaryk University, project
+                            project as well as the Internal grant agency of Masaryk University, project
                             <a href="https://www.muni.cz/en/research/projects/55367" target="_blank" rel="noopener">CZ.02.2.69/0.0/0.0/19_073/0016943</a>.
+                            It is currently being supported by
+                            <a href="https://research.redhat.com/" target="_blank" rel="noopener">Red Hat Research</a>,
+                            and
+                            the European Union under Grant Agreement No. 101087529: <a href="https://chess-eu.cs.ut.ee/" target="_blank" rel="noopener">Cyber Security Excellence Hub in Estonia and South Moravia</a>.
                         </p>
                         <ul class="name-list">
                             <li>Petr Svenda</li>
@@ -60,7 +62,9 @@
                                  alt="Cyber Security for Europe"/>
                         </div>
                         <div class="col d-flex justify-content-center align-items-center">
-                            <img class="w-100" src="{{ url_for("static", filename="img/redhat_logo.svg") }}"
+                            <img class="w-100 hide-dark" src="{{ url_for("static", filename="img/redhat_logo.svg") }}"
+                                 alt="RedHat"/>
+                            <img class="w-100 hide-light" src="{{ url_for("static", filename="img/redhat_logo_light.svg") }}"
                                  alt="RedHat"/>
                         </div>
                         <div class="col d-flex justify-content-center align-items-center">
@@ -69,7 +73,8 @@
                         </div>
                     </div>
                     <div class="row">
-                        <img id="eu-logo" class="w-100" style="margin-left: 0.8rem" src="{{ url_for("static", filename="img/eu_logo.jpg") }}" alt="EU logo"/>
+                        <img id="eu-logo" class="w-100 hide-dark" style="margin-left: 0.8rem" src="{{ url_for("static", filename="img/eu_logo.png") }}" alt="EU logo"/>
+                        <img id="eu-logo" class="w-100 hide-light" style="margin-left: 0.8rem" src="{{ url_for("static", filename="img/eu_logo_light.png") }}" alt="EU logo"/>
                     </div>
                 </div>
             </div>
