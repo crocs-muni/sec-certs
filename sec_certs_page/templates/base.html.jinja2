@@ -240,8 +240,8 @@
                        role="button"><i
                             class="fa fa-file"></i> Docs</a>
                     <div class="dropdown">
-                        <button id="theme" class="nav-link dropdown-toggle text-secondary" type="button" data-bs-toggle="dropdown" title="Change theme"></button>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <button id="theme" class="nav-link dropdown-toggle text-secondary px-4 py-1 p-lg-0" type="button" data-bs-toggle="dropdown" data-bs-display="static" title="Change theme"></button>
+                        <ul class="dropdown-menu dropdown-menu-lg-end">
                             <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto"><i class="fas fa-circle-half-stroke"></i> Auto</button></li>
                             <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"><i class="fas fa-sun"></i> Light</button></li>
                             <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"><i class="fas fa-moon"></i> Dark</button></li>
@@ -254,7 +254,7 @@
         <div id="content">
             {% with messages = get_flashed_messages(with_categories=True) %}
                 {% if messages %}
-                    <div class="flashes col-10 mx-auto p-3">
+                    <div class="flashes col-12 col-sm-10 mx-auto p-3">
                         {% for category, message in messages %}
                             {% if category == "message" %}
                                 <div class="alert alert-primary">{{ message }}</div>
@@ -272,7 +272,7 @@
                 {% endif %}
             {% endwith %}
             {% if crumbs %}
-                <div class="col-10 mx-auto px-3 pt-3 pb-2 fw-lighter d-flex justify-content-between align-items-baseline">
+                <div class="col-12 col-sm-10 mx-auto px-3 pt-3 pb-2 fw-lighter d-flex justify-content-between align-items-baseline">
                     {% block crumbs_left %}
                     <div>
                     {%- for breadcrumb in breadcrumbs -%}

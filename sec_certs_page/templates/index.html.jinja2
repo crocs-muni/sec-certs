@@ -2,7 +2,7 @@
 {% set canonical = True %}
 {% block content %}
     <main>
-        <div class="col-10 mx-auto p-3 py-md-5">
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
             <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
                 <div class="col-12 col-sm-5 order-1 order-sm-0">
                     <h1>Security Certifications</h1>
@@ -75,7 +75,7 @@
         </div>
 
         <div class="row bg-dark p-3">
-            <div class="col-10 mx-auto text-light">
+            <div class="col-12 col-sm-10 mx-auto text-light">
                 <h2 class="pt-2">Use cases</h2>
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
                     <div class="feature col">
@@ -264,9 +264,9 @@
             </div>
         </div>
 
-        <div class="col-10 mx-auto">
+        <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-lg-6">
                     <h3>Do it yourself!</h3>
                     <p>The tools used to create the datasets on this website as well as the datasets themselves are
                         open-source and available on <a href="https://github.com/crocs-muni/sec-certs">GitHub</a>.
@@ -274,7 +274,7 @@
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">this site</a>.
                     </p>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-lg-6">
                     <h3>About</h3>
                     <p>Want to learn more about our research? More information, including our publications and
                         the privacy policy of this site can be found <a href="{{ url_for(".about") }}">here</a>.</p>

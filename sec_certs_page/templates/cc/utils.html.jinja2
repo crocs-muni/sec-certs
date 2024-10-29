@@ -132,7 +132,7 @@
 {%- endmacro %}
 
 {% macro render_pagination(pagination, certs, search=False) %}
-    <div id="pagination">
+    <div id="pagination" class="table-responsive">
         {% if search %}
             <span style="text-align: center">{{ pagination.info }}</span>
         {% endif %}

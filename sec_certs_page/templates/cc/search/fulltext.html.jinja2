@@ -4,7 +4,7 @@
 {% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type %}
 {% block content %}
     <main>
-        <div class="col-10 mx-auto p-3 py-md-5">
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
@@ -130,7 +130,7 @@
                     $("#search-categories input").prop("checked", false);
                 });
             </script>
-            <div id="pagination">
+            <div id="pagination" class="table-responsive">
                 {% if pagination %}
                     <div style="text-align: center">
                         Took {{ "{:.3}".format(runtime + highlight_runtime) }} seconds
