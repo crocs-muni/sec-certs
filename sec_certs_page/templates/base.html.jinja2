@@ -23,7 +23,9 @@
         {% endassets %}
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap"
               rel="stylesheet">
-        <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+        {% assets output="gen/style.css", "base.css" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}">
+        {% endassets %}
         <link rel="preload" as="image" href="{{ url_for("static", filename="img/logo_dark.svg") }}">
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
         {% assets output="gen/libs.js",
