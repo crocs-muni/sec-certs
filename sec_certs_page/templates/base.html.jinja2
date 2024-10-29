@@ -179,6 +179,9 @@
             window.addEventListener('DOMContentLoaded', () => {
                 let storedEventText = localStorage.getItem("event_navbar_text");
                 let eventElement = document.getElementById("event-navbar");
+                if (eventElement === null) {
+                    return;
+                }
                 let textElement = document.getElementById("event-navbar-text");
 
                 if (storedEventText !== textElement.textContent) {
