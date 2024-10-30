@@ -34,26 +34,39 @@ def subscribe():
         email = validate_email(data["email"], check_deliverability=False)
     except EmailNotValidError:
         return jsonify({"error": "Invalid email address.", "status": "NOK"}), 400
-    if data["updates"] not in ("vuln", "all"):
+    if data["updates"] not in ("vuln", "all", "new"):
         return jsonify({"error": "Invalid update type.", "status": "NOK"}), 400
-    for cert in data["selected"]:
-        if set(cert.keys()) != {"name", "hashid", "type", "url"}:
-            return jsonify({"error": "Invalid certificate data.", "status": "NOK"}), 400
-        if cert["type"] not in ("fips", "cc"):
-            return jsonify({"error": "Invalid certificate type.", "status": "NOK"}), 400
-        if not mongo.db[cert["type"]].find_one({"_id": cert["hashid"]}):
-            return jsonify({"error": "Certificate not found.", "status": "NOK"}), 400
-        if not isinstance(cert["name"], str):
-            return jsonify({"error": "Certificate name not a string.", "status": "NOK"}), 400
-        del cert["url"]
+    if data["selected"]:
+        if data["updates"] == "new":
+            return (
+                jsonify(
+                    {
+                        "error": "Invalid selection, certificates cannot be selected when subscribing to new certificate updates.",
+                        "status": "NOK",
+                    }
+                ),
+                400,
+            )
+        for cert in data["selected"]:
+            if set(cert.keys()) != {"name", "hashid", "type", "url"}:
+                return jsonify({"error": "Invalid certificate data.", "status": "NOK"}), 400
+            if cert["type"] not in ("fips", "cc"):
+                return jsonify({"error": "Invalid certificate type.", "status": "NOK"}), 400
+            if not mongo.db[cert["type"]].find_one({"_id": cert["hashid"]}):
+                return jsonify({"error": "Certificate not found.", "status": "NOK"}), 400
+            if not isinstance(cert["name"], str):
+                return jsonify({"error": "Certificate name not a string.", "status": "NOK"}), 400
+            del cert["url"]
+    if data["updates"] == "new":
+        data["selected"] = [None]
     request_time = datetime.now()
     token = token_hex(16)
-    email_token = derive_token("subscription_email", email.email, digest_size=16)
+    email_token = derive_token("subscription_email", email.normalized, digest_size=16)
     subscriptions = [
         {
             "timestamp": request_time,
             "updates": data["updates"],
-            "email": email.email,
+            "email": email.normalized,
             "token": token,
             "email_token": email_token,
             "certificate": cert,
@@ -94,18 +107,23 @@ def manage(email_token: str):
     form = ManageForm()
     if request.method == "GET" or not form.validate_on_submit():
         for sub in subscriptions:
-            sub_form = SubscriptionForm()
-            sub_form.subscribe = True
-            sub_form.certificate_hashid = sub["certificate"]["hashid"]
-            sub_form.updates = sub["updates"]
-            e = form.certificates.append_entry(sub_form)
-            e.label = Label(e.id, sub["certificate"]["name"])
+            if sub["certificate"]:
+                sub_form = SubscriptionForm()
+                sub_form.subscribe = True
+                sub_form.certificate_hashid = sub["certificate"]["hashid"]
+                sub_form.updates = sub["updates"]
+                e = form.certificates.append_entry(sub_form)
+                e.label = Label(e.id, sub["certificate"]["name"])
+            elif sub["updates"] == "new":
+                form.new.data = True
     else:
-        subs = {sub["certificate"]["hashid"]: sub for sub in subscriptions}
+        subs = {sub["certificate"]["hashid"]: sub for sub in subscriptions if sub["certificate"]}
         if set(map(lambda s: s.data["certificate_hashid"], form.certificates.entries)) != set(subs.keys()):
             return abort(400)
+        new_sub = next(iter(filter(lambda sub: sub["updates"] == "new", subscriptions)), None)
         with mongo.cx.start_session() as session:
             with session.start_transaction():
+                # Handle the ordinary certificate subscriptions one by one.
                 for sub_form in form.certificates.entries:
                     sub = subs[sub_form.certificate_hashid.data]
                     if not sub_form.subscribe.data:
@@ -116,10 +134,38 @@ def manage(email_token: str):
                             {"$set": {"updates": sub_form.updates.data}},
                             session=session,
                         )
-        flash("Your notification subscriptions were successfully updated.", "success")
-        if all(not sub_form.subscribe.data for sub_form in form.certificates.entries):
+                # Now handle the new certificate subscription.
+                if form.new.data:
+                    if new_sub:
+                        # Do nothing, the user has a subscription and wants to keep it.
+                        pass
+                    else:
+                        # We need to create a new sub
+                        request_time = datetime.now()
+                        token = token_hex(16)
+                        email_token = derive_token("subscription_email", email, digest_size=16)
+                        subscription = {
+                            "timestamp": request_time,
+                            "updates": "new",
+                            "email": email,
+                            "token": token,
+                            "email_token": email_token,
+                            "certificate": None,
+                            "confirmed": True,
+                        }
+                        mongo.db.subs.insert_one(subscription, session=session)
+                else:
+                    if new_sub:
+                        # The user has a subscription and wants to delete it
+                        mongo.db.subs.delete_one({"_id": new_sub["_id"]}, session=session)
+                    else:
+                        # Do nothing, the user doesn't have a subscription and does not want it
+                        pass
+        if all(not sub_form.subscribe.data for sub_form in form.certificates.entries) and not form.new.data:
+            flash("Your notification subscriptions were successfully removed.", "success")
             return redirect(url_for("index"))
         else:
+            flash("Your notification subscriptions were successfully updated.", "success")
             return redirect(url_for("notify.manage", email_token=email_token))
     return render_template(
         "notifications/manage.html.jinja2",
@@ -164,9 +210,9 @@ def unsubscribe_request():
             email = validate_email(form.email.data, check_deliverability=False)
         except EmailNotValidError:
             return abort(400)
-        subscriptions = list(mongo.db.subs.find({"email": email.email}))
+        subscriptions = list(mongo.db.subs.find({"email": email.normalized}))
         if subscriptions:  # Timing attack but I don't care.
-            send_unsubscription_email.send(email.email)
+            send_unsubscription_email.send(email.normalized)
         return render_template(
             "common/message.html.jinja2",
             heading="Unsubscription request processed",

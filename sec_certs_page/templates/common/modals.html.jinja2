@@ -45,6 +45,7 @@
                         </table>
                         You can compare two certificates.
                     </div>
+                    <p class="invalid-feedback" id="compare-error"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -74,11 +75,10 @@
                             subscriptions are currently disabled.</p>
                     {% endif %}
                     <p id="notification-none">
-                        You currently have no selected certificates. Add certificates on
-                        the search page or on the page of the certificate. After you do so you will be able to
-                        see them here and setup an email notification subscription.
+                        You currently have no selected certificates. Either add certificates from their page to the
+                        selection or subscribe to receive notifications of new certificates below.
                     </p>
-                    <div id="notification-some" style="display: none">
+                    <div id="notification-some">
                         <form id="notifications-form">
                             <label class="form-label">Certificates</label>
                             <table class="table">
@@ -90,22 +90,30 @@
                                 <div class="form-check">
                                     <input type="radio" class="form-check-input" id="notifications-updates-all"
                                            name="notifications-updates"
-                                           checked/>
+                                           disabled/>
                                     <label for="notifications-updates-all" class="form-check-label">All
                                         updates</label>
                                 </div>
                                 <div class="form-check">
                                     <input type="radio" class="form-check-input" id="notifications-updates-vuln"
-                                           name="notifications-updates"/>
+                                           name="notifications-updates"
+                                           disabled/>
                                     <label for="notifications-updates-vuln" class="form-check-label">Vulnerability
                                         information only</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="notifications-updates-new"
+                                           name="notifications-updates"
+                                           checked/>
+                                    <label for="notifications-updates-new" class="form-check-label">New
+                                        certificates</label>
                                 </div>
                                 <p class="form-text">You can subscribe to receive notifications of all changes
                                     and
                                     updates to the
                                     certificates above, or only when new vulnerabilities potentially affecting
                                     the
-                                    certificates are published.</p>
+                                    certificates are published or when any new certificate is issued.</p>
                             </div>
                             <div>
                                 <label for="notifications-email" class="form-label">Email</label>
@@ -145,37 +153,35 @@
 {% endmacro %}
 
 {% macro modal_script() %}
-<script type="module">
-    import {add_current_cert, update_state} from "/static/modal.js";
-    import {compare_do} from "/static/compare.js";
-    import {notification_subscribe} from "/static/notifications.js";
+    <script type="module">
+        import {add_current_cert, update_state, compare_do, notification_subscribe} from "/static/modal.js";
 
-    $(function () {
+        $(function () {
 
-        $("#notification-modal").on("show.bs.modal", function () {
+            $("#notification-modal").on("show.bs.modal", function () {
+                update_state();
+            });
+            $("#compare-modal").on("show.bs.modal", function () {
+                update_state();
+            });
+            $("#notification-add-current").click(function () {
+                add_current_cert("selected_certs_subscription", certificate_data);
+            });
+            $("#compare-add-current").click(function () {
+                add_current_cert("selected_certs_comparison", certificate_data);
+            });
+            $("#compare-do").click(function () {
+                let cc_url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+                let fips_url = "{{ url_for("fips.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+                compare_do(cc_url, fips_url);
+            });
+            $("#notification-subscribe").click(function (event) {
+                let url = "{{ url_for("notify.subscribe") }}";
+                let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
+                let token = "{{ csrf_token() }}";
+                notification_subscribe(event, url, sitekey, token);
+            });
             update_state();
         });
-        $("#compare-modal").on("show.bs.modal", function () {
-            update_state();
-        });
-        $("#notification-add-current").click(function () {
-            add_current_cert("selected_certs_subscription", certificate_data);
-        });
-        $("#compare-add-current").click(function () {
-            add_current_cert("selected_certs_comparison", certificate_data);
-        });
-        $("#compare-do").click(function () {
-            let cc_url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
-            let fips_url = "{{ url_for("fips.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
-            compare_do(cc_url, fips_url);
-        });
-        $("#notification-subscribe").click(function (event) {
-            let url = "{{ url_for("notify.subscribe") }}";
-            let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
-            let token = "{{ csrf_token() }}";
-            notification_subscribe(event, url, sitekey, token);
-        });
-        update_state();
-    });
-</script>
+    </script>
 {% endmacro %}

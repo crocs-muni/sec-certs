@@ -15,6 +15,7 @@ class SubscriptionForm(FlaskForm):
 
 class ManageForm(FlaskForm):
     certificates = FieldList(FormField(SubscriptionForm), widget=TableWidget())
+    new = BooleanField("I want to receive notifications when new certificates appear.", [])
 
 
 class UnsubscribeForm(FlaskForm):

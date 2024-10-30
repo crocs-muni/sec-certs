@@ -357,18 +357,30 @@ class Notifier(DiffRenderer):
         change_certs = {
             obj["dgst"]: load(obj) for obj in mongo.db[self.collection].find({"_id": {"$in": change_dgsts}})
         }
+        new_diffs = {
+            obj["dgst"]: load(obj) for obj in mongo.db[self.diff_collection].find({"run_id": run_oid, "type": "new"})
+        }
+        new_dgsts = list(new_diffs.keys())
+        new_certs = {obj["dgst"]: load(obj) for obj in mongo.db[self.collection].find({"_id": {"$in": new_dgsts}})}
 
         # Render the individual diffs
         change_renders = {}
         for dgst in change_dgsts:
             change_renders[dgst] = self.render_diff(dgst, change_certs[dgst], change_diffs[dgst], linkback=True)
+        new_renders = {}
+        for dgst in new_dgsts:
+            new_renders[dgst] = self.render_diff(dgst, new_certs[dgst], new_diffs[dgst], linkback=True)
 
         # Group the subscriptions by email
         change_sub_emails = mongo.db.subs.find(
             {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True, "certificate.type": self.collection},
             {"email": 1},
         )
-        emails = {sub["email"] for sub in change_sub_emails}
+        new_sub_emails = mongo.db.subs.find(
+            {"updates": "new", "confirmed": True},
+            {"email": 1},
+        )
+        emails = {sub["email"] for sub in change_sub_emails} | {sub["email"] for sub in new_sub_emails}
 
         # Load Bootstrap CSS
         with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
@@ -391,10 +403,14 @@ class Notifier(DiffRenderer):
                     }
                 )
             )
+            new_subscription = next(
+                iter(mongo.db.subs.find({"confirmed": True, "email": email, "updates": "new"})), None
+            )
             email_token = subscriptions[0]["email_token"]
             cards = []
             urls = []
             # Go over the subscriptions for a given email and accumulate its rendered diffs
+            some_changes = False
             for sub in subscriptions:
                 dgst = sub["certificate"]["hashid"]
                 diff = change_diffs[dgst]
@@ -411,7 +427,15 @@ class Notifier(DiffRenderer):
                         continue
                 cards.append(render)
                 urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
-            if not cards:
+                some_changes = True
+            # If the user is subscribed for new certs, add them.
+            some_new = False
+            if new_subscription:
+                for dgst, render in zip(new_dgsts, new_renders):
+                    cards.append(render)
+                    urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
+                    some_new = True
+            if not some_changes and not some_new:
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
                 continue
             # Render diffs into body template
@@ -419,6 +443,8 @@ class Notifier(DiffRenderer):
                 "notifications/email/notification_email.html.jinja2",
                 cards=cards,
                 email_token=email_token,
+                changes=some_changes,
+                new=some_new,
             )
             # Filter out unused CSS rules
             cleaned_css = filter_css(bootstrap_parsed, email_core_html)
@@ -433,6 +459,8 @@ class Notifier(DiffRenderer):
                 "notifications/email/notification_email.txt.jinja2",
                 email_token=email_token,
                 urls=urls,
+                changes=some_changes,
+                new=some_new,
             )
             # Send out the message
             msg = Message(
