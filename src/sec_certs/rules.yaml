@@ -162,6 +162,7 @@ cc_filename_cert_id:
   SG:
   AU:
     - "(?P<year>[0-9]{2,4})_(?P<counter>[0-9]+)"
+  QA:
 
 #####
 # Common Criteria protection profile IDs, grouped by certification body (e.g. BSI)
