@@ -173,7 +173,8 @@
 }
 
 .name-list li:before {
-    font-family: 'Font Awesome 5 Free Solid';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: bold;
     content: '\f007';
     margin: 0 10px 0 -25px;
     color: var(--bs-body-color);
@@ -184,7 +185,8 @@
 }
 
 .outgoing-list li:before {
-    font-family: 'Font Awesome 5 Free Solid';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: bold;
     content: '\f061';
     margin: 0 10px 0 -25px;
     color: var(--bs-body-color);
@@ -195,7 +197,8 @@
 }
 
 .incoming-list li:before {
-    font-family: 'Font Awesome 5 Free Solid';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: bold;
     content: '\f060';
     margin: 0 10px 0 -25px;
     color: var(--bs-body-color);

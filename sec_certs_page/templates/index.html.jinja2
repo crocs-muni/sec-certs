@@ -266,18 +266,20 @@
 
         <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
-                <div class="col-12 col-lg-6">
+                <div class="col-12 col-lg-6 gy-3">
                     <h3>Do it yourself!</h3>
                     <p>The tools used to create the datasets on this website as well as the datasets themselves are
-                        open-source and available on <a href="https://github.com/crocs-muni/sec-certs">GitHub</a>.
-                        Documentation, including a quick-start guide, can be found on
-                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}">this site</a>.
+                        open-source and available on our GitHub. Documentation, including a quick-start guide,
+                        can be found on below.
                     </p>
+                    <a class="btn btn-primary" href="https://github.com/crocs-muni/sec-certs">GitHub</a>
+                    <a class="btn btn-primary" href="{{ url_for("docs.serve_docs", path="index.html") }}">Docs</a>
                 </div>
-                <div class="col-12 col-lg-6">
+                <div class="col-12 col-lg-6 gy-3">
                     <h3>About</h3>
                     <p>Want to learn more about our research? More information, including our publications and
-                        the privacy policy of this site can be found <a href="{{ url_for(".about") }}">here</a>.</p>
+                        the privacy policy of this site can be found on our about page.</p>
+                    <a class="btn btn-primary" href="{{ url_for(".about") }}">About</a>
                 </div>
             </div>
         </div>
