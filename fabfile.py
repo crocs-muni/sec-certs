@@ -24,6 +24,12 @@ def as_www_data(command, virtual=True):
     return " ".join(www_data_shell)
 
 
+def check_deploy(c):
+    resp = c.local("curl https://sec-certs.org/admin/candeploy").stdout.strip()
+    print("Can deploy?", resp)
+    return resp == "OK"
+
+
 @task
 def ps(c):
     """Print running processes."""
@@ -143,8 +149,10 @@ def update(c):
 
 
 @task
-def deploy(c):
+def deploy(c, force=False):
     """Deploy the whole thing, does a reload-only deploy."""
+    if not check_deploy(c) and not force:
+        print("Aborting deploy, tasks are running.")
     print("Pulling...")
     pull(c)
     print("Reloading dramatiq...")

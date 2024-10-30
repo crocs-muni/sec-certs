@@ -38,6 +38,20 @@ def tasks():
     return render_template("admin/tasks.html.jinja2", tasks=current_tasks)
 
 
+@admin.route("/candeploy")
+def candeploy():
+    tids = redis.smembers("tasks")
+    current_tasks = []
+    for tid in tids:
+        task = redis.get(tid)
+        if task:
+            current_tasks.append(json.loads(task))
+    if current_tasks:
+        return "Nope: " + ", ".join(task["name"] for task in current_tasks), 409
+    else:
+        return "OK", 200
+
+
 @admin.route("/updates")
 @login_required
 @admin_permission.require()
