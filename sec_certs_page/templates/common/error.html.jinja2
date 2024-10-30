@@ -1,14 +1,11 @@
-{% extends "base.html.jinja2" %}
+{% extends "common/base.html.jinja2" %}
 {% set search = False %}
 {% set crumbs = False %}
 {% block content %}
     <main style="min-height: 60vh">
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <h1>{{ heading }}</h1>
-            <p class="lead">{{ lead }}</p>
-            {% if text %}
-                <p>{{ text }}</p>
-            {% endif %}
+            <h1><i class="fas fa-exclamation-triangle"></i> {{ name }}</h1>
+            <p class="lead">{{ description }}</p>
         </div>
     </main>
 {% endblock %}

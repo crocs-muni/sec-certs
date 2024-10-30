@@ -1,4 +1,4 @@
-{% extends "base.html.jinja2" %}
+{% extends "common/base.html.jinja2" %}
 {% macro render_one(path, one, highlight=None, highlight_value=None) %}
     {% if path[-1] == "extracted_sars" and one %}
         {% for v in one %}

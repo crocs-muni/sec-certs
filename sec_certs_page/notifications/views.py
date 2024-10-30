@@ -74,7 +74,7 @@ def confirm(token: str):
     all_confirmed = all(map(itemgetter("confirmed"), subscriptions))
     if all_confirmed:
         return render_template(
-            "message.html.jinja2",
+            "common/message.html.jinja2",
             heading="Already confirmed",
             lead="You have already confirmed this subscription request.",
         )
@@ -135,7 +135,7 @@ def unsubscribe(token: str):
     if res.deleted_count == 0:
         return abort(404)
     return render_template(
-        "message.html.jinja2",
+        "common/message.html.jinja2",
         heading="Unsubscribed",
         lead="You were successfully unsubscribed from your notification subscriptions.",
         text="Note that you may still have subscriptions active that you subscribed to at" "a different point in time.",
@@ -148,7 +148,7 @@ def unsubscribe_all(email_token: str):
     if res.deleted_count == 0:
         return abort(404)
     return render_template(
-        "message.html.jinja2",
+        "common/message.html.jinja2",
         heading="Unsubscribed",
         lead="You were successfully unsubscribed from all notification subscriptions.",
     )
@@ -168,7 +168,7 @@ def unsubscribe_request():
         if subscriptions:  # Timing attack but I don't care.
             send_unsubscription_email.send(email.email)
         return render_template(
-            "message.html.jinja2",
+            "common/message.html.jinja2",
             heading="Unsubscription request processed",
             lead="Your unsubscription request was processed, if there is a subscription active with "
             "the given email address, you will receive an email to confirm unsubscription.",

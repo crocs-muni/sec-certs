@@ -48,7 +48,7 @@ def robots():
 @app.errorhandler(HTTPException)
 def error(e):
     return (
-        render_template("error.html.jinja2", code=e.code, name=e.name, description=e.description),
+        render_template("common/error.html.jinja2", code=e.code, name=e.name, description=e.description),
         e.code,
     )
 
