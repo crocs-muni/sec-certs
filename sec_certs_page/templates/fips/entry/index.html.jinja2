@@ -10,12 +10,8 @@
         {{ cert["web_data"]["module_name"]|default("", true) + " | sec-certs.org" }}
     </title>
 {% endblock %}
-{% block head %}
-    {{ super() }}
-    <script type="text/javascript" src="{{ url_for("static", filename="network.js") }}"></script>
-{% endblock %}
 {% block metadata %}
-	<meta property="description"
+    <meta property="description"
           content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
@@ -59,7 +55,8 @@
                data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
         {% endif %}
         {% if cert["web_data"]["module_name"] %}
-            <a href="{{ url_for("fips.entry_name", name=cert["web_data"]["module_name"]) }}" class="btn btn-outline-secondary btn-sm"
+            <a href="{{ url_for("fips.entry_name", name=cert["web_data"]["module_name"]) }}"
+               class="btn btn-outline-secondary btn-sm"
                title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
                     class="fas fa-share"></i> Link by certificate name</a>
         {% endif %}
@@ -342,6 +339,8 @@
                         <div id="network"></div>
                     </div>
                     <script>
+                        import {createNetwork} from "/static/network.js";
+
                         let network = createNetwork('network',
                             '{{ url_for(".entry_graph_json", hashid=hashid)}}',
                             '{{ url_for(".types") }}',

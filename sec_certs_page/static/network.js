@@ -1,5 +1,3 @@
-'use strict';
-
 function color(highlighted, statuses, d) {
     if (highlighted && highlighted.includes(d.id)) {
         return "#0d6efd"
@@ -51,7 +49,6 @@ class CertificateNetwork {
         this.simulation = null;
         this.numNodes = null;
         this.numLinks = null;
-        this.rendered = false;
 
         this.filter = {
             status: "any",
@@ -424,7 +421,7 @@ class CertificateNetwork {
     }
 }
 
-function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, width, height, collapse) {
+export function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, width, height, collapse) {
     return Promise.all([d3.json(data_url), d3.json(types_url), d3.json(status_url), d3.json(refTypes_url)]).then(values => {
         let data = values[0];
         let types = values[1];
