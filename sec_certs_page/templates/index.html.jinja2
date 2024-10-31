@@ -125,34 +125,40 @@
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-envelope fa-fw"></i>
+                            <i class="fas fa-bug fa-fw"></i>
                         </div>
-                        <h3>Update notifications</h3>
-                        <p>Subscribe to notifications about a vulnerability affecting a selected set of
-                            certified products or about new certificates</p>
-                        {% if not config["SUBSCRIPTIONS_ENABLED"] %}
-                            <p>Notification subscriptions are currently disabled.</p>
-                        {% endif %}
-                        <p>Use the floating button <span class="fa-stack fa-2x" style="font-size: 0.8rem">
-                            <i class="fas fa-square fa-stack-2x text-secondary"
-                                style="vertical-align: middle"></i>
-                            <i class="fas fa-envelope fa-stack-1x text-light"
-                                style="vertical-align: middle"></i>
-                        </span> in the bottom right corner to subscribe for
-                            notifications about changes in the certificate data or vulnerabilities affecting the
-                            certificates. You can also subscribe to receive notifications about new certificates.
+                        <h3>Vulnerability investigation</h3>
+                        <p>Investigate the connections of certified products to known vulnerabilities 
+                            by mapping certificates to the NIST National Vulnerability Database, offering 
+                            insights into associated CVEs (Common Vulnerabilities and Exposures).
                         </p>
-                        <p>Alternatively, use the update feed button <span class="fa-stack fa-2x"
-                                                                            style="font-size: 0.8rem">
-                            <i class="fas fa-square fa-stack-2x text-secondary"
-                                style="vertical-align: middle"></i>
-                            <i class="fas fa-feed fa-stack-1x text-light"
-                                style="vertical-align: middle"></i>
-                        </span> to get an ATOM feed of updates to a certificate.
+                        <p>The information on relevant CVEs is displayed in the appropriate heuristics section 
+                            on pages of the affected certificates.
                         </p>
                     </div>
                 </div>
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
+                    <div class="feature col">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-chart-line fa-fw"></i>
+                        </div>
+                        <h3>Trend visualizations</h3>
+                        <p>Explore our analysis of the security certifications landscape as it evolves over time.
+                            The analysis results presented here are preliminary, for more, see our
+                            <a href="{{ url_for("about", _anchor="research") }}">research</a>.</p>
+                        <a href="{{ url_for("cc.analysis") }}"
+                            class="btn btn-outline-secondary btn-sm">
+                            CC
+                        </a>
+                        <a href="{{ url_for("pp.analysis") }}"
+                            class="btn btn-outline-secondary btn-sm">
+                            PP
+                        </a>
+                        <a href="{{ url_for("fips.analysis") }}"
+                            class="btn btn-outline-secondary btn-sm">
+                            FIPS
+                        </a>
+                    </div>                    
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-file-alt fa-fw"></i>
@@ -177,36 +183,30 @@
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-chart-line fa-fw"></i>
+                            <i class="fas fa-envelope fa-fw"></i>
                         </div>
-                        <h3>Trend visualizations</h3>
-                        <p>Explore our analysis of the security certifications landscape as it evolves over time.
-                            The analysis results presented here are preliminary, for more, see our
-                            <a href="{{ url_for("about", _anchor="research") }}">research</a>.</p>
-                        <a href="{{ url_for("cc.analysis") }}"
-                            class="btn btn-outline-secondary btn-sm">
-                            CC
-                        </a>
-                        <a href="{{ url_for("pp.analysis") }}"
-                            class="btn btn-outline-secondary btn-sm">
-                            PP
-                        </a>
-                        <a href="{{ url_for("fips.analysis") }}"
-                            class="btn btn-outline-secondary btn-sm">
-                            FIPS
-                        </a>
-                    </div>
-                    <div class="feature col">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-bug fa-fw"></i>
-                        </div>
-                        <h3>Vulnerability investigation</h3>
-                        <p>Investigate the connections of certified products to known vulnerabilities 
-                            by mapping certificates to the NIST National Vulnerability Database, offering 
-                            insights into associated CVEs (Common Vulnerabilities and Exposures).
+                        <h3>Update notifications</h3>
+                        <p>Subscribe to notifications about a vulnerability affecting a selected set of
+                            certified products or about new certificates</p>
+                        {% if not config["SUBSCRIPTIONS_ENABLED"] %}
+                            <p>Notification subscriptions are currently disabled.</p>
+                        {% endif %}
+                        <p>Use the floating button <span class="fa-stack fa-2x" style="font-size: 0.8rem">
+                            <i class="fas fa-square fa-stack-2x text-secondary"
+                                style="vertical-align: middle"></i>
+                            <i class="fas fa-envelope fa-stack-1x text-light"
+                                style="vertical-align: middle"></i>
+                        </span> in the bottom right corner to subscribe for
+                            notifications about changes in the certificate data or vulnerabilities affecting the
+                            certificates. You can also subscribe to receive notifications about new certificates.
                         </p>
-                        <p>The information on relevant CVEs is displayed in the appropriate heuristics section 
-                            on pages of the affected certificates.
+                        <p>Alternatively, use the update feed button <span class="fa-stack fa-2x"
+                                                                            style="font-size: 0.8rem">
+                            <i class="fas fa-square fa-stack-2x text-secondary"
+                                style="vertical-align: middle"></i>
+                            <i class="fas fa-feed fa-stack-1x text-light"
+                                style="vertical-align: middle"></i>
+                        </span> to get an ATOM feed of updates to a certificate.
                         </p>
                     </div>
                 </div>
