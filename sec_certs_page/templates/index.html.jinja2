@@ -80,7 +80,7 @@
 
         <div class="row bg-dark p-3">
             <div class="col-12 col-sm-10 mx-auto text-light">
-                <h2 class="pt-2">Use cases</h2>
+                <h2 class="pt-2">Main features</h2>
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -112,7 +112,7 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-network-wired fa-fw"></i>
                         </div>
-                        <h3>References</h3>
+                        <h3>Certificate references</h3>
                         <p>Explore the references between certificates in a graph. A certificate
                             referencing another certificate often means that it builds on top of the referenced
                             certificate.</p>
@@ -127,7 +127,7 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-envelope fa-fw"></i>
                         </div>
-                        <h3>Notifications</h3>
+                        <h3>Update notifications</h3>
                         <p>Subscribe to notifications about a vulnerability affecting a selected set of
                             certified products or about new certificates</p>
                         {% if not config["SUBSCRIPTIONS_ENABLED"] %}
@@ -157,11 +157,15 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-file-alt fa-fw"></i>
                         </div>
-                        <h3>Data</h3>
-                        <p>Download our extracted dataset in machine-readable format.
+                        <h3>Open source & open data</h3>
+                        <p>Contribute to our code or download our extracted dataset in machine-readable format.
                             The full datasets are available below, while
                             individual certificate data is available on each certificate page.
                         </p>
+                        <a href="https://github.com/crocs-muni/sec-certs"
+                            class="btn btn-outline-secondary btn-sm">
+                            GitHub
+                        </a>                        
                         <a href="{{ url_for("cc.index", _anchor="data") }}"
                             class="btn btn-outline-secondary btn-sm">
                             CC
@@ -175,7 +179,7 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-chart-line fa-fw"></i>
                         </div>
-                        <h3>Analysis</h3>
+                        <h3>Trend visualizations</h3>
                         <p>Explore our analysis of the security certifications landscape as it evolves over time.
                             The analysis results presented here are preliminary, for more, see our
                             <a href="{{ url_for("about", _anchor="research") }}">research</a>.</p>
@@ -194,18 +198,15 @@
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-users fa-fw"></i>
+                            <i class="fas fa-bug fa-fw"></i>
                         </div>
-                        <h3>Crowdsourcing</h3>
-                        <p>Help us improve this site by letting us know where data is missing or wrong.</p>
-                        <p>Use the feedback bar <span class="fa-stack fa-2x" style="font-size: 0.8rem">
-                            <i class="fas fa-circle fa-stack-2x text-secondary"
-                                style="vertical-align: middle"></i>
-                            <i class="fas fa-question fa-stack-1x text-light"
-                                style="vertical-align: middle"></i>
-                        </span> on the right side of each certificate page. You can use it to give us feedback
-                            on individual data fields of the presented certificate, create a GitHub issue with
-                            your issue or feature request, or emails us with your input.
+                        <h3>Vulnerability investigation</h3>
+                        <p>Investigate the connections of certified products to known vulnerabilities 
+                            by mapping certificates to the NIST National Vulnerability Database, offering 
+                            insights into associated CVEs (Common Vulnerabilities and Exposures).
+                        </p>
+                        <p>The information on relevant CVEs is displayed in the appropriate heuristics section 
+                            on pages of the affected certificates.
                         </p>
                     </div>
                 </div>
