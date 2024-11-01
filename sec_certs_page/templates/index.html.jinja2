@@ -7,13 +7,13 @@
                 <div class="col-12 col-sm-5 order-1 order-sm-0">
                     <h1>About sec-certs</h1>
                     <p class="lead fw-light pt-2">
-                        We want to become the one-stop shop to explore the Common Criteria / FIPS 140 
-                        certification ecosystem. We aggregate and annotate certification data, enabling 
-                        unified search, vulnerability investigation, trend analyses, side-by-side 
+                        We want to become the one-stop shop to explore the Common Criteria / FIPS 140
+                        certification ecosystem. We aggregate and annotate certification data, enabling
+                        unified search, vulnerability investigation, trend analyses, side-by-side
                         comparisons, notifications and other features.
                     </p>
                     <p class="lead fw-light pt-2">
-                        The sec-certs tool is an ongoing research by the Centre for Research on Cryptography 
+                        The sec-certs tool is an ongoing research by the Centre for Research on Cryptography
                         and Security. Learn more about our
                         <a href="{{ url_for("about") }}">team and research</a>.
                     </p>
@@ -91,12 +91,13 @@
                             Explore the certificates without downloading and reading countless PDFs.</p>
                         <p>
                             Compare certificates using the <span class="fa-stack fa-2x"
-                                                                    style="font-size: 0.8rem">
+                                                                 style="font-size: 0.8rem; cursor: pointer"
+                                                                 onclick="new bootstrap.Modal('#compare-modal').show();">
                             <i class="fas fa-square fa-stack-2x text-secondary"
-                                style="vertical-align: middle"></i>
+                               style="vertical-align: middle"></i>
                             <i class="fas fa-scale-balanced fa-stack-1x text-light"
-                                style="vertical-align: middle"></i>
-                            </span> button to see differences between them.
+                               style="vertical-align: middle"></i>
+                            </span> floating button to see differences between them.
                         </p>
                         <a href="{{ url_for("cc.search") }}" class="btn btn-outline-secondary btn-sm">
                             CC
@@ -128,13 +129,22 @@
                             <i class="fas fa-bug fa-fw"></i>
                         </div>
                         <h3>Vulnerability investigation</h3>
-                        <p>Investigate the connections of certified products to known vulnerabilities 
-                            by mapping certificates to the NIST National Vulnerability Database, offering 
-                            insights into associated CVEs (Common Vulnerabilities and Exposures).
+                        <p>Investigate the vulnerabilities affecting certified products.
+                            We automatically map certificates to <abbr
+                                    title="Common Vulnerabilities and Exposures">CVE</abbr>
+                            entries in NIST's National Vulnerability Database affecting them.
                         </p>
-                        <p>The information on relevant CVEs is displayed in the appropriate heuristics section 
+                        <p>The information on relevant CVEs is displayed in the appropriate heuristics section
                             on pages of the affected certificates.
                         </p>
+                        <a href="{{ url_for("vuln.index", _anchor="cve") }}"
+                           class="btn btn-outline-secondary btn-sm">
+                            CVE
+                        </a>
+                        <a href="{{ url_for("vuln.index", _anchor="cpe") }}"
+                           class="btn btn-outline-secondary btn-sm">
+                            CPE
+                        </a>
                     </div>
                 </div>
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
@@ -144,21 +154,21 @@
                         </div>
                         <h3>Trend visualizations</h3>
                         <p>Explore our analysis of the security certifications landscape as it evolves over time.
-                            The analysis results presented here are preliminary, for more, see our
+                            The analysis results presented here are preliminary, for more, see our published
                             <a href="{{ url_for("about", _anchor="research") }}">research</a>.</p>
                         <a href="{{ url_for("cc.analysis") }}"
-                            class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm">
                             CC
                         </a>
                         <a href="{{ url_for("pp.analysis") }}"
-                            class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm">
                             PP
                         </a>
                         <a href="{{ url_for("fips.analysis") }}"
-                            class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm">
                             FIPS
                         </a>
-                    </div>                    
+                    </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-file-alt fa-fw"></i>
@@ -169,15 +179,15 @@
                             individual certificate data is available on each certificate page.
                         </p>
                         <a href="https://github.com/crocs-muni/sec-certs"
-                            class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm">
                             GitHub
-                        </a>                        
+                        </a>
                         <a href="{{ url_for("cc.index", _anchor="data") }}"
-                            class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm">
                             CC
                         </a>
                         <a href="{{ url_for("fips.index", _anchor="data") }}"
-                            class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm">
                             FIPS
                         </a>
                     </div>
@@ -186,28 +196,28 @@
                             <i class="fas fa-envelope fa-fw"></i>
                         </div>
                         <h3>Update notifications</h3>
-                        <p>Subscribe to notifications about a vulnerability affecting a selected set of
-                            certified products or about new certificates</p>
+                        <p>Subscribe to notifications about a vulnerability affecting a set of
+                            certified products, all changes in a set of certified products or about new certificates.</p>
                         {% if not config["SUBSCRIPTIONS_ENABLED"] %}
                             <p>Notification subscriptions are currently disabled.</p>
                         {% endif %}
-                        <p>Use the floating button <span class="fa-stack fa-2x" style="font-size: 0.8rem">
+                        <p>Subscribe using the floating button <span class="fa-stack fa-2x" style="font-size: 0.8rem; cursor: pointer" onclick="new bootstrap.Modal('#notification-modal').show();">
                             <i class="fas fa-square fa-stack-2x text-secondary"
-                                style="vertical-align: middle"></i>
+                               style="vertical-align: middle"></i>
                             <i class="fas fa-envelope fa-stack-1x text-light"
-                                style="vertical-align: middle"></i>
-                        </span> in the bottom right corner to subscribe for
-                            notifications about changes in the certificate data or vulnerabilities affecting the
-                            certificates. You can also subscribe to receive notifications about new certificates.
+                               style="vertical-align: middle"></i>
+                        </span> in the bottom right corner.
                         </p>
+                        {#
                         <p>Alternatively, use the update feed button <span class="fa-stack fa-2x"
-                                                                            style="font-size: 0.8rem">
+                                                                           style="font-size: 0.8rem">
                             <i class="fas fa-square fa-stack-2x text-secondary"
-                                style="vertical-align: middle"></i>
+                               style="vertical-align: middle"></i>
                             <i class="fas fa-feed fa-stack-1x text-light"
-                                style="vertical-align: middle"></i>
+                               style="vertical-align: middle"></i>
                         </span> to get an ATOM feed of updates to a certificate.
                         </p>
+                     #}
                     </div>
                 </div>
             </div>
