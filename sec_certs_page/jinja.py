@@ -11,7 +11,7 @@ from markupsafe import Markup
 from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
-from . import app, runtime_config
+from . import app, cache, runtime_config
 
 
 @app.template_global("country_to_flag")
@@ -95,7 +95,8 @@ def event_navbar():
 
 
 @app.template_global("include_static")
-def include_static(filename):
+@cache.memoize(timeout=3600)
+def include_static(filename: str):
     bp = current_app.blueprints.get(request.blueprint)
     if bp is not None and bp.static_folder is not None:
         try:
