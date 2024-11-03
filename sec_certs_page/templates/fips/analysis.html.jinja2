@@ -6,17 +6,29 @@
     <title>FIPS 140 analysis | sec-certs.org</title>
 {% endblock %}
 {% block content %}
+    <style>
+        .analysis-chart svg {
+            width: 100%;
+        }
+    </style>
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+            <div class="alert alert-warning d-sm-none" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+            </div>
             <h1 class="mb-4">FIPS 140</h1>
-            <div class="row">
-                <div class="col-sm-6" data-cs-name="Missing content">
-                    <p class="lead"><i class="fas fa-hammer fa-spin"></i> There is no content here, but we are working
-                        on it. In the meantime, see our <a
-                                href="{{ url_for("about", _anchor="research") }}">research</a> and
-                        the <a href="https://sec-certs.org/docs/notebooks/examples/est_solution.html">notebooks</a> in
-                        our documentation.
-                    </p>
+            <p class="lead">This is a very basic showcase of some of our statistics.
+                For more, see our <a href="{{ url_for("about", _anchor="research") }}">research</a> and the
+                <a href="{{ url_for("docs.serve_docs", path="notebooks/examples/est_solution.html") }}">notebooks</a> in
+                our documentation.
+            </p>
+
+            <div class="row mt-4 mb-4">
+                <div class="col ml-3 mr-3">
+                    <h2>Module type over time</h2>
+                    <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-4 mx-auto">
+                        {{ include_static("img/charts/fips/n_certs_by_type.svg") }}
+                    </div>
                 </div>
             </div>
         </div>
