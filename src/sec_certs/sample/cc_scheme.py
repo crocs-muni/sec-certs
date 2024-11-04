@@ -296,7 +296,7 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                 elif "Développeur" in label:
                     cert["developer"] = value
                 elif "Référence du certificat" in label:
-                    cert["cert_id"] = value
+                    cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC" + value
                 elif "Niveau" in label:
                     cert["level"] = value
                 elif "Date de fin de validité" in label:
@@ -309,7 +309,7 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                     label = tr.find("th").text
                     value = sns(tr.find("td").text)
                     if "Référence du certificat" in label:
-                        e["cert_id"] = value
+                        e["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
                     elif "Date de certification" in label:
                         e["certification_date"] = value
                     elif "Date de fin de validité" in label:
