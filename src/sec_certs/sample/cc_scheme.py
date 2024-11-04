@@ -65,15 +65,34 @@ __all__ = [
     "CCScheme",
 ]
 
+BASE_HEADERS = {"User-Agent": "sec-certs.org"}
 
-def _getq(url: str, params, session=None, **kwargs) -> Response:
+SPOOF_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br, zstd",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Cache-Control": "no-cache",
+    "Dnt": "1",
+    "Pragma": "no-cache",
+    "Priority": "u=0, i",
+    "Sec-Ch-Ua": 'Not?A_Brand";v="99", "Chromium";v="130',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Linux"',
+}
+
+
+def _getq(url: str, params, session=None, spoof=False, **kwargs) -> Response:
+    headers = {**BASE_HEADERS}
+    if spoof:
+        headers.update(SPOOF_HEADERS)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=InsecureRequestWarning)
         conn = session if session else requests
         resp = conn.get(
             url,
             params=params,
-            headers={"User-Agent": "sec-certs.org"},
+            headers=headers,
             verify=False,
             **kwargs,
             timeout=10,
@@ -107,8 +126,8 @@ def get_australia_in_evaluation(  # noqa: C901
     :param enhanced: Whether to enhance the results by following links (slower, more data).
     :return: The entries.
     """
-    # TODO: Australian scheme is blocking our User-Agent.
-    soup = _get_page(constants.CC_AUSTRALIA_INEVAL_URL)
+    session = requests.session()
+    soup = _get_page(constants.CC_AUSTRALIA_INEVAL_URL, session=session, spoof=True)
     header = soup.find("h2", string="Products in evaluation")
     table = header.find_next_sibling("table")
     results = []
@@ -124,7 +143,7 @@ def get_australia_in_evaluation(  # noqa: C901
         }
         if enhanced:
             e: dict[str, Any] = {}
-            cert_page = _get_page(cert["url"])
+            cert_page = _get_page(cert["url"], session=session, spoof=True)
             article = cert_page.find("article")
             blocks = article.find("div").find_all("div", class_="flex", recursive=False)
             for h2 in blocks[0].find_all("h2"):
