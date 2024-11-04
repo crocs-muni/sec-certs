@@ -1225,6 +1225,64 @@ def get_korea_archived(enhanced: bool = True, artifacts: bool = False) -> list[d
     return _get_korea(product_class=4, enhanced=enhanced, artifacts=artifacts)
 
 
+def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
+    """ """
+    soup = _get_page(constants.CC_POLAND_CERTIFIED_URL)
+    table = soup.find("table", class_="cert_tb")
+    results = []
+    for tr in table.find_all("tr")[1:]:
+        tds = tr.find_all("td")
+        cert = {
+            "client": sns(tds[0].text),
+            "product": sns(tds[1].text),
+            "certification_date": sns(tds[4].text),
+            "expiration_date": sns(tds[5].text),
+        }
+        cc_entry = sns(tds[2].text)
+        cc_split = None
+        if cc_entry and "\n" in cc_entry:
+            cc_split = cc_entry.split("\n")
+        elif cc_entry and "," in cc_entry:
+            cc_split = cc_entry.split(",")
+        if cc_split:
+            cert["cc_version"] = cc_split[0].strip()
+            cert["assurance_level"] = ", ".join(cc_split[1:]).strip()
+
+        for name, i in (("report", 6), ("target", 7), ("cert", 8)):
+            a = tds[i].find("a")
+            if a:
+                href = urljoin(constants.CC_POLAND_BASE_URL, a["href"])
+                cert[f"{name}_link"] = href
+                if artifacts:
+                    cert[f"{name}_hash"] = _get_hash(href).hex()
+        results.append(cert)
+    return results
+
+
+def get_poland_ineval() -> list[dict[str, Any]]:
+    """ """
+    soup = _get_page(constants.CC_POLAND_INEVAL_URL)
+    table = soup.find("table", class_="cert_tb")
+    results = []
+    for tr in table.find_all("tr")[1:]:
+        tds = tr.find_all("td")
+        cert = {
+            "client": sns(tds[0].text),
+            "product": sns(tds[1].text),
+        }
+        cc_entry = sns(tds[2].text)
+        cc_split = None
+        if cc_entry and "\n" in cc_entry:
+            cc_split = cc_entry.split("\n")
+        elif cc_entry and "," in cc_entry:
+            cc_split = cc_entry.split(",")
+        if cc_split:
+            cert["cc_version"] = cc_split[0].strip()
+            cert["assurance_level"] = ", ".join(cc_split[1:]).strip()
+        results.append(cert)
+    return results
+
+
 def _get_singapore(url: str, artifacts: bool) -> list[dict[str, Any]]:
     soup = _get_page(url)
     page_id = str(soup.find("input", id="CurrentPageId").value)
@@ -1651,6 +1709,10 @@ class CCScheme(ComplexSerializableType):
         "KO": {
             EntryType.Certified: get_korea_certified,
             EntryType.Archived: get_korea_archived,
+        },
+        "PL": {
+            EntryType.Certified: get_poland_certified,
+            EntryType.InEvaluation: get_poland_ineval,
         },
         "SG": {
             EntryType.InEvaluation: get_singapore_in_evaluation,

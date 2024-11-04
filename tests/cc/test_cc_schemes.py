@@ -137,6 +137,16 @@ def test_korea():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+def test_poland():
+    certified = CCSchemes.get_poland_certified()
+    assert len(certified) != 0
+    assert absolute_urls(certified)
+    ineval = CCSchemes.get_poland_ineval()
+    assert len(ineval) != 0
+    assert absolute_urls(ineval)
+
+
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_singapore():
     certified = CCSchemes.get_singapore_certified()
     assert len(certified) != 0
