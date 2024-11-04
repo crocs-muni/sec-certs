@@ -918,16 +918,10 @@ def get_malaysia_in_evaluation() -> list[dict[str, Any]]:
     return results
 
 
-def get_netherlands_certified(  # noqa: C901
+def _get_netherlands_certified_old(  # noqa: C901
     artifacts: bool = False,
 ) -> list[dict[str, Any]]:
-    """
-    Get Dutch "certified product" entries.
-
-    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
-    :return: The entries.
-    """
-    soup = _get_page(constants.CC_NETHERLANDS_CERTIFIED_URL)
+    soup = _get_page(constants.CC_NETHERLANDS_OLD_CERTIFIED_URL)
     main_div = soup.select("body > main > div > div > div > div:nth-child(2) > div.col-lg-9 > div:nth-child(3)")[0]
     rows = main_div.find_all("div", class_="row", recursive=False)
     modals = main_div.find_all("div", class_="modal", recursive=False)
@@ -949,32 +943,67 @@ def get_netherlands_certified(  # noqa: C901
             elif "Assurancelevel" in th_text:
                 cert["level"] = sns(td.text)
             elif "Certificate" in th_text:
-                cert["cert_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                cert["cert_link"] = urljoin(constants.CC_NETHERLANDS_OLD_BASE_URL, td.find("a")["href"])
                 if artifacts:
                     cert["cert_hash"] = _get_hash(cert["cert_link"]).hex()
             elif "Certificationreport" in th_text:
-                cert["report_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                cert["report_link"] = urljoin(constants.CC_NETHERLANDS_OLD_BASE_URL, td.find("a")["href"])
                 if artifacts:
                     cert["report_hash"] = _get_hash(cert["report_link"]).hex()
             elif "Securitytarget" in th_text:
-                cert["target_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                cert["target_link"] = urljoin(constants.CC_NETHERLANDS_OLD_BASE_URL, td.find("a")["href"])
                 if artifacts:
                     cert["target_hash"] = _get_hash(cert["target_link"]).hex()
             elif "Maintenance report" in th_text:
-                cert["maintenance_link"] = urljoin(constants.CC_NETHERLANDS_BASE_URL, td.find("a")["href"])
+                cert["maintenance_link"] = urljoin(constants.CC_NETHERLANDS_OLD_BASE_URL, td.find("a")["href"])
                 if artifacts:
                     cert["maintenance_hash"] = _get_hash(cert["maintenance_link"]).hex()
         results.append(cert)
     return results
 
 
-def get_netherlands_in_evaluation() -> list[dict[str, Any]]:
-    """
-    Get Dutch "product in evaluation" entries.
+def _get_netherlands_certified_new(  # noqa: C901
+    artifacts: bool = False,
+) -> list[dict[str, Any]]:
+    soup = _get_page(constants.CC_NETHERLANDS_NEW_CERTIFIED_URL)
+    table = soup.find("table", class_="wpDataTable")
+    results = []
+    for tr in table.find_all("tr")[1:]:
+        tds = tr.find_all("td")
+        cert = {
+            "cert_id": sns(tds[0].text).replace("\n", ""),  # type: ignore
+            "certification_date": sns(tds[1].text),
+            "status": sns(tds[2].text),
+            "product": sns(tds[3].text),
+            "developer": sns(tds[4].text),
+            "evaluation_facility": sns(tds[5].text),
+            "level": sns(tds[6].text),
+        }
+        for name, i in (("cert", 7), ("report", 8), ("target", 9)):
+            a = tds[i].find("a")
+            if a:
+                href = urljoin(constants.CC_NETHERLANDS_NEW_BASE_URL, a["href"])
+                cert[f"{name}_link"] = href
+                if artifacts:
+                    cert[f"{name}_hash"] = _get_hash(href).hex()
+        results.append(cert)
+    return results
 
+
+def get_netherlands_certified(artifacts: bool = False) -> list[dict[str, Any]]:
+    """
+    Get Dutch "certified product" entries.
+
+    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    soup = _get_page(constants.CC_NETHERLANDS_INEVAL_URL)
+    old = _get_netherlands_certified_old(artifacts=artifacts)
+    new = _get_netherlands_certified_new(artifacts=artifacts)
+    return old + new
+
+
+def _get_netherlands_in_evaluation_old() -> list[dict[str, Any]]:
+    soup = _get_page(constants.CC_NETHERLANDS_OLD_INEVAL_URL)
     table = soup.find("table")
     results = []
     for tr in table.find_all("tr")[1:]:
@@ -988,6 +1017,34 @@ def get_netherlands_in_evaluation() -> list[dict[str, Any]]:
         }
         results.append(cert)
     return results
+
+
+def _get_netherlands_in_evaluation_new() -> list[dict[str, Any]]:
+    soup = _get_page(constants.CC_NETHERLANDS_NEW_INEVAL_URL)
+    table = soup.find("table", class_="wpDataTable")
+    results = []
+    for tr in table.find_all("tr")[1:]:
+        tds = tr.find_all("td")
+        cert = {
+            "cert_id": sns(tds[0].text),
+            "developer": sns(tds[1].text),
+            "product": sns(tds[2].text),
+            "category": sns(tds[3].text),
+            "level": sns(tds[4].text),
+        }
+        results.append(cert)
+    return results
+
+
+def get_netherlands_in_evaluation() -> list[dict[str, Any]]:
+    """
+    Get Dutch "product in evaluation" entries.
+
+    :return: The entries.
+    """
+    old = _get_netherlands_in_evaluation_old()
+    new = _get_netherlands_in_evaluation_new()
+    return old + new
 
 
 def _get_norway(  # noqa: C901
@@ -1226,7 +1283,12 @@ def get_korea_archived(enhanced: bool = True, artifacts: bool = False) -> list[d
 
 
 def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
-    """ """
+    """
+    Get Polish "certified product" entries.
+
+    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+    :return: The entries.
+    """
     soup = _get_page(constants.CC_POLAND_CERTIFIED_URL)
     table = soup.find("table", class_="cert_tb")
     results = []
@@ -1260,7 +1322,13 @@ def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
 
 
 def get_poland_ineval() -> list[dict[str, Any]]:
-    """ """
+    """
+    Get Polish "product in evaluation" entries.
+
+    :param enhanced: Whether to enhance the results by following links (slower, more data).
+    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
+    :return: The entries.
+    """
     soup = _get_page(constants.CC_POLAND_INEVAL_URL)
     table = soup.find("table", class_="cert_tb")
     results = []

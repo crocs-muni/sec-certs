@@ -116,9 +116,12 @@ CC_MALAYSIA_INEVAL_URL = (
     CC_MALAYSIA_BASE_URL
     + "/index.php/certification/product-certification/mycc/list-of-products-and-systems-under-evaluation-or-maintenance"
 )
-CC_NETHERLANDS_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
-CC_NETHERLANDS_CERTIFIED_URL = CC_NETHERLANDS_BASE_URL + "/certificates.html"
-CC_NETHERLANDS_INEVAL_URL = CC_NETHERLANDS_BASE_URL + "/ongoing-certifications.html"
+CC_NETHERLANDS_OLD_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
+CC_NETHERLANDS_OLD_CERTIFIED_URL = CC_NETHERLANDS_OLD_BASE_URL + "/certificates.html"
+CC_NETHERLANDS_OLD_INEVAL_URL = CC_NETHERLANDS_OLD_BASE_URL + "/ongoing-certifications.html"
+CC_NETHERLANDS_NEW_BASE_URL = "https://www.trustcb.com/common-criteria/nscib"
+CC_NETHERLANDS_NEW_CERTIFIED_URL = CC_NETHERLANDS_NEW_BASE_URL + "/nscib-certificates/"
+CC_NETHERLANDS_NEW_INEVAL_URL = CC_NETHERLANDS_NEW_BASE_URL + "/nscib-ongoing-certifications/"
 CC_NORWAY_BASE_URL = "https://sertit.no"
 CC_NORWAY_CERTIFIED_URL = CC_NORWAY_BASE_URL + "/certified-products/category1919.html"
 CC_NORWAY_ARCHIVED_URL = CC_NORWAY_BASE_URL + "/certified-products/product-archive/"
