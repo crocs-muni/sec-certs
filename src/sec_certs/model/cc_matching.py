@@ -10,6 +10,24 @@ from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.utils.strings import fully_sanitize_string
 
+CATEGORIES = {
+    "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "Other Devices and Systems",
+    "Network and Network-Related Devices and Systems",
+    "Multi-Function Devices",
+    "Boundary Protection Devices and Systems",
+    "Data Protection",
+    "Operating Systems",
+    "Products for Digital Signatures",
+    "Access Control Devices and Systems",
+    "Mobility",
+    "Databases",
+    "Trusted Computing",
+    "Detection Devices and Systems",
+    "Key Management Systems",
+    "Biometric Systems and Devices",
+}
+
 
 class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
     """
@@ -46,6 +64,8 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         if vendor_name := self._get_from_entry("vendor", "developer", "manufacturer", "supplier"):
             self._vendor = fully_sanitize_string(vendor_name)
 
+        self._category = self._get_from_entry("category")
+
         self._report_hash = self._get_from_entry("report_hash")
         self._target_hash = self._get_from_entry("target_hash")
 
@@ -68,6 +88,9 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
             return 100
         # We need to have something to match to.
         if self._product is None or self._vendor is None or cert.name is None or cert.manufacturer is None:
+            return 0
+        # It is a correctly parsed category but the wrong one.
+        if self._category in CATEGORIES and self._category != cert.category:
             return 0
         cert_name = fully_sanitize_string(cert.name)
         cert_manufacturer = fully_sanitize_string(cert.manufacturer)
