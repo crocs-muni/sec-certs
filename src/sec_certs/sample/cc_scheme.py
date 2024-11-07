@@ -9,7 +9,7 @@ import tempfile
 import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from inspect import signature
 from pathlib import Path
@@ -25,6 +25,7 @@ from urllib3.connectionpool import InsecureRequestWarning
 
 from sec_certs import constants
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils.helpers import parse_date
 from sec_certs.utils.sanitization import sanitize_navigable_string as sns
 from sec_certs.utils.tqdm import tqdm
 
@@ -78,21 +79,7 @@ SPOOF_HEADERS = {
     "Cache-Control": "no-cache",
     "Dnt": "1",
     "Pragma": "no-cache",
-    "Priority": "u=0, i",  # 'ICs, Smart Cards and Smart Card-Related Devices and Systems': 1978,
-    # 'Other Devices and Systems': 1043,
-    # 'Network and Network-Related Devices and Systems': 835,
-    # 'Multi-Function Devices': 671,
-    # 'Boundary Protection Devices and Systems': 253,
-    # 'Data Protection': 240,
-    # 'Operating Systems': 237,
-    # 'Products for Digital Signatures': 179,
-    # 'Access Control Devices and Systems': 155,
-    # 'Mobility': 115,
-    # 'Databases': 103,
-    # 'Trusted Computing': 78,
-    # 'Detection Devices and Systems': 77,
-    # 'Key Management Systems': 59,
-    # 'Biometric Systems and Devices'
+    "Priority": "u=0, i",
     "Sec-Ch-Ua": 'Not?A_Brand";v="99", "Chromium";v="130',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Linux"',
@@ -146,7 +133,7 @@ def get_australia_in_evaluation(  # noqa: C901
     :param enhanced: Whether to enhance the results by following links (slower, more data).
     :return: The entries.
     """
-    session = requests.session()
+    session = requests.Session()
     soup = _get_page(constants.CC_AUSTRALIA_INEVAL_URL, session=session, spoof=True)
     header = soup.find("h2", string="Products in evaluation")
     table = header.find_next_sibling("table")
@@ -160,6 +147,9 @@ def get_australia_in_evaluation(  # noqa: C901
             "product": sns(tds[1].text),
             "url": urljoin(constants.CC_AUSTRALIA_BASE_URL, tds[1].find("a")["href"]),
             "level": sns(tds[2].text),
+            "acceptance_date": parse_date(sns(tds[3].text), languages=["en"]),
+            "evaluation_facility": sns(tds[4].text),
+            "task_id": sns(tds[5].text),
         }
         if enhanced:
             e: dict[str, Any] = {}
@@ -174,7 +164,7 @@ def get_australia_in_evaluation(  # noqa: C901
                 if "Version:" in h_text:
                     e["version"] = val
                 elif "Product type:" in h_text:
-                    e["product_type"] = val
+                    e["category"] = val
                 elif "Product status:" in h_text:
                     e["product_status"] = val
                 elif "Assurance level:" in h_text:
@@ -226,7 +216,7 @@ def get_canada_certified() -> list[dict[str, Any]]:
             "product": sns(tds[0].text),
             "vendor": sns(tds[1].text),
             "level": sns(tds[2].text),
-            "certification_date": sns(tds[3].text),
+            "certification_date": parse_date(sns(tds[3].text), "%Y-%m-%d"),
         }
         results.append(cert)
     return results
@@ -254,14 +244,14 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
             "product": sns(tds[0].text),
             "vendor": sns(tds[1].text),
             "level": sns(tds[2].text),
-            "cert_lab": sns(tds[3].text),
+            "evaluation_facility": sns(tds[3].text),
         }
         results.append(cert)
     return results
 
 
 def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa: C901
-    session = requests.session()
+    session = requests.Session()
     challenge_soup = _get_page(constants.CC_ANSSI_BASE_URL, session=session)
     bln_script = challenge_soup.find("head").find_all("script")[1]
     bln_match = re.search(r"\"value\":\"([a-zA-Z0-9_-]+)\"", bln_script.string)
@@ -296,11 +286,11 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                 elif "Développeur" in label:
                     cert["developer"] = value
                 elif "Référence du certificat" in label:
-                    cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC" + value
+                    cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
                 elif "Niveau" in label:
                     cert["level"] = value
                 elif "Date de fin de validité" in label:
-                    cert["expiration_date"] = value
+                    cert["expiration_date"] = parse_date(value, languages=["fr"])
             if enhanced:
                 e: dict[str, Any] = {}
                 cert_page = _get_page(cert["url"], session=session)
@@ -311,9 +301,9 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                     if "Référence du certificat" in label:
                         e["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
                     elif "Date de certification" in label:
-                        e["certification_date"] = value
+                        e["certification_date"] = parse_date(value, languages=["fr"])
                     elif "Date de fin de validité" in label:
-                        e["expiration_date"] = value
+                        e["expiration_date"] = parse_date(value, languages=["fr"])
                     elif "Catégorie" in label:
                         # TODO: translate?
                         e["category"] = value
@@ -386,19 +376,20 @@ def get_germany_certified(  # noqa: C901
     :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    base_soup = _get_page(constants.CC_BSI_CERTIFIED_URL)
+    session = requests.Session()
+    base_soup = _get_page(constants.CC_BSI_CERTIFIED_URL, session=session)
     category_nav = base_soup.find("ul", class_="no-bullet row")
     results = []
     for li in tqdm(category_nav.find_all("li"), desc="Get DE scheme certified."):
         a = li.find("a")
         url = a["href"]
         category_name = sns(a.text)
-        soup = _get_page(urljoin(constants.CC_BSI_BASE_URL, url))
+        soup = _get_page(urljoin(constants.CC_BSI_BASE_URL, url), session=session)
         content = soup.find("div", class_="content").find("div", class_="column")
-        for table in tqdm(content.find_all("table")):
+        for table in tqdm(content.find_all("table"), leave=False):
             tbody = table.find("tbody")
             header = table.find_parent("div", class_="wrapperTable").find_previous_sibling("h2")
-            for tr in tqdm(tbody.find_all("tr")):
+            for tr in tqdm(tbody.find_all("tr"), leave=False):
                 tds = tr.find_all("td")
                 if len(tds) != 4:
                     continue
@@ -406,13 +397,13 @@ def get_germany_certified(  # noqa: C901
                     "cert_id": sns(tds[0].text),
                     "product": sns(tds[1].text),
                     "vendor": sns(tds[2].text),
-                    "certification_date": sns(tds[3].text),
+                    "certification_date": parse_date(sns(tds[3].text), "%d.%m.%Y"),
                     "category": category_name,
                     "url": urljoin(constants.CC_BSI_BASE_URL, tds[0].find("a")["href"]),
                 }
                 if enhanced:
                     e: dict[str, Any] = {}
-                    cert_page = _get_page(cert["url"])
+                    cert_page = _get_page(cert["url"], session=session)
                     content = cert_page.find("div", id="content").find("div", class_="column")
                     head = content.find("h1", class_="c-intro__headline")
                     e["product"] = sns(head.next_sibling.text)
@@ -432,9 +423,9 @@ def get_germany_certified(  # noqa: C901
                         elif "Protection Profile" in title:
                             e["protection_profile"] = value
                         elif "Certification Date" in title:
-                            e["certification_date"] = value
+                            e["certification_date"] = parse_date(value, "%d.%m.%Y")
                         elif "valid until" in title:
-                            e["expiration_date"] = value
+                            e["expiration_date"] = parse_date(value, "%d.%m.%Y")
                     links = content.find("ul")
                     if links:
                         # has multiple entries/recertifications
@@ -462,15 +453,15 @@ def get_germany_certified(  # noqa: C901
                         if "Certification Report" in title:
                             e["report_link"] = href
                             if artifacts:
-                                e["report_hash"] = _get_hash(href)
+                                e["report_hash"] = _get_hash(href, session=session)
                         elif "Security Target" in title:
                             e["target_link"] = href
                             if artifacts:
-                                e["target_hash"] = _get_hash(href)
+                                e["target_hash"] = _get_hash(href, session=session)
                         elif "Certificate" in title:
                             e["cert_link"] = href
                             if artifacts:
-                                e["cert_hash"] = _get_hash(href)
+                                e["cert_hash"] = _get_hash(href, session=session)
                     description = content.find("div", attrs={"lang": "en"})
                     if description:
                         e["description"] = sns(description.text)
@@ -503,13 +494,14 @@ def get_india_certified() -> list[dict[str, Any]]:
 
         # Update pages
         pager = soup.find("ul", class_="pager__items")
-        for li in pager.find_all("li"):
-            try:
-                new_page = int(li.text) - 1
-            except Exception:
-                continue
-            if new_page not in seen_pages:
-                pages.add(new_page)
+        if pager:
+            for li in pager.find_all("li"):
+                try:
+                    new_page = int(li.find("a")["href"].split("=")[1])
+                except Exception:
+                    continue
+                if new_page not in seen_pages:
+                    pages.add(new_page)
 
         # Parse table
         tbody = soup.find("div", class_="view-content").find("table").find("tbody")
@@ -526,7 +518,7 @@ def get_india_certified() -> list[dict[str, Any]]:
                 "sponsor": sns(tds[2].text),
                 "developer": sns(tds[3].text),
                 "level": sns(tds[4].text),
-                "issuance_date": sns(tds[5].text),
+                "certification_date": parse_date(sns(tds[5].text), "%d-%b-%Y"),
                 "report_link": urljoin(constants.CC_INDIA_BASE_URL, _fix_india_link(report_a["href"])),
                 "report_name": sns(report_a.text),
                 "target_link": urljoin(constants.CC_INDIA_BASE_URL, _fix_india_link(target_a["href"])),
@@ -561,7 +553,7 @@ def get_india_archived() -> list[dict[str, Any]]:
         if pager:
             for li in pager.find_all("li"):
                 try:
-                    new_page = int(li.text) - 1
+                    new_page = int(li.find("a")["href"].split("=")[1])
                 except Exception:
                     continue
                 if new_page not in seen_pages:
@@ -586,7 +578,7 @@ def get_india_archived() -> list[dict[str, Any]]:
                 "target_name": sns(target_a.text),
                 "cert_link": urljoin(constants.CC_INDIA_BASE_URL, _fix_india_link(cert_a["href"])),
                 "cert_name": sns(cert_a.text),
-                "certification_date": sns(tds[8].text),
+                "certification_date": parse_date(sns(tds[8].text), "%d/%b/%Y"),
             }
             if report_a:
                 cert["report_link"] = urljoin(constants.CC_INDIA_BASE_URL, _fix_india_link(report_a["href"]))
@@ -615,16 +607,16 @@ def get_italy_certified() -> list[dict[str, Any]]:  # noqa: C901
             if not p_text or ":" not in p_text:
                 continue
             p_name, p_data = p_text.split(":")
-            p_data = p_data
+            p_data = p_data.strip()
             p_link = data_p.find("a")
             if "Fornitore" in p_name:
                 cert["supplier"] = p_data
             elif "Livello di garanzia" in p_name:
                 cert["level"] = p_data
             elif "Data emissione certificato" in p_name:
-                cert["certification_date"] = p_data
+                cert["certification_date"] = parse_date(p_data, languages=["it"])
             elif "Data revisione" in p_name:
-                cert["revision_date"] = p_data
+                cert["revision_date"] = parse_date(p_data, languages=["it"])
             elif "Rapporto di Certificazione" in p_name and p_link:
                 cert["report_link_it"] = urljoin(constants.CC_ITALY_BASE_URL, p_link["href"])
             elif "Certification Report" in p_name and p_link:
@@ -669,7 +661,8 @@ def get_italy_in_evaluation() -> list[dict[str, Any]]:
 
 
 def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa: C901
-    soup = _get_page(url)
+    session = requests.Session()
+    soup = _get_page(url, session=session)
     table = soup.find("table", class_="cert-table")
     results = []
     trs = list(table.find_all("tr"))
@@ -678,16 +671,19 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
         if not tds:
             continue
         if len(tds) in (6, 7):
+            cert_id = sns(tds[0].text)
+            if cert_id:
+                cert_id = "JISEC-CC-CRP-" + cert_id
             cert: dict[str, Any] = {
-                "cert_id": sns(tds[0].text),
+                "cert_id": cert_id,
                 "supplier": sns(tds[1].text),
                 "toe_overseas_name": sns(tds[2].text),
             }
             if len(tds) == 6:
-                cert["expiration_date"] = sns(tds[5].text)
+                cert["expiration_date"] = parse_date(sns(tds[5].text), "%Y-%m")
                 cert["claim"] = sns(tds[4].text)
             else:
-                cert["expiration_date"] = sns(tds[4].text)
+                cert["expiration_date"] = parse_date(sns(tds[4].text), "%Y-%m")
                 cert["claim"] = sns(tds[5].text)
             cert_date = sns(tds[3].text)
             toe_a = tds[2].find("a")
@@ -698,7 +694,7 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
             if cert_date and "Assurance Continuity" in cert_date:
                 cert["revalidations"] = [{"date": cert_date.split("(")[0], "link": toe_link}]
             else:
-                cert["certification_date"] = cert_date
+                cert["certification_date"] = parse_date(cert_date, "%Y-%m")
                 cert["toe_overseas_link"] = toe_link
             results.append(cert)
         if len(tds) == 1:
@@ -709,7 +705,7 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
                 cert["toe_japan_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
         if len(tds) == 2:
             cert = results[-1]
-            cert["certification_date"] = sns(tds[1].text)
+            cert["certification_date"] = parse_date(sns(tds[1].text), "%Y-%m")
             toe_a = tds[0].find("a")
             if toe_a and "href" in toe_a.attrs:
                 toe_link = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
@@ -717,12 +713,12 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
                 toe_link = None
             cert["toe_overseas_link"] = toe_link
     if enhanced:
-        for cert in results:
+        for cert in tqdm(results, desc=f"Get JP scheme {name} (enhanced)."):
             e: dict[str, Any] = {}
             cert_link = cert.get("toe_overseas_link") or cert.get("toe_japan_link")
             if not cert_link:
                 continue
-            cert_page = _get_page(cert_link)
+            cert_page = _get_page(cert_link, session=session)
             main = cert_page.find("div", id="main")
             left = main.find("div", id="left")
             for dl in left.find_all("dl"):
@@ -738,11 +734,18 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
                 elif "Product Type" in title:
                     e["product_type"] = value
                 elif "Certification Identification" in title:
-                    e["cert_id"] = value
+                    if not value or value.startswith("JISEC-CC-CRP-"):
+                        e["cert_id"] = value
+                    elif value.startswith("JISEC-"):
+                        e["cert_id"] = value.replace("JISEC-", "JISEC-CC-CRP-")
+                    else:
+                        e["cert_id"] = value
                 elif "Version of Common Criteria" in title:
                     e["cc_version"] = value
-                elif "Date" in title:
-                    e["certification_date"] = value
+                elif "Date of Certification Expiry" in title:
+                    e["expiration_date"] = parse_date(value, "%Y-%m-%d")
+                elif "Date of Certification" in title:
+                    e["certification_date"] = parse_date(value, "%Y-%m-%d")
                 elif "Conformance Claim" in title:
                     e["assurance_level"] = value
                 elif "PP Identifier" in title and value != "None":
@@ -767,15 +770,15 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
                     if "Report" in name:
                         e["report_link"] = urljoin(constants.CC_JAPAN_BASE_URL, li_a["href"])
                         if artifacts:
-                            e["report_hash"] = _get_hash(e["report_link"])
+                            e["report_hash"] = _get_hash(e["report_link"], session=session)
                     elif "Certificate" in name:
                         e["cert_link"] = urljoin(constants.CC_JAPAN_BASE_URL, li_a["href"])
                         if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"])
+                            e["cert_hash"] = _get_hash(e["cert_link"], session=session)
                     elif "Target" in name:
                         e["target_link"] = urljoin(constants.CC_JAPAN_BASE_URL, li_a["href"])
                         if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"])
+                            e["target_hash"] = _get_hash(e["target_link"], session=session)
             e["description"] = sns(main.find("div", id="overviewsbox").text)
             cert["enhanced"] = e
     return results
@@ -830,7 +833,8 @@ def get_japan_in_evaluation() -> list[dict[str, Any]]:
 
 
 def _get_malaysia(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa: C901
-    soup = _get_page(url)
+    session = requests.Session()
+    soup = _get_page(url, session=session)
     pages_re = re.search("Page [0-9]+ of ([0-9]+)", soup.find("form").text)
     if not pages_re:
         raise ValueError
@@ -838,7 +842,7 @@ def _get_malaysia(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # no
     results = []
     pbar = tqdm(desc=f"Get MY scheme {name}.")
     for i in range(total_pages):
-        soup = _get_page(url + f"?start={i * 10}")
+        soup = _get_page(url + f"?start={i * 10}", session=session)
         table = soup.find("table", class_="directoryTable")
         for tr in table.find_all("tr", class_="directoryRow"):
             tds = tr.find_all("td")
@@ -847,14 +851,14 @@ def _get_malaysia(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # no
                 "developer": sns(tds[1].text),
                 "level": sns(tds[2].text),
                 "product": sns(tds[3].text),
-                "certification_date": sns(tds[4].text),
-                "expiration_date": sns(tds[5].text),
+                "certification_date": parse_date(sns(tds[4].text), "%d-%m-%Y"),
+                "expiration_date": parse_date(sns(tds[5].text), "%d-%m-%Y"),
                 "recognition": sns(tds[6].text),
                 "url": urljoin(constants.CC_MALAYSIA_BASE_URL, tds[7].find("a")["href"]),
             }
             if enhanced:
                 e: dict[str, Any] = {}
-                cert_page = _get_page(cert["url"])
+                cert_page = _get_page(cert["url"], session=session)
                 for row in cert_page.find_all("div", class_="rsform-table-row"):
                     left = row.find("div", class_="rsform-left-col")
                     right = row.find("div", class_="rsform-right-col")
@@ -877,9 +881,9 @@ def _get_malaysia(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # no
                     elif "Assurance Level" in title:
                         e["assurance_level"] = value
                     elif "Certificate Date" in title:
-                        e["certification_date"] = value
+                        e["certification_date"] = parse_date(value, "%d-%m-%Y")
                     elif "Expiry Date" in title:
-                        e["expiration_date"] = value
+                        e["expiration_date"] = parse_date(value, "%d-%m-%Y")
                     elif "Recognized By" in title:
                         e["mutual_recognition"] = value
                     elif "Reports" in title:
@@ -887,11 +891,11 @@ def _get_malaysia(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # no
                             if "ST" in a.text:
                                 e["target_link"] = urljoin(constants.CC_MALAYSIA_BASE_URL, a["href"])
                                 if artifacts:
-                                    e["target_hash"] = _get_hash(e["target_link"])
+                                    e["target_hash"] = _get_hash(e["target_link"], session=session)
                             elif "CR" in a.text:
                                 e["report_link"] = urljoin(constants.CC_MALAYSIA_BASE_URL, a["href"])
                                 if artifacts:
-                                    e["report_hash"] = _get_hash(e["report_link"])
+                                    e["report_hash"] = _get_hash(e["report_link"], session=session)
                     elif "Maintenance" in title:
                         pass
                     elif "Status" in title:
@@ -961,11 +965,15 @@ def _get_netherlands_certified_old(  # noqa: C901
     for row, modal in tqdm(zip(rows, modals), desc="Get NL scheme certified (old)."):
         row_entries = row.find_all("a")
         modal_trs = modal.find_all("tr")
+        cert_id = sns(row_entries[3].text)
+        if cert_id:
+            cert_id = cert_id if cert_id.startswith("NSCIB-") else "NSCIB-" + cert_id
+            cert_id = cert_id if cert_id.endswith("-CR") else cert_id + "-CR"
         cert: dict[str, Any] = {
             "manufacturer": sns(row_entries[0].text),
             "product": sns(row_entries[1].text),
             "scheme": sns(row_entries[2].text),
-            "cert_id": sns(row_entries[3].text),
+            "cert_id": cert_id,
         }
         for tr in modal_trs:
             th_text = tr.find("th").text
@@ -1002,9 +1010,12 @@ def _get_netherlands_certified_new(  # noqa: C901
     results = []
     for tr in tqdm(table.find_all("tr")[1:], desc="Get NL scheme certified (new)."):
         tds = tr.find_all("td")
+        cert_id = sns(tds[0].text).replace("\n", "")  # type: ignore
+        cert_id = cert_id if cert_id.startswith("NSCIB-") else "NSCIB-" + cert_id
+        cert_id = cert_id if cert_id.endswith("-CR") else cert_id + "-CR"
         cert = {
-            "cert_id": sns(tds[0].text).replace("\n", ""),  # type: ignore
-            "certification_date": sns(tds[1].text),
+            "cert_id": cert_id,
+            "certification_date": parse_date(sns(tds[1].text), "%Y-%m-%d"),
             "status": sns(tds[2].text),
             "product": sns(tds[3].text),
             "developer": sns(tds[4].text),
@@ -1082,7 +1093,8 @@ def get_netherlands_in_evaluation() -> list[dict[str, Any]]:
 def _get_norway(  # noqa: C901
     url: str, enhanced: bool, artifacts: bool, name
 ) -> list[dict[str, Any]]:
-    soup = _get_page(url)
+    session = requests.Session()
+    soup = _get_page(url, session=session)
     results = []
     for tr in tqdm(soup.find_all("tr", class_="certified-product"), desc=f"Get NO scheme {name}."):
         tds = tr.find_all("td")
@@ -1091,11 +1103,11 @@ def _get_norway(  # noqa: C901
             "url": tds[0].find("a")["href"],
             "category": sns(tds[1].find("p", class_="value").text),
             "developer": sns(tds[2].find("p", class_="value").text),
-            "certification_date": sns(tds[3].find("time").text),
+            "certification_date": parse_date(sns(tds[3].find("time").text), "%d.%m.%Y"),
         }
         if enhanced:
             e: dict[str, Any] = {}
-            cert_page = _get_page(cert["url"])
+            cert_page = _get_page(cert["url"], session=session)
             content = cert_page.find("div", class_="main-content")
             body = content.find("div", class_="articleelement")
             if body:
@@ -1107,7 +1119,8 @@ def _get_norway(  # noqa: C901
                 if not title:
                     continue
                 if "Certificate No." in title and value is not None:
-                    e["id"] = value.split(" ")[0]
+                    value = value.split(" ")[0]
+                    e["cert_id"] = value if value.startswith("SERTIT-") else "SERTIT-" + value
                 elif "Mutual Recognition" in title:
                     e["mutual_recognition"] = value
                 elif "Product" in title:
@@ -1121,7 +1134,9 @@ def _get_norway(  # noqa: C901
                 elif "Evaluation Facility" in title:
                     e["evaluation_facility"] = value
                 elif "Certification Date" in title:
-                    e["certification_date"] = value
+                    e["certification_date"] = parse_date(value, "%d.%m.%Y")
+                elif "Certificate Expiration Date" in title:
+                    e["expiration_date"] = parse_date(value, "%d.%m.%Y")
                 elif "Evaluation Level" in title:
                     e["level"] = value
                 elif "Protection Profile" in title:
@@ -1148,7 +1163,7 @@ def _get_norway(  # noqa: C901
                     a = link.find("a")
                     entry = {"href": urljoin(constants.CC_NORWAY_BASE_URL, a["href"])}
                     if artifacts:
-                        entry["hash"] = _get_hash(entry["href"])  # type: ignore
+                        entry["hash"] = _get_hash(entry["href"], session=session)  # type: ignore
                     entries.append(entry)
                 e["documents"][doc_type] = entries
             cert["enhanced"] = e
@@ -1179,12 +1194,12 @@ def get_norway_archived(enhanced: bool = True, artifacts: bool = False) -> list[
 
 
 def _get_korea(  # noqa: C901
-    product_class: int, enhanced: bool, artifacts: bool, name
+    url: str, product_class: int, enhanced: bool, artifacts: bool, name
 ) -> list[dict[str, Any]]:
-    session = requests.session()
+    session = requests.Session()
     _get_page(constants.CC_KOREA_EN_URL, session=session)
     # Get base page
-    url = constants.CC_KOREA_CERTIFIED_URL + f"?product_class={product_class}"
+    url = url + f"?product_class={product_class}"
     soup = _get_page(url, session=session)
     seen_pages = set()
     pages = {1}
@@ -1206,14 +1221,17 @@ def _get_korea(  # noqa: C901
                 continue
             link = tds[0].find("a")
             id = link["id"].split("-")[1]
+            cert_id = sns(tds[1].text)
+            if cert_id:
+                cert_id = cert_id.replace(" ", "-")
             cert: dict[str, Any] = {
                 "product": sns(tds[0].text),
-                "cert_id": sns(tds[1].text),
-                "product_link": constants.CC_KOREA_PRODUCT_URL.format(id),
+                "cert_id": cert_id,
+                "product_link": constants.CC_KOREA_PRODUCT_URL.format(id, product_class),
                 "vendor": sns(tds[2].text),
                 "level": sns(tds[3].text),
                 "category": sns(tds[4].text),
-                "certification_date": sns(tds[5].text),
+                "certification_date": parse_date(sns(tds[5].text), "%Y-%m-%d"),
             }
             if enhanced:
                 e: dict[str, Any] = {}
@@ -1241,11 +1259,11 @@ def _get_korea(  # noqa: C901
                     elif "Common Criteria" in title:
                         v["cc_version"] = value
                     elif "Date of Certification" in title or "Date issued" in title:
-                        v["certification_date"] = value
+                        v["certification_date"] = parse_date(value, "%Y-%m-%d")
                     elif "EvaluationAssurance Level" in title:
                         v["assurance_level"] = value
                     elif "Expiry Date" in title:
-                        v["expiration_date"] = value
+                        v["expiration_date"] = parse_date(value, "%Y-%m-%d")
                     elif "Type of Product" in title:
                         v["product_type"] = value
                     elif "Certification No." in title:
@@ -1296,7 +1314,9 @@ def get_korea_certified(enhanced: bool = True, artifacts: bool = False) -> list[
     :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    return _get_korea(product_class=1, enhanced=enhanced, artifacts=artifacts, name="certified")
+    return _get_korea(
+        constants.CC_KOREA_CERTIFIED_URL, product_class=1, enhanced=enhanced, artifacts=artifacts, name="certified"
+    )
 
 
 def get_korea_suspended(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
@@ -1307,7 +1327,9 @@ def get_korea_suspended(enhanced: bool = True, artifacts: bool = False) -> list[
     :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    return _get_korea(product_class=2, enhanced=enhanced, artifacts=artifacts, name="suspended")
+    return _get_korea(
+        constants.CC_KOREA_SUSPENDED_URL, product_class=2, enhanced=enhanced, artifacts=artifacts, name="suspended"
+    )
 
 
 def get_korea_archived(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
@@ -1318,7 +1340,9 @@ def get_korea_archived(enhanced: bool = True, artifacts: bool = False) -> list[d
     :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    return _get_korea(product_class=4, enhanced=enhanced, artifacts=artifacts, name="archived")
+    return _get_korea(
+        constants.CC_KOREA_ARCHIVED_URL, product_class=4, enhanced=enhanced, artifacts=artifacts, name="archived"
+    )
 
 
 def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
@@ -1336,8 +1360,8 @@ def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
         cert = {
             "client": sns(tds[0].text),
             "product": sns(tds[1].text),
-            "certification_date": sns(tds[4].text),
-            "expiration_date": sns(tds[5].text),
+            "certification_date": parse_date(sns(tds[4].text), "%d.%m.%Y"),
+            "expiration_date": parse_date(sns(tds[5].text), "%d.%m.%Y"),
         }
         cc_entry = sns(tds[2].text)
         cc_split = None
@@ -1364,8 +1388,6 @@ def get_poland_ineval() -> list[dict[str, Any]]:
     """
     Get Polish "product in evaluation" entries.
 
-    :param enhanced: Whether to enhance the results by following links (slower, more data).
-    :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
     soup = _get_page(constants.CC_POLAND_INEVAL_URL)
@@ -1391,13 +1413,14 @@ def get_poland_ineval() -> list[dict[str, Any]]:
 
 
 def _get_singapore(url: str, artifacts: bool, name) -> list[dict[str, Any]]:
-    soup = _get_page(url)
+    session = requests.Session()
+    soup = _get_page(url, session=session)
     page_id = str(soup.find("input", id="CurrentPageId").value)
     page = 1
-    api_call = requests.post(
+    api_call = session.post(
         constants.CC_SINGAPORE_API_URL,
         data={
-            "PassSortFilter": False,
+            "PassSortFilter": name == "archived",
             "currentPageId": page_id,
             "page": page,
             "limit": 15,
@@ -1415,8 +1438,8 @@ def _get_singapore(url: str, artifacts: bool, name) -> list[dict[str, Any]]:
                 "product": obj["productName"],
                 "vendor": obj["productDeveloper"],
                 "url": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["productUrl"]),
-                "certification_date": obj["dateOfIssuance"],
-                "expiration_date": obj["dateOfExpiry"],
+                "certification_date": parse_date(obj["dateOfIssuance"], "%d %B %Y"),
+                "expiration_date": parse_date(obj["dateOfExpiry"], "%d %B %Y"),
                 "category": obj["productCategory"]["title"],
                 "cert_title": obj["certificate"]["title"],
                 "cert_link": urljoin(constants.CC_SINGAPORE_BASE_URL, obj["certificate"]["mediaUrl"]),
@@ -1435,10 +1458,10 @@ def _get_singapore(url: str, artifacts: bool, name) -> list[dict[str, Any]]:
             pbar.update()
             results.append(cert)
         page += 1
-        api_call = requests.post(
+        api_call = session.post(
             constants.CC_SINGAPORE_API_URL,
             data={
-                "PassSortFilter": False,
+                "PassSortFilter": name == "archived",
                 "currentPageId": page_id,
                 "page": page,
                 "limit": 15,
@@ -1496,13 +1519,15 @@ def get_singapore_archived(artifacts: bool = False) -> list[dict[str, Any]]:
     return _get_singapore(constants.CC_SINGAPORE_ARCHIVED_URL, artifacts, "archived")
 
 
-def get_spain_certified() -> list[dict[str, Any]]:
+def get_spain_certified(enhanced: bool = True) -> list[dict[str, Any]]:  # noqa: C901
     """
     Get Spanish "certified product" entries.
 
+    :param enhanced: Whether to enhance the results by following links (slower, more data).
     :return: The entries.
     """
-    soup = _get_page(constants.CC_SPAIN_CERTIFIED_URL)
+    session = requests.Session()
+    soup = _get_page(constants.CC_SPAIN_CERTIFIED_URL, session=session)
     tbody = soup.find("table", class_="djc_items_table").find("tbody")
     results = []
     for tr in tqdm(tbody.find_all("tr", recursive=False), desc="Get ES scheme certified."):
@@ -1512,8 +1537,50 @@ def get_spain_certified() -> list[dict[str, Any]]:
             "product_link": urljoin(constants.CC_SPAIN_BASE_URL, tds[0].find("a")["href"]),
             "category": sns(tds[1].text),
             "manufacturer": sns(tds[2].text),
-            "certification_date": sns(tds[3].text),
+            "certification_date": parse_date(sns(tds[3].text), "%d/%m/%Y"),
         }
+        if enhanced:
+            e: dict[str, Any] = {}
+            if not cert["product_link"]:
+                continue
+            cert_page = _get_page(cert["product_link"], session=session)
+            description_div = cert_page.find("div", class_="djc_description")
+            e["description"] = sns(description_div.find("div", class_="djc_desc_wrap").text)
+            category_a = description_div.find("div", class_="djc_category_info").find("a")
+            if category_a:
+                e["category"] = sns(category_a.text)
+            e["manufacturer"] = sns(description_div.find("div", class_="djc_producer_info").find("span").text)
+            for attr in description_div.find_all("p", class_="djc_attribute"):
+                label_text = sns(attr.find("span", class_="djc_attribute-label").text)
+                value = sns(attr.find("span", class_="djc_value").text)
+                if not label_text:
+                    continue
+                if "Type" in label_text:
+                    e["type"] = value
+                elif "Testing laboratory" in label_text:
+                    e["evaluation_facility"] = value
+                elif "Certification Status" in label_text:
+                    e["status"] = value
+                elif "Certification Date" in label_text:
+                    e["certification_date"] = parse_date(value, "%d-%m-%Y")
+                elif "Standard Version" in label_text:
+                    e["cc_version"] = value
+                elif "Evaluation Level" in label_text:
+                    e["level"] = value
+            for file in description_div.find_all("p", class_="djc_file"):
+                label_text = sns(file.find("span", class_="djc_att_group_label").text)
+                if not label_text:
+                    continue
+                if "CCRA Certificate" in label_text:
+                    file_type = "cert"
+                elif "Security Target" in label_text:
+                    file_type = "target"
+                elif "Certification Report" in label_text:
+                    file_type = "report"
+                else:
+                    continue
+                e[f"{file_type}_link"] = urljoin(constants.CC_SPAIN_BASE_URL, file.find("a")["href"])
+            cert["enhanced"] = e
         results.append(cert)
     return results
 
@@ -1521,7 +1588,8 @@ def get_spain_certified() -> list[dict[str, Any]]:
 def _get_sweden(  # noqa: C901
     url: str, enhanced: bool, artifacts: bool, name
 ) -> list[dict[str, Any]]:
-    soup = _get_page(url)
+    session = requests.Session()
+    soup = _get_page(url, session=session)
     nav = soup.find("main").find("nav", class_="component-nav-box__list")
     results = []
     for link in tqdm(nav.find_all("a"), desc=f"Get SE scheme {name}."):
@@ -1533,7 +1601,7 @@ def _get_sweden(  # noqa: C901
             e: dict[str, Any] = {}
             if not cert["url"]:
                 continue
-            cert_page = _get_page(cert["url"])
+            cert_page = _get_page(cert["url"], session=session)
             content = cert_page.find("section", class_="container-article")
             head = content.find("h1")
             e["title"] = sns(head.text)
@@ -1559,7 +1627,7 @@ def _get_sweden(  # noqa: C901
                     elif "Assuranspaket" in title:
                         e["assurance_level"] = value
                     elif "Certifieringsdatum" in title:
-                        e["certification_date"] = value
+                        e["certification_date"] = parse_date(value, "%Y-%m-%d")
                     elif "Sponsor" in title:
                         e["sponsor"] = value
                     elif "Utvecklare" in title:
@@ -1569,15 +1637,15 @@ def _get_sweden(  # noqa: C901
                     elif "Security Target" in title and a:
                         e["target_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
                         if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"])
+                            e["target_hash"] = _get_hash(e["target_link"], session=session)
                     elif "Certifieringsrapport" in title and a:
                         e["report_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
                         if artifacts:
-                            e["report_hash"] = _get_hash(e["report_hash"])
+                            e["report_hash"] = _get_hash(e["report_hash"], session=session)
                     elif "Certifikat" in title and a:
                         e["cert_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
                         if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"])
+                            e["cert_hash"] = _get_hash(e["cert_link"], session=session)
             cert["enhanced"] = e
         results.append(cert)
     return results
@@ -1640,7 +1708,7 @@ def get_turkey_certified() -> list[dict[str, Any]]:
                     "product": values[2],
                     "cc_version": values[3],
                     "level": values[4],
-                    "cert_lab": values[5],
+                    "evaluation_facility": values[5],
                     "certification_date": values[6],
                     "expiration_date": values[7],
                     # TODO: Parse "Ongoing Evaluation" out of this field as well.
@@ -1656,9 +1724,9 @@ def _get_usa(args, enhanced: bool, artifacts: bool, name):  # noqa: C901
         result = {
             "product": cert["product_name"],
             "id": f"CCEVS-VR-VID{cert['product_id']}",
-            "url": constants.CC_USA_BASE_URL + f"/product/{cert['product_id']}",
-            "certification_date": cert["certification_date"],
-            "expiration_date": cert["sunset_date"],
+            "url": urljoin(constants.CC_USA_BASE_URL, f"/product/{cert['product_id']}"),
+            "certification_date": parse_date(cert["certification_date"], "%m/%d/%Y"),
+            "expiration_date": parse_date(cert["sunset_date"], "%m/%d/%Y"),
             "category": cert["tech_type"],
             "vendor": cert["vendor_id_name"],
             "evaluation_facility": cert["assigned_lab_name"],
@@ -1691,7 +1759,7 @@ def _get_usa(args, enhanced: bool, artifacts: bool, name):  # noqa: C901
 
         return result
 
-    session = requests.session()
+    session = requests.Session()
     results = []
     offset = 0
     got = 0
@@ -1817,7 +1885,7 @@ class CCScheme(ComplexSerializableType):
             EntryType.Certified: get_norway_certified,
             EntryType.Archived: get_norway_archived,
         },
-        "KO": {
+        "KR": {
             EntryType.Certified: get_korea_certified,
             EntryType.Archived: get_korea_archived,
         },
@@ -1846,10 +1914,24 @@ class CCScheme(ComplexSerializableType):
 
     @classmethod
     def from_dict(cls, dct):
+        def _deserialize_entry(entry):
+            if isinstance(entry, dict):
+                res = {}
+                for key, value in entry.items():
+                    if key.endswith("_date"):
+                        res[key] = date.fromisoformat(value) if value is not None else None
+                    else:
+                        res[key] = _deserialize_entry(value)
+                return res
+            elif isinstance(entry, list):
+                return list(map(_deserialize_entry, entry))
+            else:
+                return entry
+
         return cls(
             dct["country"],
             datetime.fromisoformat(dct["timestamp"]),
-            {EntryType(entry_type): entries for entry_type, entries in dct["lists"].items()},
+            {EntryType(entry_type): _deserialize_entry(entries) for entry_type, entries in dct["lists"].items()},
         )
 
     def to_dict(self):

@@ -741,29 +741,6 @@ def load_text_file(
 
 def rules_get_subset(desired_path: str) -> dict:
     """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     Recursively applies cc_certs.get(key) on tokens from desired_path,
     returns the keys of the inner-most layer.
     """

@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import contextlib
+import re
 from collections.abc import Iterable, Mapping, Sequence
+from operator import itemgetter
 from typing import Any
 
+from sec_certs.cert_rules import rules
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cc_certificate_id import CertificateId
+from sec_certs.sample.cc_certificate_id import CertificateId, schemes
+from sec_certs.utils.sanitization import sanitize_link_fname
 from sec_certs.utils.strings import fully_sanitize_string
 
 CATEGORIES = {
@@ -40,21 +44,23 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         self.scheme = scheme
         self._prepare()
 
-    def _get_from_entry(self, *keys: str) -> str | None:
-        for key in keys:
-            if val := self.entry.get(key):
-                return val
+    def _get_from_entry(self, *keys: str) -> Any | None:
+        # Prefer enhanced over base
         if e := self.entry.get("enhanced"):
             for key in keys:
                 if val := e.get(key):
                     return val
+        for key in keys:
+            if val := self.entry.get(key):
+                return val
         return None
 
-    def _prepare(self):
+    def _prepare(self):  # noqa: C901
         self._canonical_cert_id = None
-        if cert_id := self._get_from_entry("cert_id", "id"):
+        self._cert_id = self._get_from_entry("cert_id", "id")
+        if self._cert_id:
             with contextlib.suppress(Exception):
-                self._canonical_cert_id = CertificateId(self.scheme, cert_id).canonical
+                self._canonical_cert_id = CertificateId(self.scheme, self._cert_id).canonical
 
         self._product = None
         if product_name := self._get_from_entry("product", "title", "name"):
@@ -65,11 +71,39 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
             self._vendor = fully_sanitize_string(vendor_name)
 
         self._category = self._get_from_entry("category")
+        self._certification_date = self._get_from_entry("certification_date")
+        self._expiration_date = self._get_from_entry("expiration_date")
+        self._level = self._get_from_entry("level", "assurance_level")
+        if self._level:
+            self._level = self._level.upper().replace("AUGMENTED", "").replace("WITH", "")
+
+        filename_rules = rules["cc_filename_cert_id"][self.scheme]
+        scheme_meta = schemes[self.scheme]
+        if filename_rules and self._canonical_cert_id is None:
+            cert_link = self._get_from_entry("cert_link")
+            if cert_link:
+                cert_fname = sanitize_link_fname(cert_link)
+                for rule in filename_rules:
+                    if match := re.match(rule, cert_fname):
+                        with contextlib.suppress(Exception):
+                            meta = match.groupdict()
+                            self._canonical_cert_id = scheme_meta(meta)
+                            break
+
+            report_link = self._get_from_entry("report_link")
+            if report_link and self._canonical_cert_id is None:
+                report_fname = sanitize_link_fname(report_link)
+                for rule in filename_rules:
+                    if match := re.match(rule, report_fname):
+                        with contextlib.suppress(Exception):
+                            meta = match.groupdict()
+                            self._canonical_cert_id = scheme_meta(meta)
+                            break
 
         self._report_hash = self._get_from_entry("report_hash")
         self._target_hash = self._get_from_entry("target_hash")
 
-    def match(self, cert: CCCertificate) -> float:
+    def match(self, cert: CCCertificate) -> float:  # noqa: C901
         """
         Compute the match of this matcher to the certificate, a float from 0 to 100.
 
@@ -105,21 +139,47 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
             return 93
 
         # Fuzzy match at the end with some penalization.
+        # Weigh the name and vendor more than the id and more than the level and certification date.
+        # 6, 6, 4, 2, 2
+        matches = {}
         product_rating = self._compute_match(self._product, cert_name)
+        matches["product"] = (product_rating, 6)
         vendor_rating = self._compute_match(self._vendor, cert_manufacturer)
-        return max((0, product_rating * 0.5 + vendor_rating * 0.5 - 2))
+        matches["vendor"] = (vendor_rating, 6)
+
+        if self._cert_id is not None and cert.heuristics.cert_id is not None:
+            id_rating = self._compute_match(self._cert_id, cert.heuristics.cert_id)
+            matches["id"] = (id_rating, 4)
+
+        if self._certification_date is not None and cert.not_valid_before is not None:
+            date_rating = 1
+            if cert.not_valid_before.year == self._certification_date.year:
+                date_rating += 33
+            if cert.not_valid_before.month == self._certification_date.month:
+                date_rating += 33
+            if cert.not_valid_before.day == self._certification_date.day:
+                date_rating += 33
+            matches["certification_date"] = (date_rating, 2)
+
+        if self._level is not None and cert.security_level:
+            level_rating = self._compute_match(self._level, ", ".join(cert.security_level))
+            matches["level"] = (level_rating, 2)
+        total_weight = sum(map(itemgetter(1), matches.values()))
+        return max((0, sum(match[0] * (match[1] / total_weight) for match in matches.values()) - 2))
 
     @classmethod
     def match_all(
         cls, entries: list[dict[str, Any]], scheme: str, certificates: Iterable[CCCertificate]
-    ) -> dict[str, dict[str, Any]]:
+    ) -> tuple[dict[str, dict[str, Any]], dict[str, float]]:
         """
         Match all entries of a given CC scheme to certificates from the dataset.
 
         :param entries: The entries from the scheme, obtained from CCSchemeDataset.
         :param scheme: The scheme, e.g. "DE".
         :param certificates: The certificates to match against.
-        :return: A mapping of certificate digests to entries, without duplicates, not all entries may be present.
+        :return: Two mappings:
+                  - A mapping of certificate digests to entries, without duplicates, not all entries may be present.
+                  - A mapping of certificate digests to scores that they matched with.
         """
         certs: list[CCCertificate] = list(filter(lambda cert: cert.scheme == scheme, certificates))
         matchers: Sequence[CCSchemeMatcher] = [CCSchemeMatcher(entry, scheme) for entry in entries]

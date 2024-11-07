@@ -13,6 +13,7 @@ def test_canonicalize_fr():
     assert canonicalize("Rapport de certification 2001/02v2", "FR") == "ANSSI-CC-2001/02v2"
     assert canonicalize("ANSSI-CC 2001/02-R01", "FR") == "ANSSI-CC-2001/02-R01"
     assert canonicalize("ANSSI-CC 2001_02-M01", "FR") == "ANSSI-CC-2001/02-M01"
+    assert canonicalize("ANSSI-CC-PP-2013/58", "FR") == "ANSSI-CC-PP-2013/58"
 
 
 def test_canonicalize_de():
