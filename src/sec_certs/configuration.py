@@ -122,7 +122,7 @@ class Configuration(BaseSettings):
         description="True if new reference annotator model shall be build, False otherwise.",
     )
     cc_matching_threshold: int = Field(
-        90,
+        70,
         description="Level of required similarity before CC scheme entry is considered to match a CC certificate.",
         ge=0,
         le=100,

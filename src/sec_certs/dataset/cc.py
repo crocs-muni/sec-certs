@@ -870,12 +870,12 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
             for scheme in self.auxiliary_datasets.scheme_dset:
                 if certified := scheme.lists.get(EntryType.Certified):
                     certs = [cert for cert in self if cert.status == "active"]
-                    matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
+                    matches, scores = CCSchemeMatcher.match_all(certified, scheme.country, certs)
                     for dgst, match in matches.items():
                         self[dgst].heuristics.scheme_data = match
                 if archived := scheme.lists.get(EntryType.Archived):
                     certs = [cert for cert in self if cert.status == "archived"]
-                    matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
+                    matches, scores = CCSchemeMatcher.match_all(archived, scheme.country, certs)
                     for dgst, match in matches.items():
                         self[dgst].heuristics.scheme_data = match
 

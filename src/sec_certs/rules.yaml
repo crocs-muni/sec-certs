@@ -16,7 +16,7 @@ cc_cert_id:
     - "DCSS[Ii]-(?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
     - "Rapport de certification (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
     - "Certification Report (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
-    - "ANSS[Ii](?:-CC)?[ -](?P<year>[0-9]{2,4})[/_-](?P<counter>[0-9]+)(?:-(?P<doc>(?:[MSR][0-9]+)))?([vV](?P<version>[0-9]))?"
+    - "ANSS[Ii](?:-CC)?(?:-(?P<type>PP|SITE))?[ -](?P<year>[0-9]{2,4})[/_-](?P<counter>[0-9]+)(?:-(?P<doc>(?:[MSR][0-9]+)))?([vV](?P<version>[0-9]))?"
     # Examples:
     # DCSSI-2009/07
     # ANSSI-CC 2001/02-R01
@@ -125,6 +125,15 @@ cc_cert_id:
     - "QCCS-CERT-C(?P<counter>[0-9]{3})-(?P<number>[0-9]+)-(?P<year>[0-9]{4})"
     # Examples:
     # QCCS-CERT-C003-001-2024
+  PL:
+    - "(?P<number>[0-9]+)/PC1/(?:(?P<ac>AC223)/)?(?P<year>[0-2]{4})"
+    # Examples:
+    # 1/PC1/2021
+    # 1/PC1/AC223/2022
+    # 1/PC1/AC223/2023
+    # 2/PC1/AC223/2023
+    # 1/PC1/AC223/2024
+    # 2/PC1/AC223/2024
 
 #####
 # Common Criteria certificate IDs as they appear in report filenames, grouped by scheme (Alpha-2 ISO country code).
@@ -163,6 +172,7 @@ cc_filename_cert_id:
   AU:
     - "(?P<year>[0-9]{2,4})_(?P<counter>[0-9]+)"
   QA:
+  PL:
 
 #####
 # Common Criteria protection profile IDs, grouped by certification body (e.g. BSI)

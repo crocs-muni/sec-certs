@@ -1,3 +1,4 @@
+from datetime import date
 from urllib.parse import urlparse
 
 import pytest
@@ -137,6 +138,16 @@ def test_korea():
 
 
 @pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+def test_poland():
+    certified = CCSchemes.get_poland_certified()
+    assert len(certified) != 0
+    assert absolute_urls(certified)
+    ineval = CCSchemes.get_poland_ineval()
+    assert len(ineval) != 0
+    assert absolute_urls(ineval)
+
+
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_singapore():
     certified = CCSchemes.get_singapore_certified()
     assert len(certified) != 0
@@ -201,7 +212,7 @@ def test_single_match(cert_one: CCCertificate):
             "category": "Identity Manager",
             "target_link": "https://www.fmv.se/globalassets/csec/netiq-identity-manager-4.7/st---netiq-identity-manager-4.7.pdf",
             "assurance_level": "EAL3 + ALC_FLR.2",
-            "certification_date": "2020-06-15",
+            "certification_date": date(year=2020, month=6, day=15),
             "report_link": "https://www.fmv.se/globalassets/csec/netiq-identity-manager-4.7/certification-report---netiq-identity-manager-4.7.pdf",
             "cert_link": "https://www.fmv.se/globalassets/csec/netiq-identity-manager-4.7/certifikat-ccra---netiq-identity-manager-4.7.pdf",
             "sponsor": "NetIQ Corporation",
@@ -214,8 +225,9 @@ def test_single_match(cert_one: CCCertificate):
 
 
 def test_matching(toy_dataset: CCDataset, canada_certified):
-    matches = CCSchemeMatcher.match_all(canada_certified, "CA", toy_dataset)
+    matches, scores = CCSchemeMatcher.match_all(canada_certified, "CA", toy_dataset)
     assert len(matches) == 1
+    assert len(scores) == 1
 
 
 def test_process_dataset(toy_dataset: CCDataset):
