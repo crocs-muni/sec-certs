@@ -477,7 +477,11 @@
                                                 {% if k.endswith("link") or k.endswith("url") %}
                                                     <a href="{{ v }}" target="_blank" rel="noopener">{{ v }}</a>
                                                 {% else %}
-                                                    {{ v }}
+                                                    {% if v is date %}
+                                                        {{ v|strftime("%d.%m.%Y") }}
+                                                    {% else %}
+                                                        {{ v }}
+                                                    {% endif %}
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -486,7 +490,11 @@
                                     <tr data-cs-name="Scheme data - {{ name }}">
                                         <th scope="row">{{ name }}</th>
                                         <td colspan="2">
-                                            {{ value }}
+                                            {% if value is date %}
+                                                {{ value|strftime("%d.%m.%Y") }}
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endif %}

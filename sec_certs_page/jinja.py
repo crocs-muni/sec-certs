@@ -54,6 +54,16 @@ def filter_fromisoformat(dt):
         return date.fromisoformat(dt)
 
 
+@app.template_test("date")
+def is_date(dt_obj):
+    return isinstance(dt_obj, date)
+
+
+@app.template_test("datetime")
+def is_datetime(dt_obj):
+    return isinstance(dt_obj, datetime)
+
+
 @app.template_filter("ctime")
 def filter_ctime(s):
     return time.ctime(s)
