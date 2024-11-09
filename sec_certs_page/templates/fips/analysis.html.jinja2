@@ -9,6 +9,7 @@
     <style>
         .analysis-chart svg {
             width: 100%;
+            height: 100%;
         }
     </style>
     <main>
@@ -23,11 +24,55 @@
                 our documentation.
             </p>
 
-            <div class="row mt-4 mb-4">
-                <div class="col ml-3 mr-3">
+            <div class="row my-5">
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
                     <h2>Module type over time</h2>
-                    <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-4 mx-auto">
-                        {{ include_static("img/charts/fips/n_certs_by_type.svg") }}
+                    {{ include_static("img/charts/fips/n_certs_by_type.svg") }}
+                </div>
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                    <h2>Module embodiment in time</h2>
+                    <div style="width:85%; height: 100%" class="mx-auto">
+                        {{ include_static("img/charts/fips/n_certs_by_embodiment.svg") }}
+                    </div>
+                </div>
+            </div>
+            <div class="row my-5">
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                    <h2>Module security level in time</h2>
+                    <div style="width:80%; height: 100%" class="mx-auto">
+                        {{ include_static("img/charts/fips/n_certs_by_level.svg") }}
+                    </div>
+                </div>
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                    <h2>Module standard version in time</h2>
+                    <div style="width:80%; height: 100%" class="mx-auto">
+                        {{ include_static("img/charts/fips/n_certs_by_standard.svg") }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row my-5">
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                    <h2>Average security level in time</h2>
+                    <div style="width:80%; height: 100%" class="mx-auto">
+                        {{ include_static("img/charts/fips/avg_sec_level.svg") }}
+                    </div>
+                </div>
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                </div>
+            </div>
+
+            <div class="row my-5">
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                    <h2>IUT time</h2>
+                    <div style="width:95%; height: 100%" class="mx-auto">
+                        {{ include_static("img/charts/fips/iut_time.svg") }}
+                    </div>
+                </div>
+                <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
+                    <h2>MIP time in status</h2>
+                    <div style="width:100%; height: 100%" class="mx-auto">
+                        {{ include_static("img/charts/fips/mip_status_duration.svg") }}
                     </div>
                 </div>
             </div>

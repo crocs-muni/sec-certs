@@ -95,7 +95,7 @@ def event_navbar():
 
 
 @app.template_global("include_static")
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=3600, unless=lambda: current_app.env == "development")
 def include_static(filename: str):
     bp = current_app.blueprints.get(request.blueprint)
     if bp is not None and bp.static_folder is not None:

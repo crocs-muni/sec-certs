@@ -5,12 +5,8 @@
    version="1.1"
    id="svg1"
    width="560.91919"
-   height="auto"
+   height="368.86249"
    viewBox="0 0 560.91919 368.86249"
-   sodipodi:docname="n_certs_by_type.svg"
-   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
@@ -1758,37 +1754,9 @@
          id="path349" />
     </clipPath>
   </defs>
-  <sodipodi:namedview
-     id="namedview1"
-     bordercolor="#999999"
-     borderopacity="1"
-     inkscape:showpageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="3.0661833"
-     inkscape:cx="150.02365"
-     inkscape:cy="184.43124"
-     inkscape:window-width="2560"
-     inkscape:window-height="1365"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="g1">
-    <inkscape:page
-       x="0"
-       y="0"
-       inkscape:label="1"
-       id="page1"
-       width="560.91919"
-       height="368.86249"
-       margin="0"
-       bleed="0" />
-  </sodipodi:namedview>
+
   <g
-     id="g1"
-     inkscape:groupmode="layer"
-     inkscape:label="1">
+     id="g1">
     <path
        id="path1"
        d="M 0,0 H 420.68937 V 276.64688 H 0 Z"
@@ -1802,7 +1770,7 @@
     <path
        id="path3"
        d="m 50.059375,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text3"
@@ -1816,7 +1784,8 @@
     <path
        id="path4"
        d="m 108.58937,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text4"
@@ -1830,7 +1799,8 @@
     <path
        id="path5"
        d="m 167.11937,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text5"
@@ -1844,7 +1814,8 @@
     <path
        id="path6"
        d="m 225.64937,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text6"
@@ -1858,7 +1829,8 @@
     <path
        id="path7"
        d="m 284.17937,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text7"
@@ -1872,7 +1844,8 @@
     <path
        id="path8"
        d="m 342.70937,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text8"
@@ -1886,7 +1859,8 @@
     <path
        id="path9"
        d="m 401.23937,41.746875 v -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text9"
@@ -1910,7 +1884,8 @@
     <path
        id="path10"
        d="m 50.059375,50.893387 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text11"
@@ -1924,7 +1899,8 @@
     <path
        id="path11"
        d="m 50.059375,80.980596 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text12"
@@ -1938,7 +1914,8 @@
     <path
        id="path12"
        d="m 50.059375,111.06781 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text13"
@@ -1952,7 +1929,8 @@
     <path
        id="path13"
        d="m 50.059375,141.15501 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text14"
@@ -1966,7 +1944,8 @@
     <path
        id="path14"
        d="m 50.059375,171.24222 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text15"
@@ -1980,7 +1959,8 @@
     <path
        id="path15"
        d="m 50.059375,201.32943 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text16"
@@ -1994,7 +1974,8 @@
     <path
        id="path16"
        d="m 50.059375,231.41664 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text17"
@@ -2008,7 +1989,8 @@
     <path
        id="path17"
        d="m 50.059375,261.50385 h -6"
-       style="'IBM Plex Sans', 'Open Sans', verdana, arial, sans-seriffill-opacity:1;fill-rule:nonzero;stroke:#262626;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill-opacity:1;fill-rule:nonzero;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <text
        id="text18"
@@ -3131,22 +3113,26 @@
     <path
        id="path350"
        d="M 50.059375,41.746875 V 269.44687"
-       style="fill:none;stroke:#262626;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill:none;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <path
        id="path351"
        d="M 401.23937,41.746875 V 269.44687"
-       style="fill:none;stroke:#262626;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill:none;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <path
        id="path352"
        d="M 50.059375,41.746875 H 401.23937"
-       style="fill:none;stroke:#262626;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill:none;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <path
        id="path353"
        d="M 50.059375,269.44687 H 401.23937"
-       style="fill:none;stroke:#262626;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       stroke="currentColor"
+       style="fill:none;stroke-width:1.25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(1.3333333,0,0,-1.3333333,0,368.8625)" />
     <path
        id="path354"
