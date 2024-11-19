@@ -279,6 +279,4 @@ def text_is_garbage(text: str) -> bool:
     if every_second < GARBAGE_EVERY_SECOND_CHAR_THRESHOLD:
         return True
     # If there is a small ratio of alphanumeric chars to all chars, this is garbage.
-    if alpha < GARBAGE_ALPHA_CHARS_THRESHOLD:
-        return True
-    return False
+    return alpha < GARBAGE_ALPHA_CHARS_THRESHOLD
