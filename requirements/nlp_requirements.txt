@@ -92,6 +92,8 @@ datasets==2.15.0
     #   setfit
 datashader==0.16.0
     # via umap-learn
+dateparser==1.2.0
+    # via sec-certs (./../pyproject.toml)
 debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
@@ -372,6 +374,8 @@ preshed==3.0.9
     #   thinc
 prompt-toolkit==3.0.41
     # via ipython
+propcache==0.2.0
+    # via yarl
 psutil==5.9.6
     # via
     #   ipykernel
@@ -418,6 +422,7 @@ pytesseract==0.3.10
     # via sec-certs (./../pyproject.toml)
 python-dateutil==2.8.2
     # via
+    #   dateparser
     #   jupyter-client
     #   matplotlib
     #   pandas
@@ -425,7 +430,9 @@ python-dateutil==2.8.2
 python-dotenv==1.0.0
     # via pydantic-settings
 pytz==2023.3.post1
-    # via pandas
+    # via
+    #   dateparser
+    #   pandas
 pyviz-comms==3.0.0
     # via
     #   holoviews
@@ -451,6 +458,7 @@ referencing==0.31.0
     #   jsonschema-specifications
 regex==2023.10.3
     # via
+    #   dateparser
     #   nltk
     #   transformers
 requests==2.32.0
@@ -558,7 +566,7 @@ toolz==0.12.0
     #   dask
     #   datashader
     #   partd
-torch==2.2.0
+torch==2.1.1
     # via
     #   sentence-transformers
     #   torchvision
@@ -611,6 +619,8 @@ typing-extensions==4.8.0
     #   typer
 tzdata==2023.3
     # via pandas
+tzlocal==5.2
+    # via dateparser
 uc-micro-py==1.0.2
     # via linkify-it-py
 umap-learn[plot]==0.5.5
@@ -646,7 +656,7 @@ xyzservices==2023.10.1
     # via
     #   bokeh
     #   panel
-yarl==1.9.3
+yarl==1.17.2
     # via aiohttp
 zipp==3.19.1
     # via importlib-metadata
