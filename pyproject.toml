@@ -55,6 +55,7 @@
     "MarkupSafe",
     "Werkzeug",
     "WTForms",
+    "dash",
 
     # Tasks
     "dramatiq[redis]",
