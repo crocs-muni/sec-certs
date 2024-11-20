@@ -578,7 +578,9 @@
           ]
         },
         "direct_transitive_cves": null,
-        "indirect_transitive_cves": null
+        "indirect_transitive_cves": null,
+        "next_certificates": null,
+        "prev_certificates": null
       }
     },
     {
@@ -1224,7 +1226,9 @@
           ]
         },
         "direct_transitive_cves": null,
-        "indirect_transitive_cves": null
+        "indirect_transitive_cves": null,
+        "next_certificates": null,
+        "prev_certificates": null
       }
     },
     {
@@ -1864,7 +1868,9 @@
           ]
         },
         "direct_transitive_cves": null,
-        "indirect_transitive_cves": null
+        "indirect_transitive_cves": null,
+        "next_certificates": null,
+        "prev_certificates": null
       }
     }
   ]

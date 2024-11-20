@@ -92,7 +92,9 @@
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": null,
-                "cert_id": null
+                "cert_id": null,
+                "next_certificates": null,
+                "prev_certificates": null
             }
         },
         {
@@ -173,7 +175,9 @@
                 "verified_cpe_matches": null,
                 "related_cves": null,
                 "cert_lab": null,
-                "cert_id": null
+                "cert_id": null,
+                "next_certificates": null,
+                "prev_certificates": null
             }
         }
     ]

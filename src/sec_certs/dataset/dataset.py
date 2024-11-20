@@ -544,7 +544,7 @@ class Dataset(Generic[CertSubType, AuxiliaryDatasetsSubType], ComplexSerializabl
                 return False
             if re.match(constants.RELEASE_CANDIDATE_REGEX, cpe.update):
                 return False
-            return cpe in WINDOWS_WEAK_CPES
+            return cpe not in WINDOWS_WEAK_CPES
 
         if not self.auxiliary_datasets.cpe_dset:
             self.auxiliary_datasets.cpe_dset = self._prepare_cpe_dataset()
