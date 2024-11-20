@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from flask import current_app
+from whoosh.analysis import StandardAnalyzer
 from whoosh.fields import ID, KEYWORD, TEXT, Schema
 from whoosh.index import Index, create_in, open_dir
 
@@ -13,7 +14,8 @@ index_schema = Schema(
     ),  # The certification scheme (one of "cc", "fips", maybe "pp" in the future)
     category=KEYWORD(stored=True),
     status=KEYWORD(stored=True),
-    content=TEXT,  # The document content
+    scheme=KEYWORD(stored=True),  # Only CC: The issuing scheme
+    content=TEXT(analyzer=StandardAnalyzer(minsize=1)),  # The document content
 )
 
 

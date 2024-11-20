@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import List, Mapping, Sequence, Tuple
+from typing import List, Mapping, Optional, Sequence, Tuple, Union
 
 import pymongo
 import sentry_sdk
+from werkzeug.datastructures import MultiDict
 
 from .. import mongo
 from ..cc import cc_categories
@@ -18,6 +19,15 @@ class CCBasicSearch(BasicSearch):
     collection = mongo.db.cc
 
     @classmethod
+    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+        res = super().parse_args(args)
+        scheme = args.get("scheme", "any")
+        res["scheme"] = scheme
+        if scheme != "any":
+            res["advanced"] = True
+        return res
+
+    @classmethod
     def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int, List[datetime]]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
@@ -25,6 +35,7 @@ class CCBasicSearch(BasicSearch):
             "_id": 1,
             "name": 1,
             "status": 1,
+            "scheme": 1,
             "not_valid_before": 1,
             "not_valid_after": 1,
             "category": 1,
@@ -44,6 +55,9 @@ class CCBasicSearch(BasicSearch):
 
         if status is not None and status != "any":
             query["status"] = status
+
+        if "scheme" in kwargs and kwargs["scheme"] != "any":
+            query["scheme"] = kwargs["scheme"]
 
         with sentry_sdk.start_span(op="mongo", description="Find certs."):
             cursor = mongo.db.cc.find(query, projection)
@@ -72,3 +86,12 @@ class CCFulltextSearch(FulltextSearch):
     categories = cc_categories  # type: ignore
     collection = mongo.db.cc
     doc_dir = "DATASET_PATH_CC_DIR"
+
+    @classmethod
+    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+        res = super().parse_args(args)
+        scheme = args.get("scheme", "any")
+        res["scheme"] = scheme
+        if scheme != "any":
+            res["advanced"] = True
+        return res

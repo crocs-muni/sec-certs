@@ -41,6 +41,7 @@ from . import (
     cc_eals,
     cc_reference_types,
     cc_sars,
+    cc_schemes,
     cc_sfrs,
     cc_status,
     get_cc_analysis,
@@ -237,6 +238,7 @@ def search():
     return render_template(
         "cc/search/index.html.jinja2",
         **res,
+        schemes=cc_schemes,
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
     )
 
@@ -260,6 +262,7 @@ def fulltext_search():
     return render_template(
         "cc/search/fulltext.html.jinja2",
         **res,
+        schemes=cc_schemes,
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
     )
 

@@ -31,6 +31,8 @@ with cc.open_resource("resources/status.json") as f:
     cc_status = json.load(f)
 with cc.open_resource("resources/reference_types.json") as f:
     cc_reference_types = json.load(f)
+with cc.open_resource("resources/schemes.json") as f:
+    cc_schemes = json.load(f)
 
 
 def load_cc_data():

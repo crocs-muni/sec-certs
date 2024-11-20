@@ -35,20 +35,35 @@ class BasicSearch(ABC):
             raise BadRequest(description="Invalid page number.")
         q = args.get("q", None)
         cat = args.get("cat", None)
+        advanced = False
         categories = cls.categories.copy()
         if cat is not None:
             for name, category in categories.items():
                 category["selected"] = category["id"] in cat
+                if category["id"] not in cat:
+                    advanced = True
         else:
             for category in categories.values():
                 category["selected"] = True
         status = args.get("status", cls.status_default)
         if status not in cls.status_options:
             raise BadRequest(description="Invalid status.")
+        if status != cls.status_default:
+            advanced = True
         sort = args.get("sort", cls.sort_default)
         if sort not in cls.sort_options:
             raise BadRequest(description="Invalid sort.")
-        res = {"q": q, "page": page, "cat": cat, "categories": categories, "sort": sort, "status": status}
+        if sort != cls.sort_default:
+            advanced = True
+        res = {
+            "q": q,
+            "page": page,
+            "cat": cat,
+            "categories": categories,
+            "sort": sort,
+            "status": status,
+            "advanced": advanced,
+        }
         return res
 
     @classmethod
@@ -105,10 +120,12 @@ class FulltextSearch(ABC):
             raise BadRequest(description="Invalid page number, must be >= 1.")
         q = args.get("q", None)
         cat = args.get("cat", None)
-
+        advanced = False
         if cat is not None:
             for name, category in categories.items():
                 category["selected"] = category["id"] in cat
+                if category["id"] not in cat:
+                    advanced = True
         else:
             for category in categories.values():
                 category["selected"] = True
@@ -116,10 +133,14 @@ class FulltextSearch(ABC):
         document_type = args.get("type", cls.type_default)
         if document_type not in cls.type_options:
             raise BadRequest(description="Invalid type.")
+        if document_type != cls.type_default:
+            advanced = True
 
         status = args.get("status", cls.status_default)
         if status not in cls.status_options:
             raise BadRequest(description="Invalid status.")
+        if status != cls.status_default:
+            advanced = True
         res = {
             "q": q,
             "page": page,
@@ -127,12 +148,13 @@ class FulltextSearch(ABC):
             "categories": categories,
             "status": status,
             "document_type": document_type,
+            "advanced": advanced,
         }
         return res
 
     @classmethod
     def select_items(
-        cls, q, cat, categories, status, document_type, page=None
+        cls, q, cat, categories, status, document_type, page=None, **kwargs
     ) -> Tuple[Union[Results, ResultsPage], int]:
         q_filter = query.Term("cert_schema", cls.schema)
         cat_terms = []
@@ -144,6 +166,8 @@ class FulltextSearch(ABC):
             q_filter &= query.Term("document_type", document_type)
         if status.lower() != "any":
             q_filter &= query.Term("status", status)
+        if "scheme" in kwargs and kwargs["scheme"] != "any":
+            q_filter &= query.Term("scheme", kwargs["scheme"])
 
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
 

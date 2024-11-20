@@ -69,6 +69,7 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
             "cert_schema": self.cert_schema,
             "category": category_id,
             "status": cert["status"],
+            "scheme": cert["scheme"],
             "content": content,
         }
 
