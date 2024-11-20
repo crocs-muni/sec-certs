@@ -83,53 +83,69 @@
 {% endmacro %}
 
 {% macro render_cves(cves) %}
-    <table class="table table-striped my-2">
-        <colgroup>
-            <col style="width:15%">
-            <col style="width:10%">
-            <col style="width:20%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:15%">
-        </colgroup>
-        <thead>
-        <tr>
-            <th scope="col" colspan="1" rowspan="2">ID</th>
-            <th scope="col" colspan="1" rowspan="2">Links</th>
-            <th scope="col" colspan="1" rowspan="2">Severity</th>
-            <th scope="col" colspan="3">CVSS Score</th>
-            <th scope="col" colspan="1" rowspan="2">Published on</th>
-        </tr>
-        <tr>
-            <th scope="col">Base</th>
-            <th scope="col">Exploitability</th>
-            <th scope="col">Impact</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% set years = namespace(cve=None, current=None) %}
-        {% for cve in cves %}
-            {% set years.current = cve["cve_id"].split("-")[1] %}
-            <tr {% if years.current != years.cve and years.cve %}
-                style="border-top: 2px solid var(--bs-dark)"{% endif %}>
-                <td><a href="{{ url_for("vuln.cve", cve_id=cve["cve_id"]) }}">{{ cve["cve_id"] }}</a></td>
-                <td>
-                    {{ render_cve_links(cve) }}
-                </td>
-                <td>
-                    {{ render_cve_impact(cve) }}
-                </td>
-                <td>{{ cve["impact"]["base_score"] }}</td>
-                <td>{{ cve["impact"]["explotability_score"] }}</td>
-                <td>{{ cve["impact"]["impact_score"] }}</td>
-                <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
-
+    <div class="my-2">
+        <table class="table table-striped">
+            <colgroup>
+                <col style="width:15%">
+                <col style="width:10%">
+                <col style="width:20%">
+                <col style="width:10%">
+                <col style="width:10%">
+                <col style="width:10%">
+                <col style="width:15%">
+            </colgroup>
+            <thead>
+            <tr>
+                <th scope="col" colspan="1" rowspan="2">ID</th>
+                <th scope="col" colspan="1" rowspan="2">Links</th>
+                <th scope="col" colspan="1" rowspan="2">Severity</th>
+                <th scope="col" colspan="3">CVSS Score</th>
+                <th scope="col" colspan="1" rowspan="2">Published on</th>
             </tr>
-            {% set years.cve = years.current %}
-        {% endfor %}
-        </tbody>
-    </table>
+            <tr>
+                <th scope="col">Base</th>
+                <th scope="col">Exploitability</th>
+                <th scope="col">Impact</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% set years = namespace(cve=None, current=None) %}
+            {% for cve in cves %}
+                {% set years.current = cve["cve_id"].split("-")[1] %}
+                <tr {% if years.current != years.cve and years.cve %}
+                    style="border-top: 2px solid var(--bs-dark)"{% endif %}
+                        {% if cves|length > 5 and loop.index0 >= 5 %}
+                    class="collapse cve-collapse" {% endif %}>
+                    <td><a href="{{ url_for("vuln.cve", cve_id=cve["cve_id"]) }}">{{ cve["cve_id"] }}</a></td>
+                    <td>
+                        {{ render_cve_links(cve) }}
+                    </td>
+                    <td>
+                        {{ render_cve_impact(cve) }}
+                    </td>
+                    <td>{{ cve["impact"]["base_score"] }}</td>
+                    <td>{{ cve["impact"]["explotability_score"] }}</td>
+                    <td>{{ cve["impact"]["impact_score"] }}</td>
+                    <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
+
+                </tr>
+                {% set years.cve = years.current %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if cves|length > 5 %}
+            <div id="cve-toggle" class="d-flex justify-content-center">
+                <div class="d-inline-flex flex-column">
+                    <span class="text-muted">Showing 5 out of {{ cves|length }}.</span>
+                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+                            data-bs-target=".cve-collapse" aria-expanded="false"
+                            aria-controls=".cve-collapse"
+                            onclick="$('#cve-toggle').toggleClass('d-flex').hide()">Show all
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 {%- endmacro %}
 
 {% macro render_references(network, hashid, type, status_func=None) %}
