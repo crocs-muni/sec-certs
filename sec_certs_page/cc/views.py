@@ -376,8 +376,8 @@ def entry(hashid):
                 previous = list(
                     mongo.db.cc.find(
                         {"heuristics.cert_id": {"$in": list(doc["heuristics"]["prev_certificates"])}},
-                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
-                    )
+                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1, "not_valid_before": 1},
+                    ).sort([("not_valid_before._value", pymongo.ASCENDING)])
                 )
             else:
                 previous = []
@@ -385,8 +385,8 @@ def entry(hashid):
                 next = list(
                     mongo.db.cc.find(
                         {"heuristics.cert_id": {"$in": list(doc["heuristics"]["next_certificates"])}},
-                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
-                    )
+                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1, "not_valid_before": 1},
+                    ).sort([("not_valid_before._value", pymongo.ASCENDING)])
                 )
             else:
                 next = []
