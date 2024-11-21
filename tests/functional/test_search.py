@@ -110,6 +110,7 @@ def test_search(some_documents, searcher):
     assert searcher.search(parser.parse('"BSI-DSZ-CC-0758-2012"'))
     assert searcher.search(parser.parse('libraries AND "SHA-2"'))
     assert searcher.search(parser.parse("BSI"))
+    assert searcher.search(parser.parse("SHA-2"))
     assert searcher.search(parser.parse("v1.02.013"))
     assert searcher.search(parser.parse("v1.02.*"))
     assert searcher.search(parser.parse('"v1.02.013"'))
@@ -117,3 +118,5 @@ def test_search(some_documents, searcher):
     assert not searcher.search(parser.parse("and"))
     assert not searcher.search(parser.parse('"BSI-DSZ-CC-1234-2012"'))
     assert not searcher.search(parser.parse("software NOT firmware"))
+    assert not searcher.search(parser.parse("SHA-3"))
+    assert not searcher.search(parser.parse('"SHA-3"'))

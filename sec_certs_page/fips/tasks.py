@@ -91,6 +91,7 @@ class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
             "name": cert["web_data"]["module_name"],
             "document_type": document,
             "cert_schema": self.cert_schema,
+            "cert_id": dgst,
             "category": category_id,
             "status": cert["web_data"]["status"],
             "content": content,

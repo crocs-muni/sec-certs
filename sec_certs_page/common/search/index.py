@@ -8,8 +8,9 @@ from .analyzer import FancyAnalyzer
 
 index_schema = Schema(
     dgst=ID(stored=True, unique=True),  # The certificate dgst
-    name=TEXT(stored=True),  # The certificate name
+    name=TEXT(stored=True, analyzer=FancyAnalyzer()),  # The certificate name
     document_type=KEYWORD(stored=True, unique=True),  # The type of document (one of "report", "target")
+    cert_id=TEXT(stored=True, analyzer=FancyAnalyzer()),
     cert_schema=KEYWORD(
         stored=True, unique=True
     ),  # The certification scheme (one of "cc", "fips", maybe "pp" in the future)

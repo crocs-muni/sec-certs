@@ -67,6 +67,7 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
             "dgst": dgst,
             "name": cert["name"],
             "document_type": document,
+            "cert_id": cert["heuristics"]["cert_id"],
             "cert_schema": self.cert_schema,
             "category": category_id,
             "status": cert["status"],

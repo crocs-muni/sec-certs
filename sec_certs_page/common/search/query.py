@@ -9,7 +9,7 @@ from flask import Request, current_app
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight, query
-from whoosh.qparser import QueryParser
+from whoosh.qparser import MultifieldParser
 from whoosh.query import Query
 from whoosh.searching import Results, ResultsPage
 
@@ -172,8 +172,12 @@ class FulltextSearch(ABC):
 
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
 
-        parser = QueryParser("content", schema=index_schema)
-        qr = parser.parse(q, debug=True)
+        parser = MultifieldParser(
+            fieldnames=["name", "cert_id", "content"],
+            schema=index_schema,
+            fieldboosts={"name": 2, "cert_id": 4, "content": 1},
+        )
+        qr = parser.parse(q)
         with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
             searcher = get_searcher()
         with sentry_sdk.start_span(op="whoosh.search", description="Search"):
