@@ -153,6 +153,7 @@ def deploy(c, force=False):
     """Deploy the whole thing, does a reload-only deploy."""
     if not check_deploy(c) and not force:
         print("Aborting deploy, tasks are running.")
+        return
     print("Pulling...")
     pull(c)
     print("Reloading dramatiq...")
