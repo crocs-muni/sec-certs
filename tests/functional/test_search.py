@@ -54,6 +54,8 @@ def test_tokenizer():
         "aes",
         "256",
     ]
+    empty = [t.text for t in fa("")]
+    assert empty == []
 
 
 def test_queryparser():

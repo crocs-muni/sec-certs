@@ -1,6 +1,7 @@
 import re
+from itertools import chain
 
-from whoosh.analysis import STOP_WORDS, Analyzer, Filter, LowercaseFilter, MultiFilter, RegexTokenizer, StopFilter
+from whoosh.analysis import STOP_WORDS, Analyzer, Filter, LowercaseFilter, PassFilter, RegexTokenizer, StopFilter
 
 
 class IntraWordFilter(Filter):
@@ -165,6 +166,25 @@ class IntraWordFilter(Filter):
                 if parts:
                     # Set the new position counter based on the last part
                     newpos = parts[-1][1] + 1
+
+
+class MultiFilter(Filter):
+    default_filter = PassFilter()
+
+    def __init__(self, **kwargs):
+        self.filters = kwargs
+
+    def __eq__(self, other):
+        return other and self.__class__ is other.__class__ and self.filters == other.filters
+
+    def __call__(self, tokens):
+        # Only selects on the first token
+        try:
+            t = next(tokens)
+            filter = self.filters.get(t.mode, self.default_filter)
+            return filter(chain([t], tokens))
+        except StopIteration:
+            return tokens
 
 
 def FancyAnalyzer() -> Analyzer:
