@@ -1,9 +1,10 @@
 from pathlib import Path
 
 from flask import current_app
-from whoosh.analysis import StandardAnalyzer
 from whoosh.fields import ID, KEYWORD, TEXT, Schema
 from whoosh.index import Index, create_in, open_dir
+
+from .analyzer import FancyAnalyzer
 
 index_schema = Schema(
     dgst=ID(stored=True, unique=True),  # The certificate dgst
@@ -15,7 +16,7 @@ index_schema = Schema(
     category=KEYWORD(stored=True),
     status=KEYWORD(stored=True),
     scheme=KEYWORD(stored=True),  # Only CC: The issuing scheme
-    content=TEXT(analyzer=StandardAnalyzer(minsize=1)),  # The document content
+    content=TEXT(analyzer=FancyAnalyzer()),  # The document content
 )
 
 
