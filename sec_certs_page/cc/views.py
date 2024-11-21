@@ -370,7 +370,28 @@ def entry(hashid):
         with sentry_sdk.start_span(op="network", description="Find network"):
             cc_map = get_cc_map()
             cert_network = cc_map.get(hashid, {})
+        with sentry_sdk.start_span(op="mongo", description="Find prev/next certificates"):
+            # No need to "load()" the certs as they have no non-trivial types.
+            if "prev_certificates" in doc["heuristics"] and doc["heuristics"]["prev_certificates"]:
+                previous = list(
+                    mongo.db.cc.find(
+                        {"heuristics.cert_id": {"$in": list(doc["heuristics"]["prev_certificates"])}},
+                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
+                    )
+                )
+            else:
+                previous = []
+            if "next_certificates" in doc["heuristics"] and doc["heuristics"]["next_certificates"]:
+                next = list(
+                    mongo.db.cc.find(
+                        {"heuristics.cert_id": {"$in": list(doc["heuristics"]["next_certificates"])}},
+                        {"_id": 1, "name": 1, "dgst": 1, "heuristics.cert_id": 1},
+                    )
+                )
+            else:
+                next = []
         with sentry_sdk.start_span(op="mongo", description="Find related certificates"):
+            # No need to "load()" the certs as they have no non-trivial types.
             similar_projection = {
                 "_id": 1,
                 "name": 1,
@@ -442,6 +463,8 @@ def entry(hashid):
             network=cert_network,
             title=f"{name} | sec-certs.org",
             similar=similar,
+            previous=previous,
+            next=next,
             same=same,
             removed=diffs[0]["type"] == "remove",
         )
