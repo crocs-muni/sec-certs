@@ -1,0 +1,97 @@
+{% extends "common/base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% set canonical = True %}
+{% block title %}
+    <title>
+        {{ "Changelog | sec-certs.org" }}
+    </title>
+{% endblock %}
+{% block navbar %}
+    {{ super() }}
+    <li class="nav-item">
+        <a class="nav-link" href="#changes">Changes</a>
+    </li>
+{% endblock %}
+{% block content %}
+    <main>
+        <div>
+            <div class="row p-3">
+                <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                    <h1 class="anchor" id="changes">Changes</h1>
+                    <p class="lead">This page highlights some new features and changes to the site. For an overview
+                        of changes in the sec-certs tool itself, consult <a
+                                href="https://github.com/crocs-muni/sec-certs/releases">its releases</a>.</p>
+                </div>
+            </div>
+            <div>
+                <div class="row bg-secondary-subtle p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>Nov 21, 2024</h4>
+                        <p>Add search filtering by CC scheme and improve tokenization in full-text search.</p>
+                        <img class="w-100 border rounded opacity-50"
+                             src="{{ url_for("static", filename="img/changelog/scheme_filter.png") }}"
+                             alt="Scheme filter example"/>
+                    </div>
+                </div>
+                <div class="row p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>Nov 3, 2024</h4>
+                        <p>Add new analysis charts to <a href="{{ url_for("cc.analysis") }}">CC analysis</a>
+                            and <a href="{{ url_for("fips.analysis") }}">FIPS analysis</a>.</p>
+                        <img class="w-100 border rounded opacity-50"
+                             src="{{ url_for("static", filename="img/changelog/analysis_charts.png") }}"
+                             alt="Analysis charts example"/>
+                    </div>
+                </div>
+                <div class="row bg-secondary-subtle p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>Oct 30, 2024</h4>
+                        <p>Allow subscription to new certificates.</p>
+                        <img class="w-100 border rounded opacity-50"
+                             src="{{ url_for("static", filename="img/changelog/new_certs_sub.png") }}"
+                             alt="New certificate subscription example."/>
+                    </div>
+                </div>
+                <div class="row p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>Oct 28, 2024</h4>
+                        <p>Add dark theme. <i class="fas fa-sun"></i></p>
+                    </div>
+                </div>
+                <div class="row bg-secondary-subtle p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>Oct 10, 2024</h4>
+                        <p>Add "similar certificates" to CC and FIPS certificate pages.</p>
+                        <img class="w-100 border rounded opacity-50"
+                             src="{{ url_for("static", filename="img/changelog/similar_certs.png") }}"
+                             alt="Similar certificates example."/>
+                    </div>
+                </div>
+                <div class="row p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>May 13, 2024</h4>
+                        <p>Add full dataset archive downloads for CC and FIPS (including all PDFs).</p>
+                        <p>Add certificate comparison.</p>
+                        <img class="w-100 border rounded opacity-50"
+                             src="{{ url_for("static", filename="img/changelog/cert_compare.png") }}"
+                             alt="Certificate comparison example."/>
+                    </div>
+                </div>
+                <div class="row my-4">
+                    <span class="text-center py-1"><i class="fas fa-circle"></i></span>
+                    <span class="text-center py-1"><i class="fas fa-circle"></i></span>
+                    <span class="text-center py-1"><i class="fas fa-circle"></i></span>
+                </div>
+
+                <div class="row bg-secondary-subtle p-3">
+                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                        <h4>Oct 10, 2020</h4>
+                        <p>The page is live! 🥳</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+{% endblock %}

@@ -37,6 +37,12 @@ def about():
     return render_template("about.html.jinja2")
 
 
+@app.route("/changelog/")
+@register_breadcrumb(app, ".changelog", "Changelog")
+def changelog():
+    return render_template("changelog.html.jinja2")
+
+
 @app.route("/robots.txt")
 def robots():
     content = f"Sitemap: {url_for('flask_sitemap.sitemap', _external=True)}"
