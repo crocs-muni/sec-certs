@@ -45,7 +45,8 @@ class Indexer:  # pragma: no cover
     cert_schema: str
 
     @abstractmethod
-    def create_document(self, dgst, document, cert, content): ...
+    def create_document(self, dgst, document, cert, content):
+        ...
 
     def reindex(self, to_reindex):
         logger.info(f"Reindexing {len(to_reindex)} {self.cert_schema} files.")
@@ -88,7 +89,7 @@ class Updater:  # pragma: no cover
         out_prefix = f"{self.collection}_out"
         for key, value in ns.items():
             if key.startswith(out_prefix):
-                suffix = key[len(out_prefix) :]
+                suffix = key[len(out_prefix):]
                 res[f"output_path{suffix}"] = instance_path / value
 
         for document in ("report", "target", "cert"):
@@ -103,7 +104,7 @@ class Updater:  # pragma: no cover
         return res
 
     def process_new_certs(
-        self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
+            self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
     ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
@@ -128,7 +129,7 @@ class Updater:  # pragma: no cover
         return res_col, res_diff_col
 
     def process_updated_certs(
-        self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
+            self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
     ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
@@ -208,19 +209,24 @@ class Updater:  # pragma: no cover
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
     @abstractmethod
-    def process(self, dset, paths): ...
+    def process(self, dset, paths):
+        ...
 
     @abstractmethod
-    def dataset_state(self, dset): ...
+    def dataset_state(self, dset):
+        ...
 
     @abstractmethod
-    def notify(self, run_id): ...
+    def notify(self, run_id):
+        ...
 
     @abstractmethod
-    def reindex(self, to_reindex): ...
+    def reindex(self, to_reindex):
+        ...
 
     @abstractmethod
-    def archive(self, paths): ...
+    def archive(self, paths):
+        ...
 
     def update(self):
         try:
@@ -395,6 +401,12 @@ class Notifier(DiffRenderer):
 
         # Go over the subscribed emails
         for email in emails:
+            cards = []
+            urls = []
+            email_token = None
+
+            # Go over the subscriptions for a given email and accumulate its rendered diffs
+            some_changes = False
             subscriptions = list(
                 mongo.db.subs.find(
                     {
@@ -405,40 +417,42 @@ class Notifier(DiffRenderer):
                     }
                 )
             )
+            if subscriptions:
+                email_token = subscriptions[0]["email_token"]
+                for sub in subscriptions:
+                    dgst = sub["certificate"]["hashid"]
+                    diff = change_diffs[dgst]
+                    render = change_renders[dgst]
+                    if sub["updates"] == "vuln":
+                        # This is a vuln only subscription so figure out if the change is in a vuln.
+                        if h := diff["diff"][symbols.update].get("heuristics"):
+                            for action, val in h.items():
+                                if "related_cves" in val:
+                                    break
+                            else:
+                                continue
+                        else:
+                            continue
+                    cards.append(render)
+                    urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
+                    some_changes = True
+
+            # If the user is subscribed for new certs, add them.
+            some_new = False
             new_subscription = next(
                 iter(mongo.db.subs.find({"confirmed": True, "email": email, "updates": "new"})), None
             )
-            email_token = subscriptions[0]["email_token"]
-            cards = []
-            urls = []
-            # Go over the subscriptions for a given email and accumulate its rendered diffs
-            some_changes = False
-            for sub in subscriptions:
-                dgst = sub["certificate"]["hashid"]
-                diff = change_diffs[dgst]
-                render = change_renders[dgst]
-                if sub["updates"] == "vuln":
-                    # This is a vuln only subscription so figure out if the change is in a vuln.
-                    if h := diff["diff"][symbols.update].get("heuristics"):
-                        for action, val in h.items():
-                            if "related_cves" in val:
-                                break
-                        else:
-                            continue
-                    else:
-                        continue
-                cards.append(render)
-                urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
-                some_changes = True
-            # If the user is subscribed for new certs, add them.
-            some_new = False
             if new_subscription:
+                email_token = new_subscription["email_token"]
                 for dgst, render in new_renders.items():
                     cards.append(render)
                     urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
                     some_new = True
             if not some_changes and not some_new:
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
+                continue
+            if email_token is None:
+                logger.error(f"Email token undefined for {email}.")
                 continue
             # Render diffs into body template
             email_core_html = render_template(
