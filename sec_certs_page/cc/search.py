@@ -36,6 +36,7 @@ class CCBasicSearch(BasicSearch):
             "name": 1,
             "status": 1,
             "scheme": 1,
+            "security_level._value": 1,
             "not_valid_before": 1,
             "not_valid_after": 1,
             "category": 1,
@@ -58,6 +59,9 @@ class CCBasicSearch(BasicSearch):
 
         if "scheme" in kwargs and kwargs["scheme"] != "any":
             query["scheme"] = kwargs["scheme"]
+
+        if "eal" in kwargs and kwargs["eal"] != "any":
+            query["security_level._value"] = kwargs["eal"]
 
         with sentry_sdk.start_span(op="mongo", description="Find certs."):
             cursor = mongo.db.cc.find(query, projection)

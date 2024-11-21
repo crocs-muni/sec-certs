@@ -3,6 +3,7 @@ from pathlib import Path
 
 import dramatiq
 import sentry_sdk
+from dramatiq import pipeline
 from dramatiq.logging import get_logger
 from flask import current_app
 from sec_certs.dataset.fips import FIPSDataset
@@ -100,6 +101,17 @@ class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = FIPSIndexer()
     indexer.reindex(to_reindex)
+
+
+@actor("fips_reindex_all", "fips_reindex_all", "updates", timedelta(hours=1))
+def reindex_all():  # pragma: no cover
+    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "target", "cert")]
+    tasks = []
+    for i in range(0, len(to_reindex), 1000):
+        j = i + 1000
+        tasks.append(reindex_collection.message_with_options(args=(to_reindex[i:j],), pipe_ignore=True))
+    pipeline(tasks).run()
 
 
 class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
