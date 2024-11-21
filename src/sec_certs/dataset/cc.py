@@ -885,10 +885,22 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         for cert in self:
             cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
 
+    @staged(logger, "Computing heuristics: certificate versions")
+    def _compute_cert_versions(self) -> None:
+        cert_ids = {
+            cert.dgst: CertificateId(cert.scheme, cert.heuristics.cert_id)
+            if cert.heuristics.cert_id is not None
+            else None
+            for cert in self
+        }
+        for cert in self:
+            cert.compute_heuristics_cert_versions(cert_ids)
+
     def _compute_heuristics(self) -> None:
         self._compute_normalized_cert_ids()
         super()._compute_heuristics()
         self._compute_scheme_data()
+        self._compute_cert_versions()
         self._compute_cert_labs()
         self._compute_sars()
 

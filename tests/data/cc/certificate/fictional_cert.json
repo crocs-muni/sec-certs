@@ -96,6 +96,8 @@
         "extracted_sars": null,
         "direct_transitive_cves": null,
         "indirect_transitive_cves": null,
+        "next_certificates": null,
+        "prev_certificates": null,
         "report_references": {
             "_type": "sec_certs.sample.certificate.References",
             "directly_referenced_by": null,
