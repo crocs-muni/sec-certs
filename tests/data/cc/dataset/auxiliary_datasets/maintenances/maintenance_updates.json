@@ -91,7 +91,9 @@
                 "extracted_sars": null,
                 "direct_transitive_cves": null,
                 "indirect_transitive_cves": null,
-                "scheme_data": null
+                "scheme_data": null,
+                "prev_certificates": null,
+                "next_certificates": null
             },
             "related_cert_digest": "8f08cacb49a742fb",
             "maintenance_date": "2019-08-26"
