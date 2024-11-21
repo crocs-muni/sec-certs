@@ -366,7 +366,9 @@ class Notifier(DiffRenderer):
         # Render the individual diffs
         change_renders = {}
         for dgst in change_dgsts:
-            change_renders[dgst] = self.render_diff(dgst, change_certs[dgst], change_diffs[dgst], linkback=True)
+            change_renders[dgst] = self.render_diff(
+                dgst, change_certs[dgst], change_diffs[dgst], linkback=True, name=change_certs[dgst]["name"]
+            )
         new_renders = {}
         for dgst in new_dgsts:
             new_renders[dgst] = self.render_diff(dgst, new_certs[dgst], new_diffs[dgst], linkback=True)
@@ -431,7 +433,7 @@ class Notifier(DiffRenderer):
             # If the user is subscribed for new certs, add them.
             some_new = False
             if new_subscription:
-                for dgst, render in zip(new_dgsts, new_renders):
+                for dgst, render in new_renders.items():
                     cards.append(render)
                     urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
                     some_new = True

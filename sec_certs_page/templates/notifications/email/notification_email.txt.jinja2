@@ -1,9 +1,9 @@
 {%- if changes -%}
 There were changes in the certificates you are subscribed to.
-{%- endif -%}
+{% endif %}
 {%- if new -%}
 New certificates appeared.
-{%- endif -%}
+{% endif %}
 
 {% for url in urls %}
  * {{ url }}
