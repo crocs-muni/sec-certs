@@ -343,7 +343,7 @@
                 {% if cert["heuristics"]["extracted_sars"] %}
                     <div data-cs-name="Extracted SARs" class="my-2">
                         <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
-                        {% for sar in cert["heuristics"]["extracted_sars"] %}
+                        {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
                             {% set sar_name = sar["family"] + "." + sar["level"]|string %}
                             {{ render_sars(sar_name) }}
                             {%- if not loop.last -%}, {%- endif -%}
