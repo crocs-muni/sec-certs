@@ -148,6 +148,12 @@
                 {% if pagination %}
                     <div style="text-align: center">
                         Took {{ "{:.3}".format(runtime + highlight_runtime) }} seconds
+                        {%- if query -%}
+                            <span data-bs-toggle="tooltip"
+                                  data-bs-html="true"
+                                  title="Parsed as <b>{{ query }}</b>">*
+                            </span>
+                        {%- endif -%}
                         {{ pagination.info }}
                     </div>
                     <div class="mt-4 mb-4">

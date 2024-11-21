@@ -10,6 +10,7 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight, query
 from whoosh.qparser import QueryParser
+from whoosh.query import Query
 from whoosh.searching import Results, ResultsPage
 
 from ... import get_searcher
@@ -155,7 +156,7 @@ class FulltextSearch(ABC):
     @classmethod
     def select_items(
         cls, q, cat, categories, status, document_type, page=None, **kwargs
-    ) -> Tuple[Union[Results, ResultsPage], int]:
+    ) -> Tuple[Union[Results, ResultsPage], int, Query]:
         q_filter = query.Term("cert_schema", cls.schema)
         cat_terms = []
         for name, category in categories.items():
@@ -172,7 +173,7 @@ class FulltextSearch(ABC):
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
 
         parser = QueryParser("content", schema=index_schema)
-        qr = parser.parse(q)
+        qr = parser.parse(q, debug=True)
         with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
             searcher = get_searcher()
         with sentry_sdk.start_span(op="whoosh.search", description="Search"):
@@ -180,11 +181,11 @@ class FulltextSearch(ABC):
                 res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
             else:
                 res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
-        return res, len(res)
+        return res, len(res), qr
 
     @classmethod
     def select_certs(cls, q, cat, categories, status, document_type, **kwargs) -> Tuple[Iterable[Mapping], int]:
-        res, count = cls.select_items(q, cat, categories, status, document_type, **kwargs)
+        res, count, qr = cls.select_items(q, cat, categories, status, document_type, **kwargs)
         dgsts = set(map(operator.itemgetter("dgst"), res))
         certs = list(map(lambda dgst: load(cls.collection.find_one({"_id": dgst})), dgsts))
         return certs, len(certs)
@@ -194,7 +195,7 @@ class FulltextSearch(ABC):
         parsed = cls.parse_args(req.args)
         if parsed["q"] is None:
             return {"pagination": None, "results": [], **parsed}
-        res, count = cls.select_items(**parsed)
+        res, count, qr = cls.select_items(**parsed)
 
         page = parsed["page"]
 
@@ -242,4 +243,5 @@ class FulltextSearch(ABC):
             "runtime": runtime,
             "highlight_runtime": highlite_runtime,
             **parsed,
+            "query": qr,
         }
