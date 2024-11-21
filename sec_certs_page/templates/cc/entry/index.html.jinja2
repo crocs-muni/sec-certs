@@ -386,7 +386,7 @@
                                     <td colspan="3" class="fw-bold">Previous</td>
                                 </tr>
                             {% endif %}
-                            {% for other in prev %}
+                            {% for other in previous %}
                                 <tr>
                                     <td>
                                         <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] }}</a>
