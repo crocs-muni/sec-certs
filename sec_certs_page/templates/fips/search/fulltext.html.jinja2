@@ -28,7 +28,7 @@
                                     data-bs-toggle="collapse"
                                     data-bs-target="#extended"
                                     aria-controls="extended"
-                                    aria-expanded="false"><i
+                                    aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
                                     class="fas fa-sliders"></i> Advanced options
                             </button>
                         </div>
@@ -36,7 +36,7 @@
                             Supports the <a href="https://whoosh.readthedocs.io/en/latest/querylang.html"
                                             target="_blank" rel="noopener">Whoosh query language</a>.</small>
                     </div>
-                    <div id="extended" class="collapse mt-3">
+                    <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
                         <div id="categories" class="mb-3">
                             <h4>Categories</h4>
                             <button id="cat-select-all" class="btn btn-outline-primary">Select all</button>

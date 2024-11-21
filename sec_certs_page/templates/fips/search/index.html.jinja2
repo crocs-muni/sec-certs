@@ -28,7 +28,7 @@
                                     data-bs-toggle="collapse"
                                     data-bs-target="#extended"
                                     aria-controls="extended"
-                                    aria-expanded="false"><i
+                                    aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
                                     class="fas fa-sliders"></i> Advanced options
                             </button>
                         </div>
@@ -38,7 +38,7 @@
                                target="_blank" rel="noopener">MongoDB $text search</a>, use quotes to specify a phrase
                             and a hyphen-minus prefix to negate a match.</small>
                     </div>
-                    <div id="extended" class="collapse mt-3">
+                    <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
                         <div id="categories" class="mb-3">
                             <h4>Categories
                                 <button id="cat-select-all" class="btn btn-outline-primary">Select all</button>
