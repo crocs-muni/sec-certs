@@ -313,7 +313,7 @@ tomli==2.1.0
     #   coverage
     #   pytest
     #   setuptools-scm
-tornado==6.4.1
+tornado==6.4.2
     # via
     #   ipykernel
     #   jupyter-client
