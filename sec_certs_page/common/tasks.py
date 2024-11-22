@@ -45,22 +45,24 @@ class Indexer:  # pragma: no cover
     cert_schema: str
 
     @abstractmethod
-    def create_document(self, dgst, document, cert, content):
-        ...
+    def create_document(self, dgst, document, cert, content): ...
 
     def reindex(self, to_reindex):
         logger.info(f"Reindexing {len(to_reindex)} {self.cert_schema} files.")
         updated = 0
-        with whoosh_index.writer() as writer:
-            for i, (dgst, document) in enumerate(to_reindex):
-                fpath = entry_file_path(dgst, self.dataset_path, document, "txt")
+        with whoosh_index.writer() as writer, writer.searcher() as searcher:
+            for i, (dgst, document_type) in enumerate(to_reindex):
+                fpath = entry_file_path(dgst, self.dataset_path, document_type, "txt")
                 try:
                     with fpath.open("r") as f:
                         content = f.read()
                 except FileNotFoundError:
                     continue
                 cert = mongo.db[self.cert_schema].find_one({"_id": dgst})
-                writer.update_document(**self.create_document(dgst, document, cert, content))
+                docid = searcher.document_number(dgst=dgst, document_type=document_type)
+                if docid is not None:
+                    writer.delete_document(docid)
+                writer.add_document(**self.create_document(dgst, document_type, cert, content))
                 updated += 1
                 if i % 100 == 0:
                     logger.info(f"{i}: updated {updated}.")
@@ -89,7 +91,7 @@ class Updater:  # pragma: no cover
         out_prefix = f"{self.collection}_out"
         for key, value in ns.items():
             if key.startswith(out_prefix):
-                suffix = key[len(out_prefix):]
+                suffix = key[len(out_prefix) :]
                 res[f"output_path{suffix}"] = instance_path / value
 
         for document in ("report", "target", "cert"):
@@ -104,7 +106,7 @@ class Updater:  # pragma: no cover
         return res
 
     def process_new_certs(
-            self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
+        self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
     ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
@@ -129,7 +131,7 @@ class Updater:  # pragma: no cover
         return res_col, res_diff_col
 
     def process_updated_certs(
-            self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
+        self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
     ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
@@ -209,24 +211,19 @@ class Updater:  # pragma: no cover
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
     @abstractmethod
-    def process(self, dset, paths):
-        ...
+    def process(self, dset, paths): ...
 
     @abstractmethod
-    def dataset_state(self, dset):
-        ...
+    def dataset_state(self, dset): ...
 
     @abstractmethod
-    def notify(self, run_id):
-        ...
+    def notify(self, run_id): ...
 
     @abstractmethod
-    def reindex(self, to_reindex):
-        ...
+    def reindex(self, to_reindex): ...
 
     @abstractmethod
-    def archive(self, paths):
-        ...
+    def archive(self, paths): ...
 
     def update(self):
         try:

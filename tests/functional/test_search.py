@@ -92,6 +92,7 @@ def some_documents(writer):
         name="Some certificate name with version 1.2",
         document_type="report",
         cert_schema="cc",
+        cert_id="BSI-DSZ-CC-0758-2012",
         category="c",
         status="active",
         scheme="NL",
