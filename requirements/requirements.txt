@@ -293,7 +293,7 @@ threadpoolctl==3.2.0
     # via scikit-learn
 tomli==2.1.0
     # via setuptools-scm
-tornado==6.4.1
+tornado==6.4.2
     # via
     #   ipykernel
     #   jupyter-client
