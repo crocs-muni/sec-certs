@@ -2,9 +2,9 @@ import pytest
 from common.search.index import index_schema
 from whoosh.filedb.filestore import RamStorage
 from whoosh.index import FileIndex
-from whoosh.qparser import QueryParser
 
 from sec_certs_page.common.search.analyzer import FancyAnalyzer
+from sec_certs_page.common.search.query import QueryParser
 
 
 def test_tokenizer():
@@ -59,8 +59,8 @@ def test_tokenizer():
 
 
 def test_queryparser():
-    parser = QueryParser("content", index_schema)
-    parsed = parser.parse("Some 'BSI-DSZ-1233\" SHA-3")
+    parser = QueryParser(["content"], index_schema)
+    parsed = parser.parse('Some "BSI-DSZ-1233" SHA-3 BSI-DSZ-1234')
     assert parsed
 
 
@@ -109,7 +109,7 @@ Infineon Technologies AG""",
 
 
 def test_search(some_documents, searcher):
-    parser = QueryParser("content", index_schema)
+    parser = QueryParser(["content"], index_schema)
     assert searcher.search(parser.parse('"BSI-DSZ-CC-0758-2012"'))
     assert searcher.search(parser.parse('libraries AND "SHA-2"'))
     assert searcher.search(parser.parse("BSI"))

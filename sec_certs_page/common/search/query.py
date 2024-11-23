@@ -9,14 +9,36 @@ from flask import Request, current_app
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight, query
-from whoosh.qparser import MultifieldParser
+from whoosh.qparser import QueryParser as OriginalQueryParser
+from whoosh.qparser import plugins
 from whoosh.query import Query
 from whoosh.searching import Results, ResultsPage
 
 from ... import get_searcher
 from ..objformats import load
 from ..views import Pagination, entry_file_path
+from .analyzer import VerbatimPhrasePlugin
 from .index import index_schema
+
+
+class QueryParser(OriginalQueryParser):
+    """Custom MultiFieldParser with a Verbatim phrase plugin."""
+
+    def __init__(self, fieldnames, schema, fieldboosts=None, **kwargs):
+        plugs = [
+            plugins.WhitespacePlugin(),
+            plugins.SingleQuotePlugin(),
+            plugins.FieldsPlugin(),
+            plugins.WildcardPlugin(),
+            VerbatimPhrasePlugin(),
+            plugins.RangePlugin(),
+            plugins.GroupPlugin(),
+            plugins.OperatorsPlugin(),
+            plugins.BoostPlugin(),
+            plugins.EveryPlugin(),
+            plugins.MultifieldPlugin(fieldnames, fieldboosts=fieldboosts),
+        ]
+        super().__init__(None, schema, plugs, **kwargs)
 
 
 class BasicSearch(ABC):
@@ -172,7 +194,7 @@ class FulltextSearch(ABC):
 
         per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
 
-        parser = MultifieldParser(
+        parser = QueryParser(
             fieldnames=["name", "cert_id", "content"],
             schema=index_schema,
             fieldboosts={"name": 2, "cert_id": 4, "content": 1},

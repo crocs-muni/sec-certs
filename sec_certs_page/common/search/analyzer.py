@@ -2,6 +2,8 @@ import re
 from itertools import chain
 
 from whoosh.analysis import STOP_WORDS, Analyzer, Filter, LowercaseFilter, PassFilter, RegexTokenizer, StopFilter
+from whoosh.qparser import Plugin, RegexTagger, attach, syntax
+from whoosh.util.text import rcompile
 
 
 class IntraWordFilter(Filter):
@@ -168,6 +170,80 @@ class IntraWordFilter(Filter):
                     newpos = parts[-1][1] + 1
 
 
+class VerbatimPhrasePlugin(Plugin):
+    """Adds the ability to specify phrase queries inside double quotes."""
+
+    # Didn't use TaggingPlugin because I need to add slop parsing at some
+    # point
+
+    # Expression used to find words if a schema isn't available
+    wordexpr = rcompile(r"\S+")
+
+    class PhraseNode(syntax.TextNode):
+        def __init__(self, text, textstartchar, slop=1):
+            syntax.TextNode.__init__(self, text)
+            self.textstartchar = textstartchar
+            self.slop = slop
+
+        def r(self):
+            return "%s %r~%s" % (self.__class__.__name__, self.text, self.slop)
+
+        def apply(self, fn):
+            return self.__class__(self.type, [fn(node) for node in self.nodes], slop=self.slop, boost=self.boost)
+
+        def query(self, parser):
+            text = self.text
+            fieldname = self.fieldname or parser.fieldname
+
+            # We want to process the text of the phrase into "words" (tokens),
+            # and also record the startchar and endchar of each word
+
+            sc = self.textstartchar
+            if parser.schema and fieldname in parser.schema:
+                field = parser.schema[fieldname]
+                if field.analyzer:
+                    # We have a field with an analyzer, so use it to parse
+                    # the phrase into tokens
+                    tokens = field.tokenize(text, mode="phrase", chars=True)
+                    words = []
+                    char_ranges = []
+                    for t in tokens:
+                        words.append(t.text)
+                        char_ranges.append((sc + t.startchar, sc + t.endchar))
+                else:
+                    # We have a field but it doesn't have a format object,
+                    # for some reason (it's self-parsing?), so use process_text
+                    # to get the texts (we won't know the start/end chars)
+                    words = list(field.process_text(text, mode="phrase"))
+                    char_ranges = [(None, None)] * len(words)
+            else:
+                # We're parsing without a schema, so just use the default
+                # regular expression to break the text into words
+                words = []
+                char_ranges = []
+                for match in VerbatimPhrasePlugin.wordexpr.finditer(text):
+                    words.append(match.group(0))
+                    char_ranges.append((sc + match.start(), sc + match.end()))
+
+            qclass = parser.phraseclass
+            q = qclass(fieldname, words, slop=self.slop, boost=self.boost, char_ranges=char_ranges)
+            return attach(q, self)
+
+    class PhraseTagger(RegexTagger):
+        def create(self, parser, match):
+            text = match.group("text")
+            textstartchar = match.start("text")
+            slopstr = match.group("slop")
+            slop = int(slopstr) if slopstr else 1
+            return VerbatimPhrasePlugin.PhraseNode(text, textstartchar, slop)
+
+    def __init__(self, expr='"(?P<text>.*?)"(~(?P<slop>[1-9][0-9]*))?'):
+        self.expr = expr
+
+    def taggers(self, parser):
+        return [(self.PhraseTagger(self.expr), 0)]
+
+
 class MultiFilter(Filter):
     default_filter = PassFilter()
 
@@ -194,8 +270,9 @@ def FancyAnalyzer() -> Analyzer:
     maxsize = None
     gaps = True
     iwf_i = IntraWordFilter(merge=True)
+    iwf_p = PassFilter()
     iwf_q = IntraWordFilter(merge=False)
-    iwf = MultiFilter(index=iwf_i, query=iwf_q)
+    iwf = MultiFilter(index=iwf_i, query=iwf_q, phrase=iwf_p)
 
     return (
         RegexTokenizer(expression=expression, gaps=gaps)
