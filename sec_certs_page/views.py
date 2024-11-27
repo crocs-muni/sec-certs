@@ -45,7 +45,12 @@ def changelog():
 
 @app.route("/robots.txt")
 def robots():
-    content = f"Sitemap: {url_for('flask_sitemap.sitemap', _external=True)}"
+    content = f"""
+Sitemap: {url_for('flask_sitemap.sitemap', _external=True)}
+User-agent: *
+Disallow: /vuln/cpe/
+Disallow: /vuln/cve/
+"""
     resp = make_response(content, 200)
     resp.mimetype = "text/plain"
     return resp
