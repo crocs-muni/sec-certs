@@ -624,7 +624,7 @@ def entry_name(name):
 
 @sitemap.register_generator
 def sitemap_urls():
-    yield "cc.index", {}
+    yield "cc.index", {}, None, None, 0.9
     yield "cc.dataset", {}
     yield "cc.maintenance_updates", {}
     yield "cc.network", {}
@@ -633,4 +633,4 @@ def sitemap_urls():
     yield "cc.fulltext_search", {}
     yield "cc.rand", {}
     for doc in mongo.db.cc.find({}, {"_id": 1}):
-        yield "cc.entry", {"hashid": doc["_id"]}
+        yield "cc.entry", {"hashid": doc["_id"]}, None, None, 0.8

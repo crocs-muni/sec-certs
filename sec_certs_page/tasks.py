@@ -1,8 +1,13 @@
+from urllib.parse import urlparse
+
 import dramatiq
+from bs4 import BeautifulSoup
+from flask import current_app
 from periodiq import cron
 
-from . import whoosh_index
+from . import sitemap, whoosh_index
 from .cc.tasks import update_data as update_cc_data
+from .common.tasks import task
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
 from .notifications.tasks import cleanup_subscriptions
@@ -32,6 +37,20 @@ def run_updates_daily() -> None:  # pragma: no cover
     ).run()
 
 
+@dramatiq.actor(actor_name="sitemap_update", queue_name="default", periodic=cron("@hourly"))  # Hourly
+@task("sitemap_update")
+def update_sitemap():
+    # Just hack a request context, we do not need pretty muuch anything here.
+    with current_app.test_request_context(""):
+        smap = sitemap.sitemap()
+        soup = BeautifulSoup(smap, "lxml")
+        for loc in soup.find_all("loc"):
+            location = str(loc.text)
+            page = int("".join(filter(str.isdigit, location)))
+            sitemap.page(page)
+
+
 @dramatiq.actor(actor_name="optimize_index")
+@task("optimize_index")
 def optimize_index() -> None:
     whoosh_index.optimize()

@@ -193,6 +193,6 @@ def sitemap_urls():
     yield "vuln.cpe_match_dset", {}
     yield "vuln.cpe_match_dset_gz", {}
     for doc in mongo.db.cve.find({}, {"_id": 1}):
-        yield "vuln.cve", {"cve_id": doc["_id"]}
+        yield "vuln.cve", {"cve_id": doc["_id"]}, None, None, 0.3
     for doc in mongo.db.cpe.find({}, {"_id": 1}):
-        yield "vuln.cpe", {"cpe_id": doc["_id"]}
+        yield "vuln.cpe", {"cpe_id": doc["_id"]}, None, None, 0.1

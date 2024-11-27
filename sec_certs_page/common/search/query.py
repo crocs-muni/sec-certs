@@ -245,7 +245,8 @@ class FulltextSearch(ABC):
                 try:
                     with open(fpath) as f:
                         contents = f.read()
-                    hlt = hit.highlights("content", text=contents)
+                    with sentry_sdk.start_span(op="whoosh.highlight_one", description="Highlight one hit."):
+                        hlt = hit.highlights("content", text=contents)
                     entry["highlights"] = hlt
                 except FileNotFoundError:
                     pass

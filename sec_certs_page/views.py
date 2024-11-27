@@ -61,5 +61,6 @@ def error(e):
 
 @sitemap.register_generator
 def sitemap_urls():
-    yield "index", {}
-    yield "about", {}
+    yield "index", {}, None, None, 1.0
+    yield "about", {}, None, None, 0.9
+    yield "changelog", {}, None, None, 0.8

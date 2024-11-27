@@ -584,7 +584,7 @@ def entry_name(name):
 
 @sitemap.register_generator
 def sitemap_urls():
-    yield "fips.index", {}
+    yield "fips.index", {}, None, None, 0.9
     yield "fips.dataset", {}
     yield "fips.network", {}
     yield "fips.analysis", {}
@@ -594,8 +594,8 @@ def sitemap_urls():
     yield "fips.mip_index", {}
     yield "fips.iut_index", {}
     for doc in mongo.db.fips.find({}, {"_id": 1}):
-        yield "fips.entry", {"hashid": doc["_id"]}
+        yield "fips.entry", {"hashid": doc["_id"]}, None, None, 0.8
     for doc in mongo.db.fips_mip.find({}, {"_id": 1}):
-        yield "fips.mip_snapshot", {"id": doc["_id"]}
+        yield "fips.mip_snapshot", {"id": doc["_id"]}, None, None, 0.6
     for doc in mongo.db.fips_iut.find({}, {"_id": 1}):
-        yield "fips.iut_snapshot", {"id": doc["_id"]}
+        yield "fips.iut_snapshot", {"id": doc["_id"]}, None, None, 0.6
