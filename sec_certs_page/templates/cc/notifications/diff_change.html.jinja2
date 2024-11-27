@@ -2,7 +2,7 @@
     <div class="card-body">
         <h5 class="card-title">Certificate changed</h5>
         {% if name %}
-            <b>{{ name }}</b>
+            <b>{{ cert["name"] }}</b>
         {% endif %}
         {% for (change, plural), details in changes %}
             <p class="card-text">

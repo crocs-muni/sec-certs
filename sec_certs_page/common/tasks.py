@@ -370,7 +370,7 @@ class Notifier(DiffRenderer):
         change_renders = {}
         for dgst in change_dgsts:
             change_renders[dgst] = self.render_diff(
-                dgst, change_certs[dgst], change_diffs[dgst], linkback=True, name=change_certs[dgst]["name"]
+                dgst, change_certs[dgst], change_diffs[dgst], linkback=True, name=True
             )
         new_renders = {}
         for dgst in new_dgsts:
