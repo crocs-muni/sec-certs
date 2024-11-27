@@ -127,7 +127,7 @@ cc_cert_id:
     # Examples:
     # QCCS-CERT-C003-001-2024
   PL:
-    - "(?P<number>[0-9]+)/PC1/(?:(?P<ac>AC223)/)?(?P<year>[0-2]{4})"
+    - "(?P<number>[0-9]+)/PC1/(?:(?P<ac>AC223)/)?(?P<year>[0-9]{4})"
     # Examples:
     # 1/PC1/2021
     # 1/PC1/AC223/2022
