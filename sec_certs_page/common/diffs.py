@@ -779,6 +779,9 @@ def render_compare(one, other, diff_method):
     def walk(tree, a, b, path=()):
         for key, value in tree.items():
             new_path = path + (key,)
+            if key not in a or key not in b:
+                # TODO: What to do here?
+                pass
             if isinstance(value, dict):
                 subtree = value
                 walk(subtree, a[key], b[key], new_path)
@@ -789,8 +792,8 @@ def render_compare(one, other, diff_method):
                     continue
                 else:
                     compare, render = differ
-                    aval = a[key] if a is not None else None
-                    bval = b[key] if b is not None else None
+                    aval = a[key] if a is not None and key in a else None
+                    bval = b[key] if b is not None and key in b else None
                     equal = compare(aval, bval)
                     left, right = render(equal, aval, bval), render(equal, bval, aval)
                     changes[new_path] = {"left": left, "right": right, "equal": equal}
