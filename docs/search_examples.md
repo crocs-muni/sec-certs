@@ -64,21 +64,21 @@ Certificates mentioning post-quantum cryptographic algorithms support.
 ### ROCA vulnerability
 ROCA [CVE-2017-15361](https://nvd.nist.gov/vuln/detail/CVE-2017-15361) is private key recovery vulnerability present in Infineon RSALib library used by smartcard and TPM devices between roughly 2004 and 2017. More details available [here](https://crocs.fi.muni.cz/papers/rsa_ccs17). 
 
-- ROCA-vulnerable Infineon RSALib library v1.02.013: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.013&cat=abcdefghijklmop&status=any&type=any) ([{fas}`network-wired`](https://sec-certs.org/cc/network/?q=%22v1.02.013%E2%80%9C%20&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS-140
+- ROCA-vulnerable Infineon RSALib library v1.02.013: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=%22v1.02.013%22&cat=abcdefghijklmop&status=any&type=any) ([{fas}`network-wired`](https://sec-certs.org/cc/network/?q=%22v1.02.013%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS-140
   <br>
- ```v1.02.013```
+ ```"v1.02.013"```
   <br> 
 Certificates mentioning confirmed vulnerable version of Infineon RSALib 1.02.013 library.
 
-- ROCA-vulnerable Infineon RSALib library and similar (wildcard) v1.02.0??: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.0**&cat=abcdefghijklmop&status=any&type=any) ([{fas}`network-wired`](https://sec-certs.org/cc/network/?q=v1.02.0**&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS-140
+- ROCA-vulnerable Infineon RSALib library and similar (wildcard) v1.02.0??: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.0*&cat=abcdefghijklmop&status=any&type=any) ([{fas}`network-wired`](https://sec-certs.org/cc/network/?q=v1.02.0*&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS-140
   <br>
- ```v1.02.0**```
+ ```v1.02.0*```
   <br> 
 Certificates mentioning Infineon RSALib 1.02.013 and other similar library versions. Versions v1.02.008, v1.02.010, v1.02.014 possibly also vulnerable.
 
-- ROCA-vulnerable (likely) Infineon RSALib libraries other than v1.02.013: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=any&type=any) ([{fas}`network-wired`](https://sec-certs.org/cc/network/?q=v1.02.0**%20NOT%20v1.02.013&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS-140
+- ROCA-vulnerable (likely) Infineon RSALib libraries other than v1.02.013: [Common Criteria](https://sec-certs.org/cc/ftsearch/?q=v1.02.0*%20NOT%20%22v1.02.013%22&cat=abcdefghijklmop&status=any&type=any) ([{fas}`network-wired`](https://sec-certs.org/cc/network/?q=v1.02.0*%20NOT%20%22v1.02.013%22&cat=abcdefghijklmop&status=any&type=any&search=fulltext)), no FIPS-140
   <br>
- ```v1.02.0** NOT v1.02.013```
+ ```v1.02.0* NOT "v1.02.013"```
   <br> 
 Certificates mentioning posibly vulnerable RSALib version other than v1.02.013. Versions v1.02.008, v1.02.010, v1.02.014 possibly also vulnerable.
 
