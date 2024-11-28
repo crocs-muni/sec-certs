@@ -1,3 +1,4 @@
+from difflib import SequenceMatcher
 from itertools import zip_longest
 from logging import getLogger
 from typing import Any, Mapping, Tuple
@@ -235,7 +236,30 @@ def diff_str():
         return a == b
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
-        return (normal if equal else bold)(a)
+        if equal:
+            return normal(a)
+        if a is None:
+            return Markup("")
+        if b is None:
+            return bold(a)
+        matcher = SequenceMatcher(lambda x: x == " ", a, b)
+        if matcher.ratio() < 0.2:
+            return bold(a)
+        result = ""
+        prev_end = 0
+        for start_a, start_b, n in matcher.get_matching_blocks():
+            end = start_a + n
+            if n == 1:
+                # add a[prev_end:end] to result in bold (skip single character matches)
+                result += bold(a[prev_end:end])
+            else:
+                # add a[prev_end:start_a] to result in normal
+                result += bold(a[prev_end:start_a])
+                # add a[start_a:start_a+n] to result in bold
+                result += normal(a[start_a:end])
+            # set prev_end to start_a+n
+            prev_end = end
+        return Markup(result)
 
     return compare, render
 
@@ -538,13 +562,14 @@ def diff_cc_frontpage():
 
 
 def diff_cc_scheme_data():
-    metas = {
-        "enhanced": (lambda a, b: a == b, lambda equal, a, b: render_dict(a, b)),
+    base_metas = {
         "url": diff_url(),
         "report_link": diff_url(),
         "target_link": diff_url(),
         "cert_link": diff_url(),
+        **{f"{t}_date": diff_date() for t in ("certification", "expiration", "revision", "acceptance")},
     }
+    metas = {"enhanced": (lambda a, b: a == b, lambda equal, a, b: render_dict(a, b, metas=base_metas)), **base_metas}
 
     def compare(a, b):
         return a == b
@@ -779,11 +804,10 @@ def render_compare(one, other, diff_method):
     def walk(tree, a, b, path=()):
         for key, value in tree.items():
             new_path = path + (key,)
-            if key not in a or key not in b:
-                # TODO: What to do here?
-                pass
             if isinstance(value, dict):
                 subtree = value
+                if a is None or b is None:
+                    continue
                 walk(subtree, a[key], b[key], new_path)
             else:
                 differ = value
