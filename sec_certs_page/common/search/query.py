@@ -1,4 +1,5 @@
 import operator
+import sys
 import time
 from abc import ABC, abstractmethod
 from functools import reduce
@@ -9,15 +10,16 @@ from flask import Request, current_app
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight, query
+from whoosh.qparser import Plugin
 from whoosh.qparser import QueryParser as OriginalQueryParser
-from whoosh.qparser import plugins
+from whoosh.qparser import RegexTagger, TaggingPlugin, attach, plugins, syntax
 from whoosh.query import Query
 from whoosh.searching import Results, ResultsPage
+from whoosh.util.text import rcompile
 
 from ... import get_searcher
 from ..objformats import load
 from ..views import Pagination, entry_file_path
-from .analyzer import VerbatimPhrasePlugin
 from .index import index_schema
 
 
@@ -29,7 +31,7 @@ class QueryParser(OriginalQueryParser):
             plugins.WhitespacePlugin(),
             plugins.SingleQuotePlugin(),
             plugins.FieldsPlugin(),
-            plugins.WildcardPlugin(),
+            WildcardPlugin(),
             VerbatimPhrasePlugin(),
             plugins.RangePlugin(),
             plugins.GroupPlugin(),
@@ -39,6 +41,178 @@ class QueryParser(OriginalQueryParser):
             plugins.MultifieldPlugin(fieldnames, fieldboosts=fieldboosts),
         ]
         super().__init__(None, schema, plugs, **kwargs)
+
+    def term_query(self, fieldname, text, termclass, boost=1.0, tokenize=True, removestops=True):
+        """Returns the appropriate query object for a single term in the query
+        string.
+        """
+
+        if self.schema and fieldname in self.schema:
+            field = self.schema[fieldname]
+
+            # If this field type wants to parse queries itself, let it do so
+            # and return early
+            if field.self_parsing():
+                try:
+                    q = field.parse_query(fieldname, text, boost=boost)
+                    return q
+                except:  # noqa
+                    e = sys.exc_info()[1]
+                    return query.error_query(e)
+
+            # Otherwise, ask the field to process the text into a list of
+            # tokenized strings
+            if termclass in (query.Prefix, query.Wildcard):
+                texts = list(field.process_text(text, mode="phrase", tokenize=tokenize, removestops=removestops))
+            else:
+                texts = list(field.process_text(text, mode="query", tokenize=tokenize, removestops=removestops))
+            # If the analyzer returned more than one token, use the field's
+            # multitoken_query attribute to decide what query class, if any, to
+            # use to put the tokens together
+            if len(texts) > 1:
+                return self.multitoken_query(field.multitoken_query, texts, fieldname, termclass, boost)
+
+            # It's possible field.process_text() will return an empty list (for
+            # example, on a stop word)
+            if not texts:
+                return None
+            text = texts[0]
+
+        return termclass(fieldname, text, boost=boost)
+
+
+class VerbatimPhrasePlugin(Plugin):
+    """Adds the ability to specify phrase queries inside double quotes."""
+
+    # Didn't use TaggingPlugin because I need to add slop parsing at some
+    # point
+
+    # Expression used to find words if a schema isn't available
+    wordexpr = rcompile(r"\S+")
+
+    class PhraseNode(syntax.TextNode):
+        def __init__(self, text, textstartchar, slop=1):
+            syntax.TextNode.__init__(self, text)
+            self.textstartchar = textstartchar
+            self.slop = slop
+
+        def r(self):
+            return "%s %r~%s" % (self.__class__.__name__, self.text, self.slop)
+
+        def apply(self, fn):
+            return self.__class__(self.type, [fn(node) for node in self.nodes], slop=self.slop, boost=self.boost)
+
+        def query(self, parser):
+            text = self.text
+            fieldname = self.fieldname or parser.fieldname
+
+            # We want to process the text of the phrase into "words" (tokens),
+            # and also record the startchar and endchar of each word
+
+            sc = self.textstartchar
+            if parser.schema and fieldname in parser.schema:
+                field = parser.schema[fieldname]
+                if field.analyzer:
+                    # We have a field with an analyzer, so use it to parse
+                    # the phrase into tokens
+                    tokens = field.tokenize(text, mode="phrase", chars=True)
+                    words = []
+                    char_ranges = []
+                    for t in tokens:
+                        words.append(t.text)
+                        char_ranges.append((sc + t.startchar, sc + t.endchar))
+                else:
+                    # We have a field but it doesn't have a format object,
+                    # for some reason (it's self-parsing?), so use process_text
+                    # to get the texts (we won't know the start/end chars)
+                    words = list(field.process_text(text, mode="phrase"))
+                    char_ranges = [(None, None)] * len(words)
+            else:
+                # We're parsing without a schema, so just use the default
+                # regular expression to break the text into words
+                words = []
+                char_ranges = []
+                for match in VerbatimPhrasePlugin.wordexpr.finditer(text):
+                    words.append(match.group(0))
+                    char_ranges.append((sc + match.start(), sc + match.end()))
+
+            qclass = parser.phraseclass
+            q = qclass(fieldname, words, slop=self.slop, boost=self.boost, char_ranges=char_ranges)
+            return attach(q, self)
+
+    class PhraseTagger(RegexTagger):
+        def create(self, parser, match):
+            text = match.group("text")
+            textstartchar = match.start("text")
+            slopstr = match.group("slop")
+            slop = int(slopstr) if slopstr else 1
+            return VerbatimPhrasePlugin.PhraseNode(text, textstartchar, slop)
+
+    def __init__(self, expr='"(?P<text>.*?)"(~(?P<slop>[1-9][0-9]*))?'):
+        self.expr = expr
+
+    def taggers(self, parser):
+        return [(self.PhraseTagger(self.expr), 0)]
+
+
+class WildcardPlugin(TaggingPlugin):
+    # \u055E = Armenian question mark
+    # \u061F = Arabic question mark
+    # \u1367 = Ethiopic question mark
+    qmarks = "?\u055E\u061F\u1367"
+    expr = "(?P<text>[*%s])" % qmarks
+
+    def filters(self, parser):
+        # Run early, but definitely before multifield plugin
+        return [(self.do_wildcards, 50)]
+
+    def do_wildcards(self, parser, group):
+        i = 0
+        while i < len(group):
+            node = group[i]
+            if isinstance(node, self.WildcardNode):
+                if i < len(group) - 1 and group[i + 1].is_text():
+                    nextnode = group.pop(i + 1)
+                    node.text += nextnode.text
+                if i > 0 and group[i - 1].is_text():
+                    prevnode = group.pop(i - 1)
+                    node.text = prevnode.text + node.text
+                else:
+                    i += 1
+            else:
+                if isinstance(node, syntax.GroupNode):
+                    self.do_wildcards(parser, node)
+                i += 1
+
+        for i in range(len(group)):
+            node = group[i]
+            if isinstance(node, self.WildcardNode):
+                text = node.text
+                if len(text) > 1 and not any(qm in text for qm in self.qmarks):
+                    if text.find("*") == len(text) - 1:
+                        newnode = self.PrefixNode(text[:-1])
+                        newnode.startchar = node.startchar
+                        newnode.endchar = node.endchar
+                        group[i] = newnode
+        return group
+
+    class PrefixNode(syntax.TextNode):
+        qclass = query.Prefix
+
+        def r(self):
+            return "%r*" % self.text
+
+    class WildcardNode(syntax.TextNode):
+        # Note that this node inherits tokenize = False from TextNode,
+        # so the text in this node will not be analyzed... just passed
+        # straight to the query
+
+        qclass = query.Wildcard
+
+        def r(self):
+            return "Wild %r" % self.text
+
+    nodetype = WildcardNode
 
 
 class BasicSearch(ABC):
