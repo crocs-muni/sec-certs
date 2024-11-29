@@ -425,10 +425,10 @@ def diff_fips_cert_id():
     def render(equal: bool, a: Any, b: Any) -> Markup:
         if a:
             return Markup(
-                f"<a href=\"{url_for('fips.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+                f"<a href=\"{url_for('fips.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, str(a), str(b))}</a>"
             )
         else:
-            return render_str(equal, a, b)
+            return render_str(equal, str(a), str(b))
 
     return compare_str, render
 
@@ -520,7 +520,7 @@ def render_dict(a, b, metas=None):
             compare_meta, render_meta = differ
             item = render_meta(compare_meta(val, other_val), val, other_val)
         else:
-            item = render_str(compare_str(val, other_val), val, other_val)
+            item = render_str(compare_str(str(val), str(other_val)), str(val), str(other_val))
         if change:
             line = f'<span class="change">{label}: {item}</span>'
         else:
