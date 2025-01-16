@@ -20,8 +20,6 @@ appnope==0.1.3
     #   ipython
 asttokens==2.4.1
     # via stack-data
-async-timeout==4.0.3
-    # via aiohttp
 attrs==23.1.0
     # via
     #   aiohttp
@@ -138,10 +136,6 @@ docutils==0.19
     #   sphinx
 evaluate==0.4.1
     # via setfit
-exceptiongroup==1.2.2
-    # via
-    #   ipython
-    #   pytest
 executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.0
@@ -430,7 +424,7 @@ parso==0.8.3
     # via jedi
 partd==1.4.1
     # via dask
-pdftotext==2.2.2
+pdftotext==3.0.0
     # via sec-certs (./../pyproject.toml)
 pexpect==4.8.0
     # via ipython
@@ -722,15 +716,6 @@ tifffile==2023.9.26
     # via scikit-image
 tokenizers==0.15.0
     # via transformers
-tomli==2.0.1
-    # via
-    #   build
-    #   coverage
-    #   mypy
-    #   pip-tools
-    #   pyproject-hooks
-    #   pytest
-    #   setuptools-scm
 toolz==0.12.0
     # via
     #   dask
@@ -786,7 +771,6 @@ types-requests==2.31.0.10
 typing-extensions==4.8.0
     # via
     #   alembic
-    #   cloudpathlib
     #   huggingface-hub
     #   mypy
     #   myst-nb
