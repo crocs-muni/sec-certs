@@ -43,7 +43,7 @@
     </div>
 {% endmacro %}
 {% block content %}
-    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+	<div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <main>
             <div class="row mb-5">
                 <div class="col-12 col-md-6">
@@ -55,6 +55,9 @@
                             contact us, you can do so at <a
                                 href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.
                         </p>
+                       	<img class="w-100 mb-4 pe-lg-3" src="{{ url_for(".static", filename="img/team1_retouch.JPG") }}" alt="Team photo"
+                       		onmouseover="$(this).attr('src', '{{ url_for(".static", filename="img/team2_retouch.JPG") }}')"
+                       		onmouseout="$(this).attr('src', '{{ url_for(".static", filename="img/team1_retouch.JPG") }}')" />
                         <h4>Current members</h4>
                         {{ render_person("Petr Švenda", "Initial implementation, idea person", "2019-now") }}
                         {{ render_person("Ján Jančár", "Web implementation, anti-idea person", "2019-now") }}
