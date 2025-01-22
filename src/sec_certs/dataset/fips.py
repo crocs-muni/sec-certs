@@ -22,9 +22,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
 )
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
-from sec_certs.heuristics.fips import (
-    compute_references,
-)
+from sec_certs.heuristics.fips import compute_references
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
@@ -225,14 +223,31 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         return [FIPSCertificate(int(cert_id)) for cert_id in cert_ids]
 
     @classmethod
-    def from_web_latest(cls) -> FIPSDataset:
+    def from_web_latest(
+        cls,
+        path: str | Path | None = None,
+        auxiliary_datasets: bool = False,
+        artifacts: bool = False,
+    ) -> FIPSDataset:
         """
-        Fetches the fresh snapshot of FIPSDataset from mirror.
+        Fetches the fresh snapshot of FIPSDataset from sec-certs.org.
+
+        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
+
+        .. note::
+            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
+
+        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
+        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
+        :param artifacts: Whether to also download artifacts (i.e. PDFs).
         """
         return cls.from_web(
-            str(config.fips_latest_snapshot),
-            "Downloading FIPS Dataset",
-            "fips_latest_dataset.json",
+            config.fips_latest_full_archive,
+            config.fips_latest_snapshot,
+            "Downloading FIPS",
+            path,
+            auxiliary_datasets,
+            artifacts,
         )
 
     def _set_local_paths(self) -> None:

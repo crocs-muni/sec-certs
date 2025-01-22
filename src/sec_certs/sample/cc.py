@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import re
+from bisect import insort
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -18,7 +19,7 @@ import sec_certs.utils.pdf
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
 from sec_certs.configuration import config
-from sec_certs.sample.cc_certificate_id import canonicalize, schemes
+from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -345,6 +346,8 @@ class CCCertificate(
         related_cves: set[str] | None = field(default=None)
         cert_lab: list[str] | None = field(default=None)
         cert_id: str | None = field(default=None)
+        prev_certificates: list[str] | None = field(default=None)
+        next_certificates: list[str] | None = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
 
@@ -484,7 +487,8 @@ class CCCertificate(
     @property
     def actual_sars(self) -> set[SAR] | None:
         """
-        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs
+        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs.
+
         :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
         """
         sars = {}
@@ -543,7 +547,7 @@ class CCCertificate(
     def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
-        Assuming that html source has better protection profiles, they overwrite CSV info
+        Assuming that html source has better protection profiles, they overwrite CSV info.
         On other values the sanity checks are made.
         """
         if self != other:
@@ -684,7 +688,7 @@ class CCCertificate(
     @classmethod
     def from_html_row(cls, row: Tag, status: str, category: str) -> CCCertificate:
         """
-        Creates a CC sample from html row of commoncriteria.org webpage.
+        Creates a CC sample from html row of commoncriteriaportal.org webpage.
         """
 
         cells = list(row.find_all("td"))
@@ -998,6 +1002,52 @@ class CCCertificate(
         else:
             cert.pdf_data.cert_keywords = cert_keywords
         return cert
+
+    def compute_heuristics_cert_versions(self, cert_ids: dict[str, CertificateId | None]) -> None:  # noqa: C901
+        """
+        Fills in the previous and next certificate versions based on the cert ID.
+        """
+        self.heuristics.prev_certificates = []
+        self.heuristics.next_certificates = []
+        own = cert_ids[self.dgst]
+        if own is None:
+            return
+        if self.scheme not in ("DE", "FR", "ES", "NL", "MY"):
+            # There is no version in the cert_id, so skip it
+            return
+        version = own.meta.get("version")
+        for other_dgst, other in cert_ids.items():
+            if other_dgst == self.dgst:
+                # Skip ourselves
+                continue
+            if other is None or other.scheme != own.scheme:
+                # The other does not have cert ID or is different scheme or does not have a version.
+                continue
+            other_version = other.meta.get("version")
+            # Go over the own meta and compare, if some field other than version is different, bail out.
+            # If all except the version are the same, we have a match.
+            for key, value in own.meta.items():
+                if key == "version":
+                    continue
+                if self.scheme == "DE" and key == "year":
+                    # For German certs we want to also ignore the year in comparison.
+                    continue
+                if value != other.meta.get(key):
+                    break
+            else:
+                if other_version is None and version is None:
+                    # This means a duplicate ID is present, and it has no version.
+                    # Just pass silently.
+                    pass
+                elif version is None:
+                    insort(self.heuristics.next_certificates, str(other))
+                elif other_version is None:
+                    insort(self.heuristics.prev_certificates, str(other))
+                else:
+                    if other_version < version:
+                        insort(self.heuristics.prev_certificates, str(other))
+                    else:
+                        insort(self.heuristics.next_certificates, str(other))
 
     def compute_heuristics_version(self) -> None:
         """

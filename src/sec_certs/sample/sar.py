@@ -43,9 +43,7 @@ class SAR(ComplexSerializableType):
 
     @staticmethod
     def contains_level(string: str) -> bool:
-        if len(string.split(".")) == 1:
-            return False
-        return True
+        return len(string.split(".")) != 1
 
     @staticmethod
     def matches_re(string: str) -> bool:

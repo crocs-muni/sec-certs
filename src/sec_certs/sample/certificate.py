@@ -64,7 +64,7 @@ class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
 
     @property
     @abstractmethod
-    def dgst(self):
+    def dgst(self) -> str:
         raise NotImplementedError("Not meant to be implemented")
 
     @property

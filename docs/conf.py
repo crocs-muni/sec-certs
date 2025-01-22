@@ -17,9 +17,9 @@ from importlib.metadata import version as get_version
 
 # -- Project information -----------------------------------------------------
 
+author = "CRoCS MUNI"
 project = "sec-certs"
-copyright = "Anonymized | 2020-2023"
-# copyright = "CRoCS MUNI | 2020-2023"
+copyright = "CRoCS MUNI | 2020-2024"
 
 # Note thas this inference won't work from Docker: https://github.com/pypa/setuptools_scm/#usage-from-docker
 release = ".".join(get_version("sec-certs").split(".")[:3])
@@ -61,7 +61,7 @@ html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
 
 html_logo = "_static/logo.png"
-html_favicon = "_static/logo_badge.png"
+html_favicon = "_static/favicon.png"
 
 html_theme_options = {
     "repository_url": "https://github.com/crocs-muni/sec-certs",

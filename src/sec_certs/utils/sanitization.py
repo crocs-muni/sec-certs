@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import logging
+import re
 from datetime import date
 from pathlib import Path
 from urllib.parse import urlparse
@@ -16,7 +17,9 @@ logger = logging.getLogger(__name__)
 def sanitize_navigable_string(string: NavigableString | str | None) -> str | None:
     if not string:
         return None
-    return str(string).strip().replace("\xad", "").replace("\xa0", "")
+    rex = re.compile(r"\s+")
+    string = str(string).strip().replace("\xad", "").replace("\xa0", "")
+    return rex.sub(" ", string)
 
 
 def sanitize_link(record: str | None) -> str | None:

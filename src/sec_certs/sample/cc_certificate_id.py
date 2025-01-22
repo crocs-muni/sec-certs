@@ -24,7 +24,11 @@ def FR(meta) -> str:
     counter = meta["counter"]
     doc = meta.get("doc")
     version = meta.get("version")
-    cert_id = f"ANSSI-CC-{year}/{counter}"
+    type = meta.get("type")
+    cert_id = "ANSSI-CC-"
+    if type:
+        cert_id += f"{type}-"
+    cert_id += f"{year}/{counter}"
     if doc:
         cert_id += f"-{doc}"
     if version:
@@ -183,6 +187,17 @@ def IT(meta) -> str:
     return cert_id
 
 
+def PL(meta) -> str:
+    number = meta["number"]
+    ac = meta.get("ac")
+    year = meta["year"]
+    cert_id = f"{number}/PC1/"
+    if ac:
+        cert_id += f"{ac}/"
+    cert_id += f"{year}"
+    return cert_id
+
+
 # We have rules for some schemes to make canonical cert_ids.
 schemes = {
     "FR": FR,
@@ -202,6 +217,7 @@ schemes = {
     "TR": TR,
     "SG": SG,
     "IT": IT,
+    "PL": PL,
 }
 
 

@@ -7,6 +7,7 @@ REF_ANNOTATION_MODES = Literal["training", "evaluation", "production", "cross-va
 REF_EMBEDDING_METHOD = Literal["tf_idf", "transformer"]
 
 
+# This stupid thing should die in a fire...
 DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 
 RESPONSE_OK = 200
@@ -115,16 +116,24 @@ CC_MALAYSIA_INEVAL_URL = (
     CC_MALAYSIA_BASE_URL
     + "/index.php/certification/product-certification/mycc/list-of-products-and-systems-under-evaluation-or-maintenance"
 )
-CC_NETHERLANDS_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
-CC_NETHERLANDS_CERTIFIED_URL = CC_NETHERLANDS_BASE_URL + "/certificates.html"
-CC_NETHERLANDS_INEVAL_URL = CC_NETHERLANDS_BASE_URL + "/ongoing-certifications.html"
+CC_NETHERLANDS_OLD_BASE_URL = "https://www.tuv-nederland.nl/common-criteria"
+CC_NETHERLANDS_OLD_CERTIFIED_URL = CC_NETHERLANDS_OLD_BASE_URL + "/certificates.html"
+CC_NETHERLANDS_OLD_INEVAL_URL = CC_NETHERLANDS_OLD_BASE_URL + "/ongoing-certifications.html"
+CC_NETHERLANDS_NEW_BASE_URL = "https://www.trustcb.com/common-criteria/nscib"
+CC_NETHERLANDS_NEW_CERTIFIED_URL = CC_NETHERLANDS_NEW_BASE_URL + "/nscib-certificates/"
+CC_NETHERLANDS_NEW_INEVAL_URL = CC_NETHERLANDS_NEW_BASE_URL + "/nscib-ongoing-certifications/"
 CC_NORWAY_BASE_URL = "https://sertit.no"
 CC_NORWAY_CERTIFIED_URL = CC_NORWAY_BASE_URL + "/certified-products/category1919.html"
 CC_NORWAY_ARCHIVED_URL = CC_NORWAY_BASE_URL + "/certified-products/product-archive/"
 CC_KOREA_BASE_URL = "https://itscc.kr"
 CC_KOREA_EN_URL = CC_KOREA_BASE_URL + "/main/mainEn.do"
 CC_KOREA_CERTIFIED_URL = CC_KOREA_BASE_URL + "/certprod/listA.do"
-CC_KOREA_PRODUCT_URL = CC_KOREA_BASE_URL + "/certprod/view.do?product_id={}&product_class=1"
+CC_KOREA_SUSPENDED_URL = CC_KOREA_BASE_URL + "/certprod/listB.do"
+CC_KOREA_ARCHIVED_URL = CC_KOREA_BASE_URL + "/certprod/listD.do"
+CC_KOREA_PRODUCT_URL = CC_KOREA_BASE_URL + "/certprod/view.do?product_id={}&product_class={}"
+CC_POLAND_BASE_URL = "https://en.nask.pl"
+CC_POLAND_CERTIFIED_URL = CC_POLAND_BASE_URL + "/eng/activities/certification/list-of-certificates"
+CC_POLAND_INEVAL_URL = CC_POLAND_BASE_URL + "/eng/activities/certification/ongoing-certifications"
 CC_SINGAPORE_BASE_URL = "https://www.csa.gov.sg"
 CC_SINGAPORE_CERTIFIED_URL = (
     CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-list"

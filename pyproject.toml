@@ -40,6 +40,7 @@
     "Pillow>=9.2.0",
     "pypdf[crypto]>=3.1.0",
     "python-dateutil",
+    "dateparser",
     "PyYAML",
     "rapidfuzz",
     "requests",
@@ -63,8 +64,8 @@
 
   [project.optional-dependencies]
     dev = [
-      "ruff==0.2.2",
-      "mypy==1.8.0",
+      "ruff==0.7.4",
+      "mypy==1.13.0",
       "types-PyYAML",
       "types-python-dateutil",
       "types-requests",
@@ -118,6 +119,7 @@
   src = ["src", "tests"]
   line-length = 120
   target-version = "py310"
+  extend-exclude = ["*.ipynb"]
 
   [tool.ruff.lint.mccabe]
     max-complexity = 10

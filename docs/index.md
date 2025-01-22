@@ -2,7 +2,7 @@
 
 Welcome to the technical documentation of *sec-certs* tool for the data analysis of products certified with Common Criteria or FIPS 140 frameworks. If you're looking for general description of the tool, its use cases and capabilites, we refer you to [sec-certs homepage](https://sec-certs.org/). If you are looking for more advanced knowledge, e.g. how to mine your own data, how to extend the tool, and so forth, this is the right place.
 
-There are three main parts of this documentation. *User's guide* describes high-level use of our tool. Driven by this knowledge, you can progress to *Notebook examples* that showcase some of the API that we use in the form of Jupyter notebooks. The documentation also contains some of the modules documented with `autodoc`, see *API reference*. Still, some dark corners of our codebase are not documented. To inspect the code directly, see the [sec_certs](https://github.com/crocs-muni/sec-certs/tree/main/src/sec_certs) module. If you want, you can run the notebooks as they are stored in the [project repository](https://github.com/crocs-muni/sec-certs/tree/main/notebooks). If you are interested in contributing to our project or in other aspects of our development, you can consult the relevant *GitHub artifacts*
+There are three main parts of this documentation. *Quickstart* describes high-level use of our tool. Driven by this knowledge, you can progress to *Notebook examples* that showcase some of the API that we use in the form of Jupyter notebooks. The documentation also contains some of the modules documented with `autodoc`, see *API reference*. Still, some dark corners of our codebase are not documented. To inspect the code directly, see the [sec_certs](https://github.com/crocs-muni/sec-certs/tree/main/src/sec_certs) module. If you want, you can run the notebooks as they are stored in the [project repository](https://github.com/crocs-muni/sec-certs/tree/main/notebooks). If you are interested in contributing to our project or in other aspects of our development, you can consult the relevant *GitHub artifacts*.
 
 ```{button-ref} quickstart
 :align: center
@@ -21,7 +21,7 @@ Each of the notebooks can be launched interactively in MyBinder by clicking on ð
 :maxdepth: 1
 Sec-certs homepage <https://sec-certs.org/>
 Sec-certs docs <https://sec-certs.org/docs>
-GitHub repo <https://anonymous.4open.science/r/sec-certs-7A92>
+GitHub repo <https://github.com/crocs-muni/sec-certs>
 ```
 
 ```{toctree}
@@ -32,18 +32,19 @@ installation.md
 quickstart.md
 configuration.md
 user_guide.md
+search_examples.md
 ```
 
 ```{toctree}
 :caption: Notebook examples
 :hidden: True
 :maxdepth: 1
-notebooks/examples/est_solution.ipynb
-notebooks/examples/cc.ipynb
-notebooks/examples/fips.ipynb
-notebooks/examples/model.ipynb
-notebooks/examples/fips_iut.ipynb
-notebooks/examples/fips_mip.ipynb
+Demo <notebooks/examples/est_solution.ipynb>
+Common Criteria <notebooks/examples/cc.ipynb>
+FIPS-140 <notebooks/examples/fips.ipynb>
+FIPS-140 IUT <notebooks/examples/fips_iut.ipynb>
+FIPS-140 MIP <notebooks/examples/fips_mip.ipynb>
+Model <notebooks/examples/model.ipynb>
 ```
 
 ```{toctree}
@@ -59,7 +60,7 @@ api/model.md
 :maxdepth: 1
 :hidden: True
 :caption: GitHub artifacts
-readme.md
+README <readme.md>
 contributing.md
 code_of_conduct.md
 license.md

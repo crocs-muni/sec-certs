@@ -62,13 +62,13 @@ def compute_normalized_cert_ids(certs: Iterable[CCCertificate]) -> None:
 def compute_scheme_data(scheme_dset: CCSchemeDataset, certs: dict[str, CCCertificate]):
     for scheme in scheme_dset:
         if certified := scheme.lists.get(EntryType.Certified):
-            certs = {dgst: cert for dgst, cert in certs.items() if cert.status == "active"}
-            matches = CCSchemeMatcher.match_all(certified, scheme.country, certs.values())
+            active_certs = [cert for cert in certs.values() if cert.status == "active"]
+            matches, _ = CCSchemeMatcher.match_all(certified, scheme.country, active_certs)
             for dgst, match in matches.items():
                 certs[dgst].heuristics.scheme_data = match
         if archived := scheme.lists.get(EntryType.Archived):
-            certs = {dgst: cert for dgst, cert in certs.items() if cert.status == "archived"}
-            matches = CCSchemeMatcher.match_all(archived, scheme.country, certs.values())
+            archived_certs = [cert for cert in certs.values() if cert.status == "archived"]
+            matches, _ = CCSchemeMatcher.match_all(archived, scheme.country, archived_certs)
             for dgst, match in matches.items():
                 certs[dgst].heuristics.scheme_data = match
 

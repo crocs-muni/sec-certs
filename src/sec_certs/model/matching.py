@@ -29,7 +29,9 @@ class AbstractMatcher(Generic[CertSubType], ABC):
         )
 
     @staticmethod
-    def _match_certs(matchers: Sequence[AbstractMatcher], certs: list[CertSubType], threshold: float):
+    def _match_certs(
+        matchers: Sequence[AbstractMatcher], certs: list[CertSubType], threshold: float
+    ) -> tuple[dict[str, Any], dict[str, float]]:
         scores: list[tuple[float, int, int]] = []
         matched_is: set[int] = set()
         matched_js: set[int] = set()
@@ -39,6 +41,7 @@ class AbstractMatcher(Generic[CertSubType], ABC):
                 triple = (100 - score, i, j)
                 heappush(scores, triple)
         results = {}
+        final_scores = {}
         for triple in (heappop(scores) for _ in range(len(scores))):
             inv_score, i, j = triple
             # Do not match already matched entries/certs.
@@ -55,4 +58,5 @@ class AbstractMatcher(Generic[CertSubType], ABC):
             cert = certs[i]
             entry = matchers[j].entry
             results[cert.dgst] = entry
-        return results
+            final_scores[cert.dgst] = score
+        return results, final_scores

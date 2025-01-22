@@ -6,7 +6,7 @@
 ```
 
 ```{tip}
-The examples related to this package can be found at [common criteria notebook](./../notebooks/examples/cc.ipynb) and [fips notebook](./../notebooks/examples/fips.ipynb).
+The examples related to this package can be found in the [common criteria notebook](./../notebooks/examples/cc.ipynb) and the [fips notebook](./../notebooks/examples/fips.ipynb).
 ```
 
 ## CCCertificate

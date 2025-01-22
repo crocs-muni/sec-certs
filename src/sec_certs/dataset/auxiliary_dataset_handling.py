@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class AuxiliaryDatasetHandler(ABC):
-    def __init__(self, root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH) -> None:
+    def __init__(self, root_dir: str | Path) -> None:
         self.root_dir = Path(root_dir)
         self.dset: Any
 
@@ -248,6 +248,5 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
     def _process_dataset_body(self, download_fresh: bool = False):
         if not self.dset_path.exists() or download_fresh:
             self.dset = ProtectionProfileDataset.from_web(self.dset_path)
-            self.dset.to_json()
         else:
             self.dset = ProtectionProfileDataset.from_json(self.dset_path)

@@ -11,6 +11,7 @@ from functools import partial
 from pathlib import Path
 from typing import Any
 
+import dateparser
 import numpy as np
 import pkgconfig
 import requests
@@ -20,7 +21,6 @@ from sec_certs.utils import parallel_processing
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
-
 
 _PROXIES = {
     "https://www.commoncriteriaportal.org/": "https://sec-certs.org/proxy/cc/",
@@ -118,6 +118,20 @@ def to_utc(timestamp: datetime) -> datetime:
         return timestamp
     timestamp -= offset
     return timestamp.replace(tzinfo=None)
+
+
+def parse_date(date_string: str | None, format: str | None = None, languages: list[str] | None = None):
+    if not date_string:
+        return None
+    if format:
+        try:
+            return datetime.strptime(date_string, format).date()
+        except ValueError:
+            pass
+    parsed = dateparser.parse(date_string, languages=languages)
+    if parsed is not None:
+        return parsed.date()
+    return None
 
 
 def is_in_dict(target_dict: dict, path: str) -> bool:
