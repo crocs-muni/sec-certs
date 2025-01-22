@@ -845,7 +845,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         compute_transitive_vulnerabilities(self.certs)
 
         if not skip_schemes:
-            compute_scheme_data(self.aux_handlers[CCSchemeDatasetHandler].dset, self.certs.values())
+            compute_scheme_data(self.aux_handlers[CCSchemeDatasetHandler].dset, self.certs)
 
         compute_cert_labs(self.certs.values())
         compute_sars(self.certs.values())
