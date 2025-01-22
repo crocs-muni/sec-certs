@@ -4,7 +4,9 @@ import pytest
 from requests import RequestException
 
 import sec_certs.sample.cc_scheme as CCSchemes
+from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
 from sec_certs.dataset.cc import CCDataset
+from sec_certs.heuristics.cc import compute_scheme_data
 from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.sample.cc import CCCertificate
 
@@ -219,6 +221,7 @@ def test_matching(toy_dataset: CCDataset, canada_certified):
 
 
 def test_process_dataset(toy_dataset: CCDataset):
-    toy_dataset.auxiliary_datasets.scheme_dset = toy_dataset.process_schemes(True, only_schemes={"CA"})
-    toy_dataset._compute_scheme_data()
+    toy_dataset.aux_handlers[CCSchemeDatasetHandler].only_schemes = {"CA"}  # type: ignore
+    toy_dataset.aux_handlers[CCSchemeDatasetHandler].process_dataset()
+    compute_scheme_data(toy_dataset.aux_handlers[CCSchemeDatasetHandler].dset, toy_dataset.certs)
     assert toy_dataset["8f08cacb49a742fb"].heuristics.scheme_data is not None

@@ -93,18 +93,18 @@ def test_download_and_convert_artifacts(toy_dataset: FIPSDataset, data_dir: Path
         toy_dataset.copy_dataset(tmp_dir)
         toy_dataset.download_all_artifacts()
 
-    if not crt.state.policy_download_ok or crt.state.module_download_ok:
-        pytest.xfail(reason="Fail due to error during download")
+        if not crt.state.policy_download_ok or not crt.state.module_download_ok:
+            pytest.xfail(reason="Fail due to error during download")
 
-    toy_dataset.convert_all_pdfs()
+        toy_dataset.convert_all_pdfs()
 
-    assert not crt.state.policy_convert_garbage
-    assert crt.state.policy_convert_ok
-    assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
-    assert crt.state.policy_txt_path.exists()
+        assert not crt.state.policy_convert_garbage
+        assert crt.state.policy_convert_ok
+        assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
+        assert crt.state.policy_txt_path.exists()
 
-    template_policy_txt_path = data_dir / "template_policy_184097a88a9b4ad9.txt"
-    assert abs(crt.state.policy_txt_path.stat().st_size - template_policy_txt_path.stat().st_size) < 1000
+        template_policy_txt_path = data_dir / "template_policy_184097a88a9b4ad9.txt"
+        assert abs(crt.state.policy_txt_path.stat().st_size - template_policy_txt_path.stat().st_size) < 1000
 
 
 def test_to_pandas(toy_dataset: FIPSDataset):

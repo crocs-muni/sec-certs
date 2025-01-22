@@ -16,13 +16,13 @@ import requests
 from requests import RequestException, Response
 
 from sec_certs import constants
-from sec_certs.dataset.cpe import CPEDataset
+from sec_certs.dataset.cpe import CPEDataset, CPEMatchDict
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.utils.parallel_processing import process_parallel
 
 logger = logging.getLogger(__name__)
 
-DatasetType = TypeVar("DatasetType", CPEDataset, CVEDataset, dict)
+DatasetType = TypeVar("DatasetType", CPEDataset, CVEDataset, CPEMatchDict)
 
 
 @dataclass
@@ -320,7 +320,7 @@ class CveNvdDatasetBuilder(NvdDatasetBuilder[CVEDataset]):
         return CVEDataset()
 
 
-class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
+class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[CPEMatchDict]):
     _ENDPOINT: Final[str] = "CPEMatch"
     _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
     _RESULTS_PER_PAGE: Final[int] = 500
@@ -331,7 +331,7 @@ class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
         "versionEndExcluding",
     ]
 
-    def _process_responses(self, responses: list[Response], dataset_to_fill: dict) -> dict:
+    def _process_responses(self, responses: list[Response], dataset_to_fill: CPEMatchDict) -> CPEMatchDict:
         timestamp = self._end_mod_date.isoformat() if self._end_mod_date else responses[-1].json()["timestamp"]
         match_strings = list(itertools.chain.from_iterable(response.json()["matchStrings"] for response in responses))
         dataset_to_fill["timestamp"] = timestamp
@@ -361,5 +361,5 @@ class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[dict]):
         return datetime.fromisoformat(previous_data["timestamp"])
 
     @staticmethod
-    def _init_new_dataset() -> dict:
-        return {"timestamp": datetime.fromtimestamp(0).isoformat(), "match_strings": {}}
+    def _init_new_dataset() -> CPEMatchDict:
+        return CPEMatchDict({"timestamp": datetime.fromtimestamp(0).isoformat(), "match_strings": {}})
