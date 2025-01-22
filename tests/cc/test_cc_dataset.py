@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from sec_certs import constants
+from sec_certs.dataset.auxiliary_dataset_handling import ProtectionProfileDatasetHandler
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 
@@ -132,9 +133,12 @@ def test_build_dataset(data_dir: Path, cert_one: CCCertificate, toy_dataset: CCD
 def test_process_pp_dataset(toy_dataset: CCDataset):
     with TemporaryDirectory() as tmp_dir:
         toy_dataset.copy_dataset(tmp_dir)
-        toy_dataset.process_protection_profiles()
-        assert toy_dataset.pp_dataset_path.exists()
-        assert toy_dataset.pp_dataset_path.stat().st_size > constants.MIN_CC_PP_DATASET_SIZE
+        toy_dataset.aux_handlers[ProtectionProfileDatasetHandler].process_dataset()
+        assert toy_dataset.aux_handlers[ProtectionProfileDatasetHandler].dset_path.exists()
+        assert (
+            toy_dataset.aux_handlers[ProtectionProfileDatasetHandler].dset_path.stat().st_size
+            > constants.MIN_CC_PP_DATASET_SIZE
+        )
 
 
 @pytest.mark.xfail(reason="May fail due to error on CC server")

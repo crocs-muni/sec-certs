@@ -4,6 +4,9 @@ import pytest
 import tests.data.fips.dataset
 
 from sec_certs.dataset import CPEDataset, CVEDataset, FIPSDataset
+from sec_certs.dataset.auxiliary_dataset_handling import CPEDatasetHandler, CPEMatchDictHandler, CVEDatasetHandler
+from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
+from sec_certs.heuristics.fips import compute_references
 
 
 @pytest.fixture(scope="module")
@@ -27,15 +30,30 @@ def processed_dataset(
     ]
     toy_dataset.certs = {x.dgst: x for x in tested_certs}
 
+    cpe_handler = CPEDatasetHandler(toy_dataset.auxiliary_datasets_dir)
+    cpe_handler.dset = cpe_dataset
+    cve_handler = CVEDatasetHandler(toy_dataset.auxiliary_datasets_dir)
+    cve_handler.dset = cve_dataset
+    cpe_match_dict_handler = CPEMatchDictHandler(toy_dataset.auxiliary_datasets_dir)
+    cpe_match_dict_handler.dset = {}
+    toy_dataset.aux_handlers = {
+        CPEDatasetHandler: cpe_handler,
+        CVEDatasetHandler: cve_handler,
+        CPEMatchDictHandler: cpe_match_dict_handler,
+    }
+
     toy_dataset.download_all_artifacts()
     toy_dataset.convert_all_pdfs()
     toy_dataset.extract_data()
-    toy_dataset._compute_references(keep_unknowns=True)
 
-    toy_dataset.auxiliary_datasets.cpe_dset = cpe_dataset
-    toy_dataset.auxiliary_datasets.cve_dset = cve_dataset
-    toy_dataset.compute_cpe_heuristics()
-    toy_dataset.compute_related_cves()
-    toy_dataset._compute_transitive_vulnerabilities()
+    compute_cpe_heuristics(toy_dataset.aux_handlers[CPEDatasetHandler].dset, toy_dataset.certs.values())
+    compute_related_cves(
+        toy_dataset.aux_handlers[CPEDatasetHandler].dset,
+        toy_dataset.aux_handlers[CVEDatasetHandler].dset,
+        toy_dataset.aux_handlers[CPEMatchDictHandler].dset,
+        toy_dataset.certs.values(),
+    )
+    compute_references(toy_dataset.certs, keep_unknowns=True)
+    compute_transitive_vulnerabilities(toy_dataset.certs)
 
     return toy_dataset

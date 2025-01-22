@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import itertools
 import locale
 import shutil
 import tempfile
 from collections.abc import Iterator
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import ClassVar, cast
@@ -17,19 +15,27 @@ from bs4 import BeautifulSoup, Tag
 import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.dataset.cc_scheme import CCSchemeDataset
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset, logger
-from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.model import (
-    ReferenceFinder,
-    SARTransformer,
-    TransitiveVulnerabilityFinder,
+from sec_certs.dataset.auxiliary_dataset_handling import (
+    AuxiliaryDatasetHandler,
+    CCMaintenanceUpdateDatasetHandler,
+    CCSchemeDatasetHandler,
+    CPEDatasetHandler,
+    CPEMatchDictHandler,
+    CVEDatasetHandler,
+    ProtectionProfileDatasetHandler,
 )
+from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.heuristics.cc import (
+    compute_cert_labs,
+    compute_normalized_cert_ids,
+    compute_references,
+    compute_sars,
+    compute_scheme_data,
+    link_to_protection_profiles,
+)
+from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
 from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -39,16 +45,7 @@ from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
 
 
-@dataclass
-class CCAuxiliaryDatasets(AuxiliaryDatasets):
-    cpe_dset: CPEDataset | None = None
-    cve_dset: CVEDataset | None = None
-    pp_dset: ProtectionProfileDataset | None = None
-    mu_dset: CCDatasetMaintenanceUpdates | None = None
-    scheme_dset: CCSchemeDataset | None = None
-
-
-class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializableType):
+class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     """
     Class that holds CCCertificate. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
@@ -61,7 +58,7 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        auxiliary_datasets: CCAuxiliaryDatasets | None = None,
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] = {},
     ):
         self.certs = certs
         self.timestamp = datetime.now()
@@ -69,12 +66,20 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         self.name = name if name else type(self).__name__ + " dataset"
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
-
-        self.auxiliary_datasets: CCAuxiliaryDatasets = (
-            auxiliary_datasets if auxiliary_datasets else CCAuxiliaryDatasets()
-        )
-
+        self.aux_handlers = aux_handlers
         self.root_dir = Path(root_dir)
+
+        if not self.aux_handlers:
+            self.aux_handlers[CPEDatasetHandler] = CPEDatasetHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[CVEDatasetHandler] = CVEDatasetHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[CPEMatchDictHandler] = CPEMatchDictHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[CCSchemeDatasetHandler] = CCSchemeDatasetHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[ProtectionProfileDatasetHandler] = ProtectionProfileDatasetHandler(
+                self.auxiliary_datasets_dir
+            )
+            self.aux_handlers[CCMaintenanceUpdateDatasetHandler] = CCMaintenanceUpdateDatasetHandler(
+                self.auxiliary_datasets_dir
+            )
 
     def to_pandas(self) -> pd.DataFrame:
         """
@@ -173,36 +178,8 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         return self.certificates_dir / "txt"
 
     @property
-    def pp_dataset_path(self) -> Path:
-        """
-        Returns a path to the dataset of Protection Profiles
-        """
-        return self.auxiliary_datasets_dir / "pp_dataset.json"
-
-    @property
-    def mu_dataset_dir(self) -> Path:
-        """
-        Returns directory that holds dataset of maintenance updates
-        """
-        return self.auxiliary_datasets_dir / "maintenances"
-
-    @property
-    def mu_dataset_path(self) -> Path:
-        """
-        Returns a path to the dataset of maintenance updates
-        """
-        return self.mu_dataset_dir / "maintenance_updates.json"
-
-    @property
     def reference_annotator_dir(self) -> Path:
         return self.root_dir / "reference_annotator"
-
-    @property
-    def scheme_dataset_path(self) -> Path:
-        """
-        Returns a path to the scheme dataset
-        """
-        return self.auxiliary_datasets_dir / "scheme_dataset.json"
 
     BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
 
@@ -288,15 +265,6 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
     def _set_local_paths(self):
         super()._set_local_paths()
 
-        if self.auxiliary_datasets.pp_dset:
-            self.auxiliary_datasets.pp_dset.json_path = self.pp_dataset_path
-
-        if self.auxiliary_datasets.mu_dset:
-            self.auxiliary_datasets.mu_dset.root_dir = self.mu_dataset_dir
-
-        if self.auxiliary_datasets.scheme_dset:
-            self.auxiliary_datasets.scheme_dset.json_path = self.scheme_dataset_path
-
         for cert in self:
             cert.set_local_paths(
                 self.reports_pdf_dir,
@@ -306,6 +274,13 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
                 self.targets_txt_dir,
                 self.certificates_txt_dir,
             )
+
+    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
+        self.aux_handlers[CCMaintenanceUpdateDatasetHandler].certs_with_updates = [  # type: ignore
+            x for x in self if x.maintenance_updates
+        ]
+        self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {x.scheme for x in self}  # type: ignore
+        super().process_auxiliary_datasets(download_fresh)
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
@@ -842,193 +817,38 @@ class CCDataset(Dataset[CCCertificate, CCAuxiliaryDatasets], ComplexSerializable
         for cert in certs_to_process:
             cert.compute_heuristics_cert_lab()
 
-    @staged(
-        logger,
-        "Computing heuristics: Deriving information about certificate ids from artifacts.",
-    )
-    def _compute_normalized_cert_ids(self) -> None:
-        for cert in self:
-            cert.compute_heuristics_cert_id()
-
-    @staged(
-        logger,
-        "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.",
-    )
-    def _compute_transitive_vulnerabilities(self):
-        transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: cert.heuristics.cert_id)
-        transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.report_references)
-
-        for dgst in self.certs:
-            transitive_cve = transitive_cve_finder.predict_single_cert(dgst)
-
-            self.certs[dgst].heuristics.direct_transitive_cves = transitive_cve.direct_transitive_cves
-            self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
-
     @staged(logger, "Computing heuristics: Matching scheme data.")
     def _compute_scheme_data(self):
-        if self.auxiliary_datasets.scheme_dset:
-            for scheme in self.auxiliary_datasets.scheme_dset:
-                if certified := scheme.lists.get(EntryType.Certified):
-                    certs = [cert for cert in self if cert.status == "active"]
-                    matches, scores = CCSchemeMatcher.match_all(certified, scheme.country, certs)
-                    for dgst, match in matches.items():
-                        self[dgst].heuristics.scheme_data = match
-                if archived := scheme.lists.get(EntryType.Archived):
-                    certs = [cert for cert in self if cert.status == "archived"]
-                    matches, scores = CCSchemeMatcher.match_all(archived, scheme.country, certs)
-                    for dgst, match in matches.items():
-                        self[dgst].heuristics.scheme_data = match
+        for scheme in self.aux_handlers[CCSchemeDatasetHandler].dset:
+            if certified := scheme.lists.get(EntryType.Certified):
+                certs = [cert for cert in self if cert.status == "active"]
+                matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
+                for dgst, match in matches.items():
+                    self[dgst].heuristics.scheme_data = match
+            if archived := scheme.lists.get(EntryType.Archived):
+                certs = [cert for cert in self if cert.status == "archived"]
+                matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
+                for dgst, match in matches.items():
+                    self[dgst].heuristics.scheme_data = match
 
-    @staged(logger, "Computing heuristics: SARs")
-    def _compute_sars(self) -> None:
-        transformer = SARTransformer().fit(self.certs.values())
-        for cert in self:
-            cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
-
-    @staged(logger, "Computing heuristics: certificate versions")
-    def _compute_cert_versions(self) -> None:
-        cert_ids = {
-            cert.dgst: CertificateId(cert.scheme, cert.heuristics.cert_id)
-            if cert.heuristics.cert_id is not None
-            else None
-            for cert in self
-        }
-        for cert in self:
-            cert.compute_heuristics_cert_versions(cert_ids)
-
-    def _compute_heuristics(self) -> None:
-        self._compute_normalized_cert_ids()
-        super()._compute_heuristics()
-        self._compute_scheme_data()
-        self._compute_cert_versions()
-        self._compute_cert_labs()
-        self._compute_sars()
-
-    @staged(logger, "Computing heuristics: references between certificates.")
-    def _compute_references(self) -> None:
-        def ref_lookup(kw_attr):
-            def func(cert):
-                kws = getattr(cert.pdf_data, kw_attr)
-                if not kws:
-                    return set()
-                res = set()
-                for scheme, matches in kws["cc_cert_id"].items():
-                    for match in matches:
-                        try:
-                            canonical = CertificateId(scheme, match).canonical
-                            res.add(canonical)
-                        except Exception:
-                            res.add(match)
-                return res
-
-            return func
-
-        for ref_source in ("report", "st"):
-            kw_source = f"{ref_source}_keywords"
-            dep_attr = f"{ref_source}_references"
-
-            finder = ReferenceFinder()
-            finder.fit(self.certs, lambda cert: cert.heuristics.cert_id, ref_lookup(kw_source))  # type: ignore
-
-            for dgst in self.certs:
-                setattr(
-                    self.certs[dgst].heuristics,
-                    dep_attr,
-                    finder.predict_single_cert(dgst, keep_unknowns=False),
-                )
-
-    @serialize
-    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
-        """
-        Processes all auxiliary datasets needed during computation. On top of base-class processing,
-        CC handles protection profiles, maintenance updates and schemes.
-        """
-        super().process_auxiliary_datasets(download_fresh)
-        self.auxiliary_datasets.pp_dset = self.process_protection_profiles(to_download=download_fresh)
-        self.auxiliary_datasets.mu_dset = self.process_maintenance_updates(to_download=download_fresh)
-        self.auxiliary_datasets.scheme_dset = self.process_schemes(
-            to_download=download_fresh, only_schemes={cert.scheme for cert in self}
+    def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
+        link_to_protection_profiles(self.aux_handlers[ProtectionProfileDatasetHandler].dset, self.certs.values())
+        compute_cpe_heuristics(self.aux_handlers[CPEDatasetHandler].dset, self.certs.values())
+        compute_related_cves(
+            self.aux_handlers[CPEDatasetHandler].dset,
+            self.aux_handlers[CVEDatasetHandler].dset,
+            self.aux_handlers[CPEMatchDictHandler].dset,
+            self.certs.values(),
         )
+        compute_normalized_cert_ids(self.certs.values())
+        compute_references(self.certs)
+        compute_transitive_vulnerabilities(self.certs)
 
-    @staged(logger, "Processing protection profiles.")
-    def process_protection_profiles(
-        self, to_download: bool = True, keep_metadata: bool = True
-    ) -> ProtectionProfileDataset:
-        """
-        Downloads new snapshot of dataset with processed protection profiles (if it doesn't exist) and links PPs
-        with certificates within self. Assigns PPs to all certificates, based on name and fname match.
+        if not skip_schemes:
+            compute_scheme_data(self.aux_handlers[CCSchemeDatasetHandler].dset, self.certs.values())
 
-        :param bool to_download: If dataset should be downloaded or fetched from json, defaults to True
-        :param bool keep_metadata: If json related to the PP dataset should be kept on drive, defaults to True
-        :raises RuntimeError: When building of PPDataset fails
-        """
-
-        self.auxiliary_datasets_dir.mkdir(parents=True, exist_ok=True)
-
-        if to_download or not self.pp_dataset_path.exists():
-            pp_dataset = ProtectionProfileDataset.from_web(self.pp_dataset_path)
-        else:
-            pp_dataset = ProtectionProfileDataset.from_json(self.pp_dataset_path)
-
-        # Map protection profiles to their name and file name for matching to certs.
-        pps = {(pp.pp_name, sanitization.sanitize_link_fname(pp.pp_link)): pp for pp in pp_dataset}
-
-        for cert in self:
-            if cert.protection_profiles is None:
-                raise RuntimeError("Building of the dataset probably failed - this should not be happening.")
-            cert.protection_profiles = {
-                pps.get((x.pp_name, sanitization.sanitize_link_fname(x.pp_link)), x) for x in cert.protection_profiles
-            }
-
-        if not keep_metadata:
-            self.pp_dataset_path.unlink()
-
-        return pp_dataset
-
-    @staged(logger, "Processing maintenace updates.")
-    def process_maintenance_updates(self, to_download: bool = True) -> CCDatasetMaintenanceUpdates:
-        """
-        Downloads or loads from json a dataset of maintenance updates. Runs analysis on that dataset if it's not completed.
-        :return CCDatasetMaintenanceUpdates: the resulting dataset of maintenance updates
-        """
-        self.mu_dataset_dir.mkdir(parents=True, exist_ok=True)
-
-        if to_download or not self.mu_dataset_path.exists():
-            maintained_certs: list[CCCertificate] = [x for x in self if x.maintenance_updates]
-            updates = list(
-                itertools.chain.from_iterable(CCMaintenanceUpdate.get_updates_from_cc_cert(x) for x in maintained_certs)
-            )
-            update_dset = CCDatasetMaintenanceUpdates(
-                {x.dgst: x for x in updates},
-                root_dir=self.mu_dataset_dir,
-                name="maintenance_updates",
-            )
-        else:
-            update_dset = CCDatasetMaintenanceUpdates.from_json(self.mu_dataset_path)
-
-        if not update_dset.state.artifacts_downloaded:
-            update_dset.download_all_artifacts()
-        if not update_dset.state.pdfs_converted:
-            update_dset.convert_all_pdfs()
-        if not update_dset.state.certs_analyzed:
-            update_dset.extract_data()
-
-        return update_dset
-
-    @staged(logger, "Processing CC scheme dataset.")
-    def process_schemes(self, to_download: bool = True, only_schemes: set[str] | None = None) -> CCSchemeDataset:
-        """
-        Downloads or loads from json a dataset of CC scheme data.
-        """
-        self.auxiliary_datasets_dir.mkdir(parents=True, exist_ok=True)
-
-        if to_download or not self.scheme_dataset_path.exists():
-            scheme_dset = CCSchemeDataset.from_web(only_schemes)
-            scheme_dset.to_json(self.scheme_dataset_path)
-        else:
-            scheme_dset = CCSchemeDataset.from_json(self.scheme_dataset_path)
-
-        return scheme_dset
+        compute_cert_labs(self.certs.values())
+        compute_sars(self.certs.values())
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
@@ -1056,7 +876,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def __iter__(self) -> Iterator[CCMaintenanceUpdate]:
         yield from self.certs.values()  # type: ignore
 
-    def _compute_heuristics(self) -> None:
+    def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
         raise NotImplementedError
 
     def compute_related_cves(self) -> None:

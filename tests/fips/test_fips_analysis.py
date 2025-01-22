@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import pytest
 
+from sec_certs.dataset.auxiliary_dataset_handling import CPEDatasetHandler, CVEDatasetHandler
 from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.heuristics.common import compute_related_cves
 
 
 @pytest.mark.parametrize(
@@ -104,11 +106,16 @@ def test_match_cpe(processed_dataset: FIPSDataset):
 
 
 def test_find_related_cves(processed_dataset: FIPSDataset):
-    assert processed_dataset.auxiliary_datasets.cve_dset
-    processed_dataset.auxiliary_datasets.cve_dset._cpe_uri_to_cve_ids_lookup[
+    assert processed_dataset.aux_handlers[CVEDatasetHandler].dset
+    processed_dataset.aux_handlers[CVEDatasetHandler].dset._cpe_uri_to_cve_ids_lookup[
         "cpe:2.3:o:redhat:enterprise_linux:7.1:*:*:*:*:*:*:*"
     ] = {"CVE-123456"}
-    processed_dataset.compute_related_cves()
+    compute_related_cves(
+        processed_dataset.aux_handlers[CPEDatasetHandler].dset,
+        processed_dataset.aux_handlers[CVEDatasetHandler].dset,
+        {},
+        processed_dataset.certs.values(),
+    )
     assert processed_dataset["2441"].heuristics.related_cves == {"CVE-123456"}
 
 
@@ -117,7 +124,12 @@ def test_find_related_cves_criteria_configuration(processed_dataset: FIPSDataset
         "cpe:2.3:a:nalin_dahyabhai:vte:0.11.21:*:*:*:*:*:*:*",
         "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
     }
-    processed_dataset.compute_related_cves()
+    compute_related_cves(
+        processed_dataset.aux_handlers[CPEDatasetHandler].dset,
+        processed_dataset.aux_handlers[CVEDatasetHandler].dset,
+        {},
+        processed_dataset.certs.values(),
+    )
     assert processed_dataset["2441"].heuristics.related_cves == {"CVE-2003-0070"}
 
 
