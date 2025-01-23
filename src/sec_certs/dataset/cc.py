@@ -34,10 +34,8 @@ from sec_certs.heuristics.cc import (
     link_to_protection_profiles,
 )
 from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
-from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
-from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers, sanitization
@@ -807,29 +805,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._extract_pdf_metadata()
         self._extract_pdf_frontpage()
         self._extract_pdf_keywords()
-
-    @staged(
-        logger,
-        "Computing heuristics: Deriving information about laboratories involved in certification.",
-    )
-    def _compute_cert_labs(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        for cert in certs_to_process:
-            cert.compute_heuristics_cert_lab()
-
-    @staged(logger, "Computing heuristics: Matching scheme data.")
-    def _compute_scheme_data(self):
-        for scheme in self.aux_handlers[CCSchemeDatasetHandler].dset:
-            if certified := scheme.lists.get(EntryType.Certified):
-                certs = [cert for cert in self if cert.status == "active"]
-                matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
-            if archived := scheme.lists.get(EntryType.Archived):
-                certs = [cert for cert in self if cert.status == "archived"]
-                matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
 
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
         link_to_protection_profiles(self.aux_handlers[ProtectionProfileDatasetHandler].dset, self.certs.values())

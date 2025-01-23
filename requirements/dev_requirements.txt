@@ -3,6 +3,7 @@ accessible-pygments==0.0.4
 aiohappyeyeballs==2.4.0
     # via aiohttp
 aiohttp==3.10.11
+aiohttp==3.10.11
     # via
     #   datasets
     #   fsspec
@@ -12,6 +13,7 @@ alabaster==0.7.13
     # via sphinx
 annotated-types==0.6.0
     # via pydantic
+appnope==0.1.4
 appnope==0.1.4
     # via
     #   ipykernel
@@ -81,6 +83,8 @@ cymem==2.0.8
     #   spacy
     #   thinc
 datasets==2.15.0
+    # via sec-certs (./../pyproject.toml)
+dateparser==1.2.0
     # via sec-certs (./../pyproject.toml)
 dateparser==1.2.0
     # via sec-certs (./../pyproject.toml)
@@ -224,6 +228,7 @@ murmurhash==1.0.10
     #   spacy
     #   thinc
 mypy==1.13.0
+mypy==1.13.0
     # via sec-certs (./../pyproject.toml)
 mypy-extensions==1.0.0
     # via mypy
@@ -319,6 +324,8 @@ prompt-toolkit==3.0.41
     # via ipython
 propcache==0.2.0
     # via yarl
+propcache==0.2.0
+    # via yarl
 psutil==5.9.6
     # via
     #   ipykernel
@@ -382,6 +389,7 @@ pytest-profiling==1.7.0
 python-dateutil==2.8.2
     # via
     #   dateparser
+    #   dateparser
     #   jupyter-client
     #   matplotlib
     #   pandas
@@ -389,6 +397,9 @@ python-dateutil==2.8.2
 python-dotenv==1.0.0
     # via pydantic-settings
 pytz==2023.3.post1
+    # via
+    #   dateparser
+    #   pandas
     # via
     #   dateparser
     #   pandas
@@ -413,6 +424,8 @@ referencing==0.31.0
     #   jsonschema-specifications
 regex==2024.9.11
     # via dateparser
+regex==2024.9.11
+    # via dateparser
 requests==2.32.0
     # via
     #   datasets
@@ -427,6 +440,7 @@ rpds-py==0.13.1
     # via
     #   jsonschema
     #   referencing
+ruff==0.7.4
 ruff==0.7.4
     # via sec-certs (./../pyproject.toml)
 scikit-learn==1.5.0
@@ -557,6 +571,8 @@ tzdata==2023.3
     # via pandas
 tzlocal==5.2
     # via dateparser
+tzlocal==5.2
+    # via dateparser
 urllib3==2.2.2
     # via
     #   requests
@@ -584,6 +600,7 @@ wrapt==1.16.0
     # via deprecated
 xxhash==3.4.1
     # via datasets
+yarl==1.17.2
 yarl==1.17.2
     # via aiohttp
 zipp==3.19.1

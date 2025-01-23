@@ -21,7 +21,11 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     FIPSAlgorithmDatasetHandler,
 )
 from sec_certs.dataset.dataset import Dataset
-from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
+from sec_certs.heuristics.common import (
+    compute_cpe_heuristics,
+    compute_related_cves,
+    compute_transitive_vulnerabilities,
+)
 from sec_certs.heuristics.fips import compute_references
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
