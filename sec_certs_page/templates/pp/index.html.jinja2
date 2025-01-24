@@ -1,20 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% block navbar %}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".network") }}">References</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".rand") }}">Random</a>
-    </li>
-{% endblock %}
+
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">

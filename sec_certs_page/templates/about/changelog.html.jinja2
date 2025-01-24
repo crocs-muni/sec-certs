@@ -1,18 +1,12 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
-{% set search = False %}
 {% set canonical = True %}
 {% block title %}
     <title>
         {{ "Changelog | sec-certs.org" }}
     </title>
 {% endblock %}
-{% block navbar %}
-    {{ super() }}
-    <li class="nav-item">
-        <a class="nav-link" href="#changes">Changes</a>
-    </li>
-{% endblock %}
+
 {% block content %}
     <main>
         <div>

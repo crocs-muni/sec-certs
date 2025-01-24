@@ -230,6 +230,23 @@ def network_graph():
     return network_graph_func(get_cc_graphs())
 
 
+@cc.route("/mergedsearch/") # TODO: register breadcumb
+def mergedSearch():
+    searchType = request.args.get("searchType")
+    if(searchType != "byName" and searchType != "fulltext"):
+        searchType = "byName"
+
+    res = {}
+    if(searchType == "byName"):
+        res = CCBasicSearch.process_search(request)
+    elif(searchType == "fulltext"):
+        res = CCFulltextSearch.process_search(request)
+    return render_template("cc/search/merged.html.jinja2", **res, schemes=cc_schemes, title="TODO:", searchType=searchType)
+
+@cc.route("/data")
+def data():
+    return render_template("cc/data.html.jinja2")
+
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():

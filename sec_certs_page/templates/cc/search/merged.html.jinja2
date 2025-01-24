@@ -1,8 +1,13 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
-{# TODO: remove this search and also other ones. Not used now. #}
-{% set search = True %} 
-{% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type %}
+{% set search = True %}
+
+{% if searchType == "fulltext" %}
+    {% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type %}
+{% elif searchType == "byName" %}
+    {% from "cc/utils.html.jinja2" import render_pagination, render_plot %}
+{% endif %}
+
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
@@ -10,18 +15,27 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <h1>Common Criteria</h1>
-            <h3 class="text-secondary">Fulltext search</h3>
+            <h3 class="text-secondary">Search</h3>
             <div class="card mt-3 mt-4 mb-4">
                 <div class="card-body container">
                     <div id="name" class="mt-1 mb-3">
-                        <h4><label for="search">Query</label></h4>
+                        <h4><label for="search">Name</label></h4>
                         <div class="form-inline">
                             <input id="search" class="form-control mb-2" placeholder="Search" type="search"
                                    value="{{ q|default('', true) }}"/>
-                            <button id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
+                            
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="byName" checked>
+                                <label class="form-check-label" for="nameSearchRadioId">Name search</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext">
+                                <label class="form-check-label" for="fulltextSearchRadioId">Fulltext search</label>
+                            </div>
+                            <button type="button" id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
                                 Search
                             </button>
-                            <button id="network-btn" class="btn btn-primary"
+                            <button type="button" id="network-btn" class="btn btn-primary"
                                     title="Display the references network of the resulting certificates."
                                     data-bs-toggle="tooltip">Display network
                             </button>
@@ -29,17 +43,17 @@
                                     data-bs-toggle="collapse"
                                     data-bs-target="#extended"
                                     aria-controls="extended"
-                                    aria-expanded="false"><i
+                                    aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
                                     class="fas fa-sliders"></i> Advanced options
                             </button>
                         </div>
-                        <small class="text-muted">Search certification reports and security targets.
-                            Supports the <a href="https://whoosh.readthedocs.io/en/latest/querylang.html"
-                                            target="_blank" rel="noopener">Whoosh query language</a>.</small><br/>
-                        <small class="text-muted">E.g. <span class="font-monospace border rounded"
-                                                             onclick="window.getSelection().selectAllChildren(this)">"post quantum" OR "post-quantum" OR "PQC"</span>.</small>
+                        <small class="text-muted">Search by certificate name (case-insensitive). Uses
+                            <a href="https://www.mongodb.com/docs/manual/reference/operator/query/text/#std-label-text-operator-phrases"
+                               target="_blank" rel="noopener">MongoDB $text search</a>, use quotes to specify a phrase
+                            and a hyphen-minus prefix to negate a match.</small><br/>
+                        <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">Infineon Security Controller</span>.</small>
                     </div>
-                    <div id="extended" class="collapse mt-3">
+                    <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
                         <div id="categories" class="mb-3">
                             <h4>Categories
                                 <button id="cat-select-all" class="btn btn-outline-primary">Select all</button>
@@ -78,15 +92,30 @@
                                 </option>
                             </select>
                         </div>
+                   
                         <div class="mt-3 mb-3">
                             <h4><label for="search-scheme">Scheme</label></h4>
                             <select id="search-scheme" class="form-control">
                                 <option value="any" {% if scheme == "any" %}selected="selected"{% endif %}>Any
                                 </option>
                                 {% for s in schemes|sort %}
-                                    <option value="{{ s }}"
-                                            {% if scheme == s %}selected="selected"{% endif %}>{{ country_to_flag(s) }} {{ s }}</option>
+                                    <option value="{{ s }}" {% if scheme == s %}selected="selected"{% endif %}>{{ country_to_flag(s) }} {{ s }}</option>
                                 {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mt-3 mb-3">
+                            <h4><label for="search-sort">Sort</label></h4>
+                            <select id="search-sort" class="form-control">
+                                <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match
+                                </option>
+                                <option value="name" {% if sort == "name" %}selected="selected"{% endif %}>Name</option>
+                                <option value="cert_date" {% if sort == "cert_date" %}selected="selected"{% endif %}>
+                                    Certification date
+                                </option>
+                                <option value="archive_date"
+                                        {% if sort == "archive_date" %}selected="selected"{% endif %}>
+                                    Archive date
+                                </option>
                             </select>
                         </div>
                         <div class="mt-3 mb-3">
@@ -110,42 +139,75 @@
             </div>
             <script>
                 function searchParams(additional) {
+                    let searchType = $("#nameSearchRadioId").is(":checked") ? "byName" : "fulltext"
                     let status = $("#search-status").val();
+                    let sort = $("#search-sort").val();
                     let scheme = $("#search-scheme").val();
-                    let document_type = $("#search-type").val();
                     let categories = $.makeArray($("#search-categories input").filter(":checked").map((i, elem) => $(elem).data("id"))).join("");
-                    return $.param({
-                        q: $("#search").val(),
-                        cat: categories,
-                        status: status,
-                        scheme: scheme,
-                        type: document_type, ...additional
-                    });
+                    return $.param({searchType, q: $("#search").val(), cat: categories, status: status, sort: sort, scheme: scheme, ...additional});
                 }
 
                 function fullSearch() {
-                    location.href = "{{ url_for(".fulltext_search") }}?" + searchParams();
+                    location.href = "{{ url_for("cc.mergedSearch") }}?" + searchParams();
+                }
+
+                function quickSearch() {
+                    $.ajax({
+                        url: "{{ url_for("cc.search_results") }}?" + searchParams()
+                    }).done(function (data) {
+                        $("#results").replaceWith(data);
+                    });
                 }
 
                 function networkSearch() {
-                    location.href = "{{ url_for(".network") }}?" + searchParams({search: "fulltext"});
+                    location.href = "{{ url_for("cc.network") }}?" + searchParams({search: "basic"});
                 }
 
+                function nameSearchSetup(){
+                    document.getElementById("nameSearchRadioId").checked = true
+                    document.getElementById("search-type").disabled = true;
+                    document.getElementById("search-sort").disabled = false;
+                }
+
+                function fulltextSearchSetup(){
+                    document.getElementById("fulltextSearchRadioId").checked = true
+                    document.getElementById("search-type").disabled = false;
+                    document.getElementById("search-sort").disabled = true;
+                }
+                var urlParams = new URLSearchParams(window.location.search);
+                if(urlParams.get("searchType") === "byName" || !urlParams.has("searchType")){
+                    nameSearchSetup()
+                }else if(urlParams.get("searchType") === "fulltext"){
+                    fulltextSearchSetup()
+                }
+
+                $("#nameSearchRadioId").click(nameSearchSetup);
+                $("#fulltextSearchRadioId").click(fulltextSearchSetup);
                 $("#search-btn").click(fullSearch);
                 $("#network-btn").click(networkSearch);
+                // $("#search-categories input").change(quickSearch);
+                //$("#search-status").change(quickSearch);
+                //$("#search-sort").change(quickSearch);
+                //$("#search-scheme").change(quickSearch);
+                //$("#search").change(quickSearch);
                 $("#search").keyup(function (e) {
                     if (e.keyCode === 13) {
                         fullSearch();
+                    } else {
+                        //quickSearch();
                     }
                 });
                 $("#cat-select-all").click(function () {
                     $("#search-categories input").prop("checked", true);
+                    //quickSearch();
                 });
                 $("#cat-deselect-all").click(function () {
                     $("#search-categories input").prop("checked", false);
+                    //quickSearch();
                 });
             </script>
-            <div id="pagination" class="table-responsive">
+            {% if searchType == "fulltext" %}
+                <div id="pagination" class="table-responsive">
                 {% if pagination %}
                     <div style="text-align: center">
                         Took {{ "{:.3}".format(runtime + highlight_runtime) }} seconds
@@ -206,7 +268,13 @@
                         {{ pagination.links }}
                     </div>
                 {% endif %}
-            </div>
+                </div>
+            {% elif searchType == "byName" %}
+                <div id="results">
+                    {{ render_pagination(pagination, certs, search=True) }}
+                    {{ render_plot(timeline) }}
+                </div>
+            {% endif %}
         </div>
     </main>
 {% endblock %}

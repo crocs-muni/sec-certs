@@ -1,4 +1,4 @@
-{% extends "common/crowdsourced.html.jinja2" %}
+{% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
 {% set breadcrumb_title = True %}
@@ -27,24 +27,7 @@
           content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
-{% block navbar %}
-    {{ super() }}
-    <li class="nav-item">
-        <a class="nav-link" href="#web-info">Webpage</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#doc-info">Document</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#reference-graph">References</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#updates">Updates</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#raw-data-head">Raw data</a>
-    </li>
-{% endblock %}
+
 {% block crumbs_right %}
     <div class="btn-group" role="group">
         <a href="{{ url_for("fips.entry", hashid=hashid) }}" class="btn btn-outline-secondary btn-sm" title="Link by id"

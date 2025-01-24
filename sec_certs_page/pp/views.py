@@ -28,6 +28,10 @@ def network():
     return render_template("pp/network.html.jinja2")
 
 
+@pp.route("/data")
+def data():
+    return render_template("pp/data.html.jinja2")
+
 @pp.route("/dataset.json")
 def dataset():
     return send_file(

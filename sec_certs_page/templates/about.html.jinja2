@@ -1,24 +1,12 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
-{% set search = False %}
 {% set canonical = True %}
 {% block title %}
     <title>
         {{ "About | sec-certs.org" }}
     </title>
 {% endblock %}
-{% block navbar %}
-    {{ super() }}
-    <li class="nav-item">
-        <a class="nav-link" href="#about">About</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#research">Research</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#privacy-policy">Privacy policy</a>
-    </li>
-{% endblock %}
+
 
 {% macro render_person(name, description, duration) %}
     <div class="card mb-3 me-lg-3">

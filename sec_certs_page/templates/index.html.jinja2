@@ -15,7 +15,7 @@
                     <p class="lead fw-light pt-2">
                         The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
                         and Security. Learn more about our
-                        <a href="{{ url_for("about") }}">team and research</a>.
+                        <a href="{{ url_for("about.index") }}">team and research</a>.
                     </p>
                 </div>
                 <div class="col-12 col-sm-5 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
@@ -155,7 +155,7 @@
                         <h3>Trend visualizations</h3>
                         <p>Explore our analysis of the security certifications landscape as it evolves over time.
                             The analysis results presented here are preliminary, for more, see our published
-                            <a href="{{ url_for("about", _anchor="research") }}">research</a>.</p>
+                            <a href="{{ url_for("about.index", _anchor="research") }}">research</a>.</p>
                         <a href="{{ url_for("cc.analysis") }}"
                            class="btn btn-outline-secondary btn-sm">
                             CC
@@ -233,13 +233,14 @@
                     </p>
                     <a class="btn btn-primary" href="https://github.com/crocs-muni/sec-certs">GitHub</a>
                     <a class="btn btn-primary" href="{{ url_for("docs.serve_docs", path="index.html") }}">Docs</a>
-                    <a class="btn btn-primary" href="{{ url_for(".changelog") }}">Changelog</a>
+                    <a class="btn btn-primary" href="{{ url_for("about.changelog") }}">Changelog</a>
                 </div>
                 <div class="col-12 col-lg-6 gy-3">
                     <h3>About</h3>
                     <p>Want to learn more about our research? More information, including our publications and
                         the privacy policy of this site can be found on our about page.</p>
-                    <a class="btn btn-primary" href="{{ url_for(".about") }}">About</a>
+                    <a class="btn btn-primary" href="{{ url_for(".about.index") }}">About</a>
+                    
                 </div>
             </div>
         </div>

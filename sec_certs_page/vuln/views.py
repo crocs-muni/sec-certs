@@ -16,6 +16,10 @@ def index():
     return render_template("vuln/index.html.jinja2", title="Vulnerability information | sec-certs.org")
 
 
+@vuln.route("/data")
+def data():
+    return render_template("vuln/data.html.jinja2")
+
 @vuln.route("/cve/cve.json")
 def cve_dset():
     dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CVE"]

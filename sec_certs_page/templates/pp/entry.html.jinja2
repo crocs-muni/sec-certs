@@ -21,30 +21,7 @@
     <meta property="og:description" content="Common Criteria protection profile {{ profile["csv_scan"]["cc_pp_name"]|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
-{% block navbar %}
-    {{ super() }}
-    {% if "csv_scan" in profile %}
-        <li class="nav-item">
-            <a class="nav-link" href="#csv-info">CSV</a>
-        </li>
-    {% endif %}
-    {% if "frontpage_scan" in profile %}
-        <li class="nav-item">
-            <a class="nav-link" href="#frontpage-info">Frontpage</a>
-        </li>
-    {% endif %}
-    {% if "keywords_scan" in profile or "st_keywords_scan" in profile or "processed" in profile %}
-        <li class="nav-item">
-            <a class="nav-link" href="#profile-info">Profile</a>
-        </li>
-    {% endif %}
-    <li class="nav-item">
-        <a class="nav-link" href="#reference-graph">References</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#raw-data-head">Raw data</a>
-    </li>
-{% endblock %}
+
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">

@@ -235,25 +235,80 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% block navbar %}
-                    {% endblock %}
+                    <div class="dropdown">
+                        <a href="{{ url_for('cc.index') }}">
+                            <button class="dropbtn">Common Criteria
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="{{ url_for('cc.mergedSearch') }}">Search</a>
+                            <a href="{{ url_for('cc.analysis') }}">Analysis</a>
+                            <a href="{{ url_for('cc.data') }}">Data</a>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a href="{{ url_for('pp.index') }}">
+                            <button class="dropbtn">Protection Profiles
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="{{ url_for('pp.search') }}">Search</a>
+                            <a href="{{ url_for('pp.data') }}">Data</a>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a href="{{ url_for('fips.index') }}">
+                            <button class="dropbtn">FIPS 140
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="{{ url_for('fips.mergedSearch') }}">Search</a>
+                            <a href="{{ url_for('fips.analysis') }}">Analysis</a>
+                            <a href="{{ url_for('fips.mip_index') }}">MIP</a>
+                            <a href="{{ url_for('fips.iut_index') }}">IUT</a>
+                            <a href="{{ url_for('fips.data') }}">Data</a>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a href="{{ url_for('fips.index') }}">
+                            <button class="dropbtn">Vulnerabilities
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="{{ url_for('vuln.data') }}">Data</a>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <a href="{{ url_for('about.index') }}">
+                            <button class="dropbtn">About
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="{{ url_for('about.research') }}">Research</a>
+                            <a href="{{ url_for('about.changelog') }}">Changelog</a>
+
+                        </div>
+                    </div>
+¨
+
                 </ul>
-                {% if search %}
-                    <form class="d-flex" action="{{ url_for(".search") }}" method="get">
-                        <input class="form-control me-2" type="search" placeholder="Search" name="q"
-                               aria-label="Search">
-                        <button class="btn btn-outline-primary px-4" type="submit"><i class="fa fa-search"></i></button>
-                    </form>
-                {% endif %}
+
                 {% if is_admin() %}
                     <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4 nav-button"
                        role="button"><i
                             class="fa fa-user"></i> Admin</a>
                 {% endif %}
-                <a href="{{ url_for("docs.serve_docs", path="index.html") }}"
-                   class="btn btn-outline-secondary px-4 nav-button"
-                   role="button"><i
-                        class="fa fa-file"></i> Docs</a>
+                <a href="https://github.com/crocs-muni/sec-certs" target="_blank">
+                    <img id="github-logo" src="{{ url_for("static", filename="img/github.svg") }}"
+                            alt="Github logo" style="height: 40px"
+                    />
+                </a>
+      
                 <div class="dropdown">
                     <button id="theme" class="nav-link dropdown-toggle text-secondary px-4 py-1 p-lg-0" type="button"
                             data-bs-toggle="dropdown" data-bs-display="static" title="Change theme"></button>
@@ -319,8 +374,43 @@
             {{ compare_modal() }}
             <footer>
                 {% block footer %}
-                    <div class="row justify-content-center py-5 row-cols-1 row-cols-md-2">
-                        <div class="col-5 col-sm-4 col-md-3 col-lg-2">
+                    <div class="row justify-content-center py-5 bg-dark" style="">
+                        <div class="col text-light align-self-center">
+                            <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">
+                                <img id="crocs-logo" src="{{ url_for("static", filename="img/crocs_claim_light.svg") }}"
+                                     alt="Centre for Research on Cryptography and Security" style="width: 50%"
+                                     loading="lazy"/>
+                            </a>
+                        </div>
+                        <div class="col text-light align-self-center">
+                            <a href="https://muni.cz" target="_blank" rel="noopener">
+                                <img id="muni-logo" src="{{ url_for("static", filename="img/muni_light.svg") }}"
+                                     alt="Masaryk University" style="width: 70%" loading="lazy"/>
+                            </a>
+                        </div>
+                         <div class="col text-light">
+                            <h5 class="mb-4">Quick links</h5>
+                            <p><a href="{{ url_for('about.privacyPolicy') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy policy</a></p>
+                            <p><a href="https://github.com/crocs-muni/sec-certs" target="_blank" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Github project</a></p>
+                            <p><a href="{{ url_for("docs.serve_docs", path="index.html") }}"
+                                  class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                                      Documentation
+                               </a>
+                            </p>
+                            {% if current_user.is_authenticated %}
+                                <p><a href="{{ url_for('admin.logout') }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Logout</a></p>
+                            {% else %}
+                                <p><a href="{{ url_for('admin.login') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Login for admins</a></p>
+                            {% endif %} 
+                        </div>
+                         <div class="col text-light">
+                            <h5 class="mb-4">Contact us</h5>
+                            <p><a href="#" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">seccerts@seccerts.org</a></p>
+                            <p>Botanická&nbsp;68A, 602&nbsp;00 Brno, Czech Republic</p>
+
+
+                        </div>
+                        {# <div class="col-5 col-sm-4 col-md-3 col-lg-2">
                             <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">
                                 <img id="crocs-logo" src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
                                      alt="Centre for Research on Cryptography and Security" style="width: 100%"
@@ -342,7 +432,8 @@
                             {% else %}
                                 <span class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;"
                                                           title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></span>
-                            {% endif %}
+                            {% endif %} 
+                            #}
                         </div>
                     </div>
                     {{ compare_icon() }}
@@ -358,6 +449,36 @@
                         </a>
                     </div>
                 {% endblock %}
+
+                <!-- TODO: move this feedback section into some reusable component... -->
+                <script type="text/javascript">
+                    $(function () {
+                        $("#feedback-button").click(function () {
+                            $("#feedback-card").toggleClass("collapsed");
+                        });
+                    })
+                </script>
+                
+                <div id="feedback">
+                    <div id="feedback-card" class="card card-body collapsed">
+                        <h4>Feedback</h4>
+                        <p>Found a bug in the tool?</p>
+                        <a class="btn btn-primary d-block mb-3"
+                        href="https://github.com/crocs-muni/sec-certs/issues/new?labels=bug&amp;title=Bug+report&amp;body=Please+describe+what+does+not+work..."
+                        target="_blank" rel="noopener noreferrer">
+                            <span class="fas fa-fw fa-bug color-white" aria-hidden="true"></span>
+                            Bug report</a>
+                        <p>Other comments or ideas?</p>
+                        <a class="btn btn-primary d-block" target="_blank"
+                        href="mailto:webmaster@sec-certs.org?subject=Site+feedback">
+                            <span class="fas fa-fw fa-envelope color-white" aria-hidden="true"></span>
+                            Email us!</a>
+                    </div>
+                    <div id="feedback-button" class="btn btn-secondary">
+                        <span class="fas fa-fw fa-question-circle" aria-hidden="true"></span> Feedback
+                    </div>
+                </div>
+
             </footer>
         </div>
     </div>
