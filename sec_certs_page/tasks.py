@@ -1,3 +1,4 @@
+from datetime import timedelta
 from urllib.parse import urlparse
 
 import dramatiq
@@ -37,10 +38,12 @@ def run_updates_daily() -> None:  # pragma: no cover
     ).run()
 
 
-@dramatiq.actor(actor_name="sitemap_update", queue_name="default", periodic=cron("@hourly"))  # Hourly
+@dramatiq.actor(
+    actor_name="sitemap_update", queue_name="default", periodic=cron("@daily"), time_limit=timedelta(hours=1) * 1000
+)  # Daily
 @task("sitemap_update")
 def update_sitemap():
-    # Just hack a request context, we do not need pretty muuch anything here.
+    # Just hack a request context, we do not need pretty much anything here.
     with current_app.test_request_context(""):
         smap = sitemap.sitemap()
         soup = BeautifulSoup(smap, "lxml")

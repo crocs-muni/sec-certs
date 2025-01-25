@@ -137,11 +137,11 @@ public(breadcrumbs=breadcrumbs)
 
 
 class Sitemap(FlaskSitemap):
-    @cache.memoize(timeout=3600 * 24)
+    @cache.memoize(timeout=3600 * 24 * 7)
     def sitemap(self):
         return super().sitemap()
 
-    @cache.memoize(timeout=3600 * 24)
+    @cache.memoize(timeout=3600 * 24 * 7)
     def page(self, page):
         return super().page(page)
 
