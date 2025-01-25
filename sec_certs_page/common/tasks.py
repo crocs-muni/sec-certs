@@ -567,8 +567,7 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
 def single_queue(queue_name: str, timeout: float = 60 * 10):  # pragma: no cover
     """
     A decorator that prevents simultaneous execution of more than one actor in a queue.
-    It does so  by requeueing the actor.
-
+    It does so by requeueing the actor.
     """
 
     def deco(f):
@@ -601,18 +600,19 @@ def task(task_name):
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            tid = secrets.token_hex(16)
-            start = datetime.now()
-            data = {"name": task_name, "start_time": start.isoformat()}
-            logger.info(f'Starting task ({task_name}), tid="{tid}"')
-            redis.set(tid, json.dumps(data))
-            redis.sadd("tasks", tid)
-            try:
-                return f(*args, **kwargs)
-            finally:
-                logger.info(f'Ending task ({task_name}), tid="{tid}", took {datetime.now() - start}')
-                redis.srem("tasks", tid)
-                redis.delete(tid)
+            with sentry_sdk.start_transaction(op="dramatiq", name=task_name):
+                tid = secrets.token_hex(16)
+                start = datetime.now()
+                data = {"name": task_name, "start_time": start.isoformat()}
+                logger.info(f'Starting task ({task_name}), tid="{tid}"')
+                redis.set(tid, json.dumps(data))
+                redis.sadd("tasks", tid)
+                try:
+                    return f(*args, **kwargs)
+                finally:
+                    logger.info(f'Ending task ({task_name}), tid="{tid}", took {datetime.now() - start}')
+                    redis.srem("tasks", tid)
+                    redis.delete(tid)
 
         return wrapper
 
