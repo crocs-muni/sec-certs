@@ -1,0 +1,191 @@
+{
+    "_type": "sec_certs.dataset.protection_profile.ProtectionProfileDataset",
+    "state": {
+        "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
+        "meta_sources_parsed": true,
+        "artifacts_downloaded": false,
+        "pdfs_converted": false,
+        "auxiliary_datasets_processed": false,
+        "certs_analyzed": false
+    },
+    "timestamp": "2025-01-25 17:39:26.873380",
+    "sha256_digest": "not implemented",
+    "name": "ProtectionProfileDataset dataset",
+    "description": "25/01/2025 17:39:26",
+    "n_certs": 3,
+    "certs": [
+        {
+            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+            "dgst": "c8b175590bb7fdfb",
+            "web_data": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+                "category": "Access Control Devices and Systems",
+                "status": "active",
+                "is_collaborative": false,
+                "name": "Korean National Protection Profile for Single Sign On V1.0",
+                "version": "V1.0",
+                "security_level": {
+                    "_type": "Set",
+                    "elements": [
+                        "ATE_FUN.1",
+                        "EAL1+"
+                    ]
+                },
+                "not_valid_before": "2017-08-18",
+                "not_valid_after": null,
+                "report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/KECS-CR-17-58 Korean National PP for Single Sign On V1.0(eng).pdf",
+                "pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/KECS-PP-0822-2017 Korean National PP for Single Sign On V1.0(eng).pdf",
+                "scheme": "KR",
+                "maintenances": []
+            },
+            "pdf_data": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+                "report_metadata": null,
+                "pp_metadata": null,
+                "report_keywords": null,
+                "pp_keywords": null,
+                "report_filename": null,
+                "pp_filename": null
+            },
+            "heuristics": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+            },
+            "state": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+                "pp": {
+                    "_type": "sec_certs.sample.document_state.DocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                },
+                "report": {
+                    "_type": "sec_certs.sample.document_state.DocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                }
+            }
+        },
+        {
+            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+            "dgst": "e315e3e834a61448",
+            "web_data": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+                "category": "Other Devices and Systems",
+                "status": "active",
+                "is_collaborative": false,
+                "name": "Protection Profile for Security Module of General-Purpose Health Informatics Software",
+                "version": "1.0",
+                "security_level": {
+                    "_type": "Set",
+                    "elements": [
+                        "EAL2"
+                    ]
+                },
+                "not_valid_before": "2016-09-20",
+                "not_valid_after": null,
+                "report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/HBYS_PP_CR.pdf",
+                "pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/HBYS_PP_07_09_2016_Updated.pdf",
+                "scheme": "TR",
+                "maintenances": []
+            },
+            "pdf_data": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+                "report_metadata": null,
+                "pp_metadata": null,
+                "report_keywords": null,
+                "pp_keywords": null,
+                "report_filename": null,
+                "pp_filename": null
+            },
+            "heuristics": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+            },
+            "state": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+                "pp": {
+                    "_type": "sec_certs.sample.document_state.DocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                },
+                "report": {
+                    "_type": "sec_certs.sample.document_state.DocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                }
+            }
+        },
+        {
+            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+            "dgst": "b02ed76d2545326a",
+            "web_data": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+                "category": "Biometric Systems and Devices",
+                "status": "active",
+                "is_collaborative": false,
+                "name": "Fingerprint Spoof Detection Protection Profile based on Organisational Security Policies (FSDPP_OSP), Version 1.7",
+                "version": "1.7",
+                "security_level": {
+                    "_type": "Set",
+                    "elements": [
+                        "ALC_FLR.1",
+                        "EAL2+"
+                    ]
+                },
+                "not_valid_before": "2010-02-25",
+                "not_valid_after": null,
+                "report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0062a_pdf.pdf",
+                "pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0062b_pdf.pdf",
+                "scheme": "DE",
+                "maintenances": []
+            },
+            "pdf_data": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+                "report_metadata": null,
+                "pp_metadata": null,
+                "report_keywords": null,
+                "pp_keywords": null,
+                "report_filename": null,
+                "pp_filename": null
+            },
+            "heuristics": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+            },
+            "state": {
+                "_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+                "pp": {
+                    "_type": "sec_certs.sample.document_state.DocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                },
+                "report": {
+                    "_type": "sec_certs.sample.document_state.DocumentState",
+                    "download_ok": false,
+                    "convert_garbage": false,
+                    "convert_ok": false,
+                    "extract_ok": false,
+                    "pdf_hash": null,
+                    "txt_hash": null
+                }
+            }
+        }
+    ]
+}

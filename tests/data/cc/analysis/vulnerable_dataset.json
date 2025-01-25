@@ -26,7 +26,7 @@
                 "_type": "Set",
                 "elements": [
                     "ALC_FLR.1",
-                    "EAL3+"
+                    "EAL1"
                 ]
             },
             "not_valid_before": "2014-12-05",
@@ -35,12 +35,17 @@
             "st_link": "http://www.commoncriteriaportal.org/files/epfiles/0683b_pdf.pdf",
             "cert_link": null,
             "manufacturer_web": "http://www.ibm.com",
-            "protection_profiles": [],
+            "protection_profile_links": {
+                "_type": "Set",
+                "elements": [
+                    "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/HBYS_PP_07_09_2016_Updated.pdf"
+                ]
+            },
             "maintenance_updates": [],
             "state": {
                 "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "report": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -49,7 +54,7 @@
                     "txt_hash": null
                 },
                 "st": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -58,7 +63,7 @@
                     "txt_hash": null
                 },
                 "cert": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -94,7 +99,9 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "next_certificates": null,
-                "prev_certificates": null
+                "prev_certificates": null,
+                "protection_profiles": null,
+                "eal": null
             }
         },
         {
@@ -108,8 +115,7 @@
             "security_level": {
                 "_type": "Set",
                 "elements": [
-                    "ALC_FLR.1",
-                    "EAL3+"
+                    "ALC_FLR.1"
                 ]
             },
             "not_valid_before": "2010-12-05",
@@ -118,12 +124,18 @@
             "st_link": "",
             "cert_link": null,
             "manufacturer_web": "http://www.ibm.com",
-            "protection_profiles": [],
+            "protection_profile_links": {
+                "_type": "Set",
+                "elements": [
+                    "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/KECS-PP-0822-2017 Korean National PP for Single Sign On V1.0(eng).pdf",
+                    "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0062b_pdf.pdf"
+                ]
+            },
             "maintenance_updates": [],
             "state": {
                 "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "report": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -132,7 +144,7 @@
                     "txt_hash": null
                 },
                 "st": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
@@ -141,7 +153,7 @@
                     "txt_hash": null
                 },
                 "cert": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -177,7 +189,9 @@
                 "cert_lab": null,
                 "cert_id": null,
                 "next_certificates": null,
-                "prev_certificates": null
+                "prev_certificates": null,
+                "protection_profiles": null,
+                "eal": null
             }
         }
     ]

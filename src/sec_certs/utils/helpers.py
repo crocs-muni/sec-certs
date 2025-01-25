@@ -264,7 +264,18 @@ def choose_lowest_eal(eals: set[str] | None) -> str | None:
     if not eals:
         return None
 
-    matches = [(re.search(r"\d+", x)) for x in eals]
-    min_number = min([int(x.group()) for x in matches if x])
-    candidates = [x for x in eals if str(min_number) in x]
-    return "EAL" + str(min_number) if len(candidates) == 2 else candidates[0]
+    eal_pattern = re.compile(r"(EAL(\d+)\+?)")
+    eal_entries = []
+
+    for s in eals:
+        match = eal_pattern.search(s)
+        if match:
+            full_match = match.group(1)
+            number = int(match.group(2))
+            has_plus = "+" in full_match
+            eal_entries.append((number, has_plus, full_match))
+
+    if eal_entries:
+        eal_entries.sort(key=lambda x: (x[0], x[1]))
+        return eal_entries[0][2]
+    return None

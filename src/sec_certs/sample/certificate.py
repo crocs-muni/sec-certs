@@ -30,8 +30,7 @@ class References(ComplexSerializableType):
 
 
 class Heuristics:
-    cpe_matches: set[str] | None
-    related_cves: set[str] | None
+    pass
 
 
 class PdfData:
@@ -87,7 +86,3 @@ class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
     def from_dict(cls: type[T], dct: dict) -> T:
         dct.pop("dgst")
         return cls(**dct)
-
-    @abstractmethod
-    def compute_heuristics_version(self) -> None:
-        raise NotImplementedError("Not meant to be implemented")
