@@ -34,7 +34,7 @@
       "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0517b.pdf",
       "cert_link": null,
       "manufacturer_web": "https://global.oce.com/",
-      "protection_profiles": {
+      "protection_profile_links": {
         "_type": "Set",
         "elements": []
       },
@@ -45,7 +45,7 @@
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "report": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -54,7 +54,7 @@
             "txt_hash": "460e8010dbc8f5de5b87bf96fd45c71cfd9f3869f34ca6ac1ab02cbd70d2523f"
         },
         "st": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -63,7 +63,7 @@
             "txt_hash": "81c53d1e5b1c2fcb129ce1053d13cd1308f7a556921f0b9024cedf75c6b2efb7"
         },
         "cert": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -580,7 +580,9 @@
         "direct_transitive_cves": null,
         "indirect_transitive_cves": null,
         "next_certificates": null,
-        "prev_certificates": null
+        "prev_certificates": null,
+        "protection_profiles": null,
+        "eal": null
       }
     },
     {
@@ -604,7 +606,7 @@
       "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0370b.pdf",
       "cert_link": null,
       "manufacturer_web": "https://global.oce.com/",
-      "protection_profiles": {
+      "protection_profile_links": {
         "_type": "Set",
         "elements": []
       },
@@ -615,7 +617,7 @@
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "report": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -624,7 +626,7 @@
             "txt_hash": "0535df1c56fb4f87153cbffee51ba4d77fac47a6f17f024aa7d9df461028bc65"
         },
         "st": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -633,7 +635,7 @@
             "txt_hash": "926668bea7c427a4fcf82857bfc63420f3597b6bff39699927a58f335620eaac"
         },
         "cert": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -1228,7 +1230,9 @@
         "direct_transitive_cves": null,
         "indirect_transitive_cves": null,
         "next_certificates": null,
-        "prev_certificates": null
+        "prev_certificates": null,
+        "protection_profiles": null,
+        "eal": null
       }
     },
     {
@@ -1252,7 +1256,7 @@
       "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0325b.pdf",
       "cert_link": null,
       "manufacturer_web": "https://global.oce.com/",
-      "protection_profiles": {
+      "protection_profile_links": {
         "_type": "Set",
         "elements": []
       },
@@ -1263,7 +1267,7 @@
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "report": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -1272,7 +1276,7 @@
             "txt_hash": "11e1262fd8f5df1b140f5e8813883b71447503781399427b35adbbecd00b4d63"
         },
         "st": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -1281,7 +1285,7 @@
             "txt_hash": "179b07b4fc7402066a884edea494b28e324315108a5e0820184031f2e2062ad5"
         },
         "cert": {
-            "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+            "_type": "sec_certs.sample.document_state.DocumentState",
             "download_ok": false,
             "convert_garbage": false,
             "convert_ok": false,
@@ -1870,7 +1874,9 @@
         "direct_transitive_cves": null,
         "indirect_transitive_cves": null,
         "next_certificates": null,
-        "prev_certificates": null
+        "prev_certificates": null,
+        "protection_profiles": null,
+        "eal": null
       }
     }
   ]

@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
 
-import sec_certs.utils.sanitization
 from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import (
@@ -27,6 +26,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.heuristics.cc import (
     compute_cert_labs,
+    compute_eals,
     compute_normalized_cert_ids,
     compute_references,
     compute_sars,
@@ -34,11 +34,8 @@ from sec_certs.heuristics.cc import (
     link_to_protection_profiles,
 )
 from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
-from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
-from sec_certs.sample.cc_scheme import EntryType
-from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
@@ -75,10 +72,10 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             self.aux_handlers[CPEMatchDictHandler] = CPEMatchDictHandler(self.auxiliary_datasets_dir)
             self.aux_handlers[CCSchemeDatasetHandler] = CCSchemeDatasetHandler(self.auxiliary_datasets_dir)
             self.aux_handlers[ProtectionProfileDatasetHandler] = ProtectionProfileDatasetHandler(
-                self.auxiliary_datasets_dir
+                self.auxiliary_datasets_dir / "protection_profiles"
             )
             self.aux_handlers[CCMaintenanceUpdateDatasetHandler] = CCMaintenanceUpdateDatasetHandler(
-                self.auxiliary_datasets_dir
+                self.auxiliary_datasets_dir / "maintenances"
             )
 
     def to_pandas(self) -> pd.DataFrame:
@@ -275,12 +272,34 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 self.certificates_txt_dir,
             )
 
-    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
-        self.aux_handlers[CCMaintenanceUpdateDatasetHandler].certs_with_updates = [  # type: ignore
-            x for x in self if x.maintenance_updates
-        ]
-        self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {x.scheme for x in self}  # type: ignore
-        super().process_auxiliary_datasets(download_fresh)
+    def process_auxiliary_datasets(
+        self,
+        download_fresh: bool = False,
+        processed_pp_dataset_root_dir: Path | None = None,
+        skip_schemes: bool = False,
+        **kwargs,
+    ) -> None:
+        if CCMaintenanceUpdateDatasetHandler in self.aux_handlers:
+            self.aux_handlers[CCMaintenanceUpdateDatasetHandler].certs_with_updates = [  # type: ignore
+                x for x in self if x.maintenance_updates
+            ]
+        if CCSchemeDatasetHandler in self.aux_handlers:
+            self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {x.scheme for x in self}  # type: ignore
+
+        if processed_pp_dataset_root_dir:
+            if self.aux_handlers[ProtectionProfileDatasetHandler].root_dir.exists():
+                logger.warning(
+                    f"Overwriting PP Dataset at {self.aux_handlers[ProtectionProfileDatasetHandler].root_dir} with dataset from {processed_pp_dataset_root_dir}."
+                )
+            shutil.copytree(
+                processed_pp_dataset_root_dir,
+                self.aux_handlers[ProtectionProfileDatasetHandler].root_dir,
+                dirs_exist_ok=True,
+            )
+
+        if skip_schemes:
+            del self.aux_handlers[CCSchemeDatasetHandler]
+        super().process_auxiliary_datasets(download_fresh, **kwargs)
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
@@ -449,13 +468,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         df_base = df_base.drop_duplicates(subset=["dgst"])
         df_main = df_main.drop_duplicates()
 
-        profiles = {
-            x.dgst: {
-                ProtectionProfile(pp_name=y, pp_eal=None)
-                for y in sec_certs.utils.sanitization.sanitize_protection_profiles(x.protection_profiles)
-            }
-            for x in df_base.itertuples()
-        }
         updates: dict[str, set] = {x.dgst: set() for x in df_base.itertuples()}
         for x in df_main.itertuples():
             updates[x.dgst].add(
@@ -481,7 +493,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 x.st_link,
                 None,
                 None,
-                profiles.get(x.dgst, None),
+                None,
                 updates.get(x.dgst, None),
                 None,
                 None,
@@ -526,9 +538,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         ) -> dict[str, CCCertificate]:
             tables = soup.find_all("table", id=table_id)
 
-            if not len(tables) <= 1:
+            if len(tables) > 1:
                 raise ValueError(
-                    f'The "{file.name}" was expected to contain <1 <table> element. Instead, it contains: {len(tables)} <table> elements.'
+                    f'The "{file.name}" was expected to contain 0-1 <table> element. Instead, it contains: {len(tables)} <table> elements.'
                 )
 
             if not tables:
@@ -557,40 +569,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         cert_status = "active" if "active" in str(file) else "archived"
 
-        cc_cat_abbreviations = [
-            "AC",
-            "BP",
-            "DP",
-            "DB",
-            "DD",
-            "IC",
-            "KM",
-            "MD",
-            "MF",
-            "NS",
-            "OS",
-            "OD",
-            "DG",
-            "TC",
-        ]
-        cc_table_ids = ["tbl" + x for x in cc_cat_abbreviations]
-        cc_categories = [
-            "Access Control Devices and Systems",
-            "Boundary Protection Devices and Systems",
-            "Data Protection",
-            "Databases",
-            "Detection Devices and Systems",
-            "ICs, Smart Cards and Smart Card-Related Devices and Systems",
-            "Key Management Systems",
-            "Mobility",
-            "Multi-Function Devices",
-            "Network and Network-Related Devices and Systems",
-            "Operating Systems",
-            "Other Devices and Systems",
-            "Products for Digital Signatures",
-            "Trusted Computing",
-        ]
-        cat_dict = dict(zip(cc_table_ids, cc_categories))
+        cc_table_ids = ["tbl" + x for x in constants.CC_CAT_ABBREVIATIONS]
+        cat_dict = dict(zip(cc_table_ids, constants.CC_CATEGORIES))
 
         with file.open("r") as handle:
             soup = BeautifulSoup(handle, "html5lib")
@@ -808,31 +788,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._extract_pdf_frontpage()
         self._extract_pdf_keywords()
 
-    @staged(
-        logger,
-        "Computing heuristics: Deriving information about laboratories involved in certification.",
-    )
-    def _compute_cert_labs(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        for cert in certs_to_process:
-            cert.compute_heuristics_cert_lab()
-
-    @staged(logger, "Computing heuristics: Matching scheme data.")
-    def _compute_scheme_data(self):
-        for scheme in self.aux_handlers[CCSchemeDatasetHandler].dset:
-            if certified := scheme.lists.get(EntryType.Certified):
-                certs = [cert for cert in self if cert.status == "active"]
-                matches = CCSchemeMatcher.match_all(certified, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
-            if archived := scheme.lists.get(EntryType.Archived):
-                certs = [cert for cert in self if cert.status == "archived"]
-                matches = CCSchemeMatcher.match_all(archived, scheme.country, certs)
-                for dgst, match in matches.items():
-                    self[dgst].heuristics.scheme_data = match
-
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
-        link_to_protection_profiles(self.aux_handlers[ProtectionProfileDatasetHandler].dset, self.certs.values())
+        link_to_protection_profiles(self.certs.values(), self.aux_handlers[ProtectionProfileDatasetHandler].dset)
         compute_cpe_heuristics(self.aux_handlers[CPEDatasetHandler].dset, self.certs.values())
         compute_related_cves(
             self.aux_handlers[CPEDatasetHandler].dset,
@@ -848,6 +805,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             compute_scheme_data(self.aux_handlers[CCSchemeDatasetHandler].dset, self.certs)
 
         compute_cert_labs(self.certs.values())
+        compute_eals(self.certs.values(), self.aux_handlers[ProtectionProfileDatasetHandler].dset)
         compute_sars(self.certs.values())
 
 
@@ -867,6 +825,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         state: CCDataset.DatasetInternalState | None = None,
     ):
         super().__init__(certs, root_dir, name, description, state)  # type: ignore
+        self.aux_handlers = {}
         self.state.meta_sources_parsed = True
 
     @property
@@ -882,7 +841,13 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def compute_related_cves(self) -> None:
         raise NotImplementedError
 
-    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
+    def process_auxiliary_datasets(
+        self,
+        download_fresh: bool = False,
+        processed_pp_dataset_root_dir: Path | None = None,
+        skip_schemes: bool = False,
+        **kwargs,
+    ) -> None:
         raise NotImplementedError
 
     def analyze_certificates(self) -> None:

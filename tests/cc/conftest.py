@@ -8,7 +8,6 @@ import tests.data.cc.dataset
 
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 @pytest.fixture(scope="module")
@@ -38,7 +37,7 @@ def cert_one() -> CCCertificate:
         "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
         "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
         "https://www.netiq.com/",
-        set(),
+        None,
         set(),
         None,
         None,
@@ -48,7 +47,6 @@ def cert_one() -> CCCertificate:
 
 @pytest.fixture(scope="module")
 def cert_two() -> CCCertificate:
-    pp = ProtectionProfile("sample_pp", None, pp_link="https://sample.pp")
     update = CCCertificate.MaintenanceReport(
         date(1900, 1, 1), "Sample maintenance", "https://maintenance.up", "https://maintenance.up"
     )
@@ -66,7 +64,7 @@ def cert_two() -> CCCertificate:
         "https://path.to/st/link",
         "https://path.to/cert/link",
         "https://path.to/manufacturer/web",
-        {pp},
+        {"https://sample.pp"},
         {update},
         None,
         None,

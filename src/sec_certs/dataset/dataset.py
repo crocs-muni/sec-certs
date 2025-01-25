@@ -60,8 +60,8 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self.name = name if name else type(self).__name__.lower() + "_dataset"
         self.description = description if description else "No description provided"
         self.state = state if state else self.DatasetInternalState()
-        self.root_dir = Path(root_dir)
         self.aux_handlers = aux_handlers
+        self.root_dir = Path(root_dir)
 
     @property
     def root_dir(self) -> Path:
@@ -278,7 +278,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @staged(logger, "Processing auxiliary datasets")
     @serialize
-    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
+    def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
         """
         Processes all auxiliary datasets (CPE, CVE, ...) that are required during computation.
         """
@@ -288,9 +288,15 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self.state.auxiliary_datasets_processed = True
 
     def load_auxiliary_datasets(self) -> None:
+        logger.info("Loading auxiliary datasets into memory.")
         for handler in self.aux_handlers.values():
             if not hasattr(handler, "dset"):
-                handler.load_dataset()
+                try:
+                    handler.load_dataset()
+                except Exception:
+                    logger.warning(
+                        f"Failed to load auxiliary dataset bound to {handler}, some functionality may not work."
+                    )
 
     @serialize
     def download_all_artifacts(self, fresh: bool = True) -> None:

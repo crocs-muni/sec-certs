@@ -35,7 +35,7 @@
       "st_link": "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
       "cert_link": "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
       "manufacturer_web": "https://www.netiq.com/",
-      "protection_profiles": {
+      "protection_profile_links": {
         "_type": "Set",
         "elements": []
       },
@@ -46,7 +46,7 @@
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "report": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -55,7 +55,7 @@
           "txt_hash": null
         },
         "st": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -64,7 +64,7 @@
           "txt_hash": null
         },
         "cert": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -116,7 +116,9 @@
           "indirectly_referenced_by": null,
           "indirectly_referencing": null
         },
-        "scheme_data": null
+        "scheme_data": null,
+        "protection_profiles": null,
+        "eal": null
       }
     },
     {
@@ -137,16 +139,10 @@
       "st_link": "https://www.commoncriteriaportal.org/files/epfiles/Magic_SSO_V4.0-ST-v1.4_EN.pdf",
       "cert_link": null,
       "manufacturer_web": "https://www.dreamsecurity.com/",
-      "protection_profiles": {
+      "protection_profile_links": {
         "_type": "Set",
         "elements": [
-          {
-            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
-            "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
-            "pp_eal": "EAL1+",
-            "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
-            "pp_ids": null
-          }
+          "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf"
         ]
       },
       "maintenance_updates": {
@@ -156,7 +152,7 @@
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "report": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -165,7 +161,7 @@
           "txt_hash": null
         },
         "st": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -174,7 +170,7 @@
           "txt_hash": null
         },
         "cert": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -226,7 +222,9 @@
           "indirectly_referenced_by": null,
           "indirectly_referencing": null
         },
-        "scheme_data": null
+        "scheme_data": null,
+        "protection_profiles": null,
+        "eal": null
       }
     },
     {
@@ -247,16 +245,10 @@
       "st_link": "https://www.commoncriteriaportal.org/files/epfiles/383-4-450%20ST%20v1.3A.pdf",
       "cert_link": "https://www.commoncriteriaportal.org/files/epfiles/383-4-450%20CT%20v1.0a.pdf",
       "manufacturer_web": "https://www.fortinet.com/",
-      "protection_profiles": {
+      "protection_profile_links": {
         "_type": "Set",
         "elements": [
-          {
-            "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
-            "pp_name": "collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0 + Errata 20180314",
-            "pp_eal": null,
-            "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/CPP_FW_V2.0E.pdf",
-            "pp_ids": null
-          }
+          "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/CPP_FW_V2.0E.pdf"
         ]
       },
       "maintenance_updates": {
@@ -274,7 +266,7 @@
       "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
         "report": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -283,7 +275,7 @@
           "txt_hash": null
         },
         "st": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -292,7 +284,7 @@
           "txt_hash": null
         },
         "cert": {
-          "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+          "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
           "convert_garbage": false,
           "convert_ok": false,
@@ -344,7 +336,9 @@
           "indirectly_referenced_by": null,
           "indirectly_referencing": null
         },
-        "scheme_data": null
+        "scheme_data": null,
+        "protection_profiles": null,
+        "eal": null
       }
     }
   ]

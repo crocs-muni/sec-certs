@@ -17,13 +17,13 @@ from bs4 import Tag
 import sec_certs.utils.extract
 import sec_certs.utils.pdf
 from sec_certs import constants
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules, security_level_csv_scan
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
 from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
-from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.sample.document_state import DocumentState
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
@@ -42,8 +42,6 @@ class CCCertificate(
     Is basic element of `CCDataset`. The functionality is mostly related to holding data and transformations that
     the certificate can handle itself. `CCDataset` class then instrument this functionality.
     """
-
-    cc_url = "https://www.commoncriteriaportal.org"
 
     @dataclass(eq=True, frozen=True)
     class MaintenanceReport(ComplexSerializableType):
@@ -76,86 +74,15 @@ class CCCertificate(
             return self.maintenance_date < other.maintenance_date
 
     @dataclass
-    class DocumentState(ComplexSerializableType):
-        download_ok: bool = False  # Whether download went OK
-        convert_garbage: bool = False  # Whether initial conversion resulted in garbage
-        convert_ok: bool = False  # Whether overall conversion went OK (either pdftotext or via OCR)
-        extract_ok: bool = False  # Whether extraction went OK
-
-        pdf_hash: str | None = None
-        txt_hash: str | None = None
-
-        _pdf_path: Path | None = None
-        _txt_path: Path | None = None
-
-        def is_ok_to_download(self, fresh: bool = True) -> bool:
-            return True if fresh else not self.download_ok
-
-        def is_ok_to_convert(self, fresh: bool = True) -> bool:
-            return self.download_ok if fresh else self.download_ok and not self.convert_ok
-
-        def is_ok_to_analyze(self, fresh: bool = True) -> bool:
-            if fresh:
-                return self.download_ok and self.convert_ok
-            else:
-                return self.download_ok and self.convert_ok and not self.extract_ok
-
-        @property
-        def pdf_path(self) -> Path:
-            if not self._pdf_path:
-                raise ValueError(f"pdf_path not set on {type(self)}")
-            return self._pdf_path
-
-        @pdf_path.setter
-        def pdf_path(self, pth: str | Path | None) -> None:
-            self._pdf_path = Path(pth) if pth else None
-
-        @property
-        def txt_path(self) -> Path:
-            if not self._txt_path:
-                raise ValueError(f"txt_path not set on {type(self)}")
-            return self._txt_path
-
-        @txt_path.setter
-        def txt_path(self, pth: str | Path | None) -> None:
-            self._txt_path = Path(pth) if pth else None
-
-        @property
-        def serialized_attributes(self) -> list[str]:
-            return [
-                "download_ok",
-                "convert_garbage",
-                "convert_ok",
-                "extract_ok",
-                "pdf_hash",
-                "txt_hash",
-            ]
-
-    @dataclass(init=False)
     class InternalState(ComplexSerializableType):
         """
         Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
         holds information about errors and paths to the files.
         """
 
-        report: CCCertificate.DocumentState
-        st: CCCertificate.DocumentState
-        cert: CCCertificate.DocumentState
-
-        def __init__(
-            self,
-            report: CCCertificate.DocumentState | None = None,
-            st: CCCertificate.DocumentState | None = None,
-            cert: CCCertificate.DocumentState | None = None,
-        ):
-            super().__init__()
-            self.report = report if report is not None else CCCertificate.DocumentState()
-            self.st = st if st is not None else CCCertificate.DocumentState()
-            self.cert = cert if cert is not None else CCCertificate.DocumentState()
-
-        @property
-        def serialized_attributes(self) -> list[str]:
-            return ["report", "st", "cert"]
+        report: DocumentState = field(default_factory=DocumentState)
+        st: DocumentState = field(default_factory=DocumentState)
+        cert: DocumentState = field(default_factory=DocumentState)
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
@@ -350,7 +277,6 @@ class CCCertificate(
         next_certificates: list[str] | None = field(default=None)
         st_references: References = field(default_factory=References)
         report_references: References = field(default_factory=References)
-
         # Contains direct outward references merged from both st, and report sources, annotated with ReferenceAnnotator
         # TODO: Reference meanings as Enum if we work with it further.
         annotated_references: dict[str, str] | None = field(default=None)
@@ -358,6 +284,8 @@ class CCCertificate(
         direct_transitive_cves: set[str] | None = field(default=None)
         indirect_transitive_cves: set[str] | None = field(default=None)
         scheme_data: dict[str, Any] | None = field(default=None)
+        protection_profiles: set[str] | None = field(default=None)
+        eal: str | None = field(default=None)
 
         @property
         def serialized_attributes(self) -> list[str]:
@@ -406,7 +334,7 @@ class CCCertificate(
         st_link: str | None,
         cert_link: str | None,
         manufacturer_web: str | None,
-        protection_profiles: set[ProtectionProfile] | None,
+        protection_profile_links: set[str] | None,
         maintenance_updates: set[MaintenanceReport] | None,
         state: InternalState | None,
         pdf_data: PdfData | None,
@@ -430,7 +358,7 @@ class CCCertificate(
         self.st_link = sanitization.sanitize_link(st_link)
         self.cert_link = sanitization.sanitize_link(cert_link)
         self.manufacturer_web = sanitization.sanitize_link(manufacturer_web)
-        self.protection_profiles = protection_profiles
+        self.protection_profile_links = protection_profile_links
         self.maintenance_updates = maintenance_updates
         self.state = state if state else self.InternalState()
         self.pdf_data = pdf_data if pdf_data else self.PdfData()
@@ -469,22 +397,6 @@ class CCCertificate(
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
 
     @property
-    def eal(self) -> str | None:
-        """
-        Returns EAL of certificate if it was extracted, None otherwise.
-        """
-        res = [x for x in self.security_level if re.match(security_level_csv_scan, x)]
-        if res and len(res) == 1:
-            return res[0]
-        if res and len(res) > 1:
-            raise ValueError(f"Expected single EAL in security_level field, got: {res}")
-        else:
-            if self.protection_profiles:
-                return helpers.choose_lowest_eal({x.pp_eal for x in self.protection_profiles if x.pp_eal})
-            else:
-                return None
-
-    @property
     def actual_sars(self) -> set[SAR] | None:
         """
         Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs.
@@ -492,8 +404,8 @@ class CCCertificate(
         :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
         """
         sars = {}
-        if self.eal:
-            sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.eal[:4]]}
+        if self.heuristics.eal:
+            sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.heuristics.eal[:4]]}
 
         if self.heuristics.extracted_sars:
             for sar in self.heuristics.extracted_sars:
@@ -520,7 +432,7 @@ class CCCertificate(
             self.manufacturer,
             self.scheme,
             self.security_level,
-            self.eal,
+            self.heuristics.eal,
             self.not_valid_before,
             self.not_valid_after,
             self.report_link,
@@ -536,7 +448,7 @@ class CCCertificate(
             self.heuristics.report_references.directly_referencing,
             self.heuristics.report_references.indirectly_referencing,
             self.heuristics.extracted_sars,
-            [x.pp_name for x in self.protection_profiles] if self.protection_profiles else np.nan,
+            self.heuristics.protection_profiles if self.heuristics.protection_profiles else np.nan,
             self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
         )
 
@@ -557,7 +469,13 @@ class CCCertificate(
 
         # Prefer some values from the HTML
         # Links in CSV are currently (13.08.2024) broken.
-        html_preferred_attrs = {"protection_profiles", "maintenance_updates", "cert_link", "report_link", "st_link"}
+        html_preferred_attrs = {
+            "protection_profile_links",
+            "maintenance_updates",
+            "cert_link",
+            "report_link",
+            "st_link",
+        }
 
         for att, val in vars(self).items():
             if (not val) or (other_source == "html" and att in html_preferred_attrs) or (att == "state"):
@@ -575,7 +493,8 @@ class CCCertificate(
         """
         new_dct = dct.copy()
         new_dct["maintenance_updates"] = set(dct["maintenance_updates"])
-        new_dct["protection_profiles"] = set(dct["protection_profiles"])
+        if dct["protection_profile_links"]:
+            new_dct["protection_profile_links"] = set(dct["protection_profile_links"])
         new_dct["not_valid_before"] = (
             date.fromisoformat(dct["not_valid_before"])
             if isinstance(dct["not_valid_before"], str)
@@ -615,16 +534,12 @@ class CCCertificate(
         return None
 
     @staticmethod
-    def _html_row_get_protection_profiles(cell: Tag) -> set:
-        protection_profiles = set()
+    def _html_row_get_protection_profile_links(cell: Tag) -> set:
+        protection_profile_links = set()
         for link in list(cell.find_all("a")):
             if link.get("href") is not None and "/ppfiles/" in link.get("href"):
-                protection_profiles.add(
-                    ProtectionProfile(
-                        pp_name=str(link.contents[0]), pp_eal=None, pp_link=CCCertificate.cc_url + link.get("href")
-                    )
-                )
-        return protection_profiles
+                protection_profile_links.add(constants.CC_PORTAL_BASE_URL + link.get("href"))
+        return protection_profile_links
 
     @staticmethod
     def _html_row_get_date(cell: Tag) -> date | None:
@@ -643,16 +558,16 @@ class CCCertificate(
             if not title:
                 continue
             if title.startswith("Certification Report"):
-                report_link = CCCertificate.cc_url + link.get("href")
+                report_link = constants.CC_PORTAL_BASE_URL + link.get("href")
             elif title.startswith("Security Target"):
-                security_target_link = CCCertificate.cc_url + link.get("href")
+                security_target_link = constants.CC_PORTAL_BASE_URL + link.get("href")
 
         return report_link, security_target_link
 
     @staticmethod
     def _html_row_get_cert_link(cell: Tag) -> str | None:
         links = cell.find_all("a")
-        return CCCertificate.cc_url + links[0].get("href") if links else None
+        return constants.CC_PORTAL_BASE_URL + links[0].get("href") if links else None
 
     @staticmethod
     def _html_row_get_maintenance_div(cell: Tag) -> Tag | None:
@@ -675,9 +590,9 @@ class CCCertificate(
             links = u.find_all("a")
             for link in links:
                 if link.get("title").startswith("Maintenance Report:"):
-                    main_report_link = CCCertificate.cc_url + link.get("href")
+                    main_report_link = constants.CC_PORTAL_BASE_URL + link.get("href")
                 elif link.get("title").startswith("Maintenance ST"):
-                    main_st_link = CCCertificate.cc_url + link.get("href")
+                    main_st_link = constants.CC_PORTAL_BASE_URL + link.get("href")
                 else:
                     logger.error("Unknown link in Maintenance part!")
             maintenance_updates.add(
@@ -700,7 +615,7 @@ class CCCertificate(
         manufacturer_web = CCCertificate._html_row_get_manufacturer_web(cells[1])
         scheme = CCCertificate._html_row_get_scheme(cells[6])
         security_level = CCCertificate._html_row_get_security_level(cells[5])
-        protection_profiles = CCCertificate._html_row_get_protection_profiles(cells[0])
+        protection_profile_links = CCCertificate._html_row_get_protection_profile_links(cells[0])
         not_valid_before = CCCertificate._html_row_get_date(cells[3])
         not_valid_after = CCCertificate._html_row_get_date(cells[4])
         report_link, st_link = CCCertificate._html_row_get_report_st_links(cells[0])
@@ -721,7 +636,7 @@ class CCCertificate(
             st_link,
             cert_link,
             manufacturer_web,
-            protection_profiles,
+            protection_profile_links,
             maintenances,
             None,
             None,
