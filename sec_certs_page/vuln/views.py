@@ -1,5 +1,6 @@
 from operator import itemgetter
 from pathlib import Path
+from pprint import pprint
 
 import sentry_sdk
 from flask import abort, current_app, render_template, request, send_file
@@ -63,6 +64,7 @@ def cve(cve_id):
     with sentry_sdk.start_span(op="mongo", description="Find CPE matches"):
         matches = {match["_id"]: match for match in mongo.db.cpe_match.find({"_id": {"$in": list(criteria)}})}
 
+    # TODO: Do I even need to do this?
     vuln_configs = []
     for vuln_cpe in cve_doc["vulnerable_cpes"]:
         match = matches.get(vuln_cpe["criteria_id"])
@@ -80,7 +82,8 @@ def cve(cve_id):
                 match = matches.get(crit["criteria_id"])
                 if match:
                     matches_second.extend(list(map(itemgetter("cpeName"), match["matches"])))
-        vuln_configs.append((matches_first, matches_second))
+        if matches_first and matches_second:
+            vuln_configs.append((matches_first, matches_second))
 
     with sentry_sdk.start_span(op="mongo", description="Find CC certs"):
         cc_certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
