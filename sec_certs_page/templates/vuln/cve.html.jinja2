@@ -82,15 +82,19 @@
                         {% if vuln_configs %}
                             {% set configs = namespace(shown=0,rendered=False) %}
                             <ul data-cs-name="Vulnerable configurations">
-                                {% for first, second in vuln_configs %}
+                                {% for has_cpes, first, second in vuln_configs %}
                                     <li class="vuln-config" style="{% if configs.shown > 10 %}display: none{% endif %}">
                                         {% for cpe in first %}
                                             {% set configs.shown = configs.shown + 1 %}
                                             <span class="vuln-config"
                                                   style="{% if configs.shown > 10 %}display: none{% endif %}">
-                                            <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
+                                            {% if has_cpes %}
+                                                <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
                                                 {%- if not loop.last %}, {% endif %}
-                                        </span>
+                                            {% else %}
+                                                {{ cpe }}
+                                            {% endif %}
+                                            </span>
                                             {% if configs.shown > 10 and not configs.rendered %}
                                                 <span class="vuln-ellipsis"><br/>&hellip;</span>
                                                 {% set configs.rendered = True %}
@@ -105,9 +109,13 @@
                                                 {% set configs.shown = configs.shown + 1 %}
                                                 <span class="vuln-config"
                                                       style="{% if configs.shown > 10 %}display: none{% endif %}">
-                                                <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
+                                                {% if has_cpes %}
+                                                    <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
                                                     {%- if not loop.last %}, {% endif %}
-                                            </span>
+                                                {% else %}
+                                                    {{ cpe }}
+                                                {% endif %}
+                                                </span>
                                                 {% if configs.shown > 10 and not configs.rendered %}
                                                     <span class="vuln-ellipsis"><br/>&hellip;</span>
                                                     {% set configs.rendered = True %}

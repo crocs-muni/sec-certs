@@ -64,12 +64,12 @@ def cve(cve_id):
     with sentry_sdk.start_span(op="mongo", description="Find CPE matches"):
         matches = {match["_id"]: match for match in mongo.db.cpe_match.find({"_id": {"$in": list(criteria)}})}
 
-    # TODO: Do I even need to do this?
     vuln_configs = []
     for vuln_cpe in cve_doc["vulnerable_cpes"]:
         match = matches.get(vuln_cpe["criteria_id"])
         if match:
-            vuln_configs.append((list(map(itemgetter("cpeName"), match["matches"])), []))
+            vuln_configs.append((True, list(map(itemgetter("cpeName"), match["matches"])), []))
+        # TODO: Maybe include it as well?
     for vuln_cfg in cve_doc["vulnerable_criteria_configurations"]:
         matches_first = []
         for crit in vuln_cfg["components"][0]:
@@ -83,8 +83,15 @@ def cve(cve_id):
                 if match:
                     matches_second.extend(list(map(itemgetter("cpeName"), match["matches"])))
         if matches_first and matches_second:
-            vuln_configs.append((matches_first, matches_second))
+            vuln_configs.append((True, matches_first, matches_second))
+        else:
+            matches_first = list(map(itemgetter("criteria"), vuln_cfg["components"][0]))
+            matches_second = (
+                list(map(itemgetter("criteria"), vuln_cfg["components"][1])) if len(vuln_cfg["components"]) > 1 else []
+            )
+            vuln_configs.append((False, matches_first, matches_second))
 
+    vuln_configs.sort(key=lambda tup: (not tup[0], tup[1], tup[2]))
     with sentry_sdk.start_span(op="mongo", description="Find CC certs"):
         cc_certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
     with sentry_sdk.start_span(op="mongo", description="Find FIPS certs"):
