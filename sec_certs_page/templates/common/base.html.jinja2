@@ -2,6 +2,13 @@
 <!doctype html>
 <html lang="en">
 
+{% macro render_breadcrumbs(breadcrumbs) %}
+    {%- for breadcrumb in breadcrumbs -%}
+        <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+        {{ '/ ' if not loop.last }}
+    {%- endfor -%}
+{% endmacro %}
+
 <head>
     {% block head %}
         <meta charset="UTF-8">
@@ -355,18 +362,15 @@
                 {% endif %}
             {% endwith %}
             {% if crumbs %}
-                <div class="col-12 col-sm-10 mx-auto px-3 pt-3 pb-2 fw-lighter d-flex justify-content-between align-items-baseline">
                     {% block crumbs_left %}
-                        <div>
-                            {%- for breadcrumb in breadcrumbs -%}
-                                <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-                                {{ '/ ' if not loop.last }}
-                            {%- endfor -%}
+                        <div class="col-12 col-sm-10 mx-auto px-3 pt-3 pb-2 fw-lighter d-flex justify-content-between align-items-baseline">
+                            <div>
+                                {{ render_breadcrumbs(breadcrumbs) }}
+                            </div>
                         </div>
                     {% endblock %}
                     {% block crumbs_right %}
                     {% endblock %}
-                </div>
             {% endif %}
             {% block content %}
             {% endblock %}
@@ -410,36 +414,8 @@
 
 
                         </div>
-                        {# <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">
-                                <img id="crocs-logo" src="{{ url_for("static", filename="img/crocs_claim.svg") }}"
-                                     alt="Centre for Research on Cryptography and Security" style="width: 100%"
-                                     loading="lazy"/>
-                            </a>
-                        </div>
-                        <div class="col-5 col-sm-4 col-md-3 col-lg-2">
-                            <a href="https://muni.cz" target="_blank" rel="noopener">
-                                <img id="muni-logo" src="{{ url_for("static", filename="img/muni.svg") }}"
-                                     alt="Masaryk University" style="width: 100%" loading="lazy"/>
-                            </a>
-                            <p class="mt-3 mb-0 fw-light">Check out our <a
-                                    href="https://github.com/crocs-muni/sec-certs" target="_blank"
-                                    rel="noopener">GitHub</a>.</p>
-                            {% if current_user.is_authenticated %}
-                                <span class="fw-light"><a href="{{ url_for("admin.logout") }}" style="opacity: 50%;"
-                                                          title="Lemme out"><i
-                                        class="fas fa-sign-out-alt"></i></a></span>
-                            {% else %}
-                                <span class="fw-light"><a href="{{ url_for("admin.login") }}" style="opacity: 50%;"
-                                                          title="Lemme in"><i class="fas fa-sign-in-alt"></i></a></span>
-                            {% endif %} 
-                            #}
                         </div>
                     </div>
-                    {{ compare_icon() }}
-
-                    {{ notification_icon() }}
-
                     <div id="up-top">
                         <a title="Back to top" aria-label="Back to top" href="#">
                             <span id="up-top-icon" class="fa-stack fa-lg">
@@ -456,7 +432,6 @@
         </div>
     </div>
 </div>
-{{ modal_script() }}
 <script>
     $(function () {
         let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

@@ -1,28 +1,30 @@
 {% macro compare_icon() %}
-    <div id="compare">
+    <span id="compare">
         <button id="compare-icon" class="btn btn-secondary" title="Compare certificates"
                 data-bs-toggle="modal" data-bs-target="#compare-modal">
             <i class="fas fa-fw fa-scale-balanced" aria-hidden="true"></i>
             <span id="compare-pill"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
                                 &nbsp;
-                            <span class="visually-hidden">selected certificates for comparison</span>
-                                </span>
+                    <span class="visually-hidden">selected certificates for comparison</span>
+            </span>
+            Compare
         </button>
-    </div>
+    </span>
 {% endmacro %}
 {% macro notification_icon() %}
-    <div id="notifications">
+    <span id="notifications">
         <button id="notification-icon" class="btn btn-secondary" title="Notifications"
                 data-bs-toggle="modal" data-bs-target="#notification-modal">
             <i class="fas fa-fw fa-envelope" aria-hidden="true"></i>
             <span id="notification-pill"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
                                 &nbsp;
-                            <span class="visually-hidden">selected certificates for notification subscription</span>
-                          </span>
+                <span class="visually-hidden">selected certificates for notification subscription</span>
+            </span>
+            Subscribe
         </button>
-    </div>
+    </span>
 {% endmacro %}
 {% macro compare_modal() %}
     <div class="modal fade" id="compare-modal" tabindex="-1" aria-labelledby="compare-modal-label"
