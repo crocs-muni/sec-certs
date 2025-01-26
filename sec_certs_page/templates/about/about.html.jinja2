@@ -1,12 +1,223 @@
 {% extends "common/base.html.jinja2" %}
-{% set crumbs = False %}
-{% set canonical = False %}
+{% set crumbs = True %}
+{% set canonical = True %}
 {% block title %}
-    <title>Common Criteria | sec-certs.org</title>
+    <title>
+        {{ "About | sec-certs.org" }}
+    </title>
 {% endblock %}
 
+
+{% macro render_person(name, description, duration) %}
+    <div class="card mb-3 me-lg-3">
+        <div class="row g-0">
+            <div class="col-md-2 d-none d-md-flex align-items-center justify-content-center border-end">
+                <i class="fas fa-user-circle fa-2xl"></i>
+            </div>
+            <div class="col-md-8">
+                <div class="card-body py-2">
+                    <h5 class="card-title">{{ name }}</h5>
+                    <p class="card-text mb-1">{{ description|safe }}</p>
+                    <p class="card-text"><small class="text-body-secondary">{{ duration }}</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+{% macro render_student(name, description, duration) %}
+    <div class="border rounded p-2 my-2 me-lg-3">
+        <b>{{ name }}</b><br/>
+        {{ description|safe }}, <span class="text-muted">{{ duration }}</span>
+    </div>
+{% endmacro %}
 {% block content %}
-    <main>
-       This is new about.
-    </main>
+    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <main>
+            <div class="row mb-5">
+                <div class="col-12 col-md-6">
+                    <h1 class="anchor" id="about">About</h1>
+                    <div id="about-info">
+                        <p class="lead">
+                            This research is being carried out by a team at the <a href="https://crocs.fi.muni.cz">Centre
+                            for Research on Cryptography and Security</a> at Masaryk University. If you would like to
+                            contact us, you can do so at <a
+                                href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.
+                        </p>
+                        <h4>Current members</h4>
+                        {{ render_person("Petr Švenda", "Initial implementation, idea person", "2019-now") }}
+                        {{ render_person("Ján Jančár", "Web implementation, anti-idea person", "2019-now") }}
+                        {{ render_person("Adam Janovský", "Library implementation, machine-learning", "2019-2024") }}
+                        {{ render_person("Łukasz Chmielewski", "Common Criteria insights", "2023-now") }}
+                        {{ render_person("Jaroslav Řezník", "FIPS-140 insights", "2023-now") }}
+                        {{ render_person("Yasir Yakup Demircan", "Machine-learning", "2024-now") }}
+                        {{ render_person("Martin Ukrop", "Project lead", "2022-now") }}
+                        {{ render_person("Vashek Matyáš", "Project &amp; student supervision", "2019-now") }}
+                        <h4>Student members</h4>
+                        <p>Several students extended or used the functionality of the sec-certs project in their
+                            Bachelor's or Master's thesis.</p>
+                        {{ render_student("Martin Fryan", "Master's thesis on <a href=\"https://is.muni.cz/th/hf0kp//\" class=\"fst-italic\">Analysis of Common Criteria Protection Profiles</a>", "2019-2020") }}
+                        {{ render_student("Stanislav Boboň", "Bachelor's thesis on <a href=\"https://is.muni.cz/th/wftuc/\" class=\"fst-italic\">Analysis of NIST FIPS 140-2 security certificates</a>", "2021-2023") }}
+                        {{ render_student("Jiří Michalík", "Bachelor's thesis on <a href=\"https://is.muni.cz/th/sust6/\" class=\"fst-italic\">Data analysis of the Common Criteria certificates</a>", "2021-2022") }}
+                        {{ render_student("Erik Moravec", "Master's thesis on <a href=\"https://is.muni.cz/th/krse1/\" class=\"fst-italic\">Metadata overlay for seccerts.org with security analysis tools</a>", "2022-2023") }}
+                        {{ render_student("Juraj Cigáň", "Master's thesis on <a href=\"https://is.muni.cz/th/srn48/\" class=\"fst-italic\">Information extraction from security certificates</a>", "2022-2023") }}
+
+                        {{ render_student("Yulia Teslia", "<i class=\"fas fa-rotate\"></i> Bachelor's thesis ongoing", "2024-now") }}
+                        {{ render_student("Alexander Zgabur", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2024-now") }}
+                        {{ render_student("David Valecký", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2024-now") }}
+                        {{ render_student("Martin Hofbauer", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2024-now") }}
+                        {{ render_student("Tomáš Chrenko", "<i class=\"fas fa-rotate\"></i> Bachelor's thesis ongoing", "2024-now") }}
+
+                    </div>
+                </div>
+                <div class="col-12 col-md-6" id="about-sponsors">
+                    <h1 class="anchor" id="sponsors">Sponsors</h1>
+                    <p class="lead">This project has received support from several sources. We are thankful for the support received.</p>
+                    <div class="row my-5 gx-0 border rounded">
+                        <div class="col-4 px-2 pt-1">
+                            <a
+                                    href="https://chess-eu.cs.ut.ee/" target="_blank" rel="noopener">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/chess_logo.svg") }}" alt="CHESS"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/chess_logo_light.svg") }}"
+                                     alt="CHESS"/>
+                            </a>
+                            <div class="my-1">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/eu_logo.svg") }}" alt="EU"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/eu_logo_light.svg") }}" alt="EU"/>
+                            </div>
+                        </div>
+                        <div class="col-8 d-flex ps-3 align-items-center text-break">
+                            <span>This work is supported by the European Union under Grant Agreement No. 101087529: <a
+                                    href="https://chess-eu.cs.ut.ee/" target="_blank" rel="noopener">Cyber
+                                Security Excellence Hub in Estonia and South Moravia</a>.</span>
+                        </div>
+                    </div>
+
+                    <div class="row my-5 gx-0 border rounded">
+                        <div class="col-4 px-2">
+                            <a href="https://research.redhat.com/" target="_blank"
+                               rel="noopener">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/redhat_logo.svg") }}"
+                                     alt="RedHat"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/redhat_logo_light.svg") }}"
+                                     alt="RedHat"/>
+                            </a>
+                        </div>
+                        <div class="col-8 d-flex ps-3 align-items-center text-break">
+                            <span>This work is supported by <a href="https://research.redhat.com/" target="_blank"
+                                                               rel="noopener">Red Hat Research</a>.</span>
+                        </div>
+                    </div>
+
+                    <div class="row my-5 gx-0 border rounded">
+                        <div class="col-4 p-2">
+                            <a href="https://cybersec4europe.eu/" target="_blank"
+                               rel="noopener">
+                                <img class="hide-dark w-100"
+                                     style="background-color: #0E4294"
+                                     src="{{ url_for("static", filename="img/sponsors/csfe_logo.png") }}"
+                                     alt="CyberSec4Europe"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/csfe_logo.png") }}"
+                                     alt="CyberSec4Europe"/>
+                            </a>
+                        </div>
+                        <div class="col-8 d-flex ps-3 align-items-center text-break">
+                            <span> This work was supported
+                        by
+                        the <a href="https://cybersec4europe.eu/" target="_blank"
+                               rel="noopener">CyberSec4Europe project</a>.</span>
+                        </div>
+                    </div>
+
+                    <div class="row my-5 gx-0 border rounded">
+                        <div class="col-4 py-1 px-2">
+                            <a href="https://msmt.gov.cz/" target="_blank" rel="noopener">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/msmt_logo.png") }}"
+                                     alt="MSMT"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/msmt_logo_light.png") }}"
+                                     alt="MSMT"/>
+                            </a>
+                            <div class="my-1">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/eu_structural_logo.png") }}"
+                                     alt="EU"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/eu_structural_logo_light.png") }}"
+                                     alt="EU"/>
+                            </div>
+                        </div>
+                        <div class="col-8 d-flex ps-3 align-items-center text-break">
+                            <span>This work was supported by the Internal grant agency of Masaryk University, project
+                        <a href="https://www.muni.cz/en/research/projects/55367" target="_blank" rel="noopener">CZ.02.2.69/0.0/0.0/19_073/0016943</a>.</span>
+                        </div>
+                    </div>
+
+                    <div class="row my-5 gx-0 border rounded">
+                        <div class="col-4">
+                            <a href="https://www.metacentrum.cz/en/" target="_blank" rel="noopener">
+                                <img class="w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/metacentrum_logo.png") }}"
+                                     alt="MetaCentrum"/>
+                            </a>
+                        </div>
+                        <div class="col-8 d-flex ps-3 align-items-center text-break">
+                            <span>Computational resources were supplied by the project e-INFRA LM2018140.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+    <script>
+        function selectText(ev) {
+            var e = document, c = ev[0], b, d;
+            if (e.body.createTextRange) {
+                b = document.body.createTextRange();
+                b.moveToElementText(c);
+                b.select()
+            } else {
+                if (window.getSelection) {
+                    d = window.getSelection();
+                    b = document.createRange();
+                    b.selectNodeContents(c);
+                    d.removeAllRanges();
+                    d.addRange(b)
+                }
+            }
+            return $(this)
+        }
+
+        function getSelectionText() {
+            var b = "";
+            if (window.getSelection) {
+                b = window.getSelection().toString()
+            } else {
+                if (document.selection && document.selection.type != "Control") {
+                    b = document.selection.createRange().text
+                }
+            }
+            return b;
+        }
+
+        function copyToClipboard() {
+            var text = getSelectionText();
+            if (!text || text.length == 0) {
+                selectText($(this));
+                var success = document.execCommand("copy");
+                if (!success)
+                    console.error("failed to copy text to clipboard :(")
+            }
+        }
+
+        $(".select-on-click").on("click", copyToClipboard);
+    </script>
 {% endblock %}
