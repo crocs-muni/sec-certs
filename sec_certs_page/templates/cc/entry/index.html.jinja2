@@ -19,8 +19,37 @@
     <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
 
+{% block left_navigation %}
+<ul id="left-navigation" class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active text-light" href="#csv-info">CSV</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#cert-info">Certificate</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#report-info">Certification report</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#st-info">Security target</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#heuristics-info">Heuristics</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#reference-graph">References</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#updates">Updates</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#raw-data-head">Raw data</a>
+            </li>
+        </ul>
+{% endblock %}
+
 {% block crumbs_left %}
-    <div class="shifted-section mt-3">
+    <div class="shifted-section pt-3">
         {{ render_breadcrumbs(breadcrumbs) }}
     </div>
 {% endblock %}
@@ -46,32 +75,6 @@
 {% endblock %}
 {% block content %}
     <main>
-        <ul id="left-navigation" class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="#csv-info">CSV</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#cert-info">Certificate</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#report-info">Certification report</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#st-info">Security target</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#heuristics-info">Heuristics</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#reference-graph">References</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#updates">Updates</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#raw-data-head">Raw data</a>
-            </li>
-        </ul>
         <div class="shifted-section">
         
             <div class="col-12 col-sm-10 p-3 py-md-5">

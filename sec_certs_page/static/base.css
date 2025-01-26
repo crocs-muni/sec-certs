@@ -1,5 +1,5 @@
 :root{
-  --sidebar-width: 350px;
+  --sidebar-width: 250px;
 }
 
 .nav-button {
@@ -342,8 +342,11 @@ h6 {
 #left-navigation {
   position: fixed;
   left: 0px;
-  background-color: white;
-  width: var(--sidebar-width)
+  background-color: var(--bs-dark);
+  /* background-color: white; */
+  width: var(--sidebar-width);
+  height: 100vh;
+  padding-top: 10px;
 }
 
 .shifted-section{

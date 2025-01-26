@@ -342,6 +342,8 @@
     </nav>
     <div id="page-content-wrapper" class="container-fluid">
         <div id="content">
+            {% block left_navigation %}
+            {% endblock %}
             {% with messages = get_flashed_messages(with_categories=True) %}
                 {% if messages %}
                     <div class="flashes col-12 col-sm-10 mx-auto p-3">
@@ -378,7 +380,7 @@
             {{ compare_modal() }}
             <footer>
                 {% block footer %}
-                    <div class="row justify-content-center py-5 bg-dark" style="">
+                    <div class="row z-3 position-relative justify-content-center py-5 bg-dark" style="">
                         <div class="col text-light align-self-center">
                             <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">
                                 <img id="crocs-logo" src="{{ url_for("static", filename="img/crocs_claim_light.svg") }}"
