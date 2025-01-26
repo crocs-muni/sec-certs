@@ -353,3 +353,20 @@ h6 {
   margin-left: var(--sidebar-width);
   padding-right: 30px;
 }
+
+
+.spaced-table{
+  border-collapse: separate;
+  border-spacing: 0 40px;
+}
+
+#content{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: space-between;
+}
+
+body, html{
+  height: 100vh;
+}

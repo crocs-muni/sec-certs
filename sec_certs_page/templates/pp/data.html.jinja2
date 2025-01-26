@@ -1,4 +1,5 @@
 {% extends "common/base.html.jinja2" %}
+{% from "common/library-info.html.jinja2" import render_library_info %}
 {% set crumbs = False %}
 {% set search = False %}
 {% set canonical = True %}
@@ -8,7 +9,30 @@
 
 {% block content %}
     <main>
-       This is new PP data page.
+        <div class="col-12 col-sm-10 mx-auto">
+            <div class="row p-3 py-md-5">
+                <div class="col-12 ">
+                    {{ render_library_info() }}
+                    <h3>Data</h3>
+                    <p>
+                        The full dataset used on this site can be downloaded here. All of the data on this site is
+                        extracted from it.
+                        It is a JSON file as produced by the sec-certs tool. <b>Note that currently it is a static export
+                        from June 2020 and is not updated weekly like other datasets. Thus, it is somewhat outdated.</b>
+                    </p>
+                    <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
+                            class="fas fa-file"></i>
+                        Download</a>
+                </div>
+            </div>
+            <div class="row p-3 py-md-5">
+                <h3>Data sources</h3>
+                <p>
+                    We are getting information from the following data sources:
+                </p>
+                
+            </div>
+        </div>
     </main>
 {% endblock %}
 

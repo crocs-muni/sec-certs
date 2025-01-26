@@ -62,20 +62,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-10 mx-auto">
-            <div class="row p-3 py-md-5">
-                <div class="col-12 col-md-6">
-                    <h3 class="anchor" id="data">Data</h3>
-                    <p>The full and up-to-date datasets used on this site can be downloaded here. They are updated daily.</p>
-                    <a href="{{ url_for(".cve_dset") }}" role="button" class="btn btn-primary"><i
-                            class="fas fa-file-alt"></i>
-                        CVE</a>
-                    <a href="{{ url_for(".cpe_dset") }}" role="button" class="btn btn-primary"><i
-                            class="fas fa-file-alt"></i>
-                        CPE</a>
-                </div>
-            </div>
-        </div>
         <script>
             function cve_search() {
                 let input = $("#cve-input").val();
