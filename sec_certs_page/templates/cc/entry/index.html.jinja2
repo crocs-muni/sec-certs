@@ -55,19 +55,41 @@
 {% endblock %}
 
 {% block crumbs_right %}
+    <script>
+
+        const copyToClipboard = async (linkObj) => {
+            try {
+                const successSpan = document.createElement('span');
+
+                const iconElement = document.createElement('i');
+                iconElement.classList.add('fas', 'fa-check');
+                successSpan.appendChild(iconElement);
+                successSpan.appendChild(document.createTextNode(' Copied!'));
+        
+                await navigator.clipboard.writeText(window.location.host + linkObj.getAttribute("data-url"));
+                const originalChildren = linkObj.firstElementChild
+                linkObj.replaceChildren(successSpan)
+                setTimeout(() => linkObj.replaceChildren(originalChildren), 3000)
+            } catch (error) {
+                console.error("Failed to copy to clipboard:", error);
+            }
+        };
+    </script>
+
+
     <div class="shifted-section mt-3">
         <div class="btn-group" role="group">
-            <a href="{{ url_for("cc.entry", hashid=hashid) }}" class="btn btn-outline-secondary btn-sm" title="Link by id"
-            data-bs-toggle="tooltip" data-bs-placement="top"> <i class="fas fa-share"></i> Link</a>
+            <a data-url="{{ url_for('cc.entry', hashid=hashid) }}" id="test-link-id" onclick="copyToClipboard(this)"  class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link</span></a>
             {% if cert["heuristics"]["cert_id"] %}
-                <a href="{{ url_for("cc.entry_id", cert_id=cert["heuristics"]["cert_id"]) }}"
-                class="btn btn-outline-secondary btn-sm" title="Link by certificate id" data-bs-toggle="tooltip"
-                data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
+                <a data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyToClipboard(this)" 
+                class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
             {% endif %}
             {% if cert["name"] %}
-                <a href="{{ url_for("cc.entry_name", name=cert["name"]) }}" class="btn btn-outline-secondary btn-sm"
-                title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
-                        class="fas fa-share"></i> Link by certificate name</a>
+                <a data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyToClipboard(this)" class="btn btn-outline-secondary btn-sm"> 
+                    <span>
+                        <i class="fa-regular fa-clipboard"></i> Link by certificate name
+                    </span>
+                </a>
             {% endif %}
         </div>
     </div>
