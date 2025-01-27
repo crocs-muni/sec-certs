@@ -19,7 +19,7 @@ from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
-from sec_certs.utils import helpers
+from sec_certs.utils import helpers, sanitization
 
 
 class ProtectionProfile(
@@ -83,18 +83,23 @@ class ProtectionProfile(
                     f"Unexpected number of <td> elements in PP html row. Expected: 6, actual: {len(cells)}"
                 )
 
+            pp_link = cls._html_row_get_link(cells[0])
+            pp_name = cls._html_row_get_name(cells[0])
+            if not sanitization.sanitize_cc_link(pp_link):
+                raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
+
             # TODO: Parse maintenance div here. See CC parsing.
             return cls(
                 category,
                 status,
                 False,
-                cls._html_row_get_name(cells[0]),
+                pp_name,
                 cls._html_row_get_version(cells[1]),
                 cls._html_row_get_security_level(cells[2]),
                 cls._html_row_get_date(cells[3]),
                 None if status == "active" else cls._html_row_get_date(cells[4]),
                 cls._html_row_get_link(cells[-1]),
-                cls._html_row_get_link(cells[0]),
+                pp_link,
                 cls._html_row_get_scheme(cells[-2]),
                 [],
             )
@@ -107,17 +112,22 @@ class ProtectionProfile(
                     f"Unexpected number of <td> elements in collaborative PP html row. Expected: 5, actual: {len(cells)}"
                 )
 
+            pp_link = cls._html_row_get_collaborative_pp_link(cells[0])
+            pp_name = cls._html_row_get_collaborative_name(cells[0])
+            if not sanitization.sanitize_cc_link(pp_link):
+                raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
+
             return cls(
                 category,
                 "active",
                 True,
-                cls._html_row_get_collaborative_name(cells[0]),
+                pp_name,
                 cls._html_row_get_version(cells[1]),
                 cls._html_row_get_security_level(cells[2]),
                 cls._html_row_get_date(cells[3]),
                 None,
                 cls._html_row_get_link(cells[-1]),
-                cls._html_row_get_collaborative_pp_link(cells[0]),
+                pp_link,
                 None,
                 [],
             )

@@ -226,16 +226,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 return {}
 
             body = list(tables[0].find_all("tr"))[1:]
-            try:
-                table_certs = {
-                    x.dgst: x
-                    for x in [
-                        ProtectionProfile.from_html_row(row, cert_status, category_string, is_collaborative)
-                        for row in body
-                    ]
-                }
-            except ValueError as e:
-                raise ValueError(f"Bad html file: {file.name} ({str(e)})") from e
+            table_certs = {}
+            for row in body:
+                try:
+                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, is_collaborative)
+                    table_certs[pp.dgst] = pp
+                except ValueError as e:
+                    logger.error(f"Error when creating ProtectionProfile object: {e}")
+
             return table_certs
 
         cert_status: Literal["active", "archived"] = "active" if "active" in file.name else "archived"
