@@ -55,7 +55,7 @@ class Configuration(BaseSettings):
         description="URL from where to fetch the latest full archive of fully processed CC dataset.",
     )
     pp_latest_full_archive: AnyHttpUrl = Field(
-        "https://sec-certs.org/cc/pp.tar.gz",
+        "https://sec-certs.org/pps/pp.tar.gz",
         description="URL from where to fetch the latest full archive of fully processed PP dataset.",
     )
     cc_maintenances_latest_snapshot: AnyHttpUrl = Field(
@@ -63,7 +63,7 @@ class Configuration(BaseSettings):
         description="URL from where to fetch the latest snapshot of CC maintenance updates",
     )
     pp_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/static/pp.json",
+        "https://sec-certs.org/pps/pp.json",
         description="URL from where to fetch the latest snapshot of the PP dataset.",
     )
     fips_latest_snapshot: AnyHttpUrl = Field(
