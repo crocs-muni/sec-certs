@@ -316,6 +316,7 @@ class CCCertificate(
         "directly_referencing",
         "indirectly_referencing",
         "extracted_sars",
+        "protection_profile_links",
         "protection_profiles",
         "cert_lab",
     ]
@@ -448,6 +449,7 @@ class CCCertificate(
             self.heuristics.report_references.directly_referencing,
             self.heuristics.report_references.indirectly_referencing,
             self.heuristics.extracted_sars,
+            self.protection_profile_links if self.protection_profile_links else np.nan,
             self.heuristics.protection_profiles if self.heuristics.protection_profiles else np.nan,
             self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
         )
