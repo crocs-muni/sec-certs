@@ -6,7 +6,7 @@ import tempfile
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -178,25 +178,23 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     def reference_annotator_dir(self) -> Path:
         return self.root_dir / "reference_annotator"
 
-    BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
-
     HTML_PRODUCTS_URL = {
-        "cc_products_active.html": BASE_URL + "/products/index.cfm",
-        "cc_products_archived.html": BASE_URL + "/products/index.cfm?archived=1",
+        "cc_products_active.html": constants.CC_PORTAL_BASE_URL + "/products/index.cfm",
+        "cc_products_archived.html": constants.CC_PORTAL_BASE_URL + "/products/index.cfm?archived=1",
     }
-    HTML_LABS_URL = {"cc_labs.html": BASE_URL + "/labs"}
+    HTML_LABS_URL = {"cc_labs.html": constants.CC_PORTAL_BASE_URL + "/labs"}
     CSV_PRODUCTS_URL = {
-        "cc_products_active.csv": BASE_URL + "/products/certified_products.csv",
-        "cc_products_archived.csv": BASE_URL + "/products/certified_products-archived.csv",
+        "cc_products_active.csv": constants.CC_PORTAL_BASE_URL + "/products/certified_products.csv",
+        "cc_products_archived.csv": constants.CC_PORTAL_BASE_URL + "/products/certified_products-archived.csv",
     }
     PP_URL = {
-        "cc_pp_active.html": BASE_URL + "/pps/",
-        "cc_pp_collaborative.html": BASE_URL + "/pps/collaborativePP.cfm?cpp=1",
-        "cc_pp_archived.html": BASE_URL + "/pps/index.cfm?archived=1",
+        "cc_pp_active.html": constants.CC_PORTAL_BASE_URL + "/pps/",
+        "cc_pp_collaborative.html": constants.CC_PORTAL_BASE_URL + "/pps/collaborativePP.cfm?cpp=1",
+        "cc_pp_archived.html": constants.CC_PORTAL_BASE_URL + "/pps/index.cfm?archived=1",
     }
     PP_CSV = {
-        "cc_pp_active.csv": BASE_URL + "/pps/pps.csv",
-        "cc_pp_archived.csv": BASE_URL + "/pps/pps-archived.csv",
+        "cc_pp_active.csv": constants.CC_PORTAL_BASE_URL + "/pps/pps.csv",
+        "cc_pp_archived.csv": constants.CC_PORTAL_BASE_URL + "/pps/pps-archived.csv",
     }
 
     @property
@@ -397,7 +395,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 return url
             tokens = url.split("/")
             relative_path = "/" + "/".join(tokens[3:])
-            return CCDataset.BASE_URL + relative_path
+            return constants.CC_PORTAL_BASE_URL + relative_path
 
         def _get_primary_key_str(row: Tag):
             return "|".join(
