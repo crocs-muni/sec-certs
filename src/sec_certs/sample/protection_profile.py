@@ -19,7 +19,7 @@ from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
-from sec_certs.utils import helpers, sanitization
+from sec_certs.utils import cc_html_parsing, helpers, sanitization
 
 
 class ProtectionProfile(
@@ -55,7 +55,7 @@ class ProtectionProfile(
         report_link: str | None
         pp_link: str | None
         scheme: str | None
-        maintenances: list[tuple[date, str, str]]
+        maintenances: list[tuple[Any]]
 
         @property
         def eal(self) -> str | None:
@@ -88,7 +88,12 @@ class ProtectionProfile(
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
 
-            # TODO: Parse maintenance div here. See CC parsing.
+            mu_div = cc_html_parsing.html_row_get_maintenance_div(row)
+            maintenance_updates = cc_html_parsing.parse_maintenance_div(mu_div) if mu_div else []
+            if maintenance_updates:
+                # Drop ST links, not filled in for PPs
+                maintenance_updates = [x[:3] for x in maintenance_updates]
+
             return cls(
                 category,
                 status,
@@ -101,7 +106,7 @@ class ProtectionProfile(
                 cls._html_row_get_link(cells[-1]),
                 pp_link,
                 cls._html_row_get_scheme(cells[-2]),
-                [],
+                maintenance_updates,
             )
 
         @classmethod
