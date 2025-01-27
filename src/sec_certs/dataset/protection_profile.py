@@ -1,7 +1,7 @@
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Literal
+from typing import Literal
 
 from bs4 import BeautifulSoup
 
@@ -76,13 +76,15 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     def web_dir(self) -> Path:
         return self.root_dir / "web"
 
-    BASE_URL: ClassVar[str] = "https://www.commoncriteriaportal.org"
     HTML_URL = {
-        "pp_active.html": BASE_URL + "/pps/index.cfm",
-        "pp_archived.html": BASE_URL + "/pps/index.cfm?archived=1",
-        "pp_collaborative.html": BASE_URL + "/pps/collaborativePP.cfm?cpp=1",
+        "pp_active.html": constants.CC_PORTAL_BASE_URL + "/pps/index.cfm",
+        "pp_archived.html": constants.CC_PORTAL_BASE_URL + "/pps/index.cfm?archived=1",
+        "pp_collaborative.html": constants.CC_PORTAL_BASE_URL + "/pps/collaborativePP.cfm?cpp=1",
     }
-    CSV_URL = {"pp_active.csv": BASE_URL + "/pps/pps.csv", "pp_archived.csv": BASE_URL + "/pps/pps-archived.csv"}
+    CSV_URL = {
+        "pp_active.csv": constants.CC_PORTAL_BASE_URL + "/pps/pps.csv",
+        "pp_archived.csv": constants.CC_PORTAL_BASE_URL + "/pps/pps-archived.csv",
+    }
 
     @property
     def active_html_tuples(self) -> list[tuple[str, Path]]:
