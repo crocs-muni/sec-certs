@@ -298,7 +298,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             )
 
         if skip_schemes:
-            del self.aux_handlers[CCSchemeDatasetHandler]
+            self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
         super().process_auxiliary_datasets(download_fresh, **kwargs)
 
     def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
