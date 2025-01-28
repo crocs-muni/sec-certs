@@ -16,11 +16,11 @@ Our tool can seamlessly download the required NVD datasets when needed. We suppo
 The following two keys control the behaviour:
 
 ```yaml
-preferred_source_nvd_datasets: "api" # set to "sec-certs" to fetch them from sec-certs.org
+preferred_source_aux_datasets: "api" # set to "sec-certs" to fetch them from sec-certs.org
 nvd_api_key: null # or the actual key value
 ```
 
-If you aim to fetch the sources from NVD, we advise you to get an [NVD API key](https://nvd.nist.gov/developers/request-an-api-key) and set the `nvd_api_key` setting accordingly. The download from NVD will work even without API key, it will just be slow. No API key is needed when `preferred_source_nvd_datasets: "sec-certs"`
+If you aim to fetch the sources from NVD, we advise you to get an [NVD API key](https://nvd.nist.gov/developers/request-an-api-key) and set the `nvd_api_key` setting accordingly. The download from NVD will work even without API key, it will just be slow. No API key is needed when `preferred_source_aux_datasets: "sec-certs"`
 
 
 ## Inferring inter-certificate reference context
