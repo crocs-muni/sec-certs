@@ -97,6 +97,6 @@ def test_cert_dgst(cert_one: CCCertificate):
 
 def test_cert_older_dgst(cert_one: CCCertificate):
     assert cert_one.older_dgst == "916f4d199f78d70c"
-    cert_one.category = None
+    cert_one.report_link = None
     with pytest.raises(RuntimeError):
         cert_one.older_dgst
