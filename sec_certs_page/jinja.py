@@ -54,6 +54,14 @@ def filter_fromisoformat(dt):
         return date.fromisoformat(dt)
 
 
+@app.template_filter("fips_name")
+def filter_fips_name(cert):
+    web_data = cert.get("web_data", cert.get("web_scan"))
+    if web_data:
+        return web_data.get("module_name")
+    return None
+
+
 @app.template_test("date")
 def is_date(dt_obj):
     return isinstance(dt_obj, date)

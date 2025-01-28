@@ -7,24 +7,24 @@
 {% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
-        {{ cert["web_data"]["module_name"]|default("", true) + " | sec-certs.org" }}
+        {{ cert|fips_name|default("", true) + " | sec-certs.org" }}
     </title>
 {% endblock %}
 {% block metadata %}
     <meta property="description"
-          content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
+          content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
     <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
     <meta property="twitter:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
     <meta property="twitter:description"
-          content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
-    <meta property="og:title" content="{{ cert["web_data"]["module_name"]|default("sec-certs.org", true) }}"/>
+          content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
+    <meta property="og:title" content="{{ cert|fips_name|default("sec-certs.org", true) }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
     <meta property="og:image" content="{{ url_for("static", filename="img/fips_card.png", _external=True) }}"/>
     <meta property="og:description"
-          content="FIPS 140 certificate {{ cert["web_data"]["module_name"]|default("", true) }}"/>
+          content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
 {% block navbar %}
@@ -54,8 +54,8 @@
                class="btn btn-outline-secondary btn-sm" title="Link by certificate id" data-bs-toggle="tooltip"
                data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
         {% endif %}
-        {% if cert["web_data"]["module_name"] %}
-            <a href="{{ url_for("fips.entry_name", name=cert["web_data"]["module_name"]) }}"
+        {% if cert|fips_name %}
+            <a href="{{ url_for("fips.entry_name", name=cert|fips_name) }}"
                class="btn btn-outline-secondary btn-sm"
                title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
                     class="fas fa-share"></i> Link by certificate name</a>
@@ -68,7 +68,7 @@
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-            <h1>{{ cert["web_data"]["module_name"]|default("", true) }}</h1>
+            <h1>{{ cert|fips_name|default("", true) }}</h1>
 
             {% if cves %}
                 <div class="alert alert-warning mt-4">
@@ -409,7 +409,7 @@
             </div>
             <script>
                 let certificate_data = {
-                    name: "{{ cert["web_data"]["module_name"]|default("", true) }}",
+                    name: "{{ cert|fips_name|default("", true) }}",
                     hashid: "{{ hashid }}",
                     type: "fips",
                     url: "{{ url_for("fips.entry", hashid=hashid) }}"
