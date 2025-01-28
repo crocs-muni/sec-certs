@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-body">
         <h5 class="card-title">New certificate</h5>
-        <p class="card-text">A new FIPS 140 certificate with the product name <b>{{ cert["name"] }}</b>
+        <p class="card-text">A new FIPS 140 certificate with the product name <b>{{ cert["web_data"]["module_name"] }}</b>
             was processed.</p>
         {% if linkback %}
             <a href="{{ url_for("fips.entry", hashid=hashid) }}" class="card-link">Certificate page</a>
