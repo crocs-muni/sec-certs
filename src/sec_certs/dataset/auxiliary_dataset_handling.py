@@ -64,22 +64,21 @@ class CPEDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CPE dataset")
     def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if self.dset_path.exists():
+        if not download_fresh and self.dset_path.exists():
             logger.info("Preparing CPEDataset from json.")
-            self.dset = CPEDataset.from_json(self.dset_path)
-        else:
-            self.dset = CPEDataset(json_path=self.dset_path)
-            download_fresh = True
+            self.load_dataset()
+            return
 
-        if download_fresh:
-            if config.preferred_source_nvd_datasets == "api":
-                logger.info("Fetching new CPE records from NVD API")
-                with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
-                    self.dset = builder.build_dataset(self.dset)
-            else:
-                logger.info("Preparing CPEDataset from sec-certs.org.")
-                self.dset = CPEDataset.from_web(self.dset_path)
-            self.dset.to_json()
+        if config.preferred_source_aux_datasets == "api":
+            logger.info("Fetching new CPE records from NVD API")
+            with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+                self.dset = builder.build_dataset()
+        else:
+            logger.info("Preparing CPEDataset from sec-certs.org.")
+            self.dset = CPEDataset.from_web(self.dset_path)
+
+        self.dset.to_json()
+        self.dset.json_path = self.dset_path
 
     def load_dataset(self) -> None:
         self.dset = CPEDataset.from_json(self.dset_path)
@@ -92,22 +91,21 @@ class CVEDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CVE dataset")
     def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if self.dset_path.exists():
+        if not download_fresh and self.dset_path.exists():
             logger.info("Preparing CVEDataset from json.")
-            self.dset = CVEDataset.from_json(self.dset_path)
-        else:
-            self.dset = CVEDataset(json_path=self.dset_path)
-            download_fresh = True
+            self.load_dataset()
+            return
 
-        if download_fresh:
-            if config.preferred_source_nvd_datasets == "api":
-                logger.info("Fetching new CVE records from NVD API.")
-                with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
-                    self.dset = builder.build_dataset(self.dset)
-            else:
-                logger.info("Preparing CVEDataset from sec-certs.org")
-                self.dset = CVEDataset.from_web(self.dset_path)
-            self.dset.to_json()
+        if config.preferred_source_aux_datasets == "api":
+            logger.info("Fetching new CVE records from NVD API.")
+            with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+                self.dset = builder.build_dataset()
+        else:
+            logger.info("Preparing CVEDataset from sec-certs.org.")
+            self.dset = CVEDataset.from_web(self.dset_path)
+
+        self.dset.to_json()
+        self.dset.json_path = self.dset_path
 
     def load_dataset(self):
         self.dset = CVEDataset.from_json(self.dset_path)
@@ -120,39 +118,34 @@ class CPEMatchDictHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CPE Match dictionary")
     def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if self.dset_path.exists():
+        if not download_fresh and self.dset_path.exists():
             logger.info("Preparing CPE Match feed from json.")
-            with self.dset_path.open("r") as handle:
-                self.dset = json.load(handle)
-        else:
-            self.dset = CpeMatchNvdDatasetBuilder._init_new_dataset()
-            download_fresh = True
+            self.load_dataset()
+            return
 
-        if download_fresh:
-            if config.preferred_source_nvd_datasets == "api":
-                logger.info("Fetchnig CPE Match feed from NVD APi.")
-                with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
-                    self.dset = builder.build_dataset(self.dset)
-            else:
-                logger.info("Preparing CPE Match feed from sec-certs.org.")
-                with tempfile.TemporaryDirectory() as tmp_dir:
-                    dset_path = Path(tmp_dir) / "cpe_match_feed.json.gz"
-                    if (
-                        not helpers.download_file(
-                            config.cpe_match_latest_snapshot,
-                            dset_path,
-                            progress_bar_desc="Downloading CPE Match feed from web",
-                        )
-                        == constants.RESPONSE_OK
-                    ):
-                        raise RuntimeError(
-                            f"Could not download CPE Match feed from {config.cpe_match_latest_snapshot}."
-                        )
-                    with gzip.open(str(dset_path)) as handle:
-                        json_str = handle.read().decode("utf-8")
-                        self.dset = json.loads(json_str)
-            with self.dset_path.open("w") as handle:
-                json.dump(self.dset, handle, indent=4)
+        if config.preferred_source_aux_datasets == "api":
+            logger.info("Fetchnig CPE Match feed from NVD APi.")
+            with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
+                self.dset = builder.build_dataset()
+        else:
+            logger.info("Preparing CPE Match feed from sec-certs.org.")
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                dset_path = Path(tmp_dir) / "cpe_match_feed.json.gz"
+                if (
+                    not helpers.download_file(
+                        config.cpe_match_latest_snapshot,
+                        dset_path,
+                        progress_bar_desc="Downloading CPE Match feed from web",
+                    )
+                    == constants.RESPONSE_OK
+                ):
+                    raise RuntimeError(f"Could not download CPE Match feed from {config.cpe_match_latest_snapshot}.")
+                with gzip.open(str(dset_path)) as handle:
+                    json_str = handle.read().decode("utf-8")
+                    self.dset = json.loads(json_str)
+
+        with self.dset_path.open("w") as handle:
+            json.dump(self.dset, handle, indent=4)
 
     def load_dataset(self):
         with self.dset_path.open("r") as handle:
@@ -166,11 +159,14 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing FIPS Algorithms")
     def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not self.dset_path.exists() or download_fresh:
-            self.dset = FIPSAlgorithmDataset.from_web(self.dset_path)
-            self.dset.to_json()
-        else:
-            self.dset = FIPSAlgorithmDataset.from_json(self.dset_path)
+        if not download_fresh and self.dset_path.exists():
+            logger.info("Preparing FIPSAlgorithmDataset from json.")
+            self.load_dataset()
+            return
+
+        self.dset = FIPSAlgorithmDataset.from_web(self.dset_path)
+        self.dset.to_json()
+        self.dset.json_path = self.dset_path
 
     def load_dataset(self):
         self.dset = FIPSAlgorithmDataset.from_json(self.dset_path)
@@ -192,11 +188,14 @@ class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CC Schemes")
     def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not self.dset_path.exists() or download_fresh:
-            self.dset = CCSchemeDataset.from_web(self.dset_path, self.only_schemes)
-            self.dset.to_json()
-        else:
-            self.dset = CCSchemeDataset.from_json(self.dset_path)
+        if not download_fresh and self.dset_path.exists():
+            logger.info("Preparing CCSchemeDataset from json.")
+            self.load_dataset()
+            return
+
+        self.dset = CCSchemeDataset.from_web(self.dset_path, self.only_schemes)
+        self.dset.to_json()
+        self.dset.json_path = self.dset_path
 
     def load_dataset(self):
         self.dset = CCSchemeDataset.from_json(self.dset_path)
@@ -227,20 +226,25 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
     def _process_dataset_body(self, download_fresh: bool = False):
         from sec_certs.dataset.cc import CCDatasetMaintenanceUpdates
 
-        if not self.dset_path.exists() or download_fresh:
-            updates = list(
-                itertools.chain.from_iterable(
-                    CCMaintenanceUpdate.get_updates_from_cc_cert(x) for x in self.certs_with_updates
-                )
+        if not download_fresh and self.dset_path.exists():
+            logger.info("Preparing CCDatasetMaintenanceUpdates from json.")
+            self.load_dataset()
+            return
+
+        updates = list(
+            itertools.chain.from_iterable(
+                CCMaintenanceUpdate.get_updates_from_cc_cert(x) for x in self.certs_with_updates
             )
-            self.dset = CCDatasetMaintenanceUpdates(
-                {x.dgst: x for x in updates}, root_dir=self.dset_path.parent, name="maintenance_updates"
-            )
-            self.dset.download_all_artifacts()
-            self.dset.convert_all_pdfs()
-            self.dset.extract_data()
-        else:
-            self.dset = CCDatasetMaintenanceUpdates.from_json(self.dset_path)
+        )
+        self.dset = CCDatasetMaintenanceUpdates(
+            {x.dgst: x for x in updates},
+            root_dir=self.dset_path.parent,
+            name="maintenance_updates",
+        )
+        self.dset.download_all_artifacts()
+        self.dset.convert_all_pdfs()
+        self.dset.extract_data()
+        self.dset.to_json()
 
 
 class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
@@ -262,12 +266,14 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
     def _process_dataset_body(self, download_fresh: bool = False):
         from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
-        if not self.dset_path.exists() or download_fresh:
-            self.dset_path.parent.mkdir(exist_ok=True, parents=True)
-            self.dset = ProtectionProfileDataset(root_dir=self.dset_path.parent)
-            self.dset.get_certs_from_web()
-            self.dset.download_all_artifacts()
-            self.dset.convert_all_pdfs()
-            self.dset.analyze_certificates()
-        else:
-            self.dset = ProtectionProfileDataset.from_json(self.dset_path)
+        if not download_fresh and self.dset_path.exists():
+            logger.info("Preparing ProtectionProfileDataset from json.")
+            self.load_dataset()
+            return
+
+        self.dset_path.parent.mkdir(exist_ok=True, parents=True)
+        self.dset = ProtectionProfileDataset(root_dir=self.dset_path.parent)
+        self.dset.get_certs_from_web()
+        self.dset.download_all_artifacts()
+        self.dset.convert_all_pdfs()
+        self.dset.analyze_certificates()

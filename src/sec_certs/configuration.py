@@ -138,7 +138,7 @@ class Configuration(BaseSettings):
         description="If true, progress bars will be printed to stdout during computation.",
     )
     nvd_api_key: Optional[str] = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
-    preferred_source_nvd_datasets: Literal["sec-certs", "api"] = Field(
+    preferred_source_aux_datasets: Literal["sec-certs", "api"] = Field(
         "sec-certs",
         description="If set to `sec-certs`, will fetch CPE and CVE datasets from sec-certs.org."
         + " If set to `api`, will fetch these resources from NVD API. It is advised to set an"

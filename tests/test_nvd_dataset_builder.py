@@ -60,7 +60,7 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
             return len(dset)
         return len(dset["match_strings"])
 
-    config.preferred_source_nvd_datasets = "api"
+    config.preferred_source_aux_datasets = "api"
     with builder_class(api_key=config.nvd_api_key) as dataset_builder:
         dataset = dataset_builder._init_new_dataset()
         assert dataset == default_dataset
