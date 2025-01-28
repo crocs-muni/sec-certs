@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from sec_certs import constants
+from sec_certs.dataset import ProtectionProfileDataset
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 
@@ -106,6 +107,7 @@ def test_build_empty_dataset():
         dset.get_certs_from_web(to_download=False, get_archived=False, get_active=False)
     assert len(dset) == 0
     assert dset.state.meta_sources_parsed
+    assert not dset.state.auxiliary_datasets_processed
     assert not dset.state.artifacts_downloaded
     assert not dset.state.pdfs_converted
     assert not dset.state.certs_analyzed
@@ -130,17 +132,22 @@ def test_build_dataset(data_dir: Path, cert_one: CCCertificate, toy_dataset: CCD
 
 
 @pytest.mark.xfail(reason="May fail due to error on CC server")
-def test_download_csv_html_files():
+@pytest.mark.parametrize("dataset_class", ["CCDataset", "ProtectionProfileDataset"])
+def test_download_csv_html_files(dataset_class):
     with TemporaryDirectory() as tmp_dir:
-        dset = CCDataset({}, Path(tmp_dir), "sample_dataset", "sample dataset description")
-        dset._download_csv_html_resources(get_active=True, get_archived=False)
+        constructor = CCDataset if dataset_class == "CCDataset" else ProtectionProfileDataset
+        min_html_size = constants.MIN_CC_HTML_SIZE if dataset_class == "CCDataset" else constants.MIN_PP_HTML_SIZE
+        dset = constructor(root_dir=Path(tmp_dir))
+        dset._download_html_resources(get_active=True, get_archived=False)
 
         for x in dset.active_html_tuples:
             assert x[1].exists()
-            assert x[1].stat().st_size >= constants.MIN_CC_HTML_SIZE
-        for x in dset.active_csv_tuples:
-            assert x[1].exists()
-            assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
+            assert x[1].stat().st_size >= min_html_size
+
+        if dataset_class == "CCDataset":
+            for x in dset.active_csv_tuples:
+                assert x[1].exists()
+                assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
 
 
 def test_to_pandas(toy_dataset: CCDataset):

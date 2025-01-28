@@ -4,10 +4,19 @@ from importlib import resources
 from pathlib import Path
 
 import pytest
+import tests.data.cc.analysis
 import tests.data.cc.dataset
+import tests.data.protection_profiles
 
 from sec_certs.dataset.cc import CCDataset
+from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.sample.cc import CCCertificate
+
+
+@pytest.fixture(scope="module")
+def pp_data_dir() -> Generator[Path, None, None]:
+    with resources.path(tests.data.protection_profiles, "") as path:
+        yield path
 
 
 @pytest.fixture(scope="module")
@@ -16,10 +25,22 @@ def data_dir() -> Generator[Path, None, None]:
         yield path
 
 
+@pytest.fixture(scope="module")
+def analysis_data_dir() -> Generator[Path, None, None]:
+    with resources.path(tests.data.cc.analysis, "") as path:
+        yield path
+
+
 @pytest.fixture
 def toy_dataset() -> CCDataset:
     with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
         return CCDataset.from_json(path)
+
+
+@pytest.fixture
+def toy_pp_dataset() -> ProtectionProfileDataset:
+    with resources.path(tests.data.protection_profiles, "pp.json") as path:
+        return ProtectionProfileDataset.from_json(path)
 
 
 @pytest.fixture

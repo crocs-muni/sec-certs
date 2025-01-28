@@ -33,10 +33,11 @@ def analysis_data_dir() -> Generator[Path, None, None]:
 
 @pytest.fixture(scope="module")
 def processed_cc_dset(
-    analysis_data_dir: Path, cve_dataset: CVEDataset, cpe_dataset: CPEDataset, tmp_path_factory
+    analysis_data_dir: Path, cve_dataset: CVEDataset, cpe_dataset: CPEDataset, tmp_path_factory, pp_data_dir: Path
 ) -> CCDataset:
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
     shutil.copytree(analysis_data_dir, tmp_dir, dirs_exist_ok=True)
+    shutil.copy(pp_data_dir / "pp.json", tmp_dir / "pp.json")
 
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.aux_handlers[ProtectionProfileDatasetHandler].root_dir.mkdir(parents=True, exist_ok=True)
