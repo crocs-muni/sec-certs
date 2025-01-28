@@ -22,7 +22,7 @@ def toy_dataset() -> CCDataset:
         return CCDataset.from_json(path)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def cert_one() -> CCCertificate:
     return CCCertificate(
         "active",
@@ -33,9 +33,9 @@ def cert_one() -> CCCertificate:
         {"ALC_FLR.2", "EAL3+"},
         date(2020, 6, 15),
         date(2025, 6, 15),
-        "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf",
-        "https://www.commoncriteriaportal.org/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
-        "https://www.commoncriteriaportal.org/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
+        "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf",
+        "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/epfiles/ST%20-%20NetIQ%20Identity%20Manager%204.7.pdf",
+        "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/epfiles/Certifikat%20CCRA%20-%20NetIQ%20Identity%20Manager%204.7_signed.pdf",
         "https://www.netiq.com/",
         None,
         set(),
