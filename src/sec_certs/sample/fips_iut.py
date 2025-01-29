@@ -147,7 +147,10 @@ class IUTSnapshot(ComplexSerializableType):
         """
         Get an IUT snapshot from the FIPS website right now.
         """
-        iut_resp = requests.get(constants.FIPS_IUT_URL)
+        if config.preferred_source_remote_datasets == "origin":
+            iut_resp = requests.get(constants.FIPS_IUT_URL)
+        else:
+            iut_resp = requests.get(config.fips_iut_dataset)
         if iut_resp.status_code != 200:
             raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
 
