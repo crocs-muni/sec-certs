@@ -5,11 +5,12 @@ import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Final
+from typing import ClassVar, Final
 
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
+from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -41,6 +42,9 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     """
     Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
     """
+
+    FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.fips_latest_full_archive
+    SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.fips_latest_snapshot
 
     def __init__(
         self,
@@ -225,34 +229,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 cert_ids.add(cert_id)
 
         return [FIPSCertificate(int(cert_id)) for cert_id in cert_ids]
-
-    @classmethod
-    def from_web_latest(
-        cls,
-        path: str | Path | None = None,
-        auxiliary_datasets: bool = False,
-        artifacts: bool = False,
-    ) -> FIPSDataset:
-        """
-        Fetches the fresh snapshot of FIPSDataset from sec-certs.org.
-
-        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
-
-        .. note::
-            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
-
-        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
-        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
-        :param artifacts: Whether to also download artifacts (i.e. PDFs).
-        """
-        return cls.from_web(
-            config.fips_latest_full_archive,
-            config.fips_latest_snapshot,
-            "Downloading FIPS",
-            path,
-            auxiliary_datasets,
-            artifacts,
-        )
 
     def _set_local_paths(self) -> None:
         super()._set_local_paths()

@@ -69,7 +69,7 @@ class CPEDatasetHandler(AuxiliaryDatasetHandler):
             self.load_dataset()
             return
 
-        if config.preferred_source_aux_datasets == "api":
+        if config.preferred_source_remote_datasets == "origin":
             logger.info("Fetching new CPE records from NVD API")
             with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                 self.dset = builder.build_dataset()
@@ -96,7 +96,7 @@ class CVEDatasetHandler(AuxiliaryDatasetHandler):
             self.load_dataset()
             return
 
-        if config.preferred_source_aux_datasets == "api":
+        if config.preferred_source_remote_datasets == "origin":
             logger.info("Fetching new CVE records from NVD API.")
             with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                 self.dset = builder.build_dataset()
@@ -123,7 +123,7 @@ class CPEMatchDictHandler(AuxiliaryDatasetHandler):
             self.load_dataset()
             return
 
-        if config.preferred_source_aux_datasets == "api":
+        if config.preferred_source_remote_datasets == "origin":
             logger.info("Fetchnig CPE Match feed from NVD APi.")
             with CpeMatchNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                 self.dset = builder.build_dataset()

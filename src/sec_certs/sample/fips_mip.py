@@ -254,17 +254,10 @@ class MIPSnapshot(ComplexSerializableType):
         if mip_resp.status_code != 200:
             raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
 
-        snapshot_date = to_utc(datetime.now())
-        return cls.from_page(mip_resp.content, snapshot_date)
-
-    @classmethod
-    def from_web_latest(cls) -> MIPSnapshot:
-        """
-        Get a MIP snapshot from sec-certs.org.
-        """
-        mip_resp = requests.get(config.fips_mip_latest_snapshot)
-        if mip_resp.status_code != 200:
-            raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
-        with NamedTemporaryFile() as tmpfile:
-            tmpfile.write(mip_resp.content)
-            return cls.from_json(tmpfile.name)
+        if config.preferred_source_remote_datasets == "origin":
+            snapshot_date = to_utc(datetime.now())
+            return cls.from_page(mip_resp.content, snapshot_date)
+        else:
+            with NamedTemporaryFile() as tmpfile:
+                tmpfile.write(mip_resp.content)
+                return cls.from_json(tmpfile.name)

@@ -56,7 +56,7 @@ class MIPDataset(JSONPathDataset, ComplexSerializableType):
         return cls(dct["snapshots"])
 
     @classmethod
-    def from_web_latest(cls) -> MIPDataset:
+    def from_web(cls) -> MIPDataset:
         """
         Get the MIPDataset from sec-certs.org
         """

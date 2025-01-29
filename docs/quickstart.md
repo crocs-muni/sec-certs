@@ -8,7 +8,7 @@
 ```python
 from sec_certs.dataset.cc import CCDataset
 
-dset = CCDataset.from_web_latest()
+dset = CCDataset.from_web()
 ```
 to obtain to obtain freshly processed dataset from [sec-certs.org](https://sec-certs.org).
 
@@ -21,7 +21,7 @@ to obtain to obtain freshly processed dataset from [sec-certs.org](https://sec-c
 ```python
 from sec_certs.dataset.fips import FIPSDataset
 
-dset = FIPSDataset.from_web_latest()
+dset = FIPSDataset.from_web()
 ```
 to obtain to obtain freshly processed dataset from [sec-certs.org](https://sec-certs.org).
 

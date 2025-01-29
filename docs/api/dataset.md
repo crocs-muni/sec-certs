@@ -25,6 +25,14 @@ The examples related to this package can be found in the [common criteria notebo
     :members:
 ```
 
+## ProtectionProfileDataset
+
+```{eval-rst}
+.. currentmodule:: sec_certs.dataset
+.. autoclass:: ProtectionProfileDataset
+    :members:
+```
+
 ## FIPSDataset
 
 ```{eval-rst}

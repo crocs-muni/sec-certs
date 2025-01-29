@@ -32,6 +32,10 @@ class ProtectionProfile(
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
+        """
+        Class to hold data related to PDF and txt files related to protection profiles.
+        """
+
         report_metadata: dict[str, Any] | None = field(default=None)
         pp_metadata: dict[str, Any] | None = field(default=None)
         report_keywords: dict[str, Any] | None = field(default=None)
@@ -44,6 +48,10 @@ class ProtectionProfile(
 
     @dataclass(eq=True)
     class WebData(ComplexSerializableType):
+        """
+        Class to hold metadata about protection profiles found on commoncriteriaportal.org
+        """
+
         category: str
         status: Literal["active", "archived"]
         is_collaborative: bool
@@ -65,6 +73,9 @@ class ProtectionProfile(
         def from_html_row(
             cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
         ) -> ProtectionProfile.WebData:
+            """
+            Given bs4 tag of html row (fetched from cc portal), will build the object.
+            """
             if is_collaborative:
                 return cls._from_html_row_collaborative(row, category)
             return cls._from_html_row_classic_pp(row, status, category)
@@ -176,6 +187,10 @@ class ProtectionProfile(
 
     @dataclass
     class InternalState(ComplexSerializableType):
+        """
+        Class to hold internal state for each of the documents.
+        """
+
         pp: DocumentState = field(default_factory=DocumentState)
         report: DocumentState = field(default_factory=DocumentState)
 
@@ -194,6 +209,9 @@ class ProtectionProfile(
 
     @property
     def dgst(self) -> str:
+        """
+        digest of thwe protection profile, formed as first 16 bytes of `category|name|version` fields from `WebData` object.
+        """
         return helpers.get_first_16_bytes_sha256(
             "|".join([self.web_data.category, self.web_data.name, self.web_data.version])
         )
@@ -212,6 +230,9 @@ class ProtectionProfile(
         report_txt_dir: str | Path | None,
         pp_txt_dir: str | Path | None,
     ) -> None:
+        """
+        Adjusts local paths for various files.
+        """
         if report_pdf_dir:
             self.state.report.pdf_path = Path(report_pdf_dir) / f"{self.dgst}.pdf"
         if pp_pdf_dir:
@@ -225,10 +246,16 @@ class ProtectionProfile(
     def from_html_row(
         cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
     ) -> ProtectionProfile:
+        """
+        Builds a `ProtectionProfile` object from html row obtained from cc portal html source.
+        """
         return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
 
     @staticmethod
     def download_pdf_report(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Downloads pdf of certification report for the given protection profile.
+        """
         exit_code: str | int
         if not cert.web_data.report_link:
             exit_code = "No link"
@@ -248,6 +275,9 @@ class ProtectionProfile(
 
     @staticmethod
     def download_pdf_pp(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Downloads actual pdf of the given protection profile.
+        """
         exit_code: str | int
         if not cert.web_data.pp_link:
             exit_code = "No link"
@@ -265,6 +295,9 @@ class ProtectionProfile(
 
     @staticmethod
     def convert_report_pdf(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Converts certification reports from pdf to txt.
+        """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
             cert.state.report.pdf_path, cert.state.report.txt_path
         )
@@ -278,6 +311,9 @@ class ProtectionProfile(
 
     @staticmethod
     def convert_pp_pdf(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Converts the actual protection profile from pdf to txt.
+        """
         ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.pp.pdf_path, cert.state.pp.txt_path)
         cert.state.pp.convert_garbage = ocr_done
         cert.state.pp.convert_ok = ok_result
@@ -289,18 +325,27 @@ class ProtectionProfile(
 
     @staticmethod
     def extract_report_pdf_metadata(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Extracts various pdf metadata from the certification report.
+        """
         response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report.pdf_path)
         cert.state.report.extract_ok = response == constants.RETURNCODE_OK
         return cert
 
     @staticmethod
     def extract_pp_pdf_metadata(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Extracts various pdf metadata from the actual protection profile.
+        """
         response, cert.pdf_data.pp_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.pp.pdf_path)
         cert.state.pp.extract_ok = response == constants.RETURNCODE_OK
         return cert
 
     @staticmethod
     def extract_report_pdf_keywords(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Extracts keywords using regexes from the certification report.
+        """
         report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report.txt_path, cc_rules)
         if report_keywords is None:
             cert.state.report.extract_ok = False
@@ -310,6 +355,9 @@ class ProtectionProfile(
 
     @staticmethod
     def extract_pp_pdf_keywords(cert: ProtectionProfile) -> ProtectionProfile:
+        """
+        Extracts keywords using regexes from the actual protection profile.
+        """
         pp_keywords = sec_certs.utils.extract.extract_keywords(cert.state.pp.txt_path, cc_rules)
         if pp_keywords is None:
             cert.state.pp.extract_ok = False
