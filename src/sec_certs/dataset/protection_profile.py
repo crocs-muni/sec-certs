@@ -1,9 +1,10 @@
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Literal
+from typing import ClassVar, Literal
 
 from bs4 import BeautifulSoup
+from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -17,6 +18,9 @@ from sec_certs.utils.profiling import staged
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):
+    FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.pp_latest_full_archive
+    SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.pp_latest_snapshot
+
     def __init__(
         self,
         certs: dict[str, ProtectionProfile] = {},
@@ -34,6 +38,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         self.state = state if state else self.DatasetInternalState()
         self.aux_handlers = aux_handlers
         self.root_dir = Path(root_dir)
+        """
+        Class for processing ProtectionProfile samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+        """
 
     @property
     def json_path(self) -> Path:
@@ -41,39 +48,54 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     @property
     def reports_dir(self) -> Path:
+        """
+        Path to protection profile reports.
+        """
         return self.root_dir / "reports"
 
     @property
     def pps_dir(self) -> Path:
+        """
+        Path to actual protection profiles.
+        """
         return self.root_dir / "pps"
 
     @property
     def reports_pdf_dir(self) -> Path:
+        """
+        Path to pdfs of protection profile reports.
+        """
         return self.reports_dir / "pdf"
 
     @property
     def reports_txt_dir(self) -> Path:
+        """
+        Path to txts of protection profile reports.
+        """
         return self.reports_dir / "txt"
 
     @property
     def pps_pdf_dir(self) -> Path:
+        """
+        Path to pdfs of protection profiles
+        """
         return self.pps_dir / "pdf"
 
     @property
     def pps_txt_dir(self) -> Path:
+        """
+        Path to txts of protection profiles.
+        """
         return self.pps_dir / "txt"
-
-    @classmethod
-    def from_web_latest(cls, path: str | Path | None = None, artifacts: bool = False) -> "ProtectionProfileDataset":
-        return cls.from_web(
-            str(config.pp_latest_full_archive), str(config.pp_latest_snapshot), "Downloading PP", path, False, artifacts
-        )
 
     def _compute_heuristics_body(self):
         logger.info("Protection profile dataset has no heuristics to compute, skipping.")
 
     @property
     def web_dir(self) -> Path:
+        """
+        Path to directory with html sources downloaded from commoncriteriaportal.org
+        """
         return self.root_dir / "web"
 
     HTML_URL = {
@@ -104,6 +126,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         get_archived: bool = True,
         get_collaborative: bool = True,
     ) -> None:
+        """
+        Fetches list of protection profiles together with metadata from commoncriteriaportal.org
+        """
         if to_download:
             self._download_html_resources(get_active, get_archived, get_collaborative)
 
@@ -270,6 +295,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
 
     def extract_data(self):
+        """
+        Extracts pdf metadata and keywords from converted text documents.
+        """
         logger.info("Extracting various data from certification artifacts.")
         self._extract_pdf_metadata()
         self._extract_pdf_keywords()
@@ -331,10 +359,17 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             cert.set_local_paths(self.reports_pdf_dir, self.pps_pdf_dir, self.reports_txt_dir, self.pps_txt_dir)
 
     def process_auxiliary_datasets(self) -> None:
+        """
+        Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.
+        This will just set the state `auxiliary_datasets_processed = True`
+        """
         logger.info("Protection Profile dataset has no auxiliary datasets to process, skipping.")
         self.state.auxiliary_datasets_processed = True
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
+        """
+        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if such exists.
+        """
         for pp in self:
             if pp.web_data.pp_link == pp_link:
                 return pp

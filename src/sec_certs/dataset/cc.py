@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import locale
 import shutil
-import tempfile
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import cast
+from typing import ClassVar, cast
 
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, Tag
+from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -47,6 +47,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     Class that holds CCCertificate. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
     """
+
+    FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.cc_latest_full_archive
+    SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.cc_latest_snapshot
 
     def __init__(
         self,
@@ -228,34 +231,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         The files correspond to csv files downloaded from CC website that list all *archived* certificates.
         """
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "archived" in y]
-
-    @classmethod
-    def from_web_latest(
-        cls,
-        path: str | Path | None = None,
-        auxiliary_datasets: bool = False,
-        artifacts: bool = False,
-    ) -> CCDataset:
-        """
-        Fetches the fresh snapshot of CCDataset from sec-certs.org.
-
-        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
-
-        .. note::
-            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
-
-        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
-        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
-        :param artifacts: Whether to also download artifacts (i.e. PDFs).
-        """
-        return cls.from_web(
-            config.cc_latest_full_archive,
-            config.cc_latest_snapshot,
-            "Downloading CC",
-            path,
-            auxiliary_datasets,
-            artifacts,
-        )
 
     def _set_local_paths(self):
         super()._set_local_paths()
@@ -813,6 +788,9 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     Should be used merely for actions related to Maintenance updates: download pdfs, convert pdfs, extract data from pdfs
     """
 
+    FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.cc_maintenances_latest_full_archive
+    SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.cc_maintenances_latest_snapshot
+
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
@@ -879,31 +857,6 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
         df.maintenance_date = pd.to_datetime(df.maintenance_date, errors="coerce")
         return df.fillna(value=np.nan)
-
-    @classmethod
-    def from_web_latest(
-        cls,
-        path: str | Path | None = None,
-        auxiliary_datasets: bool = False,
-        artifacts: bool = False,
-    ) -> CCDatasetMaintenanceUpdates:
-        if auxiliary_datasets or artifacts:
-            raise ValueError(
-                "Maintenance update dataset does not support downloading artifacts or other auxiliary datasets."
-            )
-        if path:
-            path = Path(path)
-            if not path.exists():
-                path.mkdir(parents=True)
-            if not path.is_dir():
-                raise ValueError("Path needs to be a directory.")
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            dset_path = Path(tmp_dir) / "maintenance_updates.json"
-            helpers.download_file(config.cc_maintenances_latest_snapshot, dset_path)
-            dset = cls.from_json(dset_path)
-            if path:
-                dset.move_dataset(path)
-            return dset
 
     def get_n_maintenances_df(self) -> pd.DataFrame:
         """

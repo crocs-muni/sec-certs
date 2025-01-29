@@ -17,6 +17,14 @@ The examples related to this package can be found in the [common criteria notebo
     :members:
 ```
 
+## ProtectionProfile
+
+```{eval-rst}
+.. currentmodule:: sec_certs.sample
+.. autoclass:: ProtectionProfile
+    :members:
+```
+
 ## FIPSCertificate
 
 ```{eval-rst}
@@ -24,3 +32,4 @@ The examples related to this package can be found in the [common criteria notebo
 .. autoclass:: FIPSCertificate
     :members:
 ```
+

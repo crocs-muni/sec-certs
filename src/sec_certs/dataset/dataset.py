@@ -9,9 +9,10 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generic, TypeVar, cast
+from typing import Any, ClassVar, Generic, TypeVar, cast
 
 import pandas as pd
+from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
@@ -35,6 +36,9 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     Base class for dataset of certificates from CC and FIPS 140 schemes. Layouts public
     functions, the processing pipeline and common operations on the dataset and certs.
     """
+
+    FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl]
+    SNAPSHOT_URL: ClassVar[AnyHttpUrl]
 
     @dataclass
     class DatasetInternalState(ComplexSerializableType):
@@ -138,9 +142,9 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @classmethod
     def from_web(  # noqa
         cls: type[DatasetSubType],
-        archive_url: str,
-        snapshot_url: str,
-        progress_bar_desc: str,
+        archive_url: AnyHttpUrl | None = None,
+        snapshot_url: AnyHttpUrl | None = None,
+        progress_bar_desc: str | None = None,
         path: None | str | Path = None,
         auxiliary_datasets: bool = False,
         artifacts: bool = False,
@@ -153,13 +157,20 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         .. note::
             Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
 
-        :param archive_url: The URL of the full dataset archive.
-        :param snapshot_url: The URL of the full dataset snapshot.
-        :param progress_bar_desc: Description of the download progress bar.
+        :param archive_url: The URL of the full dataset archive. If `None` provided, defaults to `cls.FULL_ARCHIVE_URL`.
+        :param snapshot_url: The URL of the full dataset snapshot. If `None` provided, defaults to `cls.SNAPSHOT_URL`.
+        :param progress_bar_desc: Description of the download progress bar. If `None`, will pick reasonable default.
         :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
         :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
         :param artifacts: Whether to also download artifacts (i.e. PDFs).
         """
+        if not archive_url:
+            archive_url = cls.FULL_ARCHIVE_URL
+        if not snapshot_url:
+            snapshot_url = cls.SNAPSHOT_URL
+        if not progress_bar_desc:
+            progress_bar_desc = f"Downloading: {type(cls).__name__}"
+
         if (artifacts or auxiliary_datasets) and path is None:
             raise ValueError("Path needs to be defined if artifacts or auxiliary datasets are to be downloaded.")
         if artifacts and not auxiliary_datasets:

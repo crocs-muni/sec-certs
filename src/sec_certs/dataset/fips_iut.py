@@ -54,7 +54,7 @@ class IUTDataset(JSONPathDataset, ComplexSerializableType):
         return cls(dct["snapshots"])
 
     @classmethod
-    def from_web_latest(cls) -> IUTDataset:
+    def from_web(cls) -> IUTDataset:
         """
         Get the IUTDataset from sec-certs.org
         """

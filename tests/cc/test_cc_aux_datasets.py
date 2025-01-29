@@ -39,9 +39,9 @@ def test_cpe_dataset_handler_set_local_paths(temp_dir):
     assert handler.aux_datasets_dir == new_path
 
 
-@pytest.mark.parametrize("preferred_source_aux_datasets", ["sec-certs", "api"])
+@pytest.mark.parametrize("preferred_source_aux_datasets", ["sec-certs", "origin"])
 def test_cpe_dataset_handler_process_dataset(preferred_source_aux_datasets, temp_dir, monkeypatch):
-    config.preferred_source_aux_datasets = preferred_source_aux_datasets
+    config.preferred_source_remote_datasets = preferred_source_aux_datasets
     handler = CPEDatasetHandler(temp_dir)
     mock_dset = CPEDataset()
 
@@ -67,9 +67,9 @@ def test_cve_dataset_handler_set_local_paths(temp_dir):
     assert handler.aux_datasets_dir == new_path
 
 
-@pytest.mark.parametrize("preferred_source_aux_datasets", ["sec-certs", "api"])
+@pytest.mark.parametrize("preferred_source_aux_datasets", ["sec-certs", "origin"])
 def test_cve_dataset_handler_process_dataset(preferred_source_aux_datasets, temp_dir, monkeypatch):
-    config.preferred_source_aux_datasets = preferred_source_aux_datasets
+    config.preferred_source_remote_datasets = preferred_source_aux_datasets
     handler = CVEDatasetHandler(temp_dir)
     mock_dset = CVEDataset()
 
@@ -94,9 +94,9 @@ def test_cpe_match_dict_handler_set_local_paths(temp_dir):
     assert handler.aux_datasets_dir == new_path
 
 
-@pytest.mark.parametrize("preferred_source_aux_datasets", ["sec-certs", "api"])
+@pytest.mark.parametrize("preferred_source_aux_datasets", ["sec-certs", "origin"])
 def test_cpe_match_dict_handler_process_dataset(preferred_source_aux_datasets, temp_dir, monkeypatch):
-    config.preferred_source_aux_datasets = preferred_source_aux_datasets
+    config.preferred_source_remote_datasets = preferred_source_aux_datasets
     handler = CPEMatchDictHandler(temp_dir)
     mock_dset = {"key": "value"}
     mock_dset_str_single_quotes = '{"key": "value"}'

@@ -41,6 +41,7 @@ def test_cpe_match_download_from_seccerts():
     assert datetime.fromisoformat(cpe_match_dict["timestamp"]) > datetime.now() - timedelta(days=28)
 
 
+@pytest.mark.xfail(reason="May fail due to NVD server errors.")
 @pytest.mark.parametrize(
     "default_dataset, builder_class",
     [
@@ -60,7 +61,7 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
             return len(dset)
         return len(dset["match_strings"])
 
-    config.preferred_source_aux_datasets = "api"
+    config.preferred_source_remote_datasets = "origin"
     with builder_class(api_key=config.nvd_api_key) as dataset_builder:
         dataset = dataset_builder._init_new_dataset()
         assert dataset == default_dataset
