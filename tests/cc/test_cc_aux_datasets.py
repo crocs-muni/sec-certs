@@ -107,7 +107,7 @@ def test_cpe_match_dict_handler_process_dataset(preferred_source_aux_datasets, t
     def mock_download_file(url, path, progress_bar_desc):
         return 200
 
-    if preferred_source_aux_datasets == "api":
+    if preferred_source_aux_datasets == "origin":
         monkeypatch.setattr(
             "sec_certs.utils.nvd_dataset_builder.CpeMatchNvdDatasetBuilder.build_dataset", mock_get_dset
         )
