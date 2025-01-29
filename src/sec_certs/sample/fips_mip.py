@@ -250,7 +250,10 @@ class MIPSnapshot(ComplexSerializableType):
         """
         Get a MIP snapshot from the FIPS website right now.
         """
-        mip_resp = requests.get(constants.FIPS_MIP_URL)
+        if config.preferred_source_remote_datasets == "origin":
+            mip_resp = requests.get(constants.FIPS_MIP_URL)
+        else:
+            mip_resp = requests.get(config.fips_mip_dataset)
         if mip_resp.status_code != 200:
             raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
 
