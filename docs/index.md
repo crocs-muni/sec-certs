@@ -41,6 +41,7 @@ search_examples.md
 :maxdepth: 1
 Demo <notebooks/examples/est_solution.ipynb>
 Common Criteria <notebooks/examples/cc.ipynb>
+Protection Profiles <notebooks/examples/protection_profiles.ipynb>
 FIPS-140 <notebooks/examples/fips.ipynb>
 FIPS-140 IUT <notebooks/examples/fips_iut.ipynb>
 FIPS-140 MIP <notebooks/examples/fips_mip.ipynb>
