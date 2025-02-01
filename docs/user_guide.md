@@ -11,16 +11,16 @@ Our tool matches certificates to their possible CVEs using datasets downloaded f
 Our tool can seamlessly download the required NVD datasets when needed. We support two download mechanisms:
 
 1. Fetching datasets with the [NVD API](https://nvd.nist.gov/developers/start-here) (preferred way).
-1. Fetching snapshots from seccerts.org.
+1. Fetching snapshots from sec-certs.org.
 
 The following two keys control the behaviour:
 
 ```yaml
-preferred_source_aux_datasets: "api" # set to "sec-certs" to fetch them from sec-certs.org
+preferred_source_remote_datasets: "origin" # set to "sec-certs" to fetch them from sec-certs.org
 nvd_api_key: null # or the actual key value
 ```
 
-If you aim to fetch the sources from NVD, we advise you to get an [NVD API key](https://nvd.nist.gov/developers/request-an-api-key) and set the `nvd_api_key` setting accordingly. The download from NVD will work even without API key, it will just be slow. No API key is needed when `preferred_source_aux_datasets: "sec-certs"`
+If you aim to fetch the sources from NVD, we advise you to get an [NVD API key](https://nvd.nist.gov/developers/request-an-api-key) and set the `nvd_api_key` setting accordingly. The download from NVD will work even without API key, it will just be slow. No API key is needed when `preferred_source_remote_datasets: "sec-certs"`
 
 
 ## Inferring inter-certificate reference context

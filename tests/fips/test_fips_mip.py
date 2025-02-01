@@ -47,6 +47,10 @@ def test_from_web(preferred_source):
     assert MIPSnapshot.from_web()
 
 
+def test_from_nist():
+    return MIPSnapshot.from_nist_web()
+
+
 def test_mip_matching(processed_dataset: FIPSDataset):
     entry = MIPEntry(
         module_name="Red Hat Enterprise Linux 7.1 OpenSSL Module",

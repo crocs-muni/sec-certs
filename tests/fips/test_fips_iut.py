@@ -46,6 +46,10 @@ def test_iut_snapshot_from_web(preferred_source):
     assert IUTSnapshot.from_web()
 
 
+def test_from_nist():
+    return IUTSnapshot.from_nist_web()
+
+
 def test_iut_matching(processed_dataset: FIPSDataset):
     entry = IUTEntry(
         module_name="Red Hat Enterprise Linux 7.1 OpenSSL Module",

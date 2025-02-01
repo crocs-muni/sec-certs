@@ -143,21 +143,31 @@ class IUTSnapshot(ComplexSerializableType):
         return cls.from_page(content, snapshot_date)
 
     @classmethod
-    def from_web(cls) -> IUTSnapshot:
+    def from_nist_web(cls) -> IUTSnapshot:
         """
         Get an IUT snapshot from the FIPS website right now.
         """
-        if config.preferred_source_remote_datasets == "origin":
-            iut_resp = requests.get(constants.FIPS_IUT_URL)
-        else:
-            iut_resp = requests.get(config.fips_iut_dataset)
+        iut_resp = requests.get(constants.FIPS_IUT_URL)
         if iut_resp.status_code != 200:
             raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
 
+        snapshot_date = to_utc(datetime.now())
+        return cls.from_page(iut_resp.content, snapshot_date)
+
+    @classmethod
+    def from_web(cls) -> IUTSnapshot:
+        """
+        Fetch a fresh snapshot from sec-certs.org, if the `preferred_source_remote_datasets` config
+        entry is equal to "sec-certs".
+
+        Otherwise, the same as `from_nist_web`.
+        """
         if config.preferred_source_remote_datasets == "origin":
-            snapshot_date = to_utc(datetime.now())
-            return cls.from_page(iut_resp.content, snapshot_date)
+            return cls.from_nist_web()
         else:
+            iut_resp = requests.get(config.fips_iut_latest_snapshot)
+            if iut_resp.status_code != 200:
+                raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
             with NamedTemporaryFile() as tmpfile:
                 tmpfile.write(iut_resp.content)
                 return cls.from_json(tmpfile.name)

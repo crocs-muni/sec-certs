@@ -246,21 +246,28 @@ class MIPSnapshot(ComplexSerializableType):
         return cls.from_page(content, snapshot_date)
 
     @classmethod
+    def from_nist_web(cls) -> MIPSnapshot:
+        """
+        Get a MIP snapshot from the FIPS website right now.
+        """
+        mip_resp = requests.get(constants.FIPS_MIP_URL)
+        if mip_resp.status_code != 200:
+            raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
+
+        snapshot_date = to_utc(datetime.now())
+        return cls.from_page(mip_resp.content, snapshot_date)
+
+    @classmethod
     def from_web(cls) -> MIPSnapshot:
         """
         Get a MIP snapshot from the FIPS website right now.
         """
         if config.preferred_source_remote_datasets == "origin":
-            mip_resp = requests.get(constants.FIPS_MIP_URL)
+            return cls.from_nist_web()
         else:
-            mip_resp = requests.get(config.fips_mip_dataset)
-        if mip_resp.status_code != 200:
-            raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
-
-        if config.preferred_source_remote_datasets == "origin":
-            snapshot_date = to_utc(datetime.now())
-            return cls.from_page(mip_resp.content, snapshot_date)
-        else:
+            mip_resp = requests.get(config.fips_mip_latest_snapshot)
+            if mip_resp.status_code != 200:
+                raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
             with NamedTemporaryFile() as tmpfile:
                 tmpfile.write(mip_resp.content)
                 return cls.from_json(tmpfile.name)
