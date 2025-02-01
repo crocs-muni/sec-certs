@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 import tests.data.fips.iut
+from requests import RequestException
 
 from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
@@ -46,8 +47,9 @@ def test_iut_snapshot_from_web(preferred_source):
     assert IUTSnapshot.from_web()
 
 
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_from_nist():
-    return IUTSnapshot.from_nist_web()
+    assert IUTSnapshot.from_nist_web()
 
 
 def test_iut_matching(processed_dataset: FIPSDataset):

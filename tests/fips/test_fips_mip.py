@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 import tests.data.fips.mip
+from requests import RequestException
 
 from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
@@ -47,8 +48,9 @@ def test_from_web(preferred_source):
     assert MIPSnapshot.from_web()
 
 
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 def test_from_nist():
-    return MIPSnapshot.from_nist_web()
+    assert MIPSnapshot.from_nist_web()
 
 
 def test_mip_matching(processed_dataset: FIPSDataset):

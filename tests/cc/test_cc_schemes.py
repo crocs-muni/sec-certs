@@ -28,7 +28,6 @@ def test_australia():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
 @pytest.fixture
 def canada_certified():
     return CCSchemes.get_canada_certified()
