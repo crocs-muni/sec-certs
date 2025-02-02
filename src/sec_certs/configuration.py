@@ -67,7 +67,7 @@ class Configuration(BaseSettings):
         description="URL from where to fetch the latest full archive of fully processed PP dataset.",
     )
     pp_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/pp/pp.json",
+        "https://sec-certs.org/pp/dataset.json",
         description="URL from where to fetch the latest snapshot of the PP dataset.",
     )
     fips_latest_snapshot: AnyHttpUrl = Field(
