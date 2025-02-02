@@ -248,7 +248,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     def process_auxiliary_datasets(
         self,
         download_fresh: bool = False,
-        processed_pp_dataset_root_dir: Path | None = None,
         skip_schemes: bool = False,
         **kwargs,
     ) -> None:
@@ -258,17 +257,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             ]
         if CCSchemeDatasetHandler in self.aux_handlers:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {x.scheme for x in self}  # type: ignore
-
-        if processed_pp_dataset_root_dir:
-            if self.aux_handlers[ProtectionProfileDatasetHandler].root_dir.exists():
-                logger.warning(
-                    f"Overwriting PP Dataset at {self.aux_handlers[ProtectionProfileDatasetHandler].root_dir} with dataset from {processed_pp_dataset_root_dir}."
-                )
-            shutil.copytree(
-                processed_pp_dataset_root_dir,
-                self.aux_handlers[ProtectionProfileDatasetHandler].root_dir,
-                dirs_exist_ok=True,
-            )
 
         if skip_schemes:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
@@ -820,7 +808,6 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def process_auxiliary_datasets(
         self,
         download_fresh: bool = False,
-        processed_pp_dataset_root_dir: Path | None = None,
         skip_schemes: bool = False,
         **kwargs,
     ) -> None:
