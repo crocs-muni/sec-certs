@@ -358,7 +358,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         for cert in self:
             cert.set_local_paths(self.reports_pdf_dir, self.pps_pdf_dir, self.reports_txt_dir, self.pps_txt_dir)
 
-    def process_auxiliary_datasets(self) -> None:
+    def process_auxiliary_datasets(self, **kwargs) -> None:
         """
         Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.
         This will just set the state `auxiliary_datasets_processed = True`
