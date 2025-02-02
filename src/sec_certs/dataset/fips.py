@@ -5,22 +5,25 @@ import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import Final
+from typing import ClassVar, Final
 
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, NavigableString
+from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.dataset.cpe import CPEDataset
-from sec_certs.dataset.cve import CVEDataset
-from sec_certs.dataset.dataset import AuxiliaryDatasets, Dataset
-from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
-from sec_certs.model.reference_finder import ReferenceFinder
-from sec_certs.model.transitive_vulnerability_finder import (
-    TransitiveVulnerabilityFinder,
+from sec_certs.dataset.auxiliary_dataset_handling import (
+    AuxiliaryDatasetHandler,
+    CPEDatasetHandler,
+    CPEMatchDictHandler,
+    CVEDatasetHandler,
+    FIPSAlgorithmDatasetHandler,
 )
+from sec_certs.dataset.dataset import Dataset
+from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
+from sec_certs.heuristics.fips import compute_references
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, serialize
 from sec_certs.utils import helpers
@@ -31,16 +34,28 @@ from sec_certs.utils.profiling import staged
 logger = logging.getLogger(__name__)
 
 
-class FIPSAuxiliaryDatasets(AuxiliaryDatasets):
-    cpe_dset: CPEDataset | None = None
-    cve_dset: CVEDataset | None = None
-    algorithm_dset: FIPSAlgorithmDataset | None = None
-
-
-class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerializableType):
+class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     """
-    Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+    Class for processing of :class:`sec_certs.sample.fips.FIPSCertificate` samples.
+
+    Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+
+    The dataset directory looks like this:
+
+        ├── auxiliary_datasets
+        │   ├── cpe_dataset.json
+        │   ├── cve_dataset.json
+        │   ├── cpe_match.json
+        │   └── algorithms.json
+        ├── certs
+        │   └── targets
+        │       ├── pdf
+        │       └── txt
+        └── dataset.json
     """
+
+    FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.fips_latest_full_archive
+    SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.fips_latest_snapshot
 
     def __init__(
         self,
@@ -49,7 +64,7 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        auxiliary_datasets: FIPSAuxiliaryDatasets | None = None,
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] = {},
     ):
         self.certs = certs
         self.timestamp = datetime.datetime.now()
@@ -57,11 +72,14 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
         self.name = name if name else type(self).__name__ + " dataset"
         self.description = description if description else datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
-        self.auxiliary_datasets: FIPSAuxiliaryDatasets = (
-            auxiliary_datasets if auxiliary_datasets else FIPSAuxiliaryDatasets()
-        )
-
+        self.aux_handlers = aux_handlers
         self.root_dir = Path(root_dir)
+
+        if not self.aux_handlers:
+            self.aux_handlers[CPEDatasetHandler] = CPEDatasetHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[CVEDatasetHandler] = CVEDatasetHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[FIPSAlgorithmDatasetHandler] = FIPSAlgorithmDatasetHandler(self.auxiliary_datasets_dir)
+            self.aux_handlers[CPEMatchDictHandler] = CPEMatchDictHandler(self.auxiliary_datasets_dir)
 
     LIST_OF_CERTS_HTML: Final[dict[str, str]] = {
         "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
@@ -85,10 +103,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
     def module_dir(self) -> Path:
         return self.certs_dir / "modules"
 
-    @property
-    def algorithm_dataset_path(self) -> Path:
-        return self.auxiliary_datasets_dir / "algorithms.json"
-
     def __getitem__(self, item: str) -> FIPSCertificate:
         try:
             return super().__getitem__(item)
@@ -109,6 +123,17 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
             progress_bar_desc="Extracting data from html modules",
         )
         self.update_with_certs(processed_certs)
+
+    def _compute_heuristics_body(self):
+        compute_cpe_heuristics(self.aux_handlers[CPEDatasetHandler].dset, self.certs.values())
+        compute_related_cves(
+            self.aux_handlers[CPEDatasetHandler].dset,
+            self.aux_handlers[CVEDatasetHandler].dset,
+            self.aux_handlers[CPEMatchDictHandler].dset,
+            self.certs.values(),
+        )
+        compute_references(self.certs)
+        compute_transitive_vulnerabilities(self.certs)
 
     @serialize
     def extract_data(self) -> None:
@@ -216,41 +241,9 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
 
         return [FIPSCertificate(int(cert_id)) for cert_id in cert_ids]
 
-    @classmethod
-    def from_web_latest(
-        cls,
-        path: str | Path | None = None,
-        auxiliary_datasets: bool = False,
-        artifacts: bool = False,
-    ) -> FIPSDataset:
-        """
-        Fetches the fresh snapshot of FIPSDataset from sec-certs.org.
-
-        Optionally stores it at the given path (a directory) and also downloads auxiliary datasets and artifacts (PDFs).
-
-        .. note::
-            Note that including the auxiliary datasets adds several gigabytes and including artifacts adds tens of gigabytes.
-
-        :param path: Path to a directory where to store the dataset, or `None` if it should not be stored.
-        :param auxiliary_datasets: Whether to also download auxiliary datasets (CVE, CPE, CPEMatch datasets).
-        :param artifacts: Whether to also download artifacts (i.e. PDFs).
-        """
-        return cls.from_web(
-            config.fips_latest_full_archive,
-            config.fips_latest_snapshot,
-            "Downloading FIPS",
-            path,
-            auxiliary_datasets,
-            artifacts,
-        )
-
     def _set_local_paths(self) -> None:
         super()._set_local_paths()
-        if self.auxiliary_datasets.algorithm_dset:
-            self.auxiliary_datasets.algorithm_dset.json_path = self.algorithm_dataset_path
-
-        cert: FIPSCertificate
-        for cert in self.certs.values():
+        for cert in self:
             cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
 
     @serialize
@@ -269,21 +262,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
 
         self._set_local_paths()
         self.state.meta_sources_parsed = True
-
-    @serialize
-    def process_auxiliary_datasets(self, download_fresh: bool = False) -> None:
-        super().process_auxiliary_datasets(download_fresh)
-        self.auxiliary_datasets.algorithm_dset = self._prepare_algorithm_dataset(download_fresh)
-
-    @staged(logger, "Processing FIPSAlgorithm dataset.")
-    def _prepare_algorithm_dataset(self, download_fresh_algs: bool = False) -> FIPSAlgorithmDataset:
-        if not self.algorithm_dataset_path.exists() or download_fresh_algs:
-            alg_dset = FIPSAlgorithmDataset.from_web(self.algorithm_dataset_path)
-            alg_dset.to_json()
-        else:
-            alg_dset = FIPSAlgorithmDataset.from_json(self.algorithm_dataset_path)
-
-        return alg_dset
 
     @staged(logger, "Extracting Algorithms from policy tables")
     def _extract_algorithms_from_policy_tables(self):
@@ -305,52 +283,6 @@ class FIPSDataset(Dataset[FIPSCertificate, FIPSAuxiliaryDatasets], ComplexSerial
             progress_bar_desc="Extracting security policy metadata",
         )
         self.update_with_certs(processed_certs)
-
-    @staged(
-        logger,
-        "Computing heuristics: Transitive vulnerabilities in referenc(ed/ing) certificates.",
-    )
-    def _compute_transitive_vulnerabilities(self) -> None:
-        transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: str(cert.cert_id))
-        transitive_cve_finder.fit(self.certs, lambda cert: cert.heuristics.policy_processed_references)
-
-        for dgst in self.certs:
-            transitive_cve = transitive_cve_finder.predict_single_cert(dgst)
-            self.certs[dgst].heuristics.direct_transitive_cves = transitive_cve.direct_transitive_cves
-            self.certs[dgst].heuristics.indirect_transitive_cves = transitive_cve.indirect_transitive_cves
-
-    @staged(logger, "Computing heuristics: references between certificates.")
-    def _compute_references(self, keep_unknowns: bool = False) -> None:
-        # Previously, a following procedure was used to prune reference_candidates:
-        #   - A set of algorithms was obtained via self.auxiliary_datasets.algorithm_dset.get_algorithms_by_id(reference_candidate)
-        #   - If any of these algorithms had the same vendor as the reference_candidate, the candidate was rejected
-        #   - The rationale is that if an ID appears in a certificate s.t. an algorithm with the same ID was produced by the same vendor, the reference likely refers to alg.
-        #   - Such reference should then be discarded.
-        #   - We are uncertain of the effectivity of such measure, disabling it for now.
-        for cert in self:
-            cert.prune_referenced_cert_ids()
-
-        policy_reference_finder = ReferenceFinder()
-        policy_reference_finder.fit(
-            self.certs,
-            lambda cert: str(cert.cert_id),
-            lambda cert: cert.heuristics.policy_prunned_references,
-        )
-
-        module_reference_finder = ReferenceFinder()
-        module_reference_finder.fit(
-            self.certs,
-            lambda cert: str(cert.cert_id),
-            lambda cert: cert.heuristics.module_prunned_references,
-        )
-
-        for cert in self:
-            cert.heuristics.policy_processed_references = policy_reference_finder.predict_single_cert(
-                cert.dgst, keep_unknowns
-            )
-            cert.heuristics.module_processed_references = module_reference_finder.predict_single_cert(
-                cert.dgst, keep_unknowns
-            )
 
     def to_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame(

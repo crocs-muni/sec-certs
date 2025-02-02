@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import tests.data.cc.dataset
 
-from sec_certs.dataset import CCDatasetMaintenanceUpdates
+from sec_certs.dataset.cc import CCDatasetMaintenanceUpdates
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 
 
@@ -29,7 +29,7 @@ def test_methods_not_meant_to_be_implemented():
     with pytest.raises(NotImplementedError):
         dset.analyze_certificates()
     with pytest.raises(NotImplementedError):
-        dset._compute_heuristics()
+        dset._compute_heuristics_body()
     with pytest.raises(NotImplementedError):
         dset.process_auxiliary_datasets()
     with pytest.raises(NotImplementedError):
@@ -79,7 +79,7 @@ def test_to_pandas(mu_dset: CCDatasetMaintenanceUpdates):
 
 @pytest.mark.skip(reason="Will work only with fresh snapshot on sec-certs.org")
 def test_from_web():
-    dset = CCDatasetMaintenanceUpdates.from_web_latest()
+    dset = CCDatasetMaintenanceUpdates.from_web()
     assert dset is not None
     assert len(dset) >= 492  # Contents as of November 2022, maintenances should not disappear
     assert "cert_8f08cacb49a742fb_update_559ed93dd80320b5" in dset  # random cert verified to be present

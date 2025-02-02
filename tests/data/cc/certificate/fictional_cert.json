@@ -15,18 +15,12 @@
     "not_valid_before": "1900-01-02",
     "not_valid_after": "1900-01-03",
     "manufacturer_web": "https://path.to/manufacturer/web",
-    "protection_profiles": {
-        "_type": "Set",
-        "elements": [
-            {
-                "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
-                "pp_name": "sample_pp",
-                "pp_eal": null,
-                "pp_link": "https://sample.pp",
-                "pp_ids": null
-            }
-        ]
-    },
+    "protection_profile_links": {
+            "_type": "Set",
+            "elements": [
+                "https://sample.pp"
+            ]
+        },
     "maintenance_updates": {
         "_type": "Set",
         "elements": [
@@ -42,7 +36,7 @@
     "state": {
         "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "report": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -51,7 +45,7 @@
                     "txt_hash": null
                 },
                 "st": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -60,7 +54,7 @@
                     "txt_hash": null
                 },
                 "cert": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -112,7 +106,9 @@
             "indirectly_referenced_by": null,
             "indirectly_referencing": null
         },
-        "scheme_data": null
+        "scheme_data": null,
+        "protection_profiles": null,
+        "eal": null
     },
     "report_link": "https://path.to/report/link",
     "st_link": "https://path.to/st/link",

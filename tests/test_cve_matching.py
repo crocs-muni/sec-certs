@@ -4,7 +4,9 @@ import tempfile
 
 import pytest
 
+from sec_certs.dataset.auxiliary_dataset_handling import CPEDatasetHandler, CPEMatchDictHandler, CVEDatasetHandler
 from sec_certs.dataset.cc import CCDataset
+from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves
 
 
 @pytest.fixture(scope="module")
@@ -12,11 +14,17 @@ def processed_cc_dataset() -> CCDataset:
     with tempfile.TemporaryDirectory() as tmp_dir:
         cc_dset = CCDataset(root_dir=tmp_dir)
         cc_dset.get_certs_from_web()
-        cc_dset._prepare_cpe_dataset()
-        cc_dset._prepare_cve_dataset()
-        cc_dset._prepare_cpe_match_dict()
-        cc_dset.compute_cpe_heuristics()
-        cc_dset.compute_related_cves()
+        cc_dset.aux_handlers[CPEDatasetHandler].process_dataset()
+        cc_dset.aux_handlers[CVEDatasetHandler].process_dataset()
+        cc_dset.aux_handlers[CPEMatchDictHandler].process_dataset()
+
+        compute_cpe_heuristics(cc_dset.aux_handlers[CPEDatasetHandler].dset, cc_dset.certs.values())
+        compute_related_cves(
+            cc_dset.aux_handlers[CPEDatasetHandler].dset,
+            cc_dset.aux_handlers[CVEDatasetHandler].dset,
+            cc_dset.aux_handlers[CPEMatchDictHandler].dset,
+            cc_dset.certs.values(),
+        )
         return cc_dset
 
 

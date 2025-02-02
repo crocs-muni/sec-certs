@@ -60,7 +60,7 @@ def test_keyword_extraction(vulnerable_certificate: CCCertificate):
 def test_cert_link_escaping(cert_one: CCCertificate):
     assert (
         cert_one.report_link
-        == "https://www.commoncriteriaportal.org/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf"
+        == "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/epfiles/Certification%20Report%20-%20NetIQ®%20Identity%20Manager%204.7.pdf"
     )
 
 
@@ -79,3 +79,24 @@ def test_cert_to_json(cert_two: CCCertificate, tmp_path: Path, data_dir: Path):
 def test_cert_from_json(cert_two: CCCertificate, data_dir: Path):
     crt = CCCertificate.from_json(data_dir / "fictional_cert.json")
     assert cert_two == crt
+
+
+def test_cert_old_dgst(cert_one: CCCertificate):
+    assert cert_one.old_dgst == "309ac2fd7f2dcf17"
+    with pytest.raises(RuntimeError):
+        cert_one.report_link = None
+        cert_one.old_dgst
+
+
+def test_cert_dgst(cert_one: CCCertificate):
+    assert cert_one.dgst == "e3dcf91ef38ddbf0"
+    cert_one.name = None
+    with pytest.raises(RuntimeError):
+        cert_one.dgst
+
+
+def test_cert_older_dgst(cert_one: CCCertificate):
+    assert cert_one.older_dgst == "916f4d199f78d70c"
+    cert_one.report_link = None
+    with pytest.raises(RuntimeError):
+        cert_one.older_dgst

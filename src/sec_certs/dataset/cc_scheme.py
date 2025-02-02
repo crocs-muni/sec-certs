@@ -50,7 +50,11 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
 
     @classmethod
     def from_web(
-        cls, only_schemes: set[str] | None = None, enhanced: bool | None = None, artifacts: bool | None = None
+        cls,
+        json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        only_schemes: set[str] | None = None,
+        enhanced: bool | None = None,
+        artifacts: bool | None = None,
     ) -> CCSchemeDataset:
         schemes = {}
         for scheme, sources in CCScheme.methods.items():
@@ -60,4 +64,4 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
                 schemes[scheme] = CCScheme.from_web(scheme, sources.keys(), enhanced=enhanced, artifacts=artifacts)
             except Exception as e:
                 logger.warning(f"Could not download CC scheme: {scheme} due to error {e}.")
-        return cls(schemes)
+        return cls(schemes, json_path=json_path)

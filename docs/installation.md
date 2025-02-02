@@ -34,7 +34,7 @@ pip install -e .
 python -m spacy download en_core_web_sm
 ```
 
-Alternatively, our Our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/Dockerfile) represents a reproducible way of setting up the environment.
+Alternatively, our [Dockerfile](https://github.com/crocs-muni/sec-certs/blob/main/Dockerfile) represents a reproducible way of setting up the environment.
 
 :::
 ::::

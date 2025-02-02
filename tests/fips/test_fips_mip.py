@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pytest
 import tests.data.fips.mip
+from requests import RequestException
 
+from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.dataset.fips_mip import MIPDataset
 from sec_certs.model.fips_matching import FIPSProcessMatcher
@@ -32,7 +34,7 @@ def test_mip_dataset_from_dumps(data_dir: Path):
 
 
 def test_mip_flows():
-    dset = MIPDataset.from_web_latest()
+    dset = MIPDataset.from_web()
     assert dset.compute_flows()
 
 
@@ -40,12 +42,15 @@ def test_mip_snapshot_from_dump(data_dump_path: Path):
     assert MIPSnapshot.from_dump(data_dump_path)
 
 
-def test_from_web():
+@pytest.mark.parametrize("preferred_source", ["sec-certs", "origin"])
+def test_from_web(preferred_source):
+    config.preferred_source_remote_datasets = preferred_source
     assert MIPSnapshot.from_web()
 
 
-def test_from_web_latest():
-    assert MIPSnapshot.from_web_latest()
+@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+def test_from_nist():
+    assert MIPSnapshot.from_nist_web()
 
 
 def test_mip_matching(processed_dataset: FIPSDataset):

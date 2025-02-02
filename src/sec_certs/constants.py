@@ -22,10 +22,49 @@ MIN_CORRECT_CERT_SIZE = 5000
 MIN_FIPS_HTML_SIZE = 64000
 
 MIN_CC_HTML_SIZE = 5000000
+MIN_PP_HTML_SIZE = 200000
 MIN_CC_CSV_SIZE = 700000
 MIN_CC_PP_DATASET_SIZE = 2500000
 
 CPE_VERSION_NA = "-"
+
+CC_CAT_ABBREVIATIONS = [
+    "AC",
+    "BD",
+    "BP",
+    "DP",
+    "DB",
+    "DD",
+    "IC",
+    "KM",
+    "MD",
+    "MF",
+    "NS",
+    "OS",
+    "OD",
+    "DG",
+    "TC",
+]
+
+CC_CATEGORIES = [
+    "Access Control Devices and Systems",
+    "Biometric Systems and Devices",
+    "Boundary Protection Devices and Systems",
+    "Data Protection",
+    "Databases",
+    "Detection Devices and Systems",
+    "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "Key Management Systems",
+    "Mobility",
+    "Multi-Function Devices",
+    "Network and Network-Related Devices and Systems",
+    "Operating Systems",
+    "Other Devices and Systems",
+    "Products for Digital Signatures",
+    "Trusted Computing",
+]
+
+CC_PORTAL_BASE_URL = "https://www.commoncriteriaportal.org"
 
 RELEASE_CANDIDATE_REGEX: re.Pattern = re.compile(r"rc\d{0,2}$", re.IGNORECASE)
 

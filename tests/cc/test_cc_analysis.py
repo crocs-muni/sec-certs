@@ -10,11 +10,18 @@ import tests.data.cc.analysis
 import tests.data.common
 
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
+from sec_certs.dataset.auxiliary_dataset_handling import (
+    CPEDatasetHandler,
+    CPEMatchDictHandler,
+    CVEDatasetHandler,
+    ProtectionProfileDatasetHandler,
+)
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
+from sec_certs.heuristics.cc import compute_references
+from sec_certs.heuristics.common import compute_related_cves, compute_transitive_vulnerabilities
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.sample.sar import SAR
 
 
@@ -26,17 +33,23 @@ def analysis_data_dir() -> Generator[Path, None, None]:
 
 @pytest.fixture(scope="module")
 def processed_cc_dset(
-    analysis_data_dir: Path, cve_dataset: CVEDataset, cpe_dataset: CPEDataset, tmp_path_factory
+    analysis_data_dir: Path, cve_dataset: CVEDataset, cpe_dataset: CPEDataset, tmp_path_factory, pp_data_dir: Path
 ) -> CCDataset:
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
     shutil.copytree(analysis_data_dir, tmp_dir, dirs_exist_ok=True)
+    shutil.copy(pp_data_dir / "pp.json", tmp_dir / "pp.json")
 
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
-    cc_dset.process_protection_profiles()
+    cc_dset.aux_handlers[ProtectionProfileDatasetHandler].root_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(tmp_dir / "pp.json", cc_dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path)
+
+    cc_dset.aux_handlers[ProtectionProfileDatasetHandler].process_dataset()
+    cc_dset.aux_handlers[CPEMatchDictHandler].dset = {}
+    cc_dset.aux_handlers[CVEDatasetHandler].dset = cve_dataset
+    cc_dset.aux_handlers[CPEDatasetHandler].dset = cpe_dataset
+
     cc_dset.extract_data()
-    cc_dset.auxiliary_datasets.cve_dset = cve_dataset
-    cc_dset.auxiliary_datasets.cpe_dset = cpe_dataset
-    cc_dset._compute_heuristics()
+    cc_dset._compute_heuristics_body(skip_schemes=True)
 
     return cc_dset
 
@@ -66,7 +79,13 @@ def test_find_related_cves(processed_cc_dset: CCDataset, random_certificate: CCC
     random_certificate.heuristics.cpe_matches = {
         "cpe:2.3:a:ibm:security_access_manager_for_enterprise_single_sign-on:8.2.2:*:*:*:*:*:*:*"
     }
-    processed_cc_dset.compute_related_cves()
+    compute_related_cves(
+        processed_cc_dset.aux_handlers[CPEDatasetHandler].dset,
+        processed_cc_dset.aux_handlers[CVEDatasetHandler].dset,
+        {},
+        processed_cc_dset.certs.values(),
+    )
+
     assert random_certificate.heuristics.related_cves == {"CVE-2017-1732", "CVE-2019-4513"}
 
 
@@ -75,7 +94,14 @@ def test_find_related_cves_criteria_configuration(processed_cc_dset: CCDataset, 
         "cpe:2.3:a:ibm:websphere_application_server:7.0:*:*:*:*:*:*:*",
         "cpe:2.3:o:ibm:zos:6.0.1:*:*:*:*:*:*:*",
     }
-    processed_cc_dset.compute_related_cves()
+
+    compute_related_cves(
+        processed_cc_dset.aux_handlers[CPEDatasetHandler].dset,
+        processed_cc_dset.aux_handlers[CVEDatasetHandler].dset,
+        {},
+        processed_cc_dset.certs.values(),
+    )
+
     assert random_certificate.heuristics.related_cves == {"CVE-2010-2325"}
 
 
@@ -132,26 +158,6 @@ def test_keywords_heuristics(random_certificate: CCCertificate):
     assert extracted_keywords["cipher_mode"]["CBC"]["CBC"] == 2
 
 
-def test_protection_profile_matching(processed_cc_dset: CCDataset, random_certificate: CCCertificate):
-    artificial_pp: ProtectionProfile = ProtectionProfile(
-        "Korean National Protection Profile for Single Sign On V1.0",
-        "EAL1+",
-        pp_link="http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
-    )
-
-    random_certificate.protection_profiles = {artificial_pp}
-
-    expected_pp: ProtectionProfile = ProtectionProfile(
-        "Korean National Protection Profile for Single Sign On V1.0",
-        "EAL1+",
-        pp_link="http://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
-        pp_ids=frozenset(["KECS-PP-0822-2017 SSO V1.0"]),
-    )
-
-    processed_cc_dset.process_protection_profiles(to_download=False)
-    assert random_certificate.protection_profiles == {expected_pp}
-
-
 def test_single_record_references_heuristics(random_certificate: CCCertificate):
     # Single record in daset is not affecting nor affected by other records
     assert not random_certificate.heuristics.report_references.directly_referenced_by
@@ -161,7 +167,8 @@ def test_single_record_references_heuristics(random_certificate: CCCertificate):
 
 
 def test_reference_dataset(reference_dataset: CCDataset):
-    reference_dataset._compute_references()
+    compute_references(reference_dataset.certs)
+
     test_cert = reference_dataset["d1b238729b25d745"]
 
     assert test_cert.heuristics.report_references.directly_referenced_by == {"BSI-DSZ-CC-0370-2006"}
@@ -174,12 +181,12 @@ def test_reference_dataset(reference_dataset: CCDataset):
 
 
 def test_direct_transitive_vulnerability_dataset(transitive_vulnerability_dataset: CCDataset):
-    transitive_vulnerability_dataset._compute_transitive_vulnerabilities()
+    compute_transitive_vulnerabilities(transitive_vulnerability_dataset.certs)
     assert transitive_vulnerability_dataset["11f77cb31b931a57"].heuristics.direct_transitive_cves == {"CVE-2013-5385"}
 
 
 def test_indirect_transitive_vulnerability_dataset(transitive_vulnerability_dataset: CCDataset):
-    transitive_vulnerability_dataset._compute_transitive_vulnerabilities()
+    compute_transitive_vulnerabilities(transitive_vulnerability_dataset.certs)
     assert transitive_vulnerability_dataset["11f77cb31b931a57"].heuristics.indirect_transitive_cves == {"CVE-2013-5385"}
 
 
@@ -218,3 +225,28 @@ def test_eal_implied_sar_inference(random_certificate: CCCertificate):
     actual_sars = random_certificate.actual_sars
     eal_3_sars = {SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL["EAL3"]}
     assert eal_3_sars.issubset(actual_sars)
+
+
+def test_eal_inference(processed_cc_dset: CCDataset):
+    assert processed_cc_dset["ed91ff3e658457fd"].heuristics.eal == "EAL1"
+    assert processed_cc_dset["95e3850bef32f410"].heuristics.eal == "EAL1+"
+
+
+def test_pp_linking(processed_cc_dset: CCDataset):
+    assert processed_cc_dset["ed91ff3e658457fd"].heuristics.protection_profiles == {"e315e3e834a61448"}
+    assert processed_cc_dset["95e3850bef32f410"].heuristics.protection_profiles == {
+        "b02ed76d2545326a",
+        "c8b175590bb7fdfb",
+    }
+    pp_dset = processed_cc_dset.aux_handlers[ProtectionProfileDatasetHandler].dset
+    assert processed_cc_dset["ed91ff3e658457fd"].protection_profile_links
+    assert processed_cc_dset["95e3850bef32f410"].protection_profile_links
+    assert (
+        pp_dset["e315e3e834a61448"].web_data.pp_link in processed_cc_dset["ed91ff3e658457fd"].protection_profile_links
+    )
+    assert (
+        pp_dset["b02ed76d2545326a"].web_data.pp_link in processed_cc_dset["95e3850bef32f410"].protection_profile_links
+    )
+    assert (
+        pp_dset["c8b175590bb7fdfb"].web_data.pp_link in processed_cc_dset["95e3850bef32f410"].protection_profile_links
+    )

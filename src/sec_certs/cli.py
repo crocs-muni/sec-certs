@@ -15,6 +15,7 @@ from sec_certs.configuration import config
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips import FIPSDataset
+from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.utils.helpers import warn_if_missing_poppler, warn_if_missing_tesseract
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ class ProcessingStep:
             if not hasattr(Dataset.DatasetInternalState, condition):
                 raise ValueError(f"Precondition attribute {condition} is not member of `Dataset.DatasetInternalState`.")
 
-    def run(self, dset: CCDataset | FIPSDataset) -> None:
+    def run(self, dset: Dataset) -> None:
         for condition in self.preconditions:
             if not getattr(dset.state, condition):
                 err_msg = (
@@ -59,14 +60,21 @@ def warn_missing_libs():
     warn_if_missing_tesseract()
 
 
+FRAMEWORK_TO_CONSTRUCTOR: dict[str, type[Dataset]] = {
+    "cc": CCDataset,
+    "fips": FIPSDataset,
+    "pp": ProtectionProfileDataset,
+}
+
+
 def build_or_load_dataset(
     framework: str,
     inputpath: Path | None,
     to_build: bool,
     outputpath: Path | None,
-) -> CCDataset | FIPSDataset:
-    constructor: type[CCDataset] | type[FIPSDataset] = CCDataset if framework == "cc" else FIPSDataset
-    dset: CCDataset | FIPSDataset
+) -> Dataset:
+    constructor: type[Dataset] = FRAMEWORK_TO_CONSTRUCTOR[framework]
+    dset: Dataset
 
     if to_build:
         if not outputpath:
@@ -138,7 +146,7 @@ steps = [
     "framework",
     required=True,
     nargs=1,
-    type=click.Choice(["cc", "fips"], case_sensitive=False),
+    type=click.Choice(["cc", "fips", "pp"], case_sensitive=False),
 )
 @click.argument(
     "actions",
@@ -166,7 +174,7 @@ steps = [
     "--input",
     "inputpath",
     type=click.Path(file_okay=True, dir_okay=False, writable=True, readable=True),
-    help="If set, the actions will be performed on a CC dataset loaded from JSON from the input path.",
+    help="If set, the actions will be performed on a dataset loaded from JSON from the input path.",
 )
 @click.option("-q", "--quiet", is_flag=True, help="If set, will not print to stdout")
 def main(
@@ -202,8 +210,6 @@ def main(
         )
 
         dset = build_or_load_dataset(framework, inputpath, "build" in actions_set, outputpath)
-        aux_dsets_to_handle = "PP, Maintenance updates" if framework == "cc" else "Algorithms"
-        aux_dsets_to_handle += "CPE, CVE"
 
         processing_step: ProcessingStep
         for processing_step in [x for x in steps if x.name in actions_set]:

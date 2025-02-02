@@ -9,14 +9,18 @@ from typing import Any
 
 import pandas as pd
 
-import sec_certs.configuration as config_module
 from sec_certs import constants
+from sec_certs.configuration import config
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
 
 logger = logging.getLogger(__name__)
+
+
+class CPEMatchDict(dict):
+    pass
 
 
 class CPEDataset(JSONPathDataset, ComplexSerializableType):
@@ -78,13 +82,13 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
             dset_path = Path(tmp_dir) / "cpe_dataset.json.gz"
             if (
                 not helpers.download_file(
-                    config_module.config.cpe_latest_snapshot,
+                    config.cpe_latest_snapshot,
                     dset_path,
                     progress_bar_desc="Downloading CPEDataset from web",
                 )
                 == constants.RESPONSE_OK
             ):
-                raise RuntimeError(f"Could not download CPEDataset from {config_module.config.cpe_latest_snapshot}.")
+                raise RuntimeError(f"Could not download CPEDataset from {config.cpe_latest_snapshot}.")
             dset = cls.from_json(dset_path, is_compressed=True)
 
         dset.json_path = json_path

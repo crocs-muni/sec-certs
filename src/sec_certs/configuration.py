@@ -54,12 +54,20 @@ class Configuration(BaseSettings):
         "https://sec-certs.org/cc/cc.tar.gz",
         description="URL from where to fetch the latest full archive of fully processed CC dataset.",
     )
+    cc_maintenances_latest_full_archive: AnyHttpUrl = Field(
+        "https://sec-certs.org/cc/cc_mu.tar.gz",
+        description="URL from where to fetch the latest full archive of fully processed CC Maintenace updates dataset",
+    )
     cc_maintenances_latest_snapshot: AnyHttpUrl = Field(
         "https://sec-certs.org/cc/maintenance_updates.json",
         description="URL from where to fetch the latest snapshot of CC maintenance updates",
     )
+    pp_latest_full_archive: AnyHttpUrl = Field(
+        "https://sec-certs.org/pp/pp.tar.gz",
+        description="URL from where to fetch the latest full archive of fully processed PP dataset.",
+    )
     pp_latest_snapshot: AnyHttpUrl = Field(
-        "https://sec-certs.org/static/pp.json",
+        "https://sec-certs.org/pp/dataset.json",
         description="URL from where to fetch the latest snapshot of the PP dataset.",
     )
     fips_latest_snapshot: AnyHttpUrl = Field(
@@ -134,11 +142,11 @@ class Configuration(BaseSettings):
         description="If true, progress bars will be printed to stdout during computation.",
     )
     nvd_api_key: Optional[str] = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
-    preferred_source_nvd_datasets: Literal["sec-certs", "api"] = Field(
+    preferred_source_remote_datasets: Literal["sec-certs", "origin"] = Field(
         "sec-certs",
-        description="If set to `sec-certs`, will fetch CPE and CVE datasets from sec-certs.org."
-        + " If set to `api`, will fetch these resources from NVD API. It is advised to set an"
-        + " `nvd_api_key` when setting this to `api`.",
+        description="If set to `sec-certs`, will fetch remote datasets from sec-certs.org."
+        + " If set to `origin`, will fetch these resources from their origin URL. It is advised to set an"
+        + " `nvd_api_key` when setting this to `origin`.",
     )
 
     def _get_nondefault_keys(self) -> set[str]:

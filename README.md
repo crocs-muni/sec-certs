@@ -48,7 +48,7 @@ Most probably, you don't want to fully process the certification artifacts by yo
 ```python
 from sec_certs.dataset import CCDataset
 
-dset = CCDataset.from_web_latest() # now you can inspect the object, certificates are held in dset.certs
+dset = CCDataset.from_web() # now you can inspect the object, certificates are held in dset.certs
 df = dset.to_pandas()  # Or you can transform the object into Pandas dataframe
 dset.to_json(
     './latest_cc_snapshot.json')  # You may want to store the snapshot as json, so that you don't have to download it again

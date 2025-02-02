@@ -35,18 +35,9 @@
             "st_link": "https://www.commoncriteriaportal.org/files/epfiles/0683b_pdf.pdf",
             "cert_link": null,
             "manufacturer_web": "https://www.ibm.com",
-            "protection_profiles": {
+            "protection_profile_links": {
                 "_type": "Set",
                 "elements": [
-                    {
-                        "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
-                        "pp_name": "Korean National Protection Profile for Single Sign On V1.0",
-                        "pp_eal": "EAL1+",
-                        "pp_link": "https://www.commoncriteriaportal.org/files/ppfiles/KECS-PP-0822-2017%20Korean%20National%20PP%20for%20Single%20Sign%20On%20V1.0(eng).pdf",
-                        "pp_ids": [
-                            "KECS-PP-0822-2017 SSO V1.0"
-                        ]
-                    }
                 ]
             },
             "maintenance_updates": {
@@ -56,7 +47,7 @@
             "state": {
                 "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
                 "report": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -65,7 +56,7 @@
                     "txt_hash": "35627594d3806ac3926ec47f466503fe27781533da12beb6f8705882fccf125e"
                 },
                 "st": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -74,7 +65,7 @@
                     "txt_hash": "c8b4c5667a3f60edc845051e5a31a2d17b9d9a11df9e56dd89681d25e727a622"
                 },
                 "cert": {
-                    "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+                    "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
                     "convert_garbage": false,
                     "convert_ok": false,
@@ -730,8 +721,10 @@
                 },
                 "direct_transitive_cves": null,
                 "indirect_transitive_cves": null,
-                    "next_certificates": null,
-                    "prev_certificates": null
+                "next_certificates": null,
+                "prev_certificates": null,
+                "protection_profiles": null,
+                "eal": null
             }
         }
     ]
