@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import secrets
-import subprocess
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime, timedelta
@@ -10,7 +9,6 @@ from functools import wraps
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
-from tempfile import TemporaryDirectory
 from typing import List, Set, Tuple, Type
 
 import dramatiq
@@ -29,7 +27,6 @@ from pkg_resources import get_distribution
 from pymongo import DESCENDING, InsertOne, ReplaceOne
 from redis.exceptions import LockNotOwnedError
 from redis.lock import Lock
-from sec_certs.dataset import CVEDataset
 from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
