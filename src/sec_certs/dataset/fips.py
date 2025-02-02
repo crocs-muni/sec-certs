@@ -36,7 +36,22 @@ logger = logging.getLogger(__name__)
 
 class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     """
-    Class for processing of FIPSCertificate samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+    Class for processing of :class:`sec_certs.sample.fips.FIPSCertificate` samples.
+
+    Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+
+    The dataset directory looks like this:
+
+        ├── auxiliary_datasets
+        │   ├── cpe_dataset.json
+        │   ├── cve_dataset.json
+        │   ├── cpe_match.json
+        │   └── algorithms.json
+        ├── certs
+        │   └── targets
+        │       ├── pdf
+        │       └── txt
+        └── dataset.json
     """
 
     FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.fips_latest_full_archive

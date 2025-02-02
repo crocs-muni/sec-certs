@@ -253,6 +253,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def move_dataset(self, new_root_dir: str | Path) -> None:
         """
         Moves all dataset files to `new_root_dir` and adjusts all paths internally. Deletes the artifacts from the original location.
+
         :param str | Path new_root_dir: path to directory where the new dataset shall be stored.
         """
         new_root_dir = Path(new_root_dir)
@@ -267,6 +268,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def copy_dataset(self, new_root_dir: str | Path) -> None:
         """
         Copies all dataset files to `new_root_dir` and adjusts all paths internally. Keeps the artifacts from the original location.
+
         :param str | Path new_root_dir: path to directory where the new dataset shall be stored.
         """
         new_root_dir = Path(new_root_dir)

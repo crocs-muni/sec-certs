@@ -18,6 +18,22 @@ from sec_certs.utils.profiling import staged
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):
+    """
+    Class for processing :class:`sec_certs.sample.protection_profile.ProtectionProfile` samples.
+
+    Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
+
+    The dataset directory looks like this:
+
+        ├── reports
+        │   ├── pdf
+        │   └── txt
+        ├── pps
+        │   ├── pdf
+        │   └── txt
+        └── pp.json
+    """
+
     FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.pp_latest_full_archive
     SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.pp_latest_snapshot
 
@@ -38,9 +54,6 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         self.state = state if state else self.DatasetInternalState()
         self.aux_handlers = aux_handlers
         self.root_dir = Path(root_dir)
-        """
-        Class for processing ProtectionProfile samples. Inherits from `ComplexSerializableType` and base abstract `Dataset` class.
-        """
 
     @property
     def json_path(self) -> Path:

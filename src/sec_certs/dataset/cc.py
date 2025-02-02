@@ -44,8 +44,46 @@ from sec_certs.utils.profiling import staged
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     """
-    Class that holds CCCertificate. Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
+    Class that holds :class:`sec_certs.sample.cc.CCCertificate` samples.
+
+    Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
+
+    The dataset directory looks like this:
+
+        ├── auxiliary_datasets
+        │   ├── cpe_dataset.json
+        │   ├── cve_dataset.json
+        │   ├── cpe_match.json
+        │   ├── cc_scheme.json
+        │   ├── protection_profiles
+        │   │   ├── reports
+        │   │   │   ├── pdf
+        │   │   │   └── txt
+        │   │   ├── pps
+        │   │   │   ├── pdf
+        │   │   │   └── txt
+        │   │   └── pp.json
+        │   └── maintenances
+        │       ├── certs
+        │       │   ├── reports
+        │       │   │   ├── pdf
+        │       │   │   └── txt
+        │       │   └── targets
+        │       │       ├── pdf
+        │       │       └── txt
+        │       └── maintenance_updates.json
+        ├── certs
+        │   ├── reports
+        │   │   ├── pdf
+        │   │   └── txt
+        │   ├── targets
+        │   │   ├── pdf
+        │   │   └── txt
+        │   └── certificates
+        │       ├── pdf
+        │       └── txt
+        └── dataset.json
     """
 
     FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.cc_latest_full_archive
