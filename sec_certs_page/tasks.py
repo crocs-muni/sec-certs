@@ -12,6 +12,7 @@ from .common.tasks import task
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
 from .notifications.tasks import cleanup_subscriptions
+from .pp.tasks import update_data as update_pp_data
 from .vuln.tasks import update_cpe_data, update_cpe_match_data, update_cve_data
 
 
@@ -20,7 +21,9 @@ from .vuln.tasks import update_cpe_data, update_cpe_match_data, update_cve_data
 )  # Every Monday at 12:00
 def run_updates_weekly() -> None:  # pragma: no cover
     (
-        update_cc_data.message_with_options(pipe_ignore=True) | update_fips_data.message_with_options(pipe_ignore=True)
+        update_cc_data.message_with_options(pipe_ignore=True)
+        | update_fips_data.message_with_options(pipe_ignore=True)
+        | update_pp_data.message_with_options(pipe_ignore=True)
     ).run()
 
 

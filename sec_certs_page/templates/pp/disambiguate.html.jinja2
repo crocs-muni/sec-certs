@@ -8,7 +8,7 @@
             <p class="lead">There are several protection profiles that share the name "<i>{{ name }}</i>":</p>
             <ol>
                 {% for pp in pps %}
-                    <li><a href="{{ url_for("pp.entry", hashid=pp["_id"]) }}">{{ pp["csv_scan"]["cc_pp_name"] }}</a>, {{ render_status(pp["csv_scan"]["cert_status"]) }}, {{ pp["csv_scan"]["cc_certification_date"] }}</li>
+                    <li><a href="{{ url_for("pp.entry", hashid=pp["_id"]) }}">{{ pp["web_data"]["name"] }}</a>, {{ render_status(pp["web_data"]["status"]) }}, {{ pp["web_data"]["not_valid_before"] }}</li>
                 {% endfor %}
             </ol>
         </div>

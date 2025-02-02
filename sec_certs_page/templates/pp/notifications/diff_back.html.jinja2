@@ -1,0 +1,10 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Protection Profile reappeared</h5>
+        <p class="card-text">A Protection Profile named <b>{{ cert["name"] }}</b>
+            is available again.</p>
+        {% if linkback %}
+            <a href="{{ url_for("pp.entry", hashid=hashid) }}" class="card-link">Profile page</a>
+        {% endif %}
+    </div>
+</div>

@@ -70,16 +70,23 @@ DATASET_PATH_CPE_COMPRESSED = "cpe.json.gz"
 DATASET_PATH_CPE_MATCH = "cpe_match.json"
 DATASET_PATH_CPE_MATCH_COMPRESSED = "cpe_match.json.gz"
 
-# Paths inside the instance directory where the CC and FIPS datasets will be stored and processed.
+# Paths inside the instance directory where the CC, PP and FIPS datasets will be stored and processed.
 DATASET_PATH_CC = "cc_dataset"
 DATASET_PATH_CC_OUT = "cc.json"
 DATASET_PATH_CC_OUT_MU = "cc_mu.json"
 DATASET_PATH_CC_OUT_SCHEME = "cc_scheme.json"
+DATASET_PATH_CC_OUT_PP = "pp.json"
 DATASET_PATH_CC_DIR = "cc"
 DATASET_PATH_CC_ARCHIVE = "cc.tar.gz"
 
+DATASET_PATH_PP = "pp_dataset"
+DATASET_PATH_PP_OUT = DATASET_PATH_CC_OUT_PP
+DATASET_PATH_PP_DIR = "pp"
+DATASET_PATH_PP_ARCHIVE = "pp.tar.gz"
+
 DATASET_PATH_FIPS = "fips_dataset"
 DATASET_PATH_FIPS_OUT = "fips.json"
+DATASET_PATH_FIPS_OUT_ALGORITHMS = "fips_algorithms.json"
 DATASET_PATH_FIPS_DIR = "fips"
 DATASET_PATH_FIPS_ARCHIVE = "fips.tar.gz"
 
@@ -89,8 +96,9 @@ TOOL_SETTINGS_PATH = "settings.yaml"
 # Whether notification subscriptions are enabled.
 SUBSCRIPTIONS_ENABLED = True
 
-# Whether to skip the actual update (from remote CC and FIPS servers) in the nightly update task. Useful for debugging.
+# Whether to skip the actual update (from remote CC, PP and FIPS servers) in the nightly update task. Useful for debugging.
 CC_SKIP_UPDATE = False
+PP_SKIP_UPDATE = False
 FIPS_SKIP_UPDATE = False
 FIPS_IUT_SKIP_UPDATE = False
 FIPS_MIP_SKIP_UPDATE = False
@@ -101,3 +109,6 @@ CPE_MATCH_SKIP_UPDATE = False
 # Whether to anonymize the site (for review).
 ANONYMOUS = False
 ANONYMOUS_GIT = ""
+
+# Event navbar to show during special occasions
+EVENT_NAVBAR = None

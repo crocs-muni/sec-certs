@@ -20,8 +20,8 @@ The app uses the following collections:
  - `fips_mip`: To store the modules-in-process data from FIPS.
  - `fips_iut`: To store the implementation-under-test data from FIPS.
  - `pp`: To store the protection profile documents.
- - `pp_diff`: Same as `cc_diff` above but instead for protection profiles. **Currently unused**
- - `pp_log`: Same as `cc_log` above but instead for protection profiles. **Currently unused**
+ - `pp_diff`: Same as `cc_diff` above but instead for protection profiles.
+ - `pp_log`: Same as `cc_log` above but instead for protection profiles.
  - `users`: To store the registered users of the site. **Currently only admins**
  - `subs`: To store the confirmed and unconfirmed notification subscriptions.
  - `cve`: To store the CVE dataset entries.

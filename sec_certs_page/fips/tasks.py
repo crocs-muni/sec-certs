@@ -1,11 +1,15 @@
+import os
+import subprocess
 from datetime import timedelta
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import dramatiq
 import sentry_sdk
 from dramatiq import pipeline
 from dramatiq.logging import get_logger
 from flask import current_app
+from sec_certs.dataset.auxiliary_dataset_handling import FIPSAlgorithmDatasetHandler
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
@@ -116,8 +120,43 @@ def reindex_all():  # pragma: no cover
 
 
 class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
-    def archive_custom(self, paths, tmpdir):
-        pass
+    """
+    FIPS Dataset
+    ============
+
+    ├── auxiliary_datasets
+    │   ├── cpe_dataset.json
+    │   ├── cve_dataset.json
+    │   ├── cpe_match.json
+    │   └── algorithms.json
+    ├── certs
+    │   └── targets
+    │       ├── pdf
+    │       └── txt
+    └── dataset.json
+    """
+
+    def archive(self, path, paths):
+        with TemporaryDirectory() as tmpdir:
+            logger.info(f"Archiving {path}")
+            tmpdir = Path(tmpdir)
+
+            auxdir = tmpdir / "auxiliary_datasets"
+            auxdir.mkdir()
+            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
+            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
+            os.symlink(paths["cpe_match_path"], auxdir / "cpe_match.json")
+            os.symlink(paths["output_path_algorithms"], auxdir / "algorithms.json")
+
+            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+
+            certs = tmpdir / "certs"
+            certs.mkdir()
+            os.symlink(paths["target"], certs / "targets")
+
+            logger.info("Running tar...")
+            subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
+            logger.info(f"Finished archiving {path}")
 
 
 @actor("fips_archive", "fips_archive", "updates", timedelta(hours=4))
@@ -157,6 +196,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="fips.write_json", description="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
+                    dset.aux_handlers[FIPSAlgorithmDatasetHandler].dset.to_json(paths["output_path_algorithms"])
 
             with sentry_sdk.start_span(op="fips.move", description="Move files"), suppress_child_spans():
                 for cert in dset:

@@ -343,12 +343,9 @@ def entry(hashid):
         doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
-            for profile in doc["protection_profiles"]:
-                if not profile["pp_ids"]:
-                    continue
-                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": {"$in": list(profile["pp_ids"])}})
-                if found:
-                    profiles[profile["pp_ids"]] = load(found)
+            if doc["heuristics"]["protection_profiles"]:
+                res = mongo.db.pp.find({"_id": {"$in": list(doc["heuristics"]["protection_profiles"])}})
+                profiles = {p["_id"]: load(p) for p in res}
         renderer = CCRenderer()
         with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
             diffs = list(mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))

@@ -1,43 +1,37 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "pp/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
-{% from "cc/utils.html.jinja2" import render_status, render_sars, render_sfrs, render_category %}
+{% from "common/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
+{% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
-        {{ profile["csv_scan"]["cc_pp_name"]|default("", true) + " | sec-certs.org" }}
+        {{ profile["web_data"]["name"]|default("", true) + " | sec-certs.org" }}
     </title>
 {% endblock %}
 {% block metadata %}
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
-    <meta property="twitter:title" content="{{ profile["csv_scan"]["cc_pp_name"]|default("sec-certs.org", true) }}"/>
+    <meta property="twitter:title" content="{{ profile["web_data"]["name"]|default("sec-certs.org", true) }}"/>
     <meta property="twitter:image" content="{{ url_for("static", filename="img/pp_card.png", _external=True) }}"/>
-    <meta property="twitter:description" content="Common Criteria protection profile {{ profile["csv_scan"]["cc_pp_name"]|default("", true) }}"/>
-    <meta property="og:title" content="{{ profile["csv_scan"]["cc_pp_name"]|default("sec-certs.org", true) }}"/>
+    <meta property="twitter:description" content="Common Criteria protection profile {{ profile["web_data"]["name"]|default("", true) }}"/>
+    <meta property="og:title" content="{{ profile["web_data"]["name"]|default("sec-certs.org", true) }}"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
     <meta property="og:image" content="{{ url_for("static", filename="img/pp_card.png", _external=True) }}"/>
-    <meta property="og:description" content="Common Criteria protection profile {{ profile["csv_scan"]["cc_pp_name"]|default("", true) }}"/>
+    <meta property="og:description" content="Common Criteria protection profile {{ profile["web_data"]["name"]|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
 {% block navbar %}
     {{ super() }}
-    {% if "csv_scan" in profile %}
-        <li class="nav-item">
-            <a class="nav-link" href="#csv-info">CSV</a>
-        </li>
-    {% endif %}
-    {% if "frontpage_scan" in profile %}
-        <li class="nav-item">
-            <a class="nav-link" href="#frontpage-info">Frontpage</a>
-        </li>
-    {% endif %}
-    {% if "keywords_scan" in profile or "st_keywords_scan" in profile or "processed" in profile %}
-        <li class="nav-item">
-            <a class="nav-link" href="#profile-info">Profile</a>
-        </li>
-    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="#web-info">Web</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#report-info">Report</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#profile-info">Profile</a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" href="#reference-graph">References</a>
     </li>
@@ -52,74 +46,45 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <div>
-                <h1>{{ profile["csv_scan"]["cc_pp_name"]|default("") }}</h1>
+                <h1>{{ profile["web_data"]["name"]|default("") }}</h1>
 
-                {% if "csv_scan" in profile %}
+                {% if "web_data" in profile %}
                     <div class="mt-5 mb-5">
-                        <h2 class="anchor" id="csv-info">CSV information
+                        <h2 class="anchor" id="web-info">Web information
                             <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                   class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information extracted from the CSV protection profile database provided by the Common Criteria portal.">?</span>
+                                  title="Information extracted from the protection profile database provided by the Common Criteria portal.">?</span>
                         </h2>
-                        <b>Status:</b>{{ render_status(profile["csv_scan"]["cert_status"]) }}<br/>
+                        <b>Status:</b>{{ render_status(profile["web_data"]["status"]) }}<br/>
 
                         <b>Certification date:</b>
-                        {{ profile["csv_scan"]["cc_certification_date"] }}
+                        {{ profile["web_data"]["not_valid_before"] }}
                         <br/>
-                        {% if profile["csv_scan"]["cc_archived_date"] %}
+                        {% if profile["web_data"]["not_valid_after"] %}
                             <b>Archived date:</b>
-                            {{ profile["csv_scan"]["cc_archived_date"] }}
+                            {{ profile["web_data"]["not_valid_after"] }}
                             <br/>
                         {% endif %}
                         <b>Scheme:</b>
-                        <span title="{{ profile['csv_scan']['scheme'] }}">{{ country_to_flag(profile["csv_scan"]["scheme"]) }}</span>
+                        <span title="{{ profile['web_data']['scheme'] }}">{{ country_to_flag(profile["web_data"]["scheme"]) }}</span>
                         <br/>
                         <b>Category:</b>
-                        {{ render_category(profile["csv_scan"]["cc_category"]) }} {{ profile["csv_scan"]["cc_category"] }}
+                        {{ render_category(profile["web_data"]["category"]) }} {{ profile["web_data"]["category"] }}
                         <br/>
                         <b>Security level:</b>
-                        {{ profile["csv_scan"]["cc_security_level"] }}
+                        {% for level in profile["web_data"]["security_level"] %}
+                            {{ render_eal(level) }}{%- if not loop.last -%}, {%- endif -%}
+                        {% endfor %}
                         <br/>
 
                         <div class="mt-2 mb-2">
                             <a class="btn btn-outline-primary" role="button"
-                               href="{{ profile['csv_scan']['link_pp_report'] }}" data-bs-toggle="tooltip"
+                               href="{{ profile['web_data']['report_link'] }}" data-bs-toggle="tooltip"
                                data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
                             <a class="btn btn-outline-primary" role="button"
-                               href="{{ profile['csv_scan']['link_pp_document'] }}" data-bs-toggle="tooltip"
+                               href="{{ profile['web_data']['pp_link'] }}" data-bs-toggle="tooltip"
                                data-bs-placement="bottom"><i class="fas fa-file-contract"></i> Protection Profile</a>
                         </div>
-                    </div>
-                {% endif %}
-
-                {% if "frontpage_scan" in profile and profile["frontpage_scan"][0] %}
-                    <div class="mt-5 mb-3">
-                        <h2 class="anchor" id="frontpage-info">Frontpage information
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information extracted from the frontpage of the protection profile document.">?</span>
-                        </h2>
-
-                        {% if "pp_id" in profile["frontpage_scan"][0] %}
-                            <b>Protection Profile ID:</b>
-                            {{ profile["frontpage_scan"][0]["pp_id"] }}
-                            <br/>
-                        {% endif %}
-                        {% if "pp_title" in profile["frontpage_scan"][0] %}
-                            <b>Title:</b>
-                            {{ profile["frontpage_scan"][0]["pp_title"] }}
-                            <br/>
-                        {% endif %}
-                        {% if "pp_version_number" in profile["frontpage_scan"][0] %}
-                            <b>Version:</b>
-                            {{ profile["frontpage_scan"][0]["pp_version_number"] }}
-                            <br/>
-                        {% endif %}
-                        {% if "cc_security_level" in profile["frontpage_scan"][0] %}
-                            <b>Security level:</b>
-                            {{ profile["frontpage_scan"][0]["cc_security_level"] }}
-                            <br/>
-                        {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -127,35 +92,54 @@
         {#  heeeere #}
         <div class="row bg-dark p-3">
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
-                {% if "keywords_scan" in profile or "processed" in profile %}
-                    <div class="mb-3">
-                        <h2 class="anchor" id="profile-info">Protection profile
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information automatically extracted from the protection profile documents. Might contain errors.">?</span>
+                <div class="mb-5">
+                    <div class="mt-5 mb-3">
+                        <h2 class="anchor" id="report-info">Certification report
+                            {{ render_document_state(profile["state"], "report", "certification report") }}
                         </h2>
-                        {% if "processed" in profile %}
-                            {% if "cc_pp_csvid" in profile["processed"] and profile["processed"]["cc_pp_csvid"] %}
-                                <b>Protection Profile ID:</b>
-                                <ul>
-                                    {% for pp_id in profile["processed"]["cc_pp_csvid"] %}
-                                        <li>{{ pp_id }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <br/>
-                            {% endif %}
-                        {% endif %}
+                        <div class="mt-3 mb-3">
+                            {{ render_local_files(hashid, local_files, None, profile['report_link'], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                        </div>
 
-                        {% if "keywords_scan" in profile %}
-                            <h3 class="mt-4">Extracted keywords</h3>
-                            {{ cryptography_keywords(profile["keywords_scan"], "pp") }}
-                            {{ device_keywords(profile["keywords_scan"], "pp") }}
-                            {{ security_keywords(profile["keywords_scan"], "pp", hidden=["rules_security_level"], map_funcs={"rules_security_assurance_components": render_sars,
-							 																				"rules_security_functional_components": render_sfrs}) }}
-                            {{ other_keywords(profile["keywords_scan"], "pp") }}
+                        {% if profile["pdf_data"]["report_keywords"] %}
+                            <h3 class="mt-3">Extracted keywords</h3>
+                            {{ cryptography_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                            {{ device_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                            {{ cc_keywords(profile["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
+                                                                                               "cc_sfr": render_sfrs}) }}
+                            {{ security_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                            {{ other_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                        {% endif %}
+                        {% if profile["pdf_data"]["report_metadata"] %}
+                            <h3 class="mt-3">File metadata</h3>
+                            {{ render_pdf_meta(profile["pdf_data"]["report_metadata"], "Certification report") }}
                         {% endif %}
                     </div>
-                {% endif %}
+
+                    <div class="mt-5 mb-3">
+                        <h2 class="anchor" id="profile-info">Profile
+                            {{ render_document_state(profile["state"], "pp", "protection profile") }}
+                        </h2>
+
+                        <div class="mt-3 mb-3">
+                            {{ render_local_files(hashid, local_files, None, None, cert['pp_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                        </div>
+
+                        {% if profile["pdf_data"]["pp_keywords"] %}
+                            <h3 class="mt-3">Extracted keywords</h3>
+                            {{ cryptography_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                            {{ device_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                            {{ cc_keywords(profile["pdf_data"]["pp_keywords"], "profile", map_funcs={"cc_sar": render_sars,
+                                                                                               "cc_sfr": render_sfrs}) }}
+                            {{ security_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                            {{ other_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                        {% endif %}
+                        {% if profile["pdf_data"]["pp_metadata"] %}
+                            <h3 class="mt-3">File metadata</h3>
+                            {{ render_pdf_meta(cert["pdf_data"]["pp_metadata"], "Security target") }}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -164,19 +148,15 @@
                 <h2 class="anchor" id="reference-graph">References
                     <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                           data-bs-toggle="tooltip" data-bs-placement="top"
-                          title="Information automatically extracted from the certificate, security target and protection profile documents. Might contain errors.">?</span>
+                          title="Information automatically extracted from the certification report and protection profile documents. Might contain errors.">?</span>
                 </h2>
                 <div>
                     {% if certs %}
                         <ul>
                             {% for cert in certs %}
-                                {% if "csv_scan" in cert and "cert_item_name" in cert["csv_scan"] %}
-                                    {% set cname = cert["csv_scan"]["cert_item_name"] %}
-                                {% else %}
-                                    {% set cname = cert["_id"] %}
-                                {% endif %}
                                 <li>
-                                    <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cname }}</a>
+                                    <a href="{{ url_for('cc.entry', hashid=cert['hashid']) }}">{{ cert['name'] }}</a>
+                                    {{ render_status(cert["status"]) }}
                                 </li>
                             {% endfor %}
                         </ul>
