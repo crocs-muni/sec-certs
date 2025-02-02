@@ -25,10 +25,11 @@ logger = logging.getLogger(__name__)
 
 class AuxiliaryDatasetHandler(ABC):
     RELATIVE_DIR: ClassVar[str | None] = None
+    aux_datasets_dir: Path
+    dset: Any
 
     def __init__(self, aux_datasets_dir: str | Path) -> None:
         self.aux_datasets_dir = Path(aux_datasets_dir)
-        self.dset: Any
 
     @property
     def root_dir(self) -> Path:
@@ -178,9 +179,8 @@ class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
         aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         only_schemes: set[str] | None = None,
     ):
-        self.aux_datasets_dir = Path(aux_datasets_dir)
+        super().__init__(aux_datasets_dir)
         self.only_schemes = only_schemes
-        self.dset: Any
 
     @property
     def dset_path(self) -> Path:
@@ -203,15 +203,18 @@ class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
 
 class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
     RELATIVE_DIR: ClassVar[str] = "maintenances"
+    certs_with_updates: Iterable[CCCertificate]
 
     def __init__(
         self,
         aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
-        certs_with_updates: Iterable[CCCertificate] = [],
+        certs_with_updates: Iterable[CCCertificate] | None = None,
     ) -> None:
-        self.aux_datasets_dir = Path(aux_datasets_dir)
-        self.certs_with_updates = certs_with_updates
-        self.dset: Any
+        super().__init__(aux_datasets_dir)
+        if certs_with_updates is None:
+            self.certs_with_updates = []
+        else:
+            self.certs_with_updates = certs_with_updates
 
     @property
     def dset_path(self) -> Path:
@@ -251,7 +254,7 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
     RELATIVE_DIR: ClassVar[str] = "protection_profiles"
 
     def __init__(self, aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH):
-        self.aux_datasets_dir = Path(aux_datasets_dir)
+        super().__init__(aux_datasets_dir)
 
     @property
     def dset_path(self) -> Path:
