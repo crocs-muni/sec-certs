@@ -6,7 +6,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import sentry_sdk
-from cc import cc_categories
 from common.diffs import DiffRenderer
 from common.sentry import suppress_child_spans
 from common.tasks import Indexer, Updater, actor
@@ -16,6 +15,7 @@ from sec_certs.dataset import ProtectionProfileDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import mongo, runtime_config
+from ..cc import cc_categories
 
 logger = logging.getLogger(__name__)
 
