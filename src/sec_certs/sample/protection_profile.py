@@ -216,6 +216,9 @@ class ProtectionProfile(
             "|".join([self.web_data.category, self.web_data.name, self.web_data.version])
         )
 
+    def __str__(self) -> str:
+        return f"PP: {self.web_data.name}, dgst: {self.dgst}"
+
     @property
     def label_studio_title(self) -> str:
         return self.web_data.name
