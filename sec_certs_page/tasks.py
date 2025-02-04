@@ -41,9 +41,7 @@ def run_updates_daily() -> None:  # pragma: no cover
     ).run()
 
 
-@dramatiq.actor(
-    actor_name="sitemap_update", queue_name="default", periodic=cron("@daily"), time_limit=timedelta(hours=1) * 1000
-)  # Daily
+@dramatiq.actor(actor_name="sitemap_update", queue_name="default", time_limit=timedelta(hours=1).total_seconds() * 1000)
 @task("sitemap_update")
 def update_sitemap():
     # Just hack a request context, we do not need pretty much anything here.
