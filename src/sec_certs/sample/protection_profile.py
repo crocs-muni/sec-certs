@@ -156,34 +156,34 @@ class ProtectionProfile(
 
         @staticmethod
         def _html_row_get_name(cell: Tag) -> str:
-            return cell.find_all("a")[0].string
+            return str(cell.find_all("a")[0].string)
 
         @staticmethod
         def _html_row_get_link(cell: Tag) -> str:
-            return constants.CC_PORTAL_BASE_URL + cell.find_all("a")[0].get("href")
+            return constants.CC_PORTAL_BASE_URL + str(cell.find_all("a")[0].get("href"))
 
         @staticmethod
         def _html_row_get_version(cell: Tag) -> str:
-            return cell.text
+            return str(cell.text)
 
         @staticmethod
         def _html_row_get_security_level(cell: Tag) -> set[str]:
-            return set(cell.stripped_strings)
+            return set(map(str, cell.stripped_strings))
 
         @staticmethod
         def _html_row_get_scheme(cell: Tag) -> str | None:
-            schemes = list(cell.stripped_strings)
+            schemes = list(map(str, cell.stripped_strings))
             return schemes[0] if schemes else None
 
         @staticmethod
         def _html_row_get_collaborative_name(cell: Tag) -> str:
-            return list(cell.stripped_strings)[0]
+            return list(map(str, cell.stripped_strings))[0]
 
         @staticmethod
         def _html_row_get_collaborative_pp_link(cell: Tag) -> str:
-            return constants.CC_PORTAL_BASE_URL + [x for x in cell.find_all("a") if x.string == "Protection Profile"][
-                0
-            ].get("href")
+            return constants.CC_PORTAL_BASE_URL + str(
+                [x for x in cell.find_all("a") if x.string == "Protection Profile"][0].get("href")
+            )
 
     @dataclass
     class InternalState(ComplexSerializableType):

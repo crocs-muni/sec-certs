@@ -63,6 +63,12 @@ def test_get_certs_from_web(pp_data_dir: Path, toy_pp_dataset: ProtectionProfile
         assert "b02ed76d2545326a" in dset.certs
         assert dset == toy_pp_dataset
 
+        cert = dset["b02ed76d2545326a"]
+        assert isinstance(cert.web_data.name, str)
+        assert isinstance(cert.web_data.status, str)
+        assert isinstance(cert.web_data.category, str)
+        assert isinstance(cert.web_data.version, str)
+
 
 def test_download_and_convert_artifacts(toy_pp_dataset: ProtectionProfileDataset, tmpdir, pp_data_dir):
     toy_pp_dataset.copy_dataset(tmpdir)
