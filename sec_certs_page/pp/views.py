@@ -139,7 +139,7 @@ def process_search(req, callback=None):
     )
     return {
         "pagination": pagination,
-        "profiles": cursor[(page - 1) * per_page : page * per_page],
+        "profiles": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
         "categories": categories,
         "q": q,
         "page": page,

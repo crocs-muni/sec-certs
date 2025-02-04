@@ -50,10 +50,10 @@ class CCRenderer(DiffRenderer, PPMixin):  # pragma: no cover
 
 class PPIndexer(Indexer, PPMixin):  # pragma: no cover
     def create_document(self, dgst, document, cert, content):
-        category_id = cc_categories[cert["category"]]["id"]
+        category_id = cc_categories[cert["web_data"]["category"]]["id"]
         return {
             "dgst": dgst,
-            "name": cert["name"],
+            "name": cert["web_data"]["name"],
             "document_type": document,
             "cert_id": None,
             "cert_schema": self.cert_schema,
@@ -102,7 +102,7 @@ class PPArchiver(PPMixin):
 
             os.symlink(paths["output_path"], tmpdir / "pp.json")
 
-            os.symlink(paths["pp"], tmpdir / "pps")
+            os.symlink(paths["profile"], tmpdir / "pps")
             os.symlink(paths["report"], tmpdir / "reports")
 
             logger.info("Running tar...")
