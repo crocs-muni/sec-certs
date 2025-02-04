@@ -343,7 +343,7 @@ def entry(hashid):
         doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
-            if doc["heuristics"]["protection_profiles"]:
+            if "protection_profiles" in doc["heuristics"] and doc["heuristics"]["protection_profiles"]:
                 res = mongo.db.pp.find({"_id": {"$in": list(doc["heuristics"]["protection_profiles"])}})
                 profiles = {p["_id"]: load(p) for p in res}
         renderer = CCRenderer()
@@ -554,7 +554,7 @@ def entry_feed(hashid):
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=True), diffs))
         fg = FeedGenerator()
         fg.id(request.base_url)
-        fg.title(re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", doc["name"]))
+        fg.title(re.sub("[^\u0020-\ud7ff\u0009\u000a\u000d\ue000-\ufffd\U00010000-\U0010ffff]+", "", doc["name"]))
         fg.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
         fg.link({"href": entry_url, "rel": "alternate"})
         fg.link({"href": request.base_url, "rel": "self"})
@@ -575,7 +575,7 @@ def entry_feed(hashid):
                 }[diff["type"]]
             )
             fe.id(entry_url + str(diff["_id"]))
-            stripped = re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", str(render))
+            stripped = re.sub("[^\u0020-\ud7ff\u0009\u000a\u000d\ue000-\ufffd\U00010000-\U0010ffff]+", "", str(render))
             fe.content(stripped, type="html")
             fe.published(date)
             fe.updated(date)

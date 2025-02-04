@@ -1,7 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "common/utils.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
