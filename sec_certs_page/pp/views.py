@@ -11,9 +11,11 @@ from werkzeug.exceptions import BadRequest
 
 from .. import mongo, sitemap
 from ..cc import cc_categories
+from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
-from ..common.views import Pagination, send_json_attachment
+from ..common.views import Pagination, entry_download_files, send_json_attachment
 from . import pp
+from .tasks import PPRenderer
 
 
 @pp.route("/")
@@ -168,7 +170,7 @@ def search_pagination():
     return render_template("pp/search_pagination.html.jinja2", **res)
 
 
-@pp.route("/<string(length=20):hashid>/")
+@pp.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
     pp,
     ".entry",
@@ -185,24 +187,47 @@ def entry(hashid):
             res = mongo.db.cc.find({"heuristics.protection_profiles._value": {"$elemMatch": {"$eq": hashid}}})
             for cert in res:
                 certs.append(load(cert))
-
+        renderer = PPRenderer()
+        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
+            diffs = list(mongo.db.pp_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
+            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diffs = list(map(load, diffs))
+            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
+        with sentry_sdk.start_span(op="files", description="Find local files"):
+            local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
+        name = doc["web_data"]["name"] if doc["web_data"] and doc["web_data"]["name"] else ""
         return render_template(
             "pp/entry.html.jinja2",
             profile=doc,
             hashid=hashid,
             certs=certs,
+            diffs=diffs,
+            diff_jsons=diff_jsons,
+            diff_renders=diff_renders,
+            local_files=local_files,
+            title=f"{name} | sec-certs.org",
             json=StorageFormat(raw_doc).to_json_mapping(),
         )
     else:
         return abort(404)
 
 
-@pp.route("/<string(length=20):hashid>/profile.json")
+@pp.route("/<string(length=16):hashid>/profile.json")
 def entry_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find profile"):
         doc = mongo.db.pp.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
+    else:
+        return abort(404)
+
+
+@pp.route("/<string(length=16):hashid>/feed.xml")
+def entry_feed(hashid):
+    feed = Feed(PPRenderer(), "img/pp_card.png", mongo.db.pp, mongo.db.pp_diff)
+    response = feed.render(hashid)
+    if response:
+        return response
     else:
         return abort(404)
 

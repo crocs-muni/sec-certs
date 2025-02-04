@@ -19,7 +19,7 @@ def to_flag(code):
     """Turn a country code to an emoji flag."""
     if code == "UK":
         code = "GB"
-    return flag(code)
+    return flag(code) if code else "❌"
 
 
 @app.template_global("blueprint_url_prefix")

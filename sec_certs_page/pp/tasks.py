@@ -31,14 +31,14 @@ class PPMixin:  # pragma: no cover
         self.cert_schema = "pp"
 
 
-class CCRenderer(DiffRenderer, PPMixin):  # pragma: no cover
+class PPRenderer(DiffRenderer, PPMixin):  # pragma: no cover
     def __init__(self):
         super().__init__()
         self.templates = {
-            "new": "cc/notifications/diff_new.html.jinja2",
-            "change": "cc/notifications/diff_change.html.jinja2",
-            "remove": "cc/notifications/diff_remove.html.jinja2",
-            "back": "cc/notifications/diff_back.html.jinja2",
+            "new": "pp/notifications/diff_new.html.jinja2",
+            "change": "pp/notifications/diff_change.html.jinja2",
+            "remove": "pp/notifications/diff_remove.html.jinja2",
+            "back": "pp/notifications/diff_back.html.jinja2",
         }
         self.k2map = {
             "web_data": ("CC portal data", False),

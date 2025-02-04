@@ -1,8 +1,8 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords %}
-{% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta %}
+{% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_document_state, render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
         {{ profile["web_data"]["name"]|default("", true) + " | sec-certs.org" }}
@@ -98,7 +98,7 @@
                             {{ render_document_state(profile["state"], "report", "certification report") }}
                         </h2>
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, None, profile['report_link'], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_files(hashid, local_files, None, profile["web_data"]["report_link"], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if profile["pdf_data"]["report_keywords"] %}
@@ -122,7 +122,7 @@
                         </h2>
 
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, None, None, cert['pp_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_files(hashid, local_files, None, None, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if profile["pdf_data"]["pp_keywords"] %}
@@ -136,7 +136,7 @@
                         {% endif %}
                         {% if profile["pdf_data"]["pp_metadata"] %}
                             <h3 class="mt-3">File metadata</h3>
-                            {{ render_pdf_meta(cert["pdf_data"]["pp_metadata"], "Security target") }}
+                            {{ render_pdf_meta(profile["pdf_data"]["pp_metadata"], "Security target") }}
                         {% endif %}
                     </div>
                 </div>
@@ -164,6 +164,50 @@
                         <p>No references are available for this protection profile.</p>
                     {% endif %}
                 </div>
+            </div>
+
+            <div class="mt-5 mb-5">
+                <h2 class="anchor" id="updates">Updates
+                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
+                          data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Information on how the protection profile data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
+                    <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
+                       style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                       data-bs-toggle="tooltip" data-bs-placement="top"
+                       title="ATOM feed"><i class="fas fa-fw fa-feed"></i></a>
+                </h2>
+                <ul>
+                    {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
+                        <li id="diff-{{ diff["_id"] }}">
+                            {% if diff["type"] == "new" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile was first processed.
+                            {% elif diff["type"] == "change" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile data changed.
+                            {% elif diff["type"] == "remove" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile became unavailable,
+                                either the certification report or the protection profile was unavailable during
+                                processing.
+                            {% elif diff["type"] == "back" %}
+                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile became available
+                                again.
+                            {% endif %}
+                            {% if true %} {# is_admin() #}
+                                <button type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#diff-data{{ loop.index }}"
+                                        tabindex="0"
+                                        class="btn btn-outline-primary btn-sm"
+                                        title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff
+                                </button>
+                                <div id="diff-data{{ loop.index }}" class="collapse py-3">
+                                    {{ diff_render|safe }}
+                                </div>
+                                {# <pre id="diff-data{{ loop.index }}"
+                                     class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
+                                #}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
 
             <div class="mt-5 mb-5">
