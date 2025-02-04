@@ -4,7 +4,7 @@ import pymongo
 import sentry_sdk
 from feedgen.feed import FeedGenerator
 from flask import Response, url_for
-from pymongo.synchronous.collection import Collection
+from pymongo.collection import Collection
 from pytz import timezone
 
 from .diffs import DiffRenderer
