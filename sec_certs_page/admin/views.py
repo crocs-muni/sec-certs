@@ -16,6 +16,13 @@ from .user import User
 admin_permission = Permission(RoleNeed("admin"))
 
 
+collections = [
+    ("cc", mongo.db.cc_log, mongo.db.cc_diff),
+    ("fips", mongo.db.fips_log, mongo.db.fips_diff),
+    ("pp", mongo.db.pp_log, mongo.db.pp_diff),
+]
+
+
 @admin.route("/")
 @login_required
 @admin_permission.require()
@@ -60,22 +67,16 @@ def updates():
     return render_template("admin/updates/index.html.jinja2")
 
 
-@admin.route("/updates/cc")
-@login_required
-@admin_permission.require()
-@register_breadcrumb(admin, ".updates.cc", "CC Updates")
-def updates_cc():
+def updates_one(template, type, log_coll, diff_coll):
     page = int(request.args.get("page", 1))
     per_page = 20
-    cc_log = list(
-        mongo.db.cc_log.find().sort([("start_time", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page]
-    )
-    for log_entry in cc_log:
+    log = list(log_coll.find().sort([("start_time", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page])
+    for log_entry in log:
         if "stats" in log_entry and "changed_ids" not in log_entry["stats"]:
-            log_entry["stats"]["changed_ids"] = mongo.db.cc_diff.count_documents(
+            log_entry["stats"]["changed_ids"] = diff_coll.count_documents(
                 {"run_id": log_entry["_id"], "type": "change"}
             )
-    count = mongo.db.cc_log.count_documents({})
+    count = log_coll.count_documents({})
     pagination = Pagination(
         page=page,
         per_page=per_page,
@@ -85,7 +86,15 @@ def updates_cc():
         css_framework="bootstrap5",
         alignment="center",
     )
-    return render_template("admin/updates/log/cc.html.jinja2", cc_log=cc_log, pagination=pagination)
+    return render_template(template, log=log, pagination=pagination)
+
+
+@admin.route("/updates/cc")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".updates.cc", "CC Updates")
+def updates_cc():
+    return updates_one("admin/updates/log/cc.html.jinja2", "cc", mongo.db.cc_log, mongo.db.cc_diff)
 
 
 @admin.route("/updates/fips")
@@ -93,27 +102,15 @@ def updates_cc():
 @admin_permission.require()
 @register_breadcrumb(admin, ".updates.fips", "FIPS Updates")
 def updates_fips():
-    page = int(request.args.get("page", 1))
-    per_page = 20
-    fips_log = list(
-        mongo.db.fips_log.find().sort([("start_time", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page]
-    )
-    for log_entry in fips_log:
-        if "stats" in log_entry and "changed_ids" not in log_entry["stats"]:
-            log_entry["stats"]["changed_ids"] = mongo.db.fips_diff.count_documents(
-                {"run_id": log_entry["_id"], "type": "change"}
-            )
-    count = mongo.db.fips_log.count_documents({})
-    pagination = Pagination(
-        page=page,
-        per_page=per_page,
-        search=False,
-        found=count,
-        total=count,
-        css_framework="bootstrap5",
-        alignment="center",
-    )
-    return render_template("admin/updates/log/fips.html.jinja2", fips_log=fips_log, pagination=pagination)
+    return updates_one("admin/updates/log/fips.html.jinja2", "fips", mongo.db.fips_log, mongo.db.fips_diff)
+
+
+@admin.route("/updates/pp")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".updates.pp", "PP Updates")
+def updates_pp():
+    return updates_one("admin/updates/log/pp.html.jinja2", "pp", mongo.db.pp_log, mongo.db.pp_diff)
 
 
 @admin.route("/update/<ObjectId:id>")
@@ -126,14 +123,11 @@ def updates_fips():
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": str(request.view_args["id"])}],  # type: ignore
 )
 def update_run(id):
-    cc_run = mongo.db.cc_log.find_one({"_id": id})
-    if cc_run:
-        cc_diffs = list(mongo.db.cc_diff.find({"run_id": id}))
-        return render_template("admin/updates/run.html.jinja2", run=cc_run, diffs=cc_diffs, type="cc")
-    fips_run = mongo.db.fips_log.find_one({"_id": id})
-    if fips_run:
-        fips_diffs = list(mongo.db.fips_diff.find({"run_id": id}))
-        return render_template("admin/updates/run.html.jinja2", run=fips_run, diffs=fips_diffs, type="fips")
+    for type, log_coll, diff_coll in collections:
+        run = log_coll.find_one({"_id": id})
+        if run:
+            diffs = list(diff_coll.find({"run_id": id}))
+            return render_template("admin/updates/run.html.jinja2", run=run, diffs=diffs, type=type)
     return abort(404)
 
 
@@ -141,16 +135,12 @@ def update_run(id):
 @login_required
 @admin_permission.require()
 def update_diff(id):
-    cc_diff = mongo.db.cc_diff.find_one({"_id": id})
-    if cc_diff:
-        cc_run = mongo.db.cc_log.find_one({"_id": cc_diff["run_id"]})
-        json = StorageFormat(cc_diff).to_json_mapping()
-        return render_template("admin/updates/diff.html.jinja2", diff=cc_diff, json=json, run=cc_run, type="cc")
-    fips_diff = mongo.db.fips_diff.find_one({"_id": id})
-    if fips_diff:
-        fips_run = mongo.db.fips_log.find_one({"_id": fips_diff["run_id"]})
-        json = StorageFormat(fips_diff).to_json_mapping()
-        return render_template("admin/updates/diff.html.jinja2", diff=fips_diff, json=json, run=fips_run, type="fips")
+    for type, log_coll, diff_coll in collections:
+        diff = diff_coll.find_one({"_id": id})
+        if diff:
+            run = log_coll.find_one({"_id": diff["run_id"]})
+            json = StorageFormat(diff).to_json_mapping()
+            return render_template("admin/updates/diff.html.jinja2", diff=diff, json=json, run=run, type=type)
     return abort(404)
 
 
