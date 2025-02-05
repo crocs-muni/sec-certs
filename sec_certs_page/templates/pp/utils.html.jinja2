@@ -1,5 +1,13 @@
 {% from "cc/utils.html.jinja2" import render_category, render_status %}
 
+{% macro render_document_type(document_type) %}
+    {% if document_type == "report" %}
+        <span>Certification Report</span>
+    {% elif document_type == "profile" %}
+        <span>Protection Profile</span>
+    {% endif %}
+{%- endmacro %}
+
 {% macro render_pagination(pagination, profiles, search=False) %}
     <div id="pagination">
     {% if search %}
