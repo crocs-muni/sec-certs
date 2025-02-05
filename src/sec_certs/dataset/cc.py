@@ -113,10 +113,10 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             self.aux_handlers[CPEMatchDictHandler] = CPEMatchDictHandler(self.auxiliary_datasets_dir)
             self.aux_handlers[CCSchemeDatasetHandler] = CCSchemeDatasetHandler(self.auxiliary_datasets_dir)
             self.aux_handlers[ProtectionProfileDatasetHandler] = ProtectionProfileDatasetHandler(
-                self.auxiliary_datasets_dir / "protection_profiles"
+                self.auxiliary_datasets_dir
             )
             self.aux_handlers[CCMaintenanceUpdateDatasetHandler] = CCMaintenanceUpdateDatasetHandler(
-                self.auxiliary_datasets_dir / "maintenances"
+                self.auxiliary_datasets_dir
             )
 
     def to_pandas(self) -> pd.DataFrame:
