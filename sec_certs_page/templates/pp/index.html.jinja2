@@ -48,6 +48,9 @@
                                 <div>
                                     <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
                                             class="fas fa-search fa-fw"></i> Go</a>
+                                    <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary"
+                                       title="Fulltext search" data-bs-toggle="tooltip"><i
+                                            class="fas fa-search-plus fa-fw"></i> Fulltext</a>
                                 </div>
                             </div>
                         </div>
@@ -89,7 +92,7 @@
                                 <div>
                                     <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
                                             class="fas fa-dice fa-fw"></i> Go</a>
-                                    <a href="{{ url_for(".entry", hashid="11f07721e8b80d09233c") }}"
+                                    <a href="{{ url_for(".entry", hashid="62c62b4b4210800e") }}"
                                        class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
                                 </div>
                             </div>

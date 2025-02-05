@@ -7,7 +7,7 @@ from werkzeug.datastructures import MultiDict
 
 from .. import mongo
 from ..cc import cc_categories
-from ..common.search.query import BasicSearch
+from ..common.search.query import BasicSearch, FulltextSearch
 
 
 class PPBasicSearch(BasicSearch):
@@ -85,3 +85,23 @@ class PPBasicSearch(BasicSearch):
             cursor.sort([("web_data.name", pymongo.ASCENDING)])
 
         return cursor, count, timeline
+
+
+class PPFulltextSearch(FulltextSearch):
+    schema = "pp"
+    status_options = {"any", "active", "archived"}
+    status_default = "any"
+    type_options = {"any", "report", "profile"}
+    type_default = "any"
+    categories = cc_categories  # type: ignore
+    collection = mongo.db.pp
+    doc_dir = "DATASET_PATH_PP_DIR"
+
+    @classmethod
+    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+        res = super().parse_args(args)
+        scheme = args.get("scheme", "any")
+        res["scheme"] = scheme
+        if scheme != "any":
+            res["advanced"] = True
+        return res

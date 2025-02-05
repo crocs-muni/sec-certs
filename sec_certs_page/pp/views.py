@@ -20,7 +20,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import pp
-from .search import PPBasicSearch
+from .search import PPBasicSearch, PPFulltextSearch
 from .tasks import PPRenderer
 
 
@@ -87,6 +87,19 @@ def search_results():
 
     res = PPBasicSearch.process_search(request, callback=callback)
     return render_template("pp/search/results.html.jinja2", **res)
+
+
+@pp.route("/ftsearch/")
+@register_breadcrumb(pp, ".fulltext_search", "Fulltext search")
+def fulltext_search():
+    """Fulltext search for Protection Profiles."""
+    res = PPFulltextSearch.process_search(request)
+    return render_template(
+        "pp/search/fulltext.html.jinja2",
+        **res,
+        schemes=cc_schemes,
+        title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+    )
 
 
 @pp.route("/<string(length=16):hashid>/")
