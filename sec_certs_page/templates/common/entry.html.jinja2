@@ -1,9 +1,11 @@
 {% macro render_local_file(hashid, link_content, link, local_files, document, primary_style, secondary_style) %}
     <div class="btn-group">
-        <a class="btn {{ primary_style }}" role="button" href="{{ link }}"
-           data-bs-toggle="tooltip" data-bs-placement="bottom"
-           title="{{ link.split("/")[-1] if "/" in link else link }}" target="_blank"
-           rel="noopener">{{ link_content|safe }}</a>
+        {% if link %}
+            <a class="btn {{ primary_style }}" role="button" href="{{ link }}"
+               data-bs-toggle="tooltip" data-bs-placement="bottom"
+               title="{{ link.split("/")[-1] if "/" in link else link }}" target="_blank"
+               rel="noopener">{{ link_content|safe }}</a>
+        {% endif %}
         {% for format in ("pdf", "txt") %}
             {% if local_files.get((document, format)) %}
                 <a class="btn {{ secondary_style }}" role="button"
