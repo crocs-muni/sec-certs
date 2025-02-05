@@ -252,16 +252,22 @@ class Updater:  # pragma: no cover
             cve_dset_path = dset.aux_handlers[CVEDatasetHandler].dset_path
             if cve_dset_path.exists():
                 cve_dset_path.unlink()
+            cve_dset_parent = cve_dset_path.parent
+            cve_dset_parent.mkdir(parents=True, exist_ok=True)
             os.symlink(paths["cve_path"], cve_dset_path)
         if paths["cpe_path"].exists() and CPEDatasetHandler in dset.aux_handlers:
             cpe_dset_path = dset.aux_handlers[CPEDatasetHandler].dset_path
             if cpe_dset_path.exists():
                 cpe_dset_path.unlink()
+            cpe_dset_parent = cpe_dset_path.parent
+            cpe_dset_parent.mkdir(parents=True, exist_ok=True)
             os.symlink(paths["cpe_path"], cpe_dset_path)
         if paths["cpe_match_path"].exists() and CPEMatchDictHandler in dset.aux_handlers:
             cpe_match_dset_path = dset.aux_handlers[CPEMatchDictHandler].dset_path
             if cpe_match_dset_path.exists():
                 cpe_match_dset_path.unlink()
+            cpe_match_dset_parent = cpe_match_dset_path.parent
+            cpe_match_dset_parent.mkdir(parents=True, exist_ok=True)
             os.symlink(paths["cpe_match_path"], cpe_match_dset_path)
         if (
             "output_path_pp" in paths
@@ -271,6 +277,8 @@ class Updater:  # pragma: no cover
             pp_dset_path = dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path
             if pp_dset_path.exists():
                 pp_dset_path.unlink()
+            pp_dset_parent = pp_dset_path.parent
+            pp_dset_parent.mkdir(parents=True, exist_ok=True)
             os.symlink(paths["output_path_pp"], pp_dset_path)
 
         update_result = None
