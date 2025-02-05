@@ -1,7 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
 {% set search = True %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_document_state, render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
@@ -98,7 +98,7 @@
                             {{ render_document_state(profile["state"], "report", "certification report") }}
                         </h2>
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, None, profile["web_data"]["report_link"], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_report(hashid, local_files, profile["web_data"]["report_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if profile["pdf_data"]["report_keywords"] %}
@@ -122,7 +122,7 @@
                         </h2>
 
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, None, None, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_profile(hashid, local_files, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if profile["pdf_data"]["pp_keywords"] %}

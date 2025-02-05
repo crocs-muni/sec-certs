@@ -4,7 +4,7 @@
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "common/entry.html.jinja2" import render_local_files, render_pdf_meta, render_cves, render_references %}
+{% from "common/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
         {{ cert|fips_name|default("", true) + " | sec-certs.org" }}
@@ -234,7 +234,7 @@
                     </table>
 
                     <div class="mt-2 mb-2">
-                        {{ render_local_files(hashid, local_files, cert["web_data"]["certificate_pdf_url"], None, None) }}
+                        {{ render_local_cert(hashid, local_files, cert["web_data"]["certificate_pdf_url"]) }}
                         <a class="btn btn-outline-primary" role="button"
                            href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}"
                            data-bs-toggle="tooltip" data-bs-placement="bottom"
@@ -274,7 +274,7 @@
                     </h2>
 
                     <div class="mt-3 mb-3">
-                        {{ render_local_files(hashid, local_files, None, None, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                        {{ render_local_target(hashid, local_files, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
                     </div>
 
                     {% if cert["pdf_data"]["keywords"] %}

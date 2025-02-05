@@ -15,16 +15,20 @@
     </div>
 {% endmacro %}
 
-{% macro render_local_files(hashid, local_files, cert_link, report_link, target_link, primary_style="btn-outline-primary", secondary_style="btn-outline-secondary") %}
-    {% if cert_link %}
-        {{ render_local_file(hashid, '<i class="fas fa-file-contract"></i> Certificate', cert_link, local_files, "cert", primary_style, secondary_style) }}
-    {% endif %}
-    {% if report_link %}
-        {{ render_local_file(hashid, '<i class="fas fa-file-contract"></i> Certification report', report_link, local_files, "report", primary_style, secondary_style) }}
-    {% endif %}
-    {% if target_link %}
-        {{ render_local_file(hashid, '<i class="fas fa-file-alt"></i> Security target', target_link, local_files, "target", primary_style, secondary_style) }}
-    {% endif %}
+{% macro render_local_cert(hashid, local_files, cert_link, primary_style="btn-outline-primary", secondary_style="btn-outline-secondary") %}
+    {{ render_local_file(hashid, '<i class="fas fa-file-contract"></i> Certificate', cert_link, local_files, "cert", primary_style, secondary_style) }}
+{% endmacro %}
+
+{% macro render_local_report(hashid, local_files, report_link, primary_style="btn-outline-primary", secondary_style="btn-outline-secondary") %}
+    {{ render_local_file(hashid, '<i class="fas fa-file-contract"></i> Certification report', report_link, local_files, "report", primary_style, secondary_style) }}
+{% endmacro %}
+
+{% macro render_local_target(hashid, local_files, target_link, primary_style="btn-outline-primary", secondary_style="btn-outline-secondary") %}
+    {{ render_local_file(hashid, '<i class="fas fa-file-alt"></i> Security target', target_link, local_files, "target", primary_style, secondary_style) }}
+{% endmacro %}
+
+{% macro render_local_profile(hashid, local_files, profile_link, primary_style="btn-outline-primary", secondary_style="btn-outline-secondary") %}
+    {{ render_local_file(hashid, '<i class="fas fa-file-alt"></i> Protection profile', profile_link, local_files, "profile", primary_style, secondary_style) }}
 {% endmacro %}
 
 {% macro opt_line(name, key, obj, title) %}

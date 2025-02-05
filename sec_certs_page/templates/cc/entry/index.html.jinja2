@@ -4,7 +4,7 @@
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage, render_document_state %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta, render_cves, render_references %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block metadata %}
     <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
@@ -250,7 +250,7 @@
                         </h2>
 
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, cert['cert_link'], None, None, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_cert(hashid, local_files, cert['cert_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if cert["pdf_data"]["cert_keywords"] %}
@@ -273,7 +273,7 @@
                             {{ render_document_state(cert["state"], "report", "certification report") }}
                         </h2>
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, None, cert['report_link'], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_report(hashid, local_files, cert['report_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if cert["pdf_data"]["report_keywords"] %}
@@ -301,7 +301,7 @@
                         </h2>
 
                         <div class="mt-3 mb-3">
-                            {{ render_local_files(hashid, local_files, None, None, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
                         {% if cert["pdf_data"]["st_keywords"] %}
