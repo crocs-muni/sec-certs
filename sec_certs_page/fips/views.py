@@ -511,7 +511,13 @@ def entry_json(hashid):
 
 @fips.route("/<string(length=16):hashid>/feed.xml")
 def entry_feed(hashid):
-    feed = Feed(FIPSRenderer(), "img/fips_card.png", mongo.db.fips, mongo.db.fips_diff)
+    feed = Feed(
+        FIPSRenderer(),
+        "img/fips_card.png",
+        mongo.db.fips,
+        mongo.db.fips_diff,
+        lambda doc: doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else "",
+    )
     response = feed.render(hashid)
     if response:
         return response

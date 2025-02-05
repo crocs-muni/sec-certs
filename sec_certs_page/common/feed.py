@@ -1,4 +1,5 @@
 import re
+from typing import Callable
 
 import pymongo
 import sentry_sdk
@@ -12,11 +13,19 @@ from .objformats import load
 
 
 class Feed:
-    def __init__(self, renderer: DiffRenderer, logo_path: str, collection: Collection, diff_collection: Collection):
+    def __init__(
+        self,
+        renderer: DiffRenderer,
+        logo_path: str,
+        collection: Collection,
+        diff_collection: Collection,
+        name_func: Callable,
+    ):
         self.renderer = renderer
         self.logo_path = logo_path
         self.collection = collection
         self.diff_collection = diff_collection
+        self.name_func = name_func
 
     def render(self, hashid: str) -> Response | None:
         raw_doc = self.collection.find_one({"_id": hashid})
@@ -33,7 +42,9 @@ class Feed:
                 diff_renders = list(map(lambda x: self.renderer.render_diff(hashid, doc, x, linkback=True), diffs))
             fg = FeedGenerator()
             fg.id(feed_url)
-            fg.title(re.sub("[^\u0020-\ud7ff\u0009\u000a\u000d\ue000-\ufffd\U00010000-\U0010ffff]+", "", doc["name"]))
+            fg.title(
+                re.sub("[^\u0020-\ud7ff\u0009\u000a\u000d\ue000-\ufffd\U00010000-\U0010ffff]+", "", self.name_func(doc))
+            )
             fg.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
             fg.link({"href": entry_url, "rel": "alternate"})
             fg.link({"href": feed_url, "rel": "self"})

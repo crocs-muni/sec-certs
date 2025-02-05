@@ -543,7 +543,9 @@ def entry_json(hashid):
 @cc.route("/<string(length=16):hashid>/feed.xml")
 @redir_new
 def entry_feed(hashid):
-    feed = Feed(CCRenderer(), "img/cc_card.png", mongo.db.cc, mongo.db.cc_diff)
+    feed = Feed(
+        CCRenderer(), "img/cc_card.png", mongo.db.cc, mongo.db.cc_diff, lambda doc: doc["name"] if doc["name"] else ""
+    )
     response = feed.render(hashid)
     if response:
         return response

@@ -176,7 +176,13 @@ def entry_json(hashid):
 
 @pp.route("/<string(length=16):hashid>/feed.xml")
 def entry_feed(hashid):
-    feed = Feed(PPRenderer(), "img/pp_card.png", mongo.db.pp, mongo.db.pp_diff)
+    feed = Feed(
+        PPRenderer(),
+        "img/pp_card.png",
+        mongo.db.pp,
+        mongo.db.pp_diff,
+        lambda doc: doc["web_data"]["name"] if doc["web_data"]["name"] else "",
+    )
     response = feed.render(hashid)
     if response:
         return response
