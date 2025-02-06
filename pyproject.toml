@@ -39,7 +39,7 @@
     "Flask-Login",
     "Flask-Mail",
     "Flask-Melodramatiq",
-    "Flask-Menu",
+    "Flask-Menu == 1.0.1",
     "flask-paginate",
     "Flask-Principal",
     "Flask-PyMongo",
