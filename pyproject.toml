@@ -53,7 +53,7 @@
     "Whoosh",
     "email-validator",
     "MarkupSafe",
-    "Werkzeug",
+    "Werkzeug < 3.1",
     "WTForms",
 
     # Tasks

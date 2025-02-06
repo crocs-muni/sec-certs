@@ -627,7 +627,7 @@
   "state": {
     "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
     "report": {
-      "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+      "_type": "sec_certs.sample.document_state.DocumentState",
       "download_ok": true,
       "convert_garbage": false,
       "convert_ok": true,
@@ -636,7 +636,7 @@
       "txt_hash": "3d5038a440a97ef73272230a467d9ca44ab5e8e52a67899980aade1739262c12"
     },
     "st": {
-      "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+      "_type": "sec_certs.sample.document_state.DocumentState",
       "download_ok": true,
       "convert_garbage": false,
       "convert_ok": true,
@@ -645,7 +645,7 @@
       "txt_hash": "bcda924ae83a838cfff75a31c53b3d461d1e077c3e1139b5bc9082d0ca8b80be"
     },
     "cert": {
-      "_type": "sec_certs.sample.cc.CCCertificate.DocumentState",
+      "_type": "sec_certs.sample.document_state.DocumentState",
       "download_ok": false,
       "convert_garbage": false,
       "convert_ok": false,
