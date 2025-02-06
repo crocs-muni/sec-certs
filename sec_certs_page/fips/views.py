@@ -516,7 +516,7 @@ def entry_feed(hashid):
         "img/fips_card.png",
         mongo.db.fips,
         mongo.db.fips_diff,
-        lambda doc: doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else "",
+        lambda doc: doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else str(doc["cert_id"]),
     )
     response = feed.render(hashid)
     if response:

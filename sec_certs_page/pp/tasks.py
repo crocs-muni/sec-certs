@@ -15,7 +15,7 @@ from .. import mongo, runtime_config
 from ..cc import cc_categories
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Indexer, Updater, actor
+from ..common.tasks import Indexer, Updater, actor, Archiver
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
-class PPArchiver(PPMixin):
+class PPArchiver(Archiver, PPMixin):
     """
     PP Dataset
     ==========

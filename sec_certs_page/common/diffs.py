@@ -501,6 +501,17 @@ def diff_cc_sar():
     return compare, render
 
 
+def diff_pp_dgst():
+    compare_str, render_str = diff_str()
+
+    def render(equal: bool, a: Any, b: Any) -> Markup:
+        return Markup(
+            f"<a href=\"{url_for('pp.entry', hashid=a)}\" title=\"Navigate to protection profile by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+        )
+
+    return compare_str, render
+
+
 def render_dict(a, b, metas=None):
     compare_str, render_str = diff_str()
 
@@ -605,7 +616,7 @@ def diff_cc_mus():
     return compare, render
 
 
-def diff_cc_pps():
+def diff_cc_pps_old():
     metas = {
         "_type": diff_none(),
         "pp_name": diff_str(),
@@ -619,8 +630,10 @@ def diff_cc_pps():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         items = []
+        if a is None:
+            return Markup("")
         for pp in a:
-            if pp not in b:
+            if b is None or pp not in b:
                 other = {}
             else:
                 other = pp
@@ -674,9 +687,11 @@ cc_diff_method = {
             "indirectly_referenced_by": diff_set(diff_cc_cert_id()),
             "indirectly_referencing": diff_set(diff_cc_cert_id()),
         },
+        "protection_profiles": diff_set(diff_pp_dgst())
     },
     "maintenance_updates": diff_cc_mus(),
-    "protection_profiles": diff_cc_pps(),
+    "protection_profiles": diff_cc_pps_old(),
+    "protection_profile_links": diff_set(diff_url()),
     "pdf_data": {
         "_type": diff_none(),
         "cert_filename": diff_str(),
