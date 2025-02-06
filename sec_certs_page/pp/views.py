@@ -119,6 +119,7 @@ def entry(hashid):
             res = mongo.db.cc.find({"heuristics.protection_profiles._value": {"$elemMatch": {"$eq": hashid}}})
             for cert in res:
                 certs.append(load(cert))
+        certs.sort(key=lambda x: x["name"])
         renderer = PPRenderer()
         with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
             diffs = list(mongo.db.pp_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))

@@ -155,7 +155,7 @@
                         <ul>
                             {% for cert in certs %}
                                 <li>
-                                    <a href="{{ url_for('cc.entry', hashid=cert['hashid']) }}">{{ cert['name'] }}</a>
+                                    <a href="{{ url_for('cc.entry', hashid=cert['_id']) }}">{{ cert['name'] }}</a>
                                     {{ render_status(cert["status"]) }}
                                 </li>
                             {% endfor %}
