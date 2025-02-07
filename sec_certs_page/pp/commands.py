@@ -1,51 +1,15 @@
-import html
 import json
-from datetime import datetime
 
 import click
 
 from .. import mongo
-from ..common.commands import _add, _create, _drop, _query, _status, _update
+from ..common.commands import _create, _drop, _query, _status
 from . import pp
-
-
-def pp_mapper(profile):  # pragma: no cover
-    if "csv_scan" in profile:
-        cs = profile["csv_scan"]
-        if "cc_archived_date" in cs:
-            cs["cc_archived_date"] = (
-                datetime.strptime(cs["cc_archived_date"], "%m/%d/%Y") if cs["cc_archived_date"] else None
-            )
-        if "cc_certification_date" in cs:
-            cs["cc_certification_date"] = (
-                datetime.strptime(cs["cc_certification_date"], "%m/%d/%Y") if cs["cc_certification_date"] else None
-            )
-        if "cc_pp_name" in cs:
-            cs["cc_pp_name"] = html.unescape(cs["cc_pp_name"])
-    return profile
-
-
-@pp.cli.command("import", help="Import protection profiles.")
-@click.argument("file", type=click.File())
-def add(file):  # pragma: no cover
-    _add(file, mongo.db.pp, None, pp_mapper)
-
-
-@pp.cli.command("update", help="Update protection profiles.")
-@click.option(
-    "-r",
-    "--remove",
-    is_flag=True,
-    help="Remove protection profiles not present in the update file.",
-)
-@click.argument("file", type=click.File())
-def update(file, remove):  # pragma: no cover
-    _update(file, remove, mongo.db.pp, None, pp_mapper)
 
 
 @pp.cli.command("create", help="Create the DB of protection profiles.")
 def create():  # pragma: no cover
-    _create("pp", ["csv_scan.cc_pp_name"], [])
+    _create("pp", ["web_data.name"], [])
 
 
 @pp.cli.command("drop", help="Drop the DB of protection profiles.")

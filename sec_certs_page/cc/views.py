@@ -22,6 +22,7 @@ from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
 from ..common.diffs import cc_diff_method, render_compare
+from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
 from ..common.views import (
     entry_download_certificate_pdf,
@@ -360,12 +361,9 @@ def entry(hashid):
         doc = load(raw_doc)
         with sentry_sdk.start_span(op="mongo", description="Find profiles"):
             profiles = {}
-            for profile in doc["protection_profiles"]:
-                if not profile["pp_ids"]:
-                    continue
-                found = mongo.db.pp.find_one({"processed.cc_pp_csvid": {"$in": list(profile["pp_ids"])}})
-                if found:
-                    profiles[profile["pp_ids"]] = load(found)
+            if "protection_profiles" in doc["heuristics"] and doc["heuristics"]["protection_profiles"]:
+                res = mongo.db.pp.find({"_id": {"$in": list(doc["heuristics"]["protection_profiles"])}})
+                profiles = {p["_id"]: load(p) for p in res}
         renderer = CCRenderer()
         with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
             diffs = list(mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
@@ -562,49 +560,12 @@ def entry_json(hashid):
 @cc.route("/<string(length=16):hashid>/feed.xml")
 @redir_new
 def entry_feed(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
-        raw_doc = mongo.db.cc.find_one({"_id": hashid})
-    if raw_doc:
-        tz = timezone("Europe/Prague")
-        doc = load(raw_doc)
-        entry_url = url_for(".entry", hashid=hashid, _external=True)
-        renderer = CCRenderer()
-        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
-            diffs = list(map(load, mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)])))
-            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=True), diffs))
-        fg = FeedGenerator()
-        fg.id(request.base_url)
-        fg.title(re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", doc["name"]))
-        fg.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
-        fg.link({"href": entry_url, "rel": "alternate"})
-        fg.link({"href": request.base_url, "rel": "self"})
-        fg.icon(url_for("static", filename="img/favicon.png", _external=True))
-        fg.logo(url_for("static", filename="img/cc_card.png", _external=True))
-        fg.language("en")
-        last_update = None
-        for diff, render in zip(diffs, diff_renders):
-            date = tz.localize(diff["timestamp"])
-            fe = fg.add_entry()
-            fe.author({"name": "sec-certs", "email": "webmaster@sec-certs.org"})
-            fe.title(
-                {
-                    "back": "Certificate reappeared",
-                    "change": "Certificate changed",
-                    "new": "New certificate",
-                    "remove": "Certificate removed",
-                }[diff["type"]]
-            )
-            fe.id(entry_url + str(diff["_id"]))
-            stripped = re.sub("[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+", "", str(render))
-            fe.content(stripped, type="html")
-            fe.published(date)
-            fe.updated(date)
-            if last_update is None or date > last_update:
-                last_update = date
-
-        fg.lastBuildDate(last_update)
-        fg.updated(last_update)
-        return Response(fg.atom_str(pretty=True), mimetype="application/atom+xml")
+    feed = Feed(
+        CCRenderer(), "img/cc_card.png", mongo.db.cc, mongo.db.cc_diff, lambda doc: doc["name"] if doc["name"] else ""
+    )
+    response = feed.render(hashid)
+    if response:
+        return response
     else:
         return abort(404)
 

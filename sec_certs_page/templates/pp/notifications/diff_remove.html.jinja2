@@ -1,0 +1,11 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Protection Profile removed</h5>
+        <p class="card-text">A Protection Profile named <b>{{ cert["web_data"]["name"] }}</b>
+            is not available. This means that its entry was removed from the Common Criteria portal (or that it was
+            replaced by a new entry).</p>
+        {% if linkback %}
+            <a href="{{ url_for("pp.entry", hashid=hashid) }}" class="card-link">Profile page</a>
+        {% endif %}
+    </div>
+</div>

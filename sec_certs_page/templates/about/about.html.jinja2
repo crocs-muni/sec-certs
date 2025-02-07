@@ -31,7 +31,7 @@
     </div>
 {% endmacro %}
 {% block content %}
-    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+	<div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <main>
             <div class="row mb-5">
                 <div class="col-12 col-md-6">
@@ -50,6 +50,9 @@
                             + TODO: project vision<br>
                             + TODO: there is a library, dataset and webpage<br>
                         </p>
+                       	<img class="w-100 mb-4 pe-lg-3" src="{{ url_for(".static", filename="img/team1_retouch.JPG") }}" alt="Team photo"
+                       		onmouseover="$(this).attr('src', '{{ url_for(".static", filename="img/team2_retouch.JPG") }}')"
+                       		onmouseout="$(this).attr('src', '{{ url_for(".static", filename="img/team1_retouch.JPG") }}')" />
                         <h4>Current members</h4>
                         {{ render_person("Petr Švenda", "Initial implementation, idea person", "2019-now") }}
                         {{ render_person("Ján Jančár", "Web implementation, anti-idea person", "2019-now") }}
@@ -69,7 +72,6 @@
                         {{ render_student("Juraj Cigáň", "Master's thesis on <a href=\"https://is.muni.cz/th/srn48/\" class=\"fst-italic\">Information extraction from security certificates</a>", "2022-2023") }}
 
                         {{ render_student("Yulia Teslia", "<i class=\"fas fa-rotate\"></i> Bachelor's thesis ongoing", "2024-now") }}
-                        {{ render_student("Alexander Zgabur", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2024-now") }}
                         {{ render_student("David Valecký", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2024-now") }}
                         {{ render_student("Martin Hofbauer", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2024-now") }}
                         {{ render_student("Tomáš Chrenko", "<i class=\"fas fa-rotate\"></i> Bachelor's thesis ongoing", "2024-now") }}

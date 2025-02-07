@@ -2,9 +2,9 @@ from contextlib import contextmanager
 
 from dramatiq import Broker
 from dramatiq.middleware import default_middleware
-from sentry_dramatiq import DramatiqIntegration as OriginalDramatiqIntegration
-from sentry_dramatiq import SentryMiddleware
 from sentry_sdk import Hub, new_scope
+from sentry_sdk.integrations.dramatiq import DramatiqIntegration as OriginalDramatiqIntegration
+from sentry_sdk.integrations.dramatiq import SentryMiddleware
 from sentry_sdk.tracing import Span
 
 

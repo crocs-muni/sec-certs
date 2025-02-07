@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import secrets
-import subprocess
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime, timedelta
@@ -10,7 +9,6 @@ from functools import wraps
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
-from tempfile import TemporaryDirectory
 from typing import List, Set, Tuple, Type
 
 import dramatiq
@@ -29,6 +27,12 @@ from pkg_resources import get_distribution
 from pymongo import DESCENDING, InsertOne, ReplaceOne
 from redis.exceptions import LockNotOwnedError
 from redis.lock import Lock
+from sec_certs.dataset.auxiliary_dataset_handling import (
+    CPEDatasetHandler,
+    CPEMatchDictHandler,
+    CVEDatasetHandler,
+    ProtectionProfileDatasetHandler,
+)
 from sec_certs.dataset.dataset import Dataset
 
 from .. import mail, mongo, redis, whoosh_index
@@ -77,6 +81,7 @@ class Updater:  # pragma: no cover
     dset_class: Type[Dataset]
 
     def make_dataset_paths(self):
+        """Setup paths from the config for the particular updater (CC, FIPS, PP)."""
         instance_path = Path(current_app.instance_path)
         ns = current_app.config.get_namespace("DATASET_PATH_")
 
@@ -94,7 +99,7 @@ class Updater:  # pragma: no cover
                 suffix = key[len(out_prefix) :]
                 res[f"output_path{suffix}"] = instance_path / value
 
-        for document in ("report", "target", "cert"):
+        for document in ("report", "target", "cert", "profile"):
             doc_path = res["dir_path"] / document
             doc_path.mkdir(parents=True, exist_ok=True)
             res[document] = doc_path
@@ -243,18 +248,38 @@ class Updater:  # pragma: no cover
 
         if not dset.auxiliary_datasets_dir.exists():
             dset.auxiliary_datasets_dir.mkdir(parents=True)
-        if paths["cve_path"].exists():
-            if dset.cve_dataset_path.exists():
-                dset.cve_dataset_path.unlink()
-            os.symlink(paths["cve_path"], dset.cve_dataset_path)
-        if paths["cpe_path"].exists():
-            if dset.cpe_dataset_path.exists():
-                dset.cpe_dataset_path.unlink()
-            os.symlink(paths["cpe_path"], dset.cpe_dataset_path)
-        if paths["cpe_match_path"].exists():
-            if dset.cpe_match_json_path.exists():
-                dset.cpe_match_json_path.unlink()
-            os.symlink(paths["cpe_match_path"], dset.cpe_match_json_path)
+        if paths["cve_path"].exists() and CVEDatasetHandler in dset.aux_handlers:
+            cve_dset_path = dset.aux_handlers[CVEDatasetHandler].dset_path
+            if cve_dset_path.exists():
+                cve_dset_path.unlink()
+            cve_dset_parent = cve_dset_path.parent
+            cve_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["cve_path"], cve_dset_path)
+        if paths["cpe_path"].exists() and CPEDatasetHandler in dset.aux_handlers:
+            cpe_dset_path = dset.aux_handlers[CPEDatasetHandler].dset_path
+            if cpe_dset_path.exists():
+                cpe_dset_path.unlink()
+            cpe_dset_parent = cpe_dset_path.parent
+            cpe_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["cpe_path"], cpe_dset_path)
+        if paths["cpe_match_path"].exists() and CPEMatchDictHandler in dset.aux_handlers:
+            cpe_match_dset_path = dset.aux_handlers[CPEMatchDictHandler].dset_path
+            if cpe_match_dset_path.exists():
+                cpe_match_dset_path.unlink()
+            cpe_match_dset_parent = cpe_match_dset_path.parent
+            cpe_match_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["cpe_match_path"], cpe_match_dset_path)
+        if (
+            "output_path_pp" in paths
+            and paths["output_path_pp"].exists()
+            and ProtectionProfileDatasetHandler in dset.aux_handlers
+        ):
+            pp_dset_path = dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path
+            if pp_dset_path.exists():
+                pp_dset_path.unlink()
+            pp_dset_parent = pp_dset_path.parent
+            pp_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["output_path_pp"], pp_dset_path)
 
         update_result = None
         run_doc = None
@@ -484,53 +509,57 @@ class Notifier(DiffRenderer):
 
 class Archiver:  # pragma: no cover
     """
-    ├── auxiliary_datasets
+    Dataset
+    =======
+
+    ├── auxiliary_datasets          (not PP)
     │   ├── cpe_dataset.json
-    │   └── cve_dataset.json
-    ├── cc_mu.json        (only CC)
-    ├── cc_scheme.json    (only CC)
+    │   ├── cve_dataset.json
+    │   ├── cpe_match.json
+    │   ├── algorithms.json         (only FIPS)
+    │   ├── cc_scheme.json          (only CC)
+    │   ├── protection_profiles     (only CC)
+    │   │   ├── reports
+    │   │   │   ├── pdf
+    │   │   │   └── txt
+    │   │   ├── pps
+    │   │   │   ├── pdf
+    │   │   │   └── txt
+    │   │   └── pp.json
+    │   └── maintenances            (only CC)
+    │       ├── certs
+    │       │   ├── reports
+    │       │   │   ├── pdf
+    │       │   │   └── txt
+    │       │   └── targets
+    │       │       ├── pdf
+    │       │       └── txt
+    │       └── maintenance_updates.json
     ├── certs
-    │   ├── reports
+    │   ├── reports                 (not FIPS)
     │   │   ├── pdf
     │   │   └── txt
-    │   └── targets
+    │   ├── targets                 (only CC and FIPS)
     │   │   ├── pdf
     │   │   └── txt
-    │   └── certificates
+    │   ├── pps                     (only PP)
+    │   │   ├── pdf
+    │   │   └── txt
+    │   └── certificates            (only CC)
     │       ├── pdf
     │       └── txt
-    ├── cpe_match.json
-    ├── dataset.json
-    └── pp.json          (only CC)
+    ├── reports                     (only PP)
+    │   ├── pdf
+    │   └── txt
+    ├── pps                         (only PP)
+    │   ├── pdf
+    │   └── txt
+    ├── pp.json                     (only PP)
+    └── dataset.json
     """
 
     def archive(self, path, paths):
-        with TemporaryDirectory() as tmpdir:
-            logger.info(f"Archiving {path}")
-            tmpdir = Path(tmpdir)
-
-            auxdir = tmpdir / "auxiliary_datasets"
-            auxdir.mkdir()
-            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
-            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
-
-            os.symlink(paths["cpe_match_path"], tmpdir / "cpe_match.json")
-            os.symlink(paths["output_path"], tmpdir / "dataset.json")
-
-            self.archive_custom(paths, tmpdir)
-
-            certs = tmpdir / "certs"
-            certs.mkdir()
-            os.symlink(paths["report"], certs / "reports")
-            os.symlink(paths["target"], certs / "targets")
-            os.symlink(paths["cert"], certs / "certificates")
-
-            logger.info("Running tar...")
-            subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
-            logger.info(f"Finished archiving {path}")
-
-    @abstractmethod
-    def archive_custom(self, paths, tmpdir): ...
+        pass
 
 
 def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: float = 60 * 10):  # pragma: no cover
@@ -567,8 +596,7 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
 def single_queue(queue_name: str, timeout: float = 60 * 10):  # pragma: no cover
     """
     A decorator that prevents simultaneous execution of more than one actor in a queue.
-    It does so  by requeueing the actor.
-
+    It does so by requeueing the actor.
     """
 
     def deco(f):
@@ -601,18 +629,19 @@ def task(task_name):
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            tid = secrets.token_hex(16)
-            start = datetime.now()
-            data = {"name": task_name, "start_time": start.isoformat()}
-            logger.info(f'Starting task ({task_name}), tid="{tid}"')
-            redis.set(tid, json.dumps(data))
-            redis.sadd("tasks", tid)
-            try:
-                return f(*args, **kwargs)
-            finally:
-                logger.info(f'Ending task ({task_name}), tid="{tid}", took {datetime.now() - start}')
-                redis.srem("tasks", tid)
-                redis.delete(tid)
+            with sentry_sdk.start_transaction(op="dramatiq", name=task_name):
+                tid = secrets.token_hex(16)
+                start = datetime.now()
+                data = {"name": task_name, "start_time": start.isoformat()}
+                logger.info(f'Starting task ({task_name}), tid="{tid}"')
+                redis.set(tid, json.dumps(data))
+                redis.sadd("tasks", tid)
+                try:
+                    return f(*args, **kwargs)
+                finally:
+                    logger.info(f'Ending task ({task_name}), tid="{tid}", took {datetime.now() - start}')
+                    redis.srem("tasks", tid)
+                    redis.delete(tid)
 
         return wrapper
 

@@ -1,0 +1,66 @@
+{% extends "common/base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div>
+                <h1>PP update log</h1>
+                <p>Newest first.</p>
+                <div class="mt-4 mb-4">
+                    {{ pagination.links }}
+                </div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Result</th>
+                        <th>Dataset state</th>
+                        <th># pps</th>
+                        <th>PP state</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for log_entry in log %}
+                        <tr>
+                            <td><a href="{{ url_for(".update_run", id=log_entry["_id"]) }}"
+                                   class="font-monospace">{{ log_entry["_id"] }}</a></td>
+                            <td>{{ log_entry["start_time"]|strftime("%d.%m.%Y") }}</td>
+                            <td>{{ log_entry["end_time"] - log_entry["start_time"] }}</td>
+                            <td>{% if log_entry["ok"] %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                                {{ log_entry["error"] }}
+                            {% endif %}</td>
+                            <td>
+                                <i title="meta_sources_parsed"
+                                   class="fas fa-align-left {% if log_entry["state"]["meta_sources_parsed"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="artifacts_downloaded"
+                                   class="fas fa-file-download {% if log_entry["state"]["artifacts_downloaded"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="pdfs_converted"
+                                   class="fas fa-file-pdf {% if log_entry["state"]["pdfs_converted"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="auxiliary_datasets_processed"
+                                   class="fas fa-medical {% if log_entry["state"]["auxiliary_datasets_processed"] %}text-success{% else %}text-danger{% endif %}"></i>
+                                <i title="certs_analyzed"
+                                   class="fas fa-glasses {% if log_entry["state"]["certs_analyzed"] %}text-success{% else %}text-danger{% endif %}"></i>
+                            </td>
+                            <td>{{ log_entry["length"] }}</td>
+                            <td>{% if "stats" in log_entry %}
+                                <b class="text-success" title="New">+{{ log_entry["stats"]["new_certs"] }}</b>,
+                                <b class="text-warning" title="Changed">~{{ log_entry["stats"]["changed_ids"] }}</b>,
+                                <b class="text-danger"
+                                   title="Removed">-{{ log_entry["stats"]["removed_ids"] }}</b>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mt-4">
+                    {{ pagination.links }}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

@@ -125,8 +125,7 @@ scikit-learn==1.5.0
 scipy==1.13.1
 seaborn==0.13.2
 sec-certs
-sentry-dramatiq==0.3.3
-sentry-sdk==2.5.1
+sentry-sdk==2.20.0
 setuptools-scm==8.1.0
 shellingham==1.5.4
 six==1.16.0

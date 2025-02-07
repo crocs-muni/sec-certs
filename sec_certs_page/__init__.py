@@ -1,4 +1,5 @@
 import os
+import sys
 from contextvars import ContextVar
 from pathlib import Path
 
@@ -41,6 +42,9 @@ from whoosh.index import EmptyIndexError, Index
 from .common.config import RuntimeConfig
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration
+
+# See https://github.com/crocs-muni/sec-certs/issues/470
+sys.setrecursionlimit(8000)
 
 instance_path = os.environ.get("INSTANCE_PATH", None)
 app: Flask = Flask(__name__, instance_path=instance_path, instance_relative_config=True)
@@ -137,11 +141,11 @@ public(breadcrumbs=breadcrumbs)
 
 
 class Sitemap(FlaskSitemap):
-    @cache.memoize(timeout=3600 * 24)
+    @cache.memoize(timeout=3600 * 24 * 7)
     def sitemap(self):
         return super().sitemap()
 
-    @cache.memoize(timeout=3600 * 24)
+    @cache.memoize(timeout=3600 * 24 * 7)
     def page(self, page):
         return super().page(page)
 

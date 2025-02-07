@@ -1,74 +1,11 @@
 {% from "cc/utils.html.jinja2" import render_category, render_status %}
 
-{% macro keywords_card(keyword_scan, doc_prefix, card_id, card_name, keyword_sources, hidden, map_funcs) %}
-	{% set ns = namespace(render=False) %}
-	{% for heading, keyword in keyword_sources.items() %}
-		{% if keyword not in hidden and keyword_scan[keyword] %}
-			{% set ns.render = True %}
-		{% endif %}
-	{% endfor %}
-	{% if ns.render %}
-		<div class="card mt-1">
-			<div class="card-header" id="{{ doc_prefix }}-{{ card_id }}-head">
-			<h4 class="mb-0">
-				<button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#{{ doc_prefix }}-{{ card_id }}-card" aria-expanded="false" aria-controls="{{ doc_prefix }}-{{ card_id }}-card">
-				{{ card_name }}
-                    <i class="fas fa-chevron-down"></i>
-                            <i class="fas fa-chevron-up"></i>
-				</button>
-			</h4>
-			</div>
-
-			<div id="{{ doc_prefix }}-{{ card_id }}-card" class="collapse" aria-labelledby="{{ doc_prefix }}-{{ card_id }}-head">
-			<div class="card-body">
-				{% for heading, keyword in keyword_sources.items() %}
-					{% if keyword not in hidden and keyword_scan[keyword] %}
-						<h5 class="mt-2">{{ heading }}</h5>
-						{{ double_join(keyword_scan[keyword], map_func=map_funcs.get(keyword, None)) }}
-					{% endif %}
-				{% endfor %}
-			</div>
-			</div>
-		</div>
-	{% endif %}
-{% endmacro %}
-
-{% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Algorithms": "rules_crypto_algs",
-																		  "Engines": "rules_crypto_engines",
-																		  "Libraries": "rules_crypto_libraries",
-																		  "Elliptic Curves": "rules_ecc_curves",
-																		  "Block cipher modes": "rules_block_cipher_modes"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device ID": "rules_device_id",
-																	"JavaCard": "rules_javacard",
-																	"OS": "rules_os",
-																	"CPLC": "rules_cplc",
-																	"IC data groups": "rules_IC_data_groups",
-																	"Vendor": "rules_vendor"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Protection profiles": "rules_protection_profiles",
-																		"Security Assurance Requirements (SAR)": "rules_security_assurance_components",
-																		"Security Functional Requirements (SFR)": "rules_security_functional_components",
-																		"Security level": "rules_security_level"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-	{{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "rules_standard_id",
-																  "Technical reports": "rules_technical_reports"}, hidden, map_funcs) }}
-{%- endmacro %}
-
-{% macro double_join(rule_dict, separator=", ", map_func=None) %}
-	{% for value in rule_dict.values() %}
-		{%- for inside in value.keys() -%}
-			{%- if map_func -%}{{ map_func(inside) }}{%- else -%}{{ inside }}{%- endif -%}{%- if not loop.last -%}{{ separator }}{%- endif -%}
-		{%- endfor -%}
-		{%- if not loop.last -%}{{ separator }}{%- endif -%}
-	{% endfor %}
+{% macro render_document_type(document_type) %}
+    {% if document_type == "report" %}
+        <span>Certification Report</span>
+    {% elif document_type == "profile" %}
+        <span>Protection Profile</span>
+    {% endif %}
 {%- endmacro %}
 
 {% macro render_pagination(pagination, profiles, search=False) %}
@@ -80,14 +17,14 @@
 		{{ pagination.links }}
 	</div>
 	<table class="table table-striped table-bordered mb-4">
-        <col style="width:15%">
+        <col style="width:5%">
 		<col style="width:64%">
-		<col style="width:5%">
-		<col style="width:8%">
-		<col style="width:8%">
+		<col style="width:7%">
+		<col style="width:12%">
+		<col style="width:12%">
 		<thead>
 			<tr class="border-bottom">
-                <th class="pl-1">ID</th>
+                <th>Category</th>
 				<th>Name</th>
 				<th>Status</th>
 				<th>Certification date</th>
@@ -95,13 +32,13 @@
 			</tr>
 		</thead>
 	{% for profile in profiles %}
-        {% set idd = profile["processed"]["cc_pp_csvid"][0] if profile["processed"]["cc_pp_csvid"] else "" %}
-        {% set name = profile["csv_scan"]["cc_pp_name"] %}
-        {% set status = profile["csv_scan"]["cert_status"] %}
+        {% set idd = "" %}
+        {% set name = profile["web_data"]["name"] %}
+        {% set status = profile["web_data"]["status"] %}
         {% set hashid = profile["_id"] %}
-        {% set cert_date = profile["csv_scan"]["cc_certification_date"] %}
-        {% set archive_date = profile["csv_scan"]["cc_archived_date"] %}
-        {% set category = profile["csv_scan"]["cc_category"] %}
+        {% set cert_date = profile["web_data"]["not_valid_before"] %}
+        {% set archive_date = profile["web_data"]["not_valid_after"] %}
+        {% set category = profile["web_data"]["category"] %}
 		<tr>
         <td class="pl-1">{{ render_category(category) }}&nbsp;{{ idd }}</td>
 		<td><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
@@ -115,4 +52,74 @@
 		{{ pagination.links }}
 	</div>
     </div>
+{%- endmacro %}
+
+{% macro render_plot(timeline) %}
+    <div class="row mt-4 mb-4">
+        <div class="col border ml-3 mr-3">
+            <h2>Timeline</h2>
+            <span>Matched protection profiles (monthly)</span>
+            <div id="timeline"></div>
+        </div>
+    </div>
+
+    <script>
+        function renderTimeline(timeline) {
+            let parser = d3.timeParse("%a, %d %b %Y %H:%M:%S GMT");
+            let weekFormatter = d3.timeFormat("%m,%Y");
+            let weekParser = d3.timeParse("%m,%Y");
+            let data = d3.map(timeline, d => ({date: parser(d)}));
+            let extent = d3.extent(data, d => d.date);
+            let weekRange = d3.timeWeek.range(extent[0], extent[1]);
+
+            let width = 800;
+            let height = 320;
+            let margin = {top: 20, right: 30, bottom: 30, left: 40};
+
+            let x = d3.scaleUtc()
+                .domain(extent)
+                .range([margin.left, width - margin.right]);
+
+            let nested = d3.rollup(data, v => v.length, d => weekFormatter(d.date));
+            let base = d3.rollup(weekRange, v => 0, d => weekFormatter(d));
+
+            let y = d3.scaleLinear()
+                .domain([0, d3.max(nested, d => d[1])]).nice()
+                .range([height - margin.bottom, margin.top]);
+
+            let xAxis = g => g
+                .attr("transform", `translate(0,${height - margin.bottom})`)
+                .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
+            let yAxis = g => g
+                .attr("transform", `translate(${margin.left},0)`)
+                .call(d3.axisLeft(y).tickFormat(d3.format("d")))
+                .call(g => g.select(".domain").remove());
+            let line = d3.line()
+                .x(d => x(d.week))
+                .y(d => y(d.count));
+
+            let full = new d3.InternMap([...base, ...nested]);
+
+            let res = d3.sort(d3.map(full, ([name, value]) => ({week: weekParser(name), count: value})), (d) => d.week);
+            const svg = d3.create("svg")
+                .attr("viewBox", [0, 0, width, height]);
+
+            svg.append("path")
+                .attr("fill", "none")
+                .attr("stroke", "var(--bs-primary)")
+                .attr("stroke-width", 1.5)
+                .attr("d", line(res));
+
+            svg.append("g")
+                .call(xAxis);
+
+            svg.append("g")
+                .call(yAxis);
+
+            d3.select("#timeline").append(() => svg.node());
+        }
+
+        let certsData = JSON.parse('{{ timeline|tojson }}');
+        renderTimeline(certsData);
+    </script>
 {%- endmacro %}

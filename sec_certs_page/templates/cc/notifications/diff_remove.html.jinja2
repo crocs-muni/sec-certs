@@ -2,7 +2,7 @@
     <div class="card-body">
         <h5 class="card-title">Certificate removed</h5>
         <p class="card-text">A Common Criteria certificate for a product named <b>{{ cert["name"] }}</b>
-            is not available. This means that its entry was removed from the Common Criteria portal (or that was
+            is not available. This means that its entry was removed from the Common Criteria portal (or that it was
             replaced by a new entry).</p>
         {% if linkback %}
             <a href="{{ url_for("cc.entry", hashid=hashid) }}" class="card-link">Certificate page</a>

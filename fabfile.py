@@ -97,7 +97,7 @@ def start_uwsgi(c):
             print(f"uWSGI is already running (pid = {pid}).")
             return
         print("Old pidfile found, starting anyway.")
-    c.sudo("/opt/uwsgi/uwsgi --ini /etc/uwsgi/apps-enabled/certs.ini --daemonize /var/log/uwsgi/app/certs.log")
+    c.sudo("cd /opt/uwsgi && ./uwsgi --ini /etc/uwsgi/apps-enabled/certs.ini --daemonize /var/log/uwsgi/app/certs.log")
 
 
 @task

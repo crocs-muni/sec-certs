@@ -2,8 +2,8 @@
 {% set crumbs = True %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "cc/utils.html.jinja2" import cc_keywords, security_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage, render_process_state %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_files, render_pdf_meta, render_cves, render_references %}
+{% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage, render_process_state %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block metadata %}
     <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
@@ -179,12 +179,13 @@
                                 <tr data-cs-name="Manufacturer">
                                     <th scope="row">Manufacturer</th>
                                     <td>
-                                        {% if cert["manufacturer_web"] %}
-                                            <a href="{{ cert["manufacturer_web"] }}" target="_blank"
-                                            rel="noopener">{{ cert["manufacturer"] }}</a>
-                                        {% else %}
-                                            {{ cert["manufacturer"] }}
-                                        {% endif %}
+                                        <ul>
+                                            {% for id, profile in profiles.items() %}
+                                                <li>
+                                                    <a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ profile["web_data"]["name"] }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
                                     </td>
                                 </tr>
                                 <tr data-cs-name="Category">
@@ -287,31 +288,33 @@
                         <div class="mt-5 mb-3">
                             <h2 class="anchor" id="cert-info">Certificate</h2>
                             {{ render_process_state(cert["state"], "cert", "certificate") }}
-                            <div class="mt-3 mb-3">
-                                {{ render_local_files(hashid, local_files, cert['cert_link'], None, None, primary_style="btn-primary", secondary_style="btn-secondary") }}
-                            </div>
 
-                            {% if cert["pdf_data"]["cert_keywords"] %}
-                                <h3 class="mt-3">Extracted keywords</h3>
-                                {{ cryptography_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
-                                {{ device_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
-                                {{ cc_keywords(cert["pdf_data"]["cert_keywords"], "cert", map_funcs={"cc_sar": render_sars,
-                                                                                                "cc_sfr": render_sfrs}) }}
-                                {{ security_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
-                                {{ other_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
-                            {% endif %}
-                            {% if cert["pdf_data"]["cert_metadata"] %}
-                                <h3 class="mt-3">File metadata</h3>
-                                {{ render_pdf_meta(cert["pdf_data"]["cert_metadata"], "Certificate") }}
-                            {% endif %}
+                        <div class="mt-3 mb-3">
+                            {{ render_local_cert(hashid, local_files, cert['cert_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
                         </div>
 
-                        <div class="mt-5 mb-3">
-                            <h2 class="anchor" id="report-info">Certification report</h2>
+                        {% if cert["pdf_data"]["cert_keywords"] %}
+                            <h3 class="mt-3">Extracted keywords</h3>
+                            {{ cryptography_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                            {{ device_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                            {{ cc_keywords(cert["pdf_data"]["cert_keywords"], "cert", map_funcs={"cc_sar": render_sars,
+                                                                                               "cc_sfr": render_sfrs}) }}
+                            {{ security_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                            {{ other_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
+                        {% endif %}
+                        {% if cert["pdf_data"]["cert_metadata"] %}
+                            <h3 class="mt-3">File metadata</h3>
+                            {{ render_pdf_meta(cert["pdf_data"]["cert_metadata"], "Certificate") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-5 mb-3">
+                        <h2 class="anchor" id="report-info">Certification report
                             {{ render_process_state(cert["state"], "report", "certification report") }}
-                            <div class="mt-3 mb-3">
-                                {{ render_local_files(hashid, local_files, None, cert['report_link'], None, primary_style="btn-primary", secondary_style="btn-secondary") }}
-                            </div>
+                        </h2>
+                        <div class="mt-3 mb-3">
+                            {{ render_local_report(hashid, local_files, cert['report_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                        </div>
 
                             {% if cert["pdf_data"]["report_keywords"] %}
                                 <h4 class="mt-3">Extracted keywords</h4>
@@ -336,9 +339,9 @@
                             <h2 class="anchor" id="st-info">Security target</h2>
                             {{ render_process_state(cert["state"], "st", "security target") }}
 
-                            <div class="mt-3 mb-3">
-                                {{ render_local_files(hashid, local_files, None, None, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
-                            </div>
+                        <div class="mt-3 mb-3">
+                            {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                        </div>
 
                             {% if cert["pdf_data"]["st_keywords"] %}
                                 <h3 class="mt-3">Extracted keywords</h3>

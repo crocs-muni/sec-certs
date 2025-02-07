@@ -22,7 +22,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for log_entry in cc_log %}
+                    {% for log_entry in log %}
                         <tr>
                             <td><a href="{{ url_for(".update_run", id=log_entry["_id"]) }}"
                                    class="font-monospace">{{ log_entry["_id"] }}</a></td>

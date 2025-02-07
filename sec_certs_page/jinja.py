@@ -19,7 +19,7 @@ def to_flag(code):
     """Turn a country code to an emoji flag."""
     if code == "UK":
         code = "GB"
-    return flag(code)
+    return flag(code) if code else "❌"
 
 
 @app.template_global("blueprint_url_prefix")
@@ -52,6 +52,14 @@ def filter_fromisoformat(dt):
         return datetime.fromisoformat(dt)
     except ValueError:
         return date.fromisoformat(dt)
+
+
+@app.template_filter("fips_name")
+def filter_fips_name(cert):
+    web_data = cert.get("web_data", cert.get("web_scan"))
+    if web_data:
+        return web_data.get("module_name")
+    return None
 
 
 @app.template_test("date")

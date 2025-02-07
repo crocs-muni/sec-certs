@@ -62,7 +62,7 @@
     "redis",
 
     # Misc
-    "sentry-sdk[flask,redis] >= 2.5.1",
+    "sentry-sdk[flask] >= 2.13.0",
     "sentry-dramatiq",
     "fabric",
     "networkx",

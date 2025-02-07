@@ -1,11 +1,14 @@
 import logging
 import os
+import subprocess
 from datetime import timedelta
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
+from sec_certs.dataset.auxiliary_dataset_handling import CCMaintenanceUpdateDatasetHandler, CCSchemeDatasetHandler
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
@@ -94,10 +97,74 @@ def reindex_all():  # pragma: no cover
 
 
 class CCArchiver(Archiver, CCMixin):  # pragma: no cover
-    def archive_custom(self, paths, tmpdir):
-        os.symlink(paths["output_path_mu"], tmpdir / "cc_mu.json")
-        os.symlink(paths["output_path_scheme"], tmpdir / "cc_scheme.json")
-        os.symlink(Path(current_app.instance_path) / "pp.json", tmpdir / "pp.json")
+    """
+    CC Dataset
+    ==========
+
+    ├── auxiliary_datasets
+    │   ├── cpe_dataset.json
+    │   ├── cve_dataset.json
+    │   ├── cpe_match.json
+    │   ├── cc_scheme.json
+    │   ├── protection_profiles
+    │   │   ├── reports             (not present)
+    │   │   │   ├── pdf
+    │   │   │   └── txt
+    │   │   ├── pps                 (not present)
+    │   │   │   ├── pdf
+    │   │   │   └── txt
+    │   │   └── pp.json
+    │   └── maintenances
+    │       ├── certs               (not present)
+    │       │   ├── reports
+    │       │   │   ├── pdf
+    │       │   │   └── txt
+    │       │   └── targets
+    │       │       ├── pdf
+    │       │       └── txt
+    │       └── maintenance_updates.json
+    ├── certs
+    │   ├── reports
+    │   │   ├── pdf
+    │   │   └── txt
+    │   ├── targets
+    │   │   ├── pdf
+    │   │   └── txt
+    │   └── certificates
+    │       ├── pdf
+    │       └── txt
+    └── dataset.json
+    """
+
+    def archive(self, path, paths):
+        with TemporaryDirectory() as tmpdir:
+            logger.info(f"Archiving {path}")
+            tmpdir = Path(tmpdir)
+
+            auxdir = tmpdir / "auxiliary_datasets"
+            auxdir.mkdir()
+            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
+            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
+            os.symlink(paths["cpe_match_path"], auxdir / "cpe_match.json")
+            os.symlink(paths["output_path_scheme"], auxdir / "cc_scheme.json")
+            protection_profiles = auxdir / "protection_profiles"
+            protection_profiles.mkdir()
+            os.symlink(paths["output_path_pp"], protection_profiles / "pp.json")
+            maintenances = auxdir / "maintenances"
+            maintenances.mkdir()
+            os.symlink(paths["output_path_mu"], maintenances / "maintenance_updates.json")
+
+            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+
+            certs = tmpdir / "certs"
+            certs.mkdir()
+            os.symlink(paths["report"], certs / "reports")
+            os.symlink(paths["target"], certs / "targets")
+            os.symlink(paths["cert"], certs / "certificates")
+
+            logger.info("Running tar...")
+            subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
+            logger.info(f"Finished archiving {path}")
 
 
 @actor("cc_archive", "cc_archive", "updates", timedelta(hours=4))
@@ -131,8 +198,8 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                     dset.analyze_certificates(update_json=False)
                 with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
-                    dset.auxiliary_datasets.scheme_dset.to_json(paths["output_path_scheme"])
-                    dset.auxiliary_datasets.mu_dset.to_json(paths["output_path_mu"])
+                    dset.aux_handlers[CCSchemeDatasetHandler].dset.to_json(paths["output_path_scheme"])
+                    dset.aux_handlers[CCMaintenanceUpdateDatasetHandler].dset.to_json(paths["output_path_mu"])
 
             with sentry_sdk.start_span(op="cc.move", description="Move files"), suppress_child_spans():
                 for cert in dset:
