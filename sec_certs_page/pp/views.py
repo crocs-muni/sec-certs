@@ -68,6 +68,18 @@ def dataset_archive():
         download_name="pp.tar.gz",
     )
 
+@pp.route("/mergedsearch/")
+def mergedSearch():
+    searchType = request.args.get("searchType")
+    if(searchType != "byName" and searchType != "fulltext"):
+        searchType = "byName"
+
+    res = {}
+    if(searchType == "byName"):
+        res = PPBasicSearch.process_search(request)
+    elif(searchType == "fulltext"):
+        res = PPFulltextSearch.process_search(request)
+    return render_template("cc/search/merged.html.jinja2", **res, schemes=cc_schemes, title="TODO:", searchType=searchType)
 
 @pp.route("/search/")
 @register_breadcrumb(pp, ".search", "Search")

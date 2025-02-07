@@ -54,22 +54,23 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="border">
+                <div id="network"></div>
+            </div>
+            <script type="module">
+                import {createNetwork} from "/static/network.js";
+
+                let network = createNetwork('network',
+                    '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
+                    '{{ url_for(".types") }}',
+                    '{{ url_for(".statuses") }}',
+                    '{{ url_for(".reference_types") }}',
+                    600,
+                    300,
+                    false);
+            </script>
         </div>
 
-        <div class="border">
-            <div id="network"></div>
-        </div>
-        <script type="module">
-            import {createNetwork} from "/static/network.js";
-
-            let network = createNetwork('network',
-                '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
-                '{{ url_for(".types") }}',
-                '{{ url_for(".statuses") }}',
-                '{{ url_for(".reference_types") }}',
-                600,
-                300,
-                false);
-        </script>
+        
     </main>
 {% endblock %}

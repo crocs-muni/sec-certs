@@ -50,9 +50,9 @@
                             + TODO: project vision<br>
                             + TODO: there is a library, dataset and webpage<br>
                         </p>
-                       	<img class="w-100 mb-4 pe-lg-3" src="{{ url_for(".static", filename="img/team1_retouch.JPG") }}" alt="Team photo"
-                       		onmouseover="$(this).attr('src', '{{ url_for(".static", filename="img/team2_retouch.JPG") }}')"
-                       		onmouseout="$(this).attr('src', '{{ url_for(".static", filename="img/team1_retouch.JPG") }}')" />
+                       	<img class="w-100 mb-4 pe-lg-3" src="{{ url_for("static", filename="img/team1_retouch.JPG") }}" alt="Team photo"
+                       		onmouseover="$(this).attr('src', '{{ url_for("static", filename="img/team2_retouch.JPG") }}')"
+                       		onmouseout="$(this).attr('src', '{{ url_for("static", filename="img/team1_retouch.JPG") }}')" />
                         <h4>Current members</h4>
                         {{ render_person("Petr Švenda", "Initial implementation, idea person", "2019-now") }}
                         {{ render_person("Ján Jančár", "Web implementation, anti-idea person", "2019-now") }}

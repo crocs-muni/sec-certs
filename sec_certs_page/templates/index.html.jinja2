@@ -15,7 +15,9 @@
                     <p class="lead fw-light pt-2">
                         The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
                         and Security. Learn more about our
-                        <a href="{{ url_for("about.index") }}">team and research</a>.
+                        <a href="{{ url_for("about.index") }}">team</a>
+                        and
+                        <a href="{{ url_for("about.research") }}">research</a>.
                     </p>
                 </div>
                 <div class="col-12 col-sm-5 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
@@ -25,55 +27,6 @@
                     <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="sec-certs"
                          class="d-xl-none mw-100"
                          style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
-                </div>
-            </div>
-
-            <div class="row my-5 g-4 row-cols-1 row-cols-lg-4">
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <h4 class="card-title">Common Criteria</h4>
-                            <p class="card-text flex-grow-1">Want to explore Common Criteria certificates?</p>
-                            <div>
-                                <a href="{{ url_for("cc.index") }}" class="btn btn-primary">Go</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <h4 class="card-title">Protection Profiles</h4>
-                            <p class="card-text flex-grow-1">Want to explore Protection Profiles of Common Criteria
-                                certificates?</p>
-                            <div>
-                                <a href="{{ url_for("pp.index") }}" class="btn btn-primary">Go</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <h4 class="card-title">FIPS 140</h4>
-                            <p class="card-text flex-grow-1">Want to explore FIPS 140-2 and 140-3 certificates?</p>
-                            <div>
-                                <a href="{{ url_for("fips.index") }}" class="btn btn-primary">Go</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <h4 class="card-title">Vulnerabilities</h4>
-                            <p class="card-text flex-grow-1">Want to explore how vulnerabilities affect certified
-                                products?</p>
-                            <div>
-                                <a href="{{ url_for("vuln.index") }}" class="btn btn-primary">Go</a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -97,15 +50,15 @@
                                style="vertical-align: middle"></i>
                             <i class="fas fa-scale-balanced fa-stack-1x text-light"
                                style="vertical-align: middle"></i>
-                            </span> floating button to see differences between them.
+                            </span> button in each certificate details to see differences between them.
                         </p>
-                        <a href="{{ url_for("cc.search") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("cc.mergedSearch") }}" class="btn btn-outline-secondary btn-sm">
                             CC
                         </a>
-                        <a href="{{ url_for("pp.search") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("pp.mergedSearch") }}" class="btn btn-outline-secondary btn-sm">
                             PP
                         </a>
-                        <a href="{{ url_for("fips.search") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("fips.mergedSearch") }}" class="btn btn-outline-secondary btn-sm">
                             FIPS
                         </a>
                     </div>
@@ -160,10 +113,6 @@
                            class="btn btn-outline-secondary btn-sm">
                             CC
                         </a>
-                        <a href="{{ url_for("pp.analysis") }}"
-                           class="btn btn-outline-secondary btn-sm">
-                            PP
-                        </a>
                         <a href="{{ url_for("fips.analysis") }}"
                            class="btn btn-outline-secondary btn-sm">
                             FIPS
@@ -182,11 +131,11 @@
                            class="btn btn-outline-secondary btn-sm">
                             GitHub
                         </a>
-                        <a href="{{ url_for("cc.index", _anchor="data") }}"
+                        <a href="{{ url_for("cc.data") }}"
                            class="btn btn-outline-secondary btn-sm">
                             CC
                         </a>
-                        <a href="{{ url_for("fips.index", _anchor="data") }}"
+                        <a href="{{ url_for("fips.data") }}"
                            class="btn btn-outline-secondary btn-sm">
                             FIPS
                         </a>
@@ -201,12 +150,12 @@
                         {% if not config["SUBSCRIPTIONS_ENABLED"] %}
                             <p>Notification subscriptions are currently disabled.</p>
                         {% endif %}
-                        <p>Subscribe using the floating button <span class="fa-stack fa-2x" style="font-size: 0.8rem; cursor: pointer" onclick="new bootstrap.Modal('#notification-modal').show();">
+                        <p>Subscribe using the button <span class="fa-stack fa-2x" style="font-size: 0.8rem; cursor: pointer" onclick="new bootstrap.Modal('#notification-modal').show();">
                             <i class="fas fa-square fa-stack-2x text-secondary"
                                style="vertical-align: middle"></i>
                             <i class="fas fa-envelope fa-stack-1x text-light"
                                style="vertical-align: middle"></i>
-                        </span> in the bottom right corner.
+                        </span> in certificate details.
                         </p>
                         {#
                         <p>Alternatively, use the update feed button <span class="fa-stack fa-2x"

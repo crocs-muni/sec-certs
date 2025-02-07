@@ -241,69 +241,66 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <div class="dropdown">
-                        <a href="{{ url_for('cc.index') }}">
-                            <button class="dropbtn">Common Criteria
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="{{ url_for('cc.mergedSearch') }}">Search</a>
-                            <a href="{{ url_for('cc.analysis') }}">Analysis</a>
-                            <a href="{{ url_for('cc.data') }}">Data</a>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <a href="{{ url_for('pp.index') }}">
-                            <button class="dropbtn">Protection Profiles
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="{{ url_for('pp.search') }}">Search</a>
-                            <a href="{{ url_for('pp.data') }}">Data</a>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <a href="{{ url_for('fips.index') }}">
-                            <button class="dropbtn">FIPS 140
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="{{ url_for('fips.mergedSearch') }}">Search</a>
-                            <a href="{{ url_for('fips.analysis') }}">Analysis</a>
-                            <a href="{{ url_for('fips.mip_index') }}">MIP</a>
-                            <a href="{{ url_for('fips.iut_index') }}">IUT</a>
-                            <a href="{{ url_for('fips.data') }}">Data</a>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <a href="{{ url_for('vuln.index') }}">
-                            <button class="dropbtn">Vulnerabilities
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="{{ url_for('vuln.data') }}">Data</a>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <a href="{{ url_for('about.index') }}">
-                            <button class="dropbtn">About
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="{{ url_for('about.research') }}">Research</a>
-                            <a href="{{ url_for('about.changelog') }}">Changelog</a>
-
-                        </div>
-                    </div>
-¨
-
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Common Criteria
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('cc.index') }}">CC Home</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cc.mergedSearch') }}">Search</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cc.analysis') }}">Analysis</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cc.network') }}">References</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cc.data') }}">Data</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Protection Profiles
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('pp.index') }}">PP Home</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('pp.mergedSearch') }}">Search</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('pp.data') }}">Data</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            FIPS 140
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('fips.index') }}">FIPS Home</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('fips.mergedSearch') }}">Search</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('fips.analysis') }}">Analysis</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('fips.mip_index') }}">MIP</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('fips.iut_index') }}">IUT</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('fips.network') }}">References</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('fips.data') }}">Data</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Vulnerabilities
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('vuln.index') }}">Search</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('vuln.data') }}">Data</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            About
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('about.index') }}">Project</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('about.research') }}">Research</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('about.changelog') }}">Changelog</a></li>
+                        </ul>
+                    </li>
                 </ul>
+
+          
 
                 {% if is_admin() %}
                     <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4 nav-button"
