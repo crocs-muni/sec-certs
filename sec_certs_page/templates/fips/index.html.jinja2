@@ -31,7 +31,8 @@
                 <div class="row my-5">
                     <div class="col">
                         <h3>Search</h3>
-                        <p>Search and browse through the certificates and our extracted metadata.</p>
+                        <p>We are converting all FIPS 140 certificates from PDFs into machine readable format.
+                        You can use this website to search in our database for any FIPS 140 certificate, discover its extracted metadata, filter them and do much more.</p>
                         <a href="{{ url_for(".mergedSearch") }}" class="btn btn-primary">
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>
@@ -44,7 +45,9 @@
                 <div class="row my-5">
                     <div class="col">
                         <h3>References</h3>
-                        <p>Explore an interactive graph of references in FIPS 140 certificates.</p>
+                        <p>Wanted to know, what certificates are referencing yours and vice versa? We got you covered.
+                        We are automatically adding references between certificates, which then creates big graph of references.
+                        You can also see smaller reference graphs in certificate details.</p>
                         <a href="{{ url_for(".network") }}" class="btn btn-primary">
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>
@@ -57,7 +60,8 @@
                 <div class="row my-5">
                     <div class="col">
                         <h3>Analysis</h3>
-                        <p>View a part of our results of our analysis of the FIPS 140 certificate data.</p>
+                        <p>Which scheme is issuing certificates the most? Which certificate category is the most numerous?
+                        You can find answers here and you can also make your own statistics with our prepared datasets.</p>
                         <a href="{{ url_for(".analysis") }}" class="btn btn-primary">
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>
@@ -70,7 +74,8 @@
                 <div class="row my-5">
                     <div class="col">
                         <h3>Example</h3>
-                        <p>Have a look at random certificate</p>
+                        <p>No more talking. Have a look at the example certificate we have chosen for you. 
+                        Discover extracted metadata and much more. Don't forget to search for your own certificates later!</p>
                         <a href="{{ url_for(".entry", hashid="1625f9db144171f7") }}" class="btn btn-primary">
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>

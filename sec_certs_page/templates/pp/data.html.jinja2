@@ -10,21 +10,60 @@
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto">
+
             <div class="row p-3 py-md-5">
+                {{ render_library_info() }}
+
                 <div class="col-12 ">
-                    {{ render_library_info() }}
-                    <h3>Data</h3>
+                    <h3 class="anchor" id="data">Data</h3>
                     <p>
-                        The full dataset used on this site can be downloaded here. All of the data on this site is
-                        extracted from it.
-                        It is a JSON file as produced by the sec-certs tool. <b>Note that currently it is a static export
-                        from June 2020 and is not updated weekly like other datasets. Thus, it is somewhat outdated.</b>
+                        The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
+                        and all the pages and data on this site are extracted from it. It is a JSON file as produced
+                        by the <code>sec-certs pp</code> command from the tool. Documentation for the tool,
+                        including a quick-start guide, can be found
+                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
                     </p>
-                    <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary"><i
-                            class="fas fa-file"></i>
-                        Download</a>
+                    {% if last_ok_run %}
+                        <p>
+                            The dataset was last successfully updated
+                            at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
+                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the
+                            sec-certs tool
+                            and it contains {{ last_ok_run["length"] }} protection profiles.
+                        </p>
+                    {% endif %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
+                                        class="fas fa-file-alt"></i>
+                                    Main dataset</a>
+                            </td>
+                            <td>
+                                The main dataset is a JSON file with data on the protection profiles extracted from the
+                                certification artifacts (i.e. PDFs). It does not contain the files themselves or
+                                information about maintenance updates.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary w-100">
+                                    <i class="fas fa-file-archive"></i> Full datasset
+                                </a>
+                            </td>
+                            <td>
+                                The full dataset contains also the certification
+                                artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
+                                Download this if you want to do your own processing on top of the data provided by our
+                                tooling.
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+        </div>
+        <div class="col-12 col-sm-10 mx-auto">
+            
             <div class="row p-3 py-md-5">
                 <h3>Data sources</h3>
                 <p>

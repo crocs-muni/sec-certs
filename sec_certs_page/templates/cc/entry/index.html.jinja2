@@ -630,19 +630,36 @@
                     {% else %}
                         <div class="border rounded">
                             <div id="network"></div>
+                            <div id="network-skeleton" class="container d-flex justify-content-center align-items-center" style="height: 300px;">
+                                        <button id="show-network-btn" class="btn btn-primary">Click to load the graph of references</button>
+                                        <div id="network-loading" class="d-none spinner-border" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                            </div>
                         </div>
                         <script type="module">
                             import {createNetwork} from "/static/network.js";
 
-                            let network = createNetwork('network',
-                                '{{ url_for(".entry_graph_json", hashid=hashid)}}',
-                                '{{ url_for(".categories") }}',
-                                '{{ url_for(".statuses") }}',
-                                '{{ url_for(".reference_types") }}',
-                                600,
-                                300,
-                                true);
+                            async function loadNetwork(){
+                                return createNetwork('network',
+                                    '{{ url_for(".entry_graph_json", hashid=hashid)}}',
+                                    '{{ url_for(".categories") }}',
+                                    '{{ url_for(".statuses") }}',
+                                    '{{ url_for(".reference_types") }}',
+                                    600,
+                                    300,
+                                    true);
+                            }
+                            document.getElementById("show-network-btn").onclick = async function() {
+                                $("#network-loading").removeClass("d-none").addClass("d-block")
+                                $("#show-network-btn").addClass("d-none")
+                                await loadNetwork()
+                                $("#network-skeleton").remove()
+                            };
+
+                            
                         </script>
+                        
                     {% endif %}
                 </div>
 
