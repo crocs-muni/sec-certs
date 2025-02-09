@@ -55,37 +55,18 @@
 {% endblock %}
 
 {% block crumbs_right %}
-    <script>
 
-        const copyToClipboard = async (linkObj) => {
-            try {
-                const successSpan = document.createElement('span');
-
-                const iconElement = document.createElement('i');
-                iconElement.classList.add('fas', 'fa-check');
-                successSpan.appendChild(iconElement);
-                successSpan.appendChild(document.createTextNode(' Copied!'));
-        
-                await navigator.clipboard.writeText(window.location.host + linkObj.getAttribute("data-url"));
-                const originalChildren = linkObj.firstElementChild
-                linkObj.replaceChildren(successSpan)
-                setTimeout(() => linkObj.replaceChildren(originalChildren), 3000)
-            } catch (error) {
-                console.error("Failed to copy to clipboard:", error);
-            }
-        };
-    </script>
 
 
     <div class="shifted-section mt-3">
         <div class="btn-group" role="group">
-            <a data-url="{{ url_for('cc.entry', hashid=hashid) }}" id="test-link-id" onclick="copyToClipboard(this)"  class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link</span></a>
+            <a data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link</span></a>
             {% if cert["heuristics"]["cert_id"] %}
-                <a data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyToClipboard(this)" 
+                <a data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)" 
                 class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
             {% endif %}
             {% if cert["name"] %}
-                <a data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyToClipboard(this)" class="btn btn-outline-secondary btn-sm"> 
+                <a data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="btn btn-outline-secondary btn-sm"> 
                     <span>
                         <i class="fa-regular fa-clipboard"></i> Link by certificate name
                     </span>
@@ -93,6 +74,8 @@
             {% endif %}
         </div>
     </div>
+    <script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
+
 
 {% endblock %}
 {% block content %}
@@ -709,35 +692,26 @@
 
                 <div class="mt-5 mb-5">
                     <h2 class="anchor" id="raw-data-head">Raw data
-                        <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
-                                style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                                title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
                         <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
                         style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                        title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-                    <pre id="raw-data" class="border rounded listing collapse mt-3"><code>{{ json|tojson(indent=2) }}</code></pre>
+                        title="Download."><i class="fas fa-fw fa-download"></i></a>
+                    </h2>
+                    <div class="accordion" id="rawDataAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-controls="collapseOne">
+                                    Toggle raw data
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#rawDataAccordion">
+                                <div class="accordion-body">
+                                    <pre id="raw-data"><code>{{ json|tojson(indent=2) }}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-                <script>
-                    let certificate_data = {
-                        name: "{{ cert["name"]|default("", true) }}",
-                        hashid: "{{ hashid }}",
-                        type: "cc",
-                        url: "{{ url_for("cc.entry", hashid=hashid) }}"
-                    };
-                    $(function () {
-                        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                        tooltipTriggerList.map(function (tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl)
-                        })
-                        new bootstrap.Tooltip($("#raw-data-button").get(0));
-                    });
-                    $('#raw-data').on('show.bs.collapse', function () {
-                        $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-                    });
-                    $('#raw-data').on('hide.bs.collapse', function () {
-                        $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-                    });
-                </script>
             </div>
         </div>
         {{ modal_script() }}

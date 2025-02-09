@@ -79,7 +79,7 @@ def mergedSearch():
         res = PPBasicSearch.process_search(request)
     elif(searchType == "fulltext"):
         res = PPFulltextSearch.process_search(request)
-    return render_template("cc/search/merged.html.jinja2", **res, schemes=cc_schemes, title="TODO:", searchType=searchType)
+    return render_template("pp/search/merged.html.jinja2", **res, schemes=cc_schemes, title="TODO:", searchType=searchType)
 
 @pp.route("/search/")
 @register_breadcrumb(pp, ".search", "Search")

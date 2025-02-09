@@ -2,7 +2,7 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta %}
-{% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_document_state, render_status, render_sars, render_sfrs, render_category %}
+{% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_process_state, render_status, render_sars, render_sfrs, render_category %}
 {% block title %}
     <title>
         {{ profile["web_data"]["name"]|default("", true) + " | sec-certs.org" }}
@@ -21,221 +21,228 @@
     <meta property="og:description" content="Common Criteria protection profile {{ profile["web_data"]["name"]|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
 {% endblock %}
-{% block navbar %}
-    {{ super() }}
-    <li class="nav-item">
-        <a class="nav-link" href="#web-info">Web</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#report-info">Report</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#profile-info">Profile</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#reference-graph">References</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#raw-data-head">Raw data</a>
-    </li>
+
+{% block left_navigation %}
+    <ul id="left-navigation" class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active text-light" href="#web-info">Web</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#report-info">Report</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#profile-info">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#reference-graph">References</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light" href="#raw-data-head">Raw data</a>
+            </li>
+        </ul>
 {% endblock %}
+
+{% block crumbs_left %}
+    <div class="shifted-section pt-3">
+        {{ render_breadcrumbs(breadcrumbs) }}
+    </div>
+{% endblock %}
+
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="alert alert-warning d-sm-none" role="alert">
-                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
-            </div>
-            <div>
-                <h1>{{ profile["web_data"]["name"]|default("") }}</h1>
-
-                {% if "web_data" in profile %}
-                    <div class="mt-5 mb-5">
-                        <h2 class="anchor" id="web-info">Web information
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information extracted from the protection profile database provided by the Common Criteria portal.">?</span>
-                        </h2>
-                        <b>Status:</b>{{ render_status(profile["web_data"]["status"]) }}<br/>
-
-                        <b>Certification date:</b>
-                        {{ profile["web_data"]["not_valid_before"] }}
-                        <br/>
-                        {% if profile["web_data"]["not_valid_after"] %}
-                            <b>Archived date:</b>
-                            {{ profile["web_data"]["not_valid_after"] }}
-                            <br/>
-                        {% endif %}
-                        <b>Scheme:</b>
-                        <span title="{{ profile['web_data']['scheme'] }}">{{ country_to_flag(profile["web_data"]["scheme"]) }}</span>
-                        <br/>
-                        <b>Category:</b>
-                        {{ render_category(profile["web_data"]["category"]) }} {{ profile["web_data"]["category"] }}
-                        <br/>
-                        <b>Security level:</b>
-                        {% for level in profile["web_data"]["security_level"] %}
-                            {{ render_eal(level) }}{%- if not loop.last -%}, {%- endif -%}
-                        {% endfor %}
-                        <br/>
-
-                        <div class="mt-2 mb-2">
-                            <a class="btn btn-outline-primary" role="button"
-                               href="{{ profile['web_data']['report_link'] }}" data-bs-toggle="tooltip"
-                               data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
-                            <a class="btn btn-outline-primary" role="button"
-                               href="{{ profile['web_data']['pp_link'] }}" data-bs-toggle="tooltip"
-                               data-bs-placement="bottom"><i class="fas fa-file-contract"></i> Protection Profile</a>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        {#  heeeere #}
-        <div class="row bg-dark p-3">
-            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
-                <div class="mb-5">
-                    <div class="mt-5 mb-3">
-                        <h2 class="anchor" id="report-info">Certification report
-                            {{ render_document_state(profile["state"], "report", "certification report") }}
-                        </h2>
-                        <div class="mt-3 mb-3">
-                            {{ render_local_report(hashid, local_files, profile["web_data"]["report_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
-                        </div>
-
-                        {% if profile["pdf_data"]["report_keywords"] %}
-                            <h3 class="mt-3">Extracted keywords</h3>
-                            {{ cryptography_keywords(profile["pdf_data"]["report_keywords"], "report") }}
-                            {{ device_keywords(profile["pdf_data"]["report_keywords"], "report") }}
-                            {{ cc_keywords(profile["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
-                                                                                               "cc_sfr": render_sfrs}) }}
-                            {{ security_keywords(profile["pdf_data"]["report_keywords"], "report") }}
-                            {{ other_keywords(profile["pdf_data"]["report_keywords"], "report") }}
-                        {% endif %}
-                        {% if profile["pdf_data"]["report_metadata"] %}
-                            <h3 class="mt-3">File metadata</h3>
-                            {{ render_pdf_meta(profile["pdf_data"]["report_metadata"], "Certification report") }}
-                        {% endif %}
-                    </div>
-
-                    <div class="mt-5 mb-3">
-                        <h2 class="anchor" id="profile-info">Profile
-                            {{ render_document_state(profile["state"], "pp", "protection profile") }}
-                        </h2>
-
-                        <div class="mt-3 mb-3">
-                            {{ render_local_profile(hashid, local_files, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
-                        </div>
-
-                        {% if profile["pdf_data"]["pp_keywords"] %}
-                            <h3 class="mt-3">Extracted keywords</h3>
-                            {{ cryptography_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
-                            {{ device_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
-                            {{ cc_keywords(profile["pdf_data"]["pp_keywords"], "profile", map_funcs={"cc_sar": render_sars,
-                                                                                               "cc_sfr": render_sfrs}) }}
-                            {{ security_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
-                            {{ other_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
-                        {% endif %}
-                        {% if profile["pdf_data"]["pp_metadata"] %}
-                            <h3 class="mt-3">File metadata</h3>
-                            {{ render_pdf_meta(profile["pdf_data"]["pp_metadata"], "Security target") }}
-                        {% endif %}
-                    </div>
+        <div class="shifted-section">
+            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                <div class="alert alert-warning d-sm-none" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
                 </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="mt-3 mb-5">
-                <h2 class="anchor" id="reference-graph">References
-                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                          data-bs-toggle="tooltip" data-bs-placement="top"
-                          title="Information automatically extracted from the certification report and protection profile documents. Might contain errors.">?</span>
-                </h2>
                 <div>
-                    {% if certs %}
-                        <ul>
-                            {% for cert in certs %}
-                                <li>
-                                    <a href="{{ url_for('cc.entry', hashid=cert['hashid']) }}">{{ cert['name'] }}</a>
-                                    {{ render_status(cert["status"]) }}
-                                </li>
+                    <h1>{{ profile["web_data"]["name"]|default("") }}</h1>
+
+                    {% if "web_data" in profile %}
+                        <div class="mt-5 mb-5">
+                            <h2 class="anchor" id="web-info">Web information
+                                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                    class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Information extracted from the protection profile database provided by the Common Criteria portal.">?</span>
+                            </h2>
+                            <b>Status:</b>{{ render_status(profile["web_data"]["status"]) }}<br/>
+
+                            <b>Certification date:</b>
+                            {{ profile["web_data"]["not_valid_before"] }}
+                            <br/>
+                            {% if profile["web_data"]["not_valid_after"] %}
+                                <b>Archived date:</b>
+                                {{ profile["web_data"]["not_valid_after"] }}
+                                <br/>
+                            {% endif %}
+                            <b>Scheme:</b>
+                            <span title="{{ profile['web_data']['scheme'] }}">{{ country_to_flag(profile["web_data"]["scheme"]) }}</span>
+                            <br/>
+                            <b>Category:</b>
+                            {{ render_category(profile["web_data"]["category"]) }} {{ profile["web_data"]["category"] }}
+                            <br/>
+                            <b>Security level:</b>
+                            {% for level in profile["web_data"]["security_level"] %}
+                                {{ render_eal(level) }}{%- if not loop.last -%}, {%- endif -%}
                             {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No references are available for this protection profile.</p>
+                            <br/>
+
+                            <div class="mt-2 mb-2">
+                                <a class="btn btn-outline-primary" role="button"
+                                href="{{ profile['web_data']['report_link'] }}" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"><i class="fas fa-file-alt"></i> Certification report</a>
+                                <a class="btn btn-outline-primary" role="button"
+                                href="{{ profile['web_data']['pp_link'] }}" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"><i class="fas fa-file-contract"></i> Protection Profile</a>
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </div>
+            {#  heeeere #}
+            <div class="row bg-dark p-3">
+                <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
+                    <div class="mb-5">
+                        <div class="mt-5 mb-3">
+                            <h2 class="anchor" id="report-info">Certification report
+                            </h2>
+                            {{ render_process_state(profile["state"], "report", "certification report") }}
+                            <div class="mt-3 mb-3">
+                                {{ render_local_report(hashid, local_files, profile["web_data"]["report_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            </div>
 
-            <div class="mt-5 mb-5">
-                <h2 class="anchor" id="updates">Updates
-                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                          data-bs-toggle="tooltip" data-bs-placement="top"
-                          title="Information on how the protection profile data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
-                    <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
-                       style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                       data-bs-toggle="tooltip" data-bs-placement="top"
-                       title="ATOM feed"><i class="fas fa-fw fa-feed"></i></a>
-                </h2>
-                <ul>
-                    {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
-                        <li id="diff-{{ diff["_id"] }}">
-                            {% if diff["type"] == "new" %}
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile was first processed.
-                            {% elif diff["type"] == "change" %}
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile data changed.
-                            {% elif diff["type"] == "remove" %}
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile became unavailable,
-                                either the certification report or the protection profile was unavailable during
-                                processing.
-                            {% elif diff["type"] == "back" %}
-                                {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile became available
-                                again.
+                            {% if profile["pdf_data"]["report_keywords"] %}
+                                <h3 class="mt-3">Extracted keywords</h3>
+                                {{ cryptography_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                                {{ device_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                                {{ cc_keywords(profile["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
+                                                                                                "cc_sfr": render_sfrs}) }}
+                                {{ security_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+                                {{ other_keywords(profile["pdf_data"]["report_keywords"], "report") }}
                             {% endif %}
-                            {% if true %} {# is_admin() #}
-                                <button type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#diff-data{{ loop.index }}"
-                                        tabindex="0"
-                                        class="btn btn-outline-primary btn-sm"
-                                        title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff
+                            {% if profile["pdf_data"]["report_metadata"] %}
+                                <h3 class="mt-3">File metadata</h3>
+                                {{ render_pdf_meta(profile["pdf_data"]["report_metadata"], "Certification report") }}
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-5 mb-3">
+                            <h2 class="anchor" id="profile-info">Profile
+                            </h2>
+                            {{ render_process_state(profile["state"], "pp", "protection profile") }}
+
+                            <div class="mt-3 mb-3">
+                                {{ render_local_profile(hashid, local_files, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            </div>
+
+                            {% if profile["pdf_data"]["pp_keywords"] %}
+                                <h3 class="mt-3">Extracted keywords</h3>
+                                {{ cryptography_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                                {{ device_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                                {{ cc_keywords(profile["pdf_data"]["pp_keywords"], "profile", map_funcs={"cc_sar": render_sars,
+                                                                                                "cc_sfr": render_sfrs}) }}
+                                {{ security_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                                {{ other_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+                            {% endif %}
+                            {% if profile["pdf_data"]["pp_metadata"] %}
+                                <h3 class="mt-3">File metadata</h3>
+                                {{ render_pdf_meta(profile["pdf_data"]["pp_metadata"], "Security target") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                <div class="mt-3 mb-5">
+                    <h2 class="anchor" id="reference-graph">References
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Information automatically extracted from the certification report and protection profile documents. Might contain errors.">?</span>
+                    </h2>
+                    <div>
+                        {% if certs %}
+                            <ul>
+                                {% for cert in certs %}
+                                    <li>
+                                        <a href="{{ url_for('cc.entry', hashid=cert['hashid']) }}">{{ cert['name'] }}</a>
+                                        {{ render_status(cert["status"]) }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No references are available for this protection profile.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-5 mb-5">
+                    <h2 class="anchor" id="updates">Updates
+                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Information on how the protection profile data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
+                        <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
+                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="ATOM feed"><i class="fas fa-fw fa-feed"></i></a>
+                    </h2>
+                    <ul>
+                        {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
+                            <li id="diff-{{ diff["_id"] }}">
+                                {% if diff["type"] == "new" %}
+                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile was first processed.
+                                {% elif diff["type"] == "change" %}
+                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile data changed.
+                                {% elif diff["type"] == "remove" %}
+                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile became unavailable,
+                                    either the certification report or the protection profile was unavailable during
+                                    processing.
+                                {% elif diff["type"] == "back" %}
+                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile became available
+                                    again.
+                                {% endif %}
+                                {% if true %} {# is_admin() #}
+                                    <button type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#diff-data{{ loop.index }}"
+                                            tabindex="0"
+                                            class="btn btn-outline-primary btn-sm"
+                                            title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff
+                                    </button>
+                                    <div id="diff-data{{ loop.index }}" class="collapse py-3">
+                                        {{ diff_render|safe }}
+                                    </div>
+                                    {# <pre id="diff-data{{ loop.index }}"
+                                        class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
+                                    #}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="mt-5 mb-5">
+                    <h2 class="anchor" id="raw-data-head">Raw data
+                        <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
+                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
+                        title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
+
+                    <div class="accordion" id="rawDataAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-controls="collapseOne">
+                                    Toggle raw data
                                 </button>
-                                <div id="diff-data{{ loop.index }}" class="collapse py-3">
-                                    {{ diff_render|safe }}
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#rawDataAccordion">
+                                <div class="accordion-body">
+                                    <pre id="raw-data" ><code>{{ json|tojson(indent=2) }}</code></pre>
                                 </div>
-                                {# <pre id="diff-data{{ loop.index }}"
-                                     class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
-                                #}
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="mt-5 mb-5">
-                <h2 class="anchor" id="raw-data-head">Raw data
-                    <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
-                            style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                            title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
-                    <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
-                       style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                       title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-                <pre id="raw-data" class="listing collapse mt-3"><code>{{ json|tojson(indent=2) }}</code></pre>
             </div>
-            <script>
-                $(function () {
-                    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                    tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl)
-                    })
-                    new bootstrap.Tooltip($("#raw-data-button").get(0));
-                });
-                $('#raw-data').on('show.bs.collapse', function () {
-                    $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-                });
-                $('#raw-data').on('hide.bs.collapse', function () {
-                    $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-                });
-            </script>
-
         </div>
     </main>
 {% endblock %}

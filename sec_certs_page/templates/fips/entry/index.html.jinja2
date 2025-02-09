@@ -58,23 +58,26 @@
 
 
 {% block crumbs_right %}
-    <div class="shifted-section">
+    <div class="shifted-section mt-2">
         <div class="btn-group" role="group">
-            <a href="{{ url_for("fips.entry", hashid=hashid) }}" class="btn btn-outline-secondary btn-sm" title="Link by id"
-            data-bs-toggle="tooltip" data-bs-placement="top"> <i class="fas fa-share"></i> Link</a>
+            <a data-url="{{ url_for("fips.entry", hashid=hashid) }}" onclick="copyLinkToClipboard(this)" class="btn btn-outline-secondary btn-sm" title="Link by id"
+            data-bs-toggle="tooltip" data-bs-placement="top"><span> <i class="fa-regular fa-clipboard"></i> Link</span></a>
             {% if cert["cert_id"] %}
-                <a href="{{ url_for("fips.entry_id", cert_id=cert["cert_id"]) }}"
+                <a data-url="{{ url_for("fips.entry_id", cert_id=cert["cert_id"]) }}" onclick="copyLinkToClipboard(this)"
                 class="btn btn-outline-secondary btn-sm" title="Link by certificate id" data-bs-toggle="tooltip"
-                data-bs-placement="top"> <i class="fas fa-share"></i> Link by certificate ID</a>
+                data-bs-placement="top"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
             {% endif %}
             {% if cert|fips_name %}
-                <a href="{{ url_for("fips.entry_name", name=cert|fips_name) }}"
+                <a data-url="{{ url_for("fips.entry_name", name=cert|fips_name) }}" onclick="copyLinkToClipboard(this)"
                 class="btn btn-outline-secondary btn-sm"
-                title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <i
-                        class="fas fa-share"></i> Link by certificate name</a>
+                title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <span>
+                    <i
+                            class="fa-regular fa-clipboard"></i> Link by certificate name
+                </span></a>
             {% endif %}
         </div>
     </div>
+    <script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
     
 {% endblock %}
 {% block content %}
@@ -333,18 +336,33 @@
                 {% else %}
                     <div class="border">
                         <div id="network"></div>
+                        <div id="network-skeleton" class="container d-flex justify-content-center align-items-center" style="height: 300px;">
+                                    <button id="show-network-btn" class="btn btn-primary">Click to load the graph of references</button>
+                                    <div id="network-loading" class="d-none spinner-border" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                        </div>
                     </div>
                     <script type="module">
                         import {createNetwork} from "/static/network.js";
 
-                        let network = createNetwork('network',
-                            '{{ url_for(".entry_graph_json", hashid=hashid)}}',
-                            '{{ url_for(".types") }}',
-                            '{{ url_for(".statuses") }}',
-                            '{{ url_for(".reference_types") }}',
-                            600,
-                            300,
-                            true);
+                        async function loadNetwork(){
+                            return createNetwork('network',
+                                    '{{ url_for(".entry_graph_json", hashid=hashid)}}',
+                                    '{{ url_for(".types") }}',
+                                    '{{ url_for(".statuses") }}',
+                                    '{{ url_for(".reference_types") }}',
+                                    600,
+                                    300,
+                                    true);
+                        }
+                      
+                        document.getElementById("show-network-btn").onclick = async function() {
+                                $("#network-loading").removeClass("d-none").addClass("d-block")
+                                $("#show-network-btn").addClass("d-none")
+                                await loadNetwork()
+                                $("#network-skeleton").remove()
+                            };
                     </script>
                 {% endif %}
             </div>
@@ -395,35 +413,25 @@
 
             <div class="mt-5 mb-5">
                 <h2 class="anchor" id="raw-data-head">Raw data
-                    <button id="raw-data-button" type="button" data-bs-toggle="collapse" data-bs-target="#raw-data"
-                            style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                            title="Toggle."><i class="fas fa-fw fa-plus"></i></button>
                     <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                       title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-                <pre id="raw-data" class="listing collapse mt-3"><code>{{ json|tojson(indent=2) }}</code></pre>
+                       title="Download."><i class="fas fa-fw fa-download"></i></a>
+                </h2>
+                <div class="accordion" id="rawDataAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-controls="collapseOne">
+                                Toggle raw data
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#rawDataAccordion">
+                            <div class="accordion-body">
+                                <pre id="raw-data"><code>{{ json|tojson(indent=2) }}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <script>
-                let certificate_data = {
-                    name: "{{ cert|fips_name|default("", true) }}",
-                    hashid: "{{ hashid }}",
-                    type: "fips",
-                    url: "{{ url_for("fips.entry", hashid=hashid) }}"
-                };
-                $(function () {
-                    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                    tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl)
-                    })
-                    new bootstrap.Tooltip($("#raw-data-button").get(0));
-                });
-                $('#raw-data').on('show.bs.collapse', function (e) {
-                    $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-                });
-                $('#raw-data').on('hide.bs.collapse', function () {
-                    $("#raw-data-button i").toggleClass("fa-plus").toggleClass("fa-minus");
-                });
-            </script>
         </div>
         </div>
     </main>
