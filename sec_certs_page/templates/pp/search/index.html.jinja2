@@ -2,6 +2,10 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "pp/utils.html.jinja2" import render_pagination, render_plot %}
+{% block metadata %}
+    {{ super() }}
+    <meta property="robots" content="noindex"/>
+{% endblock %}
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
