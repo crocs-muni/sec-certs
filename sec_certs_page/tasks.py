@@ -1,5 +1,4 @@
 from datetime import timedelta
-from urllib.parse import urlparse
 
 import dramatiq
 from bs4 import BeautifulSoup
@@ -24,6 +23,7 @@ def run_updates_weekly() -> None:  # pragma: no cover
         update_cc_data.message_with_options(pipe_ignore=True)
         | update_fips_data.message_with_options(pipe_ignore=True)
         | update_pp_data.message_with_options(pipe_ignore=True)
+        | update_sitemap.message_with_options(pipe_ignore=True)
     ).run()
 
 
@@ -41,7 +41,7 @@ def run_updates_daily() -> None:  # pragma: no cover
     ).run()
 
 
-@dramatiq.actor(actor_name="sitemap_update", queue_name="default", time_limit=timedelta(hours=1).total_seconds() * 1000)
+@dramatiq.actor(actor_name="sitemap_update", queue_name="default", time_limit=timedelta(hours=2).total_seconds() * 1000)
 @task("sitemap_update")
 def update_sitemap():
     # Just hack a request context, we do not need pretty much anything here.
