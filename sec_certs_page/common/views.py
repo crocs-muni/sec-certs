@@ -178,3 +178,13 @@ def captcha_required(json=False):
         return wrapper
 
     return captcha_deco
+
+
+def sitemap_cert_pipeline(collection: str):
+    return [
+        {"$lookup": {"from": f"{collection}_diff", "localField": "_id", "foreignField": "dgst", "as": "joined_docs"}},
+        {"$unwind": "$joined_docs"},
+        {"$sort": {"joined_docs.timestamp": -1}},
+        {"$group": {"_id": "$_id", "latest_joined_doc": {"$first": "$joined_docs"}}},
+        {"$project": {"_id": 1, "timestamp": "$latest_joined_doc.timestamp"}},
+    ]

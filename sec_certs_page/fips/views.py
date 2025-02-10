@@ -31,6 +31,7 @@ from ..common.views import (
     expires_at,
     network_graph_func,
     send_json_attachment,
+    sitemap_cert_pipeline,
 )
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
 from .search import FIPSBasicSearch, FIPSFulltextSearch
@@ -560,8 +561,8 @@ def sitemap_urls():
     yield "fips.rand", {}
     yield "fips.mip_index", {}
     yield "fips.iut_index", {}
-    for doc in mongo.db.fips.find({}, {"_id": 1}):
-        yield "fips.entry", {"hashid": doc["_id"]}, None, None, 0.8
+    for doc in mongo.db.fips.aggregate(sitemap_cert_pipeline("fips")):
+        yield "fips.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8
     for doc in mongo.db.fips_mip.find({}, {"_id": 1}):
         yield "fips.mip_snapshot", {"id": doc["_id"]}, None, None, 0.6
     for doc in mongo.db.fips_iut.find({}, {"_id": 1}):

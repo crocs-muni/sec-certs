@@ -18,6 +18,7 @@ from ..common.views import (
     entry_download_report_pdf,
     entry_download_report_txt,
     send_json_attachment,
+    sitemap_cert_pipeline,
 )
 from . import pp
 from .search import PPBasicSearch, PPFulltextSearch
@@ -236,5 +237,5 @@ def sitemap_urls():
     yield "pp.analysis", {}
     yield "pp.search", {}
     yield "pp.rand", {}
-    for doc in mongo.db.pp.find({}, {"_id": 1}):
-        yield "pp.entry", {"hashid": doc["_id"]}, None, None, 0.8
+    for doc in mongo.db.pp.aggregate(sitemap_cert_pipeline("pp")):
+        yield "pp.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8

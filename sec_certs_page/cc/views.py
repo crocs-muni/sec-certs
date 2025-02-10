@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 
 import pymongo
 import sentry_sdk
+from common.views import sitemap_cert_pipeline
 from feedgen.feed import FeedGenerator
 from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
@@ -593,5 +594,5 @@ def sitemap_urls():
     yield "cc.search", {}
     yield "cc.fulltext_search", {}
     yield "cc.rand", {}
-    for doc in mongo.db.cc.find({}, {"_id": 1}):
-        yield "cc.entry", {"hashid": doc["_id"]}, None, None, 0.8
+    for doc in mongo.db.cc.aggregate(sitemap_cert_pipeline("cc")):
+        yield "cc.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8
