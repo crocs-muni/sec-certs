@@ -16,7 +16,7 @@ from dramatiq.middleware import (
 )
 from dramatiq.results import Results
 from dramatiq.results.backends import RedisBackend, StubBackend
-from flask import Flask
+from flask import Flask, abort
 from flask_assets import Environment as Assets
 from flask_breadcrumbs import Breadcrumbs
 from flask_caching import Cache
@@ -147,6 +147,8 @@ class Sitemap(FlaskSitemap):
 
     @cache.memoize(timeout=3600 * 24 * 7)
     def page(self, page):
+        if page < 1:
+            return abort(404)
         return super().page(page)
 
 
