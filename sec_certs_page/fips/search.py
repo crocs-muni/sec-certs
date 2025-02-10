@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import Any, Dict, List, Mapping, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 import pymongo
 import sentry_sdk
+from pymongo.cursor import Cursor
 
 from .. import mongo
 from ..common.search.query import BasicSearch, FulltextSearch
@@ -18,7 +19,9 @@ class FIPSBasicSearch(BasicSearch):
     collection = mongo.db.fips
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int, List[datetime]]:
+    def select_certs(
+        cls, q, cat, categories, status, sort, **kwargs
+    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
         query: Dict[str, Any] = {}
         projection: Dict[str, Any] = {
             "_id": 1,
@@ -54,10 +57,10 @@ class FIPSBasicSearch(BasicSearch):
             query["web_data.status"] = status
 
         with sentry_sdk.start_span(op="mongo", description="Find certs."):
-            cursor = cls.collection.find(query, projection)
-            count = cls.collection.count_documents(query)
+            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+            count: int = cls.collection.count_documents(query)
 
-        timeline = []
+        timeline: List[Optional[datetime]] = []
         for cert in cursor.clone():
             val_history = cert["web_data"]["validation_history"]
             if not val_history:
