@@ -9,7 +9,6 @@ from urllib.parse import urlencode
 
 import pymongo
 import sentry_sdk
-from common.views import sitemap_cert_pipeline
 from feedgen.feed import FeedGenerator
 from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
@@ -36,6 +35,7 @@ from ..common.views import (
     expires_at,
     network_graph_func,
     send_json_attachment,
+    sitemap_cert_pipeline,
 )
 from . import (
     cc,
