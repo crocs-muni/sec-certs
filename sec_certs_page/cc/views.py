@@ -594,5 +594,5 @@ def sitemap_urls():
     yield "cc.search", {}
     yield "cc.fulltext_search", {}
     yield "cc.rand", {}
-    for doc in mongo.db.cc.aggregate(sitemap_cert_pipeline("cc")):
+    for doc in mongo.db.cc.aggregate(sitemap_cert_pipeline("cc"), allowDiskUse=True):
         yield "cc.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8

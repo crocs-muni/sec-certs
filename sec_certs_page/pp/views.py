@@ -237,5 +237,5 @@ def sitemap_urls():
     yield "pp.analysis", {}
     yield "pp.search", {}
     yield "pp.rand", {}
-    for doc in mongo.db.pp.aggregate(sitemap_cert_pipeline("pp")):
+    for doc in mongo.db.pp.aggregate(sitemap_cert_pipeline("pp"), allowDiskUse=True):
         yield "pp.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8

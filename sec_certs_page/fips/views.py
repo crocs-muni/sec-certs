@@ -561,7 +561,7 @@ def sitemap_urls():
     yield "fips.rand", {}
     yield "fips.mip_index", {}
     yield "fips.iut_index", {}
-    for doc in mongo.db.fips.aggregate(sitemap_cert_pipeline("fips")):
+    for doc in mongo.db.fips.aggregate(sitemap_cert_pipeline("fips"), allowDiskUse=True):
         yield "fips.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8
     for doc in mongo.db.fips_mip.find({}, {"_id": 1}):
         yield "fips.mip_snapshot", {"id": doc["_id"]}, None, None, 0.6
