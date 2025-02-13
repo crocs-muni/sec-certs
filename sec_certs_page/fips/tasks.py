@@ -170,7 +170,7 @@ def archive_all():  # pragma: no cover
     ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
     updater = FIPSUpdater()
     paths = updater.make_dataset_paths()
-    archive.send(ids, paths)
+    archive.send(ids, {name: str(path) for name, path in paths.items()})
 
 
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
