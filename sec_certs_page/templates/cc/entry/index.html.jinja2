@@ -714,6 +714,14 @@
                 </div>
             </div>
         </div>
+        <script>
+            let certificate_data = {
+                name: "{{ cert["name"]|default("", true) }}",
+                hashid: "{{ hashid }}",
+                type: "cc",
+                url: "{{ url_for("cc.entry", hashid=hashid) }}"
+            };
+        </script>
         {{ modal_script() }}
     </main>
 {% endblock %}

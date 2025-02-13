@@ -88,6 +88,8 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <h1>{{ cert|fips_name|default("", true) }}</h1>
+            {{ compare_icon() }}
+            {{ notification_icon() }}
 
             {% if cves %}
                 <div class="alert alert-warning mt-4">
@@ -96,8 +98,10 @@
                     certified product might be vulnerable.
                 </div>
             {% endif %}
+            
 
-            <h2>Certificate #{{ cert["cert_id"] }}</h2>
+            <h2 class="mt-3">Certificate #{{ cert["cert_id"] }}</h2>
+                                   
             {% if "web_data" in cert %}
                 <div class="mt-5 mb-5">
                     <h2 id="web-info" class="anchor">Webpage information
@@ -434,5 +438,14 @@
             </div>
         </div>
         </div>
+        <script>
+             let certificate_data = {
+                    name: "{{ cert|fips_name|default("", true) }}",
+                    hashid: "{{ hashid }}",
+                    type: "fips",
+                    url: "{{ url_for("fips.entry", hashid=hashid) }}"
+                };
+        </script>
+        {{ modal_script() }}
     </main>
 {% endblock %}
