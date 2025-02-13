@@ -2,6 +2,7 @@ name: Release (PyPi, DockerHub)
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   pypi_release:
