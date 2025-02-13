@@ -72,8 +72,7 @@ Additionally, the fabfile can be used (likely with some modifications to suite y
 
 ## Docker
 
-There is a rudimentary Dockerfile available that currently lacks MongoDB and redis,
-and the task queue setup.
+There is a rudimentary Dockerfile available, it lacks the dramatiq and periodiq task queue runners.
 
 ## Development
 
