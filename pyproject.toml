@@ -50,7 +50,7 @@
     "setuptools-scm",
     "ipykernel",
     "ipywidgets",
-    "spacy",
+    "spacy<3.8.0",
     "pkgconfig",
     "seaborn",
     "pySankeyBeta",
