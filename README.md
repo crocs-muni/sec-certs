@@ -22,14 +22,15 @@ task queue.
    git clone -b page https://github.com/crocs-muni/sec-certs page
    git clone -b main https://github.com/crocs-muni/sec-certs tool
 
-   python -m venv virt                # Creates the virtualenv.
-   . virt/bin/activate                # Activates it. (Use .fish or .csh for those shells)
+   python -m venv virt                 # Creates the virtualenv.
+   . virt/bin/activate                 # Activates it. (Use .fish or .csh for those shells)
+   pip install -U setuptools wheel pip # Always nice to have new versions, not some ancient ones.
 
    cd tool
-   pip install -e .                   # Installs the tool
+   pip install -e .                    # Installs the tool
 
    cd ../page
-   pip install -e .                   # Installs the web
+   pip install -e .                    # Installs the web
 
    # The rest of the setup assumes you are in the "page" directory.
    ```
