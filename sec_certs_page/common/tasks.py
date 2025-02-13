@@ -561,8 +561,8 @@ class Archiver:  # pragma: no cover
 
     def map_artifact_dir(self, ids, fromdir, todir):
         for format in ("pdf", "txt"):
-            src = fromdir / format
-            dst = todir / format
+            src = Path(fromdir) / format
+            dst = Path(todir) / format
             dst.mkdir(parents=True, exist_ok=True)
             for id in ids:
                 name = f"{id}.{format}"
