@@ -26,7 +26,7 @@
   requires-python = ">=3.10"
   dependencies = [
     # Base tool
-    "sec-certs >= 0.2.1",
+    "sec-certs @ git+https://github.com/crocs-muni/sec-certs.git#main",
 
     # Flask
     "Flask < 2.3",   # Flask-Breadcrumbs and Flask-Menu break
