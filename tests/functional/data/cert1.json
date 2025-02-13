@@ -193,7 +193,12 @@
       "indirectly_referenced_by": null,
       "indirectly_referencing": null
     },
-    "verified_cpe_matches": null
+    "verified_cpe_matches": null,
+    "next_certificates": null,
+    "prev_certificates": null,
+    "scheme_data": null,
+    "protection_profiles": null,
+    "eal": null
   },
   "maintenance_updates": {
     "_type": "Set",
@@ -201,6 +206,10 @@
   },
   "manufacturer": "Fujitsu Limited",
   "manufacturer_web": null,
+  "protection_profile_links": {
+    "_type": "Set",
+    "elements": []
+  },
   "name": "PalmSecure SDK Version 24 Premium",
   "not_valid_after": "2019-09-01",
   "not_valid_before": "2008-12-30",
@@ -605,7 +614,7 @@
     },
     "st_metadata": null
   },
-  "protection_profiles": {
+  "protection_profile_links": {
     "_type": "Set",
     "elements": []
   },

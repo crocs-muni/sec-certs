@@ -56,7 +56,12 @@ def test_send_notification(app, mocker, confirmed_subscription):
         pytest.skip("Skip vuln only sub.")
     diffs = list(mongo.db.fips_diff.find({"dgst": dgst}))
     notify(str(diffs[-1]["run_id"]))
-    assert m.call_count == 1
+    for call_args in m.call_args_list:
+        message = call_args.args[0]
+        if confirmed_subscription["email"] in message.recipients:
+            break
+    else:
+        assert False
 
 
 @pytest.mark.slow
