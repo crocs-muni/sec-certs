@@ -82,5 +82,9 @@ RUN sed -i "s/some proper randomness here/$(openssl rand -hex 32)/" instance/con
 RUN sed -i "s/TURNSTILE_SITEKEY = \"\"/TURNSTILE_SITEKEY = \"1x00000000000000000000BB\"/" instance/config.py
 RUN sed -i "s/TURNSTILE_SECRET = \"\"/TURNSTILE_SECRET = \"1x0000000000000000000000000000000AA\"/" instance/config.py
 
+# Make the volumes
+VOLUME /data/db
+VOLUME ${HOME}/sec-certs-page/instance
+
 EXPOSE 5000
 CMD mongod --fork --logpath mongo.log && redis-server --daemonize yes --logfile redis.log && flask -A sec_certs_page run -h 0.0.0.0 -p 5000
