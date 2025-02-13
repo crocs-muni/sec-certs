@@ -136,7 +136,7 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
     └── dataset.json
     """
 
-    def archive(self, path, paths):
+    def archive(self, ids, path, paths):
         with TemporaryDirectory() as tmpdir:
             logger.info(f"Archiving {path}")
             tmpdir = Path(tmpdir)
@@ -152,7 +152,7 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
 
             certs = tmpdir / "certs"
             certs.mkdir()
-            os.symlink(paths["target"], certs / "targets")
+            self.map_artifact_dir(ids, paths["target"], certs / "targets")
 
             logger.info("Running tar...")
             subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
@@ -160,9 +160,17 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
 
 
 @actor("fips_archive", "fips_archive", "updates", timedelta(hours=4))
-def archive(paths):  # pragma: no cover
+def archive(ids, paths):  # pragma: no cover
     archiver = FIPSArchiver()
-    archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"], paths)
+    archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"], paths)
+
+
+@actor("fips_archive_all", "fips_archive_all", "updates", timedelta(hours=1))
+def archive_all():  # pragma: no cover
+    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    updater = FIPSUpdater()
+    paths = updater.make_dataset_paths()
+    archive.send(ids, paths)
 
 
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
@@ -220,8 +228,8 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
 
-    def archive(self, paths):
-        archive.send(paths)
+    def archive(self, ids, paths):
+        archive.send(ids, paths)
 
 
 @actor("fips_update", "fips_update", "updates", timedelta(hours=16))

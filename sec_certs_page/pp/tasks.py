@@ -15,7 +15,7 @@ from .. import mongo, runtime_config
 from ..cc import cc_categories
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Indexer, Updater, actor, Archiver
+from ..common.tasks import Archiver, Indexer, Updater, actor
 
 logger = logging.getLogger(__name__)
 
@@ -92,18 +92,18 @@ class PPArchiver(Archiver, PPMixin):
     ├── pps
     │   ├── pdf
     │   └── txt
-    └── pp.json
+    └── dataset.json
     """
 
-    def archive(self, path, paths):
+    def archive(self, ids, path, paths):
         with TemporaryDirectory() as tmpdir:
             logger.info(f"Archiving {path}")
             tmpdir = Path(tmpdir)
 
-            os.symlink(paths["output_path"], tmpdir / "pp.json")
+            os.symlink(paths["output_path"], tmpdir / "dataset.json")
 
-            os.symlink(paths["profile"], tmpdir / "pps")
-            os.symlink(paths["report"], tmpdir / "reports")
+            self.map_artifact_dir(ids, paths["profile"], tmpdir / "pps")
+            self.map_artifact_dir(ids, paths["report"], tmpdir / "reports")
 
             logger.info("Running tar...")
             subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
@@ -111,9 +111,17 @@ class PPArchiver(Archiver, PPMixin):
 
 
 @actor("pp_archive", "pp_archive", "updates", timedelta(hours=4))
-def archive(paths):  # pragma: no cover
+def archive(ids, paths):  # pragma: no cover
     archiver = PPArchiver()
-    archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_ARCHIVE"], paths)
+    archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_ARCHIVE"], paths)
+
+
+@actor("pp_archive_all", "pp_archive_all", "updates", timedelta(hours=1))
+def archive_all():  # pragma: no cover
+    ids = list(map(lambda doc: doc["_id"], mongo.db.pp.find({}, {"_id": 1})))
+    updater = PPUpdater()
+    paths = updater.make_dataset_paths()
+    archive.send(ids, paths)
 
 
 class PPUpdater(Updater, PPMixin):  # pragma: no cover
@@ -172,8 +180,8 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
 
-    def archive(self, paths):
-        archive.send(paths)
+    def archive(self, ids, paths):
+        archive.send(ids, paths)
 
 
 @actor("pp_update", "pp_update", "updates", timedelta(hours=16))
