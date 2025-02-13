@@ -31,7 +31,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         ├── pps
         │   ├── pdf
         │   └── txt
-        └── pp.json
+        └── dataset.json
     """
 
     FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.pp_latest_full_archive
@@ -57,7 +57,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     @property
     def json_path(self) -> Path:
-        return self.root_dir / "pp.json"
+        return self.root_dir / "dataset.json"
 
     @property
     def reports_dir(self) -> Path:

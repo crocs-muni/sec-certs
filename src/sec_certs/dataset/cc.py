@@ -63,7 +63,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         │   │   ├── pps
         │   │   │   ├── pdf
         │   │   │   └── txt
-        │   │   └── pp.json
+        │   │   └── dataset.json
         │   └── maintenances
         │       ├── certs
         │       │   ├── reports

@@ -258,7 +258,7 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
 
     @property
     def dset_path(self) -> Path:
-        return self.root_dir / "pp.json"
+        return self.root_dir / "dataset.json"
 
     def load_dataset(self) -> None:
         from sec_certs.dataset.protection_profile import ProtectionProfileDataset
