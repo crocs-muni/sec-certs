@@ -8,6 +8,7 @@ at [sec-certs.org](https://sec-certs.org) and can be used to serve a page with t
 **This web is meant to work in a HEAD-to-HEAD fashion with the main branch of the repository.**
 I.e. we only really run the web with the head of the `page` branch together with the sec-certs
 tool from the head of the `main` branch. You can do this easily using editable installs.
+The easiest way to do that is to clone the repository twice, as described below.
 
 ## Usage
 
@@ -16,13 +17,23 @@ The page uses [MongoDB](https://www.mongodb.com/) as a backend for the certifica
 task queue.
 
 1. Install the requirements, it is recommended to do so into a newly created Python virtual environment.
-   The minimal required Python version is 3.9.
+   The minimal required Python version is 3.10.
    ```shell
+   git clone -b page https://github.com/crocs-muni/sec-certs page
+   git clone -b main https://github.com/crocs-muni/sec-certs tool
+
    python -m venv virt                # Creates the virtualenv.
-   . virt/bin/activate                # Activates it.
+   . virt/bin/activate                # Activates it. (Use .fish or .csh for those shells)
+
+   cd tool
+   pip install -e .                   # Installs the tool
+
+   cd ../page
    pip install -e .                   # Installs the web
+
+   # The rest of the setup assumes you are in the "page" directory.
    ```
-2. Create the `instance` directory.
+2. Create the `instance` directory in the `page` directory.
    ```shell
    mkdir instance
    ```
@@ -39,6 +50,7 @@ task queue.
      - The PP files
      - The FIPS files
      - The search index
+
    These should either be provided to you as archives (in which case simply extracting them to the instance directory is sufficient),
    or you need to run the weekly processing task to obtain them.
 8. Run the Flask app (in production you should likely use [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/)
