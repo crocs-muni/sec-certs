@@ -37,11 +37,11 @@ def processed_cc_dset(
 ) -> CCDataset:
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
     shutil.copytree(analysis_data_dir, tmp_dir, dirs_exist_ok=True)
-    shutil.copy(pp_data_dir / "pp.json", tmp_dir / "pp.json")
+    shutil.copy(pp_data_dir / "dataset.json", tmp_dir / "dataset.json")
 
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.aux_handlers[ProtectionProfileDatasetHandler].root_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy(tmp_dir / "pp.json", cc_dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path)
+    shutil.copy(tmp_dir / "dataset.json", cc_dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path)
 
     cc_dset.aux_handlers[ProtectionProfileDatasetHandler].process_dataset()
     cc_dset.aux_handlers[CPEMatchDictHandler].dset = {}

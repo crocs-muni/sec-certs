@@ -13,7 +13,7 @@ def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir
     with (tmp_path / "dset.json").open("r") as handle:
         data = json.load(handle)
 
-    with (pp_data_dir / "pp.json").open("r") as handle:
+    with (pp_data_dir / "dataset.json").open("r") as handle:
         template_data = json.load(handle)
 
     del data["timestamp"]
@@ -22,7 +22,7 @@ def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir
 
 
 def test_dataset_to_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmp_path: Path):
-    assert toy_pp_dataset == ProtectionProfileDataset.from_json(pp_data_dir / "pp.json")
+    assert toy_pp_dataset == ProtectionProfileDataset.from_json(pp_data_dir / "dataset.json")
     compressed_path = tmp_path / "dset.json.gz"
     toy_pp_dataset.to_json(compressed_path, compress=True)
     decompressed_dataset = ProtectionProfileDataset.from_json(compressed_path, is_compressed=True)

@@ -39,7 +39,7 @@ def toy_dataset() -> CCDataset:
 
 @pytest.fixture
 def toy_pp_dataset() -> ProtectionProfileDataset:
-    with resources.path(tests.data.protection_profiles, "pp.json") as path:
+    with resources.path(tests.data.protection_profiles, "dataset.json") as path:
         return ProtectionProfileDataset.from_json(path)
 
 

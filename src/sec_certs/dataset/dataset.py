@@ -169,7 +169,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         if not snapshot_url:
             snapshot_url = cls.SNAPSHOT_URL
         if not progress_bar_desc:
-            progress_bar_desc = f"Downloading: {type(cls).__name__}"
+            progress_bar_desc = f"Downloading: {cls.__name__}"
 
         if (artifacts or auxiliary_datasets) and path is None:
             raise ValueError("Path needs to be defined if artifacts or auxiliary datasets are to be downloaded.")
