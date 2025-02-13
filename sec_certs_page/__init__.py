@@ -141,11 +141,11 @@ public(breadcrumbs=breadcrumbs)
 
 
 class Sitemap(FlaskSitemap):
-    @cache.memoize(timeout=3600 * 24 * 7)
+    @cache.memoize(args_to_ignore=("self",), timeout=3600 * 24 * 7)
     def sitemap(self):
         return super().sitemap()
 
-    @cache.memoize(timeout=3600 * 24 * 7)
+    @cache.memoize(args_to_ignore=("self",), timeout=3600 * 24 * 7)
     def page(self, page):
         if page < 1:
             return abort(404)
