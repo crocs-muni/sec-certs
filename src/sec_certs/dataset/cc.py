@@ -98,17 +98,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         state: Dataset.DatasetInternalState | None = None,
         aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        self.certs = certs if certs is not None else {}
-        self.timestamp = datetime.now()
-        self.sha256_digest = "not implemented"
-        self.name = name if name else type(self).__name__ + " dataset"
-        self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self.state = state if state else self.DatasetInternalState()
-        self.root_dir = Path(root_dir)
-        self.aux_handlers = (
-            aux_handlers
-            if aux_handlers is not None
-            else {
+        super().__init__(certs, root_dir, name, description, state, aux_handlers)
+        if aux_handlers is None:
+            self.aux_handlers = {
                 CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir),
                 CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir),
                 CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir),
@@ -116,9 +108,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 ProtectionProfileDatasetHandler: ProtectionProfileDatasetHandler(self.auxiliary_datasets_dir),
                 CCMaintenanceUpdateDatasetHandler: CCMaintenanceUpdateDatasetHandler(self.auxiliary_datasets_dir),
             }
-        )
-        # Make sure that the auxiliary handlers (if supplied by the user) have the correct root_dir
-        self._set_local_paths()
 
     def to_pandas(self) -> pd.DataFrame:
         """

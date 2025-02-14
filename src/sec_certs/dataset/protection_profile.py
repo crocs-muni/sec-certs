@@ -1,5 +1,4 @@
 import shutil
-from datetime import datetime
 from pathlib import Path
 from typing import ClassVar, Literal
 
@@ -46,14 +45,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         state: Dataset.DatasetInternalState | None = None,
         aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        self.certs = certs if certs is not None else {}
-        self.timestamp = datetime.now()
-        self.sha256_digest = "not implemented"
-        self.name = name if name else type(self).__name__ + " dataset"
-        self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self.state = state if state else self.DatasetInternalState()
-        self.aux_handlers = aux_handlers if aux_handlers is not None else {}
-        self.root_dir = Path(root_dir)
+        super().__init__(certs, root_dir, name, description, state, aux_handlers)
 
     @property
     def json_path(self) -> Path:

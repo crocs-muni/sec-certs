@@ -63,8 +63,8 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
-        self.name = name if name else type(self).__name__.lower() + "_dataset"
-        self.description = description if description else "No description provided"
+        self.name = name if name else type(self).__name__
+        self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
         self.root_dir = Path(root_dir)
         self.aux_handlers = aux_handlers if aux_handlers is not None else {}
