@@ -6,7 +6,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from sec_certs import constants
-from sec_certs.dataset import ProtectionProfileDataset
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 
@@ -136,22 +135,19 @@ def test_build_dataset(data_dir: Path, cert_one: CCCertificate, toy_dataset: CCD
 
 
 @pytest.mark.xfail(reason="May fail due to error on CC server")
-@pytest.mark.parametrize("dataset_class", ["CCDataset", "ProtectionProfileDataset"])
-def test_download_csv_html_files(dataset_class):
+def test_download_csv_html_files():
     with TemporaryDirectory() as tmp_dir:
-        constructor = CCDataset if dataset_class == "CCDataset" else ProtectionProfileDataset
-        min_html_size = constants.MIN_CC_HTML_SIZE if dataset_class == "CCDataset" else constants.MIN_PP_HTML_SIZE
-        dset = constructor(root_dir=Path(tmp_dir))
-        dset._download_html_resources(get_active=True, get_archived=False)
+        min_html_size = constants.MIN_CC_HTML_SIZE
+        dset = CCDataset(root_dir=Path(tmp_dir))
+        dset._download_csv_html_resources(get_active=True, get_archived=False)
 
         for x in dset.active_html_tuples:
             assert x[1].exists()
             assert x[1].stat().st_size >= min_html_size
 
-        if dataset_class == "CCDataset":
-            for x in dset.active_csv_tuples:
-                assert x[1].exists()
-                assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
+        for x in dset.active_csv_tuples:
+            assert x[1].exists()
+            assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
 
 
 def test_to_pandas(toy_dataset: CCDataset):
