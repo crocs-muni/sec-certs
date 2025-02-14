@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import requests
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -86,7 +87,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
                     dset_path,
                     progress_bar_desc="Downloading CPEDataset from web",
                 )
-                == constants.RESPONSE_OK
+                == requests.codes.ok
             ):
                 raise RuntimeError(f"Could not download CPEDataset from {config.cpe_latest_snapshot}.")
             dset = cls.from_json(dset_path, is_compressed=True)

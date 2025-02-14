@@ -259,7 +259,7 @@ class ProtectionProfile(
         """
         Downloads pdf of certification report for the given protection profile.
         """
-        exit_code: str | int
+        exit_code: str | int | None
         if not cert.web_data.report_link:
             exit_code = "No link"
         else:
@@ -281,7 +281,7 @@ class ProtectionProfile(
         """
         Downloads actual pdf of the given protection profile.
         """
-        exit_code: str | int
+        exit_code: str | int | None
         if not cert.web_data.pp_link:
             exit_code = "No link"
         else:

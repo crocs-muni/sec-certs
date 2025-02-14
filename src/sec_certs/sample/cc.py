@@ -661,7 +661,7 @@ class CCCertificate(
         :param Optional[Union[str, Path]] cert_pdf_dir: Directory where pdf certificates shall be stored
         :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
         :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
-        :param Optional[Union[str, Path]] cert_txt_dir: Directory where txtcertificates shall be stored
+        :param Optional[Union[str, Path]] cert_txt_dir: Directory where txt certificates shall be stored
         """
         if report_pdf_dir:
             self.state.report.pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
@@ -684,11 +684,12 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf report for
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int
-        if not cert.report_link:
-            exit_code = "No link"
-        else:
-            exit_code = helpers.download_file(cert.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy)
+        exit_code: str | int | None = (
+            helpers.download_file(cert.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy)
+            if cert.report_link
+            else "No link"
+        )
+
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
@@ -707,7 +708,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf security target for
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int = (
+        exit_code: str | int | None = (
             helpers.download_file(cert.st_link, cert.state.st.pdf_path, proxy=config.cc_use_proxy)
             if cert.st_link
             else "No link"
@@ -731,7 +732,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf of
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int = (
+        exit_code: str | int | None = (
             helpers.download_file(cert.cert_link, cert.state.cert.pdf_path, proxy=config.cc_use_proxy)
             if cert.cert_link
             else "No link"

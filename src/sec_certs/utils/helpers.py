@@ -102,8 +102,7 @@ def download_file(  # noqa: C901
     show_progress_bar: bool = False,
     progress_bar_desc: str | None = None,
     proxy: bool = False,
-) -> str | int:
-    """Download a file from a URL to a local path."""
+) -> int | None:
     try:
         proxied = False
         if proxy:
@@ -147,7 +146,7 @@ def download_file(  # noqa: C901
         return requests.codes.timeout
     except Exception as e:
         logger.error(f"Failed to download from {url}; {e}")
-        return constants.RETURNCODE_NOK
+        return None
 
 
 def download_parallel(

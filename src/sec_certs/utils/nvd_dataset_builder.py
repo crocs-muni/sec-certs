@@ -192,7 +192,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         if response.status_code == 404:
             # This is likely due to no CPEs to update, incremental update very soon.
             return 0
-        if response.status_code != constants.RESPONSE_OK:
+        if response.status_code != requests.codes.ok:
             if fresh:
                 logger.warning(
                     f"Error when attempting to fetch number of pages to get from NVD API {self._ENDPOINT} endpoint, sleeping 6 seconds and repeating."
@@ -227,9 +227,9 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         """
         Will fetch successfull responses into self._ok_responses and prune self.requests_to_process accordingly
         """
-        response_is_nok = np.array([x.status_code != constants.RESPONSE_OK for x in responses])
+        response_is_nok = np.array([x.status_code != requests.codes.ok for x in responses])
         nok_indices = np.where(response_is_nok == True)[0]  # noqa E712, doesn't work with `is True`
-        currently_ok = [x for x in responses if x.status_code == constants.RESPONSE_OK]
+        currently_ok = [x for x in responses if x.status_code == requests.codes.ok]
 
         logger.info(
             f"Attempt {self.max_attempts - self._attempts_left}/{self.max_attempts}: Successfully processed {len(currently_ok)}/{len(self._requests_to_process)} requests."
