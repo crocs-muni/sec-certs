@@ -12,8 +12,6 @@ from sec_certs.sample.cc import CCCertificate
 
 
 def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
-    for cert in toy_dataset:
-        print(cert.dgst, cert.old_dgst, cert.older_dgst)
     template_report_pdf_hashes = {
         "e3dcf91ef38ddbf0": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
         "ed7611868f0f9d97": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
