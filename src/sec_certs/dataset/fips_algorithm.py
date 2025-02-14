@@ -8,6 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
 from sec_certs import constants
@@ -64,9 +65,9 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         ITEMS_PER_PAGE = "ipp=250"
 
         res = helpers.download_file(constants.FIPS_ALG_SEARCH_URL + "1&" + ITEMS_PER_PAGE, first_page_path)
-        if res != constants.RESPONSE_OK:
+        if res != requests.codes.ok:
             res = helpers.download_file(constants.FIPS_ALG_SEARCH_URL + "1&" + ITEMS_PER_PAGE, first_page_path)
-            if res != constants.RESPONSE_OK:
+            if res != requests.codes.ok:
                 logger.error(f"Could not build Algorithm dataset, got server response: {res}")
                 raise ValueError(f"Could not build Algorithm dataset, got server response: {res}")
 
@@ -76,13 +77,11 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         paths = [output_dir / f"page{i}.html" for i in range(2, n_pages + 1)]
         responses = helpers.download_parallel(urls, paths, progress_bar_desc="Downloading FIPS Algorithm HTMLs")
 
-        failed_tuples = [
-            (url, path) for url, path, resp in zip(urls, paths, responses) if resp != constants.RESPONSE_OK
-        ]
+        failed_tuples = [(url, path) for url, path, resp in zip(urls, paths, responses) if resp != requests.codes.ok]
         if failed_tuples:
             failed_urls, failed_paths = zip(*failed_tuples)
             responses = helpers.download_parallel(failed_urls, failed_paths)
-            if any(x != constants.RESPONSE_OK for x in responses):
+            if any(x != requests.codes.ok for x in responses):
                 raise ValueError("Failed to download the algorithms HTML data, the dataset won't be constructed.")
 
         return paths

@@ -10,9 +10,6 @@ REF_EMBEDDING_METHOD = Literal["tf_idf", "transformer"]
 # This stupid thing should die in a fire...
 DUMMY_NONEXISTING_PATH = Path("/this/is/dummy/nonexisting/path")
 
-RESPONSE_OK = 200
-RETURNCODE_OK = "ok"
-RETURNCODE_NOK = "nok"
 REQUEST_TIMEOUT = 20
 
 INCREMENTAL_NVD_UPDATE_MAX_INTERVAL_DAYS: Final[int] = 120

@@ -9,6 +9,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 import pandas as pd
+import requests
 
 import sec_certs.configuration as config_module
 from sec_certs import constants
@@ -82,7 +83,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                     dset_path,
                     progress_bar_desc="Downloading CVEDataset from web",
                 )
-                == constants.RESPONSE_OK
+                == requests.codes.ok
             ):
                 raise RuntimeError(f"Could not download CVEDataset from {config_module.config.cve_latest_snapshot}.")
             dset = cls.from_json(dset_path, is_compressed=True)

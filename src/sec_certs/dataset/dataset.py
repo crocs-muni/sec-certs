@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, ClassVar, Generic, TypeVar, cast
 
 import pandas as pd
+import requests
 from pydantic import AnyHttpUrl
 
 from sec_certs import constants
@@ -192,7 +193,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     show_progress_bar=True,
                     progress_bar_desc=progress_bar_desc,
                 )
-                if res != constants.RESPONSE_OK:
+                if res != requests.codes.ok:
                     raise ValueError(f"Download failed: {res}")
                 with tarfile.open(dset_path, "r:gz") as tar:
                     tar.extractall(str(path))

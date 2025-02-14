@@ -8,6 +8,8 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, ClassVar
 
+import requests
+
 from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.cc_scheme import CCSchemeDataset
@@ -138,7 +140,7 @@ class CPEMatchDictHandler(AuxiliaryDatasetHandler):
                         dset_path,
                         progress_bar_desc="Downloading CPE Match feed from web",
                     )
-                    == constants.RESPONSE_OK
+                    == requests.codes.ok
                 ):
                     raise RuntimeError(f"Could not download CPE Match feed from {config.cpe_match_latest_snapshot}.")
                 with gzip.open(str(dset_path)) as handle:
