@@ -71,7 +71,7 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
         return cls(**dct)
 
     @classmethod
-    def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CPEDataset:
+    def from_web(cls, json_path: str | Path | None = None) -> CPEDataset:
         """
         Creates CPEDataset from NIST resources published on-line
 
@@ -91,8 +91,11 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
                 raise RuntimeError(f"Could not download CPEDataset from {config.cpe_latest_snapshot}.")
             dset = cls.from_json(dset_path, is_compressed=True)
 
-        dset.json_path = json_path
-        dset.to_json()
+        if json_path:
+            dset.json_path = json_path
+            dset.to_json()
+        else:
+            dset.json_path = constants.DUMMY_NONEXISTING_PATH
         return dset
 
     def enhance_with_nvd_data(self, nvd_data: dict[Any, Any]) -> None:

@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 from sec_certs.configuration import config
-from sec_certs.dataset import CCDataset, CPEDataset, CVEDataset
+from sec_certs.dataset import CPEDataset, CVEDataset
 from sec_certs.utils.nvd_dataset_builder import (
     CpeMatchNvdDatasetBuilder,
     CpeNvdDatasetBuilder,
@@ -20,25 +20,18 @@ def load_test_config():
         config.load_from_yaml(path)
 
 
-@pytest.mark.skip(reason="not yet implemented on the web")
+@pytest.mark.slow
 def test_cpe_download_from_seccerts():
     cpe_dataset = CPEDataset.from_web()
     assert len(cpe_dataset) > 100000
     assert cpe_dataset.last_update_timestamp > datetime.now() - timedelta(days=28)
 
 
-@pytest.mark.skip(reason="not yet implemented on the web")
+@pytest.mark.slow
 def test_cve_download_from_seccerts():
     cve_dataset = CVEDataset.from_web()
     assert len(cve_dataset) > 100000
     assert cve_dataset.last_update_timestamp > datetime.now() - timedelta(days=28)
-
-
-@pytest.mark.skip(reason="not yet implemented on the web")
-def test_cpe_match_download_from_seccerts():
-    cpe_match_dict = CCDataset._prepare_cpe_match_dict()
-    assert len(cpe_match_dict["match_strings"]) > 100000
-    assert datetime.fromisoformat(cpe_match_dict["timestamp"]) > datetime.now() - timedelta(days=28)
 
 
 @pytest.mark.xfail(reason="May fail due to NVD server errors.")
