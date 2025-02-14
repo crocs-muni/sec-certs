@@ -1,1 +1,1 @@
-"""This package provides utilities used throught the framework."""
+"""This package provides utilities used throughout the framework."""

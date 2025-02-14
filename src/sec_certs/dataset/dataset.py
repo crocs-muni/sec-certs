@@ -182,10 +182,12 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             if not path.is_dir():
                 raise ValueError("Path needs to be a directory.")
         if artifacts:
-            with tempfile.TemporaryDirectory() as tmp_dir:
+            fsize = helpers.query_file_size(str(archive_url))
+            base_tmpdir = tempfile.gettempdir() if fsize is None else helpers.tempdir_for(fsize)
+            with tempfile.TemporaryDirectory(dir=base_tmpdir) as tmp_dir:
                 dset_path = Path(tmp_dir) / "dataset.tar.gz"
                 res = helpers.download_file(
-                    archive_url,
+                    str(archive_url),
                     dset_path,
                     show_progress_bar=True,
                     progress_bar_desc=progress_bar_desc,
@@ -201,7 +203,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             with tempfile.TemporaryDirectory() as tmp_dir:
                 dset_path = Path(tmp_dir) / "dataset.json"
                 helpers.download_file(
-                    snapshot_url,
+                    str(snapshot_url),
                     dset_path,
                     show_progress_bar=True,
                     progress_bar_desc=progress_bar_desc,

@@ -78,6 +78,12 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         )
 
 
+@pytest.mark.slow
+def test_from_web():
+    dset = CCDataset.from_web()
+    assert len(dset) > 6000
+
+
 def test_dataset_to_json(toy_dataset: CCDataset, data_dir: Path, tmp_path: Path):
     toy_dataset.to_json(tmp_path / "dset.json")
 

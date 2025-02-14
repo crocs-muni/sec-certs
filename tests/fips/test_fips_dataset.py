@@ -35,6 +35,12 @@ def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Pat
     assert data == template_data
 
 
+@pytest.mark.slow
+def test_from_web():
+    dset = FIPSDataset.from_web()
+    assert len(dset) > 4000
+
+
 def test_dataset_from_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):
     assert toy_dataset == FIPSDataset.from_json(data_dir / "toy_dataset.json")
 

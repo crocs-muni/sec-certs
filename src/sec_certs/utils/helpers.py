@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import re
+import shutil
 import time
 from collections.abc import Collection
 from contextlib import nullcontext
@@ -28,7 +30,72 @@ _PROXIES = {
 }
 
 
-def download_file(
+def tempdirs() -> list[str]:
+    """Get a list of potential temporary directory bases, as tempfile.gettempdir() does."""
+    dirlist = []
+
+    # First, try the environment.
+    for envname in "TMPDIR", "TEMP", "TMP":
+        dirname = os.getenv(envname)
+        if dirname:
+            dirlist.append(dirname)
+
+    # Failing that, try OS-specific locations.
+    if os.name == "nt":
+        dirlist.extend(
+            [
+                str(Path(r"~\AppData\Local\Temp").expanduser()),
+                os.path.expandvars(r"%SYSTEMROOT%\Temp"),
+                r"c:\temp",
+                r"c:\tmp",
+                r"\temp",
+                r"\tmp",
+            ]
+        )
+    else:
+        dirlist.extend(["/tmp", "/var/tmp", "/usr/tmp"])
+
+    # As a last resort, the current directory.
+    try:
+        dirlist.append(str(Path.cwd()))
+    except (AttributeError, OSError):
+        dirlist.append(os.curdir)
+
+    return dirlist
+
+
+def tempdir_for(size: int) -> str:
+    """
+    Find a temporary directory base that fits the given size.
+
+    :param size: the minimum size required
+    :returns: the name of the directory
+    :raises OSError: if no suitable temporary directory is found
+    """
+    for dirname in tempdirs():
+        try:
+            usage = shutil.disk_usage(dirname)
+        except OSError:
+            continue
+        if usage.free > size:
+            return dirname
+    raise OSError("No suitable temporary directory found with enough space")
+
+
+def query_file_size(url: str) -> int | None:
+    """Use a HEAD request to query the file size of a remote file."""
+    try:
+        r = requests.head(url, timeout=constants.REQUEST_TIMEOUT)
+        if r.status_code == requests.codes.ok:
+            return int(r.headers.get("content-length", 0))
+    except requests.exceptions.Timeout:
+        return None
+    except Exception as e:
+        logger.error(f"Failed to query file size from {url}; {e}")
+    return None
+
+
+def download_file(  # noqa: C901
     url: str,
     output: Path,
     delay: float = 0,
@@ -36,13 +103,17 @@ def download_file(
     progress_bar_desc: str | None = None,
     proxy: bool = False,
 ) -> str | int:
+    """Download a file from a URL to a local path."""
     try:
-        time.sleep(delay)
+        proxied = False
         if proxy:
             for upstream in _PROXIES:
                 if upstream in url:
+                    proxied = True
                     url = url.replace(upstream, _PROXIES[upstream])
                     break
+        if not proxied:
+            time.sleep(delay)
         # See https://github.com/psf/requests/issues/3953 for header justification
         r = requests.get(
             url,
