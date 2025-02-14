@@ -7,7 +7,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 from urllib.parse import unquote_plus, urlparse
 
 import numpy as np
@@ -677,6 +677,22 @@ class CCCertificate(
             self.state.cert.txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
 
     @staticmethod
+    def _download_pdf(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]):
+        link = getattr(cert, f"{doc_type}_link")
+        doc_state = getattr(cert.state, doc_type)
+        exit_code = helpers.download_file(link, doc_state.pdf_path, proxy=config.cc_use_proxy) if link else "No link"
+
+        if exit_code != requests.codes.ok:
+            error_msg = f"failed to download {doc_type} from {link}, code: {exit_code}"
+            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
+            doc_state.download_ok = False
+        else:
+            doc_state.download_ok = True
+            doc_state.pdf_hash = helpers.get_sha256_filepath(doc_state.pdf_path)
+            setattr(cert.pdf_data, f"{doc_type}_filename", unquote_plus(str(urlparse(link).path).split("/")[-1]))
+        return cert
+
+    @staticmethod
     def download_pdf_report(cert: CCCertificate) -> CCCertificate:
         """
         Downloads pdf of certification report given the certificate. Staticmethod to allow for parallelization.
@@ -684,21 +700,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf report for
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int | None = (
-            helpers.download_file(cert.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy)
-            if cert.report_link
-            else "No link"
-        )
-
-        if exit_code != requests.codes.ok:
-            error_msg = f"failed to download report from {cert.report_link}, code: {exit_code}"
-            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.report.download_ok = False
-        else:
-            cert.state.report.download_ok = True
-            cert.state.report.pdf_hash = helpers.get_sha256_filepath(cert.state.report.pdf_path)
-            cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.report_link).path).split("/")[-1])
-        return cert
+        return CCCertificate._download_pdf(cert, "report")
 
     @staticmethod
     def download_pdf_st(cert: CCCertificate) -> CCCertificate:
@@ -708,21 +710,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf security target for
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int | None = (
-            helpers.download_file(cert.st_link, cert.state.st.pdf_path, proxy=config.cc_use_proxy)
-            if cert.st_link
-            else "No link"
-        )
-
-        if exit_code != requests.codes.ok:
-            error_msg = f"failed to download ST from {cert.st_link}, code: {exit_code}"
-            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.st.download_ok = False
-        else:
-            cert.state.st.download_ok = True
-            cert.state.st.pdf_hash = helpers.get_sha256_filepath(cert.state.st.pdf_path)
-            cert.pdf_data.st_filename = unquote_plus(str(urlparse(cert.st_link).path).split("/")[-1])
-        return cert
+        return CCCertificate._download_pdf(cert, "st")
 
     @staticmethod
     def download_pdf_cert(cert: CCCertificate) -> CCCertificate:
@@ -732,20 +720,21 @@ class CCCertificate(
         :param CCCertificate cert: cert to download the pdf of
         :return CCCertificate: returns the modified certificate with updated state
         """
-        exit_code: str | int | None = (
-            helpers.download_file(cert.cert_link, cert.state.cert.pdf_path, proxy=config.cc_use_proxy)
-            if cert.cert_link
-            else "No link"
-        )
+        return CCCertificate._download_pdf(cert, "cert")
 
-        if exit_code != requests.codes.ok:
-            error_msg = f"failed to download certificate from {cert.cert_link}, code: {exit_code}"
+    @staticmethod
+    def _convert_pdf(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
+        doc_state = getattr(cert.state, doc_type)
+        ocr_done, ok_result = convert_pdf_file(doc_state.pdf_path, doc_state.txt_path)
+        # If OCR was done the result was garbage
+        doc_state.convert_garbage = ocr_done
+        # And put the whole result into convert_ok
+        doc_state.convert_ok = ok_result
+        if not ok_result:
+            error_msg = f"failed to convert {doc_type} pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-            cert.state.cert.download_ok = False
         else:
-            cert.state.cert.download_ok = True
-            cert.state.cert.pdf_hash = helpers.get_sha256_filepath(cert.state.cert.pdf_path)
-            cert.pdf_data.cert_filename = unquote_plus(str(urlparse(cert.cert_link).path).split("/")[-1])
+            doc_state.txt_hash = helpers.get_sha256_filepath(doc_state.txt_path)
         return cert
 
     @staticmethod
@@ -756,17 +745,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to convert the pdf report for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.report.pdf_path, cert.state.report.txt_path)
-        # If OCR was done the result was garbage
-        cert.state.report.convert_garbage = ocr_done
-        # And put the whole result into convert_ok
-        cert.state.report.convert_ok = ok_result
-        if not ok_result:
-            error_msg = "failed to convert report pdf->txt"
-            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-        else:
-            cert.state.report.txt_hash = helpers.get_sha256_filepath(cert.state.report.txt_path)
-        return cert
+        return CCCertificate._convert_pdf(cert, "report")
 
     @staticmethod
     def convert_st_pdf(cert: CCCertificate) -> CCCertificate:
@@ -776,17 +755,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to convert the pdf security target for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.st.pdf_path, cert.state.st.txt_path)
-        # If OCR was done the result was garbage
-        cert.state.st.convert_garbage = ocr_done
-        # And put the whole result into convert_ok
-        cert.state.st.convert_ok = ok_result
-        if not ok_result:
-            error_msg = "failed to convert security target pdf->txt"
-            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-        else:
-            cert.state.st.txt_hash = helpers.get_sha256_filepath(cert.state.st.txt_path)
-        return cert
+        return CCCertificate._convert_pdf(cert, "st")
 
     @staticmethod
     def convert_cert_pdf(cert: CCCertificate) -> CCCertificate:
@@ -796,16 +765,17 @@ class CCCertificate(
         :param CCCertificate cert: cert to convert the certificate for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.cert.pdf_path, cert.state.cert.txt_path)
-        # If OCR was done the result was garbage
-        cert.state.cert.convert_garbage = ocr_done
-        # And put the whole result into convert_ok
-        cert.state.cert.convert_ok = ok_result
-        if not ok_result:
-            error_msg = "failed to convert security target pdf->txt"
-            logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
-        else:
-            cert.state.cert.txt_hash = helpers.get_sha256_filepath(cert.state.cert.txt_path)
+        return CCCertificate._convert_pdf(cert, "cert")
+
+    @staticmethod
+    def _extract_pdf_metadata(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
+        doc_state = getattr(cert.state, doc_type)
+        try:
+            metadata = extract_pdf_metadata(doc_state.pdf_path)
+            setattr(cert.pdf_data, f"{doc_type}_metadata", metadata)
+            doc_state.extract_ok = True
+        except ValueError:
+            doc_state.extract_ok = False
         return cert
 
     @staticmethod
@@ -816,12 +786,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        try:
-            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.pdf_path)
-            cert.state.report.extract_ok = True
-        except ValueError:
-            cert.state.report.extract_ok = False
-        return cert
+        return CCCertificate._extract_pdf_metadata(cert, "report")
 
     @staticmethod
     def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
@@ -831,12 +796,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        try:
-            cert.pdf_data.st_metadata = extract_pdf_metadata(cert.state.st.pdf_path)
-            cert.state.st.extract_ok = True
-        except ValueError:
-            cert.state.st.extract_ok = False
-        return cert
+        return CCCertificate._extract_pdf_metadata(cert, "st")
 
     @staticmethod
     def extract_cert_pdf_metadata(cert: CCCertificate) -> CCCertificate:
@@ -846,12 +806,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        try:
-            cert.pdf_data.cert_metadata = extract_pdf_metadata(cert.state.cert.pdf_path)
-            cert.state.cert.extract_ok = True
-        except ValueError:
-            cert.state.cert.extract_ok = False
-        return cert
+        return CCCertificate._extract_pdf_metadata(cert, "cert")
 
     @staticmethod
     def extract_report_pdf_frontpage(cert: CCCertificate) -> CCCertificate:
@@ -872,6 +827,19 @@ class CCCertificate(
         return cert
 
     @staticmethod
+    def _extract_pdf_keywords(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
+        doc_state = getattr(cert.state, doc_type)
+        try:
+            keywords = extract_keywords(doc_state.txt_path, cc_rules)
+            if keywords is None:
+                doc_state.extract_ok = False
+            else:
+                setattr(cert.pdf_data, f"{doc_type}_keywords", keywords)
+        except ValueError:
+            doc_state.extract_ok = False
+        return cert
+
+    @staticmethod
     def extract_report_pdf_keywords(cert: CCCertificate) -> CCCertificate:
         """
         Matches regular expressions in txt obtained from certification report and extracts the matches into attribute.
@@ -880,12 +848,7 @@ class CCCertificate(
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        report_keywords = extract_keywords(cert.state.report.txt_path, cc_rules)
-        if report_keywords is None:
-            cert.state.report.extract_ok = False
-        else:
-            cert.pdf_data.report_keywords = report_keywords
-        return cert
+        return CCCertificate._extract_pdf_keywords(cert, "report")
 
     @staticmethod
     def extract_st_pdf_keywords(cert: CCCertificate) -> CCCertificate:
@@ -896,12 +859,7 @@ class CCCertificate(
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        st_keywords = extract_keywords(cert.state.st.txt_path, cc_rules)
-        if st_keywords is None:
-            cert.state.st.extract_ok = False
-        else:
-            cert.pdf_data.st_keywords = st_keywords
-        return cert
+        return CCCertificate._extract_pdf_keywords(cert, "st")
 
     @staticmethod
     def extract_cert_pdf_keywords(cert: CCCertificate) -> CCCertificate:
@@ -912,12 +870,7 @@ class CCCertificate(
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        cert_keywords = extract_keywords(cert.state.cert.txt_path, cc_rules)
-        if cert_keywords is None:
-            cert.state.cert.extract_ok = False
-        else:
-            cert.pdf_data.cert_keywords = cert_keywords
-        return cert
+        return CCCertificate._extract_pdf_keywords(cert, "cert")
 
     def compute_heuristics_cert_versions(self, cert_ids: dict[str, CertificateId | None]) -> None:  # noqa: C901
         """
