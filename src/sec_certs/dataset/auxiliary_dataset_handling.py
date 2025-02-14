@@ -178,7 +178,7 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
 class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
     def __init__(
         self,
-        aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        aux_datasets_dir: str | Path | None,
         only_schemes: set[str] | None = None,
     ):
         super().__init__(aux_datasets_dir)
@@ -209,7 +209,7 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
 
     def __init__(
         self,
-        aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        aux_datasets_dir: str | Path | None,
         certs_with_updates: Iterable[CCCertificate] | None = None,
     ) -> None:
         super().__init__(aux_datasets_dir)
@@ -254,9 +254,6 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
 
 class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
     RELATIVE_DIR: ClassVar[str] = "protection_profiles"
-
-    def __init__(self, aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH):
-        super().__init__(aux_datasets_dir)
 
     @property
     def dset_path(self) -> Path:
