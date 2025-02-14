@@ -11,8 +11,10 @@ import pytest
 import tests.data.fips.dataset
 
 from sec_certs import constants
+from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.utils import helpers
 
 
 @pytest.fixture(scope="module")
@@ -33,6 +35,18 @@ def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Pat
     del data["timestamp"]
     del template_data["timestamp"]
     assert data == template_data
+
+
+@pytest.mark.slow
+def test_from_web():
+    dset = FIPSDataset.from_web()
+    assert len(dset) > 4000
+
+
+def test_archive_fits():
+    fsize = helpers.query_file_size(config.fips_latest_full_archive)
+    tmpdir = helpers.tempdir_for(fsize)
+    assert tmpdir is not None
 
 
 def test_dataset_from_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Path):

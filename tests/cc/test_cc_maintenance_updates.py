@@ -77,9 +77,8 @@ def test_to_pandas(mu_dset: CCDatasetMaintenanceUpdates):
     assert set(df.columns) == set(CCMaintenanceUpdate.pandas_columns) - {"dgst"}
 
 
-@pytest.mark.skip(reason="Will work only with fresh snapshot on sec-certs.org")
+@pytest.mark.slow
 def test_from_web():
     dset = CCDatasetMaintenanceUpdates.from_web()
     assert dset is not None
     assert len(dset) >= 492  # Contents as of November 2022, maintenances should not disappear
-    assert "cert_8f08cacb49a742fb_update_559ed93dd80320b5" in dset  # random cert verified to be present

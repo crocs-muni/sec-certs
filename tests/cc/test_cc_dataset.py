@@ -6,14 +6,13 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from sec_certs import constants
-from sec_certs.dataset import ProtectionProfileDataset
+from sec_certs.configuration import config
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.utils import helpers
 
 
 def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
-    for cert in toy_dataset:
-        print(cert.dgst, cert.old_dgst, cert.older_dgst)
     template_report_pdf_hashes = {
         "e3dcf91ef38ddbf0": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
         "ed7611868f0f9d97": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
@@ -78,6 +77,18 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         )
 
 
+@pytest.mark.slow
+def test_from_web():
+    dset = CCDataset.from_web()
+    assert len(dset) > 6000
+
+
+def test_archive_fits():
+    fsize = helpers.query_file_size(config.cc_latest_full_archive)
+    tmpdir = helpers.tempdir_for(fsize)
+    assert tmpdir is not None
+
+
 def test_dataset_to_json(toy_dataset: CCDataset, data_dir: Path, tmp_path: Path):
     toy_dataset.to_json(tmp_path / "dset.json")
 
@@ -132,22 +143,19 @@ def test_build_dataset(data_dir: Path, cert_one: CCCertificate, toy_dataset: CCD
 
 
 @pytest.mark.xfail(reason="May fail due to error on CC server")
-@pytest.mark.parametrize("dataset_class", ["CCDataset", "ProtectionProfileDataset"])
-def test_download_csv_html_files(dataset_class):
+def test_download_csv_html_files():
     with TemporaryDirectory() as tmp_dir:
-        constructor = CCDataset if dataset_class == "CCDataset" else ProtectionProfileDataset
-        min_html_size = constants.MIN_CC_HTML_SIZE if dataset_class == "CCDataset" else constants.MIN_PP_HTML_SIZE
-        dset = constructor(root_dir=Path(tmp_dir))
-        dset._download_html_resources(get_active=True, get_archived=False)
+        min_html_size = constants.MIN_CC_HTML_SIZE
+        dset = CCDataset(root_dir=Path(tmp_dir))
+        dset._download_csv_html_resources(get_active=True, get_archived=False)
 
         for x in dset.active_html_tuples:
             assert x[1].exists()
             assert x[1].stat().st_size >= min_html_size
 
-        if dataset_class == "CCDataset":
-            for x in dset.active_csv_tuples:
-                assert x[1].exists()
-                assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
+        for x in dset.active_csv_tuples:
+            assert x[1].exists()
+            assert x[1].stat().st_size >= constants.MIN_CC_CSV_SIZE
 
 
 def test_to_pandas(toy_dataset: CCDataset):

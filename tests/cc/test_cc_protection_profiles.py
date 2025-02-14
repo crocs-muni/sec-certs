@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
+from sec_certs import constants
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
 
@@ -68,6 +69,23 @@ def test_get_certs_from_web(pp_data_dir: Path, toy_pp_dataset: ProtectionProfile
         assert isinstance(cert.web_data.status, str)
         assert isinstance(cert.web_data.category, str)
         assert isinstance(cert.web_data.version, str)
+
+
+@pytest.mark.slow
+def test_from_web():
+    dset = ProtectionProfileDataset.from_web()
+    assert len(dset) > 400
+
+
+@pytest.mark.xfail(reason="May fail due to error on CC server")
+def test_download_html_files():
+    with TemporaryDirectory() as tmp_dir:
+        dset = ProtectionProfileDataset(root_dir=Path(tmp_dir))
+        dset._download_html_resources(get_active=True, get_archived=False)
+
+        for x in dset.active_html_tuples:
+            assert x[1].exists()
+            assert x[1].stat().st_size >= constants.MIN_PP_HTML_SIZE
 
 
 def test_download_and_convert_artifacts(toy_pp_dataset: ProtectionProfileDataset, tmpdir, pp_data_dir):

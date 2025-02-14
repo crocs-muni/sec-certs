@@ -67,7 +67,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         return bool(self._cpe_uri_to_cve_ids_lookup)
 
     @classmethod
-    def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> CVEDataset:
+    def from_web(cls, json_path: str | Path | None = None) -> CVEDataset:
         """
         Creates CVEDataset from NIST resources published on-line
 
@@ -87,8 +87,11 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
                 raise RuntimeError(f"Could not download CVEDataset from {config_module.config.cve_latest_snapshot}.")
             dset = cls.from_json(dset_path, is_compressed=True)
 
-        dset.json_path = json_path
-        dset.to_json()
+        if json_path:
+            dset.json_path = json_path
+            dset.to_json()
+        else:
+            dset.json_path = constants.DUMMY_NONEXISTING_PATH
         return dset
 
     def _get_cves_with_criteria_configurations(self) -> None:
