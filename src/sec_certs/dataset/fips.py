@@ -59,27 +59,32 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def __init__(
         self,
-        certs: dict[str, FIPSCertificate] = {},
+        certs: dict[str, FIPSCertificate] | None = None,
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] = {},
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        self.certs = certs
+        self.certs = certs if certs is not None else {}
         self.timestamp = datetime.datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
         self.description = description if description else datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
-        self.aux_handlers = aux_handlers
         self.root_dir = Path(root_dir)
-
-        if not self.aux_handlers:
-            self.aux_handlers[CPEDatasetHandler] = CPEDatasetHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[CVEDatasetHandler] = CVEDatasetHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[FIPSAlgorithmDatasetHandler] = FIPSAlgorithmDatasetHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[CPEMatchDictHandler] = CPEMatchDictHandler(self.auxiliary_datasets_dir)
+        self.aux_handlers = (
+            aux_handlers
+            if aux_handlers is not None
+            else {
+                CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir),
+                CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir),
+                FIPSAlgorithmDatasetHandler: FIPSAlgorithmDatasetHandler(self.auxiliary_datasets_dir),
+                CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir),
+            }
+        )
+        # Make sure that the auxiliary handlers (if supplied by the user) have the correct root_dir
+        self._set_local_paths()
 
     LIST_OF_CERTS_HTML: Final[dict[str, str]] = {
         "fips_modules_active.html": constants.FIPS_ACTIVE_MODULES_URL,
@@ -112,7 +117,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _extract_data_from_html_modules(self) -> None:
         """
         Extracts data from html module file
-        :param bool fresh: if all certs should be processed, or only the failed ones. Defaults to True
         """
         logger.info("Extracting data from html modules.")
         certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze()]

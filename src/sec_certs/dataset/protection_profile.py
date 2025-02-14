@@ -39,20 +39,20 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     def __init__(
         self,
-        certs: dict[str, ProtectionProfile] = {},
+        certs: dict[str, ProtectionProfile] | None = None,
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] = {},
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        self.certs = certs
+        self.certs = certs if certs is not None else {}
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__ + " dataset"
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
-        self.aux_handlers = aux_handlers
+        self.aux_handlers = aux_handlers if aux_handlers is not None else {}
         self.root_dir = Path(root_dir)
 
     @property

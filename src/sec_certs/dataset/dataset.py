@@ -51,22 +51,25 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     def __init__(
         self,
-        certs: dict[str, CertSubType] = {},
+        certs: dict[str, CertSubType] | None = None,
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
         state: DatasetInternalState | None = None,
-        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] = {},
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        self.certs = certs
+        # TODO: This is actually unused, none of the datasets call super().__init__.
+        self.certs = certs if certs is not None else {}
 
         self.timestamp = datetime.now()
         self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__.lower() + "_dataset"
         self.description = description if description else "No description provided"
         self.state = state if state else self.DatasetInternalState()
-        self.aux_handlers = aux_handlers
         self.root_dir = Path(root_dir)
+        self.aux_handlers = aux_handlers if aux_handlers is not None else {}
+        # Make sure that the auxiliary handlers (if supplied by the user) have the correct root_dir
+        self._set_local_paths()
 
     @property
     def root_dir(self) -> Path:
@@ -250,8 +253,9 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return dset
 
     def _set_local_paths(self) -> None:
-        for handler in self.aux_handlers.values():
-            handler.set_local_paths(self.auxiliary_datasets_dir)
+        if hasattr(self, "aux_handlers"):
+            for handler in self.aux_handlers.values():
+                handler.set_local_paths(self.auxiliary_datasets_dir)
 
     def move_dataset(self, new_root_dir: str | Path) -> None:
         """
