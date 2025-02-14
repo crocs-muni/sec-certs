@@ -6,8 +6,10 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from sec_certs import constants
+from sec_certs.configuration import config
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.utils import helpers
 
 
 def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
@@ -79,6 +81,12 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
 def test_from_web():
     dset = CCDataset.from_web()
     assert len(dset) > 6000
+
+
+def test_archive_fits():
+    fsize = helpers.query_file_size(config.cc_latest_full_archive)
+    tmpdir = helpers.tempdir_for(fsize)
+    assert tmpdir is not None
 
 
 def test_dataset_to_json(toy_dataset: CCDataset, data_dir: Path, tmp_path: Path):
