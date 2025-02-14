@@ -9,7 +9,6 @@
     "certs_analyzed": false
   },
   "timestamp": "2020-11-16 17:04:14.770153",
-  "sha256_digest": "not implemented",
   "name": "toy dataset",
   "description": "toy dataset description",
   "n_certs": 3,

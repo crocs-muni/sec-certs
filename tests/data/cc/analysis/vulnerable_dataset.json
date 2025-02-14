@@ -9,7 +9,6 @@
         "certs_analyzed": false
     },
     "timestamp": "2021-04-16 15:05:18.386794",
-    "sha256_digest": "not implemented",
     "name": "cc_full_dataset",
     "description": "sample dataset description",
     "n_certs": 2,

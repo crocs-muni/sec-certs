@@ -9,7 +9,6 @@
         "certs_analyzed": false
     },
     "timestamp": "2025-01-25 17:39:26.873380",
-    "sha256_digest": "not implemented",
     "name": "ProtectionProfileDataset dataset",
     "description": "25/01/2025 17:39:26",
     "n_certs": 3,

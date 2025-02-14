@@ -58,11 +58,10 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         state: DatasetInternalState | None = None,
         aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        # TODO: This is actually unused, none of the datasets call super().__init__.
+        super().__init__()
         self.certs = certs if certs is not None else {}
 
         self.timestamp = datetime.now()
-        self.sha256_digest = "not implemented"
         self.name = name if name else type(self).__name__
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
@@ -225,7 +224,6 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return {
             "state": self.state,
             "timestamp": self.timestamp,
-            "sha256_digest": self.sha256_digest,
             "name": self.name,
             "description": self.description,
             "n_certs": len(self),
