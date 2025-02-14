@@ -1,0 +1,19 @@
+{% extends "base.html.jinja2" %}
+{% block head %}
+    {# TODO: This template is not fully correct. The metas are duplicated. #}
+    {{ super() }}
+    {{ metas|safe }}
+    {{ favicon|safe }}
+    {{ css|safe }}
+{% endblock %}
+{% block content %}
+    <div class="col-10 mx-auto p-3 py-md-5">
+        {{ app_entry|safe }}
+    </div>
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+    {{ config|safe }}
+    {{ scripts|safe }}
+    {{ renderer|safe }}
+{% endblock %}
