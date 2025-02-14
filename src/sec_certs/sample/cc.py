@@ -14,8 +14,6 @@ import numpy as np
 import requests
 from bs4 import Tag
 
-import sec_certs.utils.extract
-import sec_certs.utils.pdf
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
@@ -28,7 +26,8 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
-from sec_certs.utils.extract import normalize_match_string, scheme_frontpage_functions
+from sec_certs.utils.extract import extract_keywords, normalize_match_string, scheme_frontpage_functions
+from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
 
 
 class CCCertificate(
@@ -756,9 +755,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to convert the pdf report for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
-            cert.state.report.pdf_path, cert.state.report.txt_path
-        )
+        ocr_done, ok_result = convert_pdf_file(cert.state.report.pdf_path, cert.state.report.txt_path)
         # If OCR was done the result was garbage
         cert.state.report.convert_garbage = ocr_done
         # And put the whole result into convert_ok
@@ -778,7 +775,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to convert the pdf security target for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.st.pdf_path, cert.state.st.txt_path)
+        ocr_done, ok_result = convert_pdf_file(cert.state.st.pdf_path, cert.state.st.txt_path)
         # If OCR was done the result was garbage
         cert.state.st.convert_garbage = ocr_done
         # And put the whole result into convert_ok
@@ -798,7 +795,7 @@ class CCCertificate(
         :param CCCertificate cert: cert to convert the certificate for
         :return CCCertificate: the modified certificate with updated state
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.cert.pdf_path, cert.state.cert.txt_path)
+        ocr_done, ok_result = convert_pdf_file(cert.state.cert.pdf_path, cert.state.cert.txt_path)
         # If OCR was done the result was garbage
         cert.state.cert.convert_garbage = ocr_done
         # And put the whole result into convert_ok
@@ -818,11 +815,11 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report.pdf_path)
-        if response != constants.RETURNCODE_OK:
-            cert.state.report.extract_ok = False
-        else:
+        try:
+            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.pdf_path)
             cert.state.report.extract_ok = True
+        except ValueError:
+            cert.state.report.extract_ok = False
         return cert
 
     @staticmethod
@@ -833,11 +830,11 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        response, cert.pdf_data.st_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.st.pdf_path)
-        if response != constants.RETURNCODE_OK:
-            cert.state.st.extract_ok = False
-        else:
+        try:
+            cert.pdf_data.st_metadata = extract_pdf_metadata(cert.state.st.pdf_path)
             cert.state.st.extract_ok = True
+        except ValueError:
+            cert.state.st.extract_ok = False
         return cert
 
     @staticmethod
@@ -848,11 +845,11 @@ class CCCertificate(
         :param CCCertificate cert: cert to extract the metadata for.
         :return CCCertificate: the modified certificate with updated state
         """
-        response, cert.pdf_data.cert_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.cert.pdf_path)
-        if response != constants.RETURNCODE_OK:
-            cert.state.cert.extract_ok = False
-        else:
+        try:
+            cert.pdf_data.cert_metadata = extract_pdf_metadata(cert.state.cert.pdf_path)
             cert.state.cert.extract_ok = True
+        except ValueError:
+            cert.state.cert.extract_ok = False
         return cert
 
     @staticmethod
@@ -867,8 +864,9 @@ class CCCertificate(
 
         if cert.scheme in scheme_frontpage_functions:
             header_func = scheme_frontpage_functions[cert.scheme]
-            response, cert.pdf_data.report_frontpage[cert.scheme] = header_func(cert.state.report.txt_path)
-            if response != constants.RETURNCODE_OK:
+            try:
+                cert.pdf_data.report_frontpage[cert.scheme] = header_func(cert.state.report.txt_path)
+            except ValueError:
                 cert.state.report.extract_ok = False
         return cert
 
@@ -881,7 +879,7 @@ class CCCertificate(
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report.txt_path, cc_rules)
+        report_keywords = extract_keywords(cert.state.report.txt_path, cc_rules)
         if report_keywords is None:
             cert.state.report.extract_ok = False
         else:
@@ -897,7 +895,7 @@ class CCCertificate(
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        st_keywords = sec_certs.utils.extract.extract_keywords(cert.state.st.txt_path, cc_rules)
+        st_keywords = extract_keywords(cert.state.st.txt_path, cc_rules)
         if st_keywords is None:
             cert.state.st.extract_ok = False
         else:
@@ -913,7 +911,7 @@ class CCCertificate(
         :param CCCertificate cert: certificate to extract the keywords for.
         :return CCCertificate: the modified certificate with extracted keywords.
         """
-        cert_keywords = sec_certs.utils.extract.extract_keywords(cert.state.cert.txt_path, cc_rules)
+        cert_keywords = extract_keywords(cert.state.cert.txt_path, cc_rules)
         if cert_keywords is None:
             cert.state.cert.extract_ok = False
         else:

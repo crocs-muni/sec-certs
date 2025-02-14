@@ -23,8 +23,9 @@ from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.cpe import CPE
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-from sec_certs.utils import extract, helpers, pdf, tables
+from sec_certs.utils import extract, helpers, tables
 from sec_certs.utils.helpers import fips_dgst
+from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata, repair_pdf
 
 
 class FIPSHTMLParser:
@@ -590,7 +591,7 @@ class FIPSCertificate(
         """
         Converts policy pdf -> txt
         """
-        ocr_done, ok_result = pdf.convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path)
+        ocr_done, ok_result = convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path)
 
         # If OCR was done and the result was garbage
         cert.state.policy_convert_garbage = ocr_done
@@ -610,12 +611,9 @@ class FIPSCertificate(
         """
         Extract the PDF metadata from the security policy.
         """
-        _, metadata = pdf.extract_pdf_metadata(cert.state.policy_pdf_path)
-
-        if metadata:
-            cert.pdf_data.policy_metadata = metadata
-        else:
-            cert.pdf_data.policy_metadata = {}
+        try:
+            cert.pdf_data.policy_metadata = extract_pdf_metadata(cert.state.policy_pdf_path)
+        except ValueError:
             cert.state.policy_extract_ok = False
         return cert
 
@@ -640,7 +638,7 @@ class FIPSCertificate(
         from tabula import read_pdf
 
         if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy_txt_path):
-            pdf.repair_pdf(cert.state.policy_pdf_path)
+            repair_pdf(cert.state.policy_pdf_path)
             try:
                 tabular_data = read_pdf(cert.state.policy_pdf_path, pages=list(table_rich_page_numbers), silent=True)
                 cert.heuristics.algorithms |= set(

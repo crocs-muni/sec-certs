@@ -9,8 +9,6 @@ from urllib.parse import unquote_plus, urlparse
 import requests
 from bs4 import Tag
 
-import sec_certs.utils.extract
-import sec_certs.utils.pdf
 from sec_certs import constants
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
@@ -20,6 +18,8 @@ from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
+from sec_certs.utils.extract import extract_keywords
+from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
 
 
 class ProtectionProfile(
@@ -301,9 +301,7 @@ class ProtectionProfile(
         """
         Converts certification reports from pdf to txt.
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(
-            cert.state.report.pdf_path, cert.state.report.txt_path
-        )
+        ocr_done, ok_result = convert_pdf_file(cert.state.report.pdf_path, cert.state.report.txt_path)
         cert.state.report.convert_garbage = ocr_done
         cert.state.report.convert_ok = ok_result
         if not ok_result:
@@ -317,7 +315,7 @@ class ProtectionProfile(
         """
         Converts the actual protection profile from pdf to txt.
         """
-        ocr_done, ok_result = sec_certs.utils.pdf.convert_pdf_file(cert.state.pp.pdf_path, cert.state.pp.txt_path)
+        ocr_done, ok_result = convert_pdf_file(cert.state.pp.pdf_path, cert.state.pp.txt_path)
         cert.state.pp.convert_garbage = ocr_done
         cert.state.pp.convert_ok = ok_result
         if not ok_result:
@@ -331,8 +329,11 @@ class ProtectionProfile(
         """
         Extracts various pdf metadata from the certification report.
         """
-        response, cert.pdf_data.report_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.report.pdf_path)
-        cert.state.report.extract_ok = response == constants.RETURNCODE_OK
+        try:
+            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.pdf_path)
+            cert.state.report.extract_ok = True
+        except ValueError:
+            cert.state.report.extract_ok = False
         return cert
 
     @staticmethod
@@ -340,8 +341,12 @@ class ProtectionProfile(
         """
         Extracts various pdf metadata from the actual protection profile.
         """
-        response, cert.pdf_data.pp_metadata = sec_certs.utils.pdf.extract_pdf_metadata(cert.state.pp.pdf_path)
-        cert.state.pp.extract_ok = response == constants.RETURNCODE_OK
+        try:
+            cert.pdf_data.pp_metadata = extract_pdf_metadata(cert.state.pp.pdf_path)
+            cert.state.pp.extract_ok = True
+        except ValueError:
+            cert.state.pp.extract_ok = False
+
         return cert
 
     @staticmethod
@@ -349,7 +354,7 @@ class ProtectionProfile(
         """
         Extracts keywords using regexes from the certification report.
         """
-        report_keywords = sec_certs.utils.extract.extract_keywords(cert.state.report.txt_path, cc_rules)
+        report_keywords = extract_keywords(cert.state.report.txt_path, cc_rules)
         if report_keywords is None:
             cert.state.report.extract_ok = False
         else:
@@ -361,7 +366,7 @@ class ProtectionProfile(
         """
         Extracts keywords using regexes from the actual protection profile.
         """
-        pp_keywords = sec_certs.utils.extract.extract_keywords(cert.state.pp.txt_path, cc_rules)
+        pp_keywords = extract_keywords(cert.state.pp.txt_path, cc_rules)
         if pp_keywords is None:
             cert.state.pp.extract_ok = False
         else:

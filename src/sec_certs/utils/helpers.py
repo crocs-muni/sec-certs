@@ -142,13 +142,12 @@ def download_file(  # noqa: C901
                     if show_progress_bar:
                         pbar.update(len(data))
 
-            return r.status_code
+        return r.status_code
     except requests.exceptions.Timeout:
         return requests.codes.timeout
     except Exception as e:
         logger.error(f"Failed to download from {url}; {e}")
         return constants.RETURNCODE_NOK
-    return constants.RETURNCODE_NOK
 
 
 def download_parallel(

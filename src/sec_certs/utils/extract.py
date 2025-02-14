@@ -267,19 +267,9 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
         error_msg = f"Failed to parse ANSSI frontpage headers from {relative_filepath}; {e}"
         logger.error(error_msg)
-        return error_msg, None
+        raise ValueError(error_msg) from e
 
-    # if True:
-    #     print('# hits for rule')
-    #     sorted_rules = sorted(num_rules_hits.items(),
-    #                           key=operator.itemgetter(1), reverse=True)
-    #     used_rules = []
-    #     for rule in sorted_rules:
-    #         print('{:4d} : {}'.format(rule[1], rule[0]))
-    #         if rule[1] > 0:
-    #             used_rules.append(rule[0])
-
-    return constants.RETURNCODE_OK, items_found
+    return items_found
 
 
 def search_only_headers_bsi(filepath: Path):  # noqa: C901
@@ -376,9 +366,9 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
         error_msg = f"Failed to parse BSI headers from frontpage: {relative_filepath}; {e}"
         logger.error(error_msg)
-        return error_msg, None
+        raise ValueError(error_msg) from e
 
-    return constants.RETURNCODE_OK, items_found
+    return items_found
 
 
 def search_only_headers_nscib(filepath: Path):  # noqa: C901
@@ -456,9 +446,9 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
     except Exception as e:
         error_msg = f"Failed to parse NSCIB headers from frontpage: {filepath}; {e}"
         logger.error(error_msg)
-        return error_msg, None
+        raise ValueError(error_msg) from e
 
-    return constants.RETURNCODE_OK, items_found
+    return items_found
 
 
 def search_only_headers_niap(filepath: Path):
@@ -507,9 +497,9 @@ def search_only_headers_niap(filepath: Path):
     except Exception as e:
         error_msg = f"Failed to parse NIAP headers from frontpage: {filepath}; {e}"
         logger.error(error_msg)
-        return error_msg, None
+        raise ValueError(error_msg) from e
 
-    return constants.RETURNCODE_OK, items_found
+    return items_found
 
 
 def search_only_headers_canada(filepath: Path):  # noqa: C901
@@ -580,9 +570,9 @@ def search_only_headers_canada(filepath: Path):  # noqa: C901
     except Exception as e:
         error_msg = f"Failed to parse Canada headers from frontpage: {filepath}; {e}"
         logger.error(error_msg)
-        return error_msg, None
+        raise ValueError(error_msg) from e
 
-    return constants.RETURNCODE_OK, items_found
+    return items_found
 
 
 def flatten_matches(dct: dict) -> dict:

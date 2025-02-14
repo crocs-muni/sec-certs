@@ -13,7 +13,6 @@ import pikepdf
 import pytesseract
 from PIL import Image
 
-from sec_certs import constants
 from sec_certs.constants import (
     GARBAGE_ALPHA_CHARS_THRESHOLD,
     GARBAGE_AVG_LLEN_THRESHOLD,
@@ -151,7 +150,7 @@ def parse_pdf_date(dateval: bytes | None) -> datetime | None:
         return None
 
 
-def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  # noqa: C901
+def extract_pdf_metadata(filepath: Path) -> dict[str, Any]:  # noqa: C901
     """
     Extract PDF metadata, such as the number of pages, author, title, etc.
 
@@ -237,9 +236,9 @@ def extract_pdf_metadata(filepath: Path) -> tuple[str, dict[str, Any] | None]:  
         relative_filepath = "/".join(str(filepath).split("/")[-4:])
         error_msg = f"Failed to read metadata of {relative_filepath}, error: {e}"
         logger.error(error_msg)
-        return error_msg, None
+        raise ValueError(error_msg)
 
-    return constants.RETURNCODE_OK, metadata
+    return metadata
 
 
 def text_is_garbage(text: str) -> bool:
@@ -274,7 +273,7 @@ def text_is_garbage(text: str) -> bool:
     # If the average length of a line is small, this is garbage.
     if avg_line_len < GARBAGE_AVG_LLEN_THRESHOLD:
         return True
-    # If there a small amount of lines that have more than one character at every second character, this is garbage.
+    # If there is a small amount of lines that have more than one character at every second character, this is garbage.
     # This detects the ANSSI spacing issues.
     if every_second < GARBAGE_EVERY_SECOND_CHAR_THRESHOLD:
         return True
