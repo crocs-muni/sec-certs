@@ -8,16 +8,16 @@ attrs==25.1.0
     # via
     #   jsonschema
     #   referencing
-beautifulsoup4==4.12.3
-    # via sec-certs (./../pyproject.toml)
-blis==1.2.0
+beautifulsoup4==4.13.3
+    # via sec-certs (../pyproject.toml)
+blis==0.7.11
     # via thinc
 catalogue==2.0.10
     # via
     #   spacy
     #   srsly
     #   thinc
-certifi==2024.12.14
+certifi==2025.1.31
     # via requests
 cffi==1.17.1
     # via cryptography
@@ -25,7 +25,7 @@ charset-normalizer==3.4.1
     # via requests
 click==8.1.8
     # via
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
     #   typer
 cloudpathlib==0.20.0
     # via weasel
@@ -39,7 +39,7 @@ confection==0.1.5
     #   weasel
 contourpy==1.3.1
     # via matplotlib
-cryptography==44.0.0
+cryptography==44.0.1
     # via pypdf
 cycler==0.12.1
     # via matplotlib
@@ -48,8 +48,8 @@ cymem==2.0.11
     #   preshed
     #   spacy
     #   thinc
-dateparser==1.2.0
-    # via sec-certs (./../pyproject.toml)
+dateparser==1.2.1
+    # via sec-certs (../pyproject.toml)
 debugpy==1.8.12
     # via ipykernel
 decorator==5.1.1
@@ -60,20 +60,20 @@ distro==1.9.0
     # via tabula-py
 executing==2.2.0
     # via stack-data
-fonttools==4.55.6
+fonttools==4.56.0
     # via matplotlib
 html5lib==1.1
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 idna==3.10
     # via requests
 ipykernel==6.29.5
-    # via sec-certs (./../pyproject.toml)
-ipython==8.31.0
+    # via sec-certs (../pyproject.toml)
+ipython==8.32.0
     # via
     #   ipykernel
     #   ipywidgets
 ipywidgets==8.1.5
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 jedi==0.19.2
     # via ipython
 jinja2==3.1.5
@@ -81,7 +81,7 @@ jinja2==3.1.5
 joblib==1.4.2
     # via scikit-learn
 jsonschema==4.23.0
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 jsonschema-specifications==2024.10.1
     # via jsonschema
 jupyter-client==8.6.3
@@ -98,10 +98,10 @@ langcodes==3.5.0
     # via spacy
 language-data==1.3.0
     # via langcodes
-lxml==5.3.0
+lxml==5.3.1
     # via
     #   pikepdf
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 marisa-trie==1.2.1
     # via language-data
 markdown-it-py==3.0.0
@@ -112,7 +112,7 @@ matplotlib==3.10.0
     # via
     #   pysankeybeta
     #   seaborn
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 matplotlib-inline==0.1.7
     # via
     #   ipykernel
@@ -127,8 +127,8 @@ murmurhash==1.0.12
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.4.2
-    # via sec-certs (./../pyproject.toml)
-numpy==2.2.2
+    # via sec-certs (../pyproject.toml)
+numpy==1.26.4
     # via
     #   blis
     #   contourpy
@@ -138,7 +138,7 @@ numpy==2.2.2
     #   scikit-learn
     #   scipy
     #   seaborn
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
     #   spacy
     #   tabula-py
     #   thinc
@@ -156,24 +156,24 @@ pandas==2.2.3
     # via
     #   pysankeybeta
     #   seaborn
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
     #   tabula-py
 parso==0.8.4
     # via jedi
 pdftotext==3.0.0
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 pexpect==4.9.0
     # via ipython
-pikepdf==9.5.1
-    # via sec-certs (./../pyproject.toml)
+pikepdf==9.5.2
+    # via sec-certs (../pyproject.toml)
 pillow==11.1.0
     # via
     #   matplotlib
     #   pikepdf
     #   pytesseract
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 pkgconfig==1.5.5
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 platformdirs==4.3.6
     # via jupyter-core
 preshed==3.0.9
@@ -182,10 +182,10 @@ preshed==3.0.9
     #   thinc
 prompt-toolkit==3.0.50
     # via ipython
-psutil==6.1.1
+psutil==7.0.0
     # via
     #   ipykernel
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
@@ -196,49 +196,47 @@ pydantic==2.10.6
     # via
     #   confection
     #   pydantic-settings
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
     #   spacy
     #   thinc
     #   weasel
 pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.7.1
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 pygments==2.19.1
     # via
     #   ipython
     #   rich
 pyparsing==3.2.1
     # via matplotlib
-pypdf[crypto]==5.2.0
-    # via
-    #   pypdf
-    #   sec-certs (./../pyproject.toml)
+pypdf[crypto]==5.3.0
+    # via sec-certs (../pyproject.toml)
 pysankeybeta==1.4.2
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 pytesseract==0.3.13
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 python-dateutil==2.9.0.post0
     # via
     #   dateparser
     #   jupyter-client
     #   matplotlib
     #   pandas
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 python-dotenv==1.0.1
     # via pydantic-settings
-pytz==2024.2
+pytz==2025.1
     # via
     #   dateparser
     #   pandas
 pyyaml==6.0.2
-    # via sec-certs (./../pyproject.toml)
-pyzmq==26.2.0
+    # via sec-certs (../pyproject.toml)
+pyzmq==26.2.1
     # via
     #   ipykernel
     #   jupyter-client
-rapidfuzz==3.11.0
-    # via sec-certs (./../pyproject.toml)
+rapidfuzz==3.12.1
+    # via sec-certs (../pyproject.toml)
 referencing==0.36.2
     # via
     #   jsonschema
@@ -247,7 +245,7 @@ regex==2024.11.6
     # via dateparser
 requests==2.32.3
     # via
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
     #   spacy
     #   weasel
 rich==13.9.4
@@ -257,17 +255,17 @@ rpds-py==0.22.3
     #   jsonschema
     #   referencing
 scikit-learn==1.6.1
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 scipy==1.15.1
     # via
     #   scikit-learn
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 seaborn==0.13.2
     # via
     #   pysankeybeta
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
 setuptools-scm==8.1.0
-    # via sec-certs (./../pyproject.toml)
+    # via sec-certs (../pyproject.toml)
 shellingham==1.5.4
     # via typer
 six==1.17.0
@@ -278,8 +276,8 @@ smart-open==7.1.0
     # via weasel
 soupsieve==2.6
     # via beautifulsoup4
-spacy==3.8.4
-    # via sec-certs (./../pyproject.toml)
+spacy==3.7.5
+    # via sec-certs (../pyproject.toml)
 spacy-legacy==3.0.12
     # via spacy
 spacy-loggers==1.0.5
@@ -293,8 +291,8 @@ srsly==2.5.1
 stack-data==0.6.3
     # via ipython
 tabula-py==2.10.0
-    # via sec-certs (./../pyproject.toml)
-thinc==8.3.4
+    # via sec-certs (../pyproject.toml)
+thinc==8.2.5
     # via spacy
 threadpoolctl==3.5.0
     # via scikit-learn
@@ -304,7 +302,7 @@ tornado==6.4.2
     #   jupyter-client
 tqdm==4.67.1
     # via
-    #   sec-certs (./../pyproject.toml)
+    #   sec-certs (../pyproject.toml)
     #   spacy
 traitlets==5.14.3
     # via
@@ -321,6 +319,7 @@ typer==0.15.1
     #   weasel
 typing-extensions==4.12.2
     # via
+    #   beautifulsoup4
     #   ipython
     #   pydantic
     #   pydantic-core
@@ -328,7 +327,7 @@ typing-extensions==4.12.2
     #   typer
 tzdata==2025.1
     # via pandas
-tzlocal==5.2
+tzlocal==5.3
     # via dateparser
 urllib3==2.3.0
     # via requests
