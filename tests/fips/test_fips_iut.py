@@ -33,6 +33,7 @@ def test_iut_dataset_from_dumps(data_dir: Path):
     assert len(dset) == 2
 
 
+@pytest.mark.xfail(reason="May fail due to network issues.")
 def test_iut_dataset_from_web():
     assert IUTDataset.from_web()
 

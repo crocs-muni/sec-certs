@@ -72,6 +72,7 @@ def test_get_certs_from_web(pp_data_dir: Path, toy_pp_dataset: ProtectionProfile
 
 
 @pytest.mark.slow
+@pytest.mark.xfail(reason="May fail due to network issues.")
 def test_from_web():
     dset = ProtectionProfileDataset.from_web()
     assert len(dset) > 400

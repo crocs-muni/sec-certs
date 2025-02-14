@@ -9,7 +9,6 @@
         "certs_analyzed": false
     },
     "timestamp": "2022-11-30 16:38:51.953055",
-    "sha256_digest": "not implemented",
     "name": "FIPSDataset dataset",
     "description": "30/11/2022 16:38:51",
     "n_certs": 22,

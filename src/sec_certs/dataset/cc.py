@@ -91,33 +91,23 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     def __init__(
         self,
-        certs: dict[str, CCCertificate] = {},
+        certs: dict[str, CCCertificate] | None = None,
         root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
-        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] = {},
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
-        self.certs = certs
-        self.timestamp = datetime.now()
-        self.sha256_digest = "not implemented"
-        self.name = name if name else type(self).__name__ + " dataset"
-        self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self.state = state if state else self.DatasetInternalState()
-        self.aux_handlers = aux_handlers
-        self.root_dir = Path(root_dir)
-
-        if not self.aux_handlers:
-            self.aux_handlers[CPEDatasetHandler] = CPEDatasetHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[CVEDatasetHandler] = CVEDatasetHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[CPEMatchDictHandler] = CPEMatchDictHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[CCSchemeDatasetHandler] = CCSchemeDatasetHandler(self.auxiliary_datasets_dir)
-            self.aux_handlers[ProtectionProfileDatasetHandler] = ProtectionProfileDatasetHandler(
-                self.auxiliary_datasets_dir
-            )
-            self.aux_handlers[CCMaintenanceUpdateDatasetHandler] = CCMaintenanceUpdateDatasetHandler(
-                self.auxiliary_datasets_dir
-            )
+        super().__init__(certs, root_dir, name, description, state, aux_handlers)
+        if aux_handlers is None:
+            self.aux_handlers = {
+                CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir),
+                CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir),
+                CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir),
+                CCSchemeDatasetHandler: CCSchemeDatasetHandler(self.auxiliary_datasets_dir),
+                ProtectionProfileDatasetHandler: ProtectionProfileDatasetHandler(self.auxiliary_datasets_dir),
+                CCMaintenanceUpdateDatasetHandler: CCMaintenanceUpdateDatasetHandler(self.auxiliary_datasets_dir),
+            }
 
     def to_pandas(self) -> pd.DataFrame:
         """
@@ -820,14 +810,13 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     # Quite difficult to achieve correct behaviour with MyPy here, opting for ignore
     def __init__(
         self,
-        certs: dict[str, CCMaintenanceUpdate] = {},  # type: ignore
+        certs: dict[str, CCMaintenanceUpdate] | None = None,  # type: ignore
         root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
         name: str = "dataset name",
         description: str = "dataset_description",
         state: CCDataset.DatasetInternalState | None = None,
     ):
-        super().__init__(certs, root_dir, name, description, state)  # type: ignore
-        self.aux_handlers = {}
+        super().__init__(certs, root_dir, name, description, state, aux_handlers={})  # type: ignore
         self.state.meta_sources_parsed = True
 
     @property

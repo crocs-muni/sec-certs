@@ -29,11 +29,11 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
 
     def __init__(
         self,
-        cves: dict[str, CVE] = {},
+        cves: dict[str, CVE] | None = None,
         json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
         last_update_timestamp: datetime = datetime.fromtimestamp(0),
     ):
-        self.cves = cves
+        self.cves = cves if cves is not None else {}
         self.json_path = Path(json_path)
         self._cpe_uri_to_cve_ids_lookup: dict[str, set[str]] = {}
         self._cves_with_vulnerable_configurations: list[CVE] = []
@@ -120,7 +120,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     def build_lookup_dict(
         self,
         cpe_match_feed: dict,
-        limit_to_cpes: set[CPE] = set(),
+        limit_to_cpes: set[CPE] | None = None,
     ):
         self._cpe_uri_to_cve_ids_lookup = {}
         cpe_uris_of_interest = {x.uri for x in limit_to_cpes} if limit_to_cpes else None

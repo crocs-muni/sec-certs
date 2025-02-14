@@ -31,11 +31,11 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
 
     def __init__(
         self,
-        cpes: dict[str, CPE] = {},
+        cpes: dict[str, CPE] | None = None,
         json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
         last_update_timestamp: datetime = datetime.fromtimestamp(0),
     ):
-        self.cpes = cpes
+        self.cpes = cpes if cpes is not None else {}
         self.json_path = Path(json_path)
         self.last_update_timestamp = last_update_timestamp
 

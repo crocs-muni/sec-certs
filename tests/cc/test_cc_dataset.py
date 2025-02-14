@@ -78,6 +78,7 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
 
 
 @pytest.mark.slow
+@pytest.mark.xfail(reason="May fail due to network issues.")
 def test_from_web():
     dset = CCDataset.from_web()
     assert len(dset) > 6000

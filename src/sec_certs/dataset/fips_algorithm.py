@@ -21,8 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
-    def __init__(self, algs: dict[str, FIPSAlgorithm] = {}, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
-        self.algs = algs
+    def __init__(
+        self, algs: dict[str, FIPSAlgorithm] | None = None, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH
+    ):
+        self.algs = algs if algs is not None else {}
         self.json_path = Path(json_path)
         self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = {}
 
