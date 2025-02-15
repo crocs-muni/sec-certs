@@ -61,6 +61,6 @@ class IUTDataset(JSONPathDataset, ComplexSerializableType):
         iut_resp = requests.get(config.fips_iut_dataset)
         if iut_resp.status_code != 200:
             raise ValueError(f"Getting IUT dataset failed: {iut_resp.status_code}")
-        with NamedTemporaryFile() as tmpfile:
+        with NamedTemporaryFile(suffix=".json") as tmpfile:
             tmpfile.write(iut_resp.content)
             return cls.from_json(tmpfile.name)

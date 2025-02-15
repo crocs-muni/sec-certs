@@ -33,6 +33,7 @@ def test_mip_dataset_from_dumps(data_dir: Path):
     assert len(dset) == 3
 
 
+@pytest.mark.xfail(reason="May fail due to network issues.")
 def test_mip_flows():
     dset = MIPDataset.from_web()
     assert dset.compute_flows()

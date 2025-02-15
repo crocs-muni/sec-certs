@@ -63,7 +63,7 @@ class MIPDataset(JSONPathDataset, ComplexSerializableType):
         mip_resp = requests.get(config.fips_mip_dataset)
         if mip_resp.status_code != 200:
             raise ValueError(f"Getting MIP dataset failed: {mip_resp.status_code}")
-        with NamedTemporaryFile() as tmpfile:
+        with NamedTemporaryFile(suffix=".json") as tmpfile:
             tmpfile.write(mip_resp.content)
             return cls.from_json(tmpfile.name)
 

@@ -260,7 +260,10 @@ class MIPSnapshot(ComplexSerializableType):
     @classmethod
     def from_web(cls) -> MIPSnapshot:
         """
-        Get a MIP snapshot from the FIPS website right now.
+        Fetch a fresh MIP snapshot from sec-certs.org, if the `preferred_source_remote_datasets` config
+        entry is equal to "sec-certs".
+
+        Otherwise, the same as `from_nist_web`.
         """
         if config.preferred_source_remote_datasets == "origin":
             return cls.from_nist_web()
@@ -268,6 +271,6 @@ class MIPSnapshot(ComplexSerializableType):
             mip_resp = requests.get(config.fips_mip_latest_snapshot)
             if mip_resp.status_code != 200:
                 raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
-            with NamedTemporaryFile() as tmpfile:
+            with NamedTemporaryFile(suffix=".json") as tmpfile:
                 tmpfile.write(mip_resp.content)
                 return cls.from_json(tmpfile.name)

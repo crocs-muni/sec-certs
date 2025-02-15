@@ -157,7 +157,7 @@ class IUTSnapshot(ComplexSerializableType):
     @classmethod
     def from_web(cls) -> IUTSnapshot:
         """
-        Fetch a fresh snapshot from sec-certs.org, if the `preferred_source_remote_datasets` config
+        Fetch a fresh IUT snapshot from sec-certs.org, if the `preferred_source_remote_datasets` config
         entry is equal to "sec-certs".
 
         Otherwise, the same as `from_nist_web`.
@@ -168,6 +168,6 @@ class IUTSnapshot(ComplexSerializableType):
             iut_resp = requests.get(config.fips_iut_latest_snapshot)
             if iut_resp.status_code != 200:
                 raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
-            with NamedTemporaryFile() as tmpfile:
+            with NamedTemporaryFile(suffix=".json") as tmpfile:
                 tmpfile.write(iut_resp.content)
                 return cls.from_json(tmpfile.name)
