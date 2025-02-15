@@ -39,7 +39,7 @@ def _entry_download_func(collection, hashid, dataset_path, document, format) -> 
                 return response
             else:
                 return send_file(file_path)
-    abort(404)
+    return abort(404)
 
 
 entry_download_report_pdf = partial(_entry_download_func, document="report", format="pdf")
@@ -105,10 +105,16 @@ def send_cacheable_instance_file(path: str, mimetype: str, download_name: str) -
     full_path = Path(current_app.instance_path) / path
     if not full_path.is_file():
         return abort(404)
-    resp = send_file(full_path, as_attachment=True, mimetype=mimetype, download_name=download_name)
-    resp.cache_control.no_cache = None
-    resp.cache_control.no_transform = True
-    return resp
+    if current_app.config["USE_X_ACCEL_REDIRECT"]:
+        response = make_response()
+        response.content_type = mimetype
+        response.headers["Content-Disposition"] = f"attachment; filename={download_name}"
+        response.headers["X-Accel-Redirect"] = Path(current_app.config["X_ACCEL_REDIRECT_PATH"]) / path
+    else:
+        response = send_file(full_path, as_attachment=True, mimetype=mimetype, download_name=download_name)
+    response.cache_control.no_cache = None
+    response.cache_control.no_transform = True
+    return response
 
 
 def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
