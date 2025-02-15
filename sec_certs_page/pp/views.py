@@ -6,6 +6,7 @@ import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, send_file, url_for
 from flask_breadcrumbs import register_breadcrumb
+from periodiq import cron
 
 from .. import mongo, sitemap
 from ..cc import cc_schemes
@@ -17,6 +18,7 @@ from ..common.views import (
     entry_download_profile_txt,
     entry_download_report_pdf,
     entry_download_report_txt,
+    expires_at,
     send_json_attachment,
     sitemap_cert_pipeline,
 )
@@ -147,21 +149,25 @@ def entry(hashid):
 
 
 @pp.route("/<string(length=16):hashid>/report.txt")
+@expires_at(cron("0 12 * * 2"))
 def entry_report_txt(hashid):
     return entry_download_report_txt("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
 
 @pp.route("/<string(length=16):hashid>/report.pdf")
+@expires_at(cron("0 12 * * 2"))
 def entry_report_pdf(hashid):
     return entry_download_report_pdf("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
 
 @pp.route("/<string(length=16):hashid>/profile.txt")
+@expires_at(cron("0 12 * * 2"))
 def entry_profile_txt(hashid):
     return entry_download_profile_txt("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
 
 @pp.route("/<string(length=16):hashid>/profile.pdf")
+@expires_at(cron("0 12 * * 2"))
 def entry_profile_pdf(hashid):
     return entry_download_profile_pdf("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
