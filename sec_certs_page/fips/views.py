@@ -3,12 +3,11 @@
 import random
 from datetime import datetime
 from operator import itemgetter
-from pathlib import Path
 from urllib.parse import urlencode
 
 import pymongo
 import sentry_sdk
-from flask import abort, current_app, redirect, render_template, request, send_file, url_for
+from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from markupsafe import Markup
@@ -27,9 +26,9 @@ from ..common.views import (
     entry_download_files,
     entry_download_target_pdf,
     entry_download_target_txt,
-    entry_file_path,
     expires_at,
     network_graph_func,
+    send_cacheable_instance_file,
     send_json_attachment,
     sitemap_cert_pipeline,
 )
@@ -77,27 +76,13 @@ def index():
 
 @fips.route("/dataset.json")
 def dataset():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_OUT"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="dataset.json",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_FIPS_OUT"], "application/json", "dataset.json")
 
 
 @fips.route("/fips.tar.gz")
 def dataset_archive():
-    archive_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"]
-    if not archive_path.is_file():
-        return abort(404)
-    return send_file(
-        archive_path,
-        as_attachment=True,
-        mimetype="application/gzip",
-        download_name="fips.tar.gz",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_FIPS_ARCHIVE"], "application/gzip", "fips.tar.gz"
     )
 
 

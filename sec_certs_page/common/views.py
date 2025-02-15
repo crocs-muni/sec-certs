@@ -97,6 +97,17 @@ def send_json_attachment(data) -> Response:
     """Send a JSON as an attachment."""
     resp = jsonify(data)
     resp.headers["Content-Disposition"] = "attachment"
+    resp.cache_control.no_cache = True
+    return resp
+
+
+def send_cacheable_instance_file(path: str, mimetype: str, download_name: str) -> Response:
+    full_path = Path(current_app.instance_path) / path
+    if not full_path.is_file():
+        return abort(404)
+    resp = send_file(full_path, as_attachment=True, mimetype=mimetype, download_name=download_name)
+    resp.cache_control.no_cache = None
+    resp.cache_control.no_transform = True
     return resp
 
 

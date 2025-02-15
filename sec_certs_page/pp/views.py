@@ -1,10 +1,9 @@
 import random
 from operator import itemgetter
-from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import abort, current_app, redirect, render_template, request, send_file, url_for
+from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_breadcrumbs import register_breadcrumb
 from periodiq import cron
 
@@ -19,6 +18,7 @@ from ..common.views import (
     entry_download_report_pdf,
     entry_download_report_txt,
     expires_at,
+    send_cacheable_instance_file,
     send_json_attachment,
     sitemap_cert_pipeline,
 )
@@ -43,29 +43,13 @@ def network():
 @pp.route("/dataset.json")
 def dataset():
     """Protection Profile dataset API endpoint."""
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_OUT"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="dataset.json",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_OUT"], "application/json", "dataset.json")
 
 
 @pp.route("/pp.tar.gz")
 def dataset_archive():
     """Protection Profile dataset archive API endpoint."""
-    archive_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_ARCHIVE"]
-    if not archive_path.is_file():
-        return abort(404)
-    return send_file(
-        archive_path,
-        as_attachment=True,
-        mimetype="application/gzip",
-        download_name="pp.tar.gz",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_ARCHIVE"], "application/gzip", "pp.tar.gz")
 
 
 @pp.route("/search/")
