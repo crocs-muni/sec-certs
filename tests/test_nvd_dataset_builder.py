@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from importlib.resources import files
 from typing import Any
 
@@ -18,20 +18,6 @@ from sec_certs.utils.nvd_dataset_builder import (
 def load_test_config():
     with files("tests.data.common") / "settings_tests.yml" as path:
         config.load_from_yaml(path)
-
-
-@pytest.mark.slow
-def test_cpe_download_from_seccerts():
-    cpe_dataset = CPEDataset.from_web()
-    assert len(cpe_dataset) > 100000
-    assert cpe_dataset.last_update_timestamp > datetime.now() - timedelta(days=28)
-
-
-@pytest.mark.slow
-def test_cve_download_from_seccerts():
-    cve_dataset = CVEDataset.from_web()
-    assert len(cve_dataset) > 100000
-    assert cve_dataset.last_update_timestamp > datetime.now() - timedelta(days=28)
 
 
 @pytest.mark.xfail(reason="May fail due to NVD server errors.")

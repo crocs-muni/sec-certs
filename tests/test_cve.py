@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -96,3 +97,10 @@ def test_criteria_configuration_expansion(cve_dataset_path: Path, cpe_match_feed
         "cpe:2.3:a:gnome:gnome-terminal:2.0:*:*:*:*:*:*:*",
         "cpe:2.3:a:gnome:gnome-terminal:2.2:*:*:*:*:*:*:*",
     ]
+
+
+@pytest.mark.skip(reason="Uses too much bandwidth.")
+def test_cve_download_from_seccerts():
+    cve_dataset = CVEDataset.from_web()
+    assert len(cve_dataset) > 100000
+    assert cve_dataset.last_update_timestamp > datetime.now() - timedelta(days=28)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -71,5 +72,8 @@ def test_serialization_missing_path():
         dummy_dset.to_json()
 
 
-def test_enhance_with_nvd_data():
-    pass
+@pytest.mark.skip(reason="Uses too much bandwidth.")
+def test_cpe_download_from_seccerts():
+    cpe_dataset = CPEDataset.from_web()
+    assert len(cpe_dataset) > 100000
+    assert cpe_dataset.last_update_timestamp > datetime.now() - timedelta(days=28)
