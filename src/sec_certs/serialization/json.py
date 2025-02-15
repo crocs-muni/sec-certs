@@ -50,7 +50,7 @@ class ComplexSerializableType:
         """
         Serializes `ComplexSerializableType` instance to json file.
         :param str | Path | None output_path: path where the file will be stored. If None, `obj.json_path` access is attempted, defaults to None
-        :param bool compress: if True, will be compress with gzip, defaults to False
+        :param bool compress: if True, will be compressed with gzip, defaults to False
         """
         if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise SerializationError(
@@ -59,20 +59,29 @@ class ComplexSerializableType:
         if not output_path:
             output_path = self.json_path  # type: ignore
             if self.json_path == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise SerializationError(f"json_path attribute for '{get_class_fullname(self)}' was not yet set.")
+                raise SerializationError(f"json_path attribute for {self.__class__} was not yet set.")
             if hasattr(self, "root_dir") and self.root_dir == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise SerializationError(f"root_dir attribute for '{get_class_fullname(self)}' was not yet set.")
+                raise SerializationError(f"root_dir attribute for {self.__class__} was not yet set.")
+        if not output_path:
+            raise SerializationError("Output path for json must be set.")
 
-        if Path(output_path).is_dir():  # type: ignore
-            raise SerializationError("output path for json cannot be directory.")
+        path = Path(output_path)
+        if path.is_dir():
+            raise SerializationError("Output path for json cannot be a directory.")
 
         # false positive MyPy warning, cannot be None
         if compress:
-            with gzip.open(str(output_path), "wt", encoding="utf-8") as handle:  # type: ignore
-                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+            if path.suffix != ".gz":
+                raise SerializationError(f"Expected path to a compressed file (.gz), got {path.suffix}.")
+
+            with gzip.open(path, "wt", encoding="utf-8") as handle:
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)  # type: ignore
         else:
-            with Path(output_path).open("w") as handle:  # type: ignore
-                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+            if path.suffix != ".json":
+                raise SerializationError(f"Expected path to a json file (.json), got {path.suffix}.")
+
+            with path.open("wt") as handle:
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)  # type: ignore
 
     @classmethod
     def from_json(cls: type[T], input_path: str | Path, is_compressed: bool = False) -> T:
@@ -82,11 +91,18 @@ class ComplexSerializableType:
         :param bool is_compressed: if True, will decompress .gz first, defaults to False
         :return T: the deserialized object
         """
+        path = Path(input_path)
         if is_compressed:
-            with gzip.open(str(input_path), "rt", encoding="utf-8") as handle:
+            if path.suffix != ".gz":
+                raise SerializationError(f"Expected path to a compressed file (.gz), got {path.suffix}.")
+
+            with gzip.open(path, "rt", encoding="utf-8") as handle:
                 return json.load(handle, cls=CustomJSONDecoder)
         else:
-            with Path(input_path).open("r") as handle:
+            if path.suffix != ".json":
+                raise SerializationError(f"Expected path to a json file (.json), got {path.suffix}.")
+
+            with path.open("r") as handle:
                 return json.load(handle, cls=CustomJSONDecoder)
 
 
