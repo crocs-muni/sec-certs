@@ -7,11 +7,10 @@ from collections.abc import Callable
 from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
-from typing import Any, TypeVar
-
-from sec_certs import constants
+from typing import Any, TypeVar, cast
 
 T = TypeVar("T", bound="ComplexSerializableType")
+TCallable = TypeVar("TCallable", bound=Callable[..., Any])
 
 
 class SerializationError(Exception):
@@ -24,8 +23,6 @@ class ComplexSerializableType:
     def __init__(self, *args, **kwargs):
         pass
 
-    # Ideally, the serialized_fields would be an class variable referencing itself, but that it virtually impossible
-    # to achieve without using metaclasses. Not to complicate the code, we choose instance variable.
     @property
     def serialized_attributes(self) -> list[str]:
         if hasattr(self, "__slots__") and self.__slots__:
@@ -54,14 +51,15 @@ class ComplexSerializableType:
         """
         if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise SerializationError(
-                f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
+                f"The object {self} of type {get_class_fullname(self)} does not have json_path attribute set but to_json() was called without an argument."
             )
         if not output_path:
             output_path = self.json_path  # type: ignore
-            if self.json_path == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise SerializationError(f"json_path attribute for {self.__class__} was not yet set.")
-            if hasattr(self, "root_dir") and self.root_dir == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise SerializationError(f"root_dir attribute for {self.__class__} was not yet set.")
+            if self.json_path is None:  # type: ignore
+                raise SerializationError(f"json_path attribute for {get_class_fullname(self)} was not yet set.")
+            if hasattr(self, "root_dir") and self.root_dir is None:  # type: ignore
+                raise SerializationError(f"root_dir attribute for {get_class_fullname(self)} was not yet set.")
+
         if not output_path:
             raise SerializationError("Output path for json must be set.")
 
@@ -69,7 +67,6 @@ class ComplexSerializableType:
         if path.is_dir():
             raise SerializationError("Output path for json cannot be a directory.")
 
-        # false positive MyPy warning, cannot be None
         if compress:
             if path.suffix != ".gz":
                 raise SerializationError(f"Expected path to a compressed file (.gz), got {path.suffix}.")
@@ -107,7 +104,7 @@ class ComplexSerializableType:
 
 
 # Decorator for serialization
-def serialize(func: Callable):
+def serialize(func: Callable) -> Callable:
     @wraps(func)
     def _serialize(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
@@ -115,7 +112,7 @@ def serialize(func: Callable):
                 "@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes."
             )
 
-        if hasattr(args[0], "_root_dir") and args[0]._root_dir == constants.DUMMY_NONEXISTING_PATH:
+        if hasattr(args[0], "root_dir") and args[0].root_dir is None:
             raise SerializationError(
                 "The invoked method requires dataset serialization. Cannot serialize without root_dir set. You can set it with obj.root_dir = ..."
             )
@@ -127,6 +124,23 @@ def serialize(func: Callable):
         return result
 
     return _serialize
+
+
+def only_backed(throw: bool = True):
+    def deco(func: TCallable) -> TCallable:
+        @wraps(func)
+        def _only_backed(*args, **kwargs):
+            if args[0].root_dir is None:
+                if throw:
+                    raise ValueError(f"Method {func.__name__} can only be called on backed dataset.")
+                else:
+                    return None
+            else:
+                return func(*args, **kwargs)
+
+        return cast(TCallable, _only_backed)
+
+    return deco
 
 
 def get_class_fullname(obj: Any) -> str:

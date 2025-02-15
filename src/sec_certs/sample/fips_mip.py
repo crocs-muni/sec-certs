@@ -251,7 +251,7 @@ class MIPSnapshot(ComplexSerializableType):
         Get a MIP snapshot from the FIPS website right now.
         """
         mip_resp = requests.get(constants.FIPS_MIP_URL)
-        if mip_resp.status_code != 200:
+        if mip_resp.status_code != requests.codes.ok:
             raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
 
         snapshot_date = to_utc(datetime.now())
@@ -269,7 +269,7 @@ class MIPSnapshot(ComplexSerializableType):
             return cls.from_nist_web()
         else:
             mip_resp = requests.get(config.fips_mip_latest_snapshot)
-            if mip_resp.status_code != 200:
+            if mip_resp.status_code != requests.codes.ok:
                 raise ValueError(f"Getting MIP snapshot failed: {mip_resp.status_code}")
             with NamedTemporaryFile(suffix=".json") as tmpfile:
                 tmpfile.write(mip_resp.content)

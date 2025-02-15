@@ -9,7 +9,6 @@ from tempfile import NamedTemporaryFile
 
 import requests
 
-from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.dataset import logger
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
@@ -21,11 +20,10 @@ from sec_certs.utils.tqdm import tqdm
 @dataclass
 class MIPDataset(JSONPathDataset, ComplexSerializableType):
     snapshots: list[MIPSnapshot]
-    _json_path: Path
 
-    def __init__(self, snapshots: list[MIPSnapshot], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+    def __init__(self, snapshots: list[MIPSnapshot], json_path: str | Path | None = None):
+        super().__init__(json_path)
         self.snapshots = snapshots
-        self.json_path = Path(json_path)
 
     def __iter__(self) -> Iterator[MIPSnapshot]:
         yield from self.snapshots
@@ -61,7 +59,7 @@ class MIPDataset(JSONPathDataset, ComplexSerializableType):
         Get the MIPDataset from sec-certs.org
         """
         mip_resp = requests.get(config.fips_mip_dataset)
-        if mip_resp.status_code != 200:
+        if mip_resp.status_code != requests.codes.ok:
             raise ValueError(f"Getting MIP dataset failed: {mip_resp.status_code}")
         with NamedTemporaryFile(suffix=".json") as tmpfile:
             tmpfile.write(mip_resp.content)

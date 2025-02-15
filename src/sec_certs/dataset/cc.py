@@ -36,7 +36,7 @@ from sec_certs.heuristics.cc import (
 from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
-from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
@@ -92,7 +92,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     def __init__(
         self,
         certs: dict[str, CCCertificate] | None = None,
-        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        root_dir: str | Path | None = None,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
@@ -143,6 +143,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return df
 
     @property
+    @only_backed(throw=False)
     def reports_dir(self) -> Path:
         """
         Returns directory that holds files associated with certification reports
@@ -150,6 +151,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.certs_dir / "reports"
 
     @property
+    @only_backed(throw=False)
     def reports_pdf_dir(self) -> Path:
         """
         Returns directory that holds PDFs associated with certification reports
@@ -157,6 +159,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.reports_dir / "pdf"
 
     @property
+    @only_backed(throw=False)
     def reports_txt_dir(self) -> Path:
         """
         Returns directory that holds TXTs associated with certification reports
@@ -164,6 +167,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.reports_dir / "txt"
 
     @property
+    @only_backed(throw=False)
     def targets_dir(self) -> Path:
         """
         Returns directory that holds files associated with security targets
@@ -171,6 +175,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.certs_dir / "targets"
 
     @property
+    @only_backed(throw=False)
     def targets_pdf_dir(self) -> Path:
         """
         Returns directory that holds PDFs associated with security targets
@@ -178,6 +183,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.targets_dir / "pdf"
 
     @property
+    @only_backed(throw=False)
     def targets_txt_dir(self) -> Path:
         """
         Returns directory that holds TXTs associated with security targets
@@ -185,6 +191,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.targets_dir / "txt"
 
     @property
+    @only_backed(throw=False)
     def certificates_dir(self) -> Path:
         """
         Returns directory that holds files associated with the certificates
@@ -192,6 +199,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.certs_dir / "certificates"
 
     @property
+    @only_backed(throw=False)
     def certificates_pdf_dir(self) -> Path:
         """
         Returns directory that holds PDFs associated with certificates
@@ -199,6 +207,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.certificates_dir / "pdf"
 
     @property
+    @only_backed(throw=False)
     def certificates_txt_dir(self) -> Path:
         """
         Returns directory that holds TXTs associated with certificates
@@ -206,6 +215,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return self.certificates_dir / "txt"
 
     @property
+    @only_backed(throw=False)
     def reference_annotator_dir(self) -> Path:
         return self.root_dir / "reference_annotator"
 
@@ -229,6 +239,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     }
 
     @property
+    @only_backed(throw=False)
     def active_html_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of html file and second element is its Path.
@@ -237,6 +248,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if "active" in y]
 
     @property
+    @only_backed(throw=False)
     def archived_html_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of html file and second element is its Path.
@@ -245,6 +257,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return [(x, self.web_dir / y) for y, x in self.HTML_PRODUCTS_URL.items() if "archived" in y]
 
     @property
+    @only_backed(throw=False)
     def active_csv_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of csv file and second element is its Path.
@@ -253,6 +266,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return [(x, self.web_dir / y) for y, x in self.CSV_PRODUCTS_URL.items() if "active" in y]
 
     @property
+    @only_backed(throw=False)
     def archived_csv_tuples(self) -> list[tuple[str, Path]]:
         """
         Returns List Tuple[str, Path] where first element is name of csv file and second element is its Path.
@@ -262,6 +276,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     def _set_local_paths(self):
         super()._set_local_paths()
+        if self.root_dir is None:
+            return
 
         for cert in self:
             cert.set_local_paths(
@@ -273,6 +289,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 self.certificates_txt_dir,
             )
 
+    @only_backed()
     def process_auxiliary_datasets(
         self,
         download_fresh: bool = False,
@@ -324,6 +341,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     @serialize
     @staged(logger, "Downloading and processing CSV and HTML files of certificates.")
+    @only_backed()
     def get_certs_from_web(
         self,
         to_download: bool = True,
@@ -771,6 +789,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._extract_target_keywords()
         self._extract_cert_keywords()
 
+    @only_backed()
     def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts")
         self._extract_pdf_metadata()
@@ -811,7 +830,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     def __init__(
         self,
         certs: dict[str, CCMaintenanceUpdate] | None = None,  # type: ignore
-        root_dir: Path = constants.DUMMY_NONEXISTING_PATH,
+        root_dir: str | Path | None = None,
         name: str = "dataset name",
         description: str = "dataset_description",
         state: CCDataset.DatasetInternalState | None = None,
@@ -820,6 +839,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         self.state.meta_sources_parsed = True
 
     @property
+    @only_backed(throw=False)
     def certs_dir(self) -> Path:
         return self.root_dir
 

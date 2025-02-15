@@ -4,7 +4,6 @@ import logging
 from collections.abc import Mapping
 from pathlib import Path
 
-from sec_certs import constants
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cc_scheme import CCScheme
 from sec_certs.serialization.json import ComplexSerializableType
@@ -21,9 +20,9 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
     of a product name and most have a vendor/developer/manufacturer field.
     """
 
-    def __init__(self, schemes: dict[str, CCScheme], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+    def __init__(self, schemes: dict[str, CCScheme], json_path: str | Path | None = None):
+        super().__init__(json_path)
         self.schemes = schemes
-        self.json_path = Path(json_path)
 
     @property
     def serialized_attributes(self) -> list[str]:
@@ -51,7 +50,7 @@ class CCSchemeDataset(JSONPathDataset, ComplexSerializableType):
     @classmethod
     def from_web(
         cls,
-        json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        json_path: str | Path | None = None,
         only_schemes: set[str] | None = None,
         enhanced: bool | None = None,
         artifacts: bool | None = None,

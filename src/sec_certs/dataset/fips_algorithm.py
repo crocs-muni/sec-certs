@@ -21,11 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
-    def __init__(
-        self, algs: dict[str, FIPSAlgorithm] | None = None, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH
-    ):
+    def __init__(self, algs: dict[str, FIPSAlgorithm] | None = None, json_path: str | Path | None = None):
+        super().__init__(json_path)
         self.algs = algs if algs is not None else {}
-        self.json_path = Path(json_path)
         self.alg_number_to_algs: dict[str, set[FIPSAlgorithm]] = {}
 
         self._build_lookup_dicts()
@@ -55,11 +53,11 @@ class FIPSAlgorithmDataset(JSONPathDataset, ComplexSerializableType):
         return isinstance(other, FIPSAlgorithmDataset) and self.algs == other.algs
 
     @classmethod
-    def from_web(cls, json_path: str | Path = constants.DUMMY_NONEXISTING_PATH) -> FIPSAlgorithmDataset:
+    def from_web(cls, json_path: str | Path | None = None) -> FIPSAlgorithmDataset:
         with TemporaryDirectory() as tmp_dir:
             htmls = FIPSAlgorithmDataset.download_alg_list_htmls(Path(tmp_dir))
             algs = set(itertools.chain.from_iterable(FIPSAlgorithmDataset.parse_algorithms_from_html(x) for x in htmls))
-        return cls({x.dgst: x for x in algs}, json_path)
+        return cls({x.dgst: x for x in algs}, json_path=json_path)
 
     @staticmethod
     def download_alg_list_htmls(output_dir: Path) -> list[Path]:

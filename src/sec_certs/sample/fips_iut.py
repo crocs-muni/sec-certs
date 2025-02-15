@@ -148,7 +148,7 @@ class IUTSnapshot(ComplexSerializableType):
         Get an IUT snapshot from the FIPS website right now.
         """
         iut_resp = requests.get(constants.FIPS_IUT_URL)
-        if iut_resp.status_code != 200:
+        if iut_resp.status_code != requests.codes.ok:
             raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
 
         snapshot_date = to_utc(datetime.now())
@@ -166,7 +166,7 @@ class IUTSnapshot(ComplexSerializableType):
             return cls.from_nist_web()
         else:
             iut_resp = requests.get(config.fips_iut_latest_snapshot)
-            if iut_resp.status_code != 200:
+            if iut_resp.status_code != requests.codes.ok:
                 raise ValueError(f"Getting IUT snapshot failed: {iut_resp.status_code}")
             with NamedTemporaryFile(suffix=".json") as tmpfile:
                 tmpfile.write(iut_resp.content)
