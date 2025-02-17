@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import gzip
 import json
+import logging
 from collections.abc import Callable
 from datetime import date, datetime
 from functools import wraps
@@ -12,12 +13,24 @@ from typing import Any, TypeVar, cast
 T = TypeVar("T", bound="ComplexSerializableType")
 TCallable = TypeVar("TCallable", bound=Callable[..., Any])
 
+logger = logging.getLogger(__name__)
+
 
 class SerializationError(Exception):
     pass
 
 
 class ComplexSerializableType:
+    """
+    A class that can be serialized to json and thus a dictionary.
+
+    Direct inheritance from this class is required for the class to be serializable.
+    Only the `serialized_attributes` are serialized. If `__slots__` is defined, only those attributes are serialized.
+
+    .. note::
+        The `to_dict` and `from_dict` should be overridden if non-trivial types of attributes need to be serialized.
+    """
+
     __slots__: tuple[str]
 
     def __init__(self, *args, **kwargs):
@@ -103,8 +116,14 @@ class ComplexSerializableType:
                 return json.load(handle, cls=CustomJSONDecoder)
 
 
-# Decorator for serialization
 def serialize(func: Callable) -> Callable:
+    """
+    Decorator to be used on instance methods of ComplexSerializableType child classes.
+    The decorated method will be serialized to json after execution.
+
+    Adds the `update_json` keyword argument to the decorated method. If set to False, the json will not be updated.
+    """
+
     @wraps(func)
     def _serialize(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
@@ -127,6 +146,14 @@ def serialize(func: Callable) -> Callable:
 
 
 def only_backed(throw: bool = True):
+    """
+    Decorator to be used on instance methods of ComplexSerializableType child classes.
+    The decorated method will only be executed if the `root_dir` attribute is set.
+
+    :param bool throw: if True, will raise ValueError if `root_dir` is not set, defaults to True
+                       Otherwise, just logs a warning and returns None.
+    """
+
     def deco(func: TCallable) -> TCallable:
         @wraps(func)
         def _only_backed(*args, **kwargs):
@@ -134,6 +161,7 @@ def only_backed(throw: bool = True):
                 if throw:
                     raise ValueError(f"Method {func.__name__} can only be called on backed dataset.")
                 else:
+                    logger.warning(f"Method {func.__name__} can only be called on backed dataset.")
                     return None
             else:
                 return func(*args, **kwargs)
@@ -144,6 +172,17 @@ def only_backed(throw: bool = True):
 
 
 def get_class_fullname(obj: Any) -> str:
+    """
+    Returns the full name of the class of the object.
+
+    Example:
+    >>> get_class_fullname(datetime.now())
+    'datetime.datetime'
+
+
+    :param Any obj: object to get the class name from
+    :return str: full name of the class
+    """
     klass = obj if isinstance(obj, type) else obj.__class__
     module = klass.__module__
     if module == "builtins":
@@ -152,6 +191,10 @@ def get_class_fullname(obj: Any) -> str:
 
 
 class CustomJSONEncoder(json.JSONEncoder):
+    """
+    Custom JSONEncoder.
+    """
+
     def default(self, obj):
         if isinstance(obj, ComplexSerializableType):
             return {**{"_type": get_class_fullname(obj)}, **obj.to_dict()}
@@ -172,8 +215,10 @@ class CustomJSONEncoder(json.JSONEncoder):
 
 class CustomJSONDecoder(json.JSONDecoder):
     """
-    Custom JSONDecoder. Any complex object that should be de-serializable must inherit directly from class
-    ComplexSerializableType (nested inheritance does not currently work (because x.__subclassess__() prints only direct
+    Custom JSONDecoder.
+
+    Any complex object that should be de-serializable must inherit directly from class
+    `ComplexSerializableType` (nested inheritance does not currently work (because x.__subclassess__() prints only direct
     subclasses. Any such class must implement methods to_dict() and from_dict(). These are used to drive serialization.
     """
 

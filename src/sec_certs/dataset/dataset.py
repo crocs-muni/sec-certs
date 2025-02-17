@@ -71,6 +71,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self._set_local_paths()
 
     @property
+    def is_backed(self) -> bool:
+        """
+        Returns whether the dataset is backed by a directory.
+        """
+        return self.root_dir is not None
+
+    @property
     def root_dir(self) -> Path:
         """
         Directory that will hold the serialized dataset files.
@@ -93,13 +100,6 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
         self._root_dir = new_dir
         self._set_local_paths()
-
-    @property
-    def is_backed(self) -> bool:
-        """
-        Returns whether the dataset is backed by a directory.
-        """
-        return self.root_dir is not None
 
     @property
     @only_backed(throw=False)

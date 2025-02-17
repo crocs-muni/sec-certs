@@ -33,6 +33,13 @@ class AuxiliaryDatasetHandler(ABC):
         self.aux_datasets_dir = Path(aux_datasets_dir) if aux_datasets_dir is not None else None  # type: ignore
 
     @property
+    def is_backed(self) -> bool:
+        """
+        Returns whether the dataset is backed by a directory.
+        """
+        return self.aux_datasets_dir is not None
+
+    @property
     def root_dir(self) -> Path:
         if self.RELATIVE_DIR:
             return self.aux_datasets_dir / Path(self.RELATIVE_DIR)

@@ -18,6 +18,13 @@ class JSONPathDataset(ComplexSerializableType, ABC):
         self.json_path = Path(json_path) if json_path is not None else None
 
     @property
+    def is_backed(self) -> bool:
+        """
+        Returns whether the dataset is backed by a JSON file.
+        """
+        return self.json_path is not None
+
+    @property
     def json_path(self) -> Path | None:
         return self._json_path
 
