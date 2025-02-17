@@ -7,7 +7,6 @@ from tempfile import NamedTemporaryFile
 
 import requests
 
-from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.dataset import logger
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
@@ -19,11 +18,10 @@ from sec_certs.utils.tqdm import tqdm
 @dataclass
 class IUTDataset(JSONPathDataset, ComplexSerializableType):
     snapshots: list[IUTSnapshot]
-    _json_path: Path
 
-    def __init__(self, snapshots: list[IUTSnapshot], json_path: str | Path = constants.DUMMY_NONEXISTING_PATH):
+    def __init__(self, snapshots: list[IUTSnapshot], json_path: str | Path | None = None):
+        super().__init__(json_path)
         self.snapshots = snapshots
-        self.json_path = Path(json_path)
 
     def __iter__(self) -> Iterator[IUTSnapshot]:
         yield from self.snapshots
@@ -59,8 +57,8 @@ class IUTDataset(JSONPathDataset, ComplexSerializableType):
         Get the IUTDataset from sec-certs.org
         """
         iut_resp = requests.get(config.fips_iut_dataset)
-        if iut_resp.status_code != 200:
+        if iut_resp.status_code != requests.codes.ok:
             raise ValueError(f"Getting IUT dataset failed: {iut_resp.status_code}")
-        with NamedTemporaryFile() as tmpfile:
+        with NamedTemporaryFile(suffix=".json") as tmpfile:
             tmpfile.write(iut_resp.content)
             return cls.from_json(tmpfile.name)

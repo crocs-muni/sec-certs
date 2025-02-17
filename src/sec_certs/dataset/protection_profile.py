@@ -10,7 +10,7 @@ from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
-from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
@@ -39,7 +39,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     def __init__(
         self,
         certs: dict[str, ProtectionProfile] | None = None,
-        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        root_dir: str | Path | None = None,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
@@ -48,10 +48,12 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         super().__init__(certs, root_dir, name, description, state, aux_handlers)
 
     @property
+    @only_backed(throw=False)
     def json_path(self) -> Path:
         return self.root_dir / "dataset.json"
 
     @property
+    @only_backed(throw=False)
     def reports_dir(self) -> Path:
         """
         Path to protection profile reports.
@@ -59,6 +61,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         return self.root_dir / "reports"
 
     @property
+    @only_backed(throw=False)
     def pps_dir(self) -> Path:
         """
         Path to actual protection profiles.
@@ -66,6 +69,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         return self.root_dir / "pps"
 
     @property
+    @only_backed(throw=False)
     def reports_pdf_dir(self) -> Path:
         """
         Path to pdfs of protection profile reports.
@@ -73,6 +77,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         return self.reports_dir / "pdf"
 
     @property
+    @only_backed(throw=False)
     def reports_txt_dir(self) -> Path:
         """
         Path to txts of protection profile reports.
@@ -80,6 +85,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         return self.reports_dir / "txt"
 
     @property
+    @only_backed(throw=False)
     def pps_pdf_dir(self) -> Path:
         """
         Path to pdfs of protection profiles
@@ -87,21 +93,28 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         return self.pps_dir / "pdf"
 
     @property
+    @only_backed(throw=False)
     def pps_txt_dir(self) -> Path:
         """
         Path to txts of protection profiles.
         """
         return self.pps_dir / "txt"
 
-    def _compute_heuristics_body(self):
-        logger.info("Protection profile dataset has no heuristics to compute, skipping.")
-
     @property
+    @only_backed(throw=False)
     def web_dir(self) -> Path:
         """
         Path to directory with html sources downloaded from commoncriteriaportal.org
         """
         return self.root_dir / "web"
+
+    def _set_local_paths(self):
+        super()._set_local_paths()
+        if self.root_dir is None:
+            return
+
+        for cert in self:
+            cert.set_local_paths(self.reports_pdf_dir, self.pps_pdf_dir, self.reports_txt_dir, self.pps_txt_dir)
 
     HTML_URL = {
         "pp_active.html": constants.CC_PORTAL_BASE_URL + "/pps/index.cfm",
@@ -110,19 +123,23 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     }
 
     @property
+    @only_backed(throw=False)
     def active_html_tuples(self) -> list[tuple[str, Path]]:
         return [(x, self.web_dir / y) for y, x in self.HTML_URL.items() if "active" in y]
 
     @property
+    @only_backed(throw=False)
     def archived_html_tuples(self) -> list[tuple[str, Path]]:
         return [(x, self.web_dir / y) for y, x in self.HTML_URL.items() if "archived" in y]
 
     @property
+    @only_backed(throw=False)
     def collaborative_html_tuples(self) -> list[tuple[str, Path]]:
         return [(x, self.web_dir / y) for y, x in self.HTML_URL.items() if "collaborative" in y]
 
     @serialize
     @staged(logger, "Downloading and processing CSV and HTML files of certificates.")
+    @only_backed()
     def get_certs_from_web(
         self,
         to_download: bool = True,
@@ -299,6 +316,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             progress_bar_desc="Downloading PDFs of actual Protection Profiles.",
         )
 
+    @only_backed()
     def extract_data(self):
         """
         Extracts pdf metadata and keywords from converted text documents.
@@ -357,12 +375,10 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    def _set_local_paths(self):
-        super()._set_local_paths()
+    def _compute_heuristics_body(self):
+        logger.info("Protection profile dataset has no heuristics to compute, skipping.")
 
-        for cert in self:
-            cert.set_local_paths(self.reports_pdf_dir, self.pps_pdf_dir, self.reports_txt_dir, self.pps_txt_dir)
-
+    @only_backed()
     def process_auxiliary_datasets(self, **kwargs) -> None:
         """
         Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.

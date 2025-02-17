@@ -10,7 +10,6 @@ from typing import Any, ClassVar
 
 import requests
 
-from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.cc_scheme import CCSchemeDataset
 from sec_certs.dataset.cpe import CPEDataset
@@ -30,8 +29,15 @@ class AuxiliaryDatasetHandler(ABC):
     aux_datasets_dir: Path
     dset: Any
 
-    def __init__(self, aux_datasets_dir: str | Path) -> None:
-        self.aux_datasets_dir = Path(aux_datasets_dir)
+    def __init__(self, aux_datasets_dir: str | Path | None) -> None:
+        self.aux_datasets_dir = Path(aux_datasets_dir) if aux_datasets_dir is not None else None  # type: ignore
+
+    @property
+    def is_backed(self) -> bool:
+        """
+        Returns whether the dataset is backed by a directory.
+        """
+        return self.aux_datasets_dir is not None
 
     @property
     def root_dir(self) -> Path:
@@ -44,8 +50,8 @@ class AuxiliaryDatasetHandler(ABC):
     def dset_path(self) -> Path:
         raise NotImplementedError("Not meant to be implemented by base class")
 
-    def set_local_paths(self, aux_datasets_dir: str | Path) -> None:
-        self.aux_datasets_dir = Path(aux_datasets_dir)
+    def set_local_paths(self, aux_datasets_dir: str | Path | None) -> None:
+        self.aux_datasets_dir = Path(aux_datasets_dir) if aux_datasets_dir is not None else None  # type: ignore
 
     def process_dataset(self, download_fresh: bool = False) -> None:
         self.root_dir.mkdir(parents=True, exist_ok=True)
@@ -178,7 +184,7 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
 class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
     def __init__(
         self,
-        aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        aux_datasets_dir: str | Path | None,
         only_schemes: set[str] | None = None,
     ):
         super().__init__(aux_datasets_dir)
@@ -209,7 +215,7 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
 
     def __init__(
         self,
-        aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        aux_datasets_dir: str | Path | None,
         certs_with_updates: Iterable[CCCertificate] | None = None,
     ) -> None:
         super().__init__(aux_datasets_dir)
@@ -254,9 +260,6 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
 
 class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
     RELATIVE_DIR: ClassVar[str] = "protection_profiles"
-
-    def __init__(self, aux_datasets_dir: str | Path = constants.DUMMY_NONEXISTING_PATH):
-        super().__init__(aux_datasets_dir)
 
     @property
     def dset_path(self) -> Path:

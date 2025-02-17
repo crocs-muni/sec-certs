@@ -24,7 +24,7 @@ from sec_certs.dataset.dataset import Dataset
 from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
 from sec_certs.heuristics.fips import compute_references
 from sec_certs.sample.fips import FIPSCertificate
-from sec_certs.serialization.json import ComplexSerializableType, serialize
+from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
@@ -59,7 +59,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def __init__(
         self,
         certs: dict[str, FIPSCertificate] | None = None,
-        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        root_dir: str | Path | None = None,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
@@ -81,18 +81,22 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     }
 
     @property
+    @only_backed(throw=False)
     def policies_dir(self) -> Path:
         return self.certs_dir / "policies"
 
     @property
+    @only_backed(throw=False)
     def policies_pdf_dir(self) -> Path:
         return self.policies_dir / "pdf"
 
     @property
+    @only_backed(throw=False)
     def policies_txt_dir(self) -> Path:
         return self.policies_dir / "txt"
 
     @property
+    @only_backed(throw=False)
     def module_dir(self) -> Path:
         return self.certs_dir / "modules"
 
@@ -128,6 +132,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         compute_transitive_vulnerabilities(self.certs)
 
     @serialize
+    @only_backed()
     def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts.")
         for cert in self:
@@ -235,11 +240,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def _set_local_paths(self) -> None:
         super()._set_local_paths()
+        if self.root_dir is None:
+            return
         for cert in self:
             cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
 
     @serialize
     @staged(logger, "Downloading and processing certificates.")
+    @only_backed()
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
 

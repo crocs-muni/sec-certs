@@ -3,15 +3,17 @@ from __future__ import annotations
 import copy
 import gzip
 import json
+import logging
 from collections.abc import Callable
 from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
-from typing import Any, TypeVar
-
-from sec_certs import constants
+from typing import Any, TypeVar, cast
 
 T = TypeVar("T", bound="ComplexSerializableType")
+TCallable = TypeVar("TCallable", bound=Callable[..., Any])
+
+logger = logging.getLogger(__name__)
 
 
 class SerializationError(Exception):
@@ -19,13 +21,21 @@ class SerializationError(Exception):
 
 
 class ComplexSerializableType:
+    """
+    A class that can be serialized to json and thus a dictionary.
+
+    Direct inheritance from this class is required for the class to be serializable.
+    Only the `serialized_attributes` are serialized. If `__slots__` is defined, only those attributes are serialized.
+
+    .. note::
+        The `to_dict` and `from_dict` should be overridden if non-trivial types of attributes need to be serialized.
+    """
+
     __slots__: tuple[str]
 
     def __init__(self, *args, **kwargs):
         pass
 
-    # Ideally, the serialized_fields would be an class variable referencing itself, but that it virtually impossible
-    # to achieve without using metaclasses. Not to complicate the code, we choose instance variable.
     @property
     def serialized_attributes(self) -> list[str]:
         if hasattr(self, "__slots__") and self.__slots__:
@@ -50,29 +60,38 @@ class ComplexSerializableType:
         """
         Serializes `ComplexSerializableType` instance to json file.
         :param str | Path | None output_path: path where the file will be stored. If None, `obj.json_path` access is attempted, defaults to None
-        :param bool compress: if True, will be compress with gzip, defaults to False
+        :param bool compress: if True, will be compressed with gzip, defaults to False
         """
         if not output_path and (not hasattr(self, "json_path") or not self.json_path):  # type: ignore
             raise SerializationError(
-                f"The object {self} of type {self.__class__} does not have json_path attribute set but to_json() was called without an argument."
+                f"The object {self} of type {get_class_fullname(self)} does not have json_path attribute set but to_json() was called without an argument."
             )
         if not output_path:
             output_path = self.json_path  # type: ignore
-            if self.json_path == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise SerializationError(f"json_path attribute for '{get_class_fullname(self)}' was not yet set.")
-            if hasattr(self, "root_dir") and self.root_dir == constants.DUMMY_NONEXISTING_PATH:  # type: ignore
-                raise SerializationError(f"root_dir attribute for '{get_class_fullname(self)}' was not yet set.")
+            if self.json_path is None:  # type: ignore
+                raise SerializationError(f"json_path attribute for {get_class_fullname(self)} was not yet set.")
+            if hasattr(self, "root_dir") and self.root_dir is None:  # type: ignore
+                raise SerializationError(f"root_dir attribute for {get_class_fullname(self)} was not yet set.")
 
-        if Path(output_path).is_dir():  # type: ignore
-            raise SerializationError("output path for json cannot be directory.")
+        if not output_path:
+            raise SerializationError("Output path for json must be set.")
 
-        # false positive MyPy warning, cannot be None
+        path = Path(output_path)
+        if path.is_dir():
+            raise SerializationError("Output path for json cannot be a directory.")
+
         if compress:
-            with gzip.open(str(output_path), "wt", encoding="utf-8") as handle:  # type: ignore
-                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+            if path.suffix != ".gz":
+                raise SerializationError(f"Expected path to a compressed file (.gz), got {path.suffix}.")
+
+            with gzip.open(path, "wt", encoding="utf-8") as handle:
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)  # type: ignore
         else:
-            with Path(output_path).open("w") as handle:  # type: ignore
-                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)
+            if path.suffix != ".json":
+                raise SerializationError(f"Expected path to a json file (.json), got {path.suffix}.")
+
+            with path.open("wt") as handle:
+                json.dump(self, handle, indent=4, cls=CustomJSONEncoder, ensure_ascii=False)  # type: ignore
 
     @classmethod
     def from_json(cls: type[T], input_path: str | Path, is_compressed: bool = False) -> T:
@@ -82,16 +101,29 @@ class ComplexSerializableType:
         :param bool is_compressed: if True, will decompress .gz first, defaults to False
         :return T: the deserialized object
         """
+        path = Path(input_path)
         if is_compressed:
-            with gzip.open(str(input_path), "rt", encoding="utf-8") as handle:
+            if path.suffix != ".gz":
+                raise SerializationError(f"Expected path to a compressed file (.gz), got {path.suffix}.")
+
+            with gzip.open(path, "rt", encoding="utf-8") as handle:
                 return json.load(handle, cls=CustomJSONDecoder)
         else:
-            with Path(input_path).open("r") as handle:
+            if path.suffix != ".json":
+                raise SerializationError(f"Expected path to a json file (.json), got {path.suffix}.")
+
+            with path.open("r") as handle:
                 return json.load(handle, cls=CustomJSONDecoder)
 
 
-# Decorator for serialization
-def serialize(func: Callable):
+def serialize(func: Callable) -> Callable:
+    """
+    Decorator to be used on instance methods of ComplexSerializableType child classes.
+    The decorated method will be serialized to json after execution.
+
+    Adds the `update_json` keyword argument to the decorated method. If set to False, the json will not be updated.
+    """
+
     @wraps(func)
     def _serialize(*args, **kwargs):
         if not args or not issubclass(type(args[0]), ComplexSerializableType):
@@ -99,7 +131,7 @@ def serialize(func: Callable):
                 "@serialize decorator is to be used only on instance methods of ComplexSerializableType child classes."
             )
 
-        if hasattr(args[0], "_root_dir") and args[0]._root_dir == constants.DUMMY_NONEXISTING_PATH:
+        if hasattr(args[0], "root_dir") and args[0].root_dir is None:
             raise SerializationError(
                 "The invoked method requires dataset serialization. Cannot serialize without root_dir set. You can set it with obj.root_dir = ..."
             )
@@ -113,7 +145,44 @@ def serialize(func: Callable):
     return _serialize
 
 
+def only_backed(throw: bool = True):
+    """
+    Decorator to be used on instance methods of ComplexSerializableType child classes.
+    The decorated method will only be executed if the `root_dir` attribute is set.
+
+    :param bool throw: if True, will raise ValueError if `root_dir` is not set, defaults to True
+                       Otherwise, just logs a warning and returns None.
+    """
+
+    def deco(func: TCallable) -> TCallable:
+        @wraps(func)
+        def _only_backed(*args, **kwargs):
+            if args[0].root_dir is None:
+                if throw:
+                    raise ValueError(f"Method {func.__name__} can only be called on backed dataset.")
+                else:
+                    logger.warning(f"Method {func.__name__} can only be called on backed dataset.")
+                    return None
+            else:
+                return func(*args, **kwargs)
+
+        return cast(TCallable, _only_backed)
+
+    return deco
+
+
 def get_class_fullname(obj: Any) -> str:
+    """
+    Returns the full name of the class of the object.
+
+    Example:
+    >>> get_class_fullname(datetime.now())
+    'datetime.datetime'
+
+
+    :param Any obj: object to get the class name from
+    :return str: full name of the class
+    """
     klass = obj if isinstance(obj, type) else obj.__class__
     module = klass.__module__
     if module == "builtins":
@@ -122,6 +191,10 @@ def get_class_fullname(obj: Any) -> str:
 
 
 class CustomJSONEncoder(json.JSONEncoder):
+    """
+    Custom JSONEncoder.
+    """
+
     def default(self, obj):
         if isinstance(obj, ComplexSerializableType):
             return {**{"_type": get_class_fullname(obj)}, **obj.to_dict()}
@@ -142,8 +215,10 @@ class CustomJSONEncoder(json.JSONEncoder):
 
 class CustomJSONDecoder(json.JSONDecoder):
     """
-    Custom JSONDecoder. Any complex object that should be de-serializable must inherit directly from class
-    ComplexSerializableType (nested inheritance does not currently work (because x.__subclassess__() prints only direct
+    Custom JSONDecoder.
+
+    Any complex object that should be de-serializable must inherit directly from class
+    `ComplexSerializableType` (nested inheritance does not currently work (because x.__subclassess__() prints only direct
     subclasses. Any such class must implement methods to_dict() and from_dict(). These are used to drive serialization.
     """
 

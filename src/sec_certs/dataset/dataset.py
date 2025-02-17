@@ -15,12 +15,12 @@ import pandas as pd
 import requests
 from pydantic import AnyHttpUrl
 
-from sec_certs import constants
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
     ComplexSerializableType,
     get_class_fullname,
+    only_backed,
     serialize,
 )
 from sec_certs.utils import helpers
@@ -52,7 +52,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def __init__(
         self,
         certs: dict[str, CertSubType] | None = None,
-        root_dir: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        root_dir: str | Path | None = None,
         name: str | None = None,
         description: str = "",
         state: DatasetInternalState | None = None,
@@ -65,24 +65,35 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self.name = name if name else type(self).__name__
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = state if state else self.DatasetInternalState()
-        self.root_dir = Path(root_dir)
+        self.root_dir = Path(root_dir) if root_dir is not None else None  # type: ignore
         self.aux_handlers = aux_handlers if aux_handlers is not None else {}
         # Make sure that the auxiliary handlers (if supplied by the user) have the correct root_dir
         self._set_local_paths()
+
+    @property
+    def is_backed(self) -> bool:
+        """
+        Returns whether the dataset is backed by a directory.
+        """
+        return self.root_dir is not None
 
     @property
     def root_dir(self) -> Path:
         """
         Directory that will hold the serialized dataset files.
         """
-        return self._root_dir
+        return self._root_dir  # type: ignore
 
     @root_dir.setter
-    def root_dir(self, new_dir: str | Path) -> None:
+    def root_dir(self, new_dir: str | Path | None) -> None:
         """
         This setter will only set the root dir and all internal paths so that they point
         to the new root dir. No data is being moved around.
         """
+        if new_dir is None:
+            self._root_dir = None
+            return
+
         new_dir = Path(new_dir)
         if new_dir.is_file():
             raise ValueError(f"Root dir of {get_class_fullname(self)} cannot be a file.")
@@ -91,6 +102,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self._set_local_paths()
 
     @property
+    @only_backed(throw=False)
     def web_dir(self) -> Path:
         """
         Path to certification-artifacts posted on web.
@@ -98,6 +110,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return self.root_dir / "web"
 
     @property
+    @only_backed(throw=False)
     def auxiliary_datasets_dir(self) -> Path:
         """
         Path to directory with auxiliary datasets.
@@ -105,6 +118,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return self.root_dir / "auxiliary_datasets"
 
     @property
+    @only_backed(throw=False)
     def certs_dir(self) -> Path:
         """
         Returns directory that holds files associated with certificates
@@ -112,6 +126,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return self.root_dir / "certs"
 
     @property
+    @only_backed(throw=False)
     def json_path(self) -> Path:
         return self.root_dir / (self.name + ".json")
 
@@ -148,7 +163,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         archive_url: AnyHttpUrl | None = None,
         snapshot_url: AnyHttpUrl | None = None,
         progress_bar_desc: str | None = None,
-        path: None | str | Path = None,
+        path: str | Path | None = None,
         auxiliary_datasets: bool = False,
         artifacts: bool = False,
     ) -> DatasetSubType:
@@ -215,7 +230,8 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                 if path:
                     dset.move_dataset(path)
                 else:
-                    dset.root_dir = constants.DUMMY_NONEXISTING_PATH
+                    # Clear the path, as it points to temporary file
+                    dset._root_dir = None
             if auxiliary_datasets:
                 dset.process_auxiliary_datasets(download_fresh=True)
         return dset
@@ -251,10 +267,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return dset
 
     def _set_local_paths(self) -> None:
-        if hasattr(self, "aux_handlers"):
+        if self.root_dir is None:
+            return
+        if hasattr(self, "aux_handlers") and self.aux_handlers:
             for handler in self.aux_handlers.values():
                 handler.set_local_paths(self.auxiliary_datasets_dir)
 
+    @only_backed()
     def move_dataset(self, new_root_dir: str | Path) -> None:
         """
         Moves all dataset files to `new_root_dir` and adjusts all paths internally. Deletes the artifacts from the original location.
@@ -270,6 +289,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         shutil.rmtree(self.root_dir)
         self.root_dir = new_root_dir
 
+    @only_backed()
     def copy_dataset(self, new_root_dir: str | Path) -> None:
         """
         Copies all dataset files to `new_root_dir` and adjusts all paths internally. Keeps the artifacts from the original location.
@@ -296,6 +316,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @staged(logger, "Processing auxiliary datasets")
     @serialize
+    @only_backed()
     def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
         """
         Processes all auxiliary datasets (CPE, CVE, ...) that are required during computation.
@@ -305,6 +326,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             handler.process_dataset(download_fresh)
         self.state.auxiliary_datasets_processed = True
 
+    @only_backed()
     def load_auxiliary_datasets(self) -> None:
         logger.info("Loading auxiliary datasets into memory.")
         for handler in self.aux_handlers.values():
@@ -317,6 +339,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     )
 
     @serialize
+    @only_backed()
     def download_all_artifacts(self, fresh: bool = True) -> None:
         """
         Downloads all artifacts related to certification in the given scheme.
@@ -337,6 +360,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
+    @only_backed()
     def convert_all_pdfs(self, fresh: bool = True) -> None:
         """
         Converts all pdf artifacts to txt, given the certification scheme.
@@ -355,6 +379,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
+    @only_backed()
     def analyze_certificates(self) -> None:
         """
         Does two things:
@@ -381,10 +406,12 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self.compute_heuristics()
 
     @abstractmethod
+    @only_backed()
     def extract_data(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
+    @only_backed()
     def compute_heuristics(self) -> None:
         logger.info("Computing various heuristics from the certificates.")
         self.load_auxiliary_datasets()

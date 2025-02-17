@@ -10,7 +10,6 @@ from typing import Any
 import pandas as pd
 import requests
 
-from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE
@@ -32,11 +31,11 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
     def __init__(
         self,
         cpes: dict[str, CPE] | None = None,
-        json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        json_path: str | Path | None = None,
         last_update_timestamp: datetime = datetime.fromtimestamp(0),
     ):
+        super().__init__(json_path)
         self.cpes = cpes if cpes is not None else {}
-        self.json_path = Path(json_path)
         self.last_update_timestamp = last_update_timestamp
 
     def __iter__(self) -> Iterator[CPE]:
@@ -96,7 +95,8 @@ class CPEDataset(JSONPathDataset, ComplexSerializableType):
             dset.json_path = json_path
             dset.to_json()
         else:
-            dset.json_path = constants.DUMMY_NONEXISTING_PATH
+            # Clear the json_path, as it points to temporary file
+            dset.json_path = None
         return dset
 
     def enhance_with_nvd_data(self, nvd_data: dict[Any, Any]) -> None:

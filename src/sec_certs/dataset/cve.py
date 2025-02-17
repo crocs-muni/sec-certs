@@ -12,7 +12,6 @@ import pandas as pd
 import requests
 
 import sec_certs.configuration as config_module
-from sec_certs import constants
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.cve import CVE
@@ -30,11 +29,11 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
     def __init__(
         self,
         cves: dict[str, CVE] | None = None,
-        json_path: str | Path = constants.DUMMY_NONEXISTING_PATH,
+        json_path: str | Path | None = None,
         last_update_timestamp: datetime = datetime.fromtimestamp(0),
     ):
+        super().__init__(json_path)
         self.cves = cves if cves is not None else {}
-        self.json_path = Path(json_path)
         self._cpe_uri_to_cve_ids_lookup: dict[str, set[str]] = {}
         self._cves_with_vulnerable_configurations: list[CVE] = []
         self.last_update_timestamp = last_update_timestamp
@@ -92,7 +91,8 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
             dset.json_path = json_path
             dset.to_json()
         else:
-            dset.json_path = constants.DUMMY_NONEXISTING_PATH
+            # Clear the json_path, as it points to temporary file
+            dset.json_path = None
         return dset
 
     def _get_cves_with_criteria_configurations(self) -> None:
