@@ -18,6 +18,7 @@
     <meta property="og:image" content="{{ url_for("static", filename="img/cc_card.png", _external=True) }}"/>
     <meta property="og:description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
+    <meta name="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
 {% endblock %}
 {% block navbar %}
     {{ super() }}

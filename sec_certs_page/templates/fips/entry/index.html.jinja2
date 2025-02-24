@@ -26,6 +26,8 @@
     <meta property="og:description"
           content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
+    <meta name="description"
+          content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
 {% endblock %}
 {% block navbar %}
     {{ super() }}
