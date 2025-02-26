@@ -92,7 +92,8 @@
       "umap-learn[plot]",
       "plotly",
       "scikit-learn",
-      "openai"
+      "openai",
+      "pyarrow"
     ]
 
   [project.urls]

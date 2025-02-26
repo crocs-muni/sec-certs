@@ -20,7 +20,7 @@ Your task is to classify the relationship between a referenced target certificat
     - evaluation_reused: "Cette évaluation a ainsi pris en compte les résultats de l’évaluation des micro-contrôleurs « M7794 A12 et G12 » au niveau EAL5 augmenté des composants ALC_DVS.2 et AVA_VAN.5, conforme au profil de protection [PP0035]. Ces microcontrôleurs ont été certifiés, le 12 juin 2015 sous la référence « BSI-DSZ-CC-0964-2015 ». Le niveau de résistance de ces microcontrôleurs a été confirmé le 7 avril 2017 [CERT_IC]."
     - evaluation_reused: "Also, specific ALC related parts were re-used in the sense of AIS38 from BSI-DSZ-CC-0891-V2-2016 (Infineon Security Controller M7892 D11 and G12)."
 
-There are also bigger categories: "re-evaluation" and "previous version" go under "predecessor" and "component_used", "component_shared", "evaluation_reused" all go under "component_reuse". "none" and "irrelevant" are not handled. This is not something you should however respond with, just general taxonomical information.
+There are also bigger categories: "re-evaluation" and "previous version" go under the umbrella category of "predecessor" and "component_used", "component_shared", "evaluation_reused" all go under the umbrella category "component_reuse". "none" and "irrelevant" are not handled. This is not something you should however respond with, just general taxonomical information.
 
 Return a structured response with a `label` and an `explanation` field.
-Be concise but clear in your explanation.
+Be concise but clear in your explanation. Refer to the more specific instructions will follow in the user's message.
