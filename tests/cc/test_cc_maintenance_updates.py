@@ -77,8 +77,7 @@ def test_to_pandas(mu_dset: CCDatasetMaintenanceUpdates):
     assert set(df.columns) == set(CCMaintenanceUpdate.pandas_columns) - {"dgst"}
 
 
-@pytest.mark.slow
-@pytest.mark.xfail(reason="May fail due to network issues.")
+@pytest.mark.remote
 def test_from_web():
     dset = CCDatasetMaintenanceUpdates.from_web()
     assert dset is not None

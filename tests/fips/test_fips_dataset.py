@@ -37,12 +37,13 @@ def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Pat
     assert data == template_data
 
 
-@pytest.mark.slow
+@pytest.mark.remote
 def test_from_web():
     dset = FIPSDataset.from_web()
     assert len(dset) > 4000
 
 
+@pytest.mark.remote
 def test_archive_fits():
     fsize = helpers.query_file_size(config.fips_latest_full_archive)
     tmpdir = helpers.tempdir_for(fsize)

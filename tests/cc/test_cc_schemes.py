@@ -2,7 +2,6 @@ from datetime import date
 from urllib.parse import urlparse
 
 import pytest
-from requests import RequestException
 
 import sec_certs.sample.cc_scheme as CCSchemes
 from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
@@ -21,7 +20,7 @@ def absolute_urls(results):
     return True
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_australia():
     ineval = CCSchemes.get_australia_in_evaluation()
     assert len(ineval) != 0
@@ -33,7 +32,7 @@ def canada_certified():
     return CCSchemes.get_canada_certified()
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 @pytest.mark.slow
 def test_canada(canada_certified):
     assert len(canada_certified) != 0
@@ -43,7 +42,7 @@ def test_canada(canada_certified):
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 @pytest.mark.slow
 def test_anssi():
     certified = CCSchemes.get_france_certified()
@@ -54,7 +53,7 @@ def test_anssi():
     assert absolute_urls(archived)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 @pytest.mark.slow
 def test_bsi():
     certified = CCSchemes.get_germany_certified()
@@ -62,7 +61,7 @@ def test_bsi():
     assert absolute_urls(certified)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_india():
     certified = CCSchemes.get_india_certified()
     assert len(certified) != 0
@@ -72,7 +71,7 @@ def test_india():
     assert absolute_urls(archived)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_italy():
     certified = CCSchemes.get_italy_certified()
     assert len(certified) != 0
@@ -82,7 +81,7 @@ def test_italy():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_japan():
     certified = CCSchemes.get_japan_certified()
     assert len(certified) != 0
@@ -95,7 +94,7 @@ def test_japan():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_malaysia():
     certified = CCSchemes.get_malaysia_certified()
     assert len(certified) != 0
@@ -108,7 +107,7 @@ def test_malaysia():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_netherlands():
     certified = CCSchemes.get_netherlands_certified()
     assert len(certified) != 0
@@ -118,7 +117,7 @@ def test_netherlands():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_norway():
     certified = CCSchemes.get_norway_certified()
     assert len(certified) != 0
@@ -128,7 +127,7 @@ def test_norway():
     assert absolute_urls(archived)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_korea():
     certified = CCSchemes.get_korea_certified()
     assert len(certified) != 0
@@ -138,7 +137,7 @@ def test_korea():
     assert absolute_urls(archived)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_poland():
     certified = CCSchemes.get_poland_certified()
     assert len(certified) != 0
@@ -148,7 +147,7 @@ def test_poland():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_singapore():
     certified = CCSchemes.get_singapore_certified()
     assert len(certified) != 0
@@ -161,14 +160,14 @@ def test_singapore():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_spain():
     certified = CCSchemes.get_spain_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_sweden():
     certified = CCSchemes.get_sweden_certified()
     assert len(certified) != 0
@@ -181,14 +180,14 @@ def test_sweden():
     assert absolute_urls(ineval)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_turkey():
     certified = CCSchemes.get_turkey_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_usa():
     certified = CCSchemes.get_usa_certified()
     assert len(certified) != 0
@@ -225,6 +224,7 @@ def test_single_match(cert_one: CCCertificate):
     assert matcher.match(cert_one) > 95
 
 
+@pytest.mark.remote
 def test_matching(toy_dataset: CCDataset, canada_certified):
     matches, scores = CCSchemeMatcher.match_all(canada_certified, "CA", toy_dataset)
     assert len(matches) == 1

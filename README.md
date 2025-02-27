@@ -4,8 +4,6 @@
 
 A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks.
 
-<!-- This project is developed by the [Centre for Research On Cryptography and Security](https://crocs.fi.muni.cz) at Masaryk University, Czech Republic. -->
-
 [![Website](https://img.shields.io/website?down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fsec-certs.org)](https://sec-certs.org)
 [![Website](https://img.shields.io/website?label=docs&down_color=red&down_message=offline&style=flat-square&up_color=SpringGreen&up_message=online&url=https%3A%2F%2Fsec-certs.org/docs/index.html)](https://sec-certs.org/docs/index.html)
 [![PyPI](https://img.shields.io/pypi/v/sec-certs?style=flat-square)](https://pypi.org/project/sec-certs/)

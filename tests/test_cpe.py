@@ -72,7 +72,7 @@ def test_serialization_missing_path():
         dummy_dset.to_json()
 
 
-@pytest.mark.skip(reason="Uses too much bandwidth.")
+@pytest.mark.remote
 def test_cpe_download_from_seccerts():
     cpe_dataset = CPEDataset.from_web()
     assert len(cpe_dataset) > 100000

@@ -20,7 +20,7 @@ def load_test_config():
         config.load_from_yaml(path)
 
 
-@pytest.mark.xfail(reason="May fail due to NVD server errors.")
+@pytest.mark.remote
 @pytest.mark.parametrize(
     "default_dataset, builder_class",
     [

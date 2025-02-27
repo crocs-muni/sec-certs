@@ -1,6 +1,7 @@
-name: Tests
+name: Scheduled tests
 on:
-  push:
+  schedule:
+    - cron: "0 0 * * 3" # Run every Wednesday at midnight
   workflow_dispatch:
 env:
   DEBIAN_FRONTEND: noninteractive
@@ -31,7 +32,7 @@ jobs:
           pip install -e .
           python -m spacy download en_core_web_sm
       - name: Run tests
-        run: pytest --cov=sec_certs -m "not remote" tests
+        run: pytest --cov=sec_certs -m "remote" tests
       - name: Code coverage upload
         uses: codecov/codecov-action@v4
         with:

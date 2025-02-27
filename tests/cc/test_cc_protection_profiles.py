@@ -71,14 +71,13 @@ def test_get_certs_from_web(pp_data_dir: Path, toy_pp_dataset: ProtectionProfile
         assert isinstance(cert.web_data.version, str)
 
 
-@pytest.mark.slow
-@pytest.mark.xfail(reason="May fail due to network issues.")
+@pytest.mark.remote
 def test_from_web():
     dset = ProtectionProfileDataset.from_web()
     assert len(dset) > 400
 
 
-@pytest.mark.xfail(reason="May fail due to error on CC server")
+@pytest.mark.remote
 def test_download_html_files():
     with TemporaryDirectory() as tmp_dir:
         dset = ProtectionProfileDataset(root_dir=Path(tmp_dir))
