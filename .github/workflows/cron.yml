@@ -9,7 +9,6 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    continue-on-error: true
     env:
       SECCERTS_NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
@@ -34,6 +33,7 @@ jobs:
           python -m spacy download en_core_web_sm
       - name: Run tests
         run: pytest --cov=sec_certs -m "remote" tests
+        continue-on-error: true
       - name: Code coverage upload
         uses: codecov/codecov-action@v4
         with:
