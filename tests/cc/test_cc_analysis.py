@@ -21,6 +21,7 @@ from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.heuristics.cc import compute_references
 from sec_certs.heuristics.common import compute_related_cves, compute_transitive_vulnerabilities
+from sec_certs.model.references_nlp.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR
 
@@ -37,11 +38,10 @@ def processed_cc_dset(
 ) -> CCDataset:
     tmp_dir = tmp_path_factory.mktemp("cc_dset")
     shutil.copytree(analysis_data_dir, tmp_dir, dirs_exist_ok=True)
-    shutil.copy(pp_data_dir / "dataset.json", tmp_dir / "dataset.json")
 
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.aux_handlers[ProtectionProfileDatasetHandler].root_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy(tmp_dir / "dataset.json", cc_dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path)
+    shutil.copy(pp_data_dir / "dataset.json", cc_dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path)
 
     cc_dset.aux_handlers[ProtectionProfileDatasetHandler].process_dataset()
     cc_dset.aux_handlers[CPEMatchDictHandler].dset = {}
@@ -55,8 +55,10 @@ def processed_cc_dset(
 
 
 @pytest.fixture
-def reference_dataset(analysis_data_dir) -> CCDataset:
-    return CCDataset.from_json(analysis_data_dir / "reference_dataset.json")
+def reference_dataset(analysis_data_dir: Path, tmp_path_factory) -> CCDataset:
+    tmp_dir = tmp_path_factory.mktemp("cc_dset")
+    shutil.copytree(analysis_data_dir, tmp_dir, dirs_exist_ok=True)
+    return CCDataset.from_json(tmp_dir / "reference_dataset.json")
 
 
 @pytest.fixture
@@ -250,3 +252,9 @@ def test_pp_linking(processed_cc_dset: CCDataset):
     assert (
         pp_dset["c8b175590bb7fdfb"].web_data.pp_link in processed_cc_dset["95e3850bef32f410"].protection_profile_links
     )
+
+
+def test_segment_extractor(reference_dataset: CCDataset):
+    df = ReferenceSegmentExtractor()(reference_dataset.certs.values())
+    assert df is not None
+    assert not df.empty

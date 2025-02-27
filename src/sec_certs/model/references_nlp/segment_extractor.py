@@ -181,6 +181,8 @@ class ReferenceSegmentExtractor:
         df_reports = self._build_df(report_certs, "report")
         print(f"df_targets shape: {df_targets.shape}")
         print(f"df_reports shape: {df_reports.shape}")
+        if df_targets.empty and df_reports.empty:
+            raise ValueError("No certificates with references found.")
 
         return ReferenceSegmentExtractor._process_df(pd.concat([df_targets, df_reports]), certs)
 
@@ -191,7 +193,7 @@ class ReferenceSegmentExtractor:
                 "report": "report_references",
             }
             actual_ref_var = {"target": "st_keywords", "report": "report_keywords"}
-            raw_source_var = {"target": "st_txt_path", "report": "report_txt_path"}
+            state_var = {"target": "st", "report": "report"}
 
             canonical_references = getattr(cert.heuristics, canonical_ref_var[source]).directly_referencing
             actual_references = getattr(cert.pdf_data, actual_ref_var[source])["cc_cert_id"]
@@ -202,7 +204,7 @@ class ReferenceSegmentExtractor:
             }
             actual_references = swap_and_filter_dict(actual_references, canonical_references)
 
-            raw_source_dir = getattr(cert.state, raw_source_var[source]).parent
+            raw_source_dir = getattr(cert.state, state_var[source]).txt_path.parent
             processed_source_dir = raw_source_dir.parent / "txt_processed"
 
             return [
@@ -222,6 +224,16 @@ class ReferenceSegmentExtractor:
         return list(itertools.chain.from_iterable(get_cert_records(cert, source) for cert in certs))
 
     def _build_df(self, certs: list[CCCertificate], source: Literal["target", "report"]) -> pd.DataFrame:
+        if not certs:
+            return pd.DataFrame(
+                {
+                    "dgst": [],
+                    "canonical_reference_keyword": [],
+                    "actual_reference_keywords": [],
+                    "source": [],
+                    "segments": [],
+                }
+            )
         records = self._build_records(certs, source)
 
         records = parallel_processing.process_parallel(
