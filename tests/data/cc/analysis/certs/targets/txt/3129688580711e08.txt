@@ -1,0 +1,3463 @@
+Océ Technologies B.V.
+ST-Océ DAC R10.1.5-3.3
+Security Target
+The Océ Digital Access Controller (DAC) R10.1.5, as used in the Océ
+VarioPrint 1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP
+printer/copier/scanner products
+Version 3.3
+Date 19th January 2008
+Certification ID BSI-DSZ-CC- 0517
+Sponsor Océ Technologies B.V.
+File name Oce Venlo DAC Security Target 3.0.doc
+No of pages 95
+This Security Target was prepared for:
+Océ Technologies B.V.
+P.O. Box 101,
+5900 MA Venlo,
+The Netherlands
+by Brightsight BV.
+ 2009 Océ Technologies B.V.
+ST-Océ DAC R10.1.5-3.3 2 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Document information
+Date of issue 19th
+January 2008
+Author(s) Dirk-Jan Out
+Version number report 3.3
+Certification ID BSI-DSZ-CC- 0517
+Scheme BSI
+Sponsor Océ Technologies B.V.
+P.O. Box 101,
+5900 MA Venlo,
+The Netherlands
+Evaluation Lab Brightsight B.V.
+IT Security Evaluation Facility
+Delftechpark 1
+2628XJ Delft
+The Netherlands
+Target of Evaluation (TOE)
+The Océ Digital Access Controller
+(DAC) R10.1.5, as used in the Océ
+VarioPrint 1055, 1055 BC, 1055 DP,
+1065, 1075, 2062, 2075, 2075 DP
+printer/copier/scanner products
+TOE reference name Océ DAC R10.1.5
+CC-EAL number 2+ (augmented with ALC_FLR.1)
+Classification None
+Report title
+Security Target
+The Océ Digital Access Controller
+(DAC) R10.1.5, as used in the Océ
+VarioPrint 1055, 1055 BC, 1055 DP,
+1065, 1075, 2062, 2075, 2075 DP
+printer/copier/scanner products
+Report reference name ST-Océ DAC R10.1.5-3.3
+ST-Océ DAC R10.1.5-3.3 3 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Document history
+Version Date Comment
+0.2 14-10-03 Initial draft
+0.3 17-10-03 Added initial comments from TNO-ITSEF BV
+0.4 28-10-03 Added comments from Océ
+0.5 06-11-03 Added comments of Océ resulting from meeting
+0.6 Added telephone comments from Océ
+0.7 17-11-03 Further expansion of versions 0.5 and 0.6
+0.8 1-12-03 SFR’s added and comments from Océ included
+0.9 20-2-04 Added comments from Océ
+1.0 2-3-04 Initial release (unevaluated)
+1.1 28-5-04 Modified after initial CC evaluation round with comments
+from evaluators and from BSI
+1.2 17-6-04 Modified after second CC evaluation round
+1.3 25-08-04 Modified after comment BSI (Rev Prot 3)
+1.4 23-09-04 Modified after comment BSI (Rev Prot 12)
+1.5 30-11-04 Modified after comment BSI (Rev Prot 23)
+1.6 01-12-04 Modified after comment BSI (Rev Prot 23)
+1.7 13-05-05 Modified to reflect differences between R8.1.10 and
+R7.3.6 of the DAC product
+1.8 1-08-05 Modified after comments from BSI (Rev Prot 1)
+1.9 2-09-05 Modified after comments from BSI (Rev Prot 5)
+2.0 12-01-06 Modified to reflect differences between R9.1.0 and
+R.8.1.10 of the DAC product
+2.1 01-05-06 Certification Id Added
+2.2 01-07-06 Modified after comments from BSI (Rev Prot
+ZK_0370_ASE_01)
+2.3 27-07-06 Modified after comments from BSI (Rev Prot
+ZK_0370_ASE_02)
+2.4 25-08-06 Modified after comments from BSI (Rev Prot
+ZK_0370_ASE_03)
+3.0 1-03-08 Modified to reflect differences between R10.1.5 and
+R.9.1.6 of the DAC product
+3.1 01-10-08 Modified after comments from BSI (Rev Prot
+ZK_0517_ASE_01)
+3.2 12-10-08 Modified after comments from BSI (Rev Prot
+ZK_0517_ACM_ADO_ALC_01
+3.3 19-01-08 Adaptation of figure 2
+ST-Océ DAC R10.1.5-3.3 4 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Contents
+DOCUMENT INFORMATION.........................................................................................2
+DOCUMENT HISTORY ....................................................................................................3
+1. SECURITY TARGET INTRODUCTION ...............................................................6
+1.1 ST IDENTIFICATION ..............................................................................................6
+1.2 ST OVERVIEW ......................................................................................................7
+1.3 CC CONFORMANCE ..............................................................................................8
+2. TOE DESCRIPTION .................................................................................................9
+2.1 TOE OVERVIEW ...................................................................................................9
+2.1.1 TOE physical scope and boundary ..................................................................9
+2.1.2 TOE logical scope and boundary ..................................................................12
+3. TOE SECURITY ENVIRONMENT.......................................................................20
+3.1 DEFINITION OF SUBJECTS, OBJECTS AND OPERATIONS.........................................20
+3.1.1 Non-human subjects.......................................................................................20
+3.1.2 Human subjects..............................................................................................20
+3.1.3 Objects...........................................................................................................21
+3.1.4 Operations .....................................................................................................22
+3.2 ASSUMPTIONS.....................................................................................................22
+3.3 THREATS.............................................................................................................24
+3.4 ORGANISATIONAL SECURITY POLICIES...............................................................24
+4. SECURITY OBJECTIVES......................................................................................25
+4.1 TOE SECURITY OBJECTIVES...............................................................................25
+4.1.1 Functional Security Objectives for the TOE..................................................25
+4.1.2 Assurance Security Objectives for the TOE...................................................26
+4.2 SECURITY OBJECTIVES FOR THE ENVIRONMENT..................................................26
+5. IT SECURITY REQUIREMENTS.........................................................................28
+5.1 TOE SECURITY FUNCTIONAL REQUIREMENTS....................................................28
+5.1.1 SFRs for Filtering..........................................................................................28
+5.1.2 SFRs for Job Release.....................................................................................29
+5.1.3 SFRs for Shredding........................................................................................30
+5.1.4 SFRs for Management ...................................................................................30
+5.1.5 SFRs for Protection of the TSF itself .............................................................32
+5.1.6 Strength-of-function claim .............................................................................33
+5.2 TOE SECURITY ASSURANCE REQUIREMENTS.....................................................33
+5.3 SECURITY REQUIREMENTS FOR THE IT ENVIRONMENT.......................................34
+5.4 EXPLICITLY STATED REQUIREMENTS ..................................................................34
+6. TOE SUMMARY SPECIFICATION .....................................................................35
+6.1 IT SECURITY FUNCTIONS....................................................................................35
+ST-Océ DAC R10.1.5-3.3 5 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+6.1.1 Probabilistic functions and mechanisms........................................................36
+6.1.2 Strength of function claim..............................................................................37
+6.2 ASSURANCE MEASURES......................................................................................37
+7. PP CLAIMS...............................................................................................................39
+8. RATIONALE ............................................................................................................40
+8.1 SECURITY OBJECTIVES RATIONALE ....................................................................40
+8.2 SECURITY REQUIREMENTS RATIONALE ..............................................................45
+8.2.1 The SFRs meet the Security Objectives for the TOE......................................45
+8.2.2 The security requirements for the IT environment meet the security objectives
+for the environment.....................................................................................................49
+8.2.3 The Assurance Requirements and Strength of Function Claim are appropriate
+50
+8.2.4 All dependencies have been met.....................................................................50
+8.2.5 The requirements are internally consistent....................................................51
+8.2.6 The requirements are mutually supportive ....................................................51
+8.3 TOE SUMMARY SPECIFICATION RATIONALE......................................................52
+8.3.1 The functions meet the SFRs..........................................................................52
+8.3.2 The assurance measures meet the SARs ........................................................55
+8.3.3 The SOF-claims for functions meet the SOF-claims for the SFRs.................55
+8.3.4 The functions are mutually supportive...........................................................56
+8.4 PP CLAIMS RATIONALE ......................................................................................56
+ST-Océ DAC R10.1.5-3.3 6 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+1. Security Target Introduction
+1.1 ST Identification
+Name of the TOE:
+The Océ Digital Access Controller (DAC) R10.1.5, as used in the Océ VarioPrint
+1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner
+products
+Name of the Security Target:
+Security Target
+The Océ Digital Access Controller (DAC) R10.1.5, as used in the Océ VarioPrint
+1055, 1055 BC, 1055 DP, 1065, 1075, 2062, 2075, 2075 DP printer/copier/scanner
+products
+ST evaluation status: Draft for Evaluation
+ST version number: 3.3
+ST publication date: 19th January 2008
+ST author: Dirk-Jan Out
+This Security Target was prepared for:
+Océ Technologies B.V.
+P.O. Box 101,
+5900 MA Venlo,
+The Netherlands
+by Brightsight B.V. IT Security Evaluation Facility
+Delftechpark 1
+2628XJ Delft
+The Netherlands
+ST-Océ DAC R10.1.5-3.3 7 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+1.2 ST Overview
+The firm Océ produces a wide range of multifunctional devices for copying, printing
+and scanning (MFDs) for various purposes. A number of these MFDs: the 1055/65/75
+series, the 2062 series and the 2075 series, use the same Digital Access Controller
+(DAC).
+The Océ Digital Access Controller (DAC) R10.1.5, is used with the Océ VarioPrint
+• 1055, 1065, 1075, 2062, 2075.
+These VarioPrint products are referred to collectively in this Security Target as
+MFDs
+A digital copier from the
+Océ Varoprint 1055/65/75
+series with embedded DAC
+An Océ Varioprint 2062
+digital copier with
+embedded DAC.
+ST-Océ DAC R10.1.5-3.3 8 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+An Océ Varioprint 2075
+digital copier with
+embedded DAC.
+For external DACs, an optional ‘removable hard disk’ is available.
+The DAC is a PC-based MFD-controller that provides a wide range of printing and
+scanning functionality to the Digital Copier (DC) of the MFD to which the DAC is
+connected. The DAC provides security functionality to the DC; the DAC does not
+provide copy functionality.
+This Security Target describes the DAC and the specific security problem that it
+addresses. The Target of Evaluation (TOE) is a collection of software components
+(printer drivers, OS) that use the underlying hardware platform. The TOE is a
+subset of the complete DAC.
+1.3 CC Conformance
+The evaluation is based upon:
+• Common Criteria for Information Technology Security Evaluation, Version
+2.3, Part 1: General model, August 2005.
+• Common Criteria for Information Technology Security Evaluation, Version
+2.3, Part 2: Security functional requirements, August 2005.
+• Common Criteria for Information Technology Security Evaluation, Version
+2.3, Part 3: Security assurance requirements, August 2005.
+• Common Methodology for Information Technology Security Evaluation,
+Version 2.3, Evaluation Methodology, August 2005.
+The chosen level of assurance is: EAL2 (Evaluation Assurance Level 2
+augmented with ALC_FLR.1)
+This Security Target claims the following conformance to the CC:
+CC Part 2 conformant; CC Part 3 conformant.
+ST-Océ DAC R10.1.5-3.3 9 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+2. TOE Description
+2.1 TOE Overview
+This section presents an overview of the TOE.
+2.1.1 TOE physical scope and boundary
+The firm Océ produces a wide range of multifunctional devices for copying,
+printing and scanning (MFDs). For the purpose of this evaluation, MFDs consist of
+two main parts: a controller and a Digital Copier (DC).
+A number of these MFDs use the same controller: the Digital Access Controller
+(DAC).
+The DAC is a PC-based MFD-controller that provides a wide range of printing and
+scanning functionality to the Digital Copier (DC) of the MFD to which the DAC is
+connected. The DAC provides security functionality to the DC. It does not provide
+copy functionality.
+The DAC can operate in three different security modes: ‘high’, ‘normal’ and ‘low’.
+This Security Target covers the DAC operating in the security mode ‘high’ as
+delivered by Océ to the customer. This mode provides a restricted set of
+functionality that is configured to meet the Security Target claim. Changing the
+operational mode invalidates the claim made in this Security Target.
+The DAC is connected between a network and the DC. This is depicted in Figure 1.
+Digital
+Copier (DC)
+DAC
+MFD
+Network
+Copy Data
+Flow
+Scan Data
+Flow
+Output Tray of MFD
+Input Glass Plate of MFD
+Print Data
+Flow
+Figure 1: Relation between DC, DAC and MFD
+ST-Océ DAC R10.1.5-3.3 10 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The DAC consists of:
+1. An embedded uATX motherboard based PC comprising at a minimum a
+Via Eden C3 800 MHz processor, 256MB internal RAM, 20GB hard drive,
+2. Generic graphics card and network card supporting 10/100/1000Mbs
+Ethernet UTP.
+3. Drivers for the PC, graphics card and network card
+4. USB hardware support.
+5. The Montvista Linux operating system version 4.0.1 with updates until
+August 9, 2007 and New-Zealand time-zone fix. These updates are
+specified in appendix F.
+6. Océ DAC-specific software version R10.1.5
+7. Third-party developed software: Adobe PS3-PDF Interpreter, Version
+3016.103 v.3.1 build #03; Apache HTTP server with SSL support, Apache
+2.0.59, OpenSSL 0.9.7l, SAMBA 3.0.25b, PHP 4.4.7
+Of these 7, the first four are not part of the TOE and together form the underlying
+hardware platform that the TOE makes use of. The underlying hardware platform
+does not provide any specific security related functionality for the TOE. The TSF is
+mediated by the last three software components that are part of the TOE. This is
+depicted in Figure 2.
+OCE
+Digital Access
+Controller
+Specific Software
+(6)
+Third Party
+Software (7)
+TOE
+The Montvista Linux OS v4.0.1 (5)
+USB Hardware Support (4)
+Generic PC Hardware Drivers (3)
+NON TOE
+Generic PC Hardware and USB2 (1,2)
+Figure 2: Division of the DAC into TOE and non-TOE.
+The underlying PC hardware platform has the following characteristics:
+• The USB port is used by the service engineer for administration and for
+attaching the Varioprint MFD to the DAC. It is also possible to print jobs
+stored on a USB memory stick and scan jobs to a USB memory stick. No
+ST-Océ DAC R10.1.5-3.3 11 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+other devices are attached to the USB ports that are not related to the
+normal operation of the DAC.
+• All other interfaces, such as the keyboard or other ports, have been
+disabled.
+The physical interfaces through which the TOE communicates are:
+• A USB connector through which a service engineer can install and
+administer the TOE
+• A network card through which print and scan jobs can pass and a remote
+system administrator can administer the TOE
+• A USB connector that allows for data flows between the Digital Copier
+(DC) and the TOE via the DAC cable.
+• A USB connector through which print jobs can be sent the DAC for
+printing and for receiving scan jobs from the DAC.
+The user guidance for the TOE consists of :
+• Océ VarioPrint 1055-75 Job manual
+• Océ VarioPrint 2062 Job manual
+• Océ VarioPrint 2075 Job manual
+• Océ VarioPrint 1055-75 Configuration manual
+• Océ VarioPrint 2062 Configuration manual
+• Océ VarioPrint 2075 Configuration manual
+• These manuals are delivered in paper form with the DAC and can also be
+downloaded from the support section from Océ corporate website
+(www.oce.com)
+The administrator guidance for the TOE consists of:
+The DAC administration guidance1 for the customer system administrator takes the
+form of HTML pages. These are part of the Océ DAC-specific software, Version
+R10.1.5:
+• Océ System Configuration, On-line help.
+The DAC administration guidance for the Océ service engineer takes the form of a
+Lotus Notes application that is installed on the service engineer’s laptop. The
+guidance contains an appendix that is identified as:
+• Administrating version R10.1.5 of the Océ DAC,
+and is a frozen version of the Océ service engineer Lotus Notes application made at
+the time of product release.
+1 This includes the “Common Criteria Certified Configuration of the DAC R10.1.5”
+ST-Océ DAC R10.1.5-3.3 12 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+2.1.2 TOE logical scope and boundary
+The TOE protects two assets: itself and the print jobs it receives.
+1. The TOE protects it’s own integrity against threats from the LAN, service
+engineer laptop, USB memory sticks and the Digital Copier to which it is
+attached through use of a firewall and integrity checks on system files upon
+system reboot.
+2. The TOE protects the confidentiality of secure print jobs once they have
+been received by the DAC by storing them until the user authenticates
+himself to the DAC via a user interface on the DC. The DAC shreds the
+data after printing is completed.
+The TOE does not form a threat to its environment for the following reasons:
+• The TOE does not form a threat to the integrity of the LAN to which the
+DAC is attached. The TOE configuration has been tested and is configured
+so that the integrity of the configuration is checked and restored upon
+system reset.
+• Additionally, all data that enters the TOE via the Digital Copier must pass
+through an internal firewall. There is no direct line from the Digital Copier
+to the network to which the DAC is attached.
+In order to do so, it offers the following functionality2:
+2 The DC can also perform copying, but this is done without interaction with the
+TOE. Copy job related data does not enter the TOE boundary. This is therefore
+out-of-scope of this ST.
+ST-Océ DAC R10.1.5-3.3 13 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The TOE controls printing
+The TOE accepts Postscript, PDF, PCL5e, PCL6 print jobs from remote users on
+the network (lpr over TCP/IP or raw print data via a raw IP socket). The TOE also
+accepts jobs printed by a remote user (commonly know as ‘print to file’) that have
+been copied to a USB stick that is then inserted into the DAC by local users
+through a USB port located in the DC Local User Interface console shown below.
+Figure 3: The DC LUI console showing the USB connector used for printing and scanning
+and the optional fingerprint sensor that used for identifying mailbox owners
+The DAC processes these print jobs and provides these as images to the attached
+DC. The TOE can print these jobs in three different ways. The remote users can
+select the way in which each of his jobs is printed from a printer settings dialog box
+on the screen of their PC.
+Automatic printing
+The TOE receives a print job from a remote end-user or from an inserted USB
+memory stick, and stores it in a queue. Once this job is the first one in the queue,
+the TOE processes this print job into images, and sends these images to the
+attached DC for printing.
+ST-Océ DAC R10.1.5-3.3 14 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Mailbox printing
+The TOE receives a print job from a remote end-user or from an inserted USB
+memory stick, and stores it internally. The end-user then has to go physically to the
+DC (become a local end-user) and identify himself at the Local User Interface of
+the DC (LUI) either by selecting his name from a list displayed on the LUI screen
+or by using the optional fingerprint sensor. Only after this, will the TOE process
+the job. The resulting images are sent to the attached DC for printing.
+The fingerprint sensor is an optional feature of the MFD that is not always present.
+The sensor hardware is not part of the TOE but is part of the DC
+(see figure 3) and connects to the TOE via a TOE-DC USB cable. The software
+support for the use of the sensor is always present in the TOE. The user
+identification credentials can either be stored in a remote LDAP server or in an
+internal database within the DAC. The internal database within the DAC is part of
+the TOE but is not security enforcing.
+Secure printing
+This is similar to mailbox printing, with two differences:
+• When submitting the print job, the remote end-user adds a job-specific
+PINcode that has a length of 4 to 6 digits to the job.
+• The PINcode is stored in the DAC.
+• After identifying himself at the LUI of the DC as described in mailbox
+printing, the local end-user also has to provide the job-specific PINcode in
+order to authenticate himself. The DC interrogates the DAC as to the
+validity of the PIN. If correct, the print job data is released by the DAC and
+is sent to the DC. A replay attack with an intercepted PIN is countered by
+shredding the print job data immediately after the print job is completed.
+The end-users and interfaces they interact with are depicted in Figure 4.
+Digital
+Copier (DC)
+DAC
+MFD
+Network
+Remote end-user
+Local end-user
+LUI
+LUI
+Network
+Network
+Figure 4: End-users and interfaces for printing
+The TOE is configured to destroy the data relating to secure print jobs (print jobs
+submitted to the mailbox with an associated PIN), non-secure print jobs, scan jobs
+and temporary files.
+ST-Océ DAC R10.1.5-3.3 15 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+This is achieved by writing over the job related data with other data, thereby
+making it difficulty to retrieve the original data.
+The TOE administrators can select the number of write iterations and at what
+moment the shredding takes place. The first iteration takes place after the data is
+released. The remaining iterations can take place immediately (synchronous) or
+with low priority in the background (asynchronous).
+Additionally, the TOE is also configured to shred all data at the end of each
+working day by specifying a specific time interval no greater than once every 24
+hours.
+ST-Océ DAC R10.1.5-3.3 16 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The TOE controls print jobs that are re-routed to DACs elsewhere on the
+network
+Local end-users can re-route print jobs that have been submitted to their mail box
+(see mail box printing above) to other DACs that are attached on the network. This
+functionality does not support the re-routing of secure print jobs (see secure
+printing above).
+This functionality is provided for a situation whereby the remote end-user, having
+submitted a print job to a DAC, walks to another MFD located elsewhere in the
+operational environment and thereby becomes a local end-user at a DAC where the
+print job is not located. They can then re-route their mail box print job from the
+original DAC to another MFD and print their document there. The original DAC
+maintains a list of ‘friendly DACs’ (officially known as smart mailbox members)
+that can request mailbox print jobs to be re-routed. The re-routing of secure print
+jobs is not permitted.
+The local end-user must identify himself by selecting their name or my entering a
+value which will be used to retrieve their identification details from a LDAP server
+located elsewhere on the network.
+The end-users and interfaces they interact with are depicted in Figure 5
+Network
+Remote end-user
+Digital
+Copier (DC)
+DAC
+MFD
+LUI
+Network
+Digital
+Copier (DC)
+DAC
+MFD
+LUI
+LUI
+Network
+Network
+Digital
+Copier (DC)
+DAC
+MFD
+LUI
+LUI
+Network
+Network
+Local end-user
+Local end-user
+Figure 5: End-users and interfaces for printing
+ST-Océ DAC R10.1.5-3.3 17 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The TOE controls scan jobs
+Local end-users can scan documents on the DC, and the resulting images will then
+be submitted to the TOE. The TOE can process the images to a variety of file
+formats and then transfer the resulting files by ftp to an ftp-server on the network
+or by SMTP to an e-mail server on the network or to a USB memory stick if
+present on the DC LUI console.
+The end-users and interfaces they interact with are depicted in Figure 6.
+Digital
+Copier (DC)
+DAC
+MFD
+Network
+Local end-user
+LUI
+Network
+FTP-server
+E-Mail server
+Digital
+Copier (DC)
+DAC
+MFD
+Network
+Local end-user
+LUI
+LUI
+Network
+Network
+FTP-server
+E-Mail server
+Figure 6: End-users and interfaces for scanning
+The TOE can be managed
+As indicated in the previous sections, the MFD (of which the TOE is a part)
+supports local and remote end-users. The MFD also supports various
+administrators, which are described briefly here:
+Key Operator: These are typically administrators or secretaries from the
+organization owning/renting the TOE. They can interact with the DC through the
+LUI, and through this interaction have access to a limited amount of non-security
+related settings of the TOE.
+Remote System administrator (HTTPS): These are remote administrators, typically
+a network administrator from the organization owning/renting the TOE. They can
+change a less limited set of settings of the TOE through a HTTP over SSL
+connection (HTTPS). The remote administrator can identify the TOE via a
+ST-Océ DAC R10.1.5-3.3 18 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+certificate. Help files for the administrator are also delivered via the HTTPS
+connection. Web pages that are delivered via the HTTPS connection are ‘non-
+cacheable’.
+Remote System administrator (SNMP): These are remote administrators, typically a
+network administrator from the organization owning/renting the TOE. They can
+read and write a limited set of non-security related settings of the TOE through a
+SNMP connection.
+Service engineer: These are local administrators, and are typically employed by
+Océ. They have access through a USB connection to a wide range of settings on the
+TOE and the DC. The TOE connection is PIN code protected.
+The various administrators and the interfaces through which they interact with the
+TOE are depicted in Figure 7.
+Digital
+Copier (DC)
+DAC
+MFD
+Remote system
+administrator
+(HTTPS and SNMP)
+Key-operator
+LUI
+LUI
+USB
+USB
+Network
+Network
+Network
+Service
+Engineer
+Figure 7: MFD Administrators and interfaces
+ST-Océ DAC R10.1.5-3.3 19 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The TOE has minimized all other functionality
+The TOE supports TCP/IP: all other network protocols are disabled. The TOE
+manufacturer has closed all network ports except those that are absolutely
+necessary to its functioning. This includes the physical connectors on the TOE. The
+TOE has further restricted the functionality behind each open network port to that
+which is absolutely necessary to its functioning. This is done to maximize the
+integrity of the TOE itself and minimize the risk of the TOE being infected or
+hacked and subsequently being used as a stepping-stone to damage the network.
+The availability of security related functionality
+As depicted in Figure 7, The Key Operator is not able to influence the security of
+the TOE as they have no access to security settings via the DC. The Service
+Engineer cannot influence the security of the TOE via the interface to the DC.
+Because the Key Operator and Local End-User cannot access security related
+settings on the DAC, they cannot affect the TOE. For the sake of clarity, Figure 8
+shows the interfaces to the TOE and the subjects that can access and manage TOE
+security settings.
+DAC
+Remote system
+administrator
+USB
+USB
+Network
+Network
+Network
+Service
+Engineer
+Figure 8: TOE Administrators and interfaces
+ST-Océ DAC R10.1.5-3.3 20 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+3. TOE Security Environment
+The TOE is intended to provide scan and print functionality to users requiring a
+low to moderate level of security assurance. Additional environmental and
+organisational requirements support the security functionality provided by the
+TOE.
+3.1 Definition of subjects, objects and operations
+To facilitate definition of threats, OSPs, assumptions, security objectives and
+security requirements, we define the subjects, objects and operations to be used in
+the ST first.
+3.1.1 Non-human subjects
+The systems (equipment) that will be interacting with the TOE (in alphabetical
+order):
+S.DIGITAL_COPIER A device that physically renders a print job or scans in a
+job and is attached to the TOE via a cable.
+S.NETWORK_DEVICE An unspecified network device that is logically
+connected to the TOE and is located in the same
+operating environment (office building).
+3.1.2 Human subjects
+The users (or subject acting on behalf of that user) that will be interacting with the
+TOE are:
+S.REMOTE_USER A person located within the operational environment of
+the TOE who is aware of how the TOE should be used.
+They are not malicious towards the TOE but are
+capable of making mistakes when operating it.
+S.REMOTE_USER typically sends print jobs from their
+desktop PC to the TOE
+S.LOCAL_USER A person located within the operational environment of
+the TOE who is aware of how the TOE should be used.
+They are not malicious towards the TOE but are
+capable of making mistakes when operating it. They
+may be interested in the content of other users’ print
+jobs. S.LOCAL_USER typically interacts indirectly
+with the TOE via S.DIGITAL_COPIER
+S.REMOTE_SYSADMIN A person who can change some TOE settings using a
+Océ supplied interface. They are trusted by the
+ST-Océ DAC R10.1.5-3.3 21 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+customer and are adequately trained. They are capable
+of making mistakes. They connect to the TOE via the
+network.
+S.SERVICE_ENGINEER A person with elevated privileges above those of
+S.LOCAL_USER and S.REMOTE_SYSADMIN. This
+person is an Océ representative and accesses the TOE
+locally through an USB interface. They are not
+malicious towards the TOE but are capable of making
+mistakes when operating it.
+S.THIEF S.THIEF (cleaning staff, burglar, visitor, in rare cases a
+user) will have no moral issues in stealing the TOE or
+parts of it. Once S.THIEF has stolen the TOE or parts
+of it he may attempt to retrieve earlier printer and
+scanner jobs from the TOE. S.THIEF is not able to steal
+Copy jobs3 as they never enter the TOE. S.THIEF is
+opportunistic and is not a recurring visitor to the
+environment in which the TOE operates.
+Note that the key operator is not included as a subject that interacts with the TOE
+as he is not able to make changes to the security settings of the TOE and is
+therefore equal to S.LOCAL_USER with respect to security.
+3.1.3 Objects
+The (data) objects for the TOE that the TOE will operate upon are:
+D.SECURE_PRINT_JOB A secure print job submitted by S.REMOTE_USER to
+the TOE over the network or by S.LOCAL_USER via a
+USB memory stick that has been inserted into the MFD
+LUI console.. D.SECURE_PRINT_JOB has the
+Security Attribute Username/PIN associated with them.
+D.PRINT_JOB A non D.SECURE_PRINT_JOB type print job
+submitted either by S.REMOTE_USER to the TOE
+over the network, by S.LOCAL_USER via a USB
+memory stick that has been inserted into the MFD LUI
+console or by another MFD located elsewhere on the
+network.
+D.SCAN_JOB Data that is scanned in via the DC attached to the DAC.
+Data is sent from the TOE to a FTP or e-mail server
+located elsewhere on the network or to a USB memory
+stick that has been inserted into the MFD LUI console.
+3 See .
+Figure 1: Relation between DC, DAC and MFD
+ST-Océ DAC R10.1.5-3.3 22 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+D.INBOUND_TRAFFIC TCP/IP network packets received by the TOE.
+D.INBOUND_TRAFFIC has the Security Attributes
+Port and Protocol associated with it.
+D.OUTBOUND_TRAFFIC TCP/IP network packets sent by the TOE.
+D.OUTBOUND_TRAFFIC has the Security Attributes
+Port and Protocol associated with it.
+3.1.4 Operations
+3.1.5
+The operations that are performed by the TOE are:
+R.RELEASE_JOB The TOE processes and releases a
+D.SECURE_PRINT_JOB to the attached DC.
+R.PRINT_JOB The TOE processes and releases a D.PRINT_JOB to the
+attached DC.
+R.FORWARD_JOB The TOE processes and releases a D.PRINT_JOB to the
+attached network.
+R.SCAN_JOB The TOE processes and releases a D.SCAN_JOB to the
+attached network
+R.SHRED_JOB The TOE shreds redundant D.SECURE_PRINT_JOB,
+D.PRINT_JOB, D.SCAN_JOB data objects from the
+TOE’s hard disk.
+R.ENTER_TOE The TOE allows D.INBOUND_TRAFFIC to enter its
+boundary.
+R.EXIT_TOE The TOE allows D.OUTBOUND_TRAFFIC to leave
+its boundary.
+3.2 Assumptions
+A.DIGITAL_COPIER It is assumed that the TOE has a S.DIGITAL_COPIER
+device attached to it. S.DIGITAL_COPIER is an Océ
+VarioPrint 1055-75, 2062 or 2075 Digital Copier. When
+D.SECURE_PRINT_JOB is sent to
+S.DIGITAL_COPIER, R.REMOTE_USER will specify
+a PIN of at least 4 and a maximum of 6 digits and,
+whether the job is printed or not, will delete the job on
+the same workday. Employees are aware of this
+requirement.
+ST-Océ DAC R10.1.5-3.3 23 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+A.ENVIRONMENT The TOE assumes that its operational environment is a
+regular office environment. Physical access to the
+operational environment is restricted. No parts of the
+TOE will leave the operational environment during
+normal operational ownership unless the product is
+being returned to the manufacturer as part of flaw
+remediation or end of ownership. The environment
+contains non-threatening office personnel
+(S.LOCAL_USER, S.REMOTE_USER,
+S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER). S.THIEF is only rarely
+present in this environment and not on a recurring basis.
+A.SECURITY_POLICY It is assumed that the customer will have a Security
+Policy governing the use of IT products by employees
+in the customer organisation. The TOE assumes that the
+network to which it is attached is protected by security
+measures that are intended to prevent mal-ware, viruses
+and network traffic, not related to the working of the
+operational environment, entering the network to which
+it is attached. Although the Virus database files and
+various patches are kept up to date, the policy
+recognises that new threats emerge over time and that
+occasionally they may enter the environment from
+outside and provides measures to help limit the damage.
+The Policy will define how IT products are protected
+against threats originating from outside the customer
+organisation. The organisation’s employees are aware
+of, are trained in and operate according to the terms and
+conditions of the policy. The policy also covers
+physical security and the need for employees to work in
+a security aware manner including the usage of the
+TOE. The Security Policy describes and requires a low
+to medium level of assurance (EAL2) for the TOE.
+A.SHREDDING The TOE assumes that the customer will not disable the
+shredding operation for D.PRINT_JOB and
+D.SCAN_JOB data objects4.
+A.SLA It is assumed that any security flaws discovered in the
+TOE will be repaired by Océ (possibly as part of an
+agreed service level agreement).
+4 The TOE shreds D.SECURE_PRINT_JOB, D.PRINT_JOB and D.SCAN_JOB by
+default when printing/scanning is completed in the delivered mode. It is possible
+to disable shredding for D.PRINT_JOB and D.SCAN_JOB. If this happens, the
+TOE claim is no longer valid.
+ST-Océ DAC R10.1.5-3.3 24 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+3.3 Threats
+T.RESIDUAL_DATA S.THIEF steals the TOE or parts thereof and retrieves
+stored or deleted D.SECURE_PRINT_JOB. The
+motivation for S.THIEF to attack the TOE is low
+because it requires sophisticated data recovery
+equipment that can recover data even after the
+shredding mechanism has executed to recover data that
+has little value to the attacker.
+T.NOSY_USER S.LOCAL_USER accesses a D.SECURE_PRINT_JOB
+that does not belong to him/her that is stored in the
+DAC. The motivation to carry out this attack is low.
+T.MALWARE A S.NETWORK_DEVICE is used by malware that
+may have entered the TOE’s operational environment to
+launch an attack on the integrity of the TOE.
+Alternatively S.DIGITAL_COPIER is used by malware
+to launch an attack on the integrity of
+S.NETWORK_DEVICE. The motivation to carry out
+this attack is low.
+3.4 Organisational Security Policies
+P.JOB_DELETE When D.SECURE_PRINT_JOB, D.PRINTJOB and
+D.SCANJOB objects are no longer needed by the TOE,
+they will be deleted by the TOE at the earliest available
+opportunity in a manner that meets a recognised
+standard.
+P.TOE_ADMINISTRATION The modification of TOE security settings shall be
+restricted to S.SERVICE_ENGINEER and
+S.REMOTE_SYSADMIN.
+ST-Océ DAC R10.1.5-3.3 25 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+4. Security Objectives
+4.1 TOE Security Objectives
+This section consists of two groups of objectives:
+• Functional Security Objectives for the TOE, that deal with what the TOE must
+do;
+• Assurance Security Objectives for the TOE, that deal with how much
+assurance one should have in that the TOE does what it is expected to.
+4.1.1 Functional Security Objectives for the TOE
+O.F.INBOUND_FILTER The TOE will only support TCP/IP as a network
+protocol. D.INBOUND_TRAFFIC shall only enter the
+TOE (R.ENTER_TOE) if its Port is specified as being
+open in Appendix E.
+O.F.OUTBOUND_FILTER The TOE will only support TCP/IP as a network
+protocol. D.OUTBOUND_TRAFFIC shall only exit the
+TOE (R.EXIT_TOE) if its Port is specified as being
+open in Appendix E.
+O.F.JOB_RELEASE The TOE shall only perform R.RELEASE_JOB once
+S.LOCAL_USER has successfully identified and
+authenticated himself as owner of
+D.SECURE_PRINT_JOB.
+O.F.JOB_SHRED The TOE shall delete all D.SECURE_PRINT_JOB,
+D.PRINT_JOB and D.SCAN_JOB data as soon as it is
+no longer required or during the start-up procedure if
+residual D.SECURE_PRINT_JOB, D.PRINT_JOB and
+D.SCAN_JOB is found on the TOE’s hard disk. The
+first write cycle will either immediately after the job has
+completed or once the TOE enters an idle state. The
+data shall be deleted according to a recognised standard
+so that it cannot be reconstituted.
+O.F.AUTHENTICATE The TOE ensures that S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER must authenticate themselves
+to the TOE before allowing them to modify the TOE
+security settings.
+ST-Océ DAC R10.1.5-3.3 26 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+O.F.SELFTEST The TOE will perform check of the integrity of the TSF
+when it is re-booted.
+4.1.2 Assurance Security Objectives for the TOE
+O.A.SLA The TOE shall be evaluated to ALC_FLR.1Security
+Objectives for the environment
+O.E.ENVIRONMENT The environment into which the TOE will be introduced
+is protected by physical measures that limit access
+S.LOCAL_USER, S.REMOTE_USER,
+S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER. The physical measures are
+adequate to prevent all other persons but a determined
+S.THIEF who deliberately wants to steal part of or all
+of the TOE by methodically planning an attack on the
+TOE over a period of time.
+O.E.NETWORK_POLICYThe network to which the TOE is attached shall be
+adequately protected so that the TOE is not visible
+outside the network. In addition, measures shall be
+implemented to only allow connections to the TOE
+from devices situated on the same network. No inbound
+connections from external networks are allowed. The
+network scans data for mal-ware (viruses and worms).
+This type of data may originate from either inside or
+outside the network to which the TOE is attached and
+includes the TOE itself.
+O.E.DEPLOYMENT The network (LAN) to which the TOE is attached is
+well managed with established procedures for
+introducing and attaching new devices to the network.
+O.E.DIGITAL_COPIER The environment into which the TOE will be introduced
+shall contain an Océ VarioPrint 1055-75, 2062 or 2075
+Digital Copier that provides a Local User Interface and
+Glass Plate through which S.LOCAL_USER can
+interact easily with the TOE (selecting username and
+entering PINcode). When sending a
+D.SECURE_PRINT_JOB to the Digital Copier,
+S.REMOTE_USER shall specify a PIN that consists of
+a minimum of 4 and a maximum of 6 digits and,
+whether or not it is printed, will ensure the print job is
+deleted from the TOE during the same workday that the
+job is sent. The DC provides a glass plate and LUI with
+which S.LOCAL_USER can perform scan jobs. The ST
+claim is not valid when the TOE is used with any other
+ST-Océ DAC R10.1.5-3.3 27 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+type of Océ Digital Copier. The TOE will not work
+with any other device (including Digital Copiers from
+any other manufacturers).
+O.E.SHREDDING The customer requires the shredding of
+D.SECURE_PRINT_JOB, D.PRINT_JOB and
+D.SCAN_JOB data objects5
+5 The TOE shreds D.SECURE_PRINT_JOB, D.PRINT_JOB and D.SCAN_JOB by
+default when printing/scanning is completed in the delivered mode. It is possible
+to disable shredding for D.PRINT_JOB and D.SCAN_JOB. If this happens, the
+TOE claim in no longer valid.
+ST-Océ DAC R10.1.5-3.3 28 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+5. IT Security Requirements
+5.1 TOE Security Functional Requirements
+5.1.1 SFRs for Filtering
+FDP_ACC.1 Subset access control
+FDP_ACC1.1 The TSF shall enforce the NETWORK_POLICY on:
+• D.INBOUND_TRAFFIC
+• D.OUTBOUND_TRAFFIC
+Dependencies: FDP_ACF.1 (included)
+FDP_ACF.1 Security attribute based access control
+FDP_ACF1.1 The TSF shall enforce the NETWORK_POLICY to
+objects based on the following:
+• Port;
+• Protocol.
+FDP_ACF.1.2 The TSF shall enforce the following rules to determine if an
+operation among controlled subjects and controlled objects is allowed:
+• The TOE shall perform R.ENTER_TOE on
+D.INBOUND_TRAFFIC only if
+Port(D.INBOUND_TRAFFIC) = DAC, ICMP, DNS, DHCP,
+LPR, SMB, ENDPS, SLP, HTTP, HTTPs, FTP, Secure FTP,
+SNMP, Printlogic/UDS/IntraLogic, SMTP, Secure SMTP,
+LDAP, Secure LDAP, Multicast MDNS, “RAW_SOCKET6”,
+NLTM, Kerberos, SSH and Protocol = TCP/IP
+• The TOE shall perform R.EXIT_TOE on
+D.OUTBOUND_TRAFFIC only if
+Port(D.INBOUND_TRAFFIC) = DAC, ICMP, DNS, DHCP,
+LPR, SMB, ENDPS, SLP, HTTP, HTTPs, FTP, Secure FTP,
+SNMP, Printlogic/UDS/IntraLogic, SMTP, Secure SMTP,
+LDAP, Secure LDAP, Multicast MDNS, “RAW_SOCKET”,
+NLTM, Kerberos, SSH and Protocol = TCP/IP
+6 It is possible to submit raw print job data via a raw socket to the TOE. The words
+‘raw socket’ are used to refer to the port in the firewall through which the data can
+flow.
+ST-Océ DAC R10.1.5-3.3 29 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FDP_ACF.1.3 The TSF shall explicitly authorise access of subjects to
+objects based on the following additional rules:
+• none
+FDP_ACF.1.4 The TSF shall explicitly deny access of subjects to objects
+based on the following additional rules:
+• none
+Dependencies: FDP_ACC.1 (included)
+FMT_MSA.3 (included)
+5.1.2 SFRs for Job Release
+FIA_UID.1 Timing of identification (Secure Printing)
+FIA_UID.1.1 The TSF shall allow R.PRINT_JOB, R.FORWARD_JOB
+and R.SCAN_JOB on behalf of the S.LOCAL_USER to be performed
+before S.LOCAL_USER is identified.
+FIA_UID.1.2 The TSF shall require S.LOCAL_USER to be successfully
+identified before allowing R.RELEASE_JOB on behalf of
+S.LOCAL_USER.
+Dependencies: No dependencies.
+FIA_UAU.1 Timing of authentication
+FIA_UAU.1.1 The TSF shall allow R.PRINT_JOB, R.FORWARD_JOB
+and R.SCAN_JOB on behalf of the S.LOCAL_USER to be performed
+before S.LOCAL_USER is authenticated.
+FIA_UAU.1.2 The TSF shall require S.LOCAL_USER to be successfully
+authenticated before allowing R.RELEASE_JOB on behalf of
+S.LOCAL_USER.
+Dependencies: FIA_UID.1 (included)
+ST-Océ DAC R10.1.5-3.3 30 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+5.1.3 SFRs for Shredding
+FDP_RIP.1 Subset residual; information protection
+FDP_RIP.1.17 The TSF shall ensure that any previous information content
+of a resource is made unavailable upon the
+deallocation of the resource from the following objects:
+D.SECURE_PRINT_JOB, D.PRINT_JOB, D.SCAN_JOB
+• on deletion of R.RELEASE_JOB, R.PRINT_JOB,
+R.FORWARD_JOB and R.SCAN_JOB by S.LOCAL_USER,
+S.REMOTE_SYSADMIN or S.SERVICE_ENGINEER
+• on start-up or reboot of the TOE.8
+Dependencies: No dependencies.
+5.1.4 SFRs for Management
+FIA_UID.2 User identification before any action
+FIA_UID.2.1 The TSF shall require S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER to identify themselves before allowing any
+other TSF-mediated actions on the behalf of that user.
+Dependencies: No dependencies.
+FIA_UAU.2 User authentication before any action
+FIA_UAU.2.1 The TSF shall require S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER to be successfully authenticated before
+allowing any other TSF-mediated actions on the behalf of that user.
+Dependencies: FIA_UID.1 (included)
+7 This is a refinement to show when the de-allocation is to take place. When you
+delete a file, the OS modifies the relevant entry from the file allocation table. The
+data remains on the hard disk and can be retrieved with suitable tools. This is why
+the TOE shreds the data. What is happening is that:
+• When the job manager discards data, it moves the data reference in the file
+allocation table to a location that is dedicated to the E-shred subsystem.
+• The E-shred subsystem then erases the data (makes the data unavailable) by
+overwriting the data several times.
+• The E-shred service then removes the reference to the erased data from the
+file allocation table so that the erased disk resources can be re-used.
+8 The DAC can experience errors and sometimes require restarting to handle these
+errors (or users restart the photocopier anyway in an attempt to handle these
+errors). It is therefore important that the photocopier also deletes data whenever it
+is restarted.
+ST-Océ DAC R10.1.5-3.3 31 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FMT_MOF.1 Management of security functions behaviour
+(S.REMOTE_SYSADMIN)
+FMT_MOF.1.1 The TSF shall restrict the ability to modify the behaviour
+of the functions described in appendix D for S.REMOTE_SYSADMIN
+to S.REMOTE_SYSADMIN.
+Dependencies: FMT_SMF.1 (included)
+FMT_SMR.1 (included)
+FMT_MOF.1 Management of security functions behaviour
+(S.SERVICE_ENGINEER)
+FMT_MOF.1.1 The TSF shall restrict the ability to modify the behaviour
+of the functions described in appendix D for S.SERVICE_ENGINEER
+to S.SERVICE_ENGINEER..
+Dependencies: FMT_SMF.1 (included)
+FMT_SMR.1 (included)
+FMT_MSA.1 Management of security attributes
+FMT_MSA.1.1 The TSF shall enforce the NETWORK_POLICY to
+restrict the ability to change the default 9 security attributes Port and
+Protocol to nobody.10
+Dependencies: FDP_ACC.1 (included)
+FMT_SMF.1 (included)
+FMT_SMR.1 (included)
+FMT_MSA.3 Static Attribute initialisation
+FMT_MSA.3.1 The TSF shall enforce the NETWORK_POLICY to
+provide restrictive default values for security attributes that are used to
+enforce the SFP.
+FMT_MSA.3.2 The TSF shall allow nobody11 to specify alternative initial
+values to override the default values when an object or information is
+created.
+Dependencies: FMT_MSA.1 (included)
+FMT_SMR.1 (included)
+9 For grammatical and clarity reasons, the underscore between change and default
+was removed and the word ‘the’ before security attributes was moved to between
+’change’ and ‘default’.
+10 The TOE does not allow any users to change any security attributes in the
+evaluated configuration.
+11 The word ‘the’ before ‘nobody’ was removed for grammatical reasons.
+ST-Océ DAC R10.1.5-3.3 32 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FMT_SMF.1 Specification of Management Functions
+FMT_SMF.1.1 The TSF shall be capable of performing the following
+security management functions as described in appendix D:
+Functions related to R.SHRED_JOB that are available to
+S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER
+• Set the number of shred runs
+• Set the shredding moment
+• Shred print jobs: yes/no (D.PRINT_JOB)12
+• Shred scan jobs: yes/no (D.SCAN_JOB)13
+Dependencies: No dependencies.
+FMT_SMR.1 Security roles
+FMT_SMR.1.1 The TSF shall maintain the roles
+S.REMOTE_SYSADMIN, S.SERVICE_ENGINEER and
+S.LOCAL_USER.
+FMT_SMR1.2 The TSF shall be able to associate users with roles.
+Dependencies: FIA_UID.1 (included)
+5.1.5 SFRs for Protection of the TSF itself
+FPT_SEP.1 TSF domain separation
+FPT_SEP1.1 The TSF shall maintain a security domain for its own
+execution that protects it from interference and tampering by untrusted
+subjects.
+FPT_SEP.1.2 The TSF shall enforce separation between the security
+domains of subjects in the TSC.
+Dependencies: No dependencies.
+FPT_RVM.1 Non-bypassability of the TSP
+FPT_RVM.1.1 The TSF shall ensure that TSP enforcement functions are
+invoked and succeed before each function within the TSC is allowed to
+proceed.
+12 Disabling these functions will invalidate the Security Target claim. The functions
+are available but there is an Organisational Security Policy that defines that they
+should be enabled by default.
+13 See footnote 12
+ST-Océ DAC R10.1.5-3.3 33 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Dependencies: No dependencies
+FPT_TST.1 TSF testing
+FPT_TST.1.1 The TSF shall run a suite of self tests during initial start-up
+to demonstrate the correct operation of the TSF.
+FPT_TST.1.2 The TSF shall provide authorised users with the capability to
+verify the integrity of the TSF data.
+FPT_TST.1.3 The TSF shall provide authorised users with the capability to
+verify the integrity of stored TSF executable code.
+Dependencies: FPT_AMT.1 (not included)14
+5.1.6 Strength-of-function claim
+The Strength of function claim for all the probabilistic functions and mechanisms
+provided by the TOE is SOF-basic.
+5.2 TOE Security Assurance Requirements
+The TOE security assurance requirements are conformant to the CC Evaluation
+Assurance Level EAL2 +ALC_FLR.1. In detail the following Security Assurance
+Requirements are chosen for the TOE:
+Components for Configuration management (Class ACM)
+ACM_CAP.2 Configuration Items
+Components for Delivery and operation (Class ADO)
+ADO_DEL.1 Delivery procedures
+ADO_IGS.1 Installation, generation, and start-up procedures
+Components for Development (Class ADV)
+ADV_FSP.1 Informal functional specification
+ADV_HLD.1 Descriptive high-level design
+ADV_RCR.1 Informal correspondence demonstration
+Components for Guidance documents (Class AGD)
+AGD_ADM.1 Administrator guidance
+AGD_USR.1 User guidance
+Components for Life cycle support (Class ALC)
+ALC_FLR.1 Basic flaw remediation
+14 The dependency FPT_AMT.1 Abstract machine is not included, because the
+underlying IT platform does not contribute to the TOE requirements (See part 1,
+paragraph 147). The underlying PC platform is a standard PC platform that works.
+Testing of the platform does not provide assurance that will support the claims at
+the level of EAL2, as functional testing of the DAC in its operational environment
+is performed (it does what it should do).
+ST-Océ DAC R10.1.5-3.3 34 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Components for Tests (Class ATE)
+ATE_COV.1 Evidence of coverage
+ATE_FUN.1 Functional testing
+ATE_IND.2 Independent testing – sample
+Components for Vulnerability assessment (Class AVA)
+AVA_SOF.1 Strength of TOE security function evaluation
+AVA_VLA.1 Developer vulnerability analysis
+5.3 Security Requirements for the IT Environment
+None15.
+5.4 Explicitly stated requirements
+None.
+15 The ST defines security objectives for the IT environment in which the TOE will
+operate. In accordance with the Common Criteria Standard, these objectives are
+not mapped to Security Requirements for the IT Environment.
+ST-Océ DAC R10.1.5-3.3 35 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+6. TOE Summary Specification
+6.1 IT Security Functions
+SF.FILTERING
+The TOE uses a built-in firewall to block ports and ICMP commands that are not
+needed for the operation of the TOE. In addition all network protocols that are not
+supported in the security mode ‘high’ are disabled.
+By default no traffic is permitted to enter or leave to TOE except for the TCP/IP
+packets and the restricted ICMP command set via the ports defined in the rule
+table.
+SF.JOB_RELEASE
+The TOE verifies the identity and associated PIN code that was send with the print
+job when submitted by S.REMOTE_USER with Username/PIN received from
+S.LOCAL_USER via the DC interface. If verification is successful, the secure print
+job is released for printing.
+SF.SHREDDING
+Once a print or scan job has been deleted, the data is overwritten. It is possible to
+perform multiple write cycles, with various patterns being applied. At least three
+write cycles will always take place. S.REMOTE_SYSADMIN or
+S.SERVICE_ENGINEER can choose the moment when the shredding cycle
+commences. The first write cycle can occur immediately after the print job has
+completed or to improve job throughput performance, once the TOE enters an idle
+state. The remaining cycles may also take place immediately after the print job has
+been completed or also at the time when the TOE enters an idle state. The
+shredding mechanism supports US DOD 5220-22m and Gutmann algorithms16.
+SF.MANAGEMENT
+The TOE can be managed in relation to SF.JOB_RELEASE and SF.SHREDDING.
+In order to gain access, the S.REMOTE_SYSADMIN or S.SERVICE_ENGINEER
+must authenticate themselves to the TOE. S.SERVICE_ENGINEER does this by
+entering a password. S.REMOTE_SYSADMIN authenticates himself by entering a
+password. The TOE is delivered by Océ with pre-configured in the security mode
+‘high’. This provides the most restrictive set of operational settings.
+SF.SELFTEST
+During start-up the TOE will check the hard disk files system and the integrity of
+the software the forms the TOE. If defects in the hard disk files system are
+16 See Appendix B – References for more information relating to these algorithms
+ST-Océ DAC R10.1.5-3.3 36 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+detected, the corrupted file system will be automatically repaired. The software
+includes all executables (operating system executables, Océ authored DAC
+executables, Third party software executables and DAC system settings). If defects
+are detected, the corrupted data will be replaced by correct shadow data.
+6.1.1 Probabilistic functions and mechanisms
+The TOE contains probabilistic functions and mechanisms in the form of
+passwords and PIN numbers that are used for the authentication of
+S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER respectively. There is
+also a probabilistic function and mechanisms that protects
+D.SECURE_PRINT_JOB and is used for the authentication of S.LOCAL_USER.
+Subject Function Mechanism
+S.REMOTE_SYSADMIN SF.MANAGEMENT,
+SF.SHREDDING
+For HTTPS based
+management. an alpha-
+numeric password (ASCII
+characters 32-126) ranging
+in length between 5 and 50
+digits is used. After the first
+failed attempt, a delay
+mechanism is invoked.
+There are no security
+management functions or
+access to the assets that the
+TOE protects that are
+accessible via the SNMP
+connection.
+S.SERVICE_ENGINEER SF.MANAGEMENT,
+SF.SHREDDING
+An alpha-numeric password
+(ASCII characters 32-126)
+ranging in length between 6
+and 50 digits is used. The
+default password is changed
+during the customer site
+installation process.
+S.LOCAL_USER SF.JOB_RELEASE A numeric pin code varying
+in length from 4 to 6 digits.
+ST-Océ DAC R10.1.5-3.3 37 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+6.1.2 Strength of function claim
+The SFRs FIA_UID.1, FIA_UAU.1, FIA_UID.2 and FIA_UAU.2 require the TOE
+to provide security functions that provide identification/authentication functionality
+that meets a SOF claim of ‘SOF basic’.
+A strength of function claim of ‘SOF basic’ is made for the security functions
+SF.JOB_RELEASE and SF.MANAGEMENT. These are the security functions
+that implement FIA_UID.1, FIA_UAU.1, FIA_UID.2 and FIA_UAU.2.
+6.2 Assurance Measures
+Appropriate assurance measures are employed to satisfy the security assurance
+requirements. The following list gives a mapping between the assurance
+requirements and the documents containing the information needed for the
+fulfilment of the respective requirement.
+Configuration Management (ACM) assurance measures
+The document containing the description of the configuration management system
+as required by ACM is:
+• Océ-Technologies B.V., Configuration Management for the Oce DAC
+R10.1.5.doc
+Delivery and Operation (ADO) assurance measures
+The document containing the description of all steps necessary for secure
+installation, generation and start-up of the TOE is:
+• Océ Engineering Venlo, Delivery and developer security for DAC
+R10.1.5.doc
+Development (ADV) assurance measures
+The developer documentation for ADV can be found in:
+• Océ-Technologies B.V., Functional Specification for DAC R10.1.5.doc
+• Océ-Technologies B.V., High Level Design for DAC R10.1.5.doc
+Guidance (AGD) assurance measures
+The document containing the guidance for Oce service engineers is maintained on
+the service engineers laptop with the reference:
+• Océ-Technologies B.V., Océ Product Installation Guide,
+and is not a publicly available document.
+The guidance for the customer administrators is in:
+• Océ-Technologies B.V., Océ System Configuration On-line help,
+ST-Océ DAC R10.1.5-3.3 38 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+This guidance has been supplemented as appropriate for the claim in this Security
+Target with the Common Criteria Certified Configuration of the DAC R10.1.5.
+This document is not delivered to the customer with the TOE and must be
+downloaded from the support section from Océ corporate website (www.oce.com).
+Life Cycle (ALC) assurance measures
+The physical, procedural, personnel and other security measures applied by the
+developer can be found in:
+• Océ-Technologies B.V., Flaw remidiation for DAC R10.1.5.doc
+Test (ATE) assurance measures
+The developer test documentation can be found in:
+• Océ-Technologies B.V., Test Documentation for the DAC R10.1.5.doc
+Vulnerability Assessment (AVA) assurance measures
+An analysis of vulnerabilities can be found in:
+• Océ-Technologies B.V., Strength of function analysis for DAC
+R10.1.5.doc
+• Océ-Technologies B.V., Vulnerability analysis for DAC R10.1.5.doc
+ST-Océ DAC R10.1.5-3.3 39 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+7. PP Claims
+This Security Target TOE does not claim compliance to a Protection Profile.
+ST-Océ DAC R10.1.5-3.3 40 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+8. Rationale
+8.1 Security Objectives Rationale
+For each assumption, threat and OSP we demonstrate that it is met by the security
+objectives. The tracings are provided in the following table.
+The individual rationales demonstrating that the threats, assumptions and
+organizational security policies are met are described as follows:
+O.F.INBOUND_FILTER
+O.F.OUTBOUND_FLITER
+O.F.JOB_RELEASE
+O.F.JOB_SHREAD
+O.F.AUTHENTICATE
+O.F.SELFTEST
+O.A.SLA
+O.E.ENVIRONMENT
+O.E.NETWORK_POLICY
+O.E.DEPLOYMENT
+O.E.DIGITAL_COPIER
+O.E.SHREDDING
+A.DIGITAL_COPIER X
+A.ENVIRONMENT X
+A.SECURITY_POLICY X X X X
+A.SHREDDING X
+A.SLA X
+T.RESIDUAL_DATA X
+T.NOSY_USER X
+T.MALWARE X X X
+P.TOE_ADMINISTRATION X
+P.JOB_DELETE X
+A.DIGITAL_COPIER
+The assumption is met by the following TOE assurance objective:
+O.E.DIGITAL_COPIER - The environment into which the TOE will be introduced
+shall contain an Océ VarioPrint 2045-65, 2050-70 or 31x5 Digital Copier that
+provides a Local User Interface and Glass Plate through which S.LOCAL_USER
+can interact easily with the TOE (selecting Username and entering PINcode).
+When sending a D.SECURE_PRINT_JOB to the Digital Copier,
+ST-Océ DAC R10.1.5-3.3 41 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+S.REMOTE_USER is aware that they must specify a PIN that consists of a
+minimum of 4 and a maximum of 6 digits and shall delete the job on the same
+workday that it is sent to the TOE, whether or not it is printed. The DC provides a
+glass plate and LUI with which S.LOCAL_USER can perform scan jobs. The ST
+claim is not valid when the TOE is used with any other type of Océ Digital Copier.
+The TOE will not work with any other device (including Digital Copiers from any
+other manufacturers).
+Although the assumption states that a Digital Copier from Océ will be used, the
+Digital Copier is an un-trusted device. The chances of an attack on the LAN being
+mounted via the Digital Copier interface are reduced by the TOE filtering the
+outbound traffic so that only ports that are absolutely necessary for the operation of
+the TOE are open. Requiring D.SECURE_PRINT_JOB to be deleted from the
+TOE on the same workday it is sent reduces the time available to an attacker in
+which the data object is vulnerable. Additionally the access to the job is limited by
+specifying a minimum PIN length.
+A.ENVIRONMENT
+The assumption is met by the following objectives for the environment:
+O.E.ENVIRONMENT - The environment into which the TOE will be introduced is
+protected by physical measures that limit access S.LOCAL_USER,
+S.REMOTE_USER, S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER.
+The physical measures are adequate to prevent all other persons but a determined
+S.THIEF who deliberately wants to steal part of or all of the TOE by methodically
+planning an attack on the TOE over a period of time. Normally, unless a fault
+develops in the TOE, the TOE will no leave the environment into which it is
+introduced
+A.SECURITY_POLICY
+The assumption is met by the following objectives for the environment:
+O.E.NETWORK_POLICY - The network to which the TOE is attached shall be
+adequately protected so that the TOE is not visible outside the network. In addition,
+measures shall be implemented to only allow connections to the TOE from devices
+situated on the same network. No inbound connections from external networks are
+allowed. The network scans data for mal-ware (viruses and worms). This type of
+data may originate from either inside or outside the network to which the TOE is
+attached and includes the TOE itself.
+O.E.DEPLOYMENT - The network (LAN) to which the TOE is attached is well
+managed with established procedures for introducing and attaching new devices to
+the network.
+ST-Océ DAC R10.1.5-3.3 42 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+O.E.DIGITAL_COPIER - The environment into which the TOE will be introduced
+shall contain an Océ VarioPrint 1055-75, 2062 or 2075 Digital Copier that provides
+a Local User Interface and Glass Plate through which S.LOCAL_USER can
+interact easily with the TOE (selecting Username and entering PINcode). When
+sending a D.SECURE_PRINT_JOB to the Digital Copier, S.REMOTE_USER is
+aware that they must specify a PIN that consists of a minimum of 4 and a
+maximum of 6 digits and shall delete the job on the same workday that it is sent to
+the TOE, whether or not it is printed. The DC provides a glass plate and LUI with
+which S.LOCAL_USER can perform scan jobs. The ST claim is not valid when the
+TOE is used with any other type of Océ Digital Copier. The TOE will not work
+with any other device (including Digital Copiers from any other manufacturers).
+O.E.SHREDDING – The customer requires the shredding of
+D.SECURE_PRINT_JOB, D.PRINT_JOB and D.SCAN_JOB data objects.
+The TOE shreds D.SECURE_PRINT_JOB, D.PRINT_JOB and D.SCAN_JOB by
+default when printing/scanning is completed in the delivered mode. It is possible to
+disable shredding for D.PRINT_JOB and D.SCAN_JOB. If this happens, the TOE
+claim in no longer valid.
+A.SHREDDING
+The assumption is met by the following objectives for the environment:
+O.E.SHREDDING – The customer requires the shredding of
+D.SECURE_PRINT_JOB, D.PRINT_JOB and D.SCAN_JOB data objects.
+The TOE shreds D.SECURE_PRINT_JOB, D.PRINT_JOB and D.SCAN_JOB by
+default when printing/scanning is completed in the delivered mode. It is possible to
+disable shredding for D.PRINT_JOB and D.SCAN_JOB. If this happens, the TOE
+claim in no longer valid.
+A.SLA
+The assumption is met by the following TOE assurance objective:
+O.A.SLA - The TOE shall be evaluated to ALC_FLR.1.There are measures in
+place to repair faults in the TOE when they occur.
+T.RESIDUAL_DATA
+The threat is met by the following TOE functional objective:
+O.F.JOB_SHRED - The TOE shall delete all D.SECURE_PRINT_JOB,
+D.PRINT_JOB and D.SCAN_JOB data as soon as it is no longer required or
+during the start-up procedure if residual D.SECURE_PRINT_JOB, D.PRINT_JOB
+and D.SCAN_JOB is found on the TOE’s hard disk. The first write cycle will
+either immediately after the job has completed or once the TOE enters an idle state.
+The data shall be deleted according to a recognised standard so that it cannot be
+reconstituted.
+ST-Océ DAC R10.1.5-3.3 43 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+‘Scrubbing’ the data from the hard disk when it is no longer needed helps prevent
+the data been accessed by unauthorised persons.
+T.NOSY_USER
+The threat is met by the following TOE functional objective:
+O.F.JOB_RELEASE - The TOE shall only perform R.RELEASE_JOB once
+S.LOCAL_USER has successfully identified and authenticated himself as owner of
+D.SECURE_PRINT_JOB.
+By first requiring a print job owner to identify an authenticate himself before
+printing can commence, observation of print job related data by casual users is
+prevented.
+T.MALWARE
+The threat is met by the following objectives for the environment:
+O.F.INBOUND_FILTER - The TOE will only support TCP/IP as a network
+protocol. D.INBOUND_TRAFFIC shall only enter the TOE (R.ENTER_TOE) if
+the Port is specified as being open.
+The chances of mal-ware being accidentally sent to the TOE and causing a security
+violation is limited by only opening the ports and enabling the protocols that are
+absolutely necessary for the operation of the TOE.
+O.F.OUTBOUND_FILTER - The TOE will only support TCP/IP as a network
+protocol. D.OUTBOUND_TRAFFIC shall only exit the TOE (R.EXIT_TOE) if its
+Port is specified as being open.
+Although the TOE is designed, tested and configured with security as a main
+concern, it is possible that vulnerabilities will be discovered in the future that could
+be exploited in order to use the TOE as a launch pad for an attack. By only opening
+the ports and enabling the protocols that are absolutely necessary for the operation
+of the TOE, the chances of a successful attack launch are limited.
+Although policy states that a Digital Copier from Oce will be used, the Digital
+Copier is an un-trusted device. The chances of an attack on the LAN being
+mounted via the Digital Copier interface are reduced by the TOE filtering the
+outbound traffic so that only ports that are absolutely necessary for the operation of
+the TOE are open.
+O.F.SELFTEST – The TOE will perform check of the integrity of the TSF when it
+is re-booted.
+ST-Océ DAC R10.1.5-3.3 44 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+During start-up, the TOE checks to see if any of the TSF relevant files on the hard
+disk have been modified. This can happen due to a malware attack but occurs more
+often as a result of a power outage. Maintaining the integrity of the TOE gives
+assurance in support of the claim that the TOE will not form a threat against it
+operational environment.
+P.JOB_DELETE
+The policy requirement is met by the following TOE functional objective:
+O.F.JOB_SHRED - The TOE shall delete all D.SECURE_PRINT_JOB,
+D.PRINT_JOB and D.SCAN_JOB data as soon as it is no longer required or
+during the start-up procedure if residual D.SECURE_PRINT_JOB, D.PRINT_JOB
+and D.SCAN_JOB is found on the TOE’s hard disk. The first write cycle will
+either immediately after the job has completed or once the TOE enters an idle state.
+The data shall be deleted according to a recognised standard so that it cannot be
+reconstituted.
+‘Scrubbing’ the data from the hard disk when it is not longer needed helps prevent
+the data been accessed by unauthorised persons.
+P.TOE_ADMINISTRATION
+The policy requirement is met by the following TOE functional objective:
+O.F.AUTHENTICATE - The TOE ensures that S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER must identify and authenticate themselves to the TOE
+before allowing them to modify the TOE security settings.
+ST-Océ DAC R10.1.5-3.3 45 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+8.2 Security Requirements Rationale
+The purpose of the Security Requirements Rationale is to demonstrate that the
+security requirements are suitable to meet the Security Objectives.
+8.2.1 The SFRs meet the Security Objectives for the TOE
+For each Security Objective for the TOE we demonstrate that it is met by the SFRs
+as shown in the table below supported by the following rationals.
+FDP
+ACC1.
+FDP
+ACF.1
+FIA
+UID.1
+FIA
+UAU.1
+FDP
+RIP.1
+FIA
+UID.2
+FIA
+UAU.2
+FMT
+MOF.1
+FMT
+MSA.1
+FMT
+MSA.3
+FMT
+SMF.1
+FMT
+SMR.1
+FPT
+SEP.1
+FPT
+RVM.1
+FPT
+TST.1
+O.F.INBOUND_FILTER X X X X X X
+O.F.OUTBOUND_FILTER X X X X X X
+O.F.JOB_RELEASE X X X X
+O.F.JOB_SHREAD X X X
+O.F.AUTHENTICATE X X X X X X X
+O.F.SELFTEST X X X
+The individual rationales demonstrating the objectives are met are described as
+follows:
+O.F.INBOUND_FILTER
+FDP_ACC.1 Subset access control
+Inbound traffic is filtered so that only traffic relating to the operation of the TOE is
+allowed to enter the TOE. This SFR supports the security objective by restricting
+the TOE data flow to only that that is necessary for the operation of the TOE. This
+reduces the number of vulnerable entry points.
+FDP_ACF.1 Security attribute based access control
+All ports that are not necessary for the operation of the TOE as described in this
+document are blocked. This SFR supports the security objective by reducing the
+number of entry points that could be vulnerable to attack.
+FMT_MSA.1 Management of security attributes
+The TOE is delivered pre-configured to the customer. This SFR supports the
+objective by ensuring that it is not possible for any user (including
+S.SERVICE_ENGINEER and S.REMOTE_SYSADMIN) to change the settings of
+the firewall mechanism.
+ST-Océ DAC R10.1.5-3.3 46 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FMT_MSA.3 Static Attribute initialisation
+In order to change the security attributes of the TOE the management interfaces
+provided for S.SERVICE_ENGINEER and S.REMOTE_SYSADMIN must be
+used. This SFR supports the objective by ensuring that the TOE provides restrictive
+default security related settings that require no additional modification by
+SERVICE_ENGINEER or S.REMOTE_SYSADMIN. Nobody is allowed to create
+new settings with alternative values.
+FPT_SEP.1 TSF domain separation
+Filtering of network traffic occurs is an area of the TOE that is separate to non-TSF
+related operation. This SFR supports the objective by ensuring that the filtering
+mechanism is protected by it not being exposed to non TSF mechanisms from
+which a possible attack could be made.
+FPT_RVM.1 Non-bypassability of the TSP
+In order for data to enter or leave the TOE it must pass through the filtering
+mechanism. This SFR supports the security objective by ensuring that TSF cannot
+be bypassed, resulting in a direct line between the Digital Copier and the network
+to which the TOE is attached being created.
+O.F.OUTBOUND_FILTER
+FDP_ACC.1 Subset access control
+Outbound traffic is filtered so that only traffic relating to the operation of the TOE
+is allowed to leave the TOE. This SFR supports the security objective by restricting
+the TOE data flow to only that that is necessary for the operation of the TOE.
+FDP_ACF.1 Security attribute based access control
+All ports that are not necessary for the operation of the TOE as described in this
+document are blocked. This SFR supports the security objective by reducing the
+number of exit points through which an attack could be launched.
+FMT_MSA.1 Management of security attributes
+The TOE is delivered pre-configured to the customer. This SFR supports the
+objective by ensuring that it is not possible for any user (including
+S.SERVICE_ENGINEER and S.REMOTE_SYSADMIN) to change the settings of
+the firewall mechanism.
+FMT_MSA.3 Static Attribute initialisation
+In order to change the security attributes of the TOE the management interfaces
+provided for S.SERVICE_ENGINEER and S.REMOTE_SYSADMIN must be
+used. This SFR supports the objective by ensuring that the TOE provides restrictive
+default security related settings that require no additional modification by
+SERVICE_ENGINEER or S.REMOTE_SYSADMIN. Nobody is allowed to create
+new settings with alternative values.
+ST-Océ DAC R10.1.5-3.3 47 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FPT_RVM.1 Non-bypassability of the TSP
+In order for data to enter or leave the TOE it must pass through the filtering
+mechanism. This SFR supports the security objective by ensuring that TSF cannot
+be bypassed, resulting in a direct line between the Digital Copier and the network
+to which the TOE is attached being created.
+FPT_SEP.1 TSF domain separation
+Filtering of network traffic occurs is an area of the TOE that is separate to non-TSF
+related operation. This SFR supports the objective by ensuring that the filtering
+mechanism is protected by it not being exposed to other non-TSF mechanisms
+from which a possible attack could be made.
+O.F.JOB_RELEASE
+FIA_UID.1 Timing of identification (Secure Printing)
+Printing will only commence once the TSF has validated the Username associated
+with the job by S.LOCAL_USER. The TSF receives the Username via the
+DAC/DC interface. This SFR supports the security objective by requiring the
+S.LOCAL_USER to identify himself as part of the job release process.
+FIA_UAU.1 Timing of authentication
+Printing will only commence once the TSF has validated the PIN associated with
+the job by S.LOCAL_USER. The TSF receives the PIN via the DAC/DC interface.
+This SFR supports the security objective by requiring the S.LOCAL_USER to
+authenticate himself as part of the job release process.
+FPT_RVM.1 Non-bypassability of the TSP
+Print jobs cannot be processed by any other mechanism than by the specified
+mechanism. This SFR supports the objective by ensuring that no other mechanisms
+can access the print job data.
+FPT_SEP.1 TSF domain separation
+Management of print jobs occurs in an area of the TOE that is separate to non-TSF
+related operation. This SFR supports the objective by ensuring that the job release
+mechanism is protected by it not being exposed to other non-TSF mechanisms
+from which a possible attack could be made.
+O.F.JOB_SHRED
+FDP_RIP.1 Subset residual; information protection
+This SFR supports the objective by ensuring that once a print or scan job has
+completed, or if during the startup procedure, residual print or scan job data is
+found then the related data will be electronically shredded from the hard disk. The
+SFR has been refined to describe the moment when the data will be shredded.
+FPT_RVM.1 Non-bypassability of the TSP
+ST-Océ DAC R10.1.5-3.3 48 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Print and scan jobs must pass through the shredding mechanism. This SFR
+supports the objective by ensuring that print and scan jobs cannot leave the TOE
+except in the authorised manner.
+FPT_SEP.1 TSF domain separation
+Shredding occurs is an area of the TOE that is separate to non-TSF related
+operation. This SFR supports the objective by ensuring that the shredding
+mechanism is protected by it not being exposed to other non TSF-mechanisms
+from which a possible attack could be made.
+O.F.AUTHENTICATE
+FIA_UID.2 User identification before any action
+S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER must identify themselves
+to the TOE before any TOE management actions can be performed.
+FIA_UAU.2 User authentication before any action
+S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER must authenticate
+themselves to the TOE before any TOE management actions can be performed.
+FMT_SMF.1 Specification of Management Functions
+The functions that can be performed by either the S.REMOTE_SYSADMIN and
+S.SERVICE_ENGINEER are defined.
+FMT_MOF.1 Management of security functions behaviour
+Only TOE administrators and Océ technicians can use security related functions.
+FMT_SMR.1 Security roles
+The TOE shall make a distinction between administrators and ordinary users.
+FPT_RVM.1 Non-bypassability of the TSP
+Users other than S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER cannot
+gain access to security management functions of the TOE without begin first
+controlled by the mechanisms specified in this document.
+FPT_SEP.1 TSF domain separation
+Identification and authentication of users occurs in an area of the TOE that is
+separate to non-security related operation.
+O.F.SELFTTEST
+FPT_TST.1 TSF Testing
+When the TOE is started up, it will perform a suite of self tests and determine that
+it is working correctly. If it determines that there is a problem it will try to repair
+itself. If this fails it will place itself in an ‘out-of order’ mode
+FPT_RVM.1 Non-bypassability of the TSP
+ST-Océ DAC R10.1.5-3.3 49 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The self-test mechanism cannot be bypassed.
+FPT_SEP.1 TSF domain separation
+Self-testing of the TOE occurs in an area of the TOE that is separate to non-TSF
+related operation.
+8.2.2 The security requirements for the IT environment meet the security
+objectives for the environment
+The TOE does not make any security requirements on its environment.
+ST-Océ DAC R10.1.5-3.3 50 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+8.2.3 The Assurance Requirements and Strength of Function Claim are
+appropriate
+EAL2+ ALC_FLR
+Which comprises of:
+ACM_CAP.2 Configuration Items
+ADO_DEL.1 Delivery procedures
+ADO_IGS.1 Installation, generation, and start-up procedures
+ADV_FSP.1 Fully defined external interfaces
+ADV_HLD.1 Security enforcing high-level design
+ADV_RCR.1 Informal correspondence demonstration
+AGD_ADM.1 Administrator Guidance
+AGD_USR.1 User guidance
+ALC_FLR.1 Basic Flaw remediation
+ATE_COV.1 Analysis of coverage
+ATE_FUN.1 Functional testing
+ATE_IND.2 Independent testing – sample
+AVA_SOF.1 Strength of TOE security function evaluation
+AVA_VLA.1 Developer vulnerability analysis
+O.A.SLA
+The Assurance Requirements consist of EAL 2 requirements components. The
+TOE is a commercially available device produced by a well-known manufacturer
+and most importantly, provides a limited set of security related functionality. The
+TOE has been structurally tested by Océ and is suitable for environments that
+require a low to moderate level of independently assured security. The developer
+works in a consistent manner with good commercial practice.
+Occasionally the TOE may develop a problem that requires
+S.SERVICE_ENGINEER to make a visit to the customer location in order to repair
+the TOE. Océ has procedures that support these processes and for this reason the
+assurance requirements have been augmented with the following assurance classes
+as the developer is able to meet them:
+Components for Life cycle support (Class ALC)
+• ALC_FLR.1 Basic Flaw Remediation
+The evaluation of the TOE security mechanisms at AVA_VLA.1 is designed to
+provide assurance against an attacker with a low attack potential. Therefore the
+SOF claim is SOF-basic. This strength of function claim is consistent with the
+security objectives for the TOE and the defined TOE assumptions that have been
+made.
+8.2.4 All dependencies have been met
+The following dependencies are identified: FDP_ACF.1, FDP_ACC.1,
+FMT_MSA.1, FMT_MSA.3, FIA_UID.1, FMT_SMF.1, FMT_SMR.1,
+FPT_AMT.1.
+ST-Océ DAC R10.1.5-3.3 51 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+The dependency FPT_AMT.1 Abstract machine is not included, because the
+underlying IT platform does not contribute to the TOE requirements (See part 1,
+paragraph 147). The underlying IT platform is a standard embedded PC platform
+that works. Testing of the platform does not provide assurance that will support the
+claims at the level of EAL2, as functional testing of the DAC in its operational
+environment is performed (it does what is should do).
+All other dependencies are met.
+8.2.5 The requirements are internally consistent
+Because the assurance requirements form a package (EAL 2) they are internally
+consistent. The addition of ALC_FLR.1 does not cause inconsistencies with the
+EAL 2 package.
+The functional requirements and assurance requirements do not have any
+dependencies between them, and are therefore completely independent of each
+other. Because both functional and assurance requirements are internally
+consistent, and they are independent, the requirements are internally consistent.
+8.2.6 The requirements are mutually supportive
+The requirements are complete and do not cause inconsistencies, therefore the
+requirements are considered to be mutually supportive. (This argument has been
+based on section 9.3.8 of Guide for the production of PPs and STs, PDTR 15446
+N2449)
+ST-Océ DAC R10.1.5-3.3 52 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+8.3 TOE Summary Specification Rationale
+8.3.1 The functions meet the SFRs
+For each SFR we demonstrate that it is met by the Security Functions in the table
+below supported by the following rationales.
+FDP
+ACC1.
+FDP
+ACF.1
+FIA
+UID.1
+FIA
+UAU.1
+FDP
+RIP.1
+FIA
+UID.2
+FIA
+UAU.2
+FMT
+MOF.1
+FMT
+MSA.1
+FMT
+MSA.3
+FMT
+SMF.1
+FMT
+SMR.1
+FPT
+SEP.1
+FPT
+RVM.1
+FPT
+TST.1
+SF.FILTERING X X X X X X
+SF.JOB_RELEASE X X X X
+SF.SHREDDING X X X
+SF.MANAGEMENT X X X X X X X X X
+SF.SELFTEST X X X
+FDP_ACC.1
+This Security Functional Requirement ensures that only traffic is allowed to enter
+the TOE that is relevant to its operation. This SFR is supported by SF.FILTERING
+that restricts flow of network traffic and limits the supported network protocols.
+FDP_ACF.1
+This Security Functional Requirement ensures that all ports that are non-essential
+to the operation of the TOE are blocked. This SFR is supported by
+SF.FILTERING. SF.FILTERING expands on the restricted flow of network traffic
+and supported network protocols by defining which ports are open and which
+protocols are supported.
+FIA_UID.1
+This Security Functional Requirement ensures that the TSF verifies the identity of
+S.LOCAL_USER before allowing SF.JOB_RELEASE. This helps to ensure that
+access to confidential print jobs is restricted.
+FIA.UAU.1
+This Security Functional Requirement ensures that the TSF authenticates
+S.LOCAL_USER by correctly supplying the PIN associated with the secure print
+job before SF.JOB_RELEASE will commence. This helps to ensure that access to
+confidential print jobs is restricted.
+FDP_RIP.1
+ST-Océ DAC R10.1.5-3.3 53 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+This Security Functional Requirement ensures requires that residual information
+relating to D.SECURE_PRINTJOB, D.PRINTJOB and D.SCANJOB is deleted
+once they are no longer needed, or, if during the startup procedure residual print or
+scan job data is found on the hard disk. The SFR has been refined to describe the
+moment when the data will be shredded. This SFR is supported by
+SF.SHREDDING that provides functionality that ensures the data objects detailed
+above are shredded in accordance with known standards. This SFR helps to reduce
+the amount of sensitive data present on the hard disk in the event of it being stolen.
+FIA_UID.2
+This Security Functional Requirement ensures that administrators correctly identify
+themselves to the TOE before security management functions can be used. This
+SFR is supported by SF.MANAGEMENT and provides functionality whereby
+administrators (S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER) can
+identify themselves to the TOE. This helps to restrict access to security
+management functions and thereby reduces the risk of modification being made to
+the TOE settings by unauthorised users.
+FIA_UAU.2
+This Security Functional Requirement ensures that administrators correctly
+authenticate themselves to the TOE before security management functions can be
+used. This SFR is supported by SF.MANAGEMENT and provides functionality
+whereby administrators (S.REMOTE_SYSADMIN and S.SERVICE_ENGINEER)
+can authenticate themselves to the TOE. This helps to restrict access to security
+management functions and thereby reduces the risk of modification being made to
+the TOE settings by unauthorised users.
+FMT_MOF.1
+This Security Functional Requirement ensures that the TOE management functions
+are only used by either the Océ technician (S.SERVICE_ENGINEER) or customer
+system administrator (S.REMOTE_SYSADMIN). This SFR is supported by
+SF.MANAGEMENT and ensures that non-administrators cannot administer the
+TOE.
+FMT_MSA.1
+This Security Functional Requirement ensures that the TOE management functions
+related to the filter mechanism settings cannot be changed. This SFR is supported
+by SF.MANGEMENT that ensures that filter related settings cannot be changed by
+administrators.
+FMT_MSA.3
+This Security Functional Requirement ensures that the TOE management functions
+related to the filter mechanism settings are given default values. This SFR is
+supported by SF.MANAGEMENT that ensures that the filter related settings are
+pre-configured before delivery to the customer.
+ST-Océ DAC R10.1.5-3.3 54 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FMT_SMF.1
+This Security Functional Requirement ensures that the TOE management functions
+are defined. This SFR is supported by functions made available by
+SF.MANAGEMENT and defines the set of operations that are available to the Océ
+technician (S.SERVICE_ENGINEER) or customer system administrator
+(S.REMOTE_SYSADMIN) that are needed to administrate the TOE.
+FMT_SMR.1
+This Security Functional Requirement ensures that the TOE makes a distinction
+between security related roles and normal users. This SFR is supported by
+SF.MANAGEMENT. This SFR is supported by SF.MANAGEMENT and ensures
+that non-administrators cannot administer the TOE.
+FPT_SEP.1
+This Security Functional Requirement ensures that the TSF operates in its own
+domain and cannot be influenced by external sources. This requirement is met by
+the physical characteristics of the TOE that comprises software that uses a generic
+PC hardware platform. The DAC only provides functionality related to the
+operation of the TOE and does not have dual function, for example, as an office
+file server. The nature of the TOE is such that evaluation at EAL2 provides a
+suitable level of assurance that the TSF operates in it’s own domain.
+The operation of the TSF in its own domain provides the following:
+1. The filtering mechanisms are in a separate domain to the rest of the non-
+security related operations that the TOE performs. This SFR is supported
+by SF.FILTERING. This protects the integrity of the filtering mechanism
+against un-authorised subjects and threat attacks.
+2. The print job management mechanisms are in a separate domain to the
+rest of the non-security related operations that the TOE performs. This
+SFR is supported by SF.JOB_RELEASE This protects the integrity of the
+print job mechanism against un-authorised subjects and threat attacks.
+3. The shredding mechanisms are in a separate domain to the rest of the non-
+security related operations that the TOE performs. This SFR is supported
+by SF.SHREDDING. This protects the integrity of the shredding
+mechanism against un-authorised subjects and threat attacks.
+4. The TOE security management mechanisms are in a separate domain to
+the rest of the non-security related operations that the TOE performs. This
+SFR is supported by SF.MANAGEMENT. This protects the integrity of
+the security management mechanisms against un-authorised subjects and
+threat attacks.
+5. The TOE start-up check mechanisms are in a separate domain to the rest
+of the non-security related operations that the TOE performs. This SFR is
+supported by SF. SELFTEST. This protects the integrity of the start-up
+check mechanisms against un-authorised subjects and threat attacks.
+ST-Océ DAC R10.1.5-3.3 55 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+FPT_RVM.1
+This Security Functional Requirement ensures that no security related operations
+can be performed without being controlled by the TOE’s security mechanisms. The
+DAC provides a limited set of security functionality that is related to the operation
+of the TOE. The nature of the TOE is such that evaluation at EAL2 provides a
+suitable level of assurance that the only the TSF can perform security related
+operations.
+This SFR is supported by SF.MANAGEMENT.
+This Security Functional Requirement ensures that:
+1. No filtering mechanisms can be performed without being controlled by
+the TOE’s security mechanisms. This SFR is supported by
+SF.FILTERING.
+2. No secure print job management mechanisms can be performed without
+being controlled by the TOE’s security mechanisms. This SFR is
+supported by SF.JOB_RELEASE.
+3. No shredding mechanisms can be performed without being controlled by
+the TOE’s security mechanisms. This SFR is supported by
+SF.SHREDDING.
+4. No security related operations can be performed without being controlled
+by the TOE’s security mechanisms. This SFR is supported by
+SF.MANAGEMENT.
+5. The TOE start-up check mechanisms are in a separate domain to the rest
+of the non-security related operations that the TOE performs. This SFR is
+supported by SF. SELFTEST. This ensures that no security management
+mechanisms can be used by un-authorised subjects.
+FPT_TST.1
+This Security Functional Requirement ensures that the TOE to performs a self-test
+during start up. This SFR is supported by SF.SELFTEST. The self-test helps
+protect the TOE against T.MALWARE so that it does not become a possible threat
+agent against S.NETWORK_DEVICE.
+8.3.2 The assurance measures meet the SARs
+The statement of assurance measures has been presented in the form of a reference
+to the documents that show that the assurance measures have been met (CC Part 3
+paragraph 188). This statement can be found in section 6.2.
+8.3.3 The SOF-claims for functions meet the SOF-claims for the SFRs
+The SFRs FIA_UAU.1, FIA_UAU.2, FIA_UID.1 and FIA_UID.2 require the TOE
+to provide security functions that provide identification/authentication functionality
+that meets a SOF claim of ‘SOF basic’.
+ST-Océ DAC R10.1.5-3.3 56 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+This rational for this is that the claim must adequate to defend against the identified
+threats to the TOE that are identified in the TOE Security Environment for which a
+low attack potential exists
+The Security Functions that are realised by probabilistic or permutational
+mechanisms are:
+• SF.JOB_RELEASE
+• SF.MANAGEMENT
+The claim for these two Security Functions is ‘SOF basic’. These Security
+Functions are traced back to the TOE SFRs they implement in 8.3.1
+As the SOF claims for the three Security Functions are equal to the SOF claims for
+the TOE SFRs they implement, the SOF claims are consistent.
+8.3.4 The functions are mutually supportive
+The requirements are mutually supportive (see section 8.2.6) and the functions that
+implement theses requirements are complete (see section 8.3.1). The functions are
+mutually supportive. (This argument has been based on section 9.3.8 of Guide for
+the production of PPs and STs, PDTR 15446 N2449)
+8.4 PP Claims Rationale
+This Security Target TOE does not claim conformance to any Protection Profile.
+ST-Océ DAC R10.1.5-3.3 57 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Appendix A Abbreviations
+BSI Bundesamt für Sicherheit in der Informationtechnik
+DAC Digital Access Controller
+DC Digital Copier
+ITSEF IT Security Evaluation Facility
+LUI Local User Interface (of a DC)
+MFD Multifunctional device for copying, printing and scanning,
+connected to a network (Combination of a DC and a DAC)
+ST-Océ DAC R10.1.5-3.3 58 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Appendix B References
+1. Secure Deletion of Data from Magnetic and Solid State Memory, Peter
+Guttman 1996
+(http://www.cs.auckland.ac.nz/~pgut001/pubs/secure_del.html)
+2. US Department of Defence Military Standard DOD 5220-22m
+(http://www.dss.mil/isecnispom_0195.htm)
+ST-Océ DAC R10.1.5-3.3 59 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Appendix C Glossary of Terms
+None.
+ST-Océ DAC R10.1.5-3.3 60 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Appendix D Security Related Administration Functions
+In this appendix the security related administration functions that are available to
+S.SERVICE_ENGINEER and S.REMOTE_SYSADMIN are detailed. The tables
+give the administration function name and a short description.
+S.SERVICE_ENGINEER
+Administration Function Description
+Security / security level / required level Changing this setting invalidates the claim
+Security / data shredding / shred moment Sets the actual moment of shredding
+Security / data shredding / shred non secure
+jobs
+Sets the type of print jobs to shred
+Security / data shredding / shred scan jobs Sets whether scanned jobs are shredded
+Security / SDS password Sets the SDS login password
+Configuration / Network / TCPIP / HTTPD Configures the Webserver that uses the
+TCPIP
+Configuration / Network / TCPIP / HTTPD /
+Port nr
+Configures the port number that is used by
+the webserver
+Configuration / Applications / Web based SAS
+/ Enable
+Enables web based SAS
+Configuration / Applications / Web based SAS
+/ ResetSASPassword
+Resets the SAS password to its default
+value
+Configuration / licenses / Erase license Erases the current license file
+Enable LPD / Disable LPD Toggles the LPD daemon
+ST-Océ DAC R10.1.5-3.3 61 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+S.REMOTE_SYSADMIN
+Administration Function Description
+Security / security level / required level Changing this setting invalidates the claim
+Security / data shredding / shred moment Sets the actual moment of shredding
+Security / data shredding / shred non secure
+jobs
+Sets the type of print jobs to shred
+Security / data shredding / shred scan jobs Sets whether scanned jobs are shredded
+Configuration / Upload settings Enables a default set of settings to be
+uploaded to the DAC (useful for configuring
+multiple DAC in one customer
+environment)
+Configuration / Download settings Enables a default set of settings to be
+downloaded to the DAC (useful for
+configuring multiple DAC in one customer
+environment)
+Configuration / Network / TCPIP / HTTPD /
+Port nr
+Configures the Webserver that uses the
+TCPIP
+Configuration / Network / TCPIP / HTTPD /
+self signed certificate / common name
+Configures the port number that is used by
+the webserver
+Configuration / Network / TCPIP / raw socket
+enable
+Enables/disables raw socket functionality
+Configuration / Network / TCPIP / raw socket
+port nr
+Configures the port number that is used by
+the raw socket
+Configuration / Network / TCPIP / LDAP
+enable/disable
+Enables/disables support for LDAP
+functionality
+Configuration / Network / TCPIP / LDAP port
+nr
+Configures the port number that is used by
+the for LDAP functionality
+Applications / Web based SAS /
+SetSASPassword
+Sets the S.REMOTE_SYSADMIN
+password
+Enable LPD / Disable LPD Toggles the LPD daemon
+ST-Océ DAC R10.1.5-3.3 62 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Appendix E Firewall rules in the DAC
+All rules in this section apply to the DAC’s network interface (eth0), except were
+noted differently.
+The firewall denies all packets that are not permitted by rules.
+1. Base: DAC Å> Copier link (PPP)
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp >1023 5010 outbound
+Tcp 5010 >1023 inbound
+Icmp 0 both
+2. Base: ICMP, DNS, DHCP
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code on
+OS/2
+Dest Port/
+ICMP
+Code on
+Linux
+Direction
+ICMP 0 Echo reply 0 any outbound
+ICMP 3 Destination unreachable >=0 any inbound
+ICMP 4 Source Quench >=0 any both
+ICMP 8 Echo 0 any inbound
+ICMP 11 ICMP Time Exceeded >0 any inbound
+ICMP 11 ICMP Time Exceeded 1 any outbound
+ICMP 12 Parameter Problem >=0 any both
+UDP+TCP >1023 53 domain 53 domain outbound
+UDP 53 domain >1023 > 1023 inbound
+TCP/ACK 53 doamin >1023 > 1023 inbound
+UDP 67 dhcp/bootp 68 dhcp/bootp 68 dhcp both
+3. LPR
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp any 515 inbound
+Tcp/ack 515 any outbound
+ST-Océ DAC R10.1.5-3.3 63 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+4. SMB
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp 137 inbound
+Tcp 137 outbound
+Udp 137 inbound
+Udp 137 137 (on broadcast
+address)
+inbound
+Udp 138 138 both
+Tcp 139 inbound
+Tcp 139 outbound
+Tcp 139 inbound
+Tcp 139 outbound
+Udp 137 outbound
+Udp 137 outbound
+tcp 445 outbound
+tcp 445 inbound
+tcp 445 outbound
+tcp 445 inbound
+5. ENDPS
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Udp > 1023 3396 both
+Tcp 3396 inbound
+Tcp/ack 3396 outbound
+Tcp 3019 outbound
+Tcp/ack 3019 inbound
+Tcp 3018 outbound
+Tcp/ack 3018 inbound
+Tcp 3016 outbound
+Tcp/ack 3016 inbound
+Tcp 524 outbound
+Tcp/ack 524 inbound
+icmp 8 0 outbound
+icmp 0 0 inbound
+6. SLP
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+udp 427 both
+ST-Océ DAC R10.1.5-3.3 64 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+7. HTTP/HTTPs server
+Used in WebSas and Smart mailbox
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+tcp > 1023 Configurable,
+default 80
+inbound
+Tcp/ack Configurable, default
+80
+> 1023 outbound
+tcp > 1023 443 inbound
+Tcp/ack 443 >1023 outbound
+8. HTTP client
+Used in SmartMailbox
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+tcp > 1023 80 outbound
+Tcp/ack 80 >1023 inbound
+9. HTTPs client
+Used in SmartMailbox, LDAPs , FTPs and SMTP with TLS/SSL
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp > 1023 443 outbound
+Tcp/ack 443 >1023 inbound
+ST-Océ DAC R10.1.5-3.3 65 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+10. FTP Server
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+tcp >1023 21 inbound
+Tcp/ack 21 >1023 outbound
+tcp 20 >1023 outbound
+Tcp/ack >1023 20 inbound
+The firewall supports passive mode FTP, via the following rules:
+Protocol Src Port Dest Port Connection
+state
+Direction
+tcp > 1023 > 1023 established outbound
+tcp > 1023 > 1023 established,
+related
+inbound
+Here established means that the packet being filtered is associated to a connection
+which has seen packets in both directions; related means that the packet is
+starting a new connection, but is associated with an existing connection.
+11. FTP Client
+Protocol Src Port Dest Port Direction
+tcp >1023 N outbound
+Tcp/ack N >1023 inbound
+tcp N – 1 >1023 inbound
+Tcp/ack >1023 N – 1 outbound
+Here N is the ftp client command port, which is configurable. By default it is 21.
+The firewall supports passive mode FTP, via the following rules:
+Protocol Src Port Dest Port Connection
+state
+Direction
+tcp > 1023 > 1023 established inbound
+tcp > 1023 > 1023 established,
+related
+outbound
+Here established means that the packet being filtered is associated to a connection
+which has seen packets in both directions; related means that the packet is
+starting a new connection, but is associated with an existing connection.
+ST-Océ DAC R10.1.5-3.3 66 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+12. SNMP
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+udp 161 inbound
+udp 161 outbound
+Udp 162 outbound
+Udp 162 inbound
+13. Printlogic /UDS/IntraLogic
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+udp 2697 outbound
+Tcp 1028 inbound
+tcp 1028 outbound
+14. SMTP
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp configurable,
+usually 25
+outbound
+Tcp/ack configurable, usually
+25
+inbound
+15. LDAP
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp configurable,
+usually 389
+outbound
+Tcp/ack configurable, usually
+389
+inbound
+ST-Océ DAC R10.1.5-3.3 67 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+16. Multicast MDNS
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Udp > 1023 5353 outbound
+Udp 5353 >1023 inbound
+17. Raw Socket
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp configurable,
+usually 9100
+inbound
+Tcp/ack configurable, usually
+9100
+outbound
+18. Authentication
+18.1. NTLM
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp configurable,
+usually 139
+outbound
+Tcp/ack configurable,
+usually 139
+inbound
+18.2. Kerberos
+Protocol Src Port/
+ICMP Type
+Dest Port/
+ICMP Code
+Direction
+Tcp configurable,
+usually 88
+outbound
+Tcp/ack configurable, usually
+88
+inbound
+Udp configurable,
+usually 88
+outbound
+Udp configurable, usually
+88
+inbound
+ST-Océ DAC R10.1.5-3.3 68 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+19. Firewall Rules for the USB Port
+To enable the service technician to connect his laptop to the DAC via the USB
+port, the firewall incorporates the following rules:
+Interface Protocol Src Port Dest Port Direction
+eth1 tcp any 22 inbound
+eth1 tcp 22 any outbound
+eth1 tcp > 1023 configurable,
+usually 80
+inbound
+eth1 tcp/ack configurable, usually
+80
+> 1023 outbound
+eth1 tcp > 1023 443 inbound
+eth1 tcp/ack 443 > 1023 outbound
+ST-Océ DAC R10.1.5-3.3 69 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Appendix F Montavista 4.1 Patches applied
+pro-0287-omap_kgdb8250_oops_fix.mvlpatch
+pro-0288-8250-early_serial_setup_spin_lock_init.mvlpatch
+pro-0289-ipv6_conntrack_core_mising_include_fix.mvlpatch
+pro-0290-ip6t_reject_missing_include_fix.mvlpatch
+pro-0291-ext3_show_options_remount_bugfix.mvlpatch
+pro-0292-ext3_options_remount_quota_warning_fix.mvlpatch
+pro-0293-ppc440ep_yosemite_support.mvlpatch
+pro-0294-ppc440gr_yellowstone_support.mvlpatch
+pro-0295-ppc32_export_cacheable_memcpy_symbol.mvlpatch
+pro-0296-ppc32_emac_rt_fix.mvlpatch
+pro-0297-ppc32_cleanup_booke_NUM_TLBCAMS_usage.mvlpatch
+pro-0298-driver_core_add_bus_find_device_function.mvlpatch
+pro-0299-common_jbd_relaxation.mvlpatch
+pro-0300-mqueue_mnt_mnt_count_CVE-2005-3356.mvlpatch
+pro-0301-fix_refcount_in_ip6_flowlabel_CVE-2005-3806.mvlpatch
+pro-0302-redundant_NULL_check_in_kernel_sysctl-CVE-2005-2709.mvlpatch
+pro-0303-fix_sysctl_unregistration_oops_CVE-2005-2709.mvlpatch
+pro-0304-ipv6_restrict_information_exported_to_userspace.mvlpatch
+pro-0305-fix_infinite_loop_in_udp_v6_get_port_CVE-2005-2973.mvlpatch
+pro-0306-kill_annoying_mount_version_mismatch_printks.mvlpatch
+pro-0307-call_exit_itimers_from_do_exit.mvlpatch
+pro-0308-mips_rbtx4939_big_endian_ide_bugfix.mvlpatch
+pro-0309-fix_arm_slab_corruption_due_to_pud_t_integration.mvlpatch
+pro-0310-fix_compiler_warnings_with_ARM_set_pmd.mvlpatch
+pro-0311-mips_pnx8550_sync.mvlpatch
+pro-0312-mips_pnx8550_stb810.mvlpatch
+pro-0313-mips_pnx8550_rt.mvlpatch
+pro-0314-mips_pnx8550_kgdb.mvlpatch
+pro-0315-mips_pnx8550_hrt.mvlpatch
+pro-0316-mips_pnx8550_nand.mvlpatch
+pro-0317-mips_pnx8550_meuconfig_warnings.mvlpatch
+pro-0318-mips_pnx8550_nand_fix.mvlpatch
+pro-0319-mips_pnx8550_mmu_bug_fix.mvlpatch
+pro-0320-introduce_kzalloc_function.mvlpatch
+pro-0321-ppc_xilinx_move_xparameters.h.mvlpatch
+pro-0322-ppc_xilinx_virtex2pro_to_virtex.mvlpatch
+pro-0323-ppc_xilinx_add_virtex4fx_to_cpu_table.mvlpatch
+pro-0324-ppc_xilinx_add_ml403_board_support.mvlpatch
+pro-0325-ppc_xilinx_intc_cleanup.mvlpatch
+pro-0326-ppc_xilinx_ivr_hw_bug_workaround.mvlpatch
+pro-0327-ppc_xilinx_platform_stub.mvlpatch
+pro-0328-ppc_xilinx_edk_common.mvlpatch
+ST-Océ DAC R10.1.5-3.3 70 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0345-ppc_xilinx_edk_uartlite.mvlpatch
+pro-0329-ppc_xilinx_edk_emac.mvlpatch
+pro-0330-ppc_xilinx_emac_del_LookupConfig.mvlpatch
+pro-0331-ppc_xilinx_emac.mvlpatch
+pro-0332-ppc_xilinx_edk_gpio.mvlpatch
+pro-0333-ppc_xilinx_gpio_del_LookupConfig.mvlpatch
+pro-0334-ppc_xilinx_gpio.mvlpatch
+pro-0335-ppc_xilinx_edk_ps2.mvlpatch
+pro-0336-ppc_xilinx_ps2_del_LookupConfig.mvlpatch
+pro-0337-ppc_xilinx_ps2.mvlpatch
+pro-0338-ppc_xilinx_fb.mvlpatch
+pro-0339-ppc_xilinx_edk_sysace.mvlpatch
+pro-0340-ppc_xilinx_sysace_del_LookupConfig.mvlpatch
+pro-0341-ppc_xilinx_sysace.mvlpatch
+pro-0342-ppc_xilinx_edk_iic.mvlpatch
+pro-0343-ppc_xilinx_iic_del_LookupConfig.mvlpatch
+pro-0344-ppc_xilinx_iic.mvlpatch
+pro-0346-ppc_xilinx_edk_temac.mvlpatch
+pro-0347-ppc_xilinx_uartlite.mvlpatch
+pro-0348-ppc_xilinx_temac_del_LookupConfig.mvlpatch
+pro-0349-ppc_xilinx_temac.mvlpatch
+pro-0350-ppc_xilinx_tlb_bug_workaround.mvlpatch
+pro-0351-ppc_xilinx_add_memec_2vpx_board_support.mvlpatch
+pro-0352-ppc_memec_2vpx_lcd.mvlpatch
+pro-0353-ppc_memec_2vpx_mtd.mvlpatch
+pro-0354-ppc_xilinx_ps2_lockup_fix.mvlpatch
+pro-0355-ppc_xilinx_edk_touchscreen.mvlpatch
+pro-0356-ppc_xilinx_touchscreen_del_LookupConfig.mvlpatch
+pro-0357-ppc_xilinx_touchscreen.mvlpatch
+pro-0358-ppc_xilinx_xparameters_ml300-fix.mvlpatch
+pro-0359-ppc_xilinx_edk_spi.mvlpatch
+pro-0360-ppc_xilinx_spi_del_LookupConfig.mvlpatch
+pro-0361-ppc_xilinx_spi.mvlpatch
+pro-0362-ppc_xilinx_ml300_remove_unnecessary_files.mvlpatch
+pro-0363-generic_serial_driver_bugfix.mvlpatch
+pro-0364-mips_nec_vr5701_serial_fix.mvlpatch
+pro-0365-mips_nec_vr5701_errata.mvlpatch
+pro-0366-mips_nec_vr5701_sound_next.mvlpatch
+pro-0367-mips_fpu_and_preemption_fixes.mvlpatch
+pro-0368-mips_tx49x7-cpu-name-pci-clock-report-fix.mvlpatch
+pro-0369-mips_tx4927_38_pciccfg_gbwc.mvlpatch
+pro-0370-mips_tx4937-fix-timer-reg-defs.mvlpatch
+pro-0371-mips_tx49xx-mfc0-errata-fix.mvlpatch
+pro-0372-use_mtune_arm1136j-s_for_ARMv6_targets.mvlpatch
+pro-0373-arm-remove-udivdi3-from-pxafb.mvlpatch
+ST-Océ DAC R10.1.5-3.3
+pro-0388-arm-eabi-kconfig.mvlpatch
+71 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0374-mmc-remove-ref-to-divdi3.mvlpatch
+pro-0375-arm-remove-udivdi3-from-nwfpe.mvlpatch
+pro-0376-arm-remove-udivdi3-from-kernel.mvlpatch
+pro-0377-arm-optimized-libc-functions.mvlpatch
+pro-0378-slab-add-more-arch-override.mvlpatch
+pro-0379-arm-fix-sys_sendto-and-sys_recvfrom-6-arg.mvlpatch
+pro-0380-arm_mno-thumb-interwork.mvlpatch
+pro-0381-arm-eabi-relocs-for-modules.mvlpatch
+pro-0382-arm-eabi-slab-align-to-64bits.mvlpatch
+pro-0383-arm-eabi-sp-align-1.mvlpatch
+pro-0384-arm-eabi-sp-align-2.mvlpatch
+pro-0385-arm-eabi-helper-func-names.mvlpatch
+pro-0386-arm-eabi-syscalls.mvlpatch
+pro-0387-arm-eabi-syscall-adjstments.mvlpatch
+pro-0389-arm-update-syscall-table.mvlpatch
+pro-0390-arm-inotify-ioprio.syscalls.mvlpatch
+pro-0391-arm-mempolicy-syscalls.mvlpatch
+pro-0392-arm-oabi-statfs64.mvlpatch
+pro-0393-arm-oabi-syscall-wrappers.mvlpatch
+pro-0394-arm-oabi-multi-abi.mvlpatch
+pro-0395-arm-oabi-nwfpe.mvlpatch
+pro-0396-arm-oabi-kconfig.mvlpatch
+pro-0397-arm-eabi-sigreturn-fix.mvlpatch
+pro-0398-arm-nptl-compat-mb.mvlpatch
+pro-0399-arm-oabi-is-experimental.mvlpatch
+pro-0400-arm-oabi-struct-sockaddr_un.mvlpatch
+pro-0401-arm_mempolicy_syscalls_compat_hack.mvlpatch
+pro-0402-arm_eabi_syscalls_compat_hack.mvlpatch
+pro-0403-iptables_counters_fix.mvlpatch
+pro-0404-frd_smp_affinity.mvlpatch
+pro-0405-frd_mips_abs_latency.mvlpatch
+pro-0406-frd_report_correct_runtime2.mvlpatch
+pro-0407-frd_cleanup_whitespace.mvlpatch
+pro-0408-frd_specify_major_device_number.mvlpatch
+pro-0409-frd_remove_debug_code.mvlpatch
+pro-0410-kgdb_ppc64_smp_fixes.mvlpatch
+pro-0411-ppc_boot_treeboot_entrypoint_fix.mvlpatch
+pro-0412-mips_uaccess_might_sleep_removal.mvlpatch
+pro-0413-fs_enet_dma_unmap_fixup.mvlpatch
+pro-0414-mips_fix_ssnop_macro.mvlpatch
+pro-0415-fix_potential_dos_in_load_elf_library.mvlpatch
+pro-0416-mips_au1xx0-kgdb.mvlpatch
+pro-0417-mips_do-not-clear-irq_desc.mvlpatch
+pro-0418-mips_au1xx0-hrt.mvlpatch
+ST-Océ DAC R10.1.5-3.3 72 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0419-mips_au1x00_uart-remove-serial-registration.mvlpatch
+pro-0420-mips_au1x00_uart-deadlock-fix.mvlpatch
+pro-0421-mips_au1x00_uart-claim-region.mvlpatch
+pro-0422-mips_au1xx0-make-kseg0-uncached-on-reboot.mvlpatch
+pro-0423-mips_au1xx0-use-au_readl.mvlpatch
+pro-0424-mips_au1xx0-preserve-default-cmdline.mvlpatch
+pro-0425-mips_au1xx0-use-prom_printf.mvlpatch
+pro-0426-mips_au1xx0-fix-ohci-Kconfig-entry.mvlpatch
+pro-0427-mips_au1xx0-ohci-region-size-off-by-one.mvlpatch
+pro-0428-mips_au1xx0-fix-prom_getenv.mvlpatch
+pro-0429-mips_ramdisk_parse_cmdline.mvlpatch
+pro-0430-mips_db1200.mvlpatch
+pro-0431-mips_au1200-kgdb-on-uart1.mvlpatch
+pro-0432-mips_au1xx0-dbdma-backport.mvlpatch
+pro-0433-mips_au1xx0-nand-chip-select-fix.mvlpatch
+pro-0434-mips_au1550_ac97-fix-spinlocks.mvlpatch
+pro-0435-mips_au1550_ac97-print-newlines.mvlpatch
+pro-0436-mips_au1xx0-fix-dbdma-warnings-and-move-irq_tab_alchemy.mvlpatc
+h
+pro-0437-mips_au1xx0-fix-dbdma-cache-snoop-issue.mvlpatch
+pro-0438-ppc_440gx_rev_f.patch.mvlpatch
+pro-0439-8349e_initial.patch.mvlpatch
+pro-0440-83xx_serial_debug_fix.patch.mvlpatch
+pro-0441-chipset_version_fix.patch.mvlpatch
+pro-0442-mpc834x_bcsr_size_fix.patch.mvlpatch
+pro-0443-mpc83xx_add_soft_reset.patch.mvlpatch
+pro-0444-add_834x_rtc_support.patch.mvlpatch
+pro-0445-add_mpc83xx_pci.patch.mvlpatch
+pro-0446-ppc32-check-ppc_sys_get_pdata-return.patch.mvlpatch
+pro-0447-mpc8349mds_flash.patch.mvlpatch
+pro-0448-mpc834x_reset_cleanup.patch.mvlpatch
+pro-0449-mii-add-gige-support.patch.mvlpatch
+pro-0450-mii_gigE-bug-fixes.patch.mvlpatch
+pro-0451-add-mii-test-for-gige.patch.mvlpatch
+pro-0452-ppc_booke_wdt.patch.mvlpatch
+pro-0453-ppc_booke_wdt_namespace_cleanup.patch.mvlpatch
+pro-0454-ppc_head_4xx_missing_endif.patch.mvlpatch
+pro-0455-ppc32-pte-conversions-to-page-frame-numbers.patch.mvlpatch
+pro-0456-ppc32-fix-pte-update.patch.mvlpatch
+pro-0457-ppc32-support_36_bit_phys_addr_on_e500.patch.mvlpatch
+pro-0458-ppc85xx-fix_platform_device_initialization-8250.patch.mvlpatch
+pro-0459-ppc32-fix-booke-kgdb-support.patch.mvlpatch
+pro-0460-ppc32-skip-8258pic-unless-pci.patch.mvlpatch
+pro-0461-ppc32-add-8548-support.patch.mvlpatch
+pro-0462-ppc32-add-8548cds-support.patch.mvlpatch
+ST-Océ DAC R10.1.5-3.3 73 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0463-ppc32-add-8548-internal-interrupt-support.patch.mvlpatch
+pro-0464-ppc32-remove-unnecessary-prom.h-includes.patch.mvlpatch
+pro-0465-ppc32-fix-mpc8555cds-build.patch.mvlpatch
+pro-0466-ppc32-gianfar-update-marvel-phy-name.patch.mvlpatch
+pro-0467-ppc32-add-8548-gianfar-tsec-features.patch.mvlpatch
+pro-0468-ppc32-add-cpm2_reset-prototype.patch.mvlpatch
+pro-0469-add-phy-abstraction-layer.patch.mvlpatch
+pro-0470-phy-numerous-minor-fixes.patch.mvlpatch
+pro-0471-phy-more-cleanups.patch.mvlpatch
+pro-0472-phy_layer_fixup.patch.mvlpatch
+pro-0473-ppc32-fix-85xx-pci-io-space.patch.mvlpatch
+pro-0474-gianfar-use_new_phy_layer.patch.mvlpatch
+pro-0475-ppc32-85xx-phy_platform_update.patch.mvlpatch
+pro-0476-ppc32-add-E200-support.patch.mvlpatch
+pro-0477-delete_CONFIG_PHYCONTROL.patch.mvlpatch
+pro-0478-gianfar_zero_mii_bus_structure.patch.mvlpatch
+pro-0479-add_phy_address_mask.patch.mvlpatch
+pro-0480-mpc85xx_cds_kgdb_fix.patch.mvlpatch
+pro-0481-add_gianfar_net_poll.patch.mvlpatch
+pro-0482-ppc32-factor_out_exception_code_for_4xx_and_booke.patch.mvlpatc
+h
+pro-0483-ppc32_kgdb_cope_with_singlestep_on_critical_exception_stack.pat
+ch.mvlpatch
+pro-0484-gianfar_update_and_add_sysfs_support.patch.mvlpatch
+pro-0485-allow_overlapping_resources_for_platform_devices.patch.mvlpatch
+pro-0486-gianfar_include_in_h.patch.mvlpatch
+pro-0487-gianfar_use_proper_resource_for_mii.patch.mvlpatch
+pro-0488-phy_add_PHY_ID_FMT_macro.patch.mvlpatch
+pro-0489-gianfar_use_PHY_ID_FMT_MACRO.patch.mvlpatch
+pro-0490-gianfar_pass_mdio_bus_params_for_new_driver.patch.mvlpatch
+pro-0491-ppc_booke_add_isync_after_changing_debug_registers.patch.mvlpat
+ch
+pro-0492-add_include_of_netdevice_h_to_etherdevice_h.patch.mvlpatch
+pro-0493-gianfar_crc32dep.patch.mvlpatch
+pro-0494-ppc32_mpc8548_pex.patch.mvlpatch
+pro-0495-gianfar_xmitirqstate.patch.mvlpatch
+pro-0496-ppc_booke_wdt_handlerfixup.patch.mvlpatch
+pro-0497-ppc32_mpc8548cds_fix_board_reset.patch.mvlpatch
+pro-0498-net_sched_debug_fixup.mvlpatch
+pro-0499-ppc32_rt_remap_kmap_atomic_functions.mvlpatch
+pro-0500-ppc32_rt_enable_interrupts_in__exception.mvlpatch
+pro-0501-kgdb_mrproper_cleanup.mvlpatch
+pro-0502-kgdb_8520_dep_fix.mvlpatch
+pro-0503-ltt_kernel_tid.mvlpatch
+pro-0504-__wait_on_freeing_inode_fix.mvlpatch
+ST-Océ DAC R10.1.5-3.3 74 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0505-rst_ip_conntrack_handling.mvlpatch
+pro-0506-ppc_fix_timekeeping.mvlpatch
+pro-0507-usb_ehci_shutdown.mvlpatch
+pro-0508-83xx_Kconfig_cleanup.mvlpatch
+pro-0509-83xx_to_syslib.mvlpatch
+pro-0510-ipic_off_by_one_fix.mvlpatch
+pro-0511-add_ds1374_rtc_chip.mvlpatch
+pro-0512-ds1374_asm_rtc_fix.mvlpatch
+pro-0513-ds1374_workqueue.mvlpatch
+pro-0514-mpc83xx_ipic_pend_fix.mvlpatch
+pro-0515-mpc834x_usb_offset_fix.mvlpatch
+pro-0516-mpc834x_kconfig_mismerge_fix.mvlpatch
+pro-0517-mpc834x_sys_config_update.mvlpatch
+pro-0518-ppc32-83xx-phy_platform_update.mvlpatch
+pro-0519-8349_pci_prefetch_fix.mvlpatch
+pro-0520-ehci_pci_splitout.mvlpatch
+pro-0521-usb-ehci-for-freescale-83xx.mvlpatch
+pro-0522-usb-ehci-and-freescale-83xx-quirk.mvlpatch
+pro-0523-8349_add_usb_host.mvlpatch
+pro-0524-ppc83xx-fix_platform_device_initialization-8250.mvlpatch
+pro-0525-ppc83xx_gianfar_pass_mdio_bus_params_for_new_driver.mvlpatch
+pro-0526-mpc83xx_kgdb_fix.mvlpatch
+pro-0527-ppc_emac_typo_fix.mvlpatch
+pro-0528-matroxfb-fix-big-endian.mvlpatch
+pro-0529-mpc8540ads_kgdb_fix.mvlpatch
+pro-0530-mpc8540ads_serial_text_debug_fix.mvlpatch
+pro-0531-mpc8540ads_phy_disable_force_mode.mvlpatch
+pro-0532-ppc32_405gpr_pci_region1_en.mvlpatch
+pro-0533-touch_watchdogs.mvlpatch
+pro-0534-kgdb_need_nmi_watchdog_h.mvlpatch
+pro-0535-kgdboe_touch_watchdogs.mvlpatch
+pro-0536-kgdb_serial_touch_watchdogs.mvlpatch
+pro-0537-Kill_signed_chars.mvlpatch
+pro-0538-kbuild_signed_char_fixes_for_scripts.mvlpatch
+pro-0539-fix_gcc4.1_build_failure_on_xconfig.mvlpatch
+pro-0540-kbuild_signed_unsigned_char_fix_for_make_menuconfig.mvlpatch
+pro-0541-rw_verify_area_error_relax.mvlpatch
+pro-0542-fix_FRD_and_MIPS_CPU_TIMER_config.mvlpatch
+pro-0543-pro_mips_pnx8550_hrt_fix.mvlpatch
+pro-0544-pro_mips_pnx8550_external_pci.mvlpatch
+pro-0545-fs_locks_fix_lease_init_CVE_2006_1859_60.mvlpatch
+pro-0546-2421_i386_add_memory_clobbers_to_syscall_macros.mvlpatch
+pro-0547-2138_x86_Make__syscallX_macros_compile_in_PIC_mode.mvlpatch
+pro-0548-
+lsm_add_missing_hook_to_do_compat_readv_writev_CVE_2006_1856.mv
+ST-Océ DAC R10.1.5-3.3 75 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+lpatch
+pro-0549-remove_bogus_BUG_in_exit_CVE_2006_1855.mvlpatch
+pro-0550-
+scsi_sg_do_not_set_VM_IO_flag_on_mmaped_pages_CVE_2006_1528.mvl
+patch
+pro-0551-netfilter_fix_do_add_counters_race_CVE_2006_0039.mvlpatch
+pro-0552-
+common_netfilter_fix_do_add_counters_race_ipv4_CVE_2006_0039.mv
+lpatch
+pro-0553-driver_core_Separate_platform_device_name_from_platform_device_
+number.mvlpatch
+pro-0554-generic_file_buffered_write.mvlpatch
+pro-0555-ide_unexport_atapi_byte_io.mvlpatch
+pro-0556-ide_cleanup_globals.mvlpatch
+pro-0557-ide_dump_atapi_status_fix.mvlpatch
+pro-0558-ide_flush_cache_error_lba_fix.mvlpatch
+pro-0559-ide_claim_extra_dma_ports_regardless_of_channel.mvlpatch
+pro-0560-ide_remove_dma_base2_field_from_ide_hwif_t.mvlpatch
+pro-0561-ide_always_release_dma_engine.mvlpatch
+pro-0562-common_kgdb_8250_ttyS1_fix.mvlpatch
+pro-0563-gen_init_cpio_symlink_pipe_and_socket_support.mvlpatch
+pro-0564-initramfs_unprivileged_image_creation.mvlpatch
+pro-0565-gen_init_cpio_When_outputting_a_buffer_don_t_use_char_at_a_time
+_I_O.mvlpatch
+pro-0566-cpm_uart_Fix_2nd_serial_port_on_MPC8560_ADS.mvlpatch
+pro-0567-common_phy_layer_aneg_enable.mvlpatch
+pro-0568-common_ppc32_pal_support_fixed_phy.mvlpatch
+pro-0569-common_ppc32_fs_enet_use_pal.mvlpatch
+pro-0570-common_ppc32_fs_enet_pd_8560ads.mvlpatch
+pro-0571-common_ppc32_mpc8560ads_rt_cpm2irq.mvlpatch
+pro-0572-0165_stop_CompactFlash_devices_being_marked_as_removable.mvlpat
+ch
+pro-0573-ppc32_busid_format_change.mvlpatch
+pro-0574-ide_actually_honor_min_cycle_time.mvlpatch
+pro-0575-common_kgdb_oe_cpm_compile_fix.mvlpatch
+pro-0576-fix_alt_sysrq_deadlock.mvlpatch
+pro-0577-common_fs_enet_phy_fix.mvlpatch
+pro-0578-common_kgdb_ppc32_singlestep_fix.mvlpatch
+pro-0579-common_ppc32_mpc8560ads_disable_force_mode.mvlpatch
+pro-0580-pro_serial_cpm_uart_pq2fads.mvlpatch
+pro-0581-common_ppc32_mpc8560ads_cpm_uart.mvlpatch
+pro-0582-common_ppc32_mpc8560ads_cpm_uart_pins.mvlpatch
+pro-0583-common_ppc32_cpm_uart_kgdb_fix.mvlpatch
+pro-0584-pdc202xx_old_remove_obsolete_busproc.mvlpatch
+pro-0585-piix_remove_mwdma0_check.mvlpatch
+ST-Océ DAC R10.1.5-3.3 76 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0586-0434_ext3_EA_Ext_23_no_spare_xattr_handler_slots_needed.mvlpatc
+h
+pro-0587-0554_cs89x0_collect_tx_bytes_statistics.mvlpatch
+pro-0588-0530_IRDA_out_of_range_array_access.mvlpatch
+pro-0589-common_rt_pi_list_add_list_del_init.mvlpatch
+pro-0590-ide_dma_speed_fixes.mvlpatch
+pro-0591-ide_dma_speed_warning_fix.mvlpatch
+pro-0592-add_ICH7_support.mvlpatch
+pro-0593-piix_add_82801DBL_support.mvlpatch
+pro-0594-piix_remove_init_setup_handler.mvlpatch
+pro-0595-piix_remove_useless_comment.mvlpatch
+pro-0596-piix_merge_header.mvlpatch
+pro-0597-piix_fix_82371MX_enablebits.mvlpatch
+pro-0598-piix_slc90e66_pio_fallback_fix.mvlpatch
+pro-0599-Fix_oops_in_sysfs_hash_and_remove_file.mvlpatch
+pro-0600-sysfs_remove_dir_needs_to_invalidate_the_dentry.mvlpatch
+pro-0601-mtd_cfi_init_wait_queue_in_chip_struct.mvlpatch
+pro-0602-common_jffs2_gc_1.160_backport.mvlpatch
+pro-0603-pro_ppc32_add_platform_device_functions.mvlpatch
+pro-0604-
+pro_ppc32_adds_mpc885ads_mpc866ads_mpc8272ads_specific_platform
+_stuff.mvlpatch
+pro-0605-pro_ppc32_mpc8xx_irda.mvlpatch
+pro-0606-pro_ppc32_i2c_885_866_support.mvlpatch
+pro-0607-pro_ppc32_fs_enet_use_pal.mvlpatch
+pro-0608-pro_mpc8272_fec_setup.mvlpatch
+pro-0609-common_i386_io_apic_cache_build_fix.mvlpatch
+pro-0610-shmat.mvlpatch
+pro-0611-mtd_cfi_cmdset_0001_fix_range_for_cache_invalidation.mvlpatch
+pro-0612-common_remove_scsi_timer_race.mvlpatch
+pro-0613-common_scsi_memory_deadlock.mvlpatch
+pro-0614-common_scsi_module_panic.mvlpatch
+pro-0615-pro_usb_dev_serial_gadget_criticalsections_fix.mvlpatch
+pro-0616-pro_common_driver_bus_sem_fix.mvlpatch
+pro-0617-common_kgdb_serial.mvlpatch
+pro-0618-common_ppc64_boot_makefile.mvlpatch
+pro-0619-common_bit_spinlocks_preempt.mvlpatch
+pro-0620-common_fix_pfkeyv2_type.mvlpatch
+pro-0621-pro_mips_rdhwr_fix.mvlpatch
+pro-0622-pro_mips_fp_branch_emulation_fix.mvlpatch
+pro-0623-pro_mips_rbhma4x00_rtl8019as_init_fix.mvlpatch
+pro-0624-pro_mips_fix_non_linear_memory_mapping.mvlpatch
+pro-0625-pro_mips_hrt_fix.mvlpatch
+pro-0626-pro_mips_db15x0_noncoherent_dma.mvlpatch
+pro-0627-pro_mips_db1xx0_platform.mvlpatch
+ST-Océ DAC R10.1.5-3.3 77 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0628-pro_mips_au1xx0_eth_fix_tx_stats.mvlpatch
+pro-0629-pro_mips_au1000_eth_probe_rewrite.mvlpatch
+pro-0630-pro_hpt366_driver_reworked.mvlpatch
+pro-0631-pro_mips_36bit_phys_addr_swap_entry_fix.mvlpatch
+pro-0632-pro_mips_36bit_phys_addr_sys_mprotect_fix.mvlpatch
+pro-0633-pro_mips_36bit_phys_addr_really_mark_pte_dirty.mvlpatch
+pro-0634-pro_mips_36bit_phys_addr_really_mark_buddy_pte_global.mvlpatch
+pro-0635-pro_mips_au15x0_fix_counter_frequency.mvlpatch
+pro-0636-pro_mips_au1x00_alsa_spinlock_fix.mvlpatch
+pro-0637-pro_mips_au1x00_alsa_ac97_memory_mapped.mvlpatch
+pro-0638-pro_mips_au1x00_retain_od_bit.mvlpatch
+pro-0639-pro_mips_au1500_work_around_unknown_errata.mvlpatch
+pro-0640-common_frd_remove_extern_declarations.mvlpatch
+pro-0641-pro_ppc_xilinx_ml403_to_ml40x.mvlpatch
+pro-0642-pro_ppc_xilinx_edk_to_common.mvlpatch
+pro-0643-pro_ppc_xilinx_ethtool_support_to_emac.mvlpatch
+pro-0644-pro_ppc_xilinx_gpio_dual_channel.mvlpatch
+pro-0645-pro_ppc_xilinx_add_xparameters_defaults.mvlpatch
+pro-0646-pro_ppc_xilinx_temac_fixes.mvlpatch
+pro-0647-pro_ppc_xilinx_mac_eepro.mvlpatch
+pro-0648-pro_ppc_xilinx_kconfig.mvlpatch
+pro-0649-pro_ppc_xilinx_emac_fixes.mvlpatch
+pro-0650-pro_ppc_xilinx_edk_new_emac.mvlpatch
+pro-0651-pro_ppc_xilinx_edk_new_gpio.mvlpatch
+pro-0652-pro_ppc_xilinx_edk_new_iic.mvlpatch
+pro-0653-pro_ppc_xilinx_edk_new_ps2.mvlpatch
+pro-0654-pro_ppc_xilinx_edk_new_sysace.mvlpatch
+pro-0655-pro_ppc_xilinx_edk_new_uartlite.mvlpatch
+pro-0656-SNMP_NAT_fix_memory_corruption_CVE_2006_2444.mvlpatch
+pro-0657-pro_ppc32_pcmcia_8xx.mvlpatch
+pro-0658-pro_ppc32_pcmcia_update.mvlpatch
+pro-0659-pro_ppc32_8xx_pcmcia_885_866_support.mvlpatch
+pro-0660-pro_cpm_uart_kgdb_8xx.mvlpatch
+pro-0661-pro_ppc32_mpc885ads_mpc86xads_mtd.mvlpatch
+pro-0662-pro_ppc32_mpc8xx_i2c_algo.mvlpatch
+pro-0663-pro_ppc32_mm_dcbst_fix.mvlpatch
+pro-0664-pro_ppc32_pcmcia_8xx_fix_build_error.mvlpatch
+pro-0665-pro_ppc32_rpx_i2c_platform_device.mvlpatch
+pro-0666-pro_ppc32_pcmcia_kconfig_cleanup.mvlpatch
+pro-0667-pro_ppc32_fs_enet_pd_885ads.mvlpatch
+pro-0668-pro_mpc885_fec_setup_fix.mvlpatch
+pro-0669-pro_ppc32_mm_fix_tlbie.mvlpatch
+pro-0670-common_fix_io_apic_cache_with_irq_threads.mvlpatch
+pro-0671-common_ide_cs_suspend_resume.mvlpatch
+pro-0672-common_ppc32_mpc8540ads_phy_disable_force_mode_fix.mvlpatch
+ST-Océ DAC R10.1.5-3.3 78 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0673-common_i386_hrt_monotonic_clock_fix.mvlpatch
+pro-0674-common_rt_fix_load_in_softirqs.mvlpatch
+pro-0675-ppc32_dont_sleep_in_flush_dcache_icache_page.mvlpatch
+pro-0676-common_ext3_remove_bit_spinlocks.mvlpatch
+pro-0677-common_pxa27x_pcmcia_suspend_resume.mvlpatch
+pro-0678-common_orinoco_cs_suspend_resume.mvlpatch
+pro-0679-common_usb_gadget_file_storage_short_no_ok.mvlpatch
+pro-0680-common_ext3_handle_attempted_delete_of_bitmap_blocks.mvlpatch
+pro-0681-common_ext3_handle_attempted_double_delete_of_metadata.mvlpatch
+pro-0682-common_BUG_on_error_handlings_in_Ext3_under_I_O_failure_conditi
+on.mvlpatch
+pro-0683-common_jbd_journal_overflow_fix_2.mvlpatch
+pro-0684-common_JBD_reduce_stack_and_number_of_journal_descriptors.mvlpa
+tch
+pro-0685-common_JBD_log_space_management_optimization.mvlpatch
+pro-0686-common_Factor_out_phase_6_of_journal_commit_transaction.mvlpatc
+h
+pro-0687-common_ext3_jbd_race_releasing_in_use_journal_heads.mvlpatch
+pro-0688-common_ext3_fix_journal_unmap_buffer_race.mvlpatch
+pro-0689-common_jbd_dirty_buffer_leak_fix.mvlpatch
+pro-0690-common_ext3_fix_list_scanning_in___cleanup_transaction.mvlpatch
+pro-0691-common_ext3_fix_log_do_checkpoint_assertion_failure.mvlpatch
+pro-0692-common_kjournald_missing_JFS_UNMOUNT_check.mvlpatch
+pro-0693-common_Fix_JBD_race_in_t_forget_list_handling.mvlpatch
+pro-0694-common_Change_ll_rw_block_calls_in_JBD.mvlpatch
+pro-0695-common_Fix_race_in_do_get_write_access.mvlpatch
+pro-0696-common_jbd_catchup_integration.mvlpatch
+pro-0697-common_marker_inode.mvlpatch
+pro-0698-remove_ARM_specific_set_pmd.mvlpatch
+pro-0699-add_ARM_inline_functions_to_find_pmd_from_virt.mvlpatch
+pro-0700-common_arm_dma_consistent.mvlpatch
+pro-0701-common_arm_preempt_rt_irq_sa_interrupt.mvlpatch
+pro-0702-common_arm_default_eabi_on_non_v4.mvlpatch
+pro-0703-0534_ARM_3477_1_ARM_EABI_undefine_removed_syscalls.mvlpatch
+pro-0704-common_ARM_eABI_unistd_h_uclibc.mvlpatch
+pro-0705-
+ARM_3495_1_EABI_undefine_removed_syscalls_for_userspace_only.mv
+lpatch
+pro-0706-
+ARM_3486_1_Mark_memory_as_clobbered_by_the_ARM__syscallX_macros
+.mvlpatch
+pro-0707-common_arm_mach_types_060213.mvlpatch
+pro-0708-common_arm_mach_types_060518.mvlpatch
+pro-0709-common_ltt_arm_oabi_fix.mvlpatch
+pro-0710-ARM_EABI_more_64_bit_aligned_stack_fixes.mvlpatch
+ST-Océ DAC R10.1.5-3.3 79 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0711-ARM_fix_PXA27x_DMA_allocation_priority.mvlpatch
+pro-0712-
+0147_ARM_3470_1_Clear_the_HWCAP_bits_for_the_disabled_kernel_fe
+atures.mvlpatch
+pro-0713-common_ARM_DEBUG_STACKOVERFLOW.mvlpatch
+pro-0714-
+0399_ARM_2796_1_Fix_ARMv5_TEJ_check_in_MMU_initalization.mvlpat
+ch
+pro-0715-0878_ARM_Simplify_setup_mm_for_reboot.mvlpatch
+pro-0716-0081_ARM_Fix_XScale_PMD_setting.mvlpatch
+pro-0717-common_arm_eabi_kconfig_help.mvlpatch
+pro-0718-common_arm_eabi_slab_debug.mvlpatch
+pro-0719-common_fix_ARM_preempt_schedule_irq_recursion.mvlpatch
+pro-0720-ARM_3626_1_ARM_EABI_fix_syscall_restarting.mvlpatch
+pro-0721-fix_silly_ARM_non_EABI_build_error.mvlpatch
+pro-0722-pro_arm_omap5912_osk_audio.mvlpatch
+pro-0723-common_arm_kgdb_longjmp_cpsr_restore.mvlpatch
+pro-0724-common_usb_gadget_chips_update.mvlpatch
+pro-0725-common_jffs2_autoplace_erasedcheck.mvlpatch
+pro-0726-common_yaffs1_deprecate.mvlpatch
+pro-0727-common_yaffs2.mvlpatch
+pro-0728-common_yaffs_noerasedtagsecc.mvlpatch
+pro-0729-common_yaffs2_enable_complex_oob.mvlpatch
+pro-0730-common_yaffs_losetup.mvlpatch
+pro-0731-common_yaffs_readdir_rewind.mvlpatch
+pro-0732-common_yaffs_chunk_erased_check_disabled.mvlpatch
+pro-0733-common_yaffs_rt_lock_held.mvlpatch
+pro-0734-common_yaffs_umount_flush.mvlpatch
+pro-0735-common_yaffs_kswapd_deadlock.mvlpatch
+pro-0736-common_yaffs_needs_mtd.mvlpatch
+pro-0737-common_mmc_v4.mvlpatch
+pro-0738-spi_1_framework.mvlpatch
+pro-0739-spi_2_7846.mvlpatch
+pro-0740-spi_3_mtd_dataflash.mvlpatch
+pro-0741-spi_4_add_spi_driver_structure.mvlpatch
+pro-0742-spi_5_core_tweaks.mvlpatch
+pro-0743-spi_6_ads7836_uses_spi_driver.mvlpatch
+pro-0744-spi_7_bitbang_driver.mvlpatch
+pro-0745-spi_8_m25_serial_flash.mvlpatch
+pro-0746-spi_9_linked_lists_instead_of_arrays.mvlpatch
+pro-0747-spi_10_misc_fixes.mvlpatch
+pro-0748-spi_11_removal_fastcall_crap.mvlpatch
+pro-0749-spi_12_butterfly.mvlpatch
+pro-0750-common_spi_fixes.mvlpatch
+pro-0751-arm_ptrace_singlestep_bx_blx.mvlpatch
+ST-Océ DAC R10.1.5-3.3 80 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0752-mmc_sd_support_protocol.mvlpatch
+pro-0753-mmc_add_mmc_hostname_macro.mvlpatch
+pro-0754-mmc_add_class_devices.mvlpatch
+pro-0755-mmc_ios_for_mmc_chip_select.mvlpatch
+pro-0756-sd_initialize_SD_cards.mvlpatch
+pro-0757-sd_read_only_switch.mvlpatch
+pro-0758-sd_scr_register.mvlpatch
+pro-0759-sd_scr_in_sysfs.mvlpatch
+pro-0760-sd_4_bit_bus.mvlpatch
+pro-0761-sd_copyright_notice.mvlpatch
+pro-0762-mmc_allow_detection_removal_to_be_delayed.mvlpatch
+pro-0763-arm_3120_1_fix_mmc_sd_card_driver_resume_deadlock.mvlpatch
+pro-0764-common_arm_omap_mmc_detection_removal_update.mvlpatch
+pro-0765-pro_davinci_core_kernel.mvlpatch
+pro-0766-pro_davinci_network.mvlpatch
+pro-0767-pro_davinci_i2c.mvlpatch
+pro-0768-pro_davinci_audio.mvlpatch
+pro-0769-pro_davinci_flash.mvlpatch
+pro-0770-pro_davinci_ide.mvlpatch
+pro-0771-pro_davinci_mmc.mvlpatch
+pro-0772-pro_davinci_rtc.mvlpatch
+pro-0773-pro_davinci_usb.mvlpatch
+pro-0774-pro_davinci_video_in.mvlpatch
+pro-0775-pro_davinci_video_out.mvlpatch
+pro-0776-pro_davinci_enable_config_swap.mvlpatch
+pro-0777-pro_davinci_hrt_fix_timer_period.mvlpatch
+pro-0778-pro_davinci_add_frd_support.mvlpatch
+pro-0779-pro_davinci_config_ilat.mvlpatch
+pro-0780-pro_arm_davinci_usb_preempt_rt_fix.mvlpatch
+pro-0781-pro_arm_davinci_vpss_ti_fixes.mvlpatch
+pro-0782-pro_arm_davinci_musb_dma_ping_s22.mvlpatch
+pro-0783-pro_arm_davinci_mmc_detection_removal_update.mvlpatch
+pro-0784-pro_arm_davinci_emac_locking.mvlpatch
+pro-0785-pro_arm_davinci_reboot_fix.mvlpatch
+pro-0786-pro_fix_long_patches_link_line.mvlpatch
+pro-0787-pro_ppc_xilinx_edk_new_emac_sgdma_fix.mvlpatch
+pro-0788-fix_memory_leak_with_file_leases.mvlpatch
+pro-0789-fix_oops_on_ipv6_route_lookup.mvlpatch
+pro-0790-fix_xfrm_tunnel_oops_with_large_packets.mvlpatch
+pro-0791-fix_dst_destroy_race.mvlpatch
+pro-0792-oprofile_add_check_user_page_readable.mvlpatch
+pro-0793-get_user_pages_kill_get_page_map.mvlpatch
+pro-0794-check_user_page_readable_deadlock_fix.mvlpatch
+pro-0795-get_user_pages_race_for_write_access.mvlpatch
+pro-0796-fix_scheduler_deadlock.mvlpatch
+ST-Océ DAC R10.1.5-3.3 81 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0797-fix_kill_proc_info_vs_clone_thread_race.mvlpatch
+pro-0798-fork_fix_race_in_setting_childs_pgrp_and_tty.mvlpatch
+pro-0799-fix_signal_live_leak_in_copy_process.mvlpatch
+pro-0800-preempt_race_in_getppid.mvlpatch
+pro-0801-common_kgdb_cross_hang.mvlpatch
+pro-0802-pro_mips_nec_emma2rh_base.mvlpatch
+pro-0803-pro_mips_nec_emma2rh_pci.mvlpatch
+pro-0804-pro_mips_nec_emma2rh_i2c.mvlpatch
+pro-0805-pro_mips_nec_emma2rh_ramdisk.mvlpatch
+pro-0806-pro_mips_nec_emma2rh_kgdb.mvlpatch
+pro-0807-pro_ppc_xilinx_ml300_rename_ts.mvlpatch
+pro-0808-pro_ppc_xilinx_sysace_fix.mvlpatch
+pro-0809-pro_create_dev_console.mvlpatch
+pro-0810-pro_add_xilinx_ml40x_defconfig.mvlpatch
+pro-0811-dont_autoreap_traced_children_CVE_2005_3784.mvlpatch
+pro-0812-fix_ptrace_self_attach_rule_CVE_2005_3783.mvlpatch
+pro-0813-vfs_local_denial_of_service_with_file_leases_CVE_2005_3857.mvlp
+atch
+pro-0814-pro_ppc32_4xx_kgdb_exception_stack_workaround.mvlpatch
+pro-0815-pro_ppc_xilinx_gpio_dual_channel_fix.mvlpatch
+pro-0816-mv643xx_eth_skb_leak.mvlpatch
+pro-0817-mv643xx_eth_shared_irq.mvlpatch
+pro-0818-mv643xx_eth_ppc_iomem_annotations.mvlpatch
+pro-0819-mv643xx_eth_hw_checksum_workaround.mvlpatch
+pro-0820-mv643xx_fix_outstanding_skb_counter.mvlpatch
+pro-0821-mv643xx_fix_promiscuous_mode.mvlpatch
+pro-0822-mv643xx_eth_sram_printk.mvlpatch
+pro-0823-mv643xx_eth_include_ip.h_and_in.h.mvlpatch
+pro-0824-mv643xx_eth_rx_buffer_8_byte_alignment.mvlpatch
+pro-0825-mv643xx_eth_fix_small_unaligned_fragments.mvlpatch
+pro-0826-mv643xx_eth_iounmap_correct_sram_buffer.mvlpatch
+pro-0827-mv643xx_eth_minimal_spinlocks.mvlpatch
+pro-0828-mv643xx_eth_hw_checksum_only_ipv4.mvlpatch
+pro-0829-mv643xx_eth_fix_transmit_skb_accounting.mvlpatch
+pro-0830-mv643xx_eth_merge_open_and_stop_helpers.mvlpatch
+pro-0831-mv643xx_eth_remove_masking_of_extended_intr.mvlpatch
+pro-0832-
+common_mv643xx_eth_whitespace_and_comment_sync_with_community.m
+vlpatch
+pro-0833-common_mv643xx_eth_fix_spinlock_recursion.mvlpatch
+pro-0834-common_mv643xx_eth_update_last_rx.mvlpatch
+pro-0835-common_mv643xx_eth_whitespace_cleanup_a.mvlpatch
+pro-0836-common_mv643xx_eth_fix_module_build.mvlpatch
+pro-0837-common_mv643xx_eth_remove_port_mac_addr.mvlpatch
+pro-0838-common_mv643xx_eth_merge_unicast_multicast_filter.mvlpatch
+ST-Océ DAC R10.1.5-3.3 82 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0839-common_mv643xx_eth_rename_tx_ring_skbs.mvlpatch
+pro-0840-common_mv643xx_eth_consistent_port_enable_disable.mvlpatch
+pro-0841-common_mv643xx_eth_use_mii_library_for_phy.mvlpatch
+pro-0842-common_mv643xx_eth_use_mii_library_for_ethtool.mvlpatch
+pro-0843-common_mv643xx_eth_cleanup_platform_data.mvlpatch
+pro-0844-common_mv643xx_eth_select_mii.mvlpatch
+pro-0845-
+common_mv643xx_eth_fix_misplaced_parenthesis_in_mv643xx_eth_por
+t_disable_rx.mvlpatch
+pro-0846-common_ppc32_mv64x60_uart_sdma_fix.mvlpatch
+pro-0847-common_mv643xx_eth_Wait_for_carrier_ok_on_open.mvlpatch
+pro-0848-undo_do_readv_writev_behavior_change.mvlpatch
+pro-0849-common_fix_update_times.mvlpatch
+pro-0850-ide_cleanup_eighty_ninty_three.mvlpatch
+pro-0851-ide_fix_SATA_drive_cable_detect.mvlpatch
+pro-0852-common_ppc32_ibm_emac_kgdb_fix.mvlpatch
+pro-0853-net_marvell_sysfs_symlink_fix.mvlpatch
+pro-0854-common_mv643xx_eth_Clear_int_cause_registers_before_calling_req
+uest_irq.mvlpatch
+pro-0855-fix_stop_signal_race.mvlpatch
+pro-0856-move_group_exit_flag_into_signal_struct_flags_word.mvlpatch
+pro-0857-NPTL_signal_delivery_deadlock_fix.mvlpatch
+pro-0858-common_mv643eth_carrier_init_fix.mvlpatch
+pro-0859-common_ppc32_rt_highmem_fix.mvlpatch
+pro-0860-pro_ppc32_pq2fads_support.mvlpatch
+pro-0861-pro_usb_gadget_mpc8272_udc_config_fixes.mvlpatch
+pro-0862-pro_usb_gadget_mpc8272_udc_pq2fads.mvlpatch
+pro-0863-pro_ppc32_pq2_reboot.mvlpatch
+pro-0864-common_add_hostap_drivers_rm_wireless.h_for_commuity_update.mvl
+patch
+pro-0865-Wireless_Extensions_18_aka_WPA.mvlpatch
+pro-0866-common_mv643xx_eth_carrier_init_fix_fix.mvlpatch
+pro-0867-0288_SPI_spi_butterfly_restore_lost_deltas.mvlpatch
+pro-0868-pro_mphysmap_updates.mvlpatch
+pro-0869-pro_ti_titan_board.mvlpatch
+pro-0870-pro_ti_titan_mtd.mvlpatch
+pro-0871-pro_ti_titan_i2c.mvlpatch
+pro-0872-pro_titan_mac.mvlpatch
+pro-0873-pro_ti_titan_kgdb_fix.mvlpatch
+pro-0874-stop_calling_phy_stop_interrupts_twice.mvlpatch
+pro-0875-common_scsi_adaptec_94xx_unlocks_in_error_path.mvlpatch
+pro-0876-fix_de_thread_send_group_sigqueue_race.mvlpatch
+pro-0877-fix_kill_proc_info_vs_fork_theoretical_race.mvlpatch
+pro-0878-module_strlen_user_race_fix.mvlpatch
+pro-0879-remove_duplicated_code_from_proc_and_ptrace.mvlpatch
+ST-Océ DAC R10.1.5-3.3 83 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0880-ptrace_attach_ptrace_traceme_de_thread_race.mvlpatch
+pro-0881-fix_signedness_issues_in_net_core_filter_c.mvlpatch
+pro-0882-pro_ppc32_440sp_mal_channels_fix.mvlpatch
+pro-0883-pro_ppc32_440sp_sram_dcr_fix.mvlpatch
+pro-0884-pro_ppc32_440sp_cputable_entry.mvlpatch
+pro-0885-pro_ppc32_440sp_uart2.mvlpatch
+pro-0886-pro_ppc32_440sp_uic_fixes.mvlpatch
+pro-0887-pro_ppc32_440sp_pcix_fixes.mvlpatch
+pro-0888-pro_ppc32_440sp_l2cache.mvlpatch
+pro-0889-pro_ppc32_440sp_clk_pwr_mgmt.mvlpatch
+pro-0890-pro_ppc32_440sp_mtd_defs.mvlpatch
+pro-0891-pro_ppc32_440sp_mtd_map.mvlpatch
+pro-0892-pro_ppc32_440sp_kgdb_serial.mvlpatch
+pro-0893-pro_ppc32_440sp_kgdb_single_step_fix.mvlpatch
+pro-0894-
+common_powerpc_Fix_machine_check_problem_on_32_bit_kernels_CVE_
+2006_2448.mvlpatch
+pro-0895-common_netfilter_sctp_fix_endless_loop_caused_by_0_chunk_length
+_CVE_2006_3085.mvlpatch
+pro-0896-sctp_conntrack_fix_crash_triggered_by_packet_without_chunks_CVE
+_2006_2934.mvlpatch
+pro-0897-fs_xfs_eagain_bug.mvlpatch
+pro-0898-pro_arm_davinci_i2c_fix.mvlpatch
+pro-0899-common_ltt-fix-null-trace-handle-dereference.mvlpatch
+pro-0900-pro_mips_fix_dcache_aliasing.mvlpatch
+pro-0901-Add_debugging_check_when_adding_timers.mvlpatch
+pro-0902-Fix_add_timer_race_in_neigh_add_timer.mvlpatch
+pro-0903-common_ip_tables_h_c++_fix.mvlpatch
+pro-0904-common_hrt_fix_tstojiffie_rounding_error.mvlpatch
+pro-0905-usb_another_workaround_for_cdc_acm.mvlpatch
+pro-0906-usb_cdc_acm_module_and_zoom_2985_modem.mvlpatch
+pro-0907-usb_fix_for_open_disconnect_race_in_acm.mvlpatch
+pro-0908-usb_fix_bug_in_acm_open_function.mvlpatch
+pro-0909-usb_add_usb_cdc.h.mvlpatch
+pro-0910-usb_cdc_acm_uses_usb_cdc.h.mvlpatch
+pro-0911-usb_fix_acm_trouble_with_terminals.mvlpatch
+pro-0912-usb_export_usb_get_intf_and_usb_put_intf.mvlpatch
+pro-0913-usb_fix_usb_reference_count_bug_in_cdc_acm_driver.mvlpatch
+pro-0914-usb_cdc_acm_patch_to_use_kzalloc.mvlpatch
+pro-0915-usb_converting_cdc_acm_to_a_rinq_queue.mvlpatch
+pro-0916-usb_fix_oops_in_acm_disconnect.mvlpatch
+pro-0917-
+mmc_add_comment_about_GENHD_FL_REMOVABLE_to_mmc_block.mvlpatc
+h
+pro-0918-mmc_proper_mmc_command_classes_support.mvlpatch
+ST-Océ DAC R10.1.5-3.3 84 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0919-mmc_use_command_class_to_determine_read_only_status.mvlpatch
+pro-0920-mmc_fix_protocol_errors.mvlpatch
+pro-0921-mmc_proper_check_of_scr_error_code.mvlpatch
+pro-0922-mmc_set_correct_capacity_for_1024_byte_block_cards.mvlpatch
+pro-0923-mmc_improve_mmc_card_block_size_selection.mvlpatch
+pro-0924-mmc_fix_missing_comma.mvlpatch
+pro-0925-fbcon_save_var_rotate_field_in_struct_display.mvlpatch
+pro-0926-common_blk_dump_rq_flags_boundary_bug19607.mvlpatch
+pro-0927-usb_gadget_ether_highspeed_conformance_fix.mvlpatch
+pro-0928-af_unix_fix_siocinq_for_stream.mvlpatch
+pro-0929-common_ensure_futex_enabled.mvlpatch
+pro-0930-common_mtd_core_bounds_fixup.mvlpatch
+pro-0931-mmc_ensure_correct_mmc_priv_behaviour.mvlpatch
+pro-0932-
+mmc_add_mmc_detect_change_delay_support_for_pxamci_driver.mvlpa
+tch
+pro-0933-common_ppc_kgdb_omit_frame_pointer.mvlpatch
+pro-0934-Fix_race_condition_in_sk_stream_wait_connect.mvlpatch
+pro-0935-common_mv643xx_eth_rx_dma_unmap.mvlpatch
+pro-0936-common_mpsc_interrupt_clear_fix.mvlpatch
+pro-0937-common_yaffs2_write_return.mvlpatch
+pro-0938-Fix_deadlock_in_ip6_queue.mvlpatch
+pro-0939-Fix_SKB_leak_in_ip6_input_finish.mvlpatch
+pro-0940-ip_route_input_panic_fix.mvlpatch
+pro-0941-IPV4_Fix_DST_leak_in_icmp_push_reply.mvlpatch
+pro-0942-common_usb_gadget_rndis_overflow.mvlpatch
+pro-0943-NET_fix_oops_after_tunnel_module_unload.mvlpatch
+pro-0944-IPV4_Fix_memory_leak_during_fib_info_hash_expansion.mvlpatch
+pro-0945-remove_offsetof_from_user_visible_linux_stddef.mvlpatch
+pro-0946-pro_ppc_prpmc275_platform.mvlpatch
+pro-0947-pro_ppc_prpmc275_i2c_max6900_rtc.mvlpatch
+pro-0948-pro_mv64x60_wdt.mvlpatch
+pro-0949-pro_ppc_prpmc275_kgdb_mpsc_fix.mvlpatch
+pro-0950-pro_ppc_prpmc275_mtd.mvlpatch
+pro-0951-common_ppc_mpc8641.mvlpatch
+pro-0952-SATA_support_for_Intel_ICH7.mvlpatch
+pro-0953-SATA_AHCI_support_for_Intel_ICH7R.mvlpatch
+pro-0954-libata_ahci_Add_support_for_ULi_M5288.mvlpatch
+pro-0955-
+POWERPC_Add_Vitesse_8244_PHY_for_MPC8641_HPCN_platform.mvlpatch
+pro-0956-pro_ppc_mpc8641_hpcn.mvlpatch
+pro-0957-x86_cpuid_missed_cache_entries.mvlpatch
+pro-0958-common_Mobil_Pentium_4_HT_and_the_NMI.mvlpatch
+pro-0959-common_i386_x86_64_Fix_SMP_NMI_watchdog_race.mvlpatch
+pro-0960-common_check_nmi_watchdog_is_broken.mvlpatch
+ST-Océ DAC R10.1.5-3.3 85 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-0961-
+common_i386_nmi_watchdog_Merge_check_nmi_watchdog_fixes_from_x8
+6_64.mvlpatch
+pro-0962-common_x86_64_fix_apic_error_on_bootup.mvlpatch
+pro-0963-common_ppc_mpc7448_cpu.mvlpatch
+pro-0964-common_serial_smp_race_fix.mvlpatch
+pro-0965-gianfar_Fix_sparse_warnings.mvlpatch
+pro-0966-Fix_locking_in_gianfar.mvlpatch
+pro-0967-common_net_ibm_emac_sysfs_symlink_fix.mvlpatch
+pro-0968-common_fix_numeric_overflow_exception_in_tstojiffie.mvlpatch
+pro-0969-NETFILTER_Wait_until_all_references_to_ip_conntrack_untracked_a
+re_dropped_on_unload.mvlpatch
+pro-0970-Fix_timer_leak_in_neigh_changeaddr.mvlpatch
+pro-0971-common_jbd_hang.mvlpatch
+pro-0972-jbd_split_checkpoint_lists.mvlpatch
+pro-0973-jbd_fix_transaction_batching.mvlpatch
+pro-0974-pro_ppc32_rheap_grow_fix.mvlpatch
+pro-0975-pro_ppc32_rheap_align_fix.mvlpatch
+pro-0976-pro_ppc32_add_mpc8360.mvlpatch
+pro-0977-pro_ppc32_8360_qe_irq_fix.mvlpatch
+pro-0978-pro_ppc32_8360_phy_irq_fix.mvlpatch
+pro-0979-common_rt_drivers_fix_ibm_emac.mvlpatch
+pro-0980-pro_mips_vr41xx_calc_clock_anytime.patch.mvlpatch
+pro-0981-pro_mips_vr41xx_spare_timer_init.mvlpatch
+pro-0982-pro_mips_vr41xx_rtc.mvlpatch
+pro-0983-pro_mips_vr41xx_update_pci.mvlpatch
+pro-0984-pro_mips_vr41xx_gpio.mvlpatch
+pro-0985-pro_mips_vr41xx_rm_obsolete_giu.mvlpatch
+pro-0986-pro_mips_vr41xx_update_icu.mvlpatch
+pro-0987-pro_mips_cmbvr4133_serial_fixes.mvlpatch
+pro-0988-pro_mips_cmbvr4133_rockhopper_irq_fixes.mvlpatch
+pro-0989-pro_mips_cmbvr4133_defconfig.mvlpatch
+pro-0990-pro_mips_cmbvr4133_serio_irqs.mvlpatch
+pro-0991-pro_mips_vr41xx_remove_timex.mvlpatch
+pro-0992-pro_mips_cmbvr4133_timer_irq.mvlpatch
+pro-0993-pro_mips_cmbvr4133_m1535plus_init.mvlpatch
+pro-0994-pro_mips_vr41xx_kgdb_serial.mvlpatch
+pro-0995-pro_mips_cmbvr4133_alim15x3.mvlpatch
+pro-0996-pro_mips_cmbvr4133_usb_irq.mvlpatch
+pro-0997-pro_mips_vr4133_gpio_regs_fix.mvlpatch
+pro-0998-pro_mips_cmbvr4133_candy_eth.mvlpatch
+pro-0999-pro_mips_cmbvr4133_ide.mvlpatch
+pro-1000-pro_mips_cmbvr4133_raw_ops.mvlpatch
+pro-1001-pro_mips_vr41xx_rt.mvlpatch
+pro-1002-pro_mips_cmbvr4133_i2c.mvlpatch
+ST-Océ DAC R10.1.5-3.3 86 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1003-pro_mips_cmbvr4133_ricoh_rtc.mvlpatch
+pro-1004-pro_mips_vr4133_erratum15_fix.mvlpatch
+pro-1005-pro_ide_lba48_dma_check_fix.mvlpatch
+pro-1006-pro_ide_alim15x3_no_lba48_dma_fix.mvlpatch
+pro-1007-common_ltt_new_event_before_tracedaemon.mvlpatch
+pro-1008-common_syncppp_buggy_protocol_fix.mvlpatch
+pro-1009-pro_arm_davinci_defconfig_warnings.mvlpatch
+pro-1010-pro_arm_davinci_i2c_fix_from_TI.mvlpatch
+pro-1011-pro_arm_davinci_eth_half_duplex.mvlpatch
+pro-1012-pro_arm_davinci_nand_clean_unmount.mvlpatch
+pro-1013-pro_arm_davinci_vpfe_buf_release.mvlpatch
+pro-1014-pro_arm_davinci_audio_fixes_TI.mvlpatch
+pro-1015-pro_arm_davinci_usb_ti_updates.mvlpatch
+pro-1016-pro_arm_davinci_nand_driver_model.mvlpatch
+pro-1017-pro_v4l_videobuf_compile_fix.mvlpatch
+pro-1018-ppc64_fix_32_bit_signal_frame_back_link.mvlpatch
+pro-1019-ethernet_fix_first_packet_goes_out_with_mac.mvlpatch
+pro-1020-NET_Fix_memory_leak_in_sys__send_recv_msg_w_compat.mvlpatch
+pro-1021-pro_mips_tx49xx_FIXADDR_TOP.mvlpatch
+pro-1022-pro_tc86c001_remove_old_ide_driver.mvlpatch
+pro-1023-pro_tc86c001_ide_driver.mvlpatch
+pro-1024-pro_tc86c001_make_init_hwif_static.mvlpatch
+pro-1025-pro_tc86c001_mark_init_chipset_for_hotplug.mvlpatch
+pro-1026-common_abslock_before_list_empty.mvlpatch
+pro-1027-common_remove_host_binaries_after_checksetconfig.mvlpatch
+pro-1028-common_fix_too_long_requested_time.mvlpatch
+pro-1029-common_do_hardirq_locking.mvlpatch
+pro-1030-common_rt_remove_special_case_load.mvlpatch
+pro-1031-common_mtd_ioctl32.mvlpatch
+pro-1032-common_mtd_jffs2_rt_fix.mvlpatch
+pro-1033-common_ipv6_flowlabel_stream_fix.mvlpatch
+pro-1034-
+IPV6_Support_IPV6_RECV_TCLASS_socket_options_ancillary_data.mvl
+patch
+pro-1035-common_fold_nanosleep_into_clock_nanosleep.mvlpatch
+pro-1036-common_mtd_nand_prepare_oobbuf_fix.mvlpatch
+pro-1037-consolidate_sys_ptrace.mvlpatch
+pro-1038-use_ptrace_get_task_struct_in_various_places.mvlpatch
+pro-1039-ptrace_attach_ptrace_traceme_de_thread_race_traceme_fix.mvlpatc
+h
+pro-1040-NETPOLL_pre_fill_skb_pool.mvlpatch
+pro-1041-IPV6_fix_lockup_via_proc_net_ip6_flowlabel.mvlpatch
+pro-1042-common_ipv6_recv_tclass_panic_fix.mvlpatch
+pro-1043-TCP_Fix_sock_orphan_dead_lock.mvlpatch
+pro-1044-fix_uidhash_lock_RCU_deadlock.mvlpatch
+ST-Océ DAC R10.1.5-3.3 87 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1045-Fix_uidhash_lock_RXU_deadlock_fix.mvlpatch
+pro-1046-pro_mips_mips64_pgtable_64.mvlpatch
+pro-1047-pro_mips_pnx8550_fix_write_config_byte.mvlpatch
+pro-1048-common_i2c_eeprom_allow_bigger_sizes.mvlpatch
+pro-1049-pro_mips_cavium_octeon.mvlpatch
+pro-1050-pro_mips_cavium_octeon_kgdb.mvlpatch
+pro-1051-pro_mips_cavium_octeon_hrt.mvlpatch
+pro-1052-pro_mips_cavium_octeon_16bit_cf.mvlpatch
+pro-1053-pro_mips_cavium_octeon_cpu_ids.mvlpatch
+pro-1054-pro_mips_cavium_octeon_pci.mvlpatch
+pro-1055-pro_mips_cavium_octeon_config.mvlpatch
+pro-1056-pro_mips_cavium_2Gmem_cf.mvlpatch
+pro-1057-pro_mips_cavium_2Gmem_hal.mvlpatch
+pro-1058-pro_mips_cavium_2Gmem_headers.mvlpatch
+pro-1059-pro_mips_cavium_2Gmem_octeon_info.mvlpatch
+pro-1060-pro_mips_cavium_2Gmem_setup.mvlpatch
+pro-1061-pro_mips_cavium_2Gmem_smp.mvlpatch
+pro-1062-pro_mips_cavium_2Gmem_userio.mvlpatch
+pro-1063-pro_fix_octeon_thread_pointer_fetch_in_delay_slot.mvlpatch
+pro-1064-pro_mips_cavium_octeon_partitions.mvlpatch
+pro-1065-pro_mips_cavium_octeon_rt.mvlpatch
+pro-1066-pro_mips_cavium_serial_irq.mvlpatch
+pro-1067-pro_mips_cavium_octeon_memory_fix.mvlpatch
+pro-1068-pro_mips_cavium_octeon_4Gbpci_fix.mvlpatch
+pro-1069-pro_mips_cavium_octeon_memfree_fix.mvlpatch
+pro-1070-pro_mips_cavium_octeon_up_compile.mvlpatch
+pro-1071-pro_mips_cavium_octeon_kgdb8250_setup.mvlpatch
+pro-1072-pro_mips_cavium_octeon_ethernet.mvlpatch
+pro-1073-Fix_sctp_privilege_elevation_CVE_2006_3745.mvlpatch
+pro-1074-
+common_CVE_2006_4535_Regression_with_fix_for_SCTP_abort_issue.m
+vlpatch
+pro-1075-setitimer_early_fire_fixup.mvlpatch
+pro-1076-xtensa-architecture-support-for-tensilica-xtensa-part-1.mvlpatc
+h
+pro-1077-xtensa-architecture-support-for-tensilica-xtensa-part-7.patch.m
+vlpatch
+pro-1078-xtensa-architecture-support-for-tensilica-xtensa-part-6.patch.m
+vlpatch
+pro-1079-common_xtensa_headers_update.mvlpatch
+pro-1080-common_xtensa_define_hz_for_userspace.mvlpatch
+pro-1081-common_xtensa_config_core.mvlpatch
+pro-1082-common_xtensa_le.mvlpatch
+pro-1083-common_xtensa_be_fixes.mvlpatch
+pro-1084-common-add-pfn-arg-for-xtensa-extern-flush_cache_page.mvlpatch
+ST-Océ DAC R10.1.5-3.3 88 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1085-xtensa-architecture-support-for-tensilica-xtensa-part-4.mvlpatc
+h
+pro-1086-xtensa-architecture-support-for-tensilica-xtensa-part-2.mvlpatc
+h
+pro-1087-xtensa-architecture-support-for-tensilica-xtensa-part-3.mvlpatc
+h
+pro-1088-xtensa-architecture-support-for-tensilica-xtensa-part-5.mvlpatc
+h
+pro-1089-xtensa-architecture-support-for-tensilica-xtensa-part-8.mvlpatc
+h
+pro-1090-xtensa_fix_asm_macro.mvlpatch
+pro-1091-xtensa_zlib.mvlpatch
+pro-1092-xtensa_flat_memory.mvlpatch
+pro-1093-xtensa_ipc_errno_cleanup.mvlpatch
+pro-1094-xtensa_remove_old_syscalls.mvlpatch
+pro-1095-xtensa_remove_sys_ipc.mvlpatch
+pro-1096-xtensa_remove_old_syscalls_part2.mvlpatch
+pro-1097-xtensa_extern_inline.mvlpatch
+pro-1098-xtensa_BE_support.mvlpatch
+pro-1099-xtensa_kgdb.mvlpatch
+pro-1100-xtensa_be_fixes.mvlpatch
+pro-1101-xtensa_diamond.mvlpatch
+pro-1102-xtensa_gdb.mvlpatch
+pro-1103-add_pfn_arg_for_xtensa_flush_cache_page.mvlpatch
+pro-1104-xtensa_posix_fadvise.mvlpatch
+pro-1105-xtensa_misc_fixups.mvlpatch
+pro-1106-xtensa_kernel_num_aregs.mvlpatch
+pro-1107-xtensa_kernel_ptrace.mvlpatch
+pro-1108-xtensa_kgdb_register_fix.mvlpatch
+pro-1109-xtensa_kgdb_more_fixups.mvlpatch
+pro-1110-ppc_mpc7448_taiga.mvlpatch
+pro-1111-ppc_mpc7448_tsi108_arch.mvlpatch
+pro-1112-ppc_mpc7448_tsi108_uart_z1.mvlpatch
+pro-1113-ppc_mpc7448_tsi108_tesc.mvlpatch
+pro-1114-ppc_mpc7448_tsi108_tesc_phy.mvlpatch
+pro-1115-ppc_mpc7448_mvsata.mvlpatch
+pro-1116-ppc_mpc7448_hpc2_kgdb_serial.mvlpatch
+pro-1117-ppc_mpc7448_hpc2_kgdboe.mvlpatch
+pro-1118-ppc_mpc7448_mvsata_fix1.mvlpatch
+pro-1119-ppc_mpc7448_mvsata_timeout_fix.mvlpatch
+pro-1120-ppc_mpc7448_tsi108_phy_fix.mvlpatch
+pro-1121-ppc_tsi108_pic_preempt_hardirqs_fix.mvlpatch
+pro-1122-ppc_tsi108_eth_poll_save_and_restore_irqs.mvlpatch
+pro-1123-add_ARMv6_aliasing_cache_flush_2.mvlpatch
+pro-1124-fix_ARMv6_aliasing_VIPT_caches_5.mvlpatch
+ST-Océ DAC R10.1.5-3.3 89 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1125-fix_ARMv6_nonaliasing_delayed_dcache_flush_3.mvlpatch
+pro-1126-8115_MM_Add_pfn_arg_to_flush_cache_page.mvlpatch
+pro-1127-1480_Reformat_cosmetic_cleanups.mvlpatch
+pro-1128-8495_SH_Cache_flush_simplifications_after_flush_cache_page_arg_
+change.mvlpatch
+pro-1129-common_ppc32_pci_bridge_base_fix.mvlpatch
+pro-1130-common_ppc32_add_8548_rev2_silicon.mvlpatch
+pro-1131-pro_ppc32_85xx_add_arcadia_31.mvlpatch
+pro-1132-pro_make-sure-uart-is-powered-up-when-dumping-mctrl-status.mvlp
+atch
+pro-1133-pro_i2c-nforce2_supports_the_nForce3_250Gb.mvlpatch
+pro-1134-pro_i2c_use_PCI_DEVICE_in_bus_drivers.mvlpatch
+pro-1135-pro_e100_replace_locally_implemented_delay_routines.mvlpatch
+pro-1136-e100_sort_device_ids.mvlpatch
+pro-1137-pro_e100_update_driver_version_number.mvlpatch
+pro-1138-pro_i2c_support_for_intel_ICH7.mvlpatch
+pro-1139-pro_enable_i2c_piix4_for_64-bit_platforms.mvlpatch
+pro-1140-pro_i2c_group_intel_on_I2C_hardware_bus_support.mvlpatch
+pro-1141-pro_e100_driver_version_white_space_comments_device_id.mvlpatch
+pro-1142-pro_cdrom_kill_open_failed_error_message.mvlpatch
+pro-1143-common_e100_revert_driver_version.mvlpatch
+pro-1144-pro_x86_86_access_of_some_bad_address.mvlpatch
+pro-1145-common_Fix-offset-error-when-reading-CS89x0-ADD_PORT-
+register.m
+vlpatch
+pro-1146-pro_piix-backport-fixes-from-libata.mvlpatch
+pro-1147-pro_IPV4_Replace__in_dev_get_with__in_dev_get_rcu_rtnl.mvlpatch
+pro-1148-common_ipv6_flowlist_not_share.mvlpatch
+pro-1149-pro_fix_missing_wakeup_in_ipc_sem.mvlpatch
+pro-1150-pro_piix-tuneproc-fixes-cleanups.mvlpatch
+pro-1151-pro_0404-MTD-NAND-Use-vmalloc-for-buffer-when-scanning-for-bad-
+blocks.mvlpatch
+pro-1152-pro_net_fix_too_aggressive_backoff_in_dst_garbage_collection.mv
+lpatch
+pro-1153-common_provide-better-printk-support-for-SMP-machines.mvlpatch
+pro-1154-common_back_out_get_user_pages_race_for_write_access.mvlpatch
+pro-1155-common_frd_drop_migration_adjustment.mvlpatch
+pro-1156-pro_mtd_propagate_oobavail.mvlpatch
+pro-1157-common_provide_an_interface_for_getting_the_current_tick_length
+.mvlpatch
+pro-1158-common_time_add_barrier_after_updating_jiffies_64.mvlpatch
+pro-1159-common_ppc_use_current_tick_length.mvlpatch
+pro-1160-common_i386_use_current_tick_length.mvlpatch
+pro-1161-common_clean-up-and-make-try_to_free_buffers-not-race-with-dirt
+y-pages.patch.mvlpatch
+ST-Océ DAC R10.1.5-3.3 90 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1162-common_realtime-free_uid-fix.mvlpatch
+pro-1163-pro_slab-respect-architecture-and-caller-mandated-alignment.mvl
+patch
+pro-1164-slab-debug-and-ARCH_SLAB_MINALIGN-don-t-get-along.mvlpatch
+pro-1165-common_diffserv_class_handling.mvlpatch
+pro-1166-sctp_fix_bad_sysctl_formatting_of_SCTP_timeout_values_on_64_bit
+_m_cs.mvlpatch
+pro-1167-ppc64_cputable_c99.mvlpatch
+pro-1168-ppc64_970MP_PVR.mvlpatch
+pro-1169-common_ppc64_970mp_tw2_mtd.mvlpatch
+pro-1170-common_ppc64_970mp_tw2_initial.mvlpatch
+pro-1171-ppc64_970mp_rtc_nvram_fix.mvlpatch
+pro-1172-ppc64_970mp_tw2_pciio_res.mvlpatch
+pro-1173-ppc64_970mp_u4_pcie.mvlpatch
+pro-1174-common_ppc64_970mp_tw2_defcon_cpunum.mvlpatch
+pro-1175-common_ppc64_change_zimage_load_addr.mvlpatch
+pro-1176-common_ppc64_initrd_boot_param.mvlpatch
+pro-1177-common_ppc64_bootwrap_fix.mvlpatch
+pro-1178-common_ppc64_undo_zimage_load_addr.mvlpatch
+pro-1179-common_ppc_openpic_ack_irq_preempt_smp_fix.mvlpatch
+pro-1180-common_yaffs2_fix_write_tags.mvlpatch
+pro-1181-common_ppc_smp_kgdb.mvlpatch
+pro-1182-pro_ppc440epx_sequoia.mvlpatch
+pro-1183-pro_ppc440epx_emac.mvlpatch
+pro-1184-pro_ppc440epx_mtd.mvlpatch
+pro-1185-pro_ppc440epx_usb_ohci.mvlpatch
+pro-1186-pro_common_usb_ehci_be.mvlpatch
+pro-1187-pro_ppc440epx_usb_ehci.mvlpatch
+pro-1188-pro_ppc440epx_kgdb_serial.mvlpatch
+pro-1189-pro_ppc440epx_sequoia_defconfig.mvlpatch
+pro-1190-pro_mpc885_usb_dev_serial_peripheral.mvlpatch
+pro-1191-SCTP_Add_SENTINEL_to_SCTP_MIB_stats.mvlpatch
+pro-1192-common_rt_smp_runqueue_lock_fix.mvlpatch
+pro-1193-common_ip6t_conntrack_ftp_fix.mvlpatch
+pro-1194-simpler_topdown_mmap_layout_allocator.mvlpatch
+pro-1195-Avoiding_mmap_fragmentation.mvlpatch
+pro-1196-Avoiding_mmap_fragmentation_fixup.mvlpatch
+pro-1197-pro_mips_vr41xx_cmdline_fix.mvlpatch
+pro-1198-pro_mips_vrblade_arch.mvlpatch
+pro-1199-pro_mips_vrblade_watchdog.mvlpatch
+pro-1200-pro_mips_vrblade_bu9929fv.mvlpatch
+pro-1201-pro_mips_vrblade_kernel_entry.mvlpatch
+pro-1202-pro_mips_vrblade_defconfig.mvlpatch
+pro-1203-pro_delkin.mvlpatch
+pro-1204-pro_mips_vrblade_pci_backport.mvlpatch
+ST-Océ DAC R10.1.5-3.3 91 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1205-pro_mips_vrblade_pci_mips_backport.mvlpatch
+pro-1206-pro_mips_vrblade_pcmcia_backport.mvlpatch
+pro-1207-pro_mips_vrblade_yenta_backport.mvlpatch
+pro-1208-pro_mips_vrblade_pci_resources_fix.mvlpatch
+pro-1209-pro_mips_vrblade_candy_marvell.mvlpatch
+pro-1210-pro_mips_cmbvr4133_nec_candy_update.mvlpatch
+pro-1211-pro_mips_vrblade_pcimem_fix.mvlpatch
+pro-1212-pro_mips_vrblade_candy_vlan_compile_fix.mvlpatch
+pro-1213-davinci_ide_udma4_support_fixup.mvlpatch
+pro-1214-ppc32_8343_pvr_fix.mvlpatch
+pro-1215-ppc_smp_tbsync_merge_from_arch_powerpc.mvlpatch
+pro-1216-ppc_8641d_smp.mvlpatch
+pro-1217-ppc_mpc8641_hpcn_kb_mouse.mvlpatch
+pro-1218-ppc_mpc8641_hpcn_lpc47m192_gpio.mvlpatch
+pro-1219-ppc_mpc8641_hpcn_smp_i8259_irq.mvlpatch
+pro-1220-use_modern_format_for_PCI_APIC_IRQ_transform_printks.mvlpatch
+pro-1221-PCI_pci_ids.h_correction_for_intel_ICH7.mvlpatch
+pro-1222-AGPGART_i915GM_support.mvlpatch
+pro-1223-AGPGART_fix_silly_typo_in_the_i915GM_support_patch.mvlpatch
+pro-1224-ALSA_AC97_audio_support_for_intel_ICH7.mvlpatch
+pro-1225-arch_i386_kernel_pci_irq.c_wrong_message_output.mvlpatch
+pro-1226-ALSA_intel8x0_fix_for_broken_pci_id_define_for_ICH6.mvlpatch
+pro-1227-2472_1_updates_8250.c_to_correctly_detect_XScale_UARTs.mvlpatch
+pro-1228-serial_fix_16550a_misdetection.mvlpatch
+pro-1229-pci_ids.h_correction_for_intel_ICH7M.mvlpatch
+pro-1230-ide_pci_ids.h_correction_for_intel_ICH7R.mvlpatch
+pro-1231-serial_add_UART_CAP_UUE.mvlpatch
+pro-1232-irq_and_pci_ids_patch_for_intel_ESB2.mvlpatch
+pro-1233-irq_and_pci_ids_for_intel_ICH7DH_and_ICH7_M_DH.mvlpatch
+pro-1234-serial_dont_disable_xscale_serial_ports_after_autoconfig.mvlpat
+ch
+pro-1235-common_ppc_TSI108_UART_detection.mvlpatch
+pro-1236-x86_remove_bogus_pci_usepirqmask_suggestion_when_no_irq_is_defi
+ned.mvlpatch
+pro-1237-PCI_irq_and_pci_ids_patch_for_Intel_ICH8.mvlpatch
+pro-1238-PCI_Rapid_Hance_quirk.mvlpatch
+pro-1239-VIA_VT8235_PCI_quirk.mvlpatch
+pro-1240-fix_and_clean_up_quirk_intel_ide_combined_configuration.mvlpatc
+h
+pro-1241-PCI_be_more_verbose_about_resource_quirks.mvlpatch
+pro-1242-PCI_ICH6_ACPI_and_GPIO_quirk.mvlpatch
+pro-1243-unhide_ICH6_SMBus_take_2.mvlpatch
+pro-1244-
+PCI_add_PCI_quirk_for_SMBus_on_the_Asus_A6VA_notebook.mvlpatch
+pro-1245-PCI_fix_ICH6_quirks.mvlpatch
+ST-Océ DAC R10.1.5-3.3 92 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1246-gregkh_pci_pci_add_ich7_8_acpi_gpio_io_resource_quirks.mvlpatch
+pro-1247-PCI_clean_up_printks_in_msi.c.mvlpatch
+pro-1248-libata_fix_ata_piix_on_ICH6R_in_RAID_mode.mvlpatch
+pro-1249-PCI_clean_up_the_msi_api.mvlpatch
+pro-1250-x86_disable_MSI_for_AMD_8131.mvlpatch
+pro-1251-ia64_msi_build_fix.mvlpatch
+pro-1252-SATA_ahci_correction_intel_ICH7R.mvlpatch
+pro-1253-msi.c_fix_a_check_after_use.mvlpatch
+pro-1254-ia64_Andrews_fixes_for_warnings_on_ia64_build.mvlpatch
+pro-1255-piix_IDE_PATA_patch_for_Intel_ESB2.mvlpatch
+pro-1256-ata_piix_IDE_mode_SATA_patch_for_Intel_ESB2.mvlpatch
+pro-1257-AHCI_mode_SATA_patch_for_Intel_ESB2.mvlpatch
+pro-1258-PCI_clean_up_the_MSI_code_a_bit.mvlpatch
+pro-1259-libata_check_PCI_sub_class_code_before_disabling_AHCI.mvlpatch
+pro-1260-AHCI_mode_SATA_patch_for_Intel_ICH7_M_DH.mvlpatch
+pro-1261-scan_all_enabled_ports_on_ata_piix.mvlpatch
+pro-1262-libata_ata_piix_use_dev_printk_where_appropriate.mvlpatch
+pro-1263-libata_ata_piix_cleanup_remove_duplicate_ata_port_info_records.
+mvlpatch
+pro-1264-
+add_boot_option_to_control_Intel_SATA_PATA_combined_mode.mvlpat
+ch
+pro-1265-ata_piix_fix_MAP_VALUE_interpretation_for_ICH6_7.mvlpatch
+pro-1266-fix_deadlock_in_msi.c.mvlpatch
+pro-1267-libata_ata_piix_fix_ICH6_7_map_value_interpretation.mvlpatch
+pro-1268-pro_carrilloranch_vermilion_range_i2c_driver.mvlpatch
+pro-1269-pro_carrilloranch_serial_8250_pci_add_vermilion_range_support.m
+vlpatch
+pro-1270-pro_carrilloranch_mtd_fix_cfi_point_method_for_discontiguous_ma
+ps.mvlpatch
+pro-1271-pro_carrilloranch_jffs2_fix_unpoint_length.mvlpatch
+pro-1272-pro_carrilloranch_mtd_vermilion_range_nor_flash_map.mvlpatch
+pro-1273-pro_carrilloranch_mtd_vermilion_range_nand_flash.mvlpatch
+pro-1274-pro_carrilloranch_mtd_ich7_spi_serial_flash_driver.mvlpatch
+pro-1275-pro_carrilloranch_vermilion_range_msi_quirk.mvlpatch
+pro-1276-pro_carrilloranch_mtd_support_ich7_in_ichxrom.mvlpatch
+pro-1277-pro_carrilloranch_vermilion_range_spi_driver.mvlpatch
+pro-1278-pro_carrilloranch_vermilion_range_framebuffer.mvlpatch
+pro-1279-
+nfsd_discard_CACHE_HASHED_flag_keeping_information_in_refcount_
+instead.mvlpatch
+pro-1280-common_NETFILTER_ip6tables_remove_duplicate_code.mvlpatch
+pro-1281-
+common_NETFILTER_make_ipv6_find_hdr_find_transport_protocol_hea
+der.mvlpatch
+ST-Océ DAC R10.1.5-3.3 93 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1282-common_NETFILTER_Fix_ip6_tables_protocol_bypass_bug.mvlpatch
+pro-1283-
+common_NETFILTER_Fix_ip6_tables_extension_header_bypass_bug.mvl
+patch
+pro-1284-
+common_NETFILTER_ip6_tables_use_correct_nexthdr_value_in_ipv6_f
+ind_hdr.mvlpatch
+pro-1285-
+common_NETFILTER_ip6_tables_fix_udp_fragment_conntrack.mvlpatch
+pro-1286-
+IPV4_Fix_BUG_in_2.6.x_udp_poll_fragments_CONFIG_HIGHMEM.mvlpatc
+h
+pro-1287-jbd_log_do_checkpoint_fix.mvlpatch
+pro-1288-jbd_remove_transaction_fix.mvlpatch
+pro-1289-jbd_revert_checkpoint_list_changes.mvlpatch
+pro-1290-jbd_embed_j_commit_timer_in_journal_struct.mvlpatch
+pro-1291-jbd_convert_kjournald_to_kthread_API.mvlpatch
+pro-1292-JBD_split_checkpoint_lists.mvlpatch
+pro-1293-ext3_fix_memory_leak_when_the_journal_file_is_cor.mvlpatch
+pro-1294-jbd_fix_BUG_in_journal_commit_transaction.mvlpatch
+pro-1295-Manage_jbd_allocations_from_its_own_slabs.mvlpatch
+pro-1296-manage_jbd_its_own_slab_fix.mvlpatch
+pro-1297-common_ppc32_show_backtraces_fix.mvlpatch
+pro-1298-x86_TF_handling.mvlpatch
+pro-1299-pro_mpc8349mIDX_initial.mvlpatch
+pro-1300-pro_mpc8349mIDX_rtc.mvlpatch
+pro-1301-pro_cfide_driver.mvlpatch
+pro-1302-pro_mpc8349mIDX_plsprt_cfide.mvlpatch
+pro-1303-pro_ppc_pciauto_scan_dev0.mvlpatch
+pro-1304-pro_ppc_mpc8641d_pex11_erratum_rev1.mvlpatch
+pro-1305-pro_ppc_mpc8641hpcn_rev12_pci.mvlpatch
+pro-1306-unbacked_shared_memory_core_dump_fix.mvlpatch
+pro-1307-ppc32_85xx_add_arcadia_31_fixup.mvlpatch
+pro-1308-getblk_slow_can_loop_forever.mvlpatch
+pro-1309-timespec_normalize_off_by_one_errors.mvlpatch
+pro-1310-pro_mips_rmi_phoenix_xlr_base.mvlpatch
+pro-1311-pro_mips_rmi_xlr_drivers.mvlpatch
+pro-1312-pro_mips_rmi_xlr_misc.mvlpatch
+pro-1313-pro_mips_rmi_xlr_eeprom.mvlpatch
+pro-1314-pro_mips_rmi_xlr_sensor.mvlpatch
+pro-1315-pro_mips_rmi_xlr_pci_fixups.mvlpatch
+pro-1316-common_sh_generic.mvlpatch
+pro-1317-common_sh_sh7780.mvlpatch
+pro-1318-pro_sh_sh7780_sci.mvlpatch
+pro-1319-pro_sh_sh7780_net.mvlpatch
+ST-Océ DAC R10.1.5-3.3 94 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+pro-1320-pro_sh_sh7780_block.mvlpatch
+pro-1321-pro_sh_sh7780_usb.mvlpatch
+pro-1322-pro_sh_sh7780_video.mvlpatch
+pro-1323-pro_sh_sh7780_hrt.mvlpatch
+pro-1324-pro_sh_sh7780_dma_fix.mvlpatch
+pro-1325-pro_sh_tmu1_start.mvlpatch
+pro-1326-pro_sh_frd.mvlpatch
+pro-1327-pro_sh_rt_generic_hardirqs.mvlpatch
+pro-1328-pro_sh_kernel_preemption.mvlpatch
+pro-1329-pro_sh_sh7780_rt.mvlpatch
+pro-1330-pro_sh_sh7780_sci1_fix.mvlpatch
+pro-1331-pro_sh_sh7780_kgdb_fix.mvlpatch
+pro-1332-pro_sh_sh7780_hrt_fix.mvlpatch
+pro-1333-pro_sh_sh7780_latch_fix.mvlpatch
+pro-1334-common_e100_driver_update_to_3_5_17.mvlpatch
+pro-1335-pro_mips_rmi_hrt.mvlpatch
+pro-1336-common_ppc32_Fix___copy_tofrom_user_return_value.mvlpatch
+pro-1337-MTD_NOR_Fix_oops_in_cfi_amdstd_sync.mvlpatch
+pro-1338-pro_arm_davinci_add_nor_flash_map_driver.mvlpatch
+pro-1339-pro_ppc32_add_mpc832xmds.mvlpatch
+pro-1340-pro_ppc32_ucc_geth_add_napi_multicast_and_mtu.mvlpatch
+pro-1341-pro_ppc32_ucc_geth_remove_8360_workaround.mvlpatch
+pro-1342-pro_ppc32_ucc_geth_NAPI_fixup.mvlpatch
+pro-1343-pro_ppc32_83xx_second_hose_P2P_bridge_fix.mvlpatch
+pro-1344-pro_ppc32_83xx_config_PIBs_bus_switches.mvlpatch
+pro-1345-Fix_buffer_overflow_and_races_in_capi_debug_functi.mvlpatch
+pro-1346-USB_ehci_requeue_revisit.mvlpatch
+pro-1347-common_mipv6_redirect_fix.mvlpatch
+pro-1348-IPV6_Don_t_use_expired_default_routes.mvlpatch
+pro-1349-Always_add_a_fragment_header_after_receiving.mvlpatch
+pro-1350-USB_Storage_Header_reorganization.mvlpatch
+pro-1351-USB_Storage_remove_unneeded_NULL_tests.mvlpatch
+pro-1352-USB_Storage_make_usb_storage_structures_refcounte.mvlpatch
+pro-1353-USB_Patch_for_rtl8150_to_fix_unplug_problems.mvlpatch
+pro-1354-pro_net_driver_smc91x_merge_fix.mvlpatch
+pro-1355-pro_arm_xscale_make_console_uart_work_during_kernel_initializat
+ion.mvlpatch
+pro-1356-pro_ppc_xilinx_emac_xenet_start_xmit_fifo_fix.mvlpatch
+pro-1357-pro_ppc32_85xxcds_early_debug_compile_fix.mvlpatch
+pro-1358-common_hrt_timer_recalc_workaround.mvlpatch
+ST-Océ DAC R10.1.5-3.3 95 of 95
+19th January 2008 BSI-DSZ-CC- 0517
+Distribution list
+1. BSI
+2. Océ Technologies B.V.
+3. Brightsight B.V
+
