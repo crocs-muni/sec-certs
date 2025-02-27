@@ -99,7 +99,7 @@ def test_criteria_configuration_expansion(cve_dataset_path: Path, cpe_match_feed
     ]
 
 
-@pytest.mark.skip(reason="Uses too much bandwidth.")
+@pytest.mark.remote
 def test_cve_download_from_seccerts():
     cve_dataset = CVEDataset.from_web()
     assert len(cve_dataset) > 100000

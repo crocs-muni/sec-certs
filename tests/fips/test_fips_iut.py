@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 import tests.data.fips.iut
-from requests import RequestException
 
 from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
@@ -33,7 +32,7 @@ def test_iut_dataset_from_dumps(data_dir: Path):
     assert len(dset) == 2
 
 
-@pytest.mark.xfail(reason="May fail due to network issues.")
+@pytest.mark.remote
 def test_iut_dataset_from_web():
     assert IUTDataset.from_web()
 
@@ -43,12 +42,13 @@ def test_iut_snapshot_from_dump(data_dump_path: Path):
 
 
 @pytest.mark.parametrize("preferred_source", ["origin", "sec-certs"])
+@pytest.mark.remote
 def test_iut_snapshot_from_web(preferred_source):
     config.preferred_source_remote_datasets = preferred_source
     assert IUTSnapshot.from_web()
 
 
-@pytest.mark.xfail(reason="May fail due to server errors.", raises=RequestException)
+@pytest.mark.remote
 def test_from_nist():
     assert IUTSnapshot.from_nist_web()
 
