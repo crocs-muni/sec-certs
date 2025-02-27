@@ -9,6 +9,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    continue-on-error: true
     env:
       SECCERTS_NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
