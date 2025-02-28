@@ -2,13 +2,6 @@
 <!doctype html>
 <html lang="en">
 
-{% macro render_breadcrumbs(breadcrumbs) %}
-    {%- for breadcrumb in breadcrumbs -%}
-        <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-        {{ '/ ' if not loop.last }}
-    {%- endfor -%}
-{% endmacro %}
-
 <head>
     {% block head %}
         <meta charset="UTF-8">
@@ -361,13 +354,6 @@
                 {% endif %}
             {% endwith %}
             {% if crumbs %}
-                    {% block crumbs_left %}
-                        <div class="col-12 col-sm-10 mx-auto px-3 pt-3 pb-2 fw-lighter d-flex justify-content-between align-items-baseline">
-                            <div>
-                                {{ render_breadcrumbs(breadcrumbs) }}
-                            </div>
-                        </div>
-                    {% endblock %}
                     {% block crumbs_right %}
                     {% endblock %}
             {% endif %}
