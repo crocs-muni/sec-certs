@@ -101,12 +101,16 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         super().__init__(certs, root_dir, name, description, state, aux_handlers)
         if aux_handlers is None:
             self.aux_handlers = {
-                CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir),
-                CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir),
-                CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir),
-                CCSchemeDatasetHandler: CCSchemeDatasetHandler(self.auxiliary_datasets_dir),
-                ProtectionProfileDatasetHandler: ProtectionProfileDatasetHandler(self.auxiliary_datasets_dir),
-                CCMaintenanceUpdateDatasetHandler: CCMaintenanceUpdateDatasetHandler(self.auxiliary_datasets_dir),
+                CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+                CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+                CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+                CCSchemeDatasetHandler: CCSchemeDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+                ProtectionProfileDatasetHandler: ProtectionProfileDatasetHandler(
+                    self.auxiliary_datasets_dir if self.is_backed else None
+                ),
+                CCMaintenanceUpdateDatasetHandler: CCMaintenanceUpdateDatasetHandler(
+                    self.auxiliary_datasets_dir if self.is_backed else None
+                ),
             }
 
     def to_pandas(self) -> pd.DataFrame:
