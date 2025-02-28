@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from networkx import DiGraph
 from pandas import DataFrame
 

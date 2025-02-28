@@ -5,6 +5,7 @@ import logging
 import math
 import random
 import time
+import typing
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -16,8 +17,10 @@ import requests
 from requests import RequestException, Response
 
 from sec_certs import constants
-from sec_certs.dataset.cpe import CPEDataset, CPEMatchDict
-from sec_certs.dataset.cve import CVEDataset
+
+if typing.TYPE_CHECKING:
+    from sec_certs.dataset.cpe import CPEDataset, CPEMatchDict
+    from sec_certs.dataset.cve import CVEDataset
 from sec_certs.utils.parallel_processing import process_parallel
 
 logger = logging.getLogger(__name__)
