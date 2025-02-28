@@ -63,7 +63,7 @@
                             <h2 class="anchor" id="web-info">Web information
                                 <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                     class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Information extracted from the protection profile database provided by the Common Criteria portal.">?</span>
+                                    title="Information extracted from the protection profile database provided by the Common Criteria portal."><i class="fa fa-info" aria-hidden="true"></i></span>
                             </h2>
                             <b>Status:</b>{{ render_status(profile["web_data"]["status"]) }}<br/>
 
@@ -158,7 +158,7 @@
                     <h2 class="anchor" id="reference-graph">References
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                             data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Information automatically extracted from the certification report and protection profile documents. Might contain errors.">?</span>
+                            title="Information automatically extracted from the certification report and protection profile documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
                     </h2>
                     <div>
                         {% if certs %}
@@ -180,7 +180,7 @@
                     <h2 class="anchor" id="updates">Updates
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                             data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Information on how the protection profile data changed over time, either due to the changes in our extraction technique or due to actual changes.">?</span>
+                            title="Information on how the protection profile data changed over time, either due to the changes in our extraction technique or due to actual changes."><i class="fa fa-info" aria-hidden="true"></i></span>
                         <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
                         style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
                         data-bs-toggle="tooltip" data-bs-placement="top"
