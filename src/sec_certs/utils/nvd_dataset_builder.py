@@ -25,7 +25,7 @@ from sec_certs.utils.parallel_processing import process_parallel
 
 logger = logging.getLogger(__name__)
 
-DatasetType = TypeVar("DatasetType", CPEDataset, CVEDataset, CPEMatchDict)
+DatasetType = TypeVar("DatasetType", "CPEDataset", "CVEDataset", "CPEMatchDict")
 
 
 @dataclass
@@ -285,7 +285,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         return self._process_responses(self._ok_responses, dataset_to_fill)
 
 
-class CpeNvdDatasetBuilder(NvdDatasetBuilder[CPEDataset]):
+class CpeNvdDatasetBuilder(NvdDatasetBuilder["CPEDataset"]):
     _ENDPOINT: Final[str] = "CPE"
     _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cpes/2.0"
     _RESULTS_PER_PAGE: Final[int] = 10000
@@ -301,10 +301,12 @@ class CpeNvdDatasetBuilder(NvdDatasetBuilder[CPEDataset]):
 
     @staticmethod
     def _init_new_dataset() -> CPEDataset:
+        from sec_certs.dataset.cpe import CPEDataset
+
         return CPEDataset()
 
 
-class CveNvdDatasetBuilder(NvdDatasetBuilder[CVEDataset]):
+class CveNvdDatasetBuilder(NvdDatasetBuilder["CVEDataset"]):
     _ENDPOINT: Final[str] = "CVE"
     _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cves/2.0"
     _RESULTS_PER_PAGE: Final[int] = 2000
@@ -320,10 +322,12 @@ class CveNvdDatasetBuilder(NvdDatasetBuilder[CVEDataset]):
 
     @staticmethod
     def _init_new_dataset() -> CVEDataset:
+        from sec_certs.dataset.cve import CVEDataset
+
         return CVEDataset()
 
 
-class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[CPEMatchDict]):
+class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder["CPEMatchDict"]):
     _ENDPOINT: Final[str] = "CPEMatch"
     _ENDPOINT_URL: Final[str] = "https://services.nvd.nist.gov/rest/json/cpematch/2.0"
     _RESULTS_PER_PAGE: Final[int] = 500
@@ -365,4 +369,6 @@ class CpeMatchNvdDatasetBuilder(NvdDatasetBuilder[CPEMatchDict]):
 
     @staticmethod
     def _init_new_dataset() -> CPEMatchDict:
+        from sec_certs.dataset.cpe import CPEMatchDict
+
         return CPEMatchDict({"timestamp": datetime.fromtimestamp(0).isoformat(), "match_strings": {}})
