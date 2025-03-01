@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 from sec_certs.model.reference_finder import ReferenceFinder

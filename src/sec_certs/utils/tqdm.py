@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tqdm.auto import tqdm as tqdm_original
 
 from sec_certs.configuration import config
