@@ -342,11 +342,12 @@ h6 {
 #left-navigation {
   position: fixed;
   left: 0px;
-  background-color: var(--bs-dark);
+  background-color: var(--bs-white);
   /* background-color: white; */
   width: var(--sidebar-width);
   height: 100vh;
-  padding-top: 10px;
+  padding: 10px;
+  padding-top: 30px;
 }
 
 .shifted-section{
@@ -369,4 +370,26 @@ h6 {
 
 body, html{
   height: 100vh;
+}
+
+#network-skeleton{
+  height: 300px; 
+  overflow: auto;
+  position: relative;
+}
+
+#network-skeleton::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+
+  display: block;
+  height: 100%;
+  width: 100%; 
+  background-image: url('/static/img/references_background.png'); 
+  background-size: contain; 
+  filter: blur(10px);
 }

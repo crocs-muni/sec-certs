@@ -20,32 +20,17 @@
 {% endblock %}
 
 {% block left_navigation %}
-    <ul id="left-navigation" class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active text-light" href="#csv-info">CSV</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#cert-info">Certificate</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#report-info">Certification report</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#st-info">Security target</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#heuristics-info">Heuristics</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#reference-graph">References</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#updates">Updates</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#raw-data-head">Raw data</a>
-            </li>
-        </ul>
+    <div id="left-navigation" class="list-group list-group-flush list-group-numbered">
+        <h4>Sections</h4>
+        <a class="list-group-item list-group-item-action" href="#csv-info">CSV</a>
+        <a class="list-group-item list-group-item-action" href="#cert-info">Certificate</a>
+        <a class="list-group-item list-group-item-action" href="#report-info">Certification report</a>
+        <a class="list-group-item list-group-item-action" href="#st-info">Security target</a>
+        <a class="list-group-item list-group-item-action" href="#heuristics-info">Heuristics</a>
+        <a class="list-group-item list-group-item-action" href="#reference-graph">References<a>
+        <a class="list-group-item list-group-item-action" href="#updates">Updates</a>
+        <a class="list-group-item list-group-item-action" href="#raw-data-head">Raw data</a>
+    </div>
 {% endblock %}
 
 {% block crumbs_right %}
@@ -53,27 +38,14 @@
 
 
     <div class="shifted-section mt-3">
-        <div class="btn-group" role="group">
-            <a data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link</span></a>
-            {% if cert["heuristics"]["cert_id"] %}
-                <a data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)" 
-                class="btn btn-outline-secondary btn-sm"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
-            {% endif %}
-            {% if cert["name"] %}
-                <a data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="btn btn-outline-secondary btn-sm"> 
-                    <span>
-                        <i class="fa-regular fa-clipboard"></i> Link by certificate name
-                    </span>
-                </a>
-            {% endif %}
-        </div>
+        
     </div>
     <script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
 
 
 {% endblock %}
 {% block content %}
-    <main>
+    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0">
         <div class="shifted-section">
         
             <div class="col-12 col-sm-10 p-3 py-md-5">
@@ -120,10 +92,36 @@
 
                         {{ compare_icon() }}
                         {{ notification_icon() }}
+                        <span class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                <i class="fa-solid fa-share"></i> Share
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="#" data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Link</span></a>
+                                </li>
+                                {% if cert["heuristics"]["cert_id"] %}
+                                    <li>
+                                        <a href="#" data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)" 
+                                        class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
+                                    </li>
+                                {% endif %}                
+                            
+                                {% if cert["name"] %}
+                                    <li>
+                                        <a href="#" data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="dropdown-item"> 
+                                            <span>
+                                                <i class="fa-regular fa-clipboard"></i> Link by certificate name
+                                            </span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </span>
 
-                    <div class="row pt-5">
-                        <div class="col-12 col-md-6">
-                            <h2 class="anchor" id="csv-info">CSV information
+                    <div class="row pt-5"  >
+                        <div class="col-12 col-md-6" >
+                            <h2  class="anchor" id="csv-info">CSV information
                                 <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                     class="badge bg-secondary"
                                     data-bs-toggle="tooltip" data-bs-placement="top"
@@ -258,8 +256,8 @@
             </div>
         </div>
 
-        <div class="row bg-dark p-3">
-            <div class="col-12 p-3 py-md-5 text-light">
+        <div class="row bg-light p-3">
+            <div class="col-12 p-3 py-md-5 text-dark">
                 <div class="shifted-section">
                     <div class="mb-5">
                         <div class="mt-5 mb-3">
@@ -292,66 +290,70 @@
                     </div>
 
                     <div class="mt-5 mb-3">
-                        <h2 class="anchor" id="report-info">Certification report
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                        class="badge bg-secondary"
-                                        data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Information automatically extracted from the certification report. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                        </h2>
-                        {{ render_process_state(cert["state"], "report", "certification report") }}
-
-                        <div class="mt-3 mb-3">
-                            {{ render_local_report(hashid, local_files, cert['report_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
-                        </div>
-
-                            {% if cert["pdf_data"]["report_keywords"] %}
-                                <h4 class="mt-3">Extracted keywords</h4>
-                                {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                {{ device_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                {{ cc_keywords(cert["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
-                                                                                                "cc_sfr": render_sfrs}) }}
-                                {{ security_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                            {% endif %}
-                            {% if cert["pdf_data"]["report_metadata"] %}
-                                <h3 class="mt-3">File metadata</h3>
-                                {{ render_pdf_meta(cert["pdf_data"]["report_metadata"], "Certification report") }}
-                            {% endif %}
-
-                            {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
-
-                            {{ render_references(network, hashid, "report", render_status) }}
-                        </div>
-
-                        <div class="mt-5 mb-3">
-                            <h2 class="anchor" id="st-info">Security target
+                        <div  id="report-info">
+                            <h2 class="anchor">Certification report
                                 <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                             class="badge bg-secondary"
                                             data-bs-toggle="tooltip" data-bs-placement="top"
-                                            title="Information automatically extracted from the security target. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
+                                            title="Information automatically extracted from the certification report. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
                             </h2>
-                            
-                            {{ render_process_state(cert["state"], "st", "security target") }}
+                            {{ render_process_state(cert["state"], "report", "certification report") }}
 
-                        <div class="mt-3 mb-3">
-                            {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            <div class="mt-3 mb-3">
+                                {{ render_local_report(hashid, local_files, cert['report_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            </div>
+
+                                {% if cert["pdf_data"]["report_keywords"] %}
+                                    <h4 class="mt-3">Extracted keywords</h4>
+                                    {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                    {{ device_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                    {{ cc_keywords(cert["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
+                                                                                                    "cc_sfr": render_sfrs}) }}
+                                    {{ security_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                    {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                {% endif %}
+                                {% if cert["pdf_data"]["report_metadata"] %}
+                                    <h3 class="mt-3">File metadata</h3>
+                                    {{ render_pdf_meta(cert["pdf_data"]["report_metadata"], "Certification report") }}
+                                {% endif %}
+
+                                {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
+
+                                {{ render_references(network, hashid, "report", render_status) }}
+                            </div>
                         </div>
 
-                            {% if cert["pdf_data"]["st_keywords"] %}
-                                <h3 class="mt-3">Extracted keywords</h3>
-                                {{ cryptography_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                {{ device_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                {{ cc_keywords(cert["pdf_data"]["st_keywords"], "target", map_funcs={"cc_sar": render_sars,
-                                                                                                "cc_sfr": render_sfrs}) }}
-                                {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                            {% endif %}
-                            {% if cert["pdf_data"]["st_metadata"] %}
-                                <h3 class="mt-3">File metadata</h3>
-                                {{ render_pdf_meta(cert["pdf_data"]["st_metadata"], "Security target") }}
-                            {% endif %}
+                        <div id="st-info">
+                            <div class="mt-5 mb-3">
+                                <h2 class="anchor" >Security target
+                                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
+                                                class="badge bg-secondary"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Information automatically extracted from the security target. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
+                                </h2>
+                                
+                                {{ render_process_state(cert["state"], "st", "security target") }}
 
-                            {{ render_references(network, hashid, "st", render_status) }}
+                                <div class="mt-3 mb-3">
+                                    {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                                </div>
+
+                                {% if cert["pdf_data"]["st_keywords"] %}
+                                    <h3 class="mt-3">Extracted keywords</h3>
+                                    {{ cryptography_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                    {{ device_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                    {{ cc_keywords(cert["pdf_data"]["st_keywords"], "target", map_funcs={"cc_sar": render_sars,
+                                                                                                    "cc_sfr": render_sfrs}) }}
+                                    {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                    {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                {% endif %}
+                                {% if cert["pdf_data"]["st_metadata"] %}
+                                    <h3 class="mt-3">File metadata</h3>
+                                    {{ render_pdf_meta(cert["pdf_data"]["st_metadata"], "Security target") }}
+                                {% endif %}
+
+                                {{ render_references(network, hashid, "st", render_status) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -361,8 +363,8 @@
 
         <div class="shifted-section">
             <div class="col-12 p-3 py-md-5">
-                <div class="mt-3 mb-5">
-                    <h2 class="anchor" id="heuristics-info">Heuristics
+                <div class="mt-3 mb-5" id="heuristics-info">
+                    <h2 class="anchor" >Heuristics
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             title="Information automatically extracted from the certificate and security target documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
@@ -611,8 +613,8 @@
                     {% endif %}
                 </div>
 
-                <div class="mt-5 mb-5">
-                    <h2 class="anchor" id="reference-graph">References
+                <div class="mt-5 mb-5" id="reference-graph">
+                    <h2 class="anchor" >References
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             title="Information automatically extracted from the certificate and security target documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
@@ -624,7 +626,7 @@
                     {% else %}
                         <div class="border rounded">
                             <div id="network"></div>
-                            <div id="network-skeleton" class="container d-flex justify-content-center align-items-center" style="height: 300px;">
+                            <div id="network-skeleton" class="container d-flex justify-content-center align-items-center">
                                         <button id="show-network-btn" class="btn btn-primary">Click to load the graph of references</button>
                                         <div id="network-loading" class="d-none spinner-border" role="status">
                                             <span class="sr-only">Loading...</span>
@@ -657,8 +659,8 @@
                     {% endif %}
                 </div>
 
-                <div class="mt-5 mb-5">
-                    <h2 class="anchor" id="updates">Updates
+                <div class="mt-5 mb-5" id="updates">
+                    <h2 class="anchor" >Updates
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes."><i class="fa fa-info" aria-hidden="true"></i></span>
@@ -701,8 +703,8 @@
                     </ul>
                 </div>
 
-                <div class="mt-5 mb-5">
-                    <h2 class="anchor" id="raw-data-head">Raw data
+                <div class="mt-5 mb-5" id="raw-data-head">
+                    <h2 class="anchor" >Raw data
                         <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
                         style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
                         title="Download."><i class="fas fa-fw fa-download"></i></a>

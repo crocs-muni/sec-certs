@@ -90,31 +90,35 @@
                         </div>
                         <div class="mt-3 mb-3">
                             <h4><label for="search-sort">Sort</label></h4>
-                            <select id="search-sort" class="form-control">
-                                <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match
-                                </option>
-                                <option value="name" {% if sort == "name" %}selected="selected"{% endif %}>Name</option>
-                                <option value="cert_date" {% if sort == "cert_date" %}selected="selected"{% endif %}>
-                                    Certification date
-                                </option>
-                                <option value="archive_date"
-                                        {% if sort == "archive_date" %}selected="selected"{% endif %}>
-                                    Archive date
-                                </option>
-                            </select>
+                            <span id="search-sort-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="This option is enabled only in name search">
+                                <select id="search-sort" class="form-control">
+                                    <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match
+                                    </option>
+                                    <option value="name" {% if sort == "name" %}selected="selected"{% endif %}>Name</option>
+                                    <option value="cert_date" {% if sort == "cert_date" %}selected="selected"{% endif %}>
+                                        Certification date
+                                    </option>
+                                    <option value="archive_date"
+                                            {% if sort == "archive_date" %}selected="selected"{% endif %}>
+                                        Archive date
+                                    </option>
+                                </select>
+                            </span>
                         </div>
                         <div class="mt-3 mb-3">
                             <h4><label for="search-type">Document type</label></h4>
-                            <select id="search-type" class="form-control">
-                                <option value="any" {% if document_type == "any" %}selected="selected"{% endif %}>Any
-                                </option>
-                                <option value="report" {% if document_type == "report" %}selected="selected"{% endif %}>
-                                    Certification Report
-                                </option>
-                                <option value="profile" {% if document_type == "profile" %}selected="selected"{% endif %}>
-                                    Protection Profile
-                                </option>
-                            </select>
+                            <span id="search-type-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="This option is enabled only in name search">
+                                <select id="search-type" class="form-control">
+                                    <option value="any" {% if document_type == "any" %}selected="selected"{% endif %}>Any
+                                    </option>
+                                    <option value="report" {% if document_type == "report" %}selected="selected"{% endif %}>
+                                        Certification Report
+                                    </option>
+                                    <option value="profile" {% if document_type == "profile" %}selected="selected"{% endif %}>
+                                        Protection Profile
+                                    </option>
+                                </select>
+                            </span>
                         </div>
                         <div class="mt-3 mb-3">
                             <h4><label for="search-scheme">Scheme</label></h4>
@@ -130,6 +134,7 @@
                 </div>
             </div>
             <script>
+                $(document).ready(function () {
                 function searchParams(additional) {
                     let searchType = $("#nameSearchRadioId").is(":checked") ? "byName" : "fulltext"
                     let status = $("#search-status").val();
@@ -147,12 +152,20 @@
                     document.getElementById("nameSearchRadioId").checked = true
                     document.getElementById("search-type").disabled = true;
                     document.getElementById("search-sort").disabled = false;
+                    const tooltipSort = bootstrap.Tooltip.getInstance('#search-sort-tooltip')
+                    tooltipSort.disable()
+                    const tooltipType = bootstrap.Tooltip.getInstance('#search-type-tooltip')
+                    tooltipType.enable()
                 }
 
                 function fulltextSearchSetup(){
                     document.getElementById("fulltextSearchRadioId").checked = true
                     document.getElementById("search-type").disabled = false;
                     document.getElementById("search-sort").disabled = true;
+                    const tooltipSort = bootstrap.Tooltip.getInstance('#search-sort-tooltip')
+                    tooltipSort.enable()
+                    const tooltipType = bootstrap.Tooltip.getInstance('#search-type-tooltip')
+                    tooltipType.disable()
                 }
 
                 //function quickSearch() {
@@ -192,6 +205,7 @@
                     $("#search-categories input").prop("checked", false);
                     //quickSearch();
                 });
+            })
             </script>
 
             {% if searchType == "byName" %}

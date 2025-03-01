@@ -124,6 +124,7 @@
                                             <h6 class="d-inline"><label for="search-sort">Sort:</label></h6>
                                         </td>
                                         <td>
+                                            <span id="search-sort-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="This option is enabled only in name search">
                                             <select id="search-sort" class="form-control">
                                                 <option value="match" {% if sort == "match" %}selected="selected"{% endif %}>Match
                                                 </option>
@@ -136,6 +137,7 @@
                                                     Archive date
                                                 </option>
                                             </select>
+                                            </span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -143,6 +145,7 @@
                                             <h6 class="d-inline"><label for="search-type">Document type:</label></h6>
                                         </td>
                                         <td>
+                                            <span id="search-type-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="This option is enabled only in fulltext search">
                                             <select id="search-type" class="form-control">
                                                 <option value="any" {% if document_type == "any" %}selected="selected"{% endif %}>Any
                                                 </option>
@@ -156,6 +159,7 @@
                                                     Security Target
                                                 </option>
                                             </select>
+                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -165,6 +169,7 @@
                 </div>
             </div>
             <script>
+            $(document).ready(function () {
                 function searchParams(additional) {
                     let searchType = $("#nameSearchRadioId").is(":checked") ? "byName" : "fulltext"
                     let status = $("#search-status").val();
@@ -194,12 +199,21 @@
                     document.getElementById("nameSearchRadioId").checked = true
                     document.getElementById("search-type").disabled = true;
                     document.getElementById("search-sort").disabled = false;
+                    const tooltipSort = bootstrap.Tooltip.getInstance('#search-sort-tooltip')
+                    tooltipSort.disable()
+                    const tooltipType = bootstrap.Tooltip.getInstance('#search-type-tooltip')
+                    tooltipType.enable()
+
                 }
 
                 function fulltextSearchSetup(){
                     document.getElementById("fulltextSearchRadioId").checked = true
                     document.getElementById("search-type").disabled = false;
                     document.getElementById("search-sort").disabled = true;
+                    const tooltipSort = bootstrap.Tooltip.getInstance('#search-sort-tooltip')
+                    tooltipSort.enable()
+                    const tooltipType = bootstrap.Tooltip.getInstance('#search-type-tooltip')
+                    tooltipType.disable()
                 }
                 var urlParams = new URLSearchParams(window.location.search);
                 if(urlParams.get("searchType") === "byName" || !urlParams.has("searchType")){
@@ -232,6 +246,7 @@
                     $("#search-categories input").prop("checked", false);
                     //quickSearch();
                 });
+            });
             </script>
             {% if searchType == "fulltext" %}
                 <div id="pagination" class="table-responsive">
