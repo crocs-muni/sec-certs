@@ -182,7 +182,7 @@
                     </h2>
                     <ul>
                         {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
-                            <li id="diff-{{ diff["_id"] }}">
+                            <li class="my-2" id="diff-{{ diff["_id"] }}">
                                 {% if diff["type"] == "new" %}
                                     {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The protection profile was first processed.
                                 {% elif diff["type"] == "change" %}
