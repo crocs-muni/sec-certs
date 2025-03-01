@@ -32,16 +32,18 @@
                                 <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext">
                                 <label class="form-check-label" for="fulltextSearchRadioId">Fulltext search</label>
                             </div>
-                            <button type="button" id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
-                                Search
-                            </button>
-                            <button id="extended-btn" class="btn btn-outline-primary" type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#extended"
-                                    aria-controls="extended"
-                                    aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
-                                    class="fas fa-sliders"></i> Advanced options
-                            </button>
+                            <div class="mt-2">
+                                <button type="button" id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
+                                    Search
+                                </button>
+                                <button id="extended-btn" class="btn btn-outline-primary" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#extended"
+                                        aria-controls="extended"
+                                        aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
+                                        class="fas fa-sliders"></i> Advanced options
+                                </button>
+                            </div>
                         </div>
                         <small class="text-muted">Search by protection profile name (case-insensitive). Uses
                             <a href="https://www.mongodb.com/docs/manual/reference/operator/query/text/#std-label-text-operator-phrases"

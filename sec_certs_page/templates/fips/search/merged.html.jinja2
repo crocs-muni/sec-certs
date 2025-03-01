@@ -30,20 +30,22 @@
                                 <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext">
                                 <label class="form-check-label" for="fulltextSearchRadioId">Fulltext search</label>
                             </div>
-                            <button id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
-                                Search
-                            </button>
-                            <button id="network-btn" class="btn btn-primary"
-                                    title="Display the references network of the resulting certificates."
-                                    data-bs-toggle="tooltip">Display network
-                            </button>
-                            <button id="extended-btn" class="btn btn-outline-primary" type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#extended"
-                                    aria-controls="extended"
-                                    aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
-                                    class="fas fa-sliders"></i> Advanced options
-                            </button>
+                            <div class="mt-2">
+                                <button id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i>
+                                    Search
+                                </button>
+                                <button id="network-btn" class="btn btn-primary"
+                                        title="Display the references network of the resulting certificates."
+                                        data-bs-toggle="tooltip">Display network
+                                </button>
+                                <button id="extended-btn" class="btn btn-outline-primary" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#extended"
+                                        aria-controls="extended"
+                                        aria-expanded="{% if advanced %}true{% else %}false{% endif %}"><i
+                                        class="fas fa-sliders"></i> Advanced options
+                                </button>
+                            </div>
                         </div>
                         <small class="text-muted">Search by certificate name (case-insensitive, e.g. Infineon, card,
                             applet). Uses
