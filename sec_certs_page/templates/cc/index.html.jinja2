@@ -37,12 +37,16 @@
                         </a>
                     </div>
                     <div class="col-6">
-                        <h3>References</h3>
-                        <p>Wanted to know, what certificates are referencing yours and vice versa? We got you covered. We are automatically adding
-                        references between certificates, which then creates big graph of references. You can also see smaller reference graphs in certificate details.</p>
-                        <a href="{{ url_for(".network") }}" class="btn btn-primary">
-                            Show all references <i class="fa-solid fa-arrow-right"></i>
+                        <h3>Example</h3>
+                        <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
+                        Don't forget to search for your own certificates later!</p>
+                        <a href="{{ url_for("cc.rand") }}" class="btn btn-outline-primary">
+                            Random certificate
                         </a>
+                        <a href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}" class="btn btn-primary">
+                            Show example <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        
                     </div>
                 </div>
             </div>
@@ -59,10 +63,23 @@
                         </a>
                     </div>
                     <div class="col-6">
-                        <h3>Example</h3>
-                        <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
-                        Don't forget to search for your own certificates later!</p>
-                        <a href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}" class="btn btn-primary">
+                        <h3>References</h3>
+                        <p>Wanted to know, what certificates are referencing yours and vice versa? We got you covered. We are automatically adding
+                        references between certificates, which then creates big graph of references. You can also see smaller reference graphs in certificate details.</p>
+                        <a href="{{ url_for(".network") }}" class="btn btn-primary">
+                            Show all references <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row bg-dark p-3 text-light">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-6">
+                        <h3>Data</h3>
+                        <p>TODO text</p>
+                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>

@@ -55,18 +55,18 @@
     <div class="shifted-section mt-2">
         <div class="btn-group" role="group">
             <a data-url="{{ url_for("fips.entry", hashid=hashid) }}" onclick="copyLinkToClipboard(this)" class="btn btn-outline-secondary btn-sm" title="Link by id"
-            data-bs-toggle="tooltip" data-bs-placement="top"><span> <i class="fa-regular fa-clipboard"></i> Link</span></a>
+            data-bs-toggle="tooltip" data-bs-placement="top"><span> <i class="fa-regular fa-clipboard"></i> Copy link</span></a>
             {% if cert["cert_id"] %}
                 <a data-url="{{ url_for("fips.entry_id", cert_id=cert["cert_id"]) }}" onclick="copyLinkToClipboard(this)"
                 class="btn btn-outline-secondary btn-sm" title="Link by certificate id" data-bs-toggle="tooltip"
-                data-bs-placement="top"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
+                data-bs-placement="top"> <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span></a>
             {% endif %}
             {% if cert|fips_name %}
                 <a data-url="{{ url_for("fips.entry_name", name=cert|fips_name) }}" onclick="copyLinkToClipboard(this)"
                 class="btn btn-outline-secondary btn-sm"
                 title="Link by certificate name" data-bs-toggle="tooltip" data-bs-placement="top"> <span>
                     <i
-                            class="fa-regular fa-clipboard"></i> Link by certificate name
+                            class="fa-regular fa-clipboard"></i> Copy link by certificate name
                 </span></a>
             {% endif %}
         </div>

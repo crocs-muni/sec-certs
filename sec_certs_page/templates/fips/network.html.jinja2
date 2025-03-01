@@ -56,18 +56,27 @@
             </div>
             <div class="border">
                 <div id="network"></div>
+                <div id="network-skeleton" class="container d-flex justify-content-center align-items-center">
+                    <div id="network-loading" class="d-block spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
             </div>
             <script type="module">
                 import {createNetwork} from "/static/network.js";
 
-                let network = createNetwork('network',
-                    '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
-                    '{{ url_for(".types") }}',
-                    '{{ url_for(".statuses") }}',
-                    '{{ url_for(".reference_types") }}',
-                    600,
-                    300,
-                    false);
+                async function loadNetwork(){
+                    return createNetwork('network',
+                        '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
+                        '{{ url_for(".types") }}',
+                        '{{ url_for(".statuses") }}',
+                        '{{ url_for(".reference_types") }}',
+                        600,
+                        300,
+                        false);
+                }
+                await loadNetwork()
+                $("#network-skeleton").remove()
             </script>
         </div>
 

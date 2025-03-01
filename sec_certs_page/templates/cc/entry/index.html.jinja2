@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block left_navigation %}
-    <div id="left-navigation" class="list-group list-group-flush list-group-numbered">
+    <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
         <h4>Sections</h4>
         <a class="list-group-item list-group-item-action" href="#csv-info">CSV</a>
         <a class="list-group-item list-group-item-action" href="#cert-info">Certificate</a>
@@ -33,22 +33,12 @@
     </div>
 {% endblock %}
 
-{% block crumbs_right %}
+<script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
 
-
-
-    <div class="shifted-section mt-3">
-        
-    </div>
-    <script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
-
-
-{% endblock %}
 {% block content %}
     <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0">
         <div class="shifted-section">
-        
-            <div class="col-12 col-sm-10 p-3 py-md-5">
+            <div class="col-12 col-sm-10 p-3">
                 <div class="alert alert-warning d-sm-none" role="alert">
                     <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
                 </div>
@@ -98,12 +88,12 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="#" data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Link</span></a>
+                                    <a href="#" data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link</span></a>
                                 </li>
                                 {% if cert["heuristics"]["cert_id"] %}
                                     <li>
                                         <a href="#" data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)" 
-                                        class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Link by certificate ID</span></a>
+                                        class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span></a>
                                     </li>
                                 {% endif %}                
                             
@@ -111,7 +101,7 @@
                                     <li>
                                         <a href="#" data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="dropdown-item"> 
                                             <span>
-                                                <i class="fa-regular fa-clipboard"></i> Link by certificate name
+                                                <i class="fa-regular fa-clipboard"></i> Copy link by certificate name
                                             </span>
                                         </a>
                                     </li>

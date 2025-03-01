@@ -8,9 +8,9 @@
                     <h1>About sec-certs</h1>
                     <p class="lead fw-light pt-2">
                         We want to become the one-stop shop to explore the Common Criteria / FIPS 140
-                        certification ecosystem. We aggregate and annotate certification data, enabling
-                        unified search, vulnerability investigation, trend analyses, side-by-side
-                        comparisons, notifications and other features.
+                        certification ecosystem. We aggregate and annotate certification data, enabling 
+                        you to perform unified search, vulnerability investigation, trend analyses, side-by-side 
+                        comparisons, notifications and other features for certified products.
                     </p>
                     <p class="lead fw-light pt-2">
                         The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
@@ -40,7 +40,7 @@
                             <i class="fas fa-search fa-fw"></i>
                         </div>
                         <h3>Unified search</h3>
-                        <p>Search through our extracted certificate data, filter by categories or status.
+                        <p>Search certificates relevant for your product, filter certificates by categories or status.
                             Explore the certificates without downloading and reading countless PDFs.</p>
                         <p>
                             Compare certificates using the <span class="fa-stack fa-2x"
@@ -52,13 +52,13 @@
                                style="vertical-align: middle"></i>
                             </span> button in each certificate details to see differences between them.
                         </p>
-                        <a href="{{ url_for("cc.mergedSearch") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("cc.mergedSearch") }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Search in Common Criteria">
                             CC
                         </a>
-                        <a href="{{ url_for("pp.mergedSearch") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("pp.mergedSearch") }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Search in Protection Profiles">
                             PP
                         </a>
-                        <a href="{{ url_for("fips.mergedSearch") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("fips.mergedSearch") }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Search in FIPS 140">
                             FIPS
                         </a>
                     </div>
@@ -67,13 +67,11 @@
                             <i class="fas fa-network-wired fa-fw"></i>
                         </div>
                         <h3>Certificate references</h3>
-                        <p>Explore the references between certificates in a graph. A certificate
-                            referencing another certificate often means that it builds on top of the referenced
-                            certificate.</p>
-                        <a href="{{ url_for("cc.network") }}" class="btn btn-outline-secondary btn-sm">
+                        <p>Explore the references between product certificates in a graph. A certificate referencing another certificate often means that its product is built atop of another security relevant product</p>
+                        <a href="{{ url_for("cc.network") }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show Common Criteria references graph">
                             CC
                         </a>
-                        <a href="{{ url_for("fips.network") }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ url_for("fips.network") }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show FIPS 140 references graph">
                             FIPS
                         </a>
                     </div>
@@ -91,11 +89,11 @@
                             on pages of the affected certificates.
                         </p>
                         <a href="{{ url_for("vuln.index", _anchor="cve") }}"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Search vulnerable certificates by CVE">
                             CVE
                         </a>
                         <a href="{{ url_for("vuln.index", _anchor="cpe") }}"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Search vulnerable certificates by CPE">
                             CPE
                         </a>
                     </div>
@@ -105,16 +103,16 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-chart-line fa-fw"></i>
                         </div>
-                        <h3>Trend visualizations</h3>
+                        <h3>Trends visualization</h3>
                         <p>Explore our analysis of the security certifications landscape as it evolves over time.
                             The analysis results presented here are preliminary, for more, see our published
                             <a href="{{ url_for("about.index", _anchor="research") }}">research</a>.</p>
                         <a href="{{ url_for("cc.analysis") }}"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show Common Criteria analysis">
                             CC
                         </a>
                         <a href="{{ url_for("fips.analysis") }}"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show FIPS 140 analysis">
                             FIPS
                         </a>
                     </div>
@@ -128,15 +126,15 @@
                             individual certificate data is available on each certificate page.
                         </p>
                         <a href="https://github.com/crocs-muni/sec-certs"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show project source codes">
                             GitHub
                         </a>
                         <a href="{{ url_for("cc.data") }}"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show Common Criteria datasets">
                             CC
                         </a>
                         <a href="{{ url_for("fips.data") }}"
-                           class="btn btn-outline-secondary btn-sm">
+                           class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-title="Show FIPS 140 datasets">
                             FIPS
                         </a>
                     </div>
@@ -144,7 +142,7 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-envelope fa-fw"></i>
                         </div>
-                        <h3>Update notifications</h3>
+                        <h3>Change notifications</h3>
                         <p>Subscribe to notifications about a vulnerability affecting a set of
                             certified products, all changes in a set of certified products or about new certificates.</p>
                         {% if not config["SUBSCRIPTIONS_ENABLED"] %}
@@ -175,7 +173,7 @@
         <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
                 <div class="col-12 col-lg-6 gy-3">
-                    <h3>Do it yourself!</h3>
+                    <h3>Deploy it yourself!</h3>
                     <p>The tools used to create the datasets on this website as well as the datasets themselves are
                         open-source and available on our GitHub. Documentation, including a quick-start guide,
                         can be found on below.
@@ -189,6 +187,7 @@
                     <p>Want to learn more about our research? More information, including our publications and
                         the privacy policy of this site can be found on our about page.</p>
                     <a class="btn btn-primary" href="{{ url_for(".about.index") }}">About</a>
+                    <a class="btn btn-primary" href="{{ url_for(".about.research") }}">Research</a>
                     
                 </div>
             </div>

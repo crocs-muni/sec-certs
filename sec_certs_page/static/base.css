@@ -355,6 +355,12 @@ h6 {
   padding-right: 30px;
 }
 
+@media (max-width: 767.98px) {
+  .shifted-section {
+    margin-left: 10px; 
+  }
+}
+
 
 .spaced-table{
   border-collapse: separate;
