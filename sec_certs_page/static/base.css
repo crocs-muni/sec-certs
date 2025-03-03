@@ -399,3 +399,7 @@ body, html{
   background-size: contain; 
   filter: blur(10px);
 }
+
+.bg-darker-light {
+  background-color: #f0f0f0;
+}

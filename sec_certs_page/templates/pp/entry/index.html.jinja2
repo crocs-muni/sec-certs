@@ -23,38 +23,29 @@
 {% endblock %}
 
 {% block left_navigation %}
-    <ul id="left-navigation" class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active text-light" href="#web-info">Web</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#report-info">Report</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#profile-info">Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#reference-graph">References</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-light" href="#raw-data-head">Raw data</a>
-            </li>
-        </ul>
+  <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
+        <h4>Sections</h4>
+        <a class="list-group-item list-group-item-action" href="#web-info">Web</a>
+        <a class="list-group-item list-group-item-action" href="#report-info">Report</a>
+        <a class="list-group-item list-group-item-action" href="#profile-info">Profile</a>
+        <a class="list-group-item list-group-item-action" href="#reference-graph">References</a>
+        <a class="list-group-item list-group-item-action" href="#raw-data-head">Raw data</a>
+    </div>
 {% endblock %}
 
 {% block content %}
-    <main>
-        <div class="shifted-section">
-            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0">
+        <div  class="shifted-section">
+            <div id="web-info" class="col-12 col-sm-10 mx-auto p-3 py-md-5">
                 <div class="alert alert-warning d-sm-none" role="alert">
                     <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
                 </div>
-                <div>
+                <div >
                     <h1>{{ profile["web_data"]["name"]|default("") }}</h1>
 
                     {% if "web_data" in profile %}
                         <div class="mt-5 mb-5">
-                            <h2 class="anchor" id="web-info">Web information
+                            <h2 class="anchor">Web information
                                 <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                     class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="Information extracted from the protection profile database provided by the Common Criteria portal."><i class="fa fa-info" aria-hidden="true"></i></span>
@@ -94,11 +85,11 @@
                 </div>
             </div>
             {#  heeeere #}
-            <div class="row bg-dark p-3">
-                <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
+            <div class="row bg-darker-light p-3">
+                <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 ">
                     <div class="mb-5">
-                        <div class="mt-5 mb-3">
-                            <h2 class="anchor" id="report-info">Certification report
+                        <div id="report-info" class="mt-5 mb-3">
+                            <h2 class="anchor">Certification report
                             </h2>
                             {{ render_process_state(profile["state"], "report", "certification report") }}
                             <div class="mt-3 mb-3">
@@ -120,8 +111,8 @@
                             {% endif %}
                         </div>
 
-                        <div class="mt-5 mb-3">
-                            <h2 class="anchor" id="profile-info">Profile
+                        <div id="profile-info" class="mt-5 mb-3">
+                            <h2 class="anchor">Profile
                             </h2>
                             {{ render_process_state(profile["state"], "pp", "protection profile") }}
 
@@ -148,8 +139,8 @@
             </div>
 
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                <div class="mt-3 mb-5">
-                    <h2 class="anchor" id="reference-graph">References
+                <div id="reference-graph" class="mt-3 mb-5">
+                    <h2 class="anchor" >References
                         <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             title="Information automatically extracted from the certification report and protection profile documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
@@ -214,8 +205,8 @@
                     </ul>
                 </div>
 
-                <div class="mt-5 mb-5">
-                    <h2 class="anchor" id="raw-data-head">Raw data
+                <div id="raw-data-head" class="mt-5 mb-5">
+                    <h2 class="anchor" >Raw data
                         <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
                         style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
                         title="Download."><i class="fas fa-fw fa-download"></i></a></h2>

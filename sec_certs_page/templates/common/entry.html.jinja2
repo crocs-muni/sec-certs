@@ -43,7 +43,7 @@
 {%- endmacro %}
 
 {% macro render_pdf_meta(pdf_meta, title) %}
-    <table class="table table-sm table-borderless table-dark w-auto">
+    <table>
         <tbody>
         {{ opt_line("Title", "/Title", pdf_meta, title) }}
         {{ opt_line("Subject", "/Subject", pdf_meta, title) }}
