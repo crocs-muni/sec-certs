@@ -92,6 +92,9 @@
       "umap-learn[plot]",
       "plotly",
       "scikit-learn",
+      "sentence-transformers",
+      "nltk",
+      "sqlite-vec"
     ]
 
   [project.urls]
