@@ -1,7 +1,5 @@
 annotated-types==0.7.0
     # via pydantic
-appnope==0.1.4
-    # via ipykernel
 asttokens==3.0.0
     # via stack-data
 attrs==25.1.0
@@ -52,12 +50,14 @@ dateparser==1.2.1
     # via sec-certs (../pyproject.toml)
 debugpy==1.8.12
     # via ipykernel
-decorator==5.1.1
+decorator==5.2.1
     # via ipython
 deprecated==1.2.18
     # via pikepdf
 distro==1.9.0
     # via tabula-py
+exceptiongroup==1.2.2
+    # via ipython
 executing==2.2.0
     # via stack-data
 fonttools==4.56.0
@@ -202,7 +202,7 @@ pydantic==2.10.6
     #   weasel
 pydantic-core==2.27.2
     # via pydantic
-pydantic-settings==2.7.1
+pydantic-settings==2.8.0
     # via sec-certs (../pyproject.toml)
 pygments==2.19.1
     # via
@@ -250,13 +250,13 @@ requests==2.32.3
     #   weasel
 rich==13.9.4
     # via typer
-rpds-py==0.22.3
+rpds-py==0.23.1
     # via
     #   jsonschema
     #   referencing
 scikit-learn==1.6.1
     # via sec-certs (../pyproject.toml)
-scipy==1.15.1
+scipy==1.15.2
     # via
     #   scikit-learn
     #   sec-certs (../pyproject.toml)
@@ -264,7 +264,7 @@ seaborn==0.13.2
     # via
     #   pysankeybeta
     #   sec-certs (../pyproject.toml)
-setuptools-scm==8.1.0
+setuptools-scm==8.2.0
     # via sec-certs (../pyproject.toml)
 shellingham==1.5.4
     # via typer
@@ -296,6 +296,8 @@ thinc==8.2.5
     # via spacy
 threadpoolctl==3.5.0
     # via scikit-learn
+tomli==2.2.1
+    # via setuptools-scm
 tornado==6.4.2
     # via
     #   ipykernel
@@ -320,10 +322,13 @@ typer==0.15.1
 typing-extensions==4.12.2
     # via
     #   beautifulsoup4
+    #   cloudpathlib
     #   ipython
     #   pydantic
     #   pydantic-core
+    #   pypdf
     #   referencing
+    #   rich
     #   typer
 tzdata==2025.1
     # via pandas
