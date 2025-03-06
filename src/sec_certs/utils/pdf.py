@@ -13,6 +13,18 @@ import pikepdf
 import pytesseract
 from PIL import Image
 
+from langchain.document_loaders import PyPDFLoader
+from wtpsplit import SaT
+import os
+import torch
+
+from enum import Enum
+
+from google import genai
+from google.genai import types
+import pathlib
+import httpx
+
 from sec_certs.constants import (
     GARBAGE_ALPHA_CHARS_THRESHOLD,
     GARBAGE_AVG_LLEN_THRESHOLD,
@@ -21,9 +33,20 @@ from sec_certs.constants import (
     GARBAGE_SIZE_THRESHOLD,
 )
 
+from docling.document_converter import DocumentConverter
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 logger = logging.getLogger(__name__)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 
+class PDFConversionMethod(Enum):
+    PDFTOTEXT = 1,
+    VLM = 2,
+    SEGMENTATION_TRANSFORMER = 3,
+    DOCLING = 4
 
 def repair_pdf(file: Path) -> None:
     """
@@ -72,10 +95,135 @@ def ocr_pdf_file(pdf_path: Path) -> str:
                 contents += f.read()
     return contents
 
+_gemini_client = None
 
-def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
+def get_gemini_client():
+    global _gemini_client
+    if _gemini_client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY environment variable is not set or empty")
+
+        _gemini_client = genai.Client(api_key=api_key)
+
+    return _gemini_client
+
+GEMINI_PROMPT = (
+    "Fully transcribe this certificate document. Provide outputs in text. "
+    "Do not prepend them with affirmations like 'Sure!', just start transcribing immediately. "
+    "When you see a table, always transcribe it into a markdown table. Do not translate anything, just transcribe the text. "
+    "For page breaks, use the '<page_break>' tag. If there is a drawing or a diagram, transcribe the text inside the diagram into "
+    "image tags such that the content is inside, for example: <image>transcribed image content goes here</image>."
+)
+
+def convert_pdf_gemini(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
     """
-    Convert a PDF tile to text and save it on the `txt_path`.
+    Convert a PDF file to text using Gemini VLM for transcription and save it on the `txt_path`.
+
+    :param pdf_path: Path to the to-be-converted PDF file.
+    :param txt_path: Path to the resulting text file.
+    :return: A tuple of two results, whether OCR was done and what the complete result
+            was (OK/NOK). OCR always returns False for compatibility purposes.
+    """
+    txt = None
+    ok = False
+    ocr = False
+
+    client = get_gemini_client()
+
+    if client is None:
+        logger.error("Gemini client unavailable, skipping conversion.")
+        return ocr, ok
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[
+                types.Part.from_bytes(
+                    data=pdf_path.read_bytes(),
+                    mime_type='application/pdf',
+                ),
+                GEMINI_PROMPT
+            ]
+        )
+        txt = response.text
+    except Exception as e:
+        logger.error(f"Error when converting pdf->txt: {e}")
+    if txt is not None:
+        ok = True
+        txt_path.write_text(txt, encoding="utf-8")
+
+    return (ocr, ok)
+
+_docling_converter = None
+
+def get_docling_converter():
+    global _docling_converter
+    if _docling_converter is None:
+        _docling_converter = DocumentConverter() # TODO: more fine-grained params, GPU support
+    return _docling_converter
+
+def convert_pdf_docling(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
+    txt = None
+    ok = False
+    ocr = False
+
+    try:
+        converter = get_docling_converter()
+        result = converter.convert(pdf_path)
+        txt = result.document.export_to_markdown()
+    except Exception as e:
+        logger.error(f"Error when converting pdf->txt: {e}")
+
+    if txt is not None:
+        ok = True
+        txt_path.write_text(txt, encoding="utf-8")
+    return (ocr, ok)
+
+_sat_model = None  # global cache
+
+def get_sat_model():
+    global _sat_model
+    if _sat_model is None:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        _sat_model = SaT("sat-12l-sm")
+        _sat_model.half().to(device)
+    return _sat_model
+
+def convert_pdf_sat(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
+    """
+    Convert a PDF file to text using a Segmentation Transformer for transcription and save it on the `txt_path`.
+
+    :param pdf_path: Path to the to-be-converted PDF file.
+    :param txt_path: Path to the resulting text file.
+    :return: A tuple of two results, whether OCR was done and what the complete result
+            was (OK/NOK). OCR always returns False for compatibility purposes.
+    """
+    txt = None
+    ok = False
+    ocr = False
+
+    sat = get_sat_model()
+
+    def preprocess_sent_segment(fulltext):
+        return sat.split(fulltext.replace("\n", ""))
+
+    try:
+        loader = PyPDFLoader(pdf_path)
+        documents = loader.load()
+        txt = '\n'.join(preprocess_sent_segment("".join([page.page_content for page in documents])))
+    except Exception as e:
+        logger.error(f"Error when converting pdf->txt: {e}")
+
+    if txt is not None:
+        ok = True
+        txt_path.write_text(txt, encoding="utf-8")
+
+    return (ocr, ok)
+
+def convert_pdf_pdftotext(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
+    """
+    Convert a PDF file to text and save it on the `txt_path`.
 
     :param pdf_path: Path to the to-be-converted PDF file.
     :param txt_path: Path to the resulting text file.
@@ -93,7 +241,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
         logger.error(f"Error when converting pdf->txt: {e}")
 
     if txt is None or text_is_garbage(txt):
-        logger.warning(f"Detected garbage during conversion of {pdf_path}")
+        logger.warning(f"Detected garbage during conversion of {pdf_path}, attempting OCR")
         ocr = True
         try:
             txt = ocr_pdf_file(pdf_path)
@@ -103,8 +251,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
 
     if txt is not None:
         ok = True
-        with txt_path.open("w", encoding="utf-8") as txt_handle:
-            txt_handle.write(txt)
+        txt_path.write_text(txt, encoding="utf-8")
 
     return ocr, ok
 

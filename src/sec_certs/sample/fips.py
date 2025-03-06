@@ -25,7 +25,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import extract, helpers, tables
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata, repair_pdf
+from sec_certs.utils.pdf import convert_pdf_pdftotext, extract_pdf_metadata, repair_pdf
 
 
 class FIPSHTMLParser:
@@ -591,7 +591,7 @@ class FIPSCertificate(
         """
         Converts policy pdf -> txt
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path)
+        ocr_done, ok_result = convert_pdf_pdftotext(cert.state.policy_pdf_path, cert.state.policy_txt_path)
 
         # If OCR was done and the result was garbage
         cert.state.policy_convert_garbage = ocr_done

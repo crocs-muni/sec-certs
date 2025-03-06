@@ -19,7 +19,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
+from sec_certs.utils.pdf import convert_pdf_pdftotext, extract_pdf_metadata
 
 
 class ProtectionProfile(
@@ -301,7 +301,7 @@ class ProtectionProfile(
         """
         Converts certification reports from pdf to txt.
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.report.pdf_path, cert.state.report.txt_path)
+        ocr_done, ok_result = convert_pdf_pdftotext(cert.state.report.pdf_path, cert.state.report.txt_path)
         cert.state.report.convert_garbage = ocr_done
         cert.state.report.convert_ok = ok_result
         if not ok_result:
@@ -315,7 +315,7 @@ class ProtectionProfile(
         """
         Converts the actual protection profile from pdf to txt.
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.pp.pdf_path, cert.state.pp.txt_path)
+        ocr_done, ok_result = convert_pdf_pdftotext(cert.state.pp.pdf_path, cert.state.pp.txt_path)
         cert.state.pp.convert_garbage = ocr_done
         cert.state.pp.convert_ok = ok_result
         if not ok_result:

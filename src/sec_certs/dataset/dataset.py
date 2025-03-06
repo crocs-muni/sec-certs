@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, ClassVar, Generic, TypeVar, cast
+from enum import Enum
 
 import pandas as pd
 import requests
@@ -25,12 +26,12 @@ from sec_certs.serialization.json import (
 )
 from sec_certs.utils import helpers
 from sec_certs.utils.profiling import staged
+from sec_certs.utils.pdf import PDFConversionMethod
 
 logger = logging.getLogger(__name__)
 
 CertSubType = TypeVar("CertSubType", bound=Certificate)
 DatasetSubType = TypeVar("DatasetSubType", bound="Dataset")
-
 
 class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     """
@@ -361,7 +362,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @serialize
     @only_backed()
-    def convert_all_pdfs(self, fresh: bool = True) -> None:
+    def convert_all_pdfs(self, fresh: bool = True, conversion_method: PDFConversionMethod = PDFConversionMethod.PDFTOTEXT) -> None:
         """
         Converts all pdf artifacts to txt, given the certification scheme.
         """
@@ -370,12 +371,12 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             return
 
         logger.info("Converting all PDFs to txt")
-        self._convert_all_pdfs_body(fresh)
+        self._convert_all_pdfs_body(fresh, conversion_method)
 
         self.state.pdfs_converted = True
 
     @abstractmethod
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
+    def _convert_all_pdfs_body(self, fresh: bool = True, conversion_method: PDFConversionMethod = PDFConversionMethod.PDFTOTEXT) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize

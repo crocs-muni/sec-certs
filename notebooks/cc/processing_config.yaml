@@ -1,0 +1,2 @@
+log_filepath: temp_log.txt
+n_threads: 10

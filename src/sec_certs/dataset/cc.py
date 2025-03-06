@@ -40,6 +40,8 @@ from sec_certs.serialization.json import ComplexSerializableType, only_backed, s
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
+from sec_certs.utils.pdf import PDFConversionMethod
+
 
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
@@ -642,7 +644,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         )
 
     @staged(logger, "Converting PDFs of certification reports to txt.")
-    def _convert_reports_to_txt(self, fresh: bool = True) -> None:
+    def _convert_reports_to_txt(self, fresh: bool = True, conversion_method: PDFConversionMethod = PDFConversionMethod.PDFTOTEXT) -> None:
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report.is_ok_to_convert(fresh)]
 
@@ -652,13 +654,13 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             )
 
         cert_processing.process_parallel(
-            CCCertificate.convert_report_pdf,
+            lambda cert: CCCertificate.convert_report_pdf(cert, conversion_method),
             certs_to_process,
             progress_bar_desc="Converting PDFs of certification reports to txt",
         )
 
     @staged(logger, "Converting PDFs of security targets to txt.")
-    def _convert_targets_to_txt(self, fresh: bool = True) -> None:
+    def _convert_targets_to_txt(self, fresh: bool = True, conversion_method: PDFConversionMethod = PDFConversionMethod.PDFTOTEXT) -> None:
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.st.is_ok_to_convert(fresh)]
 
@@ -670,13 +672,13 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             )
 
         cert_processing.process_parallel(
-            CCCertificate.convert_st_pdf,
+            lambda cert: CCCertificate.convert_st_pdf(cert, conversion_method),
             certs_to_process,
             progress_bar_desc="Converting PDFs of security targets to txt",
         )
 
     @staged(logger, "Converting PDFs of certificates to txt.")
-    def _convert_certs_to_txt(self, fresh: bool = True) -> None:
+    def _convert_certs_to_txt(self, fresh: bool = True, conversion_method: PDFConversionMethod = PDFConversionMethod.PDFTOTEXT) -> None:
         self.certificates_txt_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.cert.is_ok_to_convert(fresh)]
 
@@ -688,15 +690,15 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             )
 
         cert_processing.process_parallel(
-            CCCertificate.convert_cert_pdf,
+            lambda cert: CCCertificate.convert_cert_pdf(cert, conversion_method),
             certs_to_process,
             progress_bar_desc="Converting PDFs of certificates to txt",
         )
 
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_reports_to_txt(fresh)
-        self._convert_targets_to_txt(fresh)
-        self._convert_certs_to_txt(fresh)
+    def _convert_all_pdfs_body(self, fresh: bool = True, conversion_method: PDFConversionMethod = PDFConversionMethod.PDFTOTEXT) -> None:
+        self._convert_reports_to_txt(fresh, conversion_method)
+        self._convert_targets_to_txt(fresh, conversion_method)
+        self._convert_certs_to_txt(fresh, conversion_method)
 
     @staged(logger, "Extracting report metadata")
     def _extract_report_metadata(self) -> None:
