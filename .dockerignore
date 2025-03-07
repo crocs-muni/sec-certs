@@ -1,2 +1,5 @@
 # The directory with the datasets
-dataset/
+/dataset/
+/dump/
+/instance/
+/virt/

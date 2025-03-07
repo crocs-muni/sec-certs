@@ -1,11 +1,11 @@
 import random
 from operator import itemgetter
-from pathlib import Path
 
 import pymongo
 import sentry_sdk
-from flask import abort, current_app, redirect, render_template, request, send_file, url_for
+from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_breadcrumbs import register_breadcrumb
+from periodiq import cron
 
 from .. import mongo, sitemap
 from ..cc import cc_schemes
@@ -17,7 +17,10 @@ from ..common.views import (
     entry_download_profile_txt,
     entry_download_report_pdf,
     entry_download_report_txt,
+    expires_at,
+    send_cacheable_instance_file,
     send_json_attachment,
+    sitemap_cert_pipeline,
 )
 from . import pp
 from .search import PPBasicSearch, PPFulltextSearch
@@ -44,29 +47,13 @@ def data():
 @pp.route("/dataset.json")
 def dataset():
     """Protection Profile dataset API endpoint."""
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_OUT"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="dataset.json",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_OUT"], "application/json", "dataset.json")
 
 
 @pp.route("/pp.tar.gz")
 def dataset_archive():
     """Protection Profile dataset archive API endpoint."""
-    archive_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_ARCHIVE"]
-    if not archive_path.is_file():
-        return abort(404)
-    return send_file(
-        archive_path,
-        as_attachment=True,
-        mimetype="application/gzip",
-        download_name="pp.tar.gz",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_ARCHIVE"], "application/gzip", "pp.tar.gz")
 
 @pp.route("/mergedsearch/")
 def mergedSearch():
@@ -135,6 +122,7 @@ def entry(hashid):
             res = mongo.db.cc.find({"heuristics.protection_profiles._value": {"$elemMatch": {"$eq": hashid}}})
             for cert in res:
                 certs.append(load(cert))
+        certs.sort(key=lambda x: x["name"])
         renderer = PPRenderer()
         with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
             diffs = list(mongo.db.pp_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
@@ -161,21 +149,25 @@ def entry(hashid):
 
 
 @pp.route("/<string(length=16):hashid>/report.txt")
+@expires_at(cron("0 12 * * 2"))
 def entry_report_txt(hashid):
     return entry_download_report_txt("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
 
 @pp.route("/<string(length=16):hashid>/report.pdf")
+@expires_at(cron("0 12 * * 2"))
 def entry_report_pdf(hashid):
     return entry_download_report_pdf("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
 
 @pp.route("/<string(length=16):hashid>/profile.txt")
+@expires_at(cron("0 12 * * 2"))
 def entry_profile_txt(hashid):
     return entry_download_profile_txt("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
 
 @pp.route("/<string(length=16):hashid>/profile.pdf")
+@expires_at(cron("0 12 * * 2"))
 def entry_profile_pdf(hashid):
     return entry_download_profile_pdf("pp", hashid, current_app.config["DATASET_PATH_PP_DIR"])
 
@@ -251,5 +243,5 @@ def sitemap_urls():
     yield "pp.analysis", {}
     yield "pp.search", {}
     yield "pp.rand", {}
-    for doc in mongo.db.pp.find({}, {"_id": 1}):
-        yield "pp.entry", {"hashid": doc["_id"]}, None, None, 0.8
+    for doc in mongo.db.pp.aggregate(sitemap_cert_pipeline("pp"), allowDiskUse=True):
+        yield "pp.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8

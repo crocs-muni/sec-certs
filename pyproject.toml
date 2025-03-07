@@ -10,23 +10,23 @@
   ]
   description = "A web for the sec-certs project."
   readme = "README.md"
-  urls = { homepage = "https://seccerts.org", documentation = "https://seccerts.org/docs/", repository = "https://github.com/crocs-muni/sec-certs" }
+  urls = { homepage = "https://sec-certs.org", documentation = "https://sec-certs.org/docs/", repository = "https://github.com/crocs-muni/sec-certs" }
   license = { "text" = "MIT" }
   classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
   ]
-  requires-python = ">=3.9"
+  requires-python = ">=3.10"
   dependencies = [
     # Base tool
-    "sec-certs >= 0.1.3",
+    "sec-certs @ git+https://github.com/crocs-muni/sec-certs.git#main",
 
     # Flask
     "Flask < 2.3",   # Flask-Breadcrumbs and Flask-Menu break
@@ -39,7 +39,7 @@
     "Flask-Login",
     "Flask-Mail",
     "Flask-Melodramatiq",
-    "Flask-Menu",
+    "Flask-Menu == 1.0.1",
     "flask-paginate",
     "Flask-Principal",
     "Flask-PyMongo",
@@ -53,7 +53,7 @@
     "Whoosh",
     "email-validator",
     "MarkupSafe",
-    "Werkzeug",
+    "Werkzeug < 3.1",
     "WTForms",
 
     # Tasks

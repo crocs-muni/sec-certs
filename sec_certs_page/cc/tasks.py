@@ -113,7 +113,7 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
     │   │   ├── pps                 (not present)
     │   │   │   ├── pdf
     │   │   │   └── txt
-    │   │   └── pp.json
+    │   │   └── dataset.json
     │   └── maintenances
     │       ├── certs               (not present)
     │       │   ├── reports
@@ -136,7 +136,7 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
     └── dataset.json
     """
 
-    def archive(self, path, paths):
+    def archive(self, ids, path, paths):
         with TemporaryDirectory() as tmpdir:
             logger.info(f"Archiving {path}")
             tmpdir = Path(tmpdir)
@@ -149,7 +149,7 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
             os.symlink(paths["output_path_scheme"], auxdir / "cc_scheme.json")
             protection_profiles = auxdir / "protection_profiles"
             protection_profiles.mkdir()
-            os.symlink(paths["output_path_pp"], protection_profiles / "pp.json")
+            os.symlink(paths["output_path_pp"], protection_profiles / "dataset.json")
             maintenances = auxdir / "maintenances"
             maintenances.mkdir()
             os.symlink(paths["output_path_mu"], maintenances / "maintenance_updates.json")
@@ -158,9 +158,9 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
 
             certs = tmpdir / "certs"
             certs.mkdir()
-            os.symlink(paths["report"], certs / "reports")
-            os.symlink(paths["target"], certs / "targets")
-            os.symlink(paths["cert"], certs / "certificates")
+            self.map_artifact_dir(ids, paths["report"], certs / "reports")
+            self.map_artifact_dir(ids, paths["target"], certs / "targets")
+            self.map_artifact_dir(ids, paths["cert"], certs / "certificates")
 
             logger.info("Running tar...")
             subprocess.run(["tar", "-hczvf", path, "."], cwd=tmpdir)
@@ -168,9 +168,17 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
 
 
 @actor("cc_archive", "cc_archive", "updates", timedelta(hours=4))
-def archive(paths):  # pragma: no cover
+def archive(ids, paths):  # pragma: no cover
     archiver = CCArchiver()
-    archiver.archive(Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"], paths)
+    archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"], paths)
+
+
+@actor("cc_archive_all", "cc_archive_all", "updates", timedelta(hours=1))
+def archive_all():  # pragma: no cover
+    ids = list(map(lambda doc: doc["_id"], mongo.db.cc.find({}, {"_id": 1})))
+    updater = CCUpdater()
+    paths = updater.make_dataset_paths()
+    archive.send(ids, {name: str(path) for name, path in paths.items()})
 
 
 class CCUpdater(Updater, CCMixin):  # pragma: no cover
@@ -251,8 +259,8 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
 
-    def archive(self, paths):
-        archive.send(paths)
+    def archive(self, ids, paths):
+        archive.send(ids, paths)
 
 
 @actor("cc_update", "cc_update", "updates", timedelta(hours=16))

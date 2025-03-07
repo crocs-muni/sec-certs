@@ -1,13 +1,12 @@
 from operator import itemgetter
-from pathlib import Path
-from pprint import pprint
 
 import sentry_sdk
-from flask import abort, current_app, render_template, request, send_file
+from flask import abort, current_app, render_template, request
 from flask_breadcrumbs import register_breadcrumb
 
 from .. import mongo, sitemap
 from ..common.objformats import load
+from ..common.views import send_cacheable_instance_file
 from . import vuln
 
 
@@ -23,27 +22,13 @@ def data():
 
 @vuln.route("/cve/cve.json")
 def cve_dset():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CVE"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="cve.json",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_CVE"], "application/json", "cve.json")
 
 
 @vuln.route("/cve/cve.json.gz")
 def cve_dset_gz():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CVE_COMPRESSED"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="cve.json.gz",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_CVE_COMPRESSED"], "application/gzip", "cve.json.gz"
     )
 
 
@@ -107,27 +92,15 @@ def cve(cve_id):
 
 @vuln.route("/cpe/cpe_match.json")
 def cpe_match_dset():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CPE_MATCH"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="cpe_match.json",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_CPE_MATCH"], "application/json", "cpe_match.json"
     )
 
 
 @vuln.route("/cpe/cpe_match.json.gz")
 def cpe_match_dset_gz():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CPE_MATCH_COMPRESSED"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="cpe_match.json.gz",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_CPE_MATCH_COMPRESSED"], "application/gzip", "cpe_match.json.gz"
     )
 
 
@@ -173,27 +146,13 @@ def cpe(cpe_id):
 
 @vuln.route("/cpe/cpe.json")
 def cpe_dset():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CPE"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="cpe.json",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_CPE"], "application/json", "cpe.json")
 
 
 @vuln.route("/cpe/cpe.json.gz")
 def cpe_dset_gz():
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CPE_COMPRESSED"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="cpe.json.gz",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_CPE_COMPRESSED"], "application/gzip", "cpe.json.gz"
     )
 
 

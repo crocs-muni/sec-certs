@@ -228,7 +228,7 @@ class Updater:  # pragma: no cover
     def reindex(self, to_reindex): ...
 
     @abstractmethod
-    def archive(self, paths): ...
+    def archive(self, ids, paths): ...
 
     def update(self):
         try:
@@ -346,10 +346,11 @@ class Updater:  # pragma: no cover
             mongo.db[self.log_collection].update_one(
                 {"_id": update_result.inserted_id}, {"$set": {"stats.changed_ids": changed_ids}}
             )
+            all_ids = list(map(itemgetter("_id"), mongo.db[self.collection].find({}, {"_id": 1})))
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
-            self.archive({name: str(path) for name, path in paths.items()})
+            self.archive(all_ids, {name: str(path) for name, path in paths.items()})
         except Exception as e:
             # Store the failure in the update log
             end = datetime.now()
@@ -525,7 +526,7 @@ class Archiver:  # pragma: no cover
     │   │   ├── pps
     │   │   │   ├── pdf
     │   │   │   └── txt
-    │   │   └── pp.json
+    │   │   └── dataset.json
     │   └── maintenances            (only CC)
     │       ├── certs
     │       │   ├── reports
@@ -558,7 +559,19 @@ class Archiver:  # pragma: no cover
     └── dataset.json
     """
 
-    def archive(self, path, paths):
+    def map_artifact_dir(self, ids, fromdir, todir):
+        for format in ("pdf", "txt"):
+            src = Path(fromdir) / format
+            dst = Path(todir) / format
+            dst.mkdir(parents=True, exist_ok=True)
+            for id in ids:
+                name = f"{id}.{format}"
+                from_file = src / name
+                to_file = dst / name
+                if from_file.exists():
+                    os.symlink(from_file, to_file)
+
+    def archive(self, ids, path, paths):
         pass
 
 

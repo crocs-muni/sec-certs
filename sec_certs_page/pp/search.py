@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import List, Mapping, Optional, Sequence, Tuple, Union
+from typing import List, Mapping, Optional, Tuple, Union
 
 import pymongo
 import sentry_sdk
+from pymongo.cursor import Cursor
 from werkzeug.datastructures import MultiDict
 
 from .. import mongo
@@ -28,7 +29,9 @@ class PPBasicSearch(BasicSearch):
         return res
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, sort, **kwargs) -> Tuple[Sequence[Mapping], int, List[datetime]]:
+    def select_certs(
+        cls, q, cat, categories, status, sort, **kwargs
+    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
         projection = {
@@ -63,8 +66,8 @@ class PPBasicSearch(BasicSearch):
             query["web_data.security_level._value"] = kwargs["eal"]
 
         with sentry_sdk.start_span(op="mongo", description="Find certs."):
-            cursor = PPBasicSearch.collection.find(query, projection)
-            count = PPBasicSearch.collection.count_documents(query)
+            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+            count: int = cls.collection.count_documents(query)
 
         timeline = [
             (

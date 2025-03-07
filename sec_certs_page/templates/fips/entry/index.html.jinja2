@@ -28,6 +28,8 @@
     <meta property="og:description"
           content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
+    <meta name="description"
+          content="FIPS 140 certificate {{ cert|fips_name|default("", true) }}"/>
 {% endblock %}
 
 {% block left_navigation %}
@@ -135,9 +137,12 @@
                         <tr data-cs-name="Validation dates">
                             <th scope="row">Validation dates</th>
                             <td>
-                                {% for entry in cert["web_data"]["validation_history"] %}
-                                    {{ entry["date"]|strftime("%d.%m.%Y") }}
-                                    {{ ", " if not loop.last else "" }}{% endfor %}</td>
+                            	{% if cert["web_data"]["validation_history"] %}
+	                                {% for entry in cert["web_data"]["validation_history"] %}
+	                                    {{ entry["date"]|strftime("%d.%m.%Y") }}
+	                                    {{ ", " if not loop.last else "" }}{% endfor %}
+                                {% endif %}
+                            </td>
                         </tr>
                         {% if cert["web_data"]["date_sunset"] %}
                             <tr data-cs-name="Sunset date">

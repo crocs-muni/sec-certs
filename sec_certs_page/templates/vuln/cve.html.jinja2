@@ -20,6 +20,8 @@
     <meta property="og:image" content="{{ url_for("static", filename="img/cve_card.png", _external=True) }}"/>
     <meta property="og:description" content="{{ cve["_id"] }}"/>
     <meta property="og:site_name" content="sec-certs.org"/>
+    <meta name="description" content="{{ cve["_id"] }}"/>
+    <meta name="robots" content="noindex"/>
 {% endblock %}
 
 {% block content %}

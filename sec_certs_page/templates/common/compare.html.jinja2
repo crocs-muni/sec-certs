@@ -36,6 +36,10 @@
 {% block title %}
     <title>Comparing certificates | sec-certs.org</title>
 {% endblock %}
+{% block metadata %}
+    {{ super() }}
+    <meta name="robots" content="noindex"/>
+{% endblock %}
 {% block content %}
     <style>
         .left span, .right span {

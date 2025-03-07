@@ -2,11 +2,14 @@ import operator
 import sys
 import time
 from abc import ABC, abstractmethod
+from datetime import datetime
 from functools import reduce
-from typing import ClassVar, Iterable, Mapping, Optional, Set, Tuple, Union
+from typing import ClassVar, Iterable, List, Mapping, Optional, Set, Tuple, Union
 
 import sentry_sdk
 from flask import Request, current_app
+from pymongo.collection import Collection
+from pymongo.cursor import Cursor
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight, query
@@ -159,7 +162,7 @@ class WildcardPlugin(TaggingPlugin):
     # \u055E = Armenian question mark
     # \u061F = Arabic question mark
     # \u1367 = Ethiopic question mark
-    qmarks = "?\u055E\u061F\u1367"
+    qmarks = "?\u055e\u061f\u1367"
     expr = "(?P<text>[*%s])" % qmarks
 
     def filters(self, parser):
@@ -265,7 +268,9 @@ class BasicSearch(ABC):
 
     @classmethod
     @abstractmethod
-    def select_certs(cls, q, cat, categories, status, sort, **kwargs):
+    def select_certs(
+        cls, q, cat, categories, status, sort, **kwargs
+    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
         raise NotImplementedError
 
     @classmethod

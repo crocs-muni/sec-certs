@@ -1,22 +1,18 @@
 """Common Criteria views."""
 
 import random
-import re
 from functools import wraps
 from operator import itemgetter
-from pathlib import Path
 from urllib.parse import urlencode
 
 import pymongo
 import sentry_sdk
-from feedgen.feed import FeedGenerator
-from flask import Response, abort, current_app, redirect, render_template, request, send_file, url_for
+from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from markupsafe import Markup
 from networkx import node_link_data
 from periodiq import cron
-from pytz import timezone
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
@@ -34,7 +30,9 @@ from ..common.views import (
     entry_download_target_txt,
     expires_at,
     network_graph_func,
+    send_cacheable_instance_file,
     send_json_attachment,
+    sitemap_cert_pipeline,
 )
 from . import (
     cc,
@@ -136,56 +134,28 @@ def index():
 @cc.route("/dataset.json")
 def dataset():
     """Common criteria dataset API endpoint."""
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="dataset.json",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_CC_OUT"], "application/json", "dataset.json")
 
 
 @cc.route("/cc.tar.gz")
 def dataset_archive():
     """Common criteria dataset archive API endpoint."""
-    archive_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"]
-    if not archive_path.is_file():
-        return abort(404)
-    return send_file(
-        archive_path,
-        as_attachment=True,
-        mimetype="application/gzip",
-        download_name="cc.tar.gz",
-    )
+    return send_cacheable_instance_file(current_app.config["DATASET_PATH_CC_ARCHIVE"], "application/gzip", "cc.tar.gz")
 
 
 @cc.route("/maintenance_updates.json")
 def maintenance_updates():
     """Common criteria maintenance updates dataset API endpoint."""
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT_MU"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="maintenance_updates.json",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_CC_OUT_MU"], "application/json", "maintenance_updates.json"
     )
 
 
 @cc.route("/schemes.json")
 def schemes():
     """Common criteria scheme dataset API endpoint."""
-    dset_path = Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_OUT_SCHEME"]
-    if not dset_path.is_file():
-        return abort(404)
-    return send_file(
-        dset_path,
-        as_attachment=True,
-        mimetype="application/json",
-        download_name="schemes.json",
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_CC_OUT_SCHEME"], "application/json", "schemes.json"
     )
 
 
@@ -610,5 +580,5 @@ def sitemap_urls():
     yield "cc.search", {}
     yield "cc.fulltext_search", {}
     yield "cc.rand", {}
-    for doc in mongo.db.cc.find({}, {"_id": 1}):
-        yield "cc.entry", {"hashid": doc["_id"]}, None, None, 0.8
+    for doc in mongo.db.cc.aggregate(sitemap_cert_pipeline("cc"), allowDiskUse=True):
+        yield "cc.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8

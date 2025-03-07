@@ -1,11 +1,11 @@
 import pytest
-from common.search.index import index_schema
 from whoosh.filedb.filestore import RamStorage
 from whoosh.index import FileIndex
 from whoosh.reading import IndexReader
 from whoosh.searching import Searcher
 
 from sec_certs_page.common.search.analyzer import FancyAnalyzer
+from sec_certs_page.common.search.index import index_schema
 from sec_certs_page.common.search.query import QueryParser
 
 
