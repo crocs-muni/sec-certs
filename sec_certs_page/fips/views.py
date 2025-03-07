@@ -143,7 +143,7 @@ def search():
 @fips.route("/mergedsearch")
 def mergedSearch():
     searchType = request.args.get("searchType")
-    if(searchType != "byName" and searchType != "fulltext"): # TODO: same logic as cc merged search, should be in some helper function
+    if(searchType != "byName" and searchType != "fulltext"):
         searchType = "byName"
 
     res = {}
@@ -155,7 +155,7 @@ def mergedSearch():
     return render_template(
         "fips/search/merged.html.jinja2",
         **res,
-        title=f"TODO:",
+        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
         searchType=searchType
     )
 
