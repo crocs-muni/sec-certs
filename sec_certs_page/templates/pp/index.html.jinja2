@@ -35,63 +35,41 @@
                 </div>
             </div>
         </div>
-        <div class="row bg-dark p-3">
+        <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Search</h4>
-                                <p class="card-text flex-grow-1">Search and browse through the Protection Profiles and
-                                    our extracted
-                                    metadata.</p>
-                                <div>
-                                    <a href="{{ url_for(".mergedSearch") }}" class="btn btn-primary"><i
-                                            class="fas fa-search fa-fw"></i> Go</a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="row my-5">
+                    <div class="col-6">
+                        <h3>Search</h3>
+                        <p>We are converting all Protection Profiles certificates from PDFs into machine readable format. You can use this website to 
+                        search in our database for any Protection Profile certificate, discover its extracted metadata, filter them and do much more.</p>
+                        <a href="{{ url_for(".mergedSearch") }}" class="btn btn-primary">
+                            Learn More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">References</h4>
-                                <p class="card-text flex-grow-1">Explore an interactive graph of references of Common
-                                    Criteria
-                                    certificates and Protection Profiles.</p>
-                                <div>
-                                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
-                                            class="fas fa-network-wired fa-fw"></i> Go</a>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-6">
+                        <h3>Example</h3>
+                        <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
+                        Don't forget to search for your own certificates later!</p>
+                        <a href="{{ url_for("pp.rand") }}" class="btn btn-outline-primary">
+                            Random certificate
+                        </a>
+                        <a href="{{ url_for(".entry", hashid="62c62b4b4210800e") }}" class="btn btn-primary">
+                            Show example <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Analysis</h4>
-                                <p class="card-text flex-grow-1">View a part of our results of our analysis of the
-                                    Protection Profile
-                                    data.</p>
-                                <div>
-                                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
-                                            class="fas fa-chart-line fa-fw"></i> Go</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Example</h4>
-                                <p class="card-text flex-grow-1">Look at an example Common Criteria Protection
-                                    Profile.</p>
-                                <div>
-                                    <a href="{{ url_for(".entry", hashid="62c62b4b4210800e") }}"
-                                       class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="row p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-6">
+                        <h3>Data</h3>
+                        <p>Want to process all Protection Profiles data on your own? Download our prepared datasets and let's analyse them.</p>
+                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
+                            Learn More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
