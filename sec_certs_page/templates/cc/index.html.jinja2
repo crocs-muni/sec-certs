@@ -28,7 +28,7 @@
         <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
                 <div class="row my-5">
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <h3>Search</h3>
                         <p>We are converting all Common Criteria certificates from PDFs into machine readable format. You can use this website to 
                         search in our database for any Common Criteria certificate, discover its extracted metadata, filter them and do much more.</p>
@@ -36,14 +36,15 @@
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
                         <h3>Example</h3>
                         <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
                         Don't forget to search for your own certificates later!</p>
-                        <a href="{{ url_for("cc.rand") }}" class="btn btn-outline-primary">
+    
+                        <a href="{{ url_for("cc.rand") }}" class="btn btn-outline-primary m-1">
                             Random certificate
                         </a>
-                        <a href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}" class="btn btn-primary">
+                        <a  href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}" class="btn btn-primary m-1">
                             Show example <i class="fa-solid fa-arrow-right"></i>
                         </a>
                         
@@ -54,7 +55,7 @@
         <div class="row p-3">
             <div class="col-12 col-sm-10 mx-auto">
                 <div class="row my-5">
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <h3>Analysis</h3>
                         <p>Which scheme is issuing certificates the most? Which certificate category is the most numerous?
                         You can find answers here and you can also make your own statistics with our prepared datasets.</p>
@@ -62,7 +63,7 @@
                             Learn More <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
                         <h3>References</h3>
                         <p>Wanted to know, what certificates are referencing yours and vice versa? We got you covered. We are automatically adding
                         references between certificates, which then creates big graph of references. You can also see smaller reference graphs in certificate details.</p>
@@ -76,7 +77,7 @@
         <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
                 <div class="row my-5">
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <h3>Data</h3>
                         <p>Want to process all Common Criteria data on your own? Download our prepared datasets and let's analyse them.</p>
                         <a href="{{ url_for(".data") }}" class="btn btn-primary">

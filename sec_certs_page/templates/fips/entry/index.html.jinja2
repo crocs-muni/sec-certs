@@ -44,13 +44,12 @@
 {% endblock %}
 
 
-{% block crumbs_right %}
-    <script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
-{% endblock %}
 {% block content %}
+    <script src="{{ url_for('static', filename='copyLinkToClipboard.js') }}"></script>
+
     <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0">
         <div  class="shifted-section">
-            <div id="web-info" class="col-12 col-sm-10 py-md-5">
+            <div id="web-info" class="col-12 col-sm-10 py-3">
                 <div class="alert alert-warning d-sm-none" role="alert">
                     <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
                 </div>
