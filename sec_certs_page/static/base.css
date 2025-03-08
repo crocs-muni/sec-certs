@@ -26,14 +26,6 @@
   filter: invert(100%) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
 }
 
-[data-bs-theme="dark"] #crocs-logo {
-  filter: invert(100%);
-}
-
-[data-bs-theme="dark"] #muni-logo {
-  filter: invert(80%);
-}
-
 #wrapper {
   overflow-x: hidden;
 }
@@ -323,13 +315,21 @@ h6 {
 #left-navigation {
   position: fixed;
   left: 0px;
-  background-color: var(--bs-white);
   /* background-color: white; */
   width: var(--sidebar-width);
   height: 100vh;
   padding: 10px;
   padding-top: 30px;
 }
+
+[data-bs-theme="light"] #left-navigation {
+  background-color: var(--bs-white);
+}
+
+[data-bs-theme="dark"] #left-navigation {
+  background-color: var(--bs-dark);
+}
+
 
 .shifted-section{
   margin-left: var(--sidebar-width);
@@ -381,6 +381,10 @@ body, html{
   filter: blur(10px);
 }
 
-.bg-darker-light {
+[data-bs-theme="light"] .bg-darker-light {
   background-color: #f0f0f0;
+}
+
+[data-bs-theme="dark"] .bg-darker-light {
+  background-color: #454545;
 }
