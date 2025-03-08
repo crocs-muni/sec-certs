@@ -1,6 +1,6 @@
 {% macro compare_icon() %}
-    <span id="compare">
-        <button id="compare-icon" class="btn btn-secondary" title="Compare certificates"
+    <span id="compare" class="position-relative d-inline-block">
+        <button id="compare-icon" class="btn btn-secondary text-nowrap" title="Compare certificates"
                 data-bs-toggle="modal" data-bs-target="#compare-modal">
             <i class="fas fa-fw fa-scale-balanced" aria-hidden="true"></i>
             <span id="compare-pill"
@@ -13,8 +13,8 @@
     </span>
 {% endmacro %}
 {% macro notification_icon() %}
-    <span id="notifications">
-        <button id="notification-icon" class="btn btn-secondary" title="Notifications"
+    <span id="notifications" class="position-relative d-inline-block">
+        <button id="notification-icon" class="btn btn-secondary text-nowrap" title="Notifications"
                 data-bs-toggle="modal" data-bs-target="#notification-modal">
             <i class="fas fa-fw fa-envelope" aria-hidden="true"></i>
             <span id="notification-pill"

@@ -81,35 +81,37 @@
                             <span style="margin-left: 20px">You can also examine other <a href="#similar">similar certificates</a> below.</span>
                         </div>
                     {% endif %}
-
-                        {{ compare_icon() }}
-                        {{ notification_icon() }}
-                        <span class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                <i class="fa-solid fa-share"></i> Share
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="#" data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link</span></a>
-                                </li>
-                                {% if cert["heuristics"]["cert_id"] %}
+                        
+                        <div class="d-flex gap-3 flex-wrap">
+                            {{ compare_icon() }}
+                            {{ notification_icon() }}
+                            <span class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                    <i class="fa-solid fa-share"></i> Share
+                                </button>
+                                <ul class="dropdown-menu">
                                     <li>
-                                        <a href="#" data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)" 
-                                        class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span></a>
+                                        <a href="#" data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link</span></a>
                                     </li>
-                                {% endif %}                
+                                    {% if cert["heuristics"]["cert_id"] %}
+                                        <li>
+                                            <a href="#" data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)"
+                                            class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span></a>
+                                        </li>
+                                    {% endif %}
                             
-                                {% if cert["name"] %}
-                                    <li>
-                                        <a href="#" data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="dropdown-item"> 
-                                            <span>
-                                                <i class="fa-regular fa-clipboard"></i> Copy link by certificate name
-                                            </span>
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </span>
+                                    {% if cert["name"] %}
+                                        <li>
+                                            <a href="#" data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="dropdown-item">
+                                                <span>
+                                                    <i class="fa-regular fa-clipboard"></i> Copy link by certificate name
+                                                </span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </span>
+                        </div>
 
                     <div class="row pt-5"  >
                         <div class="col-12 col-md-6" >
@@ -618,7 +620,7 @@
                     {% else %}
                         <div class="border rounded">
                             <div id="network"></div>
-                            <div id="network-skeleton" class="container d-flex justify-content-center align-items-center">
+                            <div id="network-skeleton" class="d-flex justify-content-center align-items-center">
                                         <button id="show-network-btn" class="btn btn-primary">Click to load the graph of references</button>
                                         <div id="network-loading" class="d-none spinner-border" role="status">
                                             <span class="sr-only">Loading...</span>

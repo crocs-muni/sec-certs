@@ -44,25 +44,6 @@
   padding-right: 50px; */
 }
 
-#compare {
-  font-size: small !important;
-  position: relative;
-  margin: 15px;
-}
-
-#compare-icon {
-  padding: 0.175rem 0.5rem;
-}
-
-#notifications {
-  font-size: small !important;
-  position: relative;
-  margin: 15px
-}
-
-#notification-icon {
-  padding: 0.175rem 0.5rem;
-}
 
 #up-top-icon {
   font-size: small !important;
