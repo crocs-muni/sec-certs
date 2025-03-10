@@ -1,5 +1,7 @@
 annotated-types==0.7.0
     # via pydantic
+appnope==0.1.4
+    # via ipykernel
 asttokens==3.0.0
     # via stack-data
 attrs==25.1.0
@@ -60,10 +62,6 @@ deprecated==1.2.18
     # via pikepdf
 distro==1.9.0
     # via tabula-py
-exceptiongroup==1.2.2
-    # via
-    #   ipython
-    #   pytest
 executing==2.2.0
     # via stack-data
 fonttools==4.56.0
@@ -76,15 +74,17 @@ iniconfig==2.0.0
     # via pytest
 ipykernel==6.29.5
     # via sec-certs (../pyproject.toml)
-ipython==8.33.0
+ipython==9.0.2
     # via
     #   ipykernel
     #   ipywidgets
+ipython-pygments-lexers==1.1.1
+    # via ipython
 ipywidgets==8.1.5
     # via sec-certs (../pyproject.toml)
 jedi==0.19.2
     # via ipython
-jinja2==3.1.5
+jinja2==3.1.6
     # via spacy
 joblib==1.4.2
     # via scikit-learn
@@ -218,6 +218,7 @@ pydantic-settings==2.8.1
 pygments==2.19.1
     # via
     #   ipython
+    #   ipython-pygments-lexers
     #   rich
 pyparsing==3.2.1
     # via matplotlib
@@ -313,11 +314,6 @@ thinc==8.2.5
     # via spacy
 threadpoolctl==3.5.0
     # via scikit-learn
-tomli==2.2.1
-    # via
-    #   coverage
-    #   pytest
-    #   setuptools-scm
 tornado==6.4.2
     # via
     #   ipykernel
@@ -342,17 +338,14 @@ typer==0.15.2
 typing-extensions==4.12.2
     # via
     #   beautifulsoup4
-    #   cloudpathlib
     #   ipython
     #   pydantic
     #   pydantic-core
-    #   pypdf
     #   referencing
-    #   rich
     #   typer
 tzdata==2025.1
     # via pandas
-tzlocal==5.3
+tzlocal==5.3.1
     # via dateparser
 urllib3==2.3.0
     # via requests

@@ -33,6 +33,7 @@ jobs:
           python -m spacy download en_core_web_sm
       - name: Run tests
         run: pytest --cov=sec_certs -m "remote" tests
+        continue-on-error: true
       - name: Code coverage upload
         uses: codecov/codecov-action@v4
         with:

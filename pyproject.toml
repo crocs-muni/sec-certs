@@ -94,7 +94,9 @@
       "scikit-learn",
       "sentence-transformers",
       "nltk",
-      "sqlite-vec"
+      "sqlite-vec",
+      "openai",
+      "pyarrow"
     ]
 
   [project.urls]

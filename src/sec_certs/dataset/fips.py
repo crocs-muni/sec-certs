@@ -68,10 +68,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         super().__init__(certs, root_dir, name, description, state, aux_handlers)
         if aux_handlers is None:
             self.aux_handlers = {
-                CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir),
-                CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir),
-                FIPSAlgorithmDatasetHandler: FIPSAlgorithmDatasetHandler(self.auxiliary_datasets_dir),
-                CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir),
+                CPEDatasetHandler: CPEDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+                CVEDatasetHandler: CVEDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+                FIPSAlgorithmDatasetHandler: FIPSAlgorithmDatasetHandler(
+                    self.auxiliary_datasets_dir if self.is_backed else None
+                ),
+                CPEMatchDictHandler: CPEMatchDictHandler(self.auxiliary_datasets_dir if self.is_backed else None),
             }
 
     LIST_OF_CERTS_HTML: Final[dict[str, str]] = {
