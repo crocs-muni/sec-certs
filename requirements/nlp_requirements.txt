@@ -20,6 +20,8 @@ appnope==0.1.4
     # via ipykernel
 asttokens==3.0.0
     # via stack-data
+async-timeout==5.0.1
+    # via aiohttp
 attrs==25.1.0
     # via
     #   aiohttp
@@ -113,6 +115,10 @@ distro==1.9.0
     #   tabula-py
 evaluate==0.4.3
     # via setfit
+exceptiongroup==1.2.2
+    # via
+    #   anyio
+    #   ipython
 executing==2.2.0
     # via stack-data
 filelock==3.17.0
@@ -164,12 +170,10 @@ imageio==2.37.0
     # via scikit-image
 ipykernel==6.29.5
     # via sec-certs (../pyproject.toml)
-ipython==9.0.2
+ipython==8.34.0
     # via
     #   ipykernel
     #   ipywidgets
-ipython-pygments-lexers==1.1.1
-    # via ipython
 ipywidgets==8.1.5
     # via sec-certs (../pyproject.toml)
 jedi==0.19.2
@@ -430,7 +434,6 @@ pydantic-settings==2.8.1
 pygments==2.19.1
     # via
     #   ipython
-    #   ipython-pygments-lexers
     #   rich
 pynndescent==0.5.13
     # via umap-learn
@@ -583,6 +586,8 @@ tifffile==2025.2.18
     # via scikit-image
 tokenizers==0.21.0
     # via transformers
+tomli==2.2.1
+    # via setuptools-scm
 toolz==1.0.0
     # via datashader
 torch==2.6.0
@@ -630,13 +635,17 @@ typing-extensions==4.12.2
     #   alembic
     #   anyio
     #   beautifulsoup4
+    #   cloudpathlib
     #   huggingface-hub
     #   ipython
+    #   multidict
     #   openai
     #   panel
     #   pydantic
     #   pydantic-core
+    #   pypdf
     #   referencing
+    #   rich
     #   sqlalchemy
     #   torch
     #   typer
