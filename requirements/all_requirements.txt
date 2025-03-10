@@ -2,7 +2,7 @@ accelerate==1.4.0
     # via sentence-transformers
 accessible-pygments==0.0.5
     # via pydata-sphinx-theme
-aiohappyeyeballs==2.4.6
+aiohappyeyeballs==2.5.0
     # via aiohttp
 aiohttp==3.11.13
     # via
@@ -12,7 +12,7 @@ aiosignal==1.3.2
     # via aiohttp
 alabaster==1.0.0
     # via sphinx
-alembic==1.14.1
+alembic==1.15.1
     # via optuna
 annotated-types==0.7.0
     # via pydantic
@@ -20,6 +20,8 @@ anyio==4.8.0
     # via
     #   httpx
     #   openai
+appnope==0.1.4
+    # via ipykernel
 asttokens==3.0.0
     # via stack-data
 async-timeout==5.0.1
@@ -70,10 +72,11 @@ charset-normalizer==3.4.1
 click==8.1.8
     # via
     #   jupyter-cache
+    #   nltk
     #   pip-tools
     #   sec-certs (../pyproject.toml)
     #   typer
-cloudpathlib==0.20.0
+cloudpathlib==0.21.0
     # via weasel
 colorcet==3.1.0
     # via
@@ -98,7 +101,7 @@ coverage[toml]==7.6.12
     # via
     #   pytest-cov
     #   sec-certs (../pyproject.toml)
-cryptography==44.0.1
+cryptography==44.0.2
     # via pypdf
 cycler==0.12.1
     # via matplotlib
@@ -117,7 +120,7 @@ datashader==0.17.0
     # via umap-learn
 dateparser==1.2.1
     # via sec-certs (../pyproject.toml)
-debugpy==1.8.12
+debugpy==1.8.13
     # via ipykernel
 decorator==5.2.1
     # via ipython
@@ -173,8 +176,6 @@ gprof2dot==2024.6.6
     # via pytest-profiling
 graphviz==0.20.3
     # via catboost
-greenlet==3.1.1
-    # via sqlalchemy
 h11==0.14.0
     # via httpcore
 holoviews==1.20.1
@@ -185,7 +186,7 @@ httpcore==1.0.7
     # via httpx
 httpx==0.28.1
     # via openai
-huggingface-hub==0.29.1
+huggingface-hub==0.29.2
     # via
     #   accelerate
     #   datasets
@@ -194,7 +195,7 @@ huggingface-hub==0.29.1
     #   setfit
     #   tokenizers
     #   transformers
-identify==2.6.8
+identify==2.6.9
     # via pre-commit
 idna==3.10
     # via
@@ -216,7 +217,7 @@ ipykernel==6.29.5
     # via
     #   myst-nb
     #   sec-certs (../pyproject.toml)
-ipython==8.32.0
+ipython==8.34.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -237,6 +238,7 @@ jiter==0.8.2
     # via openai
 joblib==1.4.2
     # via
+    #   nltk
     #   pynndescent
     #   scikit-learn
 jsonschema==4.23.0
@@ -293,7 +295,7 @@ markupsafe==3.0.2
     # via
     #   jinja2
     #   mako
-matplotlib==3.10.0
+matplotlib==3.10.1
     # via
     #   catboost
     #   pysankeybeta
@@ -337,7 +339,7 @@ myst-nb==1.2.0
     # via sec-certs (../pyproject.toml)
 myst-parser==4.0.1
     # via myst-nb
-narwhals==1.28.0
+narwhals==1.29.1
     # via plotly
 nbclient==0.10.2
     # via
@@ -355,6 +357,8 @@ networkx==3.4.2
     #   scikit-image
     #   sec-certs (../pyproject.toml)
     #   torch
+nltk==3.9.1
+    # via sec-certs (../pyproject.toml)
 nodeenv==1.9.1
     # via pre-commit
 numba==0.61.0
@@ -391,41 +395,7 @@ numpy==1.26.4
     #   transformers
     #   umap-learn
     #   xarray
-nvidia-cublas-cu12==12.4.5.8
-    # via
-    #   nvidia-cudnn-cu12
-    #   nvidia-cusolver-cu12
-    #   torch
-nvidia-cuda-cupti-cu12==12.4.127
-    # via torch
-nvidia-cuda-nvrtc-cu12==12.4.127
-    # via torch
-nvidia-cuda-runtime-cu12==12.4.127
-    # via torch
-nvidia-cudnn-cu12==9.1.0.70
-    # via torch
-nvidia-cufft-cu12==11.2.1.3
-    # via torch
-nvidia-curand-cu12==10.3.5.147
-    # via torch
-nvidia-cusolver-cu12==11.6.1.9
-    # via torch
-nvidia-cusparse-cu12==12.3.1.170
-    # via
-    #   nvidia-cusolver-cu12
-    #   torch
-nvidia-cusparselt-cu12==0.6.2
-    # via torch
-nvidia-nccl-cu12==2.21.5
-    # via torch
-nvidia-nvjitlink-cu12==12.4.127
-    # via
-    #   nvidia-cusolver-cu12
-    #   nvidia-cusparse-cu12
-    #   torch
-nvidia-nvtx-cu12==12.4.127
-    # via torch
-openai==1.64.0
+openai==1.65.5
     # via sec-certs (../pyproject.toml)
 optuna==4.2.1
     # via sec-certs (../pyproject.toml)
@@ -556,7 +526,7 @@ pydantic==2.10.6
     #   weasel
 pydantic-core==2.27.2
     # via pydantic
-pydantic-settings==2.8.0
+pydantic-settings==2.8.1
     # via sec-certs (../pyproject.toml)
 pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
@@ -571,7 +541,7 @@ pynndescent==0.5.13
     # via umap-learn
 pyparsing==3.2.1
     # via matplotlib
-pypdf[crypto]==5.3.0
+pypdf[crypto]==5.3.1
     # via sec-certs (../pyproject.toml)
 pyproject-hooks==1.2.0
     # via
@@ -581,7 +551,7 @@ pysankeybeta==1.4.2
     # via sec-certs (../pyproject.toml)
 pytesseract==0.3.13
     # via sec-certs (../pyproject.toml)
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   pytest-cov
     #   pytest-monitor
@@ -627,7 +597,7 @@ pyzmq==26.2.1
     # via
     #   ipykernel
     #   jupyter-client
-rapidfuzz==3.12.1
+rapidfuzz==3.12.2
     # via sec-certs (../pyproject.toml)
 referencing==0.36.2
     # via
@@ -636,6 +606,7 @@ referencing==0.36.2
 regex==2024.11.6
     # via
     #   dateparser
+    #   nltk
     #   transformers
 requests==2.32.3
     # via
@@ -687,7 +658,9 @@ seaborn==0.13.2
     #   sec-certs (../pyproject.toml)
     #   umap-learn
 sentence-transformers[train]==3.4.1
-    # via setfit
+    # via
+    #   sec-certs (../pyproject.toml)
+    #   setfit
 setfit==1.1.1
     # via sec-certs (../pyproject.toml)
 setuptools-scm==8.2.0
@@ -748,6 +721,8 @@ sqlalchemy==2.0.38
     #   alembic
     #   jupyter-cache
     #   optuna
+sqlite-vec==0.1.6
+    # via sec-certs (../pyproject.toml)
 srsly==2.5.1
     # via
     #   confection
@@ -795,6 +770,7 @@ tqdm==4.67.1
     #   datasets
     #   evaluate
     #   huggingface-hub
+    #   nltk
     #   openai
     #   optuna
     #   panel
@@ -818,9 +794,7 @@ transformers==4.49.0
     # via
     #   sentence-transformers
     #   setfit
-triton==3.2.0
-    # via torch
-typer==0.15.1
+typer==0.15.2
     # via
     #   spacy
     #   weasel
@@ -828,7 +802,7 @@ types-python-dateutil==2.9.0.20241206
     # via sec-certs (../pyproject.toml)
 types-pyyaml==6.0.12.20241230
     # via sec-certs (../pyproject.toml)
-types-requests==2.32.0.20241016
+types-requests==2.32.0.20250306
     # via sec-certs (../pyproject.toml)
 typing-extensions==4.12.2
     # via
@@ -854,7 +828,7 @@ typing-extensions==4.12.2
     #   typer
 tzdata==2025.1
     # via pandas
-tzlocal==5.3
+tzlocal==5.3.1
     # via dateparser
 uc-micro-py==1.0.3
     # via linkify-it-py
@@ -864,7 +838,7 @@ urllib3==2.3.0
     # via
     #   requests
     #   types-requests
-virtualenv==20.29.2
+virtualenv==20.29.3
     # via pre-commit
 wasabi==1.1.3
     # via
