@@ -23,7 +23,7 @@
 {% block left_navigation %}
     <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
         <h4>Sections</h4>
-        <a class="list-group-item list-group-item-action" href="#csv-info">CSV</a>
+        <a class="list-group-item list-group-item-action" href="#csv-info">Certificate summary</a>
         <a class="list-group-item list-group-item-action" href="#cert-info">Certificate</a>
         <a class="list-group-item list-group-item-action" href="#report-info">Certification report</a>
         <a class="list-group-item list-group-item-action" href="#st-info">Security target</a>
@@ -235,7 +235,7 @@
                                 <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
                                     class="badge bg-secondary"
                                     data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Information automatically extracted from the certificate and security target documents. Might contain errors.">?</span>
+                                    title="Information automatically extracted from the certificate and security target documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
                             </h2>
 
                             {% if cert["heuristics"]["cert_id"] %}

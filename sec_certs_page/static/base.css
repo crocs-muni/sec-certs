@@ -388,3 +388,7 @@ body, html{
 [data-bs-theme="dark"] .bg-darker-light {
   background-color: #454545;
 }
+
+.flex-basis-0 {
+  flex-basis: 0px;
+}
