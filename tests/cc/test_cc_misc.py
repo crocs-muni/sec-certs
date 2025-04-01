@@ -30,6 +30,7 @@ def test_canonicalize_fr(n):
 def test_canonicalize_de(n):
     assert canonicalize_n(n, "BSI-DSZ-CC-0420-2007", "DE") == "BSI-DSZ-CC-0420-2007"
     assert canonicalize_n(n, "BSI-DSZ-CC-1004", "DE") == "BSI-DSZ-CC-1004"
+    assert canonicalize_n(n, "BSI_DSZ_CC_0348_2006", "DE") == "BSI-DSZ-CC-0348-2006"
     assert canonicalize_n(n, "BSI-DSZ-CC-0831-V4-2021", "DE") == "BSI-DSZ-CC-0831-V4-2021"
     assert canonicalize_n(n, "BSI-DSZ-CC-0837-V2-2014-MA-01", "DE") == "BSI-DSZ-CC-0837-V2-2014-MA-01"
 
