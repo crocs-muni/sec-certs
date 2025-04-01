@@ -736,7 +736,7 @@ crypto_scheme:
 #####
 crypto_protocol:
   SSH:
-    - "SSH"
+    - "SSH(v[0-9])?"
   TLS:
     SSL:
       - "SSL( ?v?[123]\\.0)?"
@@ -760,7 +760,7 @@ crypto_protocol:
 #####
 randomness:
   DUAL_EC:
-    - "DUAL_EC_DRBG"
+    - "DUAL[ _]EC[ _]DRBG"
   TRNG:
     - "D?TRNG"
   PRNG:
@@ -841,10 +841,11 @@ crypto_engine:
   TORNADO:
     - "TORNADO"
   SmartMX:
-    - "SmartMX2?"
+    - "SmartMX[0-9]?"
   NexCrypt:
     - "NexCrypt"
-
+  NesCrypt:
+    - "(NESCRYPT|Nescrypt)"
 #####
 # TLS cipher suite name.
 #####
