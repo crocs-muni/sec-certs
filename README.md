@@ -19,6 +19,8 @@ Two publications accompany this project:
 > [!NOTE]
 > - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2024). **sec-certs: Examining the security certification practice for better vulnerability mitigation**. *Computers & Security, 143*. https://doi.org/10.1016/j.cose.2024.103895
 > - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., Matyas, V. (2024). **Chain of Trust: Unraveling References Among Common Criteria Certified Products**. In: Pitropakis, N., Katsikas, S., Furnell, S., Markantonakis, K. (eds) ICT Systems Security and Privacy Protection. SEC 2024. IFIP Advances in Information and Communication Technology, vol 710. Springer, Cham. https://doi.org/10.1007/978-3-031-65175-5_14
+> - Janovsky, A., Chmielewski, Ł., Svenda, P., Jancar, J., Matyas, V. (2025) **Revisiting the analysis of references among Common Criteria certified products**. *Computers & Security, 152*. https://doi.org/10.1016/j.cose.2025.104362
+
 
 ## Installation
 
