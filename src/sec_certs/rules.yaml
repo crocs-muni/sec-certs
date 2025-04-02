@@ -5,7 +5,7 @@
 #####
 cc_cert_id:
   DE:
-    - "BSI-DSZ-CC-(?:(?P<s>S)-)?(?P<counter>[0-9]{3,5})-?(?:(?P<version>[vV][0-9])-)?(?P<year>[0-9]{4})?(?:-(?P<doc>(?:RA|MA)(?:-[0-9]+)?))?"
+    - "BSI[-_]DSZ[-_]CC[-_](?:(?P<s>S)[-_])?(?P<counter>[0-9]{3,5})[-_]?(?:(?P<version>[vV][0-9])[-_])?(?P<year>[0-9]{4})?(?:[-_](?P<doc>(?:RA|MA)(?:[-_][0-9]+)?))?"
     # Examples:
     # BSI-DSZ-CC-1004
     # BSI-DSZ-CC-0973-2016
@@ -736,7 +736,7 @@ crypto_scheme:
 #####
 crypto_protocol:
   SSH:
-    - "SSH"
+    - "SSH(v[0-9])?"
   TLS:
     SSL:
       - "SSL( ?v?[123]\\.0)?"
@@ -760,7 +760,7 @@ crypto_protocol:
 #####
 randomness:
   DUAL_EC:
-    - "DUAL_EC_DRBG"
+    - "DUAL[ _]EC[ _]DRBG"
   TRNG:
     - "D?TRNG"
   PRNG:
@@ -841,10 +841,11 @@ crypto_engine:
   TORNADO:
     - "TORNADO"
   SmartMX:
-    - "SmartMX2?"
+    - "SmartMX[0-9]?"
   NexCrypt:
     - "NexCrypt"
-
+  NesCrypt:
+    - "(NESCRYPT|Nescrypt)"
 #####
 # TLS cipher suite name.
 #####
