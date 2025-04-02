@@ -14,7 +14,7 @@ A tool for data scraping and analysis of security certificates from Common Crite
 
 ## Papers
 
-Two publications accompany this project:
+Three publications accompany this project:
 
 > [!NOTE]
 > - Janovsky, A., Jancar, J., Svenda, P., Chmielewski, Ł., Michalik, J., & Matyas, V. (2024). **sec-certs: Examining the security certification practice for better vulnerability mitigation**. *Computers & Security, 143*. https://doi.org/10.1016/j.cose.2024.103895
