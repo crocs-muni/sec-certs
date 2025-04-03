@@ -32,6 +32,11 @@ jobs:
           python -m spacy download en_core_web_sm
       - name: Run tests
         run: pytest --cov=sec_certs -m "not remote" --junitxml=junit.xml -o junit_family=legacy tests
+      - name: Test summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: junit.xml
       - name: Code coverage upload
         uses: codecov/codecov-action@v4
         with:
