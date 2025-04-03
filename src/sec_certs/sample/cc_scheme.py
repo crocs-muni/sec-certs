@@ -1407,7 +1407,7 @@ def get_poland_ineval() -> list[dict[str, Any]]:
     soup = _get_page(constants.CC_POLAND_INEVAL_URL)
     accordion = soup.find("div", class_="gs-accordion")
     results = []
-    for div in tqdm(accordion.find_all("div", class_="gs-accordion-item"), desc="Get PL scheme certified."):
+    for div in tqdm(accordion.find_all("div", class_="gs-accordion-item"), desc="Get PL scheme in evaluation."):
         head = sns(div.find("div", class_="gs-accordion-item__heading").text)
         cert = {"client": head}
         for row in div.find_all("div", class_="gspb_row"):
