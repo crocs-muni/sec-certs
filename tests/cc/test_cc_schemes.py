@@ -143,7 +143,6 @@ def test_poland():
     assert len(certified) != 0
     assert absolute_urls(certified)
     ineval = CCSchemes.get_poland_ineval()
-    print(ineval)
     assert len(ineval) != 0
     assert absolute_urls(ineval)
 
