@@ -1345,7 +1345,7 @@ def get_korea_archived(enhanced: bool = True, artifacts: bool = False) -> list[d
     )
 
 
-def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
+def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
     """
     Get Polish "certified product" entries.
 
@@ -1353,33 +1353,47 @@ def get_poland_certified(artifacts: bool = False) -> list[dict[str, Any]]:
     :return: The entries.
     """
     soup = _get_page(constants.CC_POLAND_CERTIFIED_URL)
-    table = soup.find("table", class_="cert_tb")
+    accordion = soup.find("div", class_="gs-accordion")
     results = []
-    for tr in tqdm(table.find_all("tr")[1:], desc="Get PL scheme certified."):
-        tds = tr.find_all("td")
-        cert = {
-            "client": sns(tds[0].text),
-            "product": sns(tds[1].text),
-            "certification_date": parse_date(sns(tds[4].text), "%d.%m.%Y"),
-            "expiration_date": parse_date(sns(tds[5].text), "%d.%m.%Y"),
-        }
-        cc_entry = sns(tds[2].text)
-        cc_split = None
-        if cc_entry and "\n" in cc_entry:
-            cc_split = cc_entry.split("\n")
-        elif cc_entry and "," in cc_entry:
-            cc_split = cc_entry.split(",")
-        if cc_split:
-            cert["cc_version"] = cc_split[0].strip()
-            cert["assurance_level"] = ", ".join(cc_split[1:]).strip()
-
-        for name, i in (("report", 6), ("target", 7), ("cert", 8)):
-            a = tds[i].find("a")
-            if a:
-                href = urljoin(constants.CC_POLAND_BASE_URL, a["href"])
-                cert[f"{name}_link"] = href
+    for div in tqdm(accordion.find_all("div", class_="gs-accordion-item"), desc="Get PL scheme certified."):
+        head = sns(div.find("div", class_="gs-accordion-item__heading").text)
+        cert = {"product": head}
+        for row in div.find_all("div", class_="gspb_row"):
+            ps = list(row.find_all("p"))
+            label = sns(ps[0].text)
+            val = sns(ps[1].text)
+            a = ps[1].find("a")
+            href = urljoin(constants.CC_POLAND_BASE_URL, a["href"]) if a else None
+            if label == "Client’s name and address":
+                cert["client"] = val
+            elif label == "Certification scope":
+                cc_entry = val
+                cc_split = None
+                if cc_entry and "\n" in cc_entry:
+                    cc_split = cc_entry.split("\n")
+                elif cc_entry and "," in cc_entry:
+                    cc_split = cc_entry.split(",")
+                if cc_split:
+                    cert["cc_version"] = cc_split[0].strip()
+                    cert["assurance_level"] = ", ".join(cc_split[1:]).strip()
+            elif label == "Certificate decision date":
+                cert["decision_date"] = parse_date(val, "%d.%m.%Y")
+            elif label == "Certificate issue date":
+                cert["certification_date"] = parse_date(val, "%d.%m.%Y")
+            elif label == "End of validity":
+                cert["expiration_date"] = parse_date(val, "%d.%m.%Y")
+            elif label == "Certification Report" and href:
+                cert["report_link"] = href
                 if artifacts:
-                    cert[f"{name}_hash"] = _get_hash(href)
+                    cert["report_hash"] = _get_hash(href)
+            elif label == "Security Target" and href:
+                cert["target_link"] = href
+                if artifacts:
+                    cert["target_hash"] = _get_hash(href)
+            elif label == "Certificate" and href:
+                cert["cert_link"] = href
+                if artifacts:
+                    cert["cert_hash"] = _get_hash(href)
         results.append(cert)
     return results
 
@@ -1391,23 +1405,28 @@ def get_poland_ineval() -> list[dict[str, Any]]:
     :return: The entries.
     """
     soup = _get_page(constants.CC_POLAND_INEVAL_URL)
-    table = soup.find("table", class_="cert_tb")
+    accordion = soup.find("div", class_="gs-accordion")
     results = []
-    for tr in tqdm(table.find_all("tr")[1:], desc="Get PL scheme in evaluation."):
-        tds = tr.find_all("td")
-        cert = {
-            "client": sns(tds[0].text),
-            "product": sns(tds[1].text),
-        }
-        cc_entry = sns(tds[2].text)
-        cc_split = None
-        if cc_entry and "\n" in cc_entry:
-            cc_split = cc_entry.split("\n")
-        elif cc_entry and "," in cc_entry:
-            cc_split = cc_entry.split(",")
-        if cc_split:
-            cert["cc_version"] = cc_split[0].strip()
-            cert["assurance_level"] = ", ".join(cc_split[1:]).strip()
+    for div in tqdm(accordion.find_all("div", class_="gs-accordion-item"), desc="Get PL scheme certified."):
+        head = sns(div.find("div", class_="gs-accordion-item__heading").text)
+        cert = {"client": head}
+        for row in div.find_all("div", class_="gspb_row"):
+            one = row.find("div", class_="gspb_row__content")
+            ps = list(one.find_all("div", recursive=False))
+            label = sns(ps[0].text)
+            val = sns(ps[1].text)
+            if label == "Product, version":
+                cert["product"] = val
+            elif label == "Certification scope":
+                cc_entry = val
+                cc_split = None
+                if cc_entry and "\n" in cc_entry:
+                    cc_split = cc_entry.split("\n")
+                elif cc_entry and "," in cc_entry:
+                    cc_split = cc_entry.split(",")
+                if cc_split:
+                    cert["cc_version"] = cc_split[0].strip()
+                    cert["assurance_level"] = ", ".join(cc_split[1:]).strip()
         results.append(cert)
     return results
 
