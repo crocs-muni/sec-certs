@@ -37,6 +37,7 @@ jobs:
         uses: test-summary/action@v2
         with:
           paths: junit.xml
+          show: "fail, skip"
       - name: Code coverage upload
         uses: codecov/codecov-action@v4
         with:
