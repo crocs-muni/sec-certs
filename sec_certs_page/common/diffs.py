@@ -456,8 +456,10 @@ def diff_fips_validation_history():
         return a == b
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
+        if a is None:
+            return Markup("")
         items = []
-        for update_a, update_b in zip(a, b):
+        for update_a, update_b in zip_longest(a, b if b is not None else []):
             items.append(render_dict(update_a, update_b, metas=metas))
         return Markup("<hr/>\n".join(items))
 
@@ -687,7 +689,7 @@ cc_diff_method = {
             "indirectly_referenced_by": diff_set(diff_cc_cert_id()),
             "indirectly_referencing": diff_set(diff_cc_cert_id()),
         },
-        "protection_profiles": diff_set(diff_pp_dgst())
+        "protection_profiles": diff_set(diff_pp_dgst()),
     },
     "maintenance_updates": diff_cc_mus(),
     "protection_profiles": diff_cc_pps_old(),
