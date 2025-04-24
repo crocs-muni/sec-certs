@@ -141,7 +141,7 @@ fsspec[http]==2024.12.0
     #   torch
 graphviz==0.20.3
     # via catboost
-h11==0.14.0
+h11==0.16.0
     # via httpcore
 holoviews==1.20.1
     # via umap-learn
