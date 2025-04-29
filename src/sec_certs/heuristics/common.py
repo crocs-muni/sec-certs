@@ -5,8 +5,6 @@ import logging
 import re
 from collections.abc import Iterable
 
-from tqdm import tqdm
-
 from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.cpe import CPEDataset
@@ -19,6 +17,7 @@ from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.utils.profiling import staged
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
