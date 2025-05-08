@@ -40,6 +40,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
+from .common.dash.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration
 
@@ -139,6 +140,11 @@ public(menu=menu)
 breadcrumbs: Breadcrumbs = Breadcrumbs(app)
 public(breadcrumbs=breadcrumbs)
 
+dash: Dash = Dash(server=app, routes_pathname_prefix="/dash/", use_pages=True, pages_folder="")
+public(dash=dash)
+# This Dash view uses a POST and CSRFProtect is messing it up otherwise.
+csrf.exempt("dash.dash.dispatch")
+
 
 class Sitemap(FlaskSitemap):
     @cache.memoize(args_to_ignore=("self",), timeout=3600 * 24 * 7)
@@ -195,6 +201,7 @@ with app.app_context():
     app.register_blueprint(vuln)
     app.register_blueprint(docs)
 
+from .dash import *
 from .jinja import *
 from .tasks import *
 from .views import *
