@@ -1,6 +1,5 @@
-{% extends "common/crowdsourced.html.jinja2" %}
+{% extends "common/base.html.jinja2" %}
 {% set crumbs = True %}
-{% set search = True %}
 {% set canonical = True %}
 {% block title %}
     <title>Common Criteria analysis | sec-certs.org</title>
@@ -18,7 +17,7 @@
             </div>
             <h1 class="mb-4">Common Criteria</h1>
             <p class="lead">This is a very basic showcase of some of our statistics.
-                For more, see our <a href="{{ url_for("about", _anchor="research") }}">research</a> and
+                For more, see our <a href="{{ url_for("about.index", _anchor="research") }}">research</a> and
                 the <a href="{{ url_for("docs.serve_docs", path="notebooks/examples/est_solution.html") }}">notebooks</a> in our
                 documentation.
             </p>
