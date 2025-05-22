@@ -37,6 +37,8 @@ For the first step, we currently provide CLI. For the second step, we provide si
 
 More elaborate usage is described in [docs/quickstart](https://sec-certs.org/docs/quickstart.html). Also, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples) either at GitHub or at docs. From docs, you can also run our notebooks in Binder.
 
+If you are looking for the sources of the web-page at [sec-certs.org](https://sec-certs.org) look into the [page](https://github.com/crocs-muni/sec-certs/tree/page) branch of this repository.
+
 ## Data scraping
 
 Run `sec-certs cc all` for Common Criteria processing, `sec-certs fips all` for FIPS 140 processing.
