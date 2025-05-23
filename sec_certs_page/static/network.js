@@ -439,3 +439,14 @@ export function createNetwork(element_id, data_url, types_url, status_url, refTy
     });
 
 }
+
+export async function loadNetwork(){
+    return createNetwork('network',
+        '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
+        '{{ url_for(".types") }}',
+        '{{ url_for(".statuses") }}',
+        '{{ url_for(".reference_types") }}',
+        600,
+        300,
+        false);
+}
