@@ -332,10 +332,6 @@ h6 {
   justify-content: space-between;
 }
 
-body, html{
-  height: 100vh;
-}
-
 #network-skeleton{
   height: 300px; 
   overflow: auto;
