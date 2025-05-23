@@ -18,3 +18,13 @@ async function copyLinkToClipboard (linkObj) {
         console.error("Failed to copy to clipboard:", error);
     }
 };
+
+function copyToClipboard() {
+    var text = getSelectionText();
+    if (!text || text.length == 0) {
+        selectText($(this));
+        var success = document.execCommand("copy");
+        if (!success)
+            console.error("failed to copy text to clipboard :(")
+    }
+}

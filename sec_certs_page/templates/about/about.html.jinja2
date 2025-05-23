@@ -192,6 +192,7 @@
 
         </main>
     </div>
+    <script src="{{ url_for('static', filename='clipboard.js') }}"></script>
     <script>
         function selectText(ev) {
             var e = document, c = ev[0], b, d;
@@ -221,16 +222,6 @@
                 }
             }
             return b;
-        }
-
-        function copyToClipboard() {
-            var text = getSelectionText();
-            if (!text || text.length == 0) {
-                selectText($(this));
-                var success = document.execCommand("copy");
-                if (!success)
-                    console.error("failed to copy text to clipboard :(")
-            }
         }
 
         $(".select-on-click").on("click", copyToClipboard);
