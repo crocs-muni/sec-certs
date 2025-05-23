@@ -100,16 +100,16 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-chart-line fa-fw"></i>
                         </div>
-                        <h3>Trends visualization</h3>
+                        <h3>Trend visualization</h3>
                         <p>
                             Explore our analysis of the evolving security certifications landscape.
                         </p>
                         <p>
-                            We generate graphs from certification PDFs by collecting and processing them into machine-readable datasets, which we then publish.
-                            You can view example visualizations in the Analysis section. 
-                            The results presented here are preliminary - refer to our published 
-                            <a href="{{ url_for("about.index", _anchor="research") }}">research</a>
-                            for more in-depth insights.
+                            We process certification PDFs into structured, machine-readable datasets, which are then used to generate plots.
+                            You can explore sample plots in the Analysis section.
+                            Please note that these are preliminary findings - refer to our published
+                            <a href="{{ url_for('about.research') }}">research</a>
+                            for a more detailed analysis.
                             
                         </p>
                         <a href="{{ url_for("cc.analysis") }}"
