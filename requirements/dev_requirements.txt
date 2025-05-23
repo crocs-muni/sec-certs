@@ -522,7 +522,7 @@ tomli==2.2.1
     #   pytest
     #   setuptools-scm
     #   sphinx
-tornado==6.4.2
+tornado==6.5.1
     # via
     #   ipykernel
     #   jupyter-client
