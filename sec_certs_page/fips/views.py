@@ -145,11 +145,11 @@ def search():
 @fips.route("/mergedsearch/")
 def merged_search():
     searchType = request.args.get("searchType")
-    if searchType != "byName" and searchType != "fulltext":
-        searchType = "byName"
+    if searchType != "by-name" and searchType != "fulltext":
+        searchType = "by-name"
 
     res = {}
-    if searchType == "byName":
+    if searchType == "by-name":
         res = FIPSBasicSearch.process_search(request)
     elif searchType == "fulltext":
         res = FIPSFulltextSearch.process_search(request)

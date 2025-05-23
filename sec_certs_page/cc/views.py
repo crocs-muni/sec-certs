@@ -204,11 +204,11 @@ def network_graph():
 @cc.route("/mergedsearch/")
 def merged_search():
     searchType = request.args.get("searchType")
-    if searchType != "byName" and searchType != "fulltext":
-        searchType = "byName"
+    if searchType != "by-name" and searchType != "fulltext":
+        searchType = "by-name"
 
     res = {}
-    if searchType == "byName":
+    if searchType == "by-name":
         res = CCBasicSearch.process_search(request)
     elif searchType == "fulltext":
         res = CCFulltextSearch.process_search(request)

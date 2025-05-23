@@ -60,11 +60,11 @@ def dataset_archive():
 @pp.route("/mergedsearch/")
 def merged_search():
     searchType = request.args.get("searchType")
-    if searchType != "byName" and searchType != "fulltext":
-        searchType = "byName"
+    if searchType != "by-name" and searchType != "fulltext":
+        searchType = "by-name"
 
     res = {}
-    if searchType == "byName":
+    if searchType == "by-name":
         res = PPBasicSearch.process_search(request)
     elif searchType == "fulltext":
         res = PPFulltextSearch.process_search(request)

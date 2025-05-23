@@ -4,7 +4,7 @@
 
 {% if searchType == "fulltext" %}
     {% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type %}
-{% elif searchType == "byName" %}
+{% elif searchType == "by-name" %}
     {% from "cc/utils.html.jinja2" import render_pagination, render_plot %}
 {% endif %}
 
@@ -24,7 +24,7 @@
                                    value="{{ q|default('', true) }}"/>
                             
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="byName" checked>
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="by-name" checked>
                                 <label class="form-check-label" for="nameSearchRadioId">Name search</label>
                                 <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-title="Search only in certificate names and certificate IDs" aria-hidden="true"></i>
                             </div>
@@ -197,7 +197,7 @@
             <script>
             $(document).ready(function () {
                 function searchParams(additional) {
-                    let searchType = $("#nameSearchRadioId").is(":checked") ? "byName" : "fulltext"
+                    let searchType = $("#nameSearchRadioId").is(":checked") ? "by-name" : "fulltext"
                     let status = $("#search-status").val();
                     let sort = $("#search-sort").val();
                     let scheme = $("#search-scheme").val();
@@ -247,7 +247,7 @@
                     tooltipType.disable()
                 }
                 var urlParams = new URLSearchParams(window.location.search);
-                if(urlParams.get("searchType") === "byName" || !urlParams.has("searchType")){
+                if(urlParams.get("searchType") === "by-name" || !urlParams.has("searchType")){
                     nameSearchSetup()
                 }else if(urlParams.get("searchType") === "fulltext"){
                     fulltextSearchSetup()
@@ -342,7 +342,7 @@
                     </div>
                 {% endif %}
                 </div>
-            {% elif searchType == "byName" %}
+            {% elif searchType == "by-name" %}
                 <div id="results">
                     {{ render_pagination(pagination, certs, search=True) }}
                     {{ render_plot(timeline) }}
