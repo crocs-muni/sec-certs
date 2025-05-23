@@ -8,7 +8,7 @@
 
 {% block content %}
     <main>
-    <div class="col-12 col-sm-10 mx-auto">
+        <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
                 <div class="col-12">
                     {{ render_library_info() }}
@@ -29,8 +29,8 @@
                             and it contains {{ last_ok_run["length"] }} certificates.
                         </p>
                     {% endif %}
-                    <table class="align-middle spaced-table table table-borderless">
-                        <tr class="pt-5">
+                    <table class="align-middle table table-borderless">
+                        <tr>
                             <td>
                                 <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
                                         class="fas fa-file-alt"></i>
@@ -42,7 +42,7 @@
                                 information about maintenance updates.
                             </td>
                         </tr>
-                        <tr class="pt-5">
+                        <tr>
                             <td><a href="{{ url_for(".maintenance_updates") }}" role="button" class="btn btn-primary w-100"><i
                                     class="fas fa-file-alt"></i>
                                 Maintenance updates</a>
@@ -80,12 +80,13 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
                 <h3>Data sources</h3>
                 <p>
                     We are getting information from the following data sources:
                 </p>
-                
             </div>
         </div>
     </main>

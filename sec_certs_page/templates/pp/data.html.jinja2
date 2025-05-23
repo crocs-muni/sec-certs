@@ -1,7 +1,6 @@
 {% extends "common/base.html.jinja2" %}
 {% from "common/library-info.html.jinja2" import render_library_info %}
 {% set crumbs = False %}
-{% set search = False %}
 {% set canonical = True %}
 {% block title %}
     <title>Protection Profiles | sec-certs.org</title>
@@ -10,11 +9,9 @@
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto">
-
             <div class="row p-3 py-md-5">
-                {{ render_library_info() }}
-
                 <div class="col-12 ">
+                    {{ render_library_info() }}
                     <h3 class="anchor" id="data">Data</h3>
                     <p>
                         The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
@@ -32,7 +29,7 @@
                             and it contains {{ last_ok_run["length"] }} protection profiles.
                         </p>
                     {% endif %}
-                    <table class="table table-borderless">
+                    <table class="align-middle table table-borderless">
                         <tr>
                             <td>
                                 <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
