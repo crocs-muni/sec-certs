@@ -7,7 +7,7 @@ from . import about
 def index():
     return render_template("about/about.html.jinja2")
 
-@about.route("/research")
+@about.route("/research/")
 def research():
     return render_template("about/research.html.jinja2")
 
@@ -15,6 +15,6 @@ def research():
 def changelog():
     return render_template("about/changelog.html.jinja2")
 
-@about.route("/privacy-policy")
+@about.route("/privacy-policy/")
 def privacyPolicy():
     return render_template("/about/privacy-policy.html.jinja2")
