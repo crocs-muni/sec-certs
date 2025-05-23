@@ -5,7 +5,6 @@
         <div class="col-10 mx-auto p-3 py-md-5">
             <h1>Welcome {{ current_user.username }}!</h1>
             <div>
-                <a href="{{ url_for("admin.feedback") }}" class="btn btn-primary">Collected feedback</a>
                 <a href="{{ url_for("admin.updates") }}" class="btn btn-primary">Updates</a>
                 <a href="{{ url_for("admin.tasks") }}" class="btn btn-primary">Tasks</a>
                 <a href="{{ url_for("admin.config") }}" class="btn btn-primary">Config</a>
