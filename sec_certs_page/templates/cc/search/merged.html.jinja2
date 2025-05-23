@@ -2,11 +2,8 @@
 {% set crumbs = True %}
 {% set search = True %}
 
-{% if searchType == "fulltext" %}
-    {% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type %}
-{% elif searchType == "by-name" %}
-    {% from "cc/utils.html.jinja2" import render_pagination, render_plot %}
-{% endif %}
+{% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type, render_pagination, render_plot%}
+
 
 {% block content %}
     <main>
