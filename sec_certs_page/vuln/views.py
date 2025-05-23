@@ -16,7 +16,7 @@ def index():
     return render_template("vuln/index.html.jinja2", title="Vulnerability information | sec-certs.org")
 
 
-@vuln.route("/data")
+@vuln.route("/data/")
 def data():
     return render_template("vuln/data.html.jinja2")
 
