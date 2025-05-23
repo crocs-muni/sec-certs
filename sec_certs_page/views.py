@@ -12,6 +12,7 @@ from . import app, mongo, sitemap
 def index():
     return render_template("index.html.jinja2")
 
+
 @app.route("/feedback/", methods=["POST"])
 def feedback():
     """Collect feedback from users."""

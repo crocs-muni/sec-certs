@@ -48,6 +48,7 @@ def get_fips_type(name):
 def types():
     return send_json_attachment(fips_types)
 
+
 @fips.route("/data")
 def data():
     return render_template("fips/data.html.jinja2")
@@ -140,23 +141,24 @@ def search():
         title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
     )
 
+
 @fips.route("/mergedsearch")
 def mergedSearch():
     searchType = request.args.get("searchType")
-    if(searchType != "byName" and searchType != "fulltext"):
+    if searchType != "byName" and searchType != "fulltext":
         searchType = "byName"
 
     res = {}
-    if(searchType == "byName"):
+    if searchType == "byName":
         res = FIPSBasicSearch.process_search(request)
-    elif(searchType == "fulltext"):
+    elif searchType == "fulltext":
         res = FIPSFulltextSearch.process_search(request)
 
     return render_template(
         "fips/search/merged.html.jinja2",
         **res,
         title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        searchType=searchType
+        searchType=searchType,
     )
 
 

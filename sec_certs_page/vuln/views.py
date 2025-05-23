@@ -20,6 +20,7 @@ def index():
 def data():
     return render_template("vuln/data.html.jinja2")
 
+
 @vuln.route("/cve/cve.json")
 def cve_dset():
     return send_cacheable_instance_file(current_app.config["DATASET_PATH_CVE"], "application/json", "cve.json")

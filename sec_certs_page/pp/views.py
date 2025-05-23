@@ -44,6 +44,7 @@ def network():
 def data():
     return render_template("pp/data.html.jinja2")
 
+
 @pp.route("/dataset.json")
 def dataset():
     """Protection Profile dataset API endpoint."""
@@ -55,18 +56,26 @@ def dataset_archive():
     """Protection Profile dataset archive API endpoint."""
     return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_ARCHIVE"], "application/gzip", "pp.tar.gz")
 
+
 @pp.route("/mergedsearch/")
 def mergedSearch():
     searchType = request.args.get("searchType")
-    if(searchType != "byName" and searchType != "fulltext"):
+    if searchType != "byName" and searchType != "fulltext":
         searchType = "byName"
 
     res = {}
-    if(searchType == "byName"):
+    if searchType == "byName":
         res = PPBasicSearch.process_search(request)
-    elif(searchType == "fulltext"):
+    elif searchType == "fulltext":
         res = PPFulltextSearch.process_search(request)
-    return render_template("pp/search/merged.html.jinja2", **res, schemes=cc_schemes, title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org", searchType=searchType)
+    return render_template(
+        "pp/search/merged.html.jinja2",
+        **res,
+        schemes=cc_schemes,
+        title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+        searchType=searchType,
+    )
+
 
 @pp.route("/search/")
 @register_breadcrumb(pp, ".search", "Search")
