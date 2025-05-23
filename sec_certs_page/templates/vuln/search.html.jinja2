@@ -1,0 +1,81 @@
+{% extends "common/base.html.jinja2" %}
+{% set crumbs = True %}
+{% set search = False %}
+{% set canonical = True %}
+{% block content %}
+    <main>
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
+                <div class="col-sm-10 col-md-5 order-1 order-md-0">
+                    <h1>Vulnerability search</h1>
+                    <p class="lead">Search for vulnerabilities, that can affect your certificate.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row p-3 mb-5">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5 row-cols-1 row-cols-lg-2 g-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title anchor" id="cve">CVEs</h4>
+                                <p class="card-text">Browse through CVEs and see which certificates they impact.</p>
+                                <div class="form-inline">
+                                    <input id="cve-input" class="form-control mb-2" placeholder="CVE ID" type="search"
+                                           value=""/>
+                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">CVE-2019-15809</span>.</small>
+                                    <div class="invalid-feedback">
+                                        CVE invalid.
+                                    </div>
+                                </div>
+                                <button id="cve-button" class="btn btn-primary mt-2"><i class="fa-solid fa-eye"></i> Show
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title anchor" id="cpe">CPEs</h4>
+                                <p class="card-text">Browse through CPEs and see which certificates they match.</p>
+                                <div class="form-inline">
+                                    <input id="cpe-input" class="form-control mb-2" placeholder="CPE URI" type="search"
+                                           value=""/>
+                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*</span>.</small>
+
+                                    <div class="invalid-feedback">
+                                        CPE invalid.
+                                    </div>
+                                </div>
+                                <button id="cpe-button" class="btn btn-primary mt-2"><i class="fa-solid fa-eye"></i> Show
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function cve_search() {
+                let input = $("#cve-input").val();
+                if (!/CVE-[0-9]{4}-[0-9]{1,5}/.test(input)) {
+                    $("#cve-input").addClass("is-invalid");
+                } else {
+                    window.location.href = "{{ url_for("vuln.cve", cve_id="") }}" + input;
+                }
+            }
+
+            function cpe_search() {
+                let input = $("#cpe-input").val();
+                if (input === "") {
+                    $("#cpe-input").addClass("is-invalid");
+                } else {
+                    window.location.href = "{{ url_for("vuln.cpe", cpe_id="") }}" + input;
+                }
+            }
+
+            $("#cve-button").click(cve_search);
+            $("#cpe-button").click(cpe_search);
+        </script>
+    </main>
+{% endblock %}

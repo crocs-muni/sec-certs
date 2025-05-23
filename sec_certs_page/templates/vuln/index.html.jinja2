@@ -21,44 +21,30 @@
         </div>
         <div class="row bg-darker-light p-3 mb-5">
             <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5 row-cols-1 row-cols-lg-2 g-4">
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h4 class="card-title anchor" id="cve">CVEs</h4>
-                                <p class="card-text">Browse through CVEs and see which certificates they impact.</p>
-                                <div class="form-inline">
-                                    <input id="cve-input" class="form-control mb-2" placeholder="CVE ID" type="search"
-                                           value=""/>
-                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">CVE-2019-15809</span>.</small>
-                                    <div class="invalid-feedback">
-                                        CVE invalid.
-                                    </div>
-                                </div>
-                                <button id="cve-button" class="btn btn-primary mt-2"><i class="fa-solid fa-eye"></i> Show
-                                </button>
-                            </div>
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-search fa-fw"></i>
                         </div>
+                        <h3>Search</h3>
+                        <p>We are linking Common Criteria and FIPS 140 certificates to vulnerabilities. 
+                        You can only search for a vulnerability and check if your certificate can be affected or not.</p>
+                        <a href="{{ url_for(".search") }}" class="btn btn-primary">
+                            Learn More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h4 class="card-title anchor" id="cpe">CPEs</h4>
-                                <p class="card-text">Browse through CPEs and see which certificates they match.</p>
-                                <div class="form-inline">
-                                    <input id="cpe-input" class="form-control mb-2" placeholder="CPE URI" type="search"
-                                           value=""/>
-                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*</span>.</small>
-
-                                    <div class="invalid-feedback">
-                                        CPE invalid.
-                                    </div>
-                                </div>
-                                <button id="cpe-button" class="btn btn-primary mt-2"><i class="fa-solid fa-eye"></i> Show
-                                </button>
-                            </div>
+            
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-file-alt fa-fw"></i>
                         </div>
+                        <h3>Data</h3>
+                        <p>Want to see the dataset of vulnerabilities, which we are linking to certificates? Download it here.</p>
+                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
+                            Learn More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
+                
                 </div>
             </div>
         </div>
