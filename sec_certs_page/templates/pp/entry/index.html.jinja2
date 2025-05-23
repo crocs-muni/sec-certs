@@ -2,7 +2,9 @@
 {% set crumbs = True %}
 {% set search = True %}
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta %}
-{% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_process_state, render_status, render_sars, render_sfrs, render_category %}
+{% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_status, render_sars, render_sfrs, render_category %}
+{% from "common/utils.html.jinja2" import render_process_state %}
+
 {% block title %}
     <title>
         {{ profile["web_data"]["name"]|default("", true) + " | sec-certs.org" }}

@@ -4,7 +4,7 @@
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "cc/utils.html.jinja2" import render_process_state %}
+{% from "common/utils.html.jinja2" import render_process_state %}
 
 {% from "common/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block title %}
