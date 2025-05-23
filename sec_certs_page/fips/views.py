@@ -49,7 +49,7 @@ def types():
     return send_json_attachment(fips_types)
 
 
-@fips.route("/data")
+@fips.route("/data/")
 def data():
     return render_template("fips/data.html.jinja2")
 
@@ -142,7 +142,7 @@ def search():
     )
 
 
-@fips.route("/mergedsearch")
+@fips.route("/mergedsearch/")
 def merged_search():
     searchType = request.args.get("searchType")
     if searchType != "byName" and searchType != "fulltext":

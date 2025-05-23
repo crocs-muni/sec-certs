@@ -40,7 +40,7 @@ def network():
     return render_template("pp/network.html.jinja2")
 
 
-@pp.route("/data")
+@pp.route("/data/")
 def data():
     return render_template("pp/data.html.jinja2")
 
