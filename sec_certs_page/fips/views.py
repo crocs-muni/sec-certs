@@ -51,7 +51,8 @@ def types():
 
 @fips.route("/data/")
 def data():
-    return render_template("fips/data.html.jinja2")
+    last_ok_run = mongo.db.fips_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("fips/data.html.jinja2", last_ok_run=last_ok_run)
 
 
 @fips.route("/status.json")
@@ -71,11 +72,9 @@ def reference_types():
 @fips.route("/")
 @register_breadcrumb(fips, ".", "FIPS 140")
 def index():
-    last_ok_run = mongo.db.fips_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
     return render_template(
         "fips/index.html.jinja2",
         title="FIPS 140 | sec-certs.org",
-        last_ok_run=last_ok_run,
     )
 
 

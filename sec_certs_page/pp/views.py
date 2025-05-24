@@ -30,8 +30,7 @@ from .tasks import PPRenderer
 @pp.route("/")
 @register_breadcrumb(pp, ".", "Protection Profiles")
 def index():
-    last_ok_run = mongo.db.pp_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("pp/index.html.jinja2", last_ok_run=last_ok_run)
+    return render_template("pp/index.html.jinja2")
 
 
 @pp.route("/network/")
@@ -42,7 +41,8 @@ def network():
 
 @pp.route("/data/")
 def data():
-    return render_template("pp/data.html.jinja2")
+    last_ok_run = mongo.db.pp_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("pp/data.html.jinja2", last_ok_run=last_ok_run)
 
 
 @pp.route("/dataset.json")

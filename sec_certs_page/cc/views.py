@@ -127,8 +127,7 @@ def reference_types():
 @register_breadcrumb(cc, ".", "Common Criteria")
 def index():
     """Common criteria index."""
-    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("cc/index.html.jinja2", last_ok_run=last_ok_run)
+    return render_template("cc/index.html.jinja2")
 
 
 @cc.route("/dataset.json")
@@ -223,9 +222,10 @@ def merged_search():
     )
 
 
-@cc.route("/data")
+@cc.route("/data/")
 def data():
-    return render_template("cc/data.html.jinja2")
+    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("cc/data.html.jinja2", last_ok_run=last_ok_run)
 
 
 @cc.route("/search/")
