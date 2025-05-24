@@ -300,7 +300,7 @@ threadpoolctl==3.5.0
     # via scikit-learn
 tomli==2.2.1
     # via setuptools-scm
-tornado==6.4.2
+tornado==6.5.1
     # via
     #   ipykernel
     #   jupyter-client
