@@ -422,6 +422,7 @@ class CertificateNetwork {
 }
 
 export function createNetwork(element_id, data_url, types_url, status_url, refTypes_url, width, height, collapse) {
+
     return Promise.all([d3.json(data_url), d3.json(types_url), d3.json(status_url), d3.json(refTypes_url)]).then(values => {
         let data = values[0];
         let types = values[1];
@@ -436,4 +437,16 @@ export function createNetwork(element_id, data_url, types_url, status_url, refTy
             return null;
         }
     });
+
+}
+
+export async function loadNetwork(){
+    return createNetwork('network',
+        '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
+        '{{ url_for(".types") }}',
+        '{{ url_for(".statuses") }}',
+        '{{ url_for(".reference_types") }}',
+        600,
+        300,
+        false);
 }

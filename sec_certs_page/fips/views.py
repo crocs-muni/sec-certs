@@ -49,6 +49,12 @@ def types():
     return send_json_attachment(fips_types)
 
 
+@fips.route("/data/")
+def data():
+    last_ok_run = mongo.db.fips_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("fips/data.html.jinja2", last_ok_run=last_ok_run)
+
+
 @fips.route("/status.json")
 @cache.cached(60 * 60)
 @cache_for(days=7)
@@ -66,11 +72,9 @@ def reference_types():
 @fips.route("/")
 @register_breadcrumb(fips, ".", "FIPS 140")
 def index():
-    last_ok_run = mongo.db.fips_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
     return render_template(
         "fips/index.html.jinja2",
         title="FIPS 140 | sec-certs.org",
-        last_ok_run=last_ok_run,
     )
 
 
@@ -134,6 +138,26 @@ def search():
         "fips/search/index.html.jinja2",
         **res,
         title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+    )
+
+
+@fips.route("/mergedsearch/")
+def merged_search():
+    searchType = request.args.get("searchType")
+    if searchType != "by-name" and searchType != "fulltext":
+        searchType = "by-name"
+
+    res = {}
+    if searchType == "by-name":
+        res = FIPSBasicSearch.process_search(request)
+    elif searchType == "fulltext":
+        res = FIPSFulltextSearch.process_search(request)
+
+    return render_template(
+        "fips/search/merged.html.jinja2",
+        **res,
+        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+        searchType=searchType,
     )
 
 

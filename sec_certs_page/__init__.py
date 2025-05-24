@@ -185,6 +185,7 @@ from .fips import fips
 from .notifications import notifications
 from .pp import pp
 from .vuln import vuln
+from .about import about
 
 with app.app_context():
     app.register_blueprint(admin)
@@ -194,6 +195,7 @@ with app.app_context():
     app.register_blueprint(pp)
     app.register_blueprint(vuln)
     app.register_blueprint(docs)
+    app.register_blueprint(about)
 
 from .jinja import *
 from .tasks import *

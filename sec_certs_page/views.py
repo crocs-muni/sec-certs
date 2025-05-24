@@ -13,36 +13,6 @@ def index():
     return render_template("index.html.jinja2")
 
 
-@app.route("/feedback/", methods=["POST"])
-def feedback():
-    """Collect feedback from users."""
-    data = request.json
-    if set(data.keys()) != {"element", "comment", "path"}:
-        return abort(400)
-    for key in ("element", "comment", "path"):
-        # TODO Add validation to client (or info abut feedback length).
-        if not isinstance(data[key], str) or len(data[key]) > 256:
-            return abort(400)
-    # TODO add captcha
-    data["ip"] = request.remote_addr
-    data["timestamp"] = datetime.now()
-    data["useragent"] = request.user_agent.string
-    mongo.db.feedback.insert_one(data)
-    return jsonify({"status": "OK"})
-
-
-@app.route("/about/")
-@register_breadcrumb(app, ".about", "About")
-def about():
-    return render_template("about.html.jinja2")
-
-
-@app.route("/changelog/")
-@register_breadcrumb(app, ".changelog", "Changelog")
-def changelog():
-    return render_template("changelog.html.jinja2")
-
-
 @app.route("/robots.txt")
 def robots():
     content = f"""

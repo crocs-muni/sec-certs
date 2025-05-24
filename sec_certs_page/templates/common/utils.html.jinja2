@@ -1,0 +1,41 @@
+
+{% macro render_status_text(status_ok) %}
+    {% if status_ok %}
+        OK
+    {% else %}
+        ERROR
+    {% endif %}
+
+{%- endmacro %}
+
+{% macro render_process_state (state, document_type, document_name) %}
+    {% if document_type in state %}
+        {% set download_ok = state[document_type]["download_ok"] %}
+        {% set convert_ok = state[document_type]["convert_ok"] %}
+        {% set convert_garbage = state[document_type]["convert_garbage"] %}
+        {% set extract_ok = state[document_type]["extract_ok"] %}
+    {% else %}
+        {% set download_ok = state[document_type + "_download_ok"] %}
+        {% set convert_ok = state[document_type + "_convert_ok"] %}
+        {% set convert_garbage = state[document_type + "_convert_garbage"] %}
+        {% set extract_ok = state[document_type + "_extract_ok"] %}
+    {% endif %}
+
+    {% if not download_ok or not convert_ok or not extract_ok %}
+        <div class="alert alert-warning" style="display: inline-block;">
+            <span><span class="fst-italic text-capitalize">{{ document_name }}</span> file processing did not finish successfully.</span>
+            <a  data-bs-toggle="collapse" href="#processing-failed-detail" role="button" aria-expanded="false" aria-controls="processing-failed-detail">Show more...</a>
+            <div class="collapse" id="processing-failed-detail">
+                <div>
+                    <span>Download pdf: </span> <span class="{% if download_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(download_ok) }}</span>
+                </div>
+                <div>
+                    <span>Convert pdf to text: </span> <span class="{% if convert_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(convert_ok) }}</span>
+                </div>
+                <div>
+                    <span>Extract keywords: </span> <span class="{% if extract_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(extract_ok) }}</span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{%- endmacro %}

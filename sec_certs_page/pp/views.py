@@ -30,14 +30,19 @@ from .tasks import PPRenderer
 @pp.route("/")
 @register_breadcrumb(pp, ".", "Protection Profiles")
 def index():
-    last_ok_run = mongo.db.pp_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("pp/index.html.jinja2", last_ok_run=last_ok_run)
+    return render_template("pp/index.html.jinja2")
 
 
 @pp.route("/network/")
 @register_breadcrumb(pp, ".network", "References")
 def network():
     return render_template("pp/network.html.jinja2")
+
+
+@pp.route("/data/")
+def data():
+    last_ok_run = mongo.db.pp_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("pp/data.html.jinja2", last_ok_run=last_ok_run)
 
 
 @pp.route("/dataset.json")
@@ -50,6 +55,26 @@ def dataset():
 def dataset_archive():
     """Protection Profile dataset archive API endpoint."""
     return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_ARCHIVE"], "application/gzip", "pp.tar.gz")
+
+
+@pp.route("/mergedsearch/")
+def merged_search():
+    searchType = request.args.get("searchType")
+    if searchType != "by-name" and searchType != "fulltext":
+        searchType = "by-name"
+
+    res = {}
+    if searchType == "by-name":
+        res = PPBasicSearch.process_search(request)
+    elif searchType == "fulltext":
+        res = PPFulltextSearch.process_search(request)
+    return render_template(
+        "pp/search/merged.html.jinja2",
+        **res,
+        schemes=cc_schemes,
+        title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+        searchType=searchType,
+    )
 
 
 @pp.route("/search/")

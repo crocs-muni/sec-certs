@@ -27,7 +27,7 @@
         {% endif %}
         {% if frontpage %}
             <h3 class="mt-3">Frontpage</h3>
-            <table class="table table-sm table-borderless table-dark w-auto">
+            <table>
                 <tbody>
                 {{ opt_line("Certificate ID", "cert_id", frontpage, title) }}
                 {{ opt_line("Certified item", "cert_item", frontpage, title) }}
@@ -95,41 +95,6 @@
     {%- endif -%}
 {%- endmacro %}
 
-{% macro render_document_state(state, document_type, document_name) %}
-    {% if document_type in state %}
-        {% set download_ok = state[document_type]["download_ok"] %}
-        {% set convert_ok = state[document_type]["convert_ok"] %}
-        {% set convert_garbage = state[document_type]["convert_garbage"] %}
-        {% set extract_ok = state[document_type]["extract_ok"] %}
-    {% else %}
-        {% set download_ok = state[document_type + "_download_ok"] %}
-        {% set convert_ok = state[document_type + "_convert_ok"] %}
-        {% set convert_garbage = state[document_type + "_convert_garbage"] %}
-        {% set extract_ok = state[document_type + "_extract_ok"] %}
-    {% endif %}
-    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-          class="badge bg-secondary"
-          data-bs-toggle="tooltip" data-bs-placement="top"
-          title="Information automatically extracted from the {{ document_name }}. Might contain errors.">?</span>
-    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-          class="badge rounded-pill {% if download_ok %}bg-success{% else %}bg-warning{% endif %}"
-          data-bs-toggle="tooltip" data-bs-placement="top"
-          title="{% if download_ok %}{{ document_name | capitalize }} was downloaded successfully.{% else %}{{ document_name | capitalize }} download failed, it is probably unavailable.{% endif %}">
-                                <i class="fas fa-download"></i>
-    </span>
-    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-          class="badge rounded-pill {% if convert_ok %}bg-success{% else %}bg-warning{% endif %}"
-          data-bs-toggle="tooltip" data-bs-placement="top"
-          title="{% if convert_ok %}{{ document_name | capitalize }} was successfully converted from PDF to text.{% else %}{{ document_name | capitalize }} conversion to text failed, probably due to malformed or unavailable PDF.{% endif %}">
-                                <i class="fas fa-file-import"></i>
-    </span>
-    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-          class="badge rounded-pill {% if extract_ok %}bg-success{% else %}bg-warning{% endif %}"
-          data-bs-toggle="tooltip" data-bs-placement="top"
-          title="{% if extract_ok %}Keywords and metadata were successfully extracted from the {{ document_name }} text.{% else %}Keyword or metadata extraction from {{ document_name }} text failed.{% endif %}">
-                                <i class="fas fa-spell-check"></i>
-    </span>
-{%- endmacro %}
 
 {% macro render_pagination(pagination, certs, search=False) %}
     <div id="pagination" class="table-responsive">

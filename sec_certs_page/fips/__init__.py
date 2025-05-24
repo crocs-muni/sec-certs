@@ -56,9 +56,11 @@ def load_fips_data():
                 "refs": refs,
                 "vuln": cert["heuristics"]["related_cves"] is not None,
                 "href": url_for("fips.entry", hashid=cert["_id"]),
-                "type": fips_types[cert["web_data"]["module_type"]]["id"]
-                if cert["web_data"]["module_type"] in fips_types
-                else "",
+                "type": (
+                    fips_types[cert["web_data"]["module_type"]]["id"]
+                    if cert["web_data"]["module_type"] in fips_types
+                    else ""
+                ),
                 "status": cert["web_data"]["status"],
             }
             fips_references[str(cert["cert_id"])] = reference
