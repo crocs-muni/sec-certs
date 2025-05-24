@@ -208,12 +208,14 @@ def merged_search():
         searchType = "by-name"
 
     res = {}
+    template = "cc/search/name_search.html.jinja2"
     if searchType == "by-name":
         res = CCBasicSearch.process_search(request)
     elif searchType == "fulltext":
         res = CCFulltextSearch.process_search(request)
+        template = "cc/search/fulltext_search.html.jinja2"
     return render_template(
-        "cc/search/merged.html.jinja2",
+        template,
         **res,
         schemes=cc_schemes,
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
