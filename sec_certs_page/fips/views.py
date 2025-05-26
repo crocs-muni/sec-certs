@@ -133,12 +133,7 @@ def network_graph():
 @fips.route("/search/")
 @register_breadcrumb(fips, ".search", "Search")
 def search():
-    res = FIPSBasicSearch.process_search(request)
-    return render_template(
-        "fips/search/index.html.jinja2",
-        **res,
-        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-    )
+    return redirect(url_for(".merged_search"))
 
 
 @fips.route("/mergedsearch/")
@@ -148,13 +143,15 @@ def merged_search():
         searchType = "by-name"
 
     res = {}
+    template = "fips/search/name_search.html.jinja2"
     if searchType == "by-name":
         res = FIPSBasicSearch.process_search(request)
     elif searchType == "fulltext":
         res = FIPSFulltextSearch.process_search(request)
+        template = "fips/search/fulltext_search.html.jinja2"
 
     return render_template(
-        "fips/search/merged.html.jinja2",
+        template,
         **res,
         title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
         searchType=searchType,
@@ -173,12 +170,7 @@ def search_results():
 @fips.route("/ftsearch/")
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    res = FIPSFulltextSearch.process_search(request)
-    return render_template(
-        "fips/search/fulltext.html.jinja2",
-        **res,
-        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-    )
+    return redirect(url_for(".merged_search"))
 
 
 @fips.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
