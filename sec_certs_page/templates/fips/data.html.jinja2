@@ -15,7 +15,7 @@
                     <p>
                         The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
                         and all the pages and data on this site are extracted from it. It is a JSON file as produced
-                        by the <code>sec-certs cc</code> command from the tool. Documentation for the tool,
+                        by the <code>sec-certs fips</code> command from the tool. Documentation for the tool,
                         including a quick-start guide, can be found
                         <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
                     </p>
@@ -56,13 +56,27 @@
                     {{ render_library_info() }}
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
                 <h2>Data sources</h2>
                 <p>
                     We are getting information from the following data sources:
                 </p>
+                <ul style="list-style-position: inside;">
+                	<li>
+                		The <a href="https://csrc.nist.gov/Projects/cryptographic-module-validation-program/validated-modules/search" target="_blank" rel="noopener">NIST CMVP</a> site
+                		which we scrape for a list of certified products. We also download and process the certificate and security policy PDFs.
+                		We run a caching proxy to minimize the load on the NIST CMVP site and disperse it over time by keeping the cache hot.
+                	</li>
+                	<li>
+                		The NIST CMVP <a href="https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/modules-in-process-list" target="_blank" rel="noopener">Modules In Process</a> site
+                		which we scrape for a list of modules in the process of certification.
+                	</li>
+                	<li>
+                		The NIST CMVP <a href="https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/iut-list" target="_blank" rel="noopener">Implementations Under Test</a> site
+                		which we scrape for a list of modules under test.
+                	</li>
+                	
+                </ul>
             </div>
         </div>
     </main>

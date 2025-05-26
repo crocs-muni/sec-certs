@@ -80,13 +80,24 @@
                     {{ render_library_info() }}
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-sm-10 mx-auto">
             <div class="row p-3 py-md-5">
                 <h2>Data sources</h2>
                 <p>
                     We are getting information from the following data sources:
                 </p>
+                <ul style="list-style-position: inside;">
+                	<li>
+                		The	<a href="https://commoncriteriaportal.org" target="_blank" rel="noopener">commoncriteriaportal.org</a>,
+                		which we use as the trusted source of certificate data. We scrape both its HTML site and the CSV export of
+                		certificates and download all of the available PDFs: certificates, certification reports and security targets.
+                		We run a caching proxy to minimize the load on the CC portal and disperse it over time by keeping the cache hot.
+                	</li>
+                	<li>
+                		The sites of national schemes, which we use to enrich the certificate metadata. We try to scrape all of the scheme
+                		sites for a list of certified products, though not all publish this list properly. For some, we also scrape a list
+                		of products in evaluation.
+                	</li>
+                </ul>
             </div>
         </div>
     </main>

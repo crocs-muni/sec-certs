@@ -58,15 +58,18 @@
                     {{ render_library_info() }}
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-sm-10 mx-auto">
-            
             <div class="row p-3 py-md-5">
                 <h2>Data sources</h2>
                 <p>
                     We are getting information from the following data sources:
                 </p>
-                
+                <ul style="list-style-position: inside;">
+				<li>
+					The	<a href="https://commoncriteriaportal.org" target="_blank" rel="noopener">commoncriteriaportal.org</a>,
+                	which we use as the trusted source of Protection Profile data. We scrape its HTML site for protection profiles
+                	and download the available PDFs: certification reports and protection profiles themselves.
+                	We run a caching proxy to minimize the load on the CC portal and disperse it over time by keeping the cache hot.
+               	</li>
             </div>
         </div>
     </main>
