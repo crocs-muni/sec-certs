@@ -245,7 +245,7 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-2 mt-lg-0">
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "cc" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
                             Common Criteria
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -257,7 +257,7 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "pp" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
                             Protection Profiles
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -267,7 +267,7 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "fips" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
                             FIPS 140
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -281,7 +281,7 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "vuln" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
                             Vulnerabilities
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -291,7 +291,7 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "about" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
                             About
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
