@@ -362,10 +362,6 @@
                     </div>
                 {% endif %}
             {% endwith %}
-            {% if crumbs %}
-                    {% block crumbs_right %}
-                    {% endblock %}
-            {% endif %}
             {% block content %}
             {% endblock %}
             {{ notification_modal() }}
