@@ -1,4 +1,9 @@
 
 {% macro render_library_info() %}
-    <div class="alert alert-primary">sec-certs is also a library! You can easily work with these datasets from available <a href="https://github.com/crocs-muni/sec-certs" target="_blank">Python client</a>.</div>
+    <div class="alert alert-primary">
+    <i class="fas fa-code"></i>
+    sec-certs is also a library!
+    You can easily work with these datasets using our <a href="https://github.com/crocs-muni/sec-certs" target="_blank">Python library</a>.
+    Check out the <a href="{{ url_for("docs.serve_docs", path="index.html") }}" target="_blank">docs</a>.
+    </div>
 {%- endmacro %}
