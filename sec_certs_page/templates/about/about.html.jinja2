@@ -6,7 +6,11 @@
         {{ "About | sec-certs.org" }}
     </title>
 {% endblock %}
-
+{% block head %}
+	{{ super() }}
+	<link rel="preload" as="image" href="{{ url_for("static", filename="img/team1_retouch.JPG") }}" />
+	<link rel="preload" as="image" href="{{ url_for("static", filename="img/team2_retouch.JPG") }}" />
+{% endblock %}
 
 {% macro render_person(name, description, duration) %}
     <div class="card mb-3 me-lg-3">
@@ -44,10 +48,10 @@
                                 href="mailto:svenda@fi.muni.cz">svenda@fi.muni.cz</a>.
                         </p>
                         <p>
-                            Project sec-certs was created in 2019, when we found some vulnerability
-                            in device certified with Common Criteria. We wanted to analyse devices that use this vulnerable one,
+                            The sec-certs project was created in 2019, when we found vulnerabilities
+                            in a Common Criteria certified product. We wanted to analyse devices that use the vulnerable one,
                             but it was extremely hard to find relations between certified products only from available PDF certification
-                            files. So we created the tool sec-certs, a tool that enables processing certification data into machine readable format.
+                            files. Thus, we created the sec-certs tool that enables processing certification data into a machine-readable format.
 
 
                             <br>
