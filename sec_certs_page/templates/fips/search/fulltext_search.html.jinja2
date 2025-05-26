@@ -1,0 +1,98 @@
+{% extends "fips/search/base.html.jinja2" %}
+{% set crumbs = True %}
+
+{% from "fips/utils.html.jinja2" import render_pagination, render_plot, render_status, render_type, render_document_type %}
+
+
+{% block content %}
+    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <script type="module">
+            import { nameSearchSetup, fulltextSearchSetup, searchParams } from "{{ url_for('static', filename='search.js') }}";
+
+            $(document).ready(function () {
+
+                function fullSearch() {
+                    location.href = "{{ url_for("fips.merged_search") }}?" + searchParams();
+                }
+
+                function networkSearch() {
+                    location.href = "{{ url_for("fips.network") }}?" + searchParams({search: "basic"});
+                }
+
+                var urlParams = new URLSearchParams(window.location.search);
+
+                fulltextSearchSetup()
+                
+                $("#nameSearchRadioId").click(nameSearchSetup);
+                $("#fulltextSearchRadioId").click(fulltextSearchSetup);
+                $("#search-btn").click(fullSearch);
+                $("#network-btn").click(networkSearch);
+                $("#search").keyup(function (e) {
+                    if (e.keyCode === 13) {
+                        fullSearch();
+                    } 
+                });
+                $("#cat-select-all").click(function () {
+                    $("#search-categories input").prop("checked", true);
+                });
+                $("#cat-deselect-all").click(function () {
+                    $("#search-categories input").prop("checked", false);
+                });
+            })
+        </script>
+        <div id="pagination" class="table-responsive">
+            {% if pagination %}
+                <div style="text-align: center">
+                    Took {{ "{:.3}".format(runtime + highlight_runtime) }} seconds
+                    {%- if query -%}
+                        <span data-bs-toggle="tooltip"
+                                data-bs-html="true"
+                                title="Parsed as <b>{{ query }}</b>">*
+                        </span>
+                    {%- endif -%}
+                    {{ pagination.info }}
+                </div>
+                <div class="mt-4 mb-4">
+                    {{ pagination.links }}
+                </div>
+            {% endif %}
+            {% for result in results %}
+                {% set idd = result["cert"]["cert_id"]|default("", true) %}
+                <div class="my-5">
+                    <table class="table table-bordered table-responsive">
+                        <colgroup>
+                            <col style="width:10%">
+                            <col style="width:70%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <td class="pl-1">{{ render_type(result["cert"]["web_data"]["module_type"]) }}&nbsp;#{{ idd }}</td>
+                            <td>
+                                <a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}">{{ result["hit"]["name"] }}</a>
+                            </td>
+                            <td>{{ render_document_type(result["hit"]["document_type"]) }}</td>
+                            <td>{{ render_status(result["hit"]["status"]) }}</td>
+                        </tr>
+                        </thead>
+                        <tbody style="border-top-color: #dfe0e1">
+                        {% if "highlights" in result %}
+                            <tr>
+                                <td colspan="4">
+                                    {{ result["highlights"]|safe }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+            {% if pagination %}
+                <div class="mb-4">
+                    {{ pagination.links }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
