@@ -57,12 +57,17 @@ def dataset_archive():
     return send_cacheable_instance_file(current_app.config["DATASET_PATH_PP_ARCHIVE"], "application/gzip", "pp.tar.gz")
 
 
+@pp.route("/search/")
+@register_breadcrumb(pp, ".search", "Search")
+def search():
+    return redirect(url_for(".merged_search"))
+
+
 @pp.route("/mergedsearch/")
 def merged_search():
     searchType = request.args.get("searchType")
     if searchType != "by-name" and searchType != "fulltext":
         searchType = "by-name"
-
 
     template = "pp/search/name_search.html.jinja2"
     res = {}
@@ -89,6 +94,12 @@ def search_results():
 
     res = PPBasicSearch.process_search(request, callback=callback)
     return render_template("pp/search/results.html.jinja2", **res)
+
+
+@pp.route("/ftsearch/")
+@register_breadcrumb(pp, ".fulltext_search", "Fulltext search")
+def fulltext_search():
+    return redirect(url_for(".merged_search"))
 
 
 @pp.route("/<string(length=16):hashid>/")

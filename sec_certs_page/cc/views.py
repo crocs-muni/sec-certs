@@ -231,14 +231,7 @@ def data():
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():
-    """Common criteria search."""
-    res = CCBasicSearch.process_search(request)
-    return render_template(
-        "cc/search/index.html.jinja2",
-        **res,
-        schemes=cc_schemes,
-        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-    )
+    return redirect(url_for(".merged_search"))
 
 
 @cc.route("/search/results/")
@@ -255,14 +248,7 @@ def search_results():
 @cc.route("/ftsearch/")
 @register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    """Fulltext search for Common Criteria."""
-    res = CCFulltextSearch.process_search(request)
-    return render_template(
-        "cc/search/fulltext.html.jinja2",
-        **res,
-        schemes=cc_schemes,
-        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-    )
+    return redirect(url_for(".merged_search"))
 
 
 @cc.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
