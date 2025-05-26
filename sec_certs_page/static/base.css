@@ -299,6 +299,11 @@ h6 {
   padding-top: 30px;
 }
 
+#left-navigation .active {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
 [data-bs-theme="light"] #left-navigation {
   background-color: var(--bs-white);
 }
