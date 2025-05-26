@@ -8,7 +8,7 @@
 {% block search_content %}
     <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <script type="module">
-        import { ccNameSearchSetup, ccFulltextSearchSetup, searchParams } from "{{ url_for('static', filename='search.js') }}";
+        import { nameSearchSetup, fulltextSearchSetup, searchParams } from "{{ url_for('static', filename='search.js') }}";
         $(document).ready(function () {
             function fullSearch() {
                 location.href = "{{ url_for("cc.merged_search") }}?" + searchParams();
@@ -19,10 +19,10 @@
             }
 
             var urlParams = new URLSearchParams(window.location.search);
-            ccFulltextSearchSetup()
+            fulltextSearchSetup()
             
-            $("#nameSearchRadioId").click(ccNameSearchSetup);
-            $("#fulltextSearchRadioId").click(ccFulltextSearchSetup);
+            $("#nameSearchRadioId").click(nameSearchSetup);
+            $("#fulltextSearchRadioId").click(fulltextSearchSetup);
             $("#search-btn").click(fullSearch);
             $("#network-btn").click(networkSearch);
             $("#search").keyup(function (e) {

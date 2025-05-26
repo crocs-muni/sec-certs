@@ -63,30 +63,20 @@ def merged_search():
     if searchType != "by-name" and searchType != "fulltext":
         searchType = "by-name"
 
+
+    template = "pp/search/name_search.html.jinja2"
     res = {}
     if searchType == "by-name":
         res = PPBasicSearch.process_search(request)
     elif searchType == "fulltext":
         res = PPFulltextSearch.process_search(request)
+        template = "pp/search/fulltext_search.html.jinja2"
     return render_template(
-        "pp/search/merged.html.jinja2",
+        template,
         **res,
         schemes=cc_schemes,
         title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
         searchType=searchType,
-    )
-
-
-@pp.route("/search/")
-@register_breadcrumb(pp, ".search", "Search")
-def search():
-    """Protection Profile search."""
-    res = PPBasicSearch.process_search(request)
-    return render_template(
-        "pp/search/index.html.jinja2",
-        **res,
-        schemes=cc_schemes,
-        title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
     )
 
 
@@ -99,19 +89,6 @@ def search_results():
 
     res = PPBasicSearch.process_search(request, callback=callback)
     return render_template("pp/search/results.html.jinja2", **res)
-
-
-@pp.route("/ftsearch/")
-@register_breadcrumb(pp, ".fulltext_search", "Fulltext search")
-def fulltext_search():
-    """Fulltext search for Protection Profiles."""
-    res = PPFulltextSearch.process_search(request)
-    return render_template(
-        "pp/search/fulltext.html.jinja2",
-        **res,
-        schemes=cc_schemes,
-        title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-    )
 
 
 @pp.route("/<string(length=16):hashid>/")

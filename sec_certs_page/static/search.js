@@ -1,6 +1,6 @@
 
 
-export function ccNameSearchSetup(){
+export function nameSearchSetup(){
     document.getElementById("nameSearchRadioId").checked = true
     document.getElementById("search-type").disabled = true;
     document.getElementById("search-sort").disabled = false;
@@ -12,7 +12,7 @@ export function ccNameSearchSetup(){
     tooltipType.enable()
 }
 
-export function ccFulltextSearchSetup(){
+export function fulltextSearchSetup(){
     document.getElementById("fulltextSearchRadioId").checked = true
     document.getElementById("search-type").disabled = false;
     document.getElementById("search-sort").disabled = true;
