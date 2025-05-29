@@ -10,11 +10,22 @@
             <div class="row" id="about-research">
                 <div class="col-12 col-md-6">
                     <h1 class="anchor" id="research">Research</h1>
-                    <p class="lead">
-
+                    <p class="lead">This page presents all research publications describing the 
+                        sec-certs tool or investigating ecosystem insights gained using this tool.
+                    </p>
+                    <p>In the spirit of open research, we decided to publish the dataset as well 
+                        as the python library to explore it for free. You're welcome to check out the 
+                        <a href="{{ url_for('docs.serve_docs', path='index.html') }}", path="index.html') }}">library documentation</a> as 
+                        well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and 
+                        website source code</a>.
                     </p>
 
-                    <div>
+                    <p>Sec-certs is developed at the <a href="https://crocs.fi.muni.cz" target="_blank">Centre for Research on Cryptography and Security (CRoCS)</a> 
+                        at <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. For more details of our team and project sponsors, 
+                        see the <a href="{{ url_for('about.index') }}">project info page.</a>
+                    </p>
+
+                    <div class="mt-5">
                         <h3><i class="fas fa-file-alt"></i> sec-certs: Examining the security certification practice for
                             better vulnerability mitigation</h3>
                         <p class="fst-italic">Adam Janovsky, Jan Jancar, Petr Svenda, Lukasz Chmielewski, Jiri Michalik,
