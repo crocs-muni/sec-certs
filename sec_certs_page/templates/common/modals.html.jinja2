@@ -216,7 +216,7 @@
                                 $("#chat-messages").append(`<div class="chat-message-assistant">${response.response}</div>`);
                                 chat_history.push({
                                     role: "assistant",
-                                    content: response.response
+                                    content: response.raw
                                 });
                             },
                             error: function (xhr) {

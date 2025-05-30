@@ -228,6 +228,9 @@ class Updater:  # pragma: no cover
     def reindex(self, to_reindex): ...
 
     @abstractmethod
+    def update_kb(self, to_update): ...
+
+    @abstractmethod
     def archive(self, ids, paths): ...
 
     def update(self):
@@ -288,7 +291,7 @@ class Updater:  # pragma: no cover
         run_doc = None
         try:
             # Process the certs
-            to_reindex = self.process(dset, paths)
+            to_reindex, to_update_kb = self.process(dset, paths)
 
             old_ids = set(map(itemgetter("_id"), mongo.db[self.collection].find({}, projection={"_id": 1})))
             current_ids = set(dset.certs.keys())
@@ -353,6 +356,7 @@ class Updater:  # pragma: no cover
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
+            self.update_kb(to_update_kb)
             self.archive(all_ids, {name: str(path) for name, path in paths.items()})
         except Exception as e:
             # Store the failure in the update log

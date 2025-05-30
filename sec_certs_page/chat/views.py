@@ -77,4 +77,4 @@ def query():
         return {"status": "error", "message": "Empty response from the model."}, 500
     rendered = markdown(response, output_format="html")
     cleaned = nh3.clean(rendered)
-    return {"status": "ok", "response": cleaned}
+    return {"status": "ok", "response": cleaned, "raw": response}

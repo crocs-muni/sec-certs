@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -28,7 +29,7 @@ def post(url: str, data=None, files=None):
     return response
 
 
-def upload_file(file_path: str, metadata=None):
+def upload_file(file_path: str | Path, metadata=None):
     url = "v1/files/"
     with open(file_path, "rb") as file:
         if metadata is not None:
@@ -87,6 +88,15 @@ def get_file_content(file_id: str):
 def get_file_data_content(file_id: str):
     url = f"v1/files/{file_id}/data/content"
     response = get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
+
+def update_file_data_content(file_id: str, data: bytes):
+    url = f"v1/files/{file_id}/data/content/update"
+    response = post(url, files=data)
     if response.status_code == 200:
         return response.json()
     else:

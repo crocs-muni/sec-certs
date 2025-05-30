@@ -1,7 +1,7 @@
 import logging
 import os
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -16,6 +16,14 @@ from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks import Archiver, Indexer, Notifier, Updater, actor
+from ..common.views import entry_file_path
+from ..common.webui import (
+    add_file_to_knowledge_base,
+    get_knowledge_base,
+    update_file_data_content,
+    update_file_in_knowledge_base,
+    upload_file,
+)
 from . import cc_categories
 
 logger = logging.getLogger(__name__)
@@ -96,24 +104,53 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
-@actor("cc_update_llm", "cc_update_llm", "updates", timedelta(hours=12))
-def update_llm(to_update):  # pragma: no cover
-    for digest, document in to_update:
+@actor("cc_update_kb", "cc_update_kb", "updates", timedelta(hours=12))
+def update_kb(to_update):  # pragma: no cover
+    reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
+    targets_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
+    reports_fmap = {}
+    for file in reports_kb["files"]:
+        id = file["id"]
+        name = file["meta"]["name"]
+        reports_fmap[name] = id
+    targets_fmap = {}
+    for file in targets_kb["files"]:
+        id = file["id"]
+        name = file["meta"]["name"]
+        targets_fmap[name] = id
+
+    for digest, document, file_id in to_update:
         if document == "report":
-            collection = current_app.config["WEBUI_COLLECTION_CC_REPORTS"]
+            kb = current_app.config["WEBUI_COLLECTION_CC_REPORTS"]
+            fmap = reports_fmap
         elif document == "target":
-            collection = current_app.config["WEBUI_COLLECTION_CC_TARGETS"]
+            kb = current_app.config["WEBUI_COLLECTION_CC_TARGETS"]
+            fmap = targets_fmap
         else:
             continue
-        if not collection:
+        # Get file contents
+        fpath = entry_file_path(digest, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
+        if not fpath.exists():
             continue
-        from sec_certs_page.common.ai import post
+        # Check whether we have the file under some id
+        name = f"{digest}.txt"
+        if name in fmap and file_id is None:
+            file_id = fmap[name]
 
-        url = f"collections/{collection}/documents/{digest}"
-        data = {"update": True}
-        response = post(url, data)
-        if response.status_code != 200:
-            logger.error(f"Failed to update LLM for {digest} ({document}): {response.text}")
+        if file_id is None:
+            # Create a new file
+            resp = upload_file(fpath)
+            print("Added", resp["id"])
+            # Add it to the kb
+            resp = add_file_to_knowledge_base(kb, resp["id"])
+        else:
+            with fpath.open("rb") as f:
+                content = f.read()
+            # Then update the file with new contents
+            resp = update_file_data_content(file_id, content)
+            print("Updated", file_id)
+            # Then trigger also kb update
+            resp = update_file_in_knowledge_base(kb, file_id)
 
 
 class CCArchiver(Archiver, CCMixin):  # pragma: no cover
@@ -204,6 +241,23 @@ def archive_all():  # pragma: no cover
 class CCUpdater(Updater, CCMixin):  # pragma: no cover
     def process(self, dset, paths):
         to_reindex = set()
+        to_update_kb = set()
+
+        reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
+        targets_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
+        reports_fmap = {}
+        for file in reports_kb["files"]:
+            id = file["id"]
+            name = file["meta"]["name"]
+            updated = file["updated_at"]
+            reports_fmap[name] = (id, updated)
+        targets_fmap = {}
+        for file in targets_kb["files"]:
+            id = file["id"]
+            name = file["meta"]["name"]
+            updated = file["updated_at"]
+            targets_fmap[name] = (id, updated)
+
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"), suppress_child_spans():
@@ -240,6 +294,11 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
                             cert.state.report.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "report"))
+                        name = f"{cert.dgst}.txt"
+                        if name not in reports_fmap:
+                            to_update_kb.add((cert.dgst, "report", None))
+                        elif reports_fmap[name][1] < dst.stat().st_mtime:
+                            to_update_kb.add((cert.dgst, "report", reports_fmap[name][0]))
                     if cert.state.st.pdf_path and cert.state.st.pdf_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.pdf_hash:
@@ -249,6 +308,11 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
                             cert.state.st.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "target"))
+                        name = f"{cert.dgst}.txt"
+                        if name not in targets_fmap:
+                            to_update_kb.add((cert.dgst, "target", None))
+                        elif targets_fmap[name][1] < dst.stat().st_mtime:
+                            to_update_kb.add((cert.dgst, "target", targets_fmap[name][0]))
                     if cert.state.cert.pdf_path and cert.state.cert.pdf_path.exists():
                         dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.pdf_hash:
@@ -268,7 +332,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         mongo.db.cc_old.replace_one(
                             {"_id": cert.older_dgst}, {"_id": cert.older_dgst, "hashid": cert.dgst}, upsert=True
                         )
-        return to_reindex
+        return to_reindex, to_update_kb
 
     def dataset_state(self, dset):
         return dset.state.to_dict()
@@ -278,6 +342,9 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
 
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
+
+    def update_kb(self, to_update):
+        update_kb.send(list(to_update))
 
     def archive(self, ids, paths):
         archive.send(ids, paths)

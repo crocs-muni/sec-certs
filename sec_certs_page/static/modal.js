@@ -199,40 +199,37 @@ export function chat_authorize(check_url, auth_url, sitekey, csrf_token) {
                 auth = false;
             }
         },
-    })
-    if (auth) {
-        return; // Already authorized, no need to render turnstile
-    }
-
-    turnstile.render("#chat-turnstile", {
-        "sitekey": sitekey,
-        "response-field": false,
-        "callback": (token) => {
-            $.ajax(auth_url, {
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({
-                    "captcha": token
-                }),
-                headers: {
-                    "X-CSRFToken": csrf_token
-                },
-                success: function () {
-                    $("#chat-authorize").hide();
-                    $("#chat-turnstile").hide();
-                },
-                error: function (response) {
-                    try {
-                        $("#chat-error").text(response.responseJSON.error).show();
-                    } catch (error) {
-                        $("#chat-error").text("Something went wrong with the chat authorization request, please try again later").show();
-                    }
-                }
-            })
+    }).done(function () {
+        if (auth) {
+            return; // Already authorized, no need to render turnstile
         }
-    });
-}
 
-export function chat() {
-    console.log(certificate_data);
+        turnstile.render("#chat-turnstile", {
+            "sitekey": sitekey,
+            "response-field": false,
+            "callback": (token) => {
+                $.ajax(auth_url, {
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        "captcha": token
+                    }),
+                    headers: {
+                        "X-CSRFToken": csrf_token
+                    },
+                    success: function () {
+                        $("#chat-authorize").hide();
+                        $("#chat-turnstile").hide();
+                    },
+                    error: function (response) {
+                        try {
+                            $("#chat-error").text(response.responseJSON.error).show();
+                        } catch (error) {
+                            $("#chat-error").text("Something went wrong with the chat authorization request, please try again later").show();
+                        }
+                    }
+                })
+            }
+        });
+    })
 }
