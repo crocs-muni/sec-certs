@@ -1,4 +1,4 @@
-{% from "common/modals.html.jinja2" import notification_modal, compare_modal, modal_script, compare_icon, notification_icon with context %}
+{% from "common/modals.html.jinja2" import notification_modal, compare_modal, chat_modal, modal_script with context %}
 <!doctype html>
 <html lang="en">
 
@@ -366,9 +366,10 @@
             {% endblock %}
             {{ notification_modal() }}
             {{ compare_modal() }}
+            {{ chat_modal() }}
             <footer>
                 {% block footer %}
-                    <div class="row z-3 position-relative">
+                    <div class="row position-relative">
                         <div class="d-flex d-md-block justify-content-center justify-content-md-around bg-dark">
                             <div class="d-flex justify-content-md-around flex-column flex-md-row gap-5  py-5 text-light" style="">
                                 <div class="align-self-md-center flex-grow-1 flex-shrink-1 flex-basis-0">
@@ -423,6 +424,7 @@
                         </a>
                     </div>
                 {% endblock %}
+                {{ modal_script() }}
 
                 {% include "common/feedback.html.jinja2" %}
 

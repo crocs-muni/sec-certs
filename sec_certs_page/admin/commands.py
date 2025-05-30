@@ -96,3 +96,8 @@ def index_collections():  # pragma: no cover
     fips_entries = [(id["_id"], "target") for id in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
     click.echo("Indexing FIPS entries...")
     reindex_fips(fips_entries)
+
+
+@app.cli.command("upload-kb", help="Upload certificate data to knowledge bases on WebUI.")
+def upload_kb(collection):
+    pass

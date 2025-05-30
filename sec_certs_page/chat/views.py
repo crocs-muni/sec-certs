@@ -1,0 +1,80 @@
+from common.objformats import cert_name
+from flask import current_app, render_template_string, request, session
+from markdown import markdown
+from nh3 import nh3
+
+from .. import mongo
+from ..common.views import captcha_required
+from ..common.webui import chat_with_model, files_for_hashid
+from . import chat
+
+
+@chat.route("/authorize/", methods=["POST"])
+@captcha_required(json=True)
+def authorize():
+    """Add "chat_authorized=True" to user's session."""
+    session["chat_authorized"] = True
+    return {"status": "ok"}
+
+
+@chat.route("/authorized/")
+def authorized():
+    """Check if the user is authorized to chat."""
+    return {"authorized": session.get("chat_authorized", False)}
+
+
+@chat.route("/", methods=["POST"])
+def query():
+    """Chat with the model."""
+    if "chat_authorized" not in session or not session["chat_authorized"]:
+        return {"status": "error", "message": "You are not authorized to use the chat."}, 403
+    if not request.is_json:
+        return {"status": "error", "message": "Request must be JSON."}, 400
+    data = request.get_json()
+    if "query" not in data:
+        return {"status": "error", "message": "Missing 'query' in request."}, 400
+    files = None
+    kbs = None
+    system_addition = ""
+    if "collection" in data:
+        collection = data["collection"]
+        if collection not in ("cc", "fips"):
+            return {"status": "error", "message": "Invalid collection specified."}, 400
+        else:
+            if "hashid" in data:
+                hashid = data["hashid"]
+                cert = mongo.db[collection].find_one({"_id": hashid})
+                if not cert:
+                    return {"status": "error", "message": "Invalid hashid."}, 404
+                else:
+                    files = files_for_hashid(hashid)
+                    system_addition = render_template_string(
+                        current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT", ""), cert_name=cert_name(cert)
+                    )
+            else:
+                system_addition = current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_ALL", "")
+                reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
+                targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
+                reports_kbid = current_app.config.get(reports_kb)
+                targets_kbid = current_app.config.get(targets_kb)
+                if reports_kbid or targets_kbid:
+                    kbs = []
+                    if reports_kbid:
+                        kbs.append(reports_kbid)
+                    if targets_kbid:
+                        kbs.append(targets_kbid)
+    result = chat_with_model(data["query"], system_addition, kbs=kbs, files=files)
+    if result.status_code != 200:
+        return {"status": "error", "message": "Chat request failed."}, result.status_code
+    choices = result.json().get("choices", [])
+    if not choices:
+        return {"status": "error", "message": "No response from the model."}, 500
+    choice = choices[0]
+    if "message" not in choice or "content" not in choice["message"]:
+        return {"status": "error", "message": "Invalid response format."}, 500
+    response = choice["message"]["content"]
+    if not response:
+        return {"status": "error", "message": "Empty response from the model."}, 500
+    rendered = markdown(response, output_format="html")
+    cleaned = nh3.clean(rendered)
+    return {"status": "ok", "response": cleaned}

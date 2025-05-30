@@ -1,10 +1,9 @@
 {% extends "common/base.html.jinja2" %}
-
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "common/utils.html.jinja2" import render_process_state %}
-
+{% from "common/modals.html.jinja2" import compare_icon, notification_icon, chat_icon %}
+{% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "common/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block title %}
     <title>
@@ -36,7 +35,7 @@
         <h4>Sections</h4>
         <a class="list-group-item list-group-item-action rounded" href="#web-info">Webpage information</a>
         <a class="list-group-item list-group-item-action rounded" href="#doc-info">Security Policy</a>
-        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References<a>
+        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References</a>
         <a class="list-group-item list-group-item-action rounded" href="#updates">Updates</a>
         <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
     </div>
@@ -442,8 +441,7 @@
                     hashid: "{{ hashid }}",
                     type: "fips",
                     url: "{{ url_for("fips.entry", hashid=hashid) }}"
-                };
+             };
         </script>
-        {{ modal_script() }}
     </main>
 {% endblock %}

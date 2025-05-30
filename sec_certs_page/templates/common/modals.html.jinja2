@@ -156,10 +156,85 @@
 
 {% macro modal_script() %}
     <script type="module">
-        import {add_current_cert, update_state, compare_do, notification_subscribe} from "/static/modal.js";
+        import {
+            add_current_cert,
+            update_state,
+            compare_do,
+            notification_subscribe,
+            chat_authorize
+        } from "/static/modal.js";
+
+        var chat_history = [];
 
         $(function () {
-
+            $("#chat-modal").on("show.bs.modal", function () {
+                let token = "{{ csrf_token() }}";
+                let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
+                let check_url = "{{ url_for("chat.authorized") }}";
+                let auth_url = "{{ url_for("chat.authorize") }}";
+                chat_authorize(check_url, auth_url, sitekey, token);
+            });
+            $("#chat-send").click(function () {
+                let message = $("#chat-input").val().trim();
+                if (message) {
+                    // Append the message to the chat history and display it
+                    let full_message = {
+                        role: "user",
+                        content: message
+                    };
+                    chat_history.push(full_message);
+                    let data = {query: chat_history};
+                    // Extract hashid from certificate_data if available
+                    let hashid = certificate_data?.hashid;
+                    let collection = certificate_data?.type;
+                    if (hashid !== undefined) {
+                        data.hashid = hashid;
+                        data.collection = collection;
+                    }
+                    $("#chat-messages").append(`<div class="chat-message-user">${message}</div>`);
+                    $("#chat-input").val(""); // Clear input after sending
+                    // Disable the send button to prevent multiple clicks
+                    $("#chat-send").prop("disabled", true);
+                    // Show the loading indicator
+                    $("#chat-messages").append(`<div class="chat-message-loading"><i class="fas fa-spinner fa-spin"></i></div>`);
+                    let chat_url = "{{ url_for('chat.query') }}";
+                    let token = "{{ csrf_token() }}";
+                    // Send the chat history to the server
+                    $.ajax(chat_url, {
+                            method: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify(data),
+                            headers: {
+                                "X-CSRFToken": token
+                            },
+                            success: function (response) {
+                                // Remove the loading indicator
+                                $("#chat-messages .chat-message-loading").remove();
+                                // Enable the send button again
+                                $("#chat-send").prop("disabled", false);
+                                // Append the response from the server
+                                $("#chat-messages").append(`<div class="chat-message-assistant">${response.response}</div>`);
+                                chat_history.push({
+                                    role: "assistant",
+                                    content: response.response
+                                });
+                            },
+                            error: function (xhr) {
+                                // Remove the loading indicator
+                                $("#chat-messages .chat-message-loading").remove();
+                                // Enable the send button again
+                                $("#chat-send").prop("disabled", false);
+                                // Handle error, parse the response as JSON
+                                let error_message = "An error occurred while sending your message.";
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    error_message = xhr.responseJSON.message;
+                                }
+                                $("#chat-error").text(error_message).show();
+                            }
+                        }
+                    );
+                }
+            });
             $("#notification-modal").on("show.bs.modal", function () {
                 update_state();
             });
@@ -186,4 +261,48 @@
             update_state();
         });
     </script>
+{% endmacro %}
+
+{% macro chat_icon() %}
+    <div id="chat">
+        <button id="chat-icon" class="btn btn-primary text-nowrap z-3" title="Chat"
+                data-bs-toggle="modal" data-bs-target="#chat-modal">
+            <i class="fas fa-fw fa-message" aria-hidden="true"></i>
+        </button>
+    </div>
+{% endmacro %}
+{% macro chat_modal() %}
+    <div class="modal fade" id="chat-modal" tabindex="-1" aria-labelledby="chat-modal-label"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chat-modal-label">Chat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="chat-body">
+                    <div id="chat-turnstile"></div>
+                    <p id="chat-authorize">
+                        Please authorize to use the chat.
+                    </p>
+                    <p class="invalid-feedback" id="chat-error" style="display: none"></p>
+                    <!-- Chat skeleton start -->
+                    <div id="chat-skeleton">
+                        <div id="chat-messages">
+                            <!-- Messages will appear here -->
+                        </div>
+                        <div class="chat-input-group input-group">
+                            <textarea id="chat-input" class="form-control" rows="2"
+                                      placeholder="Type your message..."></textarea>
+                            <button id="chat-send" class="btn btn-primary" type="button">Send</button>
+                        </div>
+                    </div>
+                    <!-- Chat skeleton end -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endmacro %}

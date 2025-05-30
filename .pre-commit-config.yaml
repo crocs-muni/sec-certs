@@ -22,3 +22,4 @@ repos:
           - 'types-frozendict'
           - 'types-redis'
           - 'types-pytz'
+          - 'types-Markdown'

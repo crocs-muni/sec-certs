@@ -184,3 +184,55 @@ export function compare_do(cc_url, fips_url) {
     url = url.replace("YYYYYYYYYYYYYYYY", selected[1]["hashid"]);
     window.location.href = url;
 }
+
+export function chat_authorize(check_url, auth_url, sitekey, csrf_token) {
+    let auth = false;
+    $.ajax(check_url, {
+        method: "GET",
+        success: function (response) {
+            // Check response json for "authorized"
+            if (response.authorized) {
+                $("#chat-authorize").hide();
+                $("#chat-turnstile").hide();
+                auth = true;
+            } else {
+                auth = false;
+            }
+        },
+    })
+    if (auth) {
+        return; // Already authorized, no need to render turnstile
+    }
+
+    turnstile.render("#chat-turnstile", {
+        "sitekey": sitekey,
+        "response-field": false,
+        "callback": (token) => {
+            $.ajax(auth_url, {
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    "captcha": token
+                }),
+                headers: {
+                    "X-CSRFToken": csrf_token
+                },
+                success: function () {
+                    $("#chat-authorize").hide();
+                    $("#chat-turnstile").hide();
+                },
+                error: function (response) {
+                    try {
+                        $("#chat-error").text(response.responseJSON.error).show();
+                    } catch (error) {
+                        $("#chat-error").text("Something went wrong with the chat authorization request, please try again later").show();
+                    }
+                }
+            })
+        }
+    });
+}
+
+export function chat() {
+    console.log(certificate_data);
+}

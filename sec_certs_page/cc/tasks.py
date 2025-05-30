@@ -96,6 +96,26 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
+@actor("cc_update_llm", "cc_update_llm", "updates", timedelta(hours=12))
+def update_llm(to_update):  # pragma: no cover
+    for digest, document in to_update:
+        if document == "report":
+            collection = current_app.config["WEBUI_COLLECTION_CC_REPORTS"]
+        elif document == "target":
+            collection = current_app.config["WEBUI_COLLECTION_CC_TARGETS"]
+        else:
+            continue
+        if not collection:
+            continue
+        from sec_certs_page.common.ai import post
+
+        url = f"collections/{collection}/documents/{digest}"
+        data = {"update": True}
+        response = post(url, data)
+        if response.status_code != 200:
+            logger.error(f"Failed to update LLM for {digest} ({document}): {response.text}")
+
+
 class CCArchiver(Archiver, CCMixin):  # pragma: no cover
     """
     CC Dataset
