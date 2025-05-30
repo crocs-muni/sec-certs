@@ -40,42 +40,44 @@
                 <div class="col-12 col-md-6">
                     <h1 class="anchor" id="about">About</h1>
                     <div id="about-info">
-                        <p class="lead">The <b>sec-certs</b> project aims to be the one-stop shop to explore the Common Criteria / FIPS 140
-                            certification ecosystem.
-                        </p>
-                        <p>It all started in 2019, when we found a vulnerability in a Common Criteria-certified device. We wanted to investigate
-                            devices using the vulnerable one and understand the vulnerability impact. However,
-                            such analysis proved to be extremely laborious due to the lack of
-                            machine-processable data. We thus started aggregating and analyzing certification data, which enabled unified search,
-                            trend analysis, dependency visualization, and other features. Over time, we started interconnecting with other
-                            public datasets, most notably the list of CVEs.
-                        </p>
-                        
-                        <p>In the spirit of open research, we decided to publish the dataset as well as the Python library to
-                            explore it for free. You're welcome to check out the <a href="{{ url_for("docs.serve_docs", path="index.html") }}" target="_blank">library 
-                            documentation</a> as well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and website 
-                            source code</a>.
-                        </p>
-                        <p>Over time, we have written multiple research publications on the tool itself and the insights into the 
-                            certification ecosystem gained using it. For the list of all publications, see the 
-                            <a href="{{ url_for("about.research")}}">Research page</a>. We welcome collaboration of any kind – if you are interested,
-                            feel free to get in touch at <a href="mailto:hello@sec-certs.org">hello@sec-certs.org</a>.
-                        </p>
+                        <div class="pe-lg-3">
+                            <p class="lead">The <b>sec-certs</b> project aims to be the one-stop shop to explore the Common Criteria / FIPS 140
+                                certification ecosystem.
+                            </p>
+                            <p>It all started in 2019, when we found a vulnerability in a Common Criteria-certified device. We wanted to investigate
+                                devices using the vulnerable one and understand the vulnerability impact. However,
+                                such analysis proved to be extremely laborious due to the lack of
+                                machine-processable data. We thus started aggregating and analyzing certification data, which enabled unified search,
+                                trend analysis, dependency visualization, and other features. Over time, we started interconnecting with other
+                                public datasets, most notably the list of CVEs.
+                            </p>
 
-                        <a class="btn btn-primary m-1" href="{{ url_for("docs.serve_docs", path="index.html") }}">Use the library</a>
-                        <a class="btn btn-primary m-1" href="{{ url_for("about.research")}}">Read research</a>
-                        <a class="btn btn-primary m-1" href="mailto:hello@sec-certs.org">Get in touch</a>
+                            <p>In the spirit of open research, we decided to publish the dataset as well as the Python library to
+                                explore it for free. You're welcome to check out the <a href="{{ url_for("docs.serve_docs", path="index.html") }}" target="_blank">library
+                                documentation</a> as well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and website
+                                source code</a>.
+                            </p>
+                            <p>Over time, we have written multiple research publications on the tool itself and the insights into the
+                                certification ecosystem gained using it. For the list of all publications, see the
+                                <a href="{{ url_for("about.research")}}">Research page</a>. We welcome collaboration of any kind – if you are interested,
+                                feel free to get in touch at <a href="mailto:hello@sec-certs.org">hello@sec-certs.org</a>.
+                            </p>
+
+                            <a class="btn btn-primary m-1 ms-0" href="{{ url_for("docs.serve_docs", path="index.html") }}">Use the library</a>
+                            <a class="btn btn-primary m-1" href="{{ url_for("about.research")}}">Read research</a>
+                            <a class="btn btn-primary m-1" href="mailto:hello@sec-certs.org">Get in touch</a>
+                        </div>
                         
                        	<img class="w-100 mb-4 pe-lg-3 mt-3" src="{{ url_for("static", filename="img/team1_retouch.JPG") }}" alt="Team photo"
                        		onmouseover="$(this).attr('src', '{{ url_for("static", filename="img/team2_retouch.JPG") }}')"
                        		onmouseout="$(this).attr('src', '{{ url_for("static", filename="img/team1_retouch.JPG") }}')" />
                         <h4>Project team</h4>
 
-                        <p class="lead">Sec-certs is developed at the 
+                        <p class="lead pe-lg-3">Sec-certs is developed at the
                             <a href="https://crocs.fi.muni.cz" target="_blank">Centre for Research on Cryptography and Security (CRoCS)</a> at 
                             <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. Our lab aims to improve security 
                             and privacy through applied research (often in cooperation with industry) and advanced education of 
-                            future security professionals, supplemented by occasional beer-touring, boardgaming and juggling.</p>
+                            future security professionals.</p>
                         {{ render_person("Petr Švenda", "Initial implementation, idea person", "2019-now") }}
                         {{ render_person("Ján Jančár", "Web implementation, anti-idea person", "2019-now") }}
                         {{ render_person("Adam Janovský", "Library implementation, machine-learning", "2019-2024") }}
@@ -102,7 +104,7 @@
                 </div>
                 <div class="col-12 col-md-6" id="about-sponsors">
                     <h2 class="anchor" id="sponsors">Sponsors</h2>
-                    <p class="lead">We greatly appreciate the support we have received over the years. This included direct financial support as well as computing infrastructure, networking and dissemination opportunities.</p>
+                    <p class="lead pe-lg-3">We greatly appreciate the support we have received over the years. This included direct financial support as well as computing infrastructure, networking and dissemination opportunities.</p>
                     <div class="row my-5 gx-0 border rounded">
                         <div class="col-4 px-2 pt-1">
                             <a

@@ -1,6 +1,4 @@
-
-
-export function nameSearchSetup(){
+export function nameSearchSetup() {
     document.getElementById("nameSearchRadioId").checked = true
     document.getElementById("search-type").disabled = true;
     document.getElementById("search-sort").disabled = false;
@@ -12,7 +10,7 @@ export function nameSearchSetup(){
     tooltipType.enable()
 }
 
-export function fulltextSearchSetup(){
+export function fulltextSearchSetup() {
     document.getElementById("fulltextSearchRadioId").checked = true
     document.getElementById("search-type").disabled = false;
     document.getElementById("search-sort").disabled = true;
@@ -31,5 +29,13 @@ export function searchParams(additional) {
     let scheme = $("#search-scheme").val();
     let type = $("#search-type").val();
     let categories = $.makeArray($("#search-categories input").filter(":checked").map((i, elem) => $(elem).data("id"))).join("");
-    return $.param({searchType, q: $("#search").val(), cat: categories, type: type, status: status, sort: sort, scheme: scheme, ...additional});
+    return $.param({
+        searchType,
+        q: $("#search").val(),
+        cat: categories,
+        type: type,
+        status: status,
+        sort: sort,
+        scheme: scheme, ...additional
+    });
 }

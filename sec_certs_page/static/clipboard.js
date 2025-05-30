@@ -1,7 +1,4 @@
-
-
-
-async function copyLinkToClipboard (linkObj) {
+async function copyLinkToClipboard(linkObj) {
     try {
         const successSpan = document.createElement('span');
 
@@ -17,7 +14,7 @@ async function copyLinkToClipboard (linkObj) {
     } catch (error) {
         console.error("Failed to copy to clipboard:", error);
     }
-};
+}
 
 function copyToClipboard() {
     var text = getSelectionText();
