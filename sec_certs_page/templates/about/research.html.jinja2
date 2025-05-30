@@ -1,0 +1,187 @@
+{% extends "common/base.html.jinja2" %}
+{% set canonical = True %}
+{% block title %}
+    <title>Common Criteria | sec-certs.org</title>
+{% endblock %}
+
+{% block content %}
+    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <main>
+            <div class="row" id="about-research">
+                <div class="col-12 col-md-6">
+                    <h1 class="anchor" id="research">Research</h1>
+                    <p class="lead">This page presents all research publications describing the 
+                        sec-certs tool or investigating ecosystem insights gained using this tool.
+                    </p>
+                    <p>In the spirit of open research, we decided to publish the dataset as well 
+                        as the python library to explore it for free. You're welcome to check out the 
+                        <a href="{{ url_for('docs.serve_docs', path='index.html') }}", path="index.html') }}">library documentation</a> as 
+                        well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and 
+                        website source code</a>.
+                    </p>
+
+                    <p>Sec-certs is developed at the <a href="https://crocs.fi.muni.cz" target="_blank">Centre for Research on Cryptography and Security (CRoCS)</a> 
+                        at <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. For more details of our team and project sponsors, 
+                        see the <a href="{{ url_for('about.index') }}">project info page.</a>
+                    </p>
+
+                    <div class="mt-5">
+                        <h3><i class="fas fa-file-alt"></i> sec-certs: Examining the security certification practice for
+                            better vulnerability mitigation</h3>
+                        <p class="fst-italic">Adam Janovsky, Jan Jancar, Petr Svenda, Lukasz Chmielewski, Jiri Michalik,
+                            Vashek Matyas</p>
+                        <div class="mb-1">
+                            <a href="https://arxiv.org/abs/2311.17603" class="btn btn-primary mb-1" target="_blank"
+                               rel="noopener"><i
+                                    class="fas fa-file-alt"></i> Preprint</a>
+                            <a href="https://doi.org/10.1016/j.cose.2024.103895" class="btn btn-primary mb-1"
+                               target="_blank"
+                               rel="noopener"><i class="fas fa-file-alt"></i> Computers &amp; Security journal</a>
+                            <button class="btn btn-secondary mb-1" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#paper-1-bib" aria-expanded="false" aria-controls="paper-1-bib">
+                                <i class="fas fa-quote-right"></i> BibTeX
+                            </button>
+                        </div>
+                        <div class="collapse" id="paper-1-bib">
+                            <div class="card card-body">
+                        	<pre class="select-on-click" title="Click to copy to clipboard">
+@article{sec-certs,
+	title = {sec-certs: Examining the security certification practice for better vulnerability mitigation},
+	journal = {Computers \& Security},
+	volume = {143},
+	year = {2024},
+	issn = {0167-4048},
+	doi = {10.1016/j.cose.2024.103895},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167404824001974},
+	author = {Adam Janovsky and Jan Jancar and Petr Svenda and Lukasz Chmielewski and Jiri Michalik and Vashek Matyas},
+	keywords = {Security certification, Common criteria, Vulnerability assessment, Data analysis, Smartcards}
+}</pre>
+                            </div>
+                        </div>
+                        <p>Products certified under security certification frameworks such as Common Criteria undergo
+                            significant scrutiny during the costly certification process. Yet, critical vulnerabilities,
+                            including private key recovery (ROCA, Minerva, TPM-Fail...), get discovered in certified
+                            products with high assurance levels. Furthermore, assessing which certified products are
+                            impacted by such vulnerabilities is complicated due to the large amount of unstructured
+                            certification-related data and unclear relationships between the certificates. To address
+                            these problems, we conducted a large-scale automated analysis of Common Criteria and FIPS
+                            140 certificates. We trained unsupervised models to learn which vulnerabilities from NIST's
+                            National Vulnerability Database impact existing certified products and how certified
+                            products reference each other. Our tooling automates the analysis of tens of thousands of
+                            certification-related documents, extracting machine-readable features where manual analysis
+                            is unattainable. Further, we identify the security requirements that are associated with
+                            products being affected by fewer and less severe vulnerabilities (on average). This
+                            indicates which aspects of certification correlate with higher security. We demonstrate how
+                            our tool can be used for better vulnerability mitigation on four case studies of known,
+                            high-profile vulnerabilities. All tools and continuously updated results are available on
+                            this site.</p>
+                    </div>
+                    <div>
+                        <h3><i class="fas fa-file-alt"></i> Chain of trust: Unraveling the references among Common
+                            Criteria certified products</h3>
+                        <p class="fst-italic">Adam Janovsky, Lukasz Chmielewski, Petr Svenda, Jan Jancar, Vashek
+                            Matyas</p>
+                        <div class="mb-1">
+                            <a href="https://arxiv.org/abs/2404.14246" class="btn btn-primary mb-1" target="_blank"
+                               rel="noopener"><i
+                                    class="fas fa-file-alt"></i> Preprint</a>
+                            <a href="https://link.springer.com/chapter/10.1007/978-3-031-65175-5_14"
+                               class="btn btn-primary mb-1" target="_blank"
+                               rel="noopener"><i
+                                    class="fas fa-file-alt"></i> IFIP SEC 2024</a>
+                            <button class="btn btn-secondary mb-1" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#paper-2-bib" aria-expanded="false" aria-controls="paper-2-bib">
+                                <i class="fas fa-quote-right"></i> BibTeX
+                            </button>
+                        </div>
+                        <div class="collapse" id="paper-2-bib">
+                            <div class="card card-body">
+                        	<pre class="select-on-click" title="Click to copy to clipboard">
+@inproceedings{chain-of-trust,
+	title = {Chain of Trust: Unraveling References Among Common Criteria Certified Products},
+	booktitle = {ICT Systems Security and Privacy Protection},
+	edition = {volume 710},
+	editor = {Nikolaos Pitropakis, Sokratis Katsikas, Steven Furnell, Konstantinos Markantonakis},
+	publisher = {Springer Nature Switzerland},
+	address = {Cham},
+	year = {2024},
+	isbn = {978-3-031-65175-5},
+	doi = {10.1007/978-3-031-65175-5_14},
+	url = {https://link.springer.com/chapter/10.1007/978-3-031-65175-5_14},
+	author = {Adam Janovsky and Lukasz Chmielewski and Petr Svenda and Jan Jancar and Vashek Matyas},
+	keywords = {security certification, Common Criteria, FIPS 140, security evaluation}
+}</pre>
+                            </div>
+                        </div>
+                        <p>With 5394 security certificates of IT products and systems, the Common Criteria for
+                            Information Technology Security Evaluation have bred an ecosystem entangled with various
+                            kind of relations between the certified products. Yet, the prevalence and nature of
+                            dependencies among Common Criteria certified products remains largely unexplored. This study
+                            devises a novel method for building the graph of references among the Common Criteria
+                            certified products, determining the different contexts of references with a supervised
+                            machine-learning algorithm, and measuring how often the references constitute actual
+                            dependencies between the certified products. With the help of the resulting reference graph,
+                            this work identifies just a dozen of certified components that are relied on by at least 10%
+                            of the whole ecosystem -- making them a prime target for malicious actors. The impact of
+                            their compromise is assessed and potentially problematic references to archived products are
+                            discussed.</p>
+                    </div>
+                    <div>
+                        <h3><i class="fas fa-file-alt"></i> Revisiting the analysis of references among Common Criteria
+                            certified products</h3>
+                        <p class="fst-italic">Adam Janovsky, Lukasz Chmielewski, Petr Svenda, Jan Jancar, Vashek
+                            Matyas</p>
+                        <div class="mb-1">
+                            <!-- <a href="" class="btn btn-primary mb-1" target="_blank"
+                               rel="noopener"><i
+                                    class="fas fa-file-alt"></i> Preprint</a> -->
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0167404825000513"
+                               class="btn btn-primary mb-1" target="_blank"
+                               rel="noopener"><i
+                                    class="fas fa-file-alt"></i> Computers &amp; Security journal</a>
+                            <button class="btn btn-secondary mb-1" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#paper-3-bib" aria-expanded="false" aria-controls="paper-3-bib">
+                                <i class="fas fa-quote-right"></i> BibTeX
+                            </button>
+                        </div>
+                        <div class="collapse" id="paper-3-bib">
+                            <div class="card card-body">
+                        	<pre class="select-on-click" title="Click to copy to clipboard">
+@article{revisiting-references,
+	title = {Revisiting the analysis of references among Common Criteria certified products},
+	journal = {Computers \& Security},
+	volume = {152},
+	year = {2025},
+	pages = {104362},
+	issn = {0167-4048},
+	doi = {10.1016/j.cose.2025.104362},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167404825000513},
+	author = {Adam Janovsky and Lukasz Chmielewski and Petr Svenda and Jan Jancar and Vashek Matyas},
+	keywords = {Security certification, Common Criteria, Vulnerability assessment, Data analysis, Smartcards}
+}</pre>
+                            </div>
+                        </div>
+                        <p>With almost six thousand security certificates for IT products and systems,
+                            the Common Criteria for Information Technology Security Evaluation has bred an
+                            ecosystem entangled with various kinds of relations between the certified products.
+                            Yet, the prevalence and nature of dependencies among Common Criteria-certified
+                            products remain largely unexplored. This study devises a novel method for building
+                            the graph of references among the Common Criteria certified products, determining
+                            the different contexts of references with a supervised machine-learning algorithm,
+                            and measuring how often the references constitute actual dependencies between the
+                            certified products. With the help of the resulting reference graph, this work
+                            identifies just a dozen of certified components that are relied on by at least
+                            10% of the whole ecosystem – making them a prime target for malicious actors.
+                            The impact of their compromise is assessed, and potentially problematic references
+                            to archived products are discussed. Processing of all public certificate artifacts
+                            additionally provides insights into the dynamics of the whole certification ecosystem
+                            in time, including the popularity of categories, average assurance levels, length of
+                            validity periods, the adoption rate of selected cryptographic algorithms, and
+                            cross-referencing among national schemes.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+{% endblock %}

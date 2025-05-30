@@ -1,6 +1,5 @@
 {% extends "common/base.html.jinja2" %}
-{% set crumbs = True %}
-{% set search = True %}
+
 {% block title %}
     <title>Protection Profiles | sec-certs.org</title>
 {% endblock %}
@@ -35,119 +34,51 @@
                 </div>
             </div>
         </div>
-        <div class="row bg-dark p-3">
+        <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Search</h4>
-                                <p class="card-text flex-grow-1">Search and browse through the Protection Profiles and
-                                    our extracted
-                                    metadata.</p>
-                                <div>
-                                    <a href="{{ url_for(".search") }}" class="btn btn-primary"><i
-                                            class="fas fa-search fa-fw"></i> Go</a>
-                                    <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary"
-                                       title="Fulltext search" data-bs-toggle="tooltip"><i
-                                            class="fas fa-search-plus fa-fw"></i> Fulltext</a>
-                                </div>
-                            </div>
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-search fa-fw"></i>
                         </div>
+                        <h3>Search</h3>
+                        <p>We are converting all Protection Profiles from PDFs into machine readable format. You can use this website to 
+                        search in our database for any Protection Profile certificate, discover its extracted metadata, filter them and do much more.</p>
+                        <a href="{{ url_for(".merged_search") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">References</h4>
-                                <p class="card-text flex-grow-1">Explore an interactive graph of references of Common
-                                    Criteria
-                                    certificates and Protection Profiles.</p>
-                                <div>
-                                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
-                                            class="fas fa-network-wired fa-fw"></i> Go</a>
-                                </div>
-                            </div>
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fa fa-lightbulb" aria-hidden="true"></i>
                         </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Analysis</h4>
-                                <p class="card-text flex-grow-1">View a part of our results of our analysis of the
-                                    Protection Profile
-                                    data.</p>
-                                <div>
-                                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
-                                            class="fas fa-chart-line fa-fw"></i> Go</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Random</h4>
-                                <p class="card-text flex-grow-1">Look at a random Common Criteria Protection
-                                    Profile.</p>
-                                <div>
-                                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
-                                            class="fas fa-dice fa-fw"></i> Go</a>
-                                    <a href="{{ url_for(".entry", hashid="62c62b4b4210800e") }}"
-                                       class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
-                                </div>
-                            </div>
-                        </div>
+                        <h3>Example</h3>
+                        <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
+                        Don't forget to search for your own certificates later!</p>
+                        <a href="{{ url_for("pp.rand") }}" class="btn btn-outline-primary m-1 ms-0">
+                            Random certificate
+                        </a>
+                        <a href="{{ url_for(".entry", hashid="62c62b4b4210800e") }}" class="btn btn-primary m-1">
+                            Show example <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-10 mx-auto">
-            <div class="row p-3 py-md-5">
-                <div class="col-12 col-lg-6">
-                    <h3 class="anchor" id="data">Data</h3>
-                    <p>
-                        The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
-                        and all the pages and data on this site are extracted from it. It is a JSON file as produced
-                        by the <code>sec-certs pp</code> command from the tool. Documentation for the tool,
-                        including a quick-start guide, can be found
-                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
-                    </p>
-                    {% if last_ok_run %}
-                        <p>
-                            The dataset was last successfully updated
-                            at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
-                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the
-                            sec-certs tool
-                            and it contains {{ last_ok_run["length"] }} protection profiles.
-                        </p>
-                    {% endif %}
-                    <table class="table table-borderless">
-                        <tr>
-                            <td>
-                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
-                                        class="fas fa-file-alt"></i>
-                                    Main dataset</a>
-                            </td>
-                            <td>
-                                The main dataset is a JSON file with data on the protection profiles extracted from the
-                                certification artifacts (i.e. PDFs). It does not contain the files themselves or
-                                information about maintenance updates.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary w-100">
-                                    <i class="fas fa-file-archive"></i> Full datasset
-                                </a>
-                            </td>
-                            <td>
-                                The full dataset contains also the certification
-                                artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
-                                Download this if you want to do your own processing on top of the data provided by our
-                                tooling.
-                            </td>
-                        </tr>
-                    </table>
+        <div class="row p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-file-alt fa-fw"></i>
+                        </div>
+                        <h3>Data</h3>
+                        <p>Want to process all Protection Profiles data on your own? Download our prepared datasets and analyse them.</p>
+                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

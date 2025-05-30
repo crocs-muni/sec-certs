@@ -1,24 +1,9 @@
 {% extends "common/base.html.jinja2" %}
-{% set crumbs = True %}
-{% set search = True %}
 {% set canonical = True %}
 {% block title %}
     <title>Common Criteria | sec-certs.org</title>
 {% endblock %}
-{% block navbar %}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".network") }}">References</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for(".rand") }}">Random</a>
-    </li>
-{% endblock %}
+
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
@@ -38,143 +23,87 @@
                 </div>
             </div>
         </div>
-        <div class="row bg-dark p-3">
+
+        <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5 row-cols-1 row-cols-lg-4 g-4">
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Search</h4>
-                                <p class="card-text flex-grow-1">Search and browse through the certificates and our
-                                    extracted
-                                    metadata.</p>
-                                <div>
-                                    <a href="{{ url_for(".search") }}" class="btn btn-primary" title="Basic search" data-bs-toggle="tooltip"><i
-                                            class="fas fa-search fa-fw"></i> Go</a>
-                                    <a href="{{ url_for(".fulltext_search") }}" class="btn btn-primary"
-                                       title="Fulltext search" data-bs-toggle="tooltip"><i
-                                            class="fas fa-search-plus fa-fw"></i> Fulltext</a>
-                                </div>
-                            </div>
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-search fa-fw"></i>
                         </div>
+                        <h3>Search</h3>
+                        <p>We are converting all Common Criteria certificates from PDFs into machine readable format. You can use this website to 
+                        search in our database for any Common Criteria certificate, discover its extracted metadata, filter them and do much more.</p>
+                        <a href="{{ url_for(".merged_search") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">References</h4>
-                                <p class="card-text flex-grow-1">Explore an interactive graph of references in Common
-                                    Criteria
-                                    certificates.</p>
-                                <div>
-                                    <a href="{{ url_for(".network") }}" class="btn btn-primary"><i
-                                            class="fas fa-network-wired fa-fw"></i> Go</a>
-                                </div>
-                            </div>
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fa fa-lightbulb" aria-hidden="true"></i>
                         </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Analysis</h4>
-                                <p class="card-text flex-grow-1">View a part of our results of our analysis of the
-                                    Common Criteria
-                                    certificate data.</p>
-                                <div>
-                                    <a href="{{ url_for(".analysis") }}" class="btn btn-primary"><i
-                                            class="fas fa-chart-line fa-fw"></i> Go</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <h4 class="card-title">Random</h4>
-                                <p class="card-text flex-grow-1">Look at a random Common Criteria
-                                    certificate.</p>
-                                <div>
-                                    <a href="{{ url_for(".rand") }}" class="btn btn-primary"><i
-                                            class="fas fa-dice fa-fw"></i> Go</a>
-                                    <a href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}"
-                                       class="btn btn-primary"><i class="fas fa-file-circle-check"></i> Example</a>
-                                </div>
-                            </div>
-                        </div>
+                        <h3>Example</h3>
+                        <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
+                        Don't forget to search for your own certificates later!</p>
+    
+                        <a href="{{ url_for("cc.rand") }}" class="btn btn-outline-primary m-1 ms-0">
+                            Random certificate
+                        </a>
+                        <a  href="{{ url_for("cc.entry", hashid="b906b2e8d7617202") }}" class="btn btn-primary m-1">
+                            Show example <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-10 mx-auto">
-            <div class="row p-3 py-md-5">
-                <div class="col-12 col-lg-6">
-                    <h3 class="anchor" id="data">Data</h3>
-                    <p>
-                        The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
-                        and all the pages and data on this site are extracted from it. It is a JSON file as produced
-                        by the <code>sec-certs cc</code> command from the tool. Documentation for the tool,
-                        including a quick-start guide, can be found
-                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
-                    </p>
-                    {% if last_ok_run %}
-                        <p>
-                            The dataset was last successfully updated
-                            at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
-                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the
-                            sec-certs tool
-                            and it contains {{ last_ok_run["length"] }} certificates.
-                        </p>
-                    {% endif %}
-                    <table class="table table-borderless">
-                        <tr>
-                            <td>
-                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
-                                        class="fas fa-file-alt"></i>
-                                    Main dataset</a>
-                            </td>
-                            <td>
-                                The main dataset is a JSON file with data on the certificates extracted from the
-                                certification artifacts (i.e. PDFs). It does not contain the files themselves or
-                                information about maintenance updates.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><a href="{{ url_for(".maintenance_updates") }}" role="button" class="btn btn-primary w-100"><i
-                                    class="fas fa-file-alt"></i>
-                                Maintenance updates</a>
-                            </td>
-                            <td>
-                                The maintenance update dataset is a JSON file almost identical to the main dataset,
-                                except it covers only maintenance updates.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a href="{{ url_for(".schemes") }}" role="button" class="btn btn-primary w-100"><i
-                                        class="fas fa-file-alt"></i>
-                                    Scheme data</a>
-                            </td>
-                            <td>
-                                The scheme dataset is a JSON file with data on certified products, products under
-                                evaluation and archived certificates scraped from the websites of individual
-                                Common Criteria national schemes.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary w-100">
-                                    <i class="fas fa-file-archive"></i> Full datasset
-                                </a>
-                            </td>
-                            <td>
-                                The full dataset contains all the datasets mentioned above as well as the certification
-                                artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
-                                Download this if you want to do your own processing on top of the data provided by our
-                                tooling.
-                            </td>
-                        </tr>
-                    </table>
+        <div class="row p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-chart-line fa-fw"></i>
+                        </div>
+                        <h3>Analysis</h3>
+                        <p>Which scheme is issuing certificates the most? Which certificate category is the most numerous?
+                        You can find answers here and you can also make your own statistics with our prepared datasets.</p>
+                        <a href="{{ url_for(".analysis") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-network-wired fa-fw"></i>
+                        </div>
+                        <h3>References</h3>
+                        <p>Are you curious about which certificates reference yours - and vice versa? 
+                        We automatically link references between certificates to form an extensive network. 
+                        You can also view detailed reference networks within each certificate's information.</p>
+                        <a href="{{ url_for(".network") }}" class="btn btn-primary">
+                            Show all references <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="row bg-darker-light p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-file-alt fa-fw"></i>
+                        </div>
+                        <h3>Data</h3>
+                        <p>Want to process all Common Criteria data on your own? Download our prepared datasets and analyse them.</p>
+                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        
     </main>
 {% endblock %}

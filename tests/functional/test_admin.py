@@ -30,13 +30,6 @@ def logged_in_client(client: FlaskClient, admin, mocker):
         yield client
 
 
-@pytest.fixture
-def feedback(client: FlaskClient):
-    obj = {"element": "test-element", "comment": "test comment", "path": "/cc/some_path"}
-    client.post("/feedback/", json=obj)
-    yield mongo.db.feedback.find_one(obj)
-    mongo.db.feedback.delete_one(obj)
-
 
 def test_login(client: FlaskClient, admin, mocker):
     user, password = admin
@@ -86,8 +79,3 @@ def test_update_diff(logged_in_client):
     id = list(mongo.db.fips_diff.find({}, {"_id": True}))[-1]["_id"]
     resp = logged_in_client.get(f"/admin/update/diff/{id}")
     assert resp.status_code == 200
-
-
-def test_feedback(logged_in_client, feedback):
-    resp = logged_in_client.get("/admin/feedback")
-    assert b"test comment" in resp.data

@@ -144,28 +144,6 @@ def update_diff(id):
     return abort(404)
 
 
-@admin.route("/feedback")
-@login_required
-@admin_permission.require()
-@register_breadcrumb(admin, ".feedback", "Feedback")
-def feedback():
-    page = int(request.args.get("page", 1))
-    per_page = 20
-    entries = mongo.db.feedback.find({}).sort([("timestamp", pymongo.DESCENDING)])[
-        (page - 1) * per_page : page * per_page
-    ]
-    count = mongo.db.feedback.count_documents({})
-    pagination = Pagination(
-        page=page,
-        per_page=per_page,
-        search=False,
-        found=count,
-        total=count,
-        css_framework="bootstrap5",
-        alignment="center",
-    )
-    return render_template("admin/feedback.html.jinja2", pagination=pagination, entries=entries)
-
 
 @admin.route("/config")
 @login_required

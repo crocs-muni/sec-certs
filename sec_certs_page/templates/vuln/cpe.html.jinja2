@@ -1,6 +1,5 @@
-{% extends "common/crowdsourced.html.jinja2" %}
-{% set crumbs = True %}
-{% set search = False %}
+{% extends "common/base.html.jinja2" %}
+
 {% set canonical = True %}
 {% block title %}
     <title>
@@ -22,18 +21,7 @@
     <meta name="description" content="{{ cpe["_id"] }}" />
     <meta name="robots" content="noindex"/>
 {% endblock %}
-{% block navbar %}
-    {{ super() }}
-    <li class="nav-item">
-        <a class="nav-link" href="#data">Data</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#linked-cves">Linked CVEs</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#matched-certs">Matched certificates</a>
-    </li>
-{% endblock %}
+
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">

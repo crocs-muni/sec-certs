@@ -1,0 +1,47 @@
+{% extends "common/base.html.jinja2" %}
+{% from "common/library-info.html.jinja2" import render_library_info %}
+
+{% set canonical = True %}
+{% block title %}
+    <title>Vulnerabilities | sec-certs.org</title>
+{% endblock %}
+
+{% block content %}
+    <main>
+        <div class="col-12 col-sm-10 mx-auto">
+            <div class="row p-3 py-md-5">
+                <div class="col-12">
+                    <h1 class="anchor" id="data">Data</h1>
+                    <p>The full and up-to-date datasets used on this site can be downloaded here. They are updated daily.</p>
+                    <div class="mb-3">
+                    <a href="{{ url_for(".cve_dset") }}" role="button" class="btn btn-primary"><i
+                            class="fas fa-file-alt"></i>
+                        CVE</a>
+                    <a href="{{ url_for(".cpe_dset") }}" role="button" class="btn btn-primary"><i
+                            class="fas fa-file-alt"></i>
+                        CPE</a>
+                    </div>
+                    {{ render_library_info() }}
+                </div>
+            </div>
+            <div class="row p-3 pb-md-5">
+                <h2>Data sources</h2>
+                <p>
+                    We are getting information from the following data sources:
+                </p>
+                <ul style="list-style-position: inside;">
+                	<li>
+                		The NIST <a href="https://nvd.nist.gov/developers/vulnerabilities" target="_blank" rel="noopener">CVE API</a>.
+                	</li>
+                	<li>
+	               		The NIST <a href="https://nvd.nist.gov/developers/products" target="_blank" rel="noopener">CPE API</a>.
+	               	</li>
+	               	<li>
+	               		The NIST <a href="https://nvd.nist.gov/general/News/CPE-Match-Feed-1-0-Release" target="_blank" rel="noopener">CPE Match data</a>.
+	               	</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+

@@ -1,0 +1,104 @@
+{% extends "common/base.html.jinja2" %}
+{% from "common/library-info.html.jinja2" import render_library_info %}
+{% set canonical = True %}
+{% block title %}
+    <title>Common Criteria | sec-certs.org</title>
+{% endblock %}
+
+{% block content %}
+    <main>
+        <div class="col-12 col-sm-10 mx-auto">
+            <div class="row p-3 py-md-5">
+                <div class="col-12">
+                    <h1 class="anchor" id="data">Data</h1>
+                    <p>
+                        The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
+                        and all the pages and data on this site are extracted from it. It is a JSON file as produced
+                        by the <code>sec-certs cc</code> command from the tool. Documentation for the tool,
+                        including a quick-start guide, can be found
+                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}">here</a>.
+                    </p>
+                    {% if last_ok_run %}
+                        <p>
+                            The dataset was last successfully updated
+                            at {{ last_ok_run["start_time"] | strftime("%H:%M on %d.%m.%Y") }}
+                            using version <span class="font-monospace">{{ last_ok_run["tool_version"] }}</span> of the
+                            sec-certs tool
+                            and it contains {{ last_ok_run["length"] }} certificates.
+                        </p>
+                    {% endif %}
+                    <table class="align-middle table table-borderless">
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".dataset") }}" role="button" class="btn btn-primary w-100"><i
+                                        class="fas fa-file-alt"></i>
+                                    Main dataset</a>
+                            </td>
+                            <td>
+                                The main dataset is a JSON file with data on the certificates extracted from the
+                                certification artifacts (i.e. PDFs). It does not contain the files themselves or
+                                information about maintenance updates.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><a href="{{ url_for(".maintenance_updates") }}" role="button" class="btn btn-primary w-100"><i
+                                    class="fas fa-file-alt"></i>
+                                Maintenance updates</a>
+                            </td>
+                            <td>
+                                The maintenance update dataset is a JSON file almost identical to the main dataset,
+                                except it covers only maintenance updates.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".schemes") }}" role="button" class="btn btn-primary w-100"><i
+                                        class="fas fa-file-alt"></i>
+                                    Scheme data</a>
+                            </td>
+                            <td>
+                                The scheme dataset is a JSON file with data on certified products, products under
+                                evaluation and archived certificates scraped from the websites of individual
+                                Common Criteria national schemes.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="{{ url_for(".dataset_archive") }}" role="button" class="btn btn-primary w-100">
+                                    <i class="fas fa-file-archive"></i> Full datasset
+                                </a>
+                            </td>
+                            <td>
+                                The full dataset contains all the datasets mentioned above as well as the certification
+                                artifacts themselves (i.e. PDFs). It is a gzip-compressed tar archive.
+                                Download this if you want to do your own processing on top of the data provided by our
+                                tooling.
+                            </td>
+                        </tr>
+                    </table>
+                    {{ render_library_info() }}
+                </div>
+            </div>
+            <div class="row p-3 pb-md-5">
+                <h2>Data sources</h2>
+                <p>
+                    We are getting information from the following data sources:
+                </p>
+                <ul style="list-style-position: inside;">
+                	<li>
+                		The	<a href="https://commoncriteriaportal.org" target="_blank" rel="noopener">commoncriteriaportal.org</a>,
+                		which we use as the trusted source of certificate data. We scrape both its HTML site and the CSV export of
+                		certificates and download all of the available PDFs: certificates, certification reports and security targets.
+                		We run a caching proxy to minimize the load on the CC portal and disperse it over time by keeping the cache hot.
+                	</li>
+                	<li>
+                		The sites of national schemes, which we use to enrich the certificate metadata. We try to scrape all of the scheme
+                		sites for a list of certified products, though not all publish this list properly. For some, we also scrape a list
+                		of products in evaluation.
+                	</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+

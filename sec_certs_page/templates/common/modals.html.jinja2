@@ -1,28 +1,30 @@
 {% macro compare_icon() %}
-    <div id="compare">
-        <button id="compare-icon" class="btn btn-secondary" title="Compare certificates"
+    <span id="compare" class="position-relative d-inline-block">
+        <button id="compare-icon" class="btn btn-secondary text-nowrap" title="Compare certificates"
                 data-bs-toggle="modal" data-bs-target="#compare-modal">
             <i class="fas fa-fw fa-scale-balanced" aria-hidden="true"></i>
             <span id="compare-pill"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
                                 &nbsp;
-                            <span class="visually-hidden">selected certificates for comparison</span>
-                                </span>
+                    <span class="visually-hidden">selected certificates for comparison</span>
+            </span>
+            Compare
         </button>
-    </div>
+    </span>
 {% endmacro %}
 {% macro notification_icon() %}
-    <div id="notifications">
-        <button id="notification-icon" class="btn btn-secondary" title="Notifications"
+    <span id="notifications" class="position-relative d-inline-block">
+        <button id="notification-icon" class="btn btn-secondary text-nowrap" title="Notifications"
                 data-bs-toggle="modal" data-bs-target="#notification-modal">
             <i class="fas fa-fw fa-envelope" aria-hidden="true"></i>
             <span id="notification-pill"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
                                 &nbsp;
-                            <span class="visually-hidden">selected certificates for notification subscription</span>
-                          </span>
+                <span class="visually-hidden">selected certificates for notification subscription</span>
+            </span>
+            Subscribe
         </button>
-    </div>
+    </span>
 {% endmacro %}
 {% macro compare_modal() %}
     <div class="modal fade" id="compare-modal" tabindex="-1" aria-labelledby="compare-modal-label"
@@ -120,7 +122,7 @@
                                 <input type="email" class="form-control" id="notifications-email" required/>
                                 <p class="form-text">Your email will only be used to send you notifications.
                                     Each notification contains an unsubscribe link. For more, see our
-                                    <a href="{{ url_for("about", _anchor="privacy-policy") }}" target="_blank">privacy
+                                    <a href="{{ url_for("about.index", _anchor="privacy-policy") }}" target="_blank">privacy
                                         policy</a>.</p>
                             </div>
                             <div id="notification-turnstile"></div>

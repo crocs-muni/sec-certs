@@ -30,14 +30,19 @@ from .tasks import PPRenderer
 @pp.route("/")
 @register_breadcrumb(pp, ".", "Protection Profiles")
 def index():
-    last_ok_run = mongo.db.pp_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("pp/index.html.jinja2", last_ok_run=last_ok_run)
+    return render_template("pp/index.html.jinja2")
 
 
 @pp.route("/network/")
 @register_breadcrumb(pp, ".network", "References")
 def network():
     return render_template("pp/network.html.jinja2")
+
+
+@pp.route("/data/")
+def data():
+    last_ok_run = mongo.db.pp_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("pp/data.html.jinja2", last_ok_run=last_ok_run)
 
 
 @pp.route("/dataset.json")
@@ -55,13 +60,28 @@ def dataset_archive():
 @pp.route("/search/")
 @register_breadcrumb(pp, ".search", "Search")
 def search():
-    """Protection Profile search."""
-    res = PPBasicSearch.process_search(request)
+    return redirect(url_for(".merged_search"))
+
+
+@pp.route("/mergedsearch/")
+def merged_search():
+    searchType = request.args.get("searchType")
+    if searchType != "by-name" and searchType != "fulltext":
+        searchType = "by-name"
+
+    template = "pp/search/name_search.html.jinja2"
+    res = {}
+    if searchType == "by-name":
+        res = PPBasicSearch.process_search(request)
+    elif searchType == "fulltext":
+        res = PPFulltextSearch.process_search(request)
+        template = "pp/search/fulltext_search.html.jinja2"
     return render_template(
-        "pp/search/index.html.jinja2",
+        template,
         **res,
         schemes=cc_schemes,
         title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
+        searchType=searchType,
     )
 
 
@@ -79,14 +99,7 @@ def search_results():
 @pp.route("/ftsearch/")
 @register_breadcrumb(pp, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    """Fulltext search for Protection Profiles."""
-    res = PPFulltextSearch.process_search(request)
-    return render_template(
-        "pp/search/fulltext.html.jinja2",
-        **res,
-        schemes=cc_schemes,
-        title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-    )
+    return redirect(url_for(".merged_search"))
 
 
 @pp.route("/<string(length=16):hashid>/")

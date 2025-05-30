@@ -1,12 +1,10 @@
 {% extends "common/base.html.jinja2" %}
-{% set crumbs = True %}
-{% set search = False %}
 {% block title %}
     <title>Common Criteria reference network | sec-certs.org</title>
 {% endblock %}
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <div class="col-sm-10 mx-auto p-3 py-md-5">
             <h1 class="mb-4">Common Criteria</h1>
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
@@ -54,22 +52,31 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="border">
+                <div id="network"></div>
+                <div id="network-skeleton" class="container d-flex justify-content-center align-items-center">
+                    <div id="network-loading" class="d-block spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <script type="module">
+                import {createNetwork} from "/static/network.js";
+                async function loadNetwork(){
+                    return createNetwork('network',
+                            '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
+                            '{{ url_for(".categories") }}',
+                            '{{ url_for(".statuses") }}',
+                            '{{ url_for(".reference_types") }}',
+                            600,
+                            300,
+                            false);
+                }
+                await loadNetwork()
+                $("#network-skeleton").remove()
+            </script>
         </div>
 
-        <div class="border">
-            <div id="network"></div>
-        </div>
-        <script type="module">
-            import {createNetwork} from "/static/network.js";
-
-            let network = createNetwork('network',
-                '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',
-                '{{ url_for(".categories") }}',
-                '{{ url_for(".statuses") }}',
-                '{{ url_for(".reference_types") }}',
-                600,
-                300,
-                false);
-        </script>
+        
     </main>
 {% endblock %}
