@@ -6,9 +6,13 @@ requirements: requests, beautifulsoup4
 version: 1.0
 license: MIT
 """
+
+from typing import Literal
+
 import requests
 from bs4 import BeautifulSoup
-from typing import Literal
+
+# Note, this file is a "tool" for the Open WebUI service, it is not a part of this application.
 
 
 class Tools:
@@ -26,15 +30,11 @@ class Tools:
         """
 
         url = f"https://sec-certs.org/{scheme}/mergedsearch/"
-        params = {
-            "searchType": "by-name",
-            "q": query,
-            "page": page
-        }
+        params = {"searchType": "by-name", "q": query, "page": page}
         resp = requests.get(url, params=params)
         if resp.status_code != 200:
             return f"Error: Unable to fetch data from {url}. Status code: {resp.status_code}"
-        soup = BeautifulSoup(resp.text, 'lxml')
+        soup = BeautifulSoup(resp.text, "lxml")
         results = soup.find_all("tr", class_="search-result")
         if not results:
             return "No certificates found."
@@ -76,9 +76,3 @@ class Tools:
         else:
             page_info = "No pagination information available."
         return results_info + "\n" + page_info + "\n------" + "---\n".join(output)
-
-
-if __name__ == "__main__":
-    tools = Tools()
-    result = tools.search("Athena", "cc")
-    print(result)  # This will print the response from the search function

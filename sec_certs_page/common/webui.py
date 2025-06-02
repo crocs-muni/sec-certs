@@ -40,6 +40,7 @@ def upload_file(file_path: str | Path, metadata=None):
     if response.status_code == 200:
         return response.json()
     else:
+        print("bad response:", response.status_code, response.text)
         return None
 
 
@@ -94,9 +95,9 @@ def get_file_data_content(file_id: str):
         return None
 
 
-def update_file_data_content(file_id: str, data: bytes):
+def update_file_data_content(file_id: str, file):
     url = f"v1/files/{file_id}/data/content/update"
-    response = post(url, files=data)
+    response = post(url, files={"file": file})
     if response.status_code == 200:
         return response.json()
     else:

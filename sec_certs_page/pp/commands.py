@@ -5,6 +5,7 @@ import click
 from .. import mongo
 from ..common.commands import _create, _drop, _query, _status
 from . import pp
+from .tasks import update_kb as update_kb_core
 
 
 @pp.cli.command("create", help="Create the DB of protection profiles.")
@@ -27,3 +28,11 @@ def query(query, projection):  # pragma: no cover
 @pp.cli.command("status", help="Print status information for the MongoDB collection.")
 def status():  # pragma: no cover
     _status(mongo.db.pp)
+
+
+@pp.cli.command("update-kb", help="Update the KB of PP certs.")
+def update_kb():
+    ids = list(map(lambda doc: doc["_id"], mongo.db.pp.find({}, {"_id": 1})))
+    reports = [(dgst, "report", None) for dgst in ids]
+    targets = [(dgst, "target", None) for dgst in ids]
+    update_kb_core(reports + targets)

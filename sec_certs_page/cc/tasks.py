@@ -1,7 +1,7 @@
 import logging
 import os
 import subprocess
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -15,15 +15,7 @@ from sec_certs.utils.helpers import get_sha256_filepath
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, Notifier, Updater, actor
-from ..common.views import entry_file_path
-from ..common.webui import (
-    add_file_to_knowledge_base,
-    get_knowledge_base,
-    update_file_data_content,
-    update_file_in_knowledge_base,
-    upload_file,
-)
+from ..common.tasks import Archiver, Indexer, KBUpdater, Notifier, Updater, actor
 from . import cc_categories
 
 logger = logging.getLogger(__name__)
@@ -104,53 +96,14 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
+class CCKBUpdater(KBUpdater, CCMixin):  # pragma: no cover
+    pass
+
+
 @actor("cc_update_kb", "cc_update_kb", "updates", timedelta(hours=12))
 def update_kb(to_update):  # pragma: no cover
-    reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
-    targets_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
-    reports_fmap = {}
-    for file in reports_kb["files"]:
-        id = file["id"]
-        name = file["meta"]["name"]
-        reports_fmap[name] = id
-    targets_fmap = {}
-    for file in targets_kb["files"]:
-        id = file["id"]
-        name = file["meta"]["name"]
-        targets_fmap[name] = id
-
-    for digest, document, file_id in to_update:
-        if document == "report":
-            kb = current_app.config["WEBUI_COLLECTION_CC_REPORTS"]
-            fmap = reports_fmap
-        elif document == "target":
-            kb = current_app.config["WEBUI_COLLECTION_CC_TARGETS"]
-            fmap = targets_fmap
-        else:
-            continue
-        # Get file contents
-        fpath = entry_file_path(digest, current_app.config["DATASET_PATH_CC_DIR"], document, "txt")
-        if not fpath.exists():
-            continue
-        # Check whether we have the file under some id
-        name = f"{digest}.txt"
-        if name in fmap and file_id is None:
-            file_id = fmap[name]
-
-        if file_id is None:
-            # Create a new file
-            resp = upload_file(fpath)
-            print("Added", resp["id"])
-            # Add it to the kb
-            resp = add_file_to_knowledge_base(kb, resp["id"])
-        else:
-            with fpath.open("rb") as f:
-                content = f.read()
-            # Then update the file with new contents
-            resp = update_file_data_content(file_id, content)
-            print("Updated", file_id)
-            # Then trigger also kb update
-            resp = update_file_in_knowledge_base(kb, file_id)
+    updater = CCKBUpdater()
+    updater.update(to_update)
 
 
 class CCArchiver(Archiver, CCMixin):  # pragma: no cover
@@ -243,20 +196,20 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
         to_reindex = set()
         to_update_kb = set()
 
-        reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
-        targets_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
-        reports_fmap = {}
-        for file in reports_kb["files"]:
-            id = file["id"]
-            name = file["meta"]["name"]
-            updated = file["updated_at"]
-            reports_fmap[name] = (id, updated)
-        targets_fmap = {}
-        for file in targets_kb["files"]:
-            id = file["id"]
-            name = file["meta"]["name"]
-            updated = file["updated_at"]
-            targets_fmap[name] = (id, updated)
+        # reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
+        # targets_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
+        # reports_fmap = {}
+        # for file in reports_kb["files"]:
+        #    id = file["id"]
+        #    name = file["meta"]["name"]
+        #    updated = file["updated_at"]
+        #    reports_fmap[name] = (id, updated)
+        # targets_fmap = {}
+        # for file in targets_kb["files"]:
+        #    id = file["id"]
+        #    name = file["meta"]["name"]
+        #    updated = file["updated_at"]
+        #     targets_fmap[name] = (id, updated)
 
         with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
             if not self.skip_update or not paths["output_path"].exists():
@@ -294,11 +247,11 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
                             cert.state.report.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "report"))
-                        name = f"{cert.dgst}.txt"
-                        if name not in reports_fmap:
-                            to_update_kb.add((cert.dgst, "report", None))
-                        elif reports_fmap[name][1] < dst.stat().st_mtime:
-                            to_update_kb.add((cert.dgst, "report", reports_fmap[name][0]))
+                        # name = f"{cert.dgst}.txt"
+                        # if name not in reports_fmap:
+                        #    to_update_kb.add((cert.dgst, "report", None))
+                        # elif reports_fmap[name][1] < dst.stat().st_mtime:
+                        #    to_update_kb.add((cert.dgst, "report", reports_fmap[name][0]))
                     if cert.state.st.pdf_path and cert.state.st.pdf_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.pdf_hash:
@@ -308,11 +261,11 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
                             cert.state.st.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "target"))
-                        name = f"{cert.dgst}.txt"
-                        if name not in targets_fmap:
-                            to_update_kb.add((cert.dgst, "target", None))
-                        elif targets_fmap[name][1] < dst.stat().st_mtime:
-                            to_update_kb.add((cert.dgst, "target", targets_fmap[name][0]))
+                        # name = f"{cert.dgst}.txt"
+                        # if name not in targets_fmap:
+                        #    to_update_kb.add((cert.dgst, "target", None))
+                        # elif targets_fmap[name][1] < dst.stat().st_mtime:
+                        #    to_update_kb.add((cert.dgst, "target", targets_fmap[name][0]))
                     if cert.state.cert.pdf_path and cert.state.cert.pdf_path.exists():
                         dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.pdf_hash:

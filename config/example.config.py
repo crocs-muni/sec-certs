@@ -28,6 +28,28 @@ MAIL_PASSWORD = ""  # The password to use for auth
 MAIL_DEFAULT_SENDER = "seccerts@example.com"  # The sender address
 # MAIL_SUPPRESS_SEND = True                     # Whether to suppress all sending (for testing)
 
+# WebUI
+WEBUI_URL = ""  # The URL of the WebUI API
+WEBUI_KEY = ""  # Your WebUI API key
+WEBUI_MODEL = "llama-4-scout-17b-16e-instruct"  # The model to use for the WebUI
+WEBUI_SYSTEM_PROMPT = "You are a helpful assistant for the sec-certs project and an expert in security certifications. You can answer questions about Common Criteria and FIPS 140 certifications. Use the information from files and knowledge bases provided to you as much as possible. "
+WEBUI_PROMPT_CC_ALL = "You are answering questions about Common Criteria certificates. In your knowledge base, you have information about the Common Criteria certification reports and security targets."
+WEBUI_PROMPT_CC_CERT = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'."
+WEBUI_PROMPT_CC_BOTH = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'. In your knowledge base, you have information about all of the Common Criteria certification reports and security targets."
+WEBUI_PROMPT_FIPS_ALL = "You are answering questions about FIPS 140 certificates. In your knowledge base, you have information about the FIPS 140 security policies."
+WEBUI_PROMPT_FIPS_CERT = "You are answering questions about a FIPS 140 certificate '{{ cert_name }}'."
+WEBUI_PROMPT_FIPS_BOTH = "You are answering questions about a FIPS 140 certificate '{{ cert_name }}'. In your knowledge base, you have information about all of the FIPS 140 security policies."
+WEBUI_PROMPT_PP_ALL = "You are answering questions about Common Criteria Protection Profiles. In your knowledge base, you have information about the Protection Profiles and their certification reports."
+WEBUI_PROMPT_PP_CERT = "You are answering questions about a Comon Criteria Protection Profile '{{ cert_name }}'."
+WEBUI_PROMPT_PP_BOTH = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'. In your knowledge base, you have information about all of the Protection Profiles and their certification reports."
+WEBUI_COLLECTION_CC_REPORTS = ""  # The ID of the knowledge base of Common Criteria certification reports
+WEBUI_COLLECTION_CC_TARGETS = ""  # The ID of the knowledge base of Common Criteria security targets
+WEBUI_COLLECTION_FIPS_TARGETS = ""  # The ID of the knowledge base of FIPS 140 security policies
+WEBUI_COLLECTION_PP_REPORTS = (
+    ""  # The ID of the knowledge base of Common Criteria Protection Profile certification reports
+)
+WEBUI_COLLECTION_PP_TARGETS = ""  # The ID of the knowledge base of Common Criteria Protection Profile security targets
+
 # MongoDB
 MONGO_URI = "mongodb://localhost:27017/seccerts"
 

@@ -21,8 +21,8 @@ def test_file_lookup(app):
     content = get_file_content(file_id)
     data = get_file_data_content(file_id)
     print(meta)
-    print(content)
-    print(data)
+    # print(content)
+    # print(data)
 
 
 def test_update(app):
@@ -34,16 +34,12 @@ def test_file_list(app):
 
 
 def test_kb(app):
-    reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
-    fmap = {}
-    print(len(reports_kb["files"]))
-    for file in reports_kb["files"]:
-        id = file["id"]
-        name = file["meta"]["name"]
-        updated = file["updated_at"]
-        # Parse epoch timestamp
-        updated = datetime.fromtimestamp(updated)
-        fmap[name] = (id, updated)
+    for collection in ("CC", "FIPS", "PP"):
+        for document in ("REPORTS", "TARGETS"):
+            kbid = current_app.config.get(f"WEBUI_COLLECTION_{collection}_{document}", None)
+            if kbid is not None:
+                kb = get_knowledge_base(kbid)
+                print(f"Knowledge Base {collection} {document}: {len(kb['files'])} files")
 
 
 def test_chat(app):

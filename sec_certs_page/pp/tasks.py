@@ -15,7 +15,7 @@ from .. import mongo, runtime_config
 from ..cc import cc_categories
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, Updater, actor
+from ..common.tasks import Archiver, Indexer, KBUpdater, Updater, actor
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +81,16 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
+class PPKBUpdater(KBUpdater, PPMixin):  # pragma: no cover
+    pass
+
+
+@actor("pp_update_kb", "pp_update_kb", "updates", timedelta(hours=12))
+def update_kb(to_update):  # pragma: no cover
+    updater = PPKBUpdater()
+    updater.update(to_update)
+
+
 class PPArchiver(Archiver, PPMixin):
     """
     PP Dataset
@@ -127,6 +137,8 @@ def archive_all():  # pragma: no cover
 class PPUpdater(Updater, PPMixin):  # pragma: no cover
     def process(self, dset, paths):
         to_reindex = set()
+        to_update_kb = set()
+
         with sentry_sdk.start_span(op="pp.all", description="Get full PP dataset"):
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="pp.get_certs", description="Get certs from web"), suppress_child_spans():
@@ -168,7 +180,7 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.txt_hash:
                             prof.state.report.txt_path.replace(dst)
                             to_reindex.add((prof.dgst, "report"))
-        return to_reindex
+        return to_reindex, to_update_kb
 
     def dataset_state(self, dset):
         return dset.state.to_dict()
@@ -179,6 +191,9 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
 
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
+
+    def update_kb(self, to_update):
+        update_kb.send(list(to_update))
 
     def archive(self, ids, paths):
         archive.send(ids, paths)

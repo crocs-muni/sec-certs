@@ -1,9 +1,9 @@
-from common.objformats import cert_name
 from flask import current_app, render_template_string, request, session
 from markdown2 import markdown
 from nh3 import nh3
 
 from .. import mongo
+from ..common.objformats import cert_name
 from ..common.views import captcha_required
 from ..common.webui import chat_with_model, files_for_hashid
 from . import chat
