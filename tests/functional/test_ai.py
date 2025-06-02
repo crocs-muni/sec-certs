@@ -34,8 +34,9 @@ def test_file_list(app):
 
 
 def test_kb(app):
-    reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
+    reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
     fmap = {}
+    print(len(reports_kb["files"]))
     for file in reports_kb["files"]:
         id = file["id"]
         name = file["meta"]["name"]

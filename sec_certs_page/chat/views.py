@@ -1,6 +1,6 @@
 from common.objformats import cert_name
 from flask import current_app, render_template_string, request, session
-from markdown import markdown
+from markdown2 import markdown
 from nh3 import nh3
 
 from .. import mongo
@@ -75,6 +75,8 @@ def query():
     response = choice["message"]["content"]
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
-    rendered = markdown(response, output_format="html")
+    print(response)
+    rendered = markdown(response, extras=["cuddled-lists"])
+    print(rendered)
     cleaned = nh3.clean(rendered)
     return {"status": "ok", "response": cleaned, "raw": response}

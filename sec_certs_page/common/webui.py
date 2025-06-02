@@ -177,7 +177,6 @@ def chat_with_model(queries, system_addition: str = "", kbs: Optional[list] = No
         file_attr = [{"type": "file", "id": file} for file in files]
     if file_attr is not None:
         data["files"] = file_attr
-    print(url)
     print(data)
     response = post(url, data)
     return response
