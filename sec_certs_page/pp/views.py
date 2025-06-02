@@ -60,7 +60,7 @@ def dataset_archive():
 @pp.route("/search/")
 @register_breadcrumb(pp, ".search", "Search")
 def search():
-    return redirect(url_for(".merged_search"))
+    return redirect(url_for(".merged_search", searchType="by-name", **request.args))
 
 
 @pp.route("/mergedsearch/")
@@ -89,7 +89,7 @@ def merged_search():
 @pp.route("/ftsearch/")
 @register_breadcrumb(pp, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    return redirect(url_for(".merged_search"))
+    return redirect(url_for(".merged_search", searchType="fulltext", **request.args))
 
 
 @pp.route("/<string(length=16):hashid>/")
