@@ -63,7 +63,7 @@
     <span title="{{ name }}">
         {% set ftype = get_fips_type(name) %}
         {% if ftype %}
-            <i class="fas fa-fw {{ ftype['icon'] }}"></i>
+            <i class="fas fa-fw {{ ftype['icon'] }}" aria-label="{{ name }}"></i>
         {% endif %}
     </span>
 {%- endmacro %}
@@ -106,15 +106,14 @@
                 {% set cert_dates = cert["web_data"]["validation_history"] %}
                 {% set sunset_date = cert["web_data"]["date_sunset"] %}
                 {% set type = cert["web_data"]["module_type"] %}
-                <tr>
-                    <td class="pl-1">#{{ id }}</td>
-                    <td>{{ render_type(type) }}&nbsp;<a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a>
-                    </td>
-                    <td>{{ render_status(status) }}</td>
-                    <td>{{ level }}</td>
-                    <td>{{ vendor }}</td>
-                    <td>{%if cert_dates %}{% for entry in cert_dates %}{{ entry["date"]|strftime("%d.%m.%Y") }}<br/>{% endfor %}{% endif %}</td>
-                    <td>{% if sunset_date %}{{ sunset_date|strftime("%d.%m.%Y") }}{% endif %}</td>
+                <tr class="search-result">
+                    <td class="pl-1"><span class="result-id">#{{ id }}</span></td>
+                    <td><span class="result-category">{{ render_type(type) }}</span>&nbsp;<span class="result-name"><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></span></td>
+                    <td><span class="result-status">{{ render_status(status) }}</span></td>
+                    <td><span class="result-level">{{ level }}</span></td>
+                    <td><span class="result-vendor">{{ vendor }}</span></td>
+                    <td><span class="result-cert-date">{%if cert_dates %}{% for entry in cert_dates %}{{ entry["date"]|strftime("%d.%m.%Y") }}<br/>{% endfor %}{% endif %}</span></td>
+                    <td><span class="result-archive-date">{% if sunset_date %}{{ sunset_date|strftime("%d.%m.%Y") }}{% endif %}</span></td>
                 </tr>
             {% endfor %}
         </table>

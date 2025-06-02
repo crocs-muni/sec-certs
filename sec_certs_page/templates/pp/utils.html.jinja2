@@ -39,12 +39,12 @@
         {% set cert_date = profile["web_data"]["not_valid_before"] %}
         {% set archive_date = profile["web_data"]["not_valid_after"] %}
         {% set category = profile["web_data"]["category"] %}
-		<tr>
-        <td class="pl-1">{{ render_category(category) }}&nbsp;{{ idd }}</td>
-		<td><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></td>
-		<td>{{ render_status(status) }}</td>
-		<td>{{ cert_date.strftime("%m/%d/%Y") if cert_date else "" }}</td>
-		<td>{{ archive_date.strftime("%m/%d/%Y") if archive_date else "" }}</td>
+		<tr class="search-result">
+            <td class="pl-1"><span class="result-category">{{ render_category(category) }}</span>&nbsp;<span class="result-id">{{ idd }}</span></td>
+            <td><span class="result-name"><a href="{{ url_for('.entry', hashid=hashid) }}">{{ name }}</a></span></td>
+            <td><span class="result-status">{{ render_status(status) }}</span></td>
+            <td><span class="result-cert-date">{{ cert_date.strftime("%m/%d/%Y") if cert_date else "" }}</span></td>
+            <td><span class="result-archive-date">{{ archive_date.strftime("%m/%d/%Y") if archive_date else "" }}</span></td>
 		</tr>
 	{% endfor %}
 	</table>
