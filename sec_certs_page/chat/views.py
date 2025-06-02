@@ -33,14 +33,27 @@ def query():
     data = request.get_json()
     if "query" not in data:
         return {"status": "error", "message": "Missing 'query' in request."}, 400
+    if "about" not in data:
+        return {"status": "error", "message": "Missing 'about' in request."}, 400
     files = None
     kbs = None
-    system_addition = ""
+    collection = None
+    cert = None
     if "collection" in data:
         collection = data["collection"]
         if collection not in ("cc", "fips"):
             return {"status": "error", "message": "Invalid collection specified."}, 400
         else:
+            reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
+            targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
+            reports_kbid = current_app.config.get(reports_kb)
+            targets_kbid = current_app.config.get(targets_kb)
+            if reports_kbid or targets_kbid:
+                kbs = []
+                if reports_kbid:
+                    kbs.append(reports_kbid)
+                if targets_kbid:
+                    kbs.append(targets_kbid)
             if "hashid" in data:
                 hashid = data["hashid"]
                 cert = mongo.db[collection].find_one({"_id": hashid})
@@ -48,21 +61,31 @@ def query():
                     return {"status": "error", "message": "Invalid hashid."}, 404
                 else:
                     files = files_for_hashid(hashid)
-                    system_addition = render_template_string(
-                        current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT", ""), cert_name=cert_name(cert)
-                    )
-            else:
-                system_addition = current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_ALL", "")
-                reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
-                targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
-                reports_kbid = current_app.config.get(reports_kb)
-                targets_kbid = current_app.config.get(targets_kb)
-                if reports_kbid or targets_kbid:
-                    kbs = []
-                    if reports_kbid:
-                        kbs.append(reports_kbid)
-                    if targets_kbid:
-                        kbs.append(targets_kbid)
+
+    about = data["about"]
+    if about == "entry":
+        if files is None:
+            return {"status": "error", "message": "Missing 'hashid' for entry query."}, 400
+        kbs = None
+        system_addition = render_template_string(
+            current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT", ""), cert_name=cert_name(cert)
+        )
+    elif about == "collection":
+        if kbs is None:
+            return {"status": "error", "message": "Missing knowledge base for collection query."}, 400
+        system_addition = current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_ALL", "")
+        files = None
+    elif about == "both":
+        if files is None:
+            return {"status": "error", "message": "Missing 'hashid' for both query."}, 400
+        if kbs is None:
+            return {"status": "error", "message": "Missing knowledge base for both query."}, 400
+        system_addition = render_template_string(
+            current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_BOTH", ""), cert_name=cert_name(cert)
+        )
+    else:
+        return {"status": "error", "message": "Invalid 'about' value."}, 400
+
     result = chat_with_model(data["query"], system_addition, kbs=kbs, files=files)
     if result.status_code != 200:
         return {"status": "error", "message": "Chat request failed."}, result.status_code

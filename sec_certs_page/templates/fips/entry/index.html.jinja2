@@ -445,3 +445,8 @@
         </script>
     </main>
 {% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    {{ chat_icon() }}
+{% endblock %}

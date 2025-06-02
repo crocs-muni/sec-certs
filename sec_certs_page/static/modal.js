@@ -233,3 +233,66 @@ export function chat_authorize(check_url, auth_url, sitekey, csrf_token) {
         });
     })
 }
+
+export function chat(chat_url, token, chat_history, certificate_data) {
+    let message = $("#chat-input").val().trim();
+    if (message) {
+        // Append the message to the chat history and display it
+        let full_message = {
+            role: "user",
+            content: message
+        };
+        chat_history.push(full_message);
+        let data = {
+            query: chat_history,
+            about: $("#chat-about").val()
+        };
+        // Extract hashid from certificate_data if available
+        let hashid = certificate_data?.hashid;
+        let collection = certificate_data?.type;
+        if (hashid !== undefined) {
+            data.hashid = hashid;
+            data.collection = collection;
+        }
+        $("#chat-messages").append(`<div class="chat-message-user">${message}</div>`);
+        $("#chat-input").val(""); // Clear input after sending
+        // Disable the send button to prevent multiple clicks
+        $("#chat-send").prop("disabled", true);
+        // Show the loading indicator
+        $("#chat-messages").append(`<div class="chat-message-loading"><i class="fas fa-spinner fa-spin"></i></div>`);
+        // Send the chat history to the server
+        $.ajax(chat_url, {
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                headers: {
+                    "X-CSRFToken": token
+                },
+                success: function (response) {
+                    // Remove the loading indicator
+                    $("#chat-messages .chat-message-loading").remove();
+                    // Enable the send button again
+                    $("#chat-send").prop("disabled", false);
+                    // Append the response from the server
+                    $("#chat-messages").append(`<div class="chat-message-assistant">${response.response}</div>`);
+                    chat_history.push({
+                        role: "assistant",
+                        content: response.raw
+                    });
+                },
+                error: function (xhr) {
+                    // Remove the loading indicator
+                    $("#chat-messages .chat-message-loading").remove();
+                    // Enable the send button again
+                    $("#chat-send").prop("disabled", false);
+                    // Handle error, parse the response as JSON
+                    let error_message = "An error occurred while sending your message.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        error_message = xhr.responseJSON.message;
+                    }
+                    $("#chat-error").text(error_message).show();
+                }
+            }
+        );
+    }
+}
