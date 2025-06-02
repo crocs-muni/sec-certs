@@ -64,6 +64,7 @@ def search():
 
 
 @pp.route("/mergedsearch/")
+@register_breadcrumb(pp, ".merged_search", "Search")
 def merged_search():
     searchType = request.args.get("searchType")
     if searchType != "by-name" and searchType != "fulltext":
@@ -83,17 +84,6 @@ def merged_search():
         title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
         searchType=searchType,
     )
-
-
-@pp.route("/search/pagination/")
-def search_results():
-    """Protection Profile search (raw results, pagination + timeline)."""
-
-    def callback(**kwargs):
-        return url_for(".search", **kwargs)
-
-    res = PPBasicSearch.process_search(request, callback=callback)
-    return render_template("pp/search/results.html.jinja2", **res)
 
 
 @pp.route("/ftsearch/")

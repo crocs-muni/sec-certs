@@ -137,6 +137,7 @@ def search():
 
 
 @fips.route("/mergedsearch/")
+@register_breadcrumb(fips, ".merged_search", "Search")
 def merged_search():
     searchType = request.args.get("searchType")
     if searchType != "by-name" and searchType != "fulltext":
@@ -156,15 +157,6 @@ def merged_search():
         title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
         searchType=searchType,
     )
-
-
-@fips.route("/search/results/")
-def search_results():
-    def callback(**kwargs):
-        return url_for(".search", **kwargs)
-
-    res = FIPSBasicSearch.process_search(request, callback=callback)
-    return render_template("fips/search/results.html.jinja2", **res)
 
 
 @fips.route("/ftsearch/")

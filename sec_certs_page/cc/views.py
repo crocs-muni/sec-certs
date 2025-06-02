@@ -200,7 +200,20 @@ def network_graph():
     return network_graph_func(get_cc_graphs())
 
 
+@cc.route("/data/")
+def data():
+    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
+    return render_template("cc/data.html.jinja2", last_ok_run=last_ok_run)
+
+
+@cc.route("/search/")
+@register_breadcrumb(cc, ".search", "Search")
+def search():
+    return redirect(url_for(".merged_search"))
+
+
 @cc.route("/mergedsearch/")
+@register_breadcrumb(cc, ".merged_search", "Search")
 def merged_search():
     searchType = request.args.get("searchType")
     if searchType != "by-name" and searchType != "fulltext":
@@ -220,29 +233,6 @@ def merged_search():
         title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
         searchType=searchType,
     )
-
-
-@cc.route("/data/")
-def data():
-    last_ok_run = mongo.db.cc_log.find_one({"ok": True}, sort=[("start_time", pymongo.DESCENDING)])
-    return render_template("cc/data.html.jinja2", last_ok_run=last_ok_run)
-
-
-@cc.route("/search/")
-@register_breadcrumb(cc, ".search", "Search")
-def search():
-    return redirect(url_for(".merged_search"))
-
-
-@cc.route("/search/results/")
-def search_results():
-    """Common criteria search (raw results, pagination + timeline)."""
-
-    def callback(**kwargs):
-        return url_for(".search", **kwargs)
-
-    res = CCBasicSearch.process_search(request, callback=callback)
-    return render_template("cc/search/results.html.jinja2", **res)
 
 
 @cc.route("/ftsearch/")
