@@ -1,4 +1,5 @@
 from flask import render_template
+
 from . import about
 
 
@@ -18,5 +19,5 @@ def changelog():
 
 
 @about.route("/privacy-policy/")
-def privacyPolicy():
-    return render_template("/about/privacy-policy.html.jinja2")
+def privacy_policy():
+    return render_template("about/privacy-policy.html.jinja2")

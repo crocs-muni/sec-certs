@@ -37,5 +37,7 @@ def error(e):
 @sitemap.register_generator
 def sitemap_urls():
     yield "index", {}, None, None, 1.0
-    yield "about", {}, None, None, 0.9
-    yield "changelog", {}, None, None, 0.8
+    yield "about.index", {}, None, None, 0.9
+    yield "about.changelog", {}, None, None, 0.8
+    yield "about.research", {}, None, None, 0.8
+    yield "about.privacy_policy", {}, None, None, 0.8
