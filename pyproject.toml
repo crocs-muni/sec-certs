@@ -29,9 +29,8 @@
     "sec-certs @ git+https://github.com/crocs-muni/sec-certs.git#main",
 
     # Flask
-    "Flask < 2.3",   # Flask-Breadcrumbs and Flask-Menu break
+    "Flask",
     "Flask-Assets",
-    "Flask-Breadcrumbs",
     "Flask-CacheControl",
     "Flask-Caching",
     "Flask-Cors",
@@ -39,7 +38,6 @@
     "Flask-Login",
     "Flask-Mail",
     "Flask-Melodramatiq",
-    "Flask-Menu == 1.0.1",
     "flask-paginate",
     "Flask-Principal",
     "Flask-PyMongo",

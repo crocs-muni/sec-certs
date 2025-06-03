@@ -4,7 +4,6 @@ from operator import itemgetter
 import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, url_for
-from flask_breadcrumbs import register_breadcrumb
 from periodiq import cron
 
 from .. import mongo, sitemap
@@ -18,6 +17,7 @@ from ..common.views import (
     entry_download_report_pdf,
     entry_download_report_txt,
     expires_at,
+    register_breadcrumb,
     send_cacheable_instance_file,
     send_json_attachment,
     sitemap_cert_pipeline,

@@ -2,11 +2,10 @@ from operator import itemgetter
 
 import sentry_sdk
 from flask import abort, current_app, render_template, request
-from flask_breadcrumbs import register_breadcrumb
 
 from .. import mongo, sitemap
 from ..common.objformats import load
-from ..common.views import send_cacheable_instance_file
+from ..common.views import register_breadcrumb, send_cacheable_instance_file
 from . import vuln
 
 
@@ -15,9 +14,11 @@ from . import vuln
 def index():
     return render_template("vuln/index.html.jinja2", title="Vulnerability information | sec-certs.org")
 
+
 @vuln.route("/search/")
 def search():
     return render_template("vuln/search.html.jinja2")
+
 
 @vuln.route("/data/")
 def data():

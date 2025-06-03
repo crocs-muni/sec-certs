@@ -18,14 +18,12 @@ from dramatiq.results import Results
 from dramatiq.results.backends import RedisBackend, StubBackend
 from flask import Flask, abort
 from flask_assets import Environment as Assets
-from flask_breadcrumbs import Breadcrumbs
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_melodramatiq import Broker, RedisBroker, StubBroker
-from flask_menu import Menu
 from flask_principal import Principal
 from flask_pymongo import PyMongo
 from flask_redis import FlaskRedis
@@ -132,12 +130,6 @@ public(csrf=csrf)
 
 mail: Mail = Mail(app)
 public(mail=mail)
-
-menu: Menu = Menu(app)
-public(menu=menu)
-
-breadcrumbs: Breadcrumbs = Breadcrumbs(app)
-public(breadcrumbs=breadcrumbs)
 
 
 class Sitemap(FlaskSitemap):
