@@ -57,6 +57,8 @@ public(app=app)
 if os.environ.get("TESTING", False):
     app.testing = True
     del app.config["DRAMATIQ_BROKER_URL"]
+    app.config["DEBUG_TB_ENABLED"] = False
+    app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
 if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
     sentry_sdk.init(
