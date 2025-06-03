@@ -279,6 +279,8 @@ export function chat(chat_url, token, chat_history, certificate_data) {
                         role: "assistant",
                         content: response.raw
                     });
+                    // Hide any previous error messages
+                    $("#chat-error").hide();
                 },
                 error: function (xhr) {
                     // Remove the loading indicator
@@ -290,6 +292,7 @@ export function chat(chat_url, token, chat_history, certificate_data) {
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         error_message = xhr.responseJSON.message;
                     }
+                    // Display the error message
                     $("#chat-error").text(error_message).show();
                 }
             }
@@ -300,6 +303,10 @@ export function chat(chat_url, token, chat_history, certificate_data) {
 export function chat_files(files_url, token, certificate_data) {
     let hashid = certificate_data?.hashid;
     let collection = certificate_data?.type;
+    if ($("#chat-files").data("done") || !hashid || !collection) {
+        // If files have already been loaded or no hashid/collection, do nothing
+        return;
+    }
     $.ajax({
         url: files_url,
         type: "POST",
@@ -317,6 +324,7 @@ export function chat_files(files_url, token, certificate_data) {
                     `Files available <span class="badge bg-secondary">${data.files.join(", ")}</span>`
                 );
             }
+            $("#chat-files").data("done", true);
         },
     })
 }
