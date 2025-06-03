@@ -51,7 +51,7 @@
     "Whoosh",
     "email-validator",
     "MarkupSafe",
-    "Werkzeug < 3.1",
+    "Werkzeug",
     "WTForms",
     "markdown2",
     "nh3",
