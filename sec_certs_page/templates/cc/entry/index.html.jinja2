@@ -81,7 +81,7 @@
                             <span style="margin-left: 20px">You can also examine other <a href="#similar">similar certificates</a> below.</span>
                         </div>
                     {% endif %}
-                        
+
                         <div class="d-flex gap-3 flex-wrap">
                             {{ compare_icon() }}
                             {{ notification_icon() }}
@@ -99,7 +99,7 @@
                                             class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span></a>
                                         </li>
                                     {% endif %}
-                            
+
                                     {% if cert["name"] %}
                                         <li>
                                             <a href="#" data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="dropdown-item">
@@ -147,15 +147,14 @@
                                 </tr>
                                 <tr data-cs-name="Manufacturer">
                                     <th scope="row">Manufacturer</th>
-                                    <td>
-                                        <ul>
-                                            {% for id, profile in profiles.items() %}
-                                                <li>
-                                                    <a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ profile["web_data"]["name"] }}</a>
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </td>
+                                <td>
+                                    {% if cert["manufacturer_web"] %}
+                                        <a href="{{ cert["manufacturer_web"] }}" target="_blank"
+                                           rel="noopener">{{ cert["manufacturer"] }}</a>
+                                    {% else %}
+                                        {{ cert["manufacturer"] }}
+                                    {% endif %}
+                                </td>
                                 </tr>
                                 <tr data-cs-name="Category">
                                     <th scope="row">Category</th>
@@ -170,13 +169,13 @@
                                     </td>
                                 </tr>
                                 {% if profiles %}
-                                    <tr data-cs-name="Security level">
+                                    <tr data-cs-name="Protection profiles">
                                         <th scope="row">Protection profiles</th>
                                         <td>
                                             <ul>
-                                                {% for ids, profile in profiles.items() %}
+                                                {% for id, profile in profiles.items() %}
                                                     <li>
-                                                        <a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ ", ".join(ids) }}</a>
+                                                        <a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ profile["web_data"]["name"] }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -261,7 +260,7 @@
                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="Information automatically extracted from the certificate. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
                             </h2>
-                            
+
                             {{ render_process_state(cert["state"], "cert", "certificate") }}
 
                         <div class="mt-3 mb-3">
@@ -325,7 +324,7 @@
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Information automatically extracted from the security target. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
                                 </h2>
-                                
+
                                 {{ render_process_state(cert["state"], "st", "security target") }}
 
                                 <div class="mt-3 mb-3">
@@ -353,7 +352,7 @@
                 </div>
             </div>
         </div>
-        
+
 
         <div class="shifted-section">
             <div class="col-12 p-3 py-md-5">
@@ -647,9 +646,9 @@
                                 $("#network-skeleton").remove()
                             };
 
-                            
+
                         </script>
-                        
+
                     {% endif %}
                 </div>
 
@@ -717,7 +716,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
