@@ -264,3 +264,12 @@ def unfreeze(doc):
 
 def store(doc):
     return WorkingFormat(doc).to_storage_format().get()
+
+
+def cert_name(cert_doc) -> str | None:
+    if name := cert_doc.get("name"):
+        return name
+    if web_data := cert_doc.get("web_data", cert_doc.get("web_scan")):
+        if module_name := web_data.get("module_name"):
+            return module_name
+    return None

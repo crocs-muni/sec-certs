@@ -3,8 +3,8 @@ import subprocess
 from datetime import timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Optional, Set, Tuple
 
-import dramatiq
 import sentry_sdk
 from dramatiq import pipeline
 from dramatiq.logging import get_logger
@@ -19,7 +19,7 @@ from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, Notifier, Updater, actor
+from ..common.tasks import Archiver, Indexer, KBUpdater, Notifier, Updater, actor
 from . import fips_types
 
 logger = get_logger(__name__)
@@ -119,6 +119,16 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
+class FIPSKBUpdater(KBUpdater, FIPSMixin):  # pragma: no cover
+    pass
+
+
+@actor("fips_update_kb", "fips_update_kb", "updates", timedelta(hours=12))
+def update_kb(to_update):  # pragma: no cover
+    updater = FIPSKBUpdater()
+    updater.update(to_update)
+
+
 class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
     """
     FIPS Dataset
@@ -176,6 +186,8 @@ def archive_all():  # pragma: no cover
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
     def process(self, dset: FIPSDataset, paths):
         to_reindex = set()
+        to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
+
         with sentry_sdk.start_span(op="fips.all", description="Get full FIPS dataset"):
             if not self.skip_update or not paths["output_path"].exists():
                 with (
@@ -217,7 +229,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy_txt_hash:
                             cert.state.policy_txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "target"))
-        return to_reindex
+        return to_reindex, to_update_kb
 
     def dataset_state(self, dset):
         return dset.state.to_dict()
@@ -227,6 +239,9 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
 
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
+
+    def update_kb(self, to_update):
+        update_kb.send(list(to_update))
 
     def archive(self, ids, paths):
         archive.send(ids, paths)

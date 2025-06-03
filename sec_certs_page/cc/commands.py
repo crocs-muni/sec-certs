@@ -9,6 +9,7 @@ from sec_certs.utils.sanitization import sanitize_link, sanitize_string
 from tqdm import tqdm
 
 from .. import mongo
+from ..cc.tasks import update_kb as update_kb_core
 from ..common.commands import _create, _drop, _query, _status
 from . import cc
 
@@ -65,3 +66,11 @@ def import_map(file):  # pragma: no cover
 
     for key, val in tqdm(id_map.items(), desc="Inserting map entries"):
         mongo.db.cc_old.replace_one({"_id": key}, {"_id": key, "hashid": val}, upsert=True)
+
+
+@cc.cli.command("update-kb", help="Update the KB of CC certs.")
+def update_kb():
+    ids = list(map(lambda doc: doc["_id"], mongo.db.cc.find({}, {"_id": 1})))
+    reports = [(dgst, "report", None) for dgst in ids]
+    targets = [(dgst, "target", None) for dgst in ids]
+    update_kb_core(reports + targets)

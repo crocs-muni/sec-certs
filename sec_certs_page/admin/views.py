@@ -8,13 +8,11 @@ from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, i
 
 from .. import mongo, redis, runtime_config
 from ..common.objformats import StorageFormat
+from ..common.permissions import admin_permission
 from ..common.views import Pagination
 from . import admin
 from .forms import ConfigEditForm, LoginForm
 from .user import User
-
-admin_permission = Permission(RoleNeed("admin"))
-
 
 collections = [
     ("cc", mongo.db.cc_log, mongo.db.cc_diff),
@@ -142,7 +140,6 @@ def update_diff(id):
             json = StorageFormat(diff).to_json_mapping()
             return render_template("admin/updates/diff.html.jinja2", diff=diff, json=json, run=run, type=type)
     return abort(404)
-
 
 
 @admin.route("/config")

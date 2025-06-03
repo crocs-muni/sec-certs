@@ -156,10 +156,36 @@
 
 {% macro modal_script() %}
     <script type="module">
-        import {add_current_cert, update_state, compare_do, notification_subscribe} from "/static/modal.js";
+        import {
+            add_current_cert,
+            update_state,
+            compare_do,
+            notification_subscribe,
+            chat_authorize,
+            chat_files,
+            chat
+        } from "/static/modal.js";
+
+        let chat_history = [];
 
         $(function () {
+            {% if is_admin() %}
+                $("#chat-modal").on("show.bs.modal", function () {
+                    let token = "{{ csrf_token() }}";
+                    let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
+                    let check_url = "{{ url_for("chat.authorized") }}";
+                    let auth_url = "{{ url_for("chat.authorize") }}";
+                    chat_authorize(check_url, auth_url, sitekey, token);
 
+                    let files_url = "{{ url_for("chat.files") }}"
+                    chat_files(files_url, token, certificate_data);
+                });
+                $("#chat-send").click(function () {
+                    let chat_url = "{{ url_for("chat.query") }}";
+                    let token = "{{ csrf_token() }}";
+                    chat(chat_url, token, chat_history, certificate_data);
+                });
+            {% endif %}
             $("#notification-modal").on("show.bs.modal", function () {
                 update_state();
             });
@@ -184,6 +210,70 @@
                 notification_subscribe(event, url, sitekey, token);
             });
             update_state();
-        });
+        })
     </script>
+{% endmacro %}
+
+{% macro chat_icon() %}
+    <div id="chat">
+        <button id="chat-icon" class="btn btn-primary text-nowrap z-3" title="Chat"
+                data-bs-toggle="modal" data-bs-target="#chat-modal">
+            <i class="fas fa-fw fa-message" aria-hidden="true"></i>
+        </button>
+    </div>
+{% endmacro %}
+{% macro chat_modal() %}
+    <div class="modal fade" id="chat-modal" tabindex="-1" aria-labelledby="chat-modal-label"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chat-modal-label">Chat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="chat-body">
+                    <div id="chat-turnstile"></div>
+                    <p id="chat-authorize">
+                        Please authorize to use the chat.
+                    </p>
+                    <p class="invalid-feedback" id="chat-error" style="display: none"></p>
+                    <!-- Chat skeleton start -->
+                    <div id="chat-skeleton">
+                        <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="chat-about" class="form-label mb-0">Chat context</label>
+                                <select id="chat-about" class="form-select w-auto">
+                                    <option value="collection">All certificates</option>
+                                    <option value="entry" selected>This certificate</option>
+                                    <option value="both">Both</option>
+                                </select>
+                            </div>
+                            <span id="chat-files"></span>
+                        </div>
+                        <div id="chat-messages">
+                            <!-- Messages will appear here -->
+                        </div>
+                        <div class="chat-input-group input-group">
+                            <textarea id="chat-input" class="form-control" rows="2"
+                                      placeholder="Type your message..."></textarea>
+                            <button id="chat-send" class="btn btn-primary" type="button">Send</button>
+                        </div>
+                        {% set placeholders = ["Describe this certificate.",
+                                               "What is the certificate ID of this certificate?",
+                                               "What other certified products are referenced by this certificate?",
+                                               "Which evaluation facility performed the evaluation of this certificate?",
+                                               "When was this product certified?"] %}
+                        <span class="text-muted mt-2">
+                            For example, try:<br/><span class="border rounded"
+                                                        onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
+                        </span>
+                    </div>
+                    <!-- Chat skeleton end -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endmacro %}

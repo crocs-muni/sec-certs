@@ -55,6 +55,8 @@
     "MarkupSafe",
     "Werkzeug < 3.1",
     "WTForms",
+    "markdown2",
+    "nh3",
 
     # Tasks
     "dramatiq[redis]",

@@ -5,12 +5,12 @@ repos:
       - id: black
         args: ['--check']
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.0
+    rev: 6.0.1
     hooks:
       - id: isort
         args: ['--check-only']
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.14.1'
+    rev: 'v1.16.0'
     hooks:
       - id: mypy
         additional_dependencies:
@@ -22,3 +22,4 @@ repos:
           - 'types-frozendict'
           - 'types-redis'
           - 'types-pytz'
+          - 'types-Markdown'

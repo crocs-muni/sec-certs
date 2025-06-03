@@ -15,6 +15,7 @@ from .. import mongo
 from ..common.commands import _create, _drop, _query, _status
 from ..common.objformats import ObjFormat
 from . import fips
+from .tasks import update_kb as update_kb_core
 
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")
@@ -97,3 +98,10 @@ def import_mip(directory):  # pragma: no cover
         snap_data = ObjFormat(mip_snapshot).to_raw_format().to_working_format().to_storage_format().get()
         mongo.db.fips_mip.insert_one(snap_data)
         click.echo(f"Imported {mip_fname}")
+
+
+@fips.cli.command("update-kb", help="Update the KB of FIPS certs.")
+def update_kb():
+    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    targets = [(dgst, "target", None) for dgst in ids]
+    update_kb_core(targets)
