@@ -258,6 +258,15 @@
                                       placeholder="Type your message..."></textarea>
                             <button id="chat-send" class="btn btn-primary" type="button">Send</button>
                         </div>
+                        {% set placeholders = ["Describe this certificate.",
+                                               "What is the certificate ID of this certificate?",
+                                               "What other certified products are referenced by this certificate?",
+                                               "Which evaluation facility performed the evaluation of this certificate?",
+                                               "When was this product certified?"] %}
+                        <span class="text-muted mt-2">
+                            For example, try:<br/><span class="border rounded"
+                                                        onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
+                        </span>
                     </div>
                     <!-- Chat skeleton end -->
                 </div>
