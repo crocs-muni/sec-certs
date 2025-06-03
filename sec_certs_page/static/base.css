@@ -58,7 +58,7 @@
     padding: 0.175rem 0.5rem;
 }
 
-#chat-modal .modal-dialog {
+#chat-modal .modal-lg, #chat-modal .modal-xl {
     height: 90vh;
 }
 

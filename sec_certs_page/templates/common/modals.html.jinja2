@@ -185,6 +185,9 @@
                     let token = "{{ csrf_token() }}";
                     chat(chat_url, token, chat_history, certificate_data);
                 });
+                $("#chat-fullscreen-btn").click(function () {
+                    $("#chat-modal .modal-dialog").toggleClass("modal-lg").toggleClass("modal-fullscreen");
+                });
             {% endif %}
             $("#notification-modal").on("show.bs.modal", function () {
                 update_state();
@@ -229,7 +232,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chat-modal-label">Chat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <button type="button" class="btn btn-light" id="chat-fullscreen-btn" title="Toggle fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                 </div>
                 <div class="modal-body" id="chat-body">
                     <div id="chat-turnstile"></div>
