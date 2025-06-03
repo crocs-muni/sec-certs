@@ -31,42 +31,30 @@ def test_analysis(client: FlaskClient):
 def test_search_basic(client: FlaskClient, sort):
     cert_id = "310"
     cert_name = "MOVEit Crypto"
-    resp = client.get(f"/fips/search/?q={cert_id}&cat=abcde&status=Any&sort={sort}")
+    resp = client.get(f"/fips/mergedsearch/?searchType=by-name&q={cert_id}&cat=abcde&status=Any&sort={sort}")
     assert resp.status_code == 200
     assert cert_name in resp.data.decode()
-    resp = client.get(f"/fips/search/?q={cert_id}&cat=abcde&status=Active&sort={sort}")
-    assert resp.status_code == 200
-    assert cert_name not in resp.data.decode()
-
-
-@pytest.mark.remote
-def test_search_pagination(client: FlaskClient):
-    cert_id = "310"
-    cert_name = "MOVEit Crypto"
-    resp = client.get(f"/fips/search/results/?q={cert_id}&cat=abcde&status=Any&sort=match")
-    assert resp.status_code == 200
-    assert cert_name in resp.data.decode()
-    resp = client.get(f"/fips/search/results/?q={cert_id}&cat=abcde&status=Active&sort=match")
+    resp = client.get(f"/fips/mergedsearch/?searchType=by-name&q={cert_id}&cat=abcde&status=Active&sort={sort}")
     assert resp.status_code == 200
     assert cert_name not in resp.data.decode()
 
 
 @pytest.mark.remote
 def test_search_bad(client: FlaskClient):
-    resp = client.get("/fips/search/?q=aaa&page=bad")
+    resp = client.get("/fips/mergedsearch/?searchType=by-name&q=aaa&page=bad")
     assert resp.status_code == 400
-    resp = client.get("/fips/search/?q=aaa&page=1&sort=bad")
+    resp = client.get("/fips/mergedsearch/?searchType=by-name&q=aaa&page=1&sort=bad")
     assert resp.status_code == 400
-    resp = client.get("/fips/search/?q=aaa&page=1&status=bad")
+    resp = client.get("/fips/mergedsearch/?searchType=by-name&q=aaa&page=1&status=bad")
     assert resp.status_code == 400
 
 
 @pytest.mark.remote
 def test_fulltext_search(client: FlaskClient):
-    resp = client.get("/fips/ftsearch/?q=hardcoded&page=1&cat=abcde&status=Active&type=target")
+    resp = client.get("/fips/mergedsearch/?searchType=fulltext&q=hardcoded&page=1&cat=abcde&status=Active&type=target")
     assert resp.status_code == 200
 
-    resp = client.get("/fips/ftsearch/?q=hardcoded&page=1&status=Any&type=target")
+    resp = client.get("/fips/mergedsearch/?searchType=fulltext&q=hardcoded&page=1&status=Any&type=target")
     assert resp.status_code == 200
 
 

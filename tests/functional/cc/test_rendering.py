@@ -26,42 +26,32 @@ def test_analysis(client: FlaskClient):
 def test_search_basic(client: FlaskClient):
     cert_id = "BSI-DSZ-CC-1091-2018"
     cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"
-    resp = client.get(f"/cc/search/?q={cert_id}&cat=abcdefghijklmop&status=any&sort=match")
+    resp = client.get(f"/cc/mergedsearch/?searchType=by-name&q={cert_id}&cat=abcdefghijklmop&status=any&sort=match")
     assert resp.status_code == 200
     assert cert_name in resp.data.decode()
-    resp = client.get(f"/cc/search/?q={cert_id}&cat=abcdefghijklmop&status=active&sort=match")
-    assert resp.status_code == 200
-    assert cert_name not in resp.data.decode()
-
-
-@pytest.mark.remote
-def test_search_pagination(client: FlaskClient):
-    cert_id = "BSI-DSZ-CC-1091-2018"
-    cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"
-    resp = client.get(f"/cc/search/results/?q={cert_id}&cat=abcdefghijklmop&status=any&sort=match")
-    assert resp.status_code == 200
-    assert cert_name in resp.data.decode()
-    resp = client.get(f"/cc/search/results/?q={cert_id}&cat=abcdefghijklmop&status=active&sort=match")
+    resp = client.get(f"/cc/mergedsearch/?searchType=by-name&q={cert_id}&cat=abcdefghijklmop&status=active&sort=match")
     assert resp.status_code == 200
     assert cert_name not in resp.data.decode()
 
 
 @pytest.mark.remote
 def test_search_bad(client: FlaskClient):
-    resp = client.get("/cc/search/?q=aaa&page=bad")
+    resp = client.get("/cc/mergedsearch/?searchType=by-name&q=aaa&page=bad")
     assert resp.status_code == 400
-    resp = client.get("/cc/search/?q=aaa&page=1&sort=bad")
+    resp = client.get("/cc/mergedsearch/?searchType=by-name&q=aaa&page=1&sort=bad")
     assert resp.status_code == 400
-    resp = client.get("/cc/search/?q=aaa&page=1&status=bad")
+    resp = client.get("/cc/mergedsearch/?searchType=by-name&q=aaa&page=1&status=bad")
     assert resp.status_code == 400
 
 
 @pytest.mark.remote
 def test_fulltext_search(client: FlaskClient):
-    resp = client.get("/cc/ftsearch/?q=hardcoded&page=1&cat=abcdefghijklmop&status=any&type=report")
+    resp = client.get(
+        "/cc/mergedsearch/?searchType=fulltext&q=hardcoded&page=1&cat=abcdefghijklmop&status=any&type=report"
+    )
     assert resp.status_code == 200
 
-    resp = client.get("/cc/ftsearch/?q=hardcoded&page=1&status=active&type=report")
+    resp = client.get("/cc/mergedsearch/?searchType=fulltext&q=hardcoded&page=1&status=active&type=report")
     assert resp.status_code == 200
 
 
