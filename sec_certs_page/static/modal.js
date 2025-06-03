@@ -296,3 +296,27 @@ export function chat(chat_url, token, chat_history, certificate_data) {
         );
     }
 }
+
+export function chat_files(files_url, token, certificate_data) {
+    let hashid = certificate_data?.hashid;
+    let collection = certificate_data?.type;
+    $.ajax({
+        url: files_url,
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            collection: collection,
+            hashid: hashid
+        }),
+        headers: {
+            "X-CSRFToken": token
+        },
+        success: function (data) {
+            if (data.files) {
+                $("#chat-files").html(
+                    `Files available <span class="badge bg-secondary">${data.files.join(", ")}</span>`
+                );
+            }
+        },
+    })
+}

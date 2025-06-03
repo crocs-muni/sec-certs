@@ -40,7 +40,6 @@ def upload_file(file_path: str | Path, metadata=None):
     if response.status_code == 200:
         return response.json()
     else:
-        print("bad response:", response.status_code, response.text)
         return None
 
 
@@ -68,9 +67,18 @@ def files_for_hashid(hashid: str):
     return list(map(lambda x: x["id"], data)) if data else []
 
 
-def get_file_metadata(file_id: str, content: bool = False):
+@cache.memoize(timeout=3600)
+def files_for_knowledge_base(kb_id: str):
+    data = get_knowledge_base(kb_id)
+    if data and "files" in data:
+        return data["files"]
+    else:
+        return []
+
+
+def get_file_metadata(file_id: str):
     url = f"v1/files/{file_id}"
-    response = get(url, query={"content": str(content).lower()})
+    response = get(url)
     if response.status_code == 200:
         return response.json()
     else:
@@ -178,6 +186,5 @@ def chat_with_model(queries, system_addition: str = "", kbs: Optional[list] = No
         file_attr = [{"type": "file", "id": file} for file in files]
     if file_attr is not None:
         data["files"] = file_attr
-    print(data)
     response = post(url, data)
     return response

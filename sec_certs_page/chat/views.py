@@ -6,7 +6,7 @@ from .. import mongo
 from ..common.objformats import cert_name
 from ..common.permissions import admin_permission
 from ..common.views import captcha_required
-from ..common.webui import chat_with_model, files_for_hashid
+from ..common.webui import chat_with_model, files_for_hashid, files_for_knowledge_base, get_file_metadata
 from . import chat
 
 
@@ -22,6 +22,42 @@ def authorize():
 def authorized():
     """Check if the user is authorized to chat."""
     return {"authorized": session.get("chat_authorized", False)}
+
+
+@chat.route("/files/", methods=["POST"])
+def files():
+    """Query which files are available for a given hashid."""
+    if not admin_permission.can():
+        return {"status": "error", "message": "Only admin users can query files."}, 403
+    if "chat_authorized" not in session or not session["chat_authorized"]:
+        return {"status": "error", "message": "You are not authorized to use the chat."}, 403
+    if not request.is_json:
+        return {"status": "error", "message": "Request must be JSON."}, 400
+    data = request.get_json()
+    if "hashid" not in data:
+        return {"status": "error", "message": "Missing 'hashid' in request."}, 400
+    if "collection" not in data:
+        return {"status": "error", "message": "Missing 'collection' in request."}, 400
+    hashid = data["hashid"]
+    collection = data["collection"]
+    if collection not in ("cc", "fips", "pp"):
+        return {"status": "error", "message": "Invalid collection specified."}, 400
+    cert = mongo.db[collection].find_one({"_id": hashid})
+    if not cert:
+        return {"status": "error", "message": "Invalid hashid."}, 404
+    files = files_for_hashid(hashid)
+    reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
+    targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
+    reports_kbid = current_app.config.get(reports_kb)
+    targets_kbid = current_app.config.get(targets_kb)
+    resp = []
+    for file in files:
+        meta = get_file_metadata(file)
+        if meta["meta"]["collection_name"] == reports_kbid:
+            resp.append("report")
+        elif meta["meta"]["collection_name"] == targets_kbid:
+            resp.append("target")
+    return {"status": "ok", "files": resp}
 
 
 @chat.route("/", methods=["POST"])
@@ -44,7 +80,7 @@ def query():
     cert = None
     if "collection" in data:
         collection = data["collection"]
-        if collection not in ("cc", "fips"):
+        if collection not in ("cc", "fips", "pp"):
             return {"status": "error", "message": "Invalid collection specified."}, 400
         else:
             reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
@@ -101,8 +137,6 @@ def query():
     response = choice["message"]["content"]
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
-    print(response)
     rendered = markdown(response, extras=["cuddled-lists"])
-    print(rendered)
     cleaned = nh3.clean(rendered)
     return {"status": "ok", "response": cleaned, "raw": response}

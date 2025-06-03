@@ -162,26 +162,30 @@
             compare_do,
             notification_subscribe,
             chat_authorize,
+            chat_files,
             chat
         } from "/static/modal.js";
 
         let chat_history = [];
 
         $(function () {
-        	{% if is_admin() %}
-	            $("#chat-modal").on("show.bs.modal", function () {
-	                let token = "{{ csrf_token() }}";
-	                let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
-	                let check_url = "{{ url_for("chat.authorized") }}";
-	                let auth_url = "{{ url_for("chat.authorize") }}";
-	                chat_authorize(check_url, auth_url, sitekey, token);
-	            });
-	            $("#chat-send").click(function () {
-	                let chat_url = "{{ url_for("chat.query") }}";
-	                let token = "{{ csrf_token() }}";
-	                chat(chat_url, token, chat_history, certificate_data);
-	            });
-	        {% endif %}
+            {% if is_admin() %}
+                $("#chat-modal").on("show.bs.modal", function () {
+                    let token = "{{ csrf_token() }}";
+                    let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
+                    let check_url = "{{ url_for("chat.authorized") }}";
+                    let auth_url = "{{ url_for("chat.authorize") }}";
+                    chat_authorize(check_url, auth_url, sitekey, token);
+
+                    let files_url = "{{ url_for("chat.files") }}"
+                    chat_files(files_url, token, certificate_data);
+                });
+                $("#chat-send").click(function () {
+                    let chat_url = "{{ url_for("chat.query") }}";
+                    let token = "{{ csrf_token() }}";
+                    chat(chat_url, token, chat_history, certificate_data);
+                });
+            {% endif %}
             $("#notification-modal").on("show.bs.modal", function () {
                 update_state();
             });
@@ -206,7 +210,7 @@
                 notification_subscribe(event, url, sitekey, token);
             });
             update_state();
-        });
+        })
     </script>
 {% endmacro %}
 
@@ -235,13 +239,16 @@
                     <p class="invalid-feedback" id="chat-error" style="display: none"></p>
                     <!-- Chat skeleton start -->
                     <div id="chat-skeleton">
-                        <div class="mb-3 d-flex align-items-center gap-2">
-                            <label for="chat-about" class="form-label mb-0">Chat context</label>
-                            <select id="chat-about" class="form-select w-auto">
-                                <option value="collection">Collection of all certificates</option>
-                                <option value="entry">Only this certificate</option>
-                                <option value="both" selected>Both</option>
-                            </select>
+                        <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="chat-about" class="form-label mb-0">Chat context</label>
+                                <select id="chat-about" class="form-select w-auto">
+                                    <option value="collection">All certificates</option>
+                                    <option value="entry" selected>This certificate</option>
+                                    <option value="both">Both</option>
+                                </select>
+                            </div>
+                            <span id="chat-files"></span>
                         </div>
                         <div id="chat-messages">
                             <!-- Messages will appear here -->
