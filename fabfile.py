@@ -162,8 +162,15 @@ def deploy(c, force=False):
     reload_uwsgi(c)
     ps(c)
     c.local("curl https://sec-certs.org")
-    c.local("curl https://sec-certs.org/cc/ftsearch/?q=something&cat=abcdefghijklmop&status=any&type=any")
-    c.local("curl https://sec-certs.org/fips/ftsearch/?q=something&cat=abcdef&status=Any&type=any")
+    c.local(
+        "curl https://sec-certs.org/cc/mergedsearch/?searchType=fulltext&q=something&cat=abcdefghijklmop&status=any&type=any"
+    )
+    c.local(
+        "curl https://sec-certs.org/fips/mergedsearch/?searchType=fulltext&q=something&cat=abcdef&status=Any&type=any"
+    )
+    c.local(
+        "curl https://sec-certs.org/pp/mergedsearch/?searchType=fulltext&q=something&cat=abcdefghijklmop&status=Any&type=any"
+    )
 
 
 @task
