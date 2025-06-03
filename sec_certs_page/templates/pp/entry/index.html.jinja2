@@ -246,5 +246,7 @@
 
 {% block footer %}
     {{ super() }}
-    {{ chat_icon() }}
+    {% if is_admin() %}
+       	{{ chat_icon() }}
+    {% endif %}
 {% endblock %}

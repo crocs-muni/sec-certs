@@ -4,6 +4,7 @@ from nh3 import nh3
 
 from .. import mongo
 from ..common.objformats import cert_name
+from ..common.permissions import admin_permission
 from ..common.views import captcha_required
 from ..common.webui import chat_with_model, files_for_hashid
 from . import chat
@@ -26,6 +27,8 @@ def authorized():
 @chat.route("/", methods=["POST"])
 def query():
     """Chat with the model."""
+    if not admin_permission.can():
+        return {"status": "error", "message": "Only admin users have chat permissions."}, 403
     if "chat_authorized" not in session or not session["chat_authorized"]:
         return {"status": "error", "message": "You are not authorized to use the chat."}, 403
     if not request.is_json:

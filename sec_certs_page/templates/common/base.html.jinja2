@@ -366,7 +366,9 @@
             {% endblock %}
             {{ notification_modal() }}
             {{ compare_modal() }}
-            {{ chat_modal() }}
+            {% if is_admin() %}
+            	{{ chat_modal() }}
+            {% endif %}
             <footer>
                 {% block footer %}
                     <div class="row position-relative">

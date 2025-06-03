@@ -168,18 +168,20 @@
         let chat_history = [];
 
         $(function () {
-            $("#chat-modal").on("show.bs.modal", function () {
-                let token = "{{ csrf_token() }}";
-                let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
-                let check_url = "{{ url_for("chat.authorized") }}";
-                let auth_url = "{{ url_for("chat.authorize") }}";
-                chat_authorize(check_url, auth_url, sitekey, token);
-            });
-            $("#chat-send").click(function () {
-                let chat_url = "{{ url_for("chat.query") }}";
-                let token = "{{ csrf_token() }}";
-                chat(chat_url, token, chat_history, certificate_data);
-            });
+        	{% if is_admin() %}
+	            $("#chat-modal").on("show.bs.modal", function () {
+	                let token = "{{ csrf_token() }}";
+	                let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
+	                let check_url = "{{ url_for("chat.authorized") }}";
+	                let auth_url = "{{ url_for("chat.authorize") }}";
+	                chat_authorize(check_url, auth_url, sitekey, token);
+	            });
+	            $("#chat-send").click(function () {
+	                let chat_url = "{{ url_for("chat.query") }}";
+	                let token = "{{ csrf_token() }}";
+	                chat(chat_url, token, chat_history, certificate_data);
+	            });
+	        {% endif %}
             $("#notification-modal").on("show.bs.modal", function () {
                 update_state();
             });
