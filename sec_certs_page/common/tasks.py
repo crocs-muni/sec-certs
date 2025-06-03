@@ -6,6 +6,7 @@ from abc import abstractmethod
 from collections import Counter
 from datetime import datetime, timedelta
 from functools import wraps
+from importlib.metadata import version
 from operator import itemgetter
 from pathlib import Path
 from shutil import rmtree
@@ -23,7 +24,6 @@ from dramatiq.middleware.retries import DEFAULT_MAX_BACKOFF, DEFAULT_MIN_BACKOFF
 from filtercss import filter_css, parse_css
 from flask import current_app, render_template, url_for
 from jsondiff import diff, symbols
-from pkg_resources import get_distribution
 from pymongo import DESCENDING, InsertOne, ReplaceOne
 from redis.exceptions import LockNotOwnedError
 from redis.lock import Lock
@@ -236,7 +236,10 @@ class Updater:  # pragma: no cover
 
             tool_version = get_version(str(Path(sec_certs.__file__).parent.parent))
         except Exception:
-            tool_version = get_distribution("sec-certs").version
+            try:
+                tool_version = version("sec-certs")
+            except Exception:
+                tool_version = ""
         start = datetime.now()
         paths = self.make_dataset_paths()
 
