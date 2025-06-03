@@ -8,7 +8,6 @@ from urllib.parse import urlencode
 import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, url_for
-from flask_breadcrumbs import register_breadcrumb
 from flask_cachecontrol import cache_for
 from markupsafe import Markup
 from networkx import node_link_data
@@ -30,6 +29,7 @@ from ..common.views import (
     entry_download_target_txt,
     expires_at,
     network_graph_func,
+    register_breadcrumb,
     send_cacheable_instance_file,
     send_json_attachment,
     sitemap_cert_pipeline,

@@ -197,6 +197,16 @@ def captcha_required(json=False):
     return captcha_deco
 
 
+def register_breadcrumb(app, path, text, order=0, endpoint_arguments_constructor=None, dynamic_list_constructor=None):
+    # Return a decorator that does nothing
+    def breadcrumb_decorator(func):
+        """Apply standard menu decorator and assign breadcrumb."""
+        func.__breadcrumb__ = path
+        return func
+
+    return breadcrumb_decorator
+
+
 def sitemap_cert_pipeline(collection: str):
     return [
         {"$lookup": {"from": f"{collection}_diff", "localField": "_id", "foreignField": "dgst", "as": "joined_docs"}},

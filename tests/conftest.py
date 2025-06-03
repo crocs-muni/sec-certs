@@ -16,7 +16,7 @@ def app():
 @pytest.fixture(scope="function")
 def client(app: Flask):
     if os.getenv("TEST_REMOTE"):
-        yield RemoteTestClient("https://seccerts.org")
+        yield RemoteTestClient("https://sec-certs.org")
     else:
         with app.test_client() as testing_client:
             yield testing_client

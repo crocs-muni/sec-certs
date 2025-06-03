@@ -2,14 +2,13 @@ import json
 
 import pymongo
 from flask import abort, current_app, flash, redirect, render_template, request, session, url_for
-from flask_breadcrumbs import register_breadcrumb
 from flask_login import login_required, login_user, logout_user
-from flask_principal import AnonymousIdentity, Identity, Permission, RoleNeed, identity_changed
+from flask_principal import AnonymousIdentity, Identity, identity_changed
 
 from .. import mongo, redis, runtime_config
 from ..common.objformats import StorageFormat
 from ..common.permissions import admin_permission
-from ..common.views import Pagination
+from ..common.views import Pagination, register_breadcrumb
 from . import admin
 from .forms import ConfigEditForm, LoginForm
 from .user import User

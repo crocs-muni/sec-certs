@@ -34,6 +34,7 @@ task queue.
 
    # The rest of the setup assumes you are in the "page" directory.
    ```
+   Optionally, you can do the install using `poetry`, the lockfile is provided.
 2. Create the `instance` directory in the `page` directory.
    ```shell
    mkdir instance

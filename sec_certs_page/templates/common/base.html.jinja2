@@ -85,27 +85,10 @@
         {% endif %}
         <!-- End Sentry -->
 
-        <!-- Google search console and breadcrumbs -->
+        <!-- Google search console -->
         <meta name="google-site-verification" content="eW6ZAStAlQUFlO_OP8odanoJp_yXBTvIqvlVScyTu3g"/>
         <meta name="google-site-verification" content="B1fKfbvUzeUC3uq6tc_gdJCqgtj1WeL2sYfnIho74MI"/>
-        <script type="application/ld+json">
-            {
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              "itemListElement": [
-            {%- for breadcrumb in breadcrumbs -%}
-                {
-                "@type": "ListItem",
-                "position": {{ loop.index }},
-            "name":{% if loop.last and breadcrumb_title and title %}{{ title|tojson }}{% else %}
-                {{ breadcrumb.text|tojson }}{% endif %},
-            "item": {{ (request.host_url[:-1] + breadcrumb.url)|tojson if breadcrumb.url else request.base_url|tojson }}
-                }{{ ',' if not loop.last }}
-          {%- endfor -%}
-            ]
-          }
-        </script>
-        <!-- End Google search console and breadcrumbs -->
+        <!-- End Google search console -->
 
         <script>
             (() => {

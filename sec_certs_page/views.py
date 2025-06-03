@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from flask import abort, jsonify, make_response, render_template, request, url_for
-from flask_breadcrumbs import register_breadcrumb
+from flask import make_response, render_template, url_for
 from werkzeug.exceptions import HTTPException
 
-from . import app, mongo, sitemap
+from . import app, sitemap
+from .common.views import register_breadcrumb
 
 
 @app.route("/")
