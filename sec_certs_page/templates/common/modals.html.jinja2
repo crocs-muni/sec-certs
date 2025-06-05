@@ -164,7 +164,7 @@
             chat_authorize,
             chat_files,
             chat
-        } from "/static/modal.js";
+        } from "{{ url_for('static', filename='modal.js') }}";
 
         let chat_history = [];
 
