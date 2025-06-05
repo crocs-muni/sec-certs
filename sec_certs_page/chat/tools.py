@@ -32,7 +32,8 @@ class Tools:
         """
 
         url = f"https://sec-certs.org/{scheme}/mergedsearch/"
-        params = {"searchType": "by-name", "q": query, "page": page, "per_page": 100}
+        per_page = 100
+        params = {"searchType": "by-name", "q": query, "page": page, "per_page": per_page}
         resp = requests.get(url, params=params)  # type: ignore
         if resp.status_code != 200:
             return f"Error: Unable to fetch data from {url}. Status code: {resp.status_code}"
@@ -83,6 +84,7 @@ class Tools:
             "query": query,
             "scheme": scheme,
             "page": page,
+            "per_page": per_page,
             "results_info": results_info,
             "page_info": page_info,
             "results": output,

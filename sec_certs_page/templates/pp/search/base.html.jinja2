@@ -176,6 +176,36 @@
                     </div>
                 </div>
             </div>
+            <script type="module">
+                import {
+                    nameSearchSetup,
+                    fulltextSearchSetup,
+                    searchParams
+                } from "{{ url_for('static', filename='search.js') }}";
+
+                $(document).ready(function () {
+
+                    function search() {
+                        location.href = "{{ url_for("pp.merged_search") }}?" + searchParams();
+                    }
+
+                    $("#nameSearchRadioId").click(nameSearchSetup);
+                    $("#fulltextSearchRadioId").click(fulltextSearchSetup);
+
+                    $("#search-btn").click(search);
+                    $("#search").keyup(function (e) {
+                        if (e.keyCode === 13) {
+                            search();
+                        }
+                    });
+                    $("#cat-select-all").click(function () {
+                        $("#search-categories input").prop("checked", true);
+                    });
+                    $("#cat-deselect-all").click(function () {
+                        $("#search-categories input").prop("checked", false);
+                    });
+                })
+            </script>
             {% block search_content %}{% endblock %}
         </div>
     </main>

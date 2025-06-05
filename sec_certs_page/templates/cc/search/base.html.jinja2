@@ -1,8 +1,5 @@
 {% extends "common/base.html.jinja2" %}
 
-{% from "cc/utils.html.jinja2" import render_status, render_category, render_document_type, render_pagination, render_plot%}
-
-
 {% block content %}
     <main>
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
@@ -17,7 +14,7 @@
                         <div class="form-inline">
                             <input id="search" class="form-control mb-2" placeholder="Search prompt" type="search"
                                    value="{{ q|default('', true) }}"/>
-                            
+
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="by-name" checked>
                                 <label class="form-check-label" for="nameSearchRadioId">Name search</label>
@@ -44,7 +41,7 @@
                                         class="fas fa-sliders"></i> Advanced options
                                 </button>
                             </div>
-                            
+
                         </div>
                         <div id="name-search-info" style="display: none;">
                             <small class="text-muted">Name search is searching only in certificate names and its IDs. It is case-insensitive. Uses
@@ -53,7 +50,7 @@
                                 and a hyphen-minus prefix to negate a match.
                             </small><br/>
                             <small class="text-muted">
-                                E.g. 
+                                E.g.
                                 <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">Infineon Security Controller</span>
                                 .
                             </small>
@@ -95,7 +92,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        
+
                         <div class="d-flex gap-3 flex-wrap mt-3">
                             <div>
                                 <h5>General filters</h5>
@@ -134,7 +131,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                             <div>
                                 <h5>Search type specific options</h5>
                                 <table class="table w-auto align-middle" style="width: auto;">
@@ -189,7 +186,41 @@
                     </div>
                 </div>
             </div>
-            
+
+            <script type="module">
+                import {
+                    nameSearchSetup,
+                    fulltextSearchSetup,
+                    searchParams
+                } from "{{ url_for('static', filename='search.js') }}";
+
+                $(document).ready(function () {
+                    function search() {
+                        location.href = "{{ url_for("cc.merged_search") }}?" + searchParams();
+                    }
+
+                    function networkSearch() {
+                        location.href = "{{ url_for("cc.network") }}?" + searchParams({search: "basic"});
+                    }
+
+                    $("#nameSearchRadioId").click(nameSearchSetup);
+                    $("#fulltextSearchRadioId").click(fulltextSearchSetup);
+                    $("#search-btn").click(search);
+                    $("#network-btn").click(networkSearch);
+                    $("#search").keyup(function (e) {
+                        if (e.keyCode === 13) {
+                            search();
+                        }
+                    });
+                    $("#cat-select-all").click(function () {
+                        $("#search-categories input").prop("checked", true);
+                    });
+                    $("#cat-deselect-all").click(function () {
+                        $("#search-categories input").prop("checked", false);
+                    });
+                });
+            </script>
+
             {% block search_content %}{% endblock %}
 
         </div>

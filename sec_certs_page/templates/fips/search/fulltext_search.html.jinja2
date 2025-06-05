@@ -2,41 +2,18 @@
 
 {% from "fips/utils.html.jinja2" import render_pagination, render_plot, render_status, render_type, render_document_type %}
 
-
 {% block search_content %}
     <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <script type="module">
-            import { nameSearchSetup, fulltextSearchSetup, searchParams } from "{{ url_for('static', filename='search.js') }}";
+            import {
+                fulltextSearchSetup,
+            } from "{{ url_for('static', filename='search.js') }}";
 
-            $(document).ready(function () {
-
-                function fullSearch() {
-                    location.href = "{{ url_for("fips.merged_search") }}?" + searchParams();
-                }
-
-                function networkSearch() {
-                    location.href = "{{ url_for("fips.network") }}?" + searchParams({search: "basic"});
-                }
-
-                fulltextSearchSetup()
-                
-                $("#nameSearchRadioId").click(nameSearchSetup);
-                $("#fulltextSearchRadioId").click(fulltextSearchSetup);
-                $("#search-btn").click(fullSearch);
-                $("#network-btn").click(networkSearch);
-                $("#search").keyup(function (e) {
-                    if (e.keyCode === 13) {
-                        fullSearch();
-                    } 
-                });
-                $("#cat-select-all").click(function () {
-                    $("#search-categories input").prop("checked", true);
-                });
-                $("#cat-deselect-all").click(function () {
-                    $("#search-categories input").prop("checked", false);
-                });
+            $(function () {
+                fulltextSearchSetup();
             })
         </script>
+
         <div id="pagination" class="table-responsive">
             {% if pagination %}
                 <div style="text-align: center">

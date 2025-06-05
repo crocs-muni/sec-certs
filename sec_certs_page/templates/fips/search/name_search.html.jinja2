@@ -1,42 +1,19 @@
 {% extends "fips/search/base.html.jinja2" %}
 
-{% from "fips/utils.html.jinja2" import render_pagination, render_plot, render_status, render_type, render_document_type %}
+{% from "fips/utils.html.jinja2" import render_pagination, render_plot %}
 
 {% block search_content %}
     <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <script type="module">
-        import { nameSearchSetup, fulltextSearchSetup, searchParams } from "{{ url_for('static', filename='search.js') }}";
+            import {
+                nameSearchSetup,
+            } from "{{ url_for('static', filename='search.js') }}";
 
-        $(document).ready(function () {
-
-            function fullSearch() {
-                location.href = "{{ url_for("fips.merged_search") }}?" + searchParams();
-            }
-
-            function networkSearch() {
-                location.href = "{{ url_for("fips.network") }}?" + searchParams({search: "basic"});
-            }
-
-            var urlParams = new URLSearchParams(window.location.search);
-            nameSearchSetup()
-
-            $("#nameSearchRadioId").click(nameSearchSetup);
-            $("#fulltextSearchRadioId").click(fulltextSearchSetup);
-            $("#search-btn").click(fullSearch);
-            $("#network-btn").click(networkSearch);
-            $("#search").keyup(function (e) {
-                if (e.keyCode === 13) {
-                    fullSearch();
-                }
-            });
-            $("#cat-select-all").click(function () {
-                $("#search-categories input").prop("checked", true);
-            });
-            $("#cat-deselect-all").click(function () {
-                $("#search-categories input").prop("checked", false);
-            });
-        })
+            $(function () {
+                nameSearchSetup();
+            })
         </script>
+
         <div id="results">
             {{ render_pagination(pagination, certs, search=True) }}
             {{ render_plot(timeline) }}
