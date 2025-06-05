@@ -7,6 +7,7 @@ version: 1.0
 license: MIT
 """
 
+import json
 from typing import Literal
 
 import requests
@@ -21,7 +22,8 @@ class Tools:
 
     def search(self, query: str, scheme: Literal["cc"] | Literal["fips"], page: int = 1) -> str:
         """
-        Search the sec-certs.org website for certificates.
+        Search the sec-certs.org website for CC or FIPS 140 certificates and output results
+        in JSON.
 
         :param query: The search term to look for in the certificates.
         :param scheme: The scheme to search in, either "cc" for Common Criteria or "fips" for FIPS.
@@ -30,8 +32,8 @@ class Tools:
         """
 
         url = f"https://sec-certs.org/{scheme}/mergedsearch/"
-        params = {"searchType": "by-name", "q": query, "page": page}
-        resp = requests.get(url, params=params)
+        params = {"searchType": "by-name", "q": query, "page": page, "per_page": 100}
+        resp = requests.get(url, params=params)  # type: ignore
         if resp.status_code != 200:
             return f"Error: Unable to fetch data from {url}. Status code: {resp.status_code}"
         soup = BeautifulSoup(resp.text, "lxml")
@@ -47,12 +49,14 @@ class Tools:
             cert_date = result.find("span", class_="result-cert-date").text.strip()
             archive_date = result.find("span", class_="result-archive-date").text.strip()
             output.append(
-                f"Certificate: {name}\n"
-                f"Category: {category}\n"
-                f"ID: {id}\n"
-                f"Status: {status}\n"
-                f"Certification Date: {cert_date}\n"
-                f"Archive Date: {archive_date}\n"
+                {
+                    "name": name,
+                    "category": category,
+                    "id": id,
+                    "status": status,
+                    "certification_date": cert_date,
+                    "archival_date": archive_date,
+                }
             )
         info = soup.find("div", class_="pagination-page-info")
         if info:
@@ -75,4 +79,12 @@ class Tools:
             page_info = f"Page {page} of total {max_page} pages."
         else:
             page_info = "No pagination information available."
-        return results_info + "\n" + page_info + "\n------" + "---\n".join(output)
+        result = {
+            "query": query,
+            "scheme": scheme,
+            "page": page,
+            "results_info": results_info,
+            "page_info": page_info,
+            "results": output,
+        }
+        return json.dumps(result, indent=2, ensure_ascii=False)

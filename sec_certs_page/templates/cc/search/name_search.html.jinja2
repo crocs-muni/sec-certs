@@ -17,7 +17,6 @@
                 location.href = "{{ url_for("cc.network") }}?" + searchParams({search: "basic"});
             }
 
-            var urlParams = new URLSearchParams(window.location.search);
             nameSearchSetup()
 
             $("#nameSearchRadioId").click(nameSearchSetup);

@@ -18,8 +18,6 @@
                     location.href = "{{ url_for("fips.network") }}?" + searchParams({search: "basic"});
                 }
 
-                var urlParams = new URLSearchParams(window.location.search);
-
                 fulltextSearchSetup()
                 
                 $("#nameSearchRadioId").click(nameSearchSetup);
@@ -58,7 +56,7 @@
             {% for result in results %}
                 {% set idd = result["cert"]["cert_id"]|default("", true) %}
                 <div class="my-5">
-                    <table class="table table-bordered table-responsive">
+                    <table class="table table-bordered table-responsive search-result">
                         <colgroup>
                             <col style="width:10%">
                             <col style="width:70%">
@@ -67,18 +65,18 @@
                         </colgroup>
                         <thead>
                         <tr>
-                            <td class="pl-1">{{ render_type(result["cert"]["web_data"]["module_type"]) }}&nbsp;#{{ idd }}</td>
+                            <td class="pl-1"><span class="result-category">{{ render_type(result["cert"]["web_data"]["module_type"]) }}</span>&nbsp;<span class="result-id">#{{ idd }}</span></td>
                             <td>
-                                <a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}">{{ result["hit"]["name"] }}</a>
+                                <span class="result-name"><a href="{{ url_for(".entry", hashid=result["hit"]["dgst"]) }}" class="result-link">{{ result["hit"]["name"] }}</a></span>
                             </td>
-                            <td>{{ render_document_type(result["hit"]["document_type"]) }}</td>
-                            <td>{{ render_status(result["hit"]["status"]) }}</td>
+                            <td><span class="result-document">{{ render_document_type(result["hit"]["document_type"]) }}</span></td>
+                            <td><span class="result-status">{{ render_status(result["hit"]["status"]) }}</span></td>
                         </tr>
                         </thead>
                         <tbody style="border-top-color: #dfe0e1">
                         {% if "highlights" in result %}
                             <tr>
-                                <td colspan="4">
+                                <td colspan="4" class="result-matches">
                                     {{ result["highlights"]|safe }}
                                 </td>
                             </tr>
