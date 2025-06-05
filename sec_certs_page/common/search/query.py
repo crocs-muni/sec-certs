@@ -233,6 +233,12 @@ class BasicSearch(ABC):
             page = int(args.get("page", 1))
         except ValueError:
             raise BadRequest(description="Invalid page number.")
+        if page < 1:
+            raise BadRequest(description="Invalid page number, must be >= 1.")
+        try:
+            per_page = int(args.get("per_page", current_app.config["SEARCH_ITEMS_PER_PAGE"]))
+        except ValueError:
+            raise BadRequest(description="Invalid per_page value.")
         q = args.get("q", None)
         cat = args.get("cat", None)
         advanced = False
@@ -258,6 +264,7 @@ class BasicSearch(ABC):
         res = {
             "q": q,
             "page": page,
+            "per_page": per_page,
             "cat": cat,
             "categories": categories,
             "sort": sort,
@@ -280,7 +287,7 @@ class BasicSearch(ABC):
 
         page = parsed["page"]
 
-        per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+        per_page = parsed["per_page"]
         pagination = Pagination(
             page=page,
             per_page=per_page,
@@ -320,6 +327,10 @@ class FulltextSearch(ABC):
             raise BadRequest(description="Invalid page number.")
         if page < 1:
             raise BadRequest(description="Invalid page number, must be >= 1.")
+        try:
+            per_page = int(args.get("per_page", current_app.config["SEARCH_ITEMS_PER_PAGE"]))
+        except ValueError:
+            raise BadRequest(description="Invalid per_page value.")
         q = args.get("q", None)
         cat = args.get("cat", None)
         advanced = False
@@ -346,6 +357,7 @@ class FulltextSearch(ABC):
         res = {
             "q": q,
             "page": page,
+            "per_page": per_page,
             "cat": cat,
             "categories": categories,
             "status": status,
@@ -371,7 +383,7 @@ class FulltextSearch(ABC):
         if "scheme" in kwargs and kwargs["scheme"] != "any":
             q_filter &= query.Term("scheme", kwargs["scheme"])
 
-        per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+        per_page = kwargs["per_page"]
 
         parser = QueryParser(
             fieldnames=["name", "cert_id", "content"],
@@ -403,8 +415,7 @@ class FulltextSearch(ABC):
         res, count, qr = cls.select_items(**parsed)
 
         page = parsed["page"]
-
-        per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
+        per_page = parsed["per_page"]
 
         res.results.fragmenter.charlimit = None
         res.results.fragmenter.maxchars = 300

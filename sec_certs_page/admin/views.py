@@ -66,7 +66,7 @@ def updates():
 
 def updates_one(template, type, log_coll, diff_coll):
     page = int(request.args.get("page", 1))
-    per_page = 20
+    per_page = current_app.config["SEARCH_ITEMS_PER_PAGE"]
     log = list(log_coll.find().sort([("start_time", pymongo.DESCENDING)])[(page - 1) * per_page : page * per_page])
     for log_entry in log:
         if "stats" in log_entry and "changed_ids" not in log_entry["stats"]:
