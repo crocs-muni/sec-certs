@@ -1,7 +1,7 @@
 """
-title: Tool for searching sec-certs.org
+title: sec-certs.org tool
 author: Jan Jancar
-description: This tool allows users to search for certificates on the sec-certs.org website.
+description: This tool allows users to search for certificates on the sec-certs.org website, get their text data, and retrieve JSON data for specific certificates.
 requirements: requests, beautifulsoup4
 version: 1.0
 license: MIT
@@ -20,32 +20,54 @@ class Tools:
     def __init__(self):
         pass
 
-    def search(
+    def get_text(
         self,
-        query: str,
+        dgst: str,
         scheme: Literal["cc"] | Literal["fips"],
-        page: int = 1,
-        sort: Literal["match"] | Literal["name"] | Literal["cert_date"] | Literal["archive_date"] = "match",
-        status: Literal["any"] | Literal["active"] | Literal["archived"] = "any",
+        document: Literal["cert"] | Literal["report"] | Literal["target"],
     ) -> str:
         """
-        Search the sec-certs.org website for CC or FIPS 140 certificates and output results
-        in JSON.
+        Fetch the text data for a certificate (if the document parameter is "cert"), or a certification report
+        (if the document parameter is "report"), or a security target (if the document parameter is "target") from sec-certs.org.
 
-        :param query: The search term to look for in the certificates.
-        :param scheme: The scheme to search in, either "cc" for Common Criteria or "fips" for FIPS.
-        :param page: The page number to retrieve results from.
-        :param sort: The sorting method for the results, default is "match".
-        :param status: The status of the certificates to filter by, default is "any".
-        :return: A JSON string containing the search results, or an error message if the input is invalid.
+        :param dgst: The digest of the certificate to fetch.
+        :param scheme: The scheme of the certificate, either "cc" for Common Criteria or "fips" for FIPS 140.
+        :param document: The type of document to fetch, either "cert" for certificate, "report" for certification report, or "target" for security target.
+        :return: A string containing the document data, or an error message if the input is invalid.
         """
+        url = f"https://sec-certs.org/{scheme}/{dgst}/{document}.txt"
+        if scheme not in ["cc", "fips"]:
+            return (
+                f"Error: Invalid scheme '{scheme}'. Valid options are 'cc' for Common Criteria or 'fips' for FIPS 140."
+            )
+        if document not in ["cert", "report", "target"]:
+            return f"Error: Invalid document type '{document}'. Valid options are 'cert', 'report', or 'target'."
+        resp = requests.get(url)
+        if resp.status_code != 200:
+            return f"Error: Unable to fetch data from {url}. Status code: {resp.status_code}"
+        return resp.content.decode()
 
+    def get_json(self, dgst: str, scheme: Literal["cc"] | Literal["fips"]) -> str:
+        """
+        Fetch the JSON data for a certificate from sec-certs.org.
+
+        :param dgst: The digest of the certificate to fetch.
+        :param scheme: The scheme of the certificate, either "cc" for Common Criteria or "fips" for FIPS 140.
+        :return: A JSON string containing the certificate data, or an error message if the input is invalid.
+        """
+        url = f"https://sec-certs.org/{scheme}/{dgst}/cert.json"
+        if scheme not in ["cc", "fips"]:
+            return (
+                f"Error: Invalid scheme '{scheme}'. Valid options are 'cc' for Common Criteria or 'fips' for FIPS 140."
+            )
+        resp = requests.get(url)
+        if resp.status_code != 200:
+            return f"Error: Unable to fetch data from {url}. Status code: {resp.status_code}"
+        return resp.content.decode()
+
+    def _search(self, query: str, scheme: Literal["cc"] | Literal["fips"], page: int, sort, status) -> str:
         url = f"https://sec-certs.org/{scheme}/mergedsearch/"
         per_page = 100
-        if sort not in ["match", "name", "cert_date", "archive_date"]:
-            return f"Error: Invalid sort parameter '{sort}'. Valid options are 'match', 'name', 'cert_date', or 'archive_date'."
-        if status not in ["any", "active", "archived"]:
-            return f"Error: Invalid status parameter '{status}'. Valid options are 'any', 'active', or 'archived'."
         if scheme not in ["cc", "fips"]:
             return (
                 f"Error: Invalid scheme '{scheme}'. Valid options are 'cc' for Common Criteria or 'fips' for FIPS 140."
@@ -69,7 +91,9 @@ class Tools:
         output = []
         for result in results:
             category = result.find("span", class_="result-category").find("span")["title"]
-            link = "https://sec-certs.org" + result.find("a", class_="result-link")["href"]
+            href = result.find("a", class_="result-link")["href"]
+            link = "https://sec-certs.org" + href
+            dgst = href.split("/")[-2]
             id = result.find("span", class_="result-id").text.strip()
             name = result.find("span", class_="result-name").text.strip()
             status = result.find("span", class_="result-status").text.strip()
@@ -80,6 +104,7 @@ class Tools:
                     "name": name,
                     "category": category,
                     "id": id,
+                    "dgst": dgst,
                     "link": link,
                     "status": status,
                     "certification_date": cert_date,
@@ -118,7 +143,63 @@ class Tools:
         }
         return json.dumps(result, indent=2, ensure_ascii=False)
 
+    def cc_search(
+        self,
+        query: str,
+        page: int = 1,
+        sort: Literal["match"] | Literal["name"] | Literal["cert_date"] | Literal["archive_date"] = "match",
+        status: Literal["any"] | Literal["active"] | Literal["archived"] = "any",
+    ) -> str:
+        """
+        Search the sec-certs.org website for CC certificates and output results in JSON.
+
+        :param query: The search term to look for in the certificates.
+        :param page: The page number to retrieve results from.
+        :param sort: The sorting method for the results, default is "match".
+        :param status: The status of the certificates to filter by, default is "any".
+        :return: A JSON string containing the search results, or an error message if the input is invalid.
+        """
+        if sort not in ["match", "name", "cert_date", "archive_date"]:
+            return f"Error: Invalid sort parameter '{sort}'. Valid options are 'match', 'name', 'cert_date', or 'archive_date'."
+        if status not in ["any", "active", "archived"]:
+            return f"Error: Invalid status parameter '{status}'. Valid options are 'any', 'active', or 'archived'."
+        return self._search(query, "cc", page, sort, status)
+
+    def fips_search(
+        self,
+        query: str,
+        page: int = 1,
+        sort: (
+            Literal["match"]
+            | Literal["number"]
+            | Literal["first_cert_date"]
+            | Literal["last_cert_date"]
+            | Literal["sunset_date"]
+            | Literal["level"]
+            | Literal["vendor"]
+        ) = "match",
+        status: Literal["Any"] | Literal["Active"] | Literal["Historical"] | Literal["Revoked"] = "Any",
+    ) -> str:
+        """
+        Search the sec-certs.org website for FIPS 140 certificates and output results in JSON.
+
+        :param query: The search term to look for in the certificates.
+        :param page: The page number to retrieve results from.
+        :param sort: The sorting method for the results, default is "match".
+        :param status: The status of the certificates to filter by, default is "Any".
+        :return: A JSON string containing the search results, or an error message if the input is invalid.
+        """
+        if sort not in ["match", "number", "first_cert_date", "last_cert_date", "sunset_date", "level", "vendor"]:
+            return f"Error: Invalid sort parameter '{sort}'. Valid options are 'match', 'number', 'first_cert_date', 'last_cert_date', 'sunset_date', 'level', or 'vendor'."
+        if status not in ["Any", "Active", "Historical", "Revoked"]:
+            return f"Error: Invalid status parameter '{status}'. Valid options are 'Any', 'Active', 'Historical', or 'Revoked'."
+        return self._search(query, "fips", page, sort, status)
+
 
 if __name__ == "__main__":
     tool = Tools()
-    print(tool.search("Athena", "cc", 1))  # Example usage
+    # Example usage of the tool
+    print(tool.cc_search("Athena"))
+    print(tool.get_text("358bc60e1aa999c5", "cc", "cert"))
+    print(tool.get_json("358bc60e1aa999c5", "cc"))
+    print(tool.fips_search("Athena IDProtect"))
