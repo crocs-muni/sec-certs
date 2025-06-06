@@ -678,6 +678,10 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            msg = CurrentMessage.get_current_message()
+            if msg is None:
+                # If we are testing and not in a worker, just execute
+                return f(*args, **kwargs)
             lock: Lock = redis.lock(lock_name, timeout=timeout)
             acq = lock.acquire(blocking=not abort)
             if not acq:
@@ -732,6 +736,10 @@ def task(task_name):
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            msg = CurrentMessage.get_current_message()
+            if msg is None:
+                # If we are testing and not in a worker, just execute
+                return f(*args, **kwargs)
             with sentry_sdk.start_transaction(op="dramatiq", name=task_name):
                 tid = secrets.token_hex(16)
                 start = datetime.now()
