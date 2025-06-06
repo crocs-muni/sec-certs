@@ -96,52 +96,6 @@
 {%- endmacro %}
 
 
-{% macro render_pagination(pagination, certs, search=False) %}
-    <div id="pagination" class="table-responsive">
-        {% if search %}
-            <span style="text-align: center">{{ pagination.info }}</span>
-        {% endif %}
-        <div class="mt-4 mb-4">
-            {{ pagination.links }}
-        </div>
-        <table class="table table-striped table-bordered mb-4">
-            <col style="width:15%">
-            <col style="width:64%">
-            <col style="width:5%">
-            <col style="width:8%">
-            <col style="width:8%">
-            <thead>
-            <tr class="border-bottom">
-                <th class="pl-1">ID</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Certification date</th>
-                <th>Archive date</th>
-            </tr>
-            </thead>
-            {% for cert in certs %}
-                {% set idd = cert["heuristics"]["cert_id"]|default("", true) %}
-                {% set name = cert["name"] %}
-                {% set status = cert["status"] %}
-                {% set hashid = cert["_id"] %}
-                {% set cert_date = cert["not_valid_before"] %}
-                {% set archive_date = cert["not_valid_after"] %}
-                {% set category = cert["category"] %}
-                <tr class="search-result">
-                    <td class="pl-1"><span class="result-category">{{ render_category(category) }}</span>&nbsp;<span class="result-id">{{ idd }}</span></td>
-                    <td><span class="result-name"><a href="{{ url_for('.entry', hashid=hashid) }}" class="result-link">{{ name }}</a></span></td>
-                    <td><span class="result-status">{{ render_status(status) }}</span></td>
-                    <td><span class="result-cert-date">{{ cert_date|strftime("%d.%m.%Y") if cert_date else "" }}</span></td>
-                    <td><span class="result-archive-date">{{ archive_date|strftime("%d.%m.%Y") if archive_date else "" }}</span></td>
-                </tr>
-            {% endfor %}
-        </table>
-        <div class="mb-4">
-            {{ pagination.links }}
-        </div>
-    </div>
-{%- endmacro %}
-
 {% macro render_plot(timeline) %}
     <div class="row mt-4 mb-4">
         <div class="col border ml-3 mr-3">

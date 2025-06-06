@@ -61,7 +61,7 @@
                 </div>
             </div>
             <script type="module">
-                import {createNetwork} from "/static/network.js";
+                import {createNetwork} from "{{ url_for(".static", filename="network.js") }}";
                 async function loadNetwork(){
                     return createNetwork('network',
                             '{{ url_for(".network_graph")}}{% if query %}?{{ query|safe }}{% endif %}',

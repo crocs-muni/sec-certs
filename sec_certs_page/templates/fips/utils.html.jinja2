@@ -68,62 +68,6 @@
     </span>
 {%- endmacro %}
 
-{% macro render_pagination(pagination, certs, search=False) %}
-    <div id="pagination" class="table-responsive">
-        {% if search %}
-            <span style="text-align: center">{{ pagination.info }}</span>
-        {% endif %}
-        <div class="mt-4 mb-4">
-            {{ pagination.links }}
-        </div>
-        <table class="table table-striped table-bordered mb-4">
-            <col style="width: 3%">
-            <col style="width:45%">
-            <col style="width:10%">
-            <col style="width:5%">
-            <col style="width:15%">
-            <col style="width:12%">
-            <col style="width:10%">
-            <thead>
-            <tr class="border-bottom">
-                <th class="pl-1">ID</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Level</th>
-                <th>Vendor</th>
-                <th>Validation dates</th>
-                <th>Sunset date</th>
-            </tr>
-            </thead>
-            {% for cert in certs %}
-                {% set id = cert["cert_id"] %}
-                {% set name = cert["web_data"]["module_name"] %}
-                {% set status = cert["web_data"]["status"] %}
-                {% set level = cert["web_data"]["level"] %}
-                {% set vendor = cert["web_data"]["vendor"] %}
-                {% set status = cert["web_data"]["status"] %}
-                {% set hashid = cert["_id"] %}
-                {% set cert_dates = cert["web_data"]["validation_history"] %}
-                {% set sunset_date = cert["web_data"]["date_sunset"] %}
-                {% set type = cert["web_data"]["module_type"] %}
-                <tr class="search-result">
-                    <td class="pl-1"><span class="result-id">#{{ id }}</span></td>
-                    <td><span class="result-category">{{ render_type(type) }}</span>&nbsp;<span class="result-name"><a href="{{ url_for('.entry', hashid=hashid) }}" class="result-link">{{ name }}</a></span></td>
-                    <td><span class="result-status">{{ render_status(status) }}</span></td>
-                    <td><span class="result-level">{{ level }}</span></td>
-                    <td><span class="result-vendor">{{ vendor }}</span></td>
-                    <td><span class="result-cert-date">{%if cert_dates %}{% for entry in cert_dates %}{{ entry["date"]|strftime("%d.%m.%Y") }}<br/>{% endfor %}{% endif %}</span></td>
-                    <td><span class="result-archive-date">{% if sunset_date %}{{ sunset_date|strftime("%d.%m.%Y") }}{% endif %}</span></td>
-                </tr>
-            {% endfor %}
-        </table>
-        <div class="mb-4">
-            {{ pagination.links }}
-        </div>
-    </div>
-{%- endmacro %}
-
-
 {% macro render_plot(timeline) %}
     <div class="row mt-4 mb-4">
         <div class="col border ml-3 mr-3">
@@ -170,15 +114,15 @@
 
             let full = new d3.InternMap([...base, ...nested]);
 
-            let res = d3.sort(d3.map(full, ([name, value]) => ({week: weekParser(name), count:value})), (d) => d.week);
+            let res = d3.sort(d3.map(full, ([name, value]) => ({week: weekParser(name), count: value})), (d) => d.week);
             const svg = d3.create("svg")
                 .attr("viewBox", [0, 0, width, height]);
 
-          svg.append("path")
-              .attr("fill", "none")
-              .attr("stroke", "var(--bs-primary)")
-              .attr("stroke-width", 1.5)
-              .attr("d", line(res));
+            svg.append("path")
+                .attr("fill", "none")
+                .attr("stroke", "var(--bs-primary)")
+                .attr("stroke-width", 1.5)
+                .attr("d", line(res));
 
             svg.append("g")
                 .call(xAxis);

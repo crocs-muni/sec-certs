@@ -1,6 +1,6 @@
 {% extends "pp/search/base.html.jinja2" %}
 
-{% from "pp/utils.html.jinja2" import render_pagination, render_plot %}
+{% from "pp/utils.html.jinja2" import render_plot, render_category, render_status %}
 
 {% block search_content %}
     <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
@@ -15,7 +15,54 @@
         </script>
 
         <div id="results">
-            {{ render_pagination(pagination, certs, search=True) }}
+            <div id="pagination">
+                <span style="text-align: center">{{ pagination.info }}</span>
+                <div class="mt-4 mb-4">
+                    {{ pagination.links }}
+                </div>
+                <table class="table table-striped table-bordered mb-4">
+                    <col style="width:5%">
+                    <col style="width:64%">
+                    <col style="width:7%">
+                    <col style="width:12%">
+                    <col style="width:12%">
+                    <thead>
+                    <tr class="border-bottom">
+                        <th>Category</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Certification date</th>
+                        <th>Archive date</th>
+                    </tr>
+                    </thead>
+                    {% for profile in profiles %}
+                        {% set idd = "" %}
+                        {% set name = profile["web_data"]["name"] %}
+                        {% set status = profile["web_data"]["status"] %}
+                        {% set hashid = profile["_id"] %}
+                        {% set cert_date = profile["web_data"]["not_valid_before"] %}
+                        {% set archive_date = profile["web_data"]["not_valid_after"] %}
+                        {% set category = profile["web_data"]["category"] %}
+                        <tr class="search-result">
+                            <td class="pl-1"><span
+                                    class="result-category">{{ render_category(category) }}</span>&nbsp;<span
+                                    class="result-id">{{ idd }}</span></td>
+                            <td><span class="result-name"><a href="{{ url_for('.entry', hashid=hashid) }}"
+                                                             class="result-link">{{ name }}</a></span></td>
+                            <td><span class="result-status">{{ render_status(status) }}</span></td>
+                            <td><span
+                                    class="result-cert-date">{{ cert_date.strftime("%m/%d/%Y") if cert_date else "" }}</span>
+                            </td>
+                            <td><span
+                                    class="result-archive-date">{{ archive_date.strftime("%m/%d/%Y") if archive_date else "" }}</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="mb-4">
+                    {{ pagination.links }}
+                </div>
+            </div>
             {{ render_plot(timeline) }}
         </div>
     </div>
