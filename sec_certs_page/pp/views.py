@@ -66,15 +66,15 @@ def search():
 @pp.route("/mergedsearch/")
 @register_breadcrumb(pp, ".merged_search", "Search")
 def merged_search():
-    searchType = request.args.get("searchType")
-    if searchType != "by-name" and searchType != "fulltext":
-        searchType = "by-name"
+    search_type = request.args.get("searchType")
+    if search_type != "by-name" and search_type != "fulltext":
+        search_type = "by-name"
 
     template = "pp/search/name_search.html.jinja2"
     res = {}
-    if searchType == "by-name":
+    if search_type == "by-name":
         res = PPBasicSearch.process_search(request)
-    elif searchType == "fulltext":
+    elif search_type == "fulltext":
         res = PPFulltextSearch.process_search(request)
         template = "pp/search/fulltext_search.html.jinja2"
     return render_template(
@@ -82,7 +82,7 @@ def merged_search():
         **res,
         schemes=cc_schemes,
         title=f"Protection Profile [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        searchType=searchType,
+        search_type=search_type,
     )
 
 

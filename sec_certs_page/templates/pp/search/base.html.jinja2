@@ -6,7 +6,7 @@
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-            <h1>Protection Profile</h1>
+            <h1>Protection Profiles</h1>
             <h3 class="text-secondary">Search</h3>
             <div class="card mt-3 mt-4 mb-4">
                 <div class="card-body container">
@@ -15,12 +15,12 @@
                             <input id="search" class="form-control mb-2" placeholder="Search prompt" type="search"
                                    value="{{ q|default('', true) }}"/>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="by-name" checked>
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="by-name" {% if search_type == "by-name" %}checked{% endif %}>
                                 <label class="form-check-label" for="nameSearchRadioId">Name search</label>
                                 <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-title="Search only in certificate names and certificate IDs" aria-hidden="true"></i>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext">
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext" {% if search_type == "fulltext" %}checked{% endif %}>
                                 <label class="form-check-label" for="fulltextSearchRadioId">Fulltext search</label>
                                 <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-title="Search within the entire content of certificate PDFs" aria-hidden="true"></i>
                             </div>

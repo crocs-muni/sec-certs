@@ -16,12 +16,12 @@
                                    value="{{ q|default('', true) }}"/>
 
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="by-name" checked>
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="nameSearchRadioId" value="by-name" {% if search_type == "by-name" %}checked{% endif %}>
                                 <label class="form-check-label" for="nameSearchRadioId">Name search</label>
                                 <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-title="Search only in certificate names and certificate IDs" aria-hidden="true"></i>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext">
+                                <input class="form-check-input" type="radio" name="searchTypeRadio" id="fulltextSearchRadioId" value="fulltext" {% if search_type == "fulltext" %}checked{% endif %}>
                                 <label class="form-check-label" for="fulltextSearchRadioId">Fulltext search</label>
                                 <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-title="Search within the entire content of certificate PDFs" aria-hidden="true"></i>
                             </div>

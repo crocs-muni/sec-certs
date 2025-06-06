@@ -139,15 +139,15 @@ def search():
 @fips.route("/mergedsearch/")
 @register_breadcrumb(fips, ".merged_search", "Search")
 def merged_search():
-    searchType = request.args.get("searchType")
-    if searchType != "by-name" and searchType != "fulltext":
-        searchType = "by-name"
+    search_type = request.args.get("searchType")
+    if search_type != "by-name" and search_type != "fulltext":
+        search_type = "by-name"
 
     res = {}
     template = "fips/search/name_search.html.jinja2"
-    if searchType == "by-name":
+    if search_type == "by-name":
         res = FIPSBasicSearch.process_search(request)
-    elif searchType == "fulltext":
+    elif search_type == "fulltext":
         res = FIPSFulltextSearch.process_search(request)
         template = "fips/search/fulltext_search.html.jinja2"
 
@@ -155,7 +155,7 @@ def merged_search():
         template,
         **res,
         title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        searchType=searchType,
+        search_type=search_type,
     )
 
 
