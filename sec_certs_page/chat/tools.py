@@ -20,7 +20,14 @@ class Tools:
     def __init__(self):
         pass
 
-    def search(self, query: str, scheme: Literal["cc"] | Literal["fips"], page: int = 1) -> str:
+    def search(
+        self,
+        query: str,
+        scheme: Literal["cc"] | Literal["fips"],
+        page: int = 1,
+        sort: Literal["match"] | Literal["name"] | Literal["cert_date"] | Literal["archive_date"] = "match",
+        status: Literal["any"] | Literal["active"] | Literal["archived"] = "any",
+    ) -> str:
         """
         Search the sec-certs.org website for CC or FIPS 140 certificates and output results
         in JSON.
@@ -28,13 +35,31 @@ class Tools:
         :param query: The search term to look for in the certificates.
         :param scheme: The scheme to search in, either "cc" for Common Criteria or "fips" for FIPS.
         :param page: The page number to retrieve results from.
-        :return: A string containing the search results formatted for display.
+        :param sort: The sorting method for the results, default is "match".
+        :param status: The status of the certificates to filter by, default is "any".
+        :return: A JSON string containing the search results, or an error message if the input is invalid.
         """
 
         url = f"https://sec-certs.org/{scheme}/mergedsearch/"
         per_page = 100
-        params = {"searchType": "by-name", "q": query, "page": page, "per_page": per_page}
-        resp = requests.get(url, params=params)  # type: ignore
+        if sort not in ["match", "name", "cert_date", "archive_date"]:
+            return f"Error: Invalid sort parameter '{sort}'. Valid options are 'match', 'name', 'cert_date', or 'archive_date'."
+        if status not in ["any", "active", "archived"]:
+            return f"Error: Invalid status parameter '{status}'. Valid options are 'any', 'active', or 'archived'."
+        if scheme not in ["cc", "fips"]:
+            return (
+                f"Error: Invalid scheme '{scheme}'. Valid options are 'cc' for Common Criteria or 'fips' for FIPS 140."
+            )
+        params = {
+            "searchType": "by-name",
+            "q": query,
+            "page": page,
+            "per_page": per_page,
+            "sort": sort,
+            "status": status,
+        }
+        headers = {"User-Agent": "WebUI"}
+        resp = requests.get(url, params=params, headers=headers)  # type: ignore
         if resp.status_code != 200:
             return f"Error: Unable to fetch data from {url}. Status code: {resp.status_code}"
         soup = BeautifulSoup(resp.text, "lxml")
@@ -43,7 +68,8 @@ class Tools:
             return "No certificates found."
         output = []
         for result in results:
-            category = result.find("span", class_="result-category").text.strip()
+            category = result.find("span", class_="result-category").find("span")["title"]
+            link = "https://sec-certs.org" + result.find("a", class_="result-link")["href"]
             id = result.find("span", class_="result-id").text.strip()
             name = result.find("span", class_="result-name").text.strip()
             status = result.find("span", class_="result-status").text.strip()
@@ -54,6 +80,7 @@ class Tools:
                     "name": name,
                     "category": category,
                     "id": id,
+                    "link": link,
                     "status": status,
                     "certification_date": cert_date,
                     "archival_date": archive_date,
@@ -90,3 +117,8 @@ class Tools:
             "results": output,
         }
         return json.dumps(result, indent=2, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    tool = Tools()
+    print(tool.search("Athena", "cc", 1))  # Example usage

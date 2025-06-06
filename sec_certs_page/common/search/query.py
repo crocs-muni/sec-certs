@@ -421,7 +421,7 @@ class FulltextSearch(ABC):
         res.results.fragmenter.maxchars = 300
         res.results.fragmenter.surround = 40
         res.results.order = highlight.SCORE
-        hf = highlight.HtmlFormatter(between="<br/>")
+        hf = Formatter()
         res.results.formatter = hf
         runtime = res.results.runtime
         results = []
@@ -462,3 +462,26 @@ class FulltextSearch(ABC):
             **parsed,
             "query": qr,
         }
+
+
+class Formatter(highlight.HtmlFormatter):
+    """Custom HTML formatter for highlighting search results."""
+
+    def __init__(self):
+        super().__init__(between="<br/>")
+        self.wrap_tag = "span"
+        self.wrap_class = "result-fragment"
+        self.surround = '<span class="text-muted">...</span>'
+
+    def format(self, fragments, replace=False):
+        """Returns a formatted version of the given text, using a list of
+        :class:`Fragment` objects.
+        """
+
+        formatted = [self.format_fragment(f, replace=replace) for f in fragments]
+        wrapped = [
+            f'<{self.wrap_tag} class="{self.wrap_class}" data-start="{frag.startchar}" data-end="{frag.endchar}">{text}</{self.wrap_tag}>'
+            for frag, text in zip(fragments, formatted)
+        ]
+        surrounded = [f"{self.surround}{text}{self.surround}" for text in wrapped]
+        return self.between.join(surrounded)
