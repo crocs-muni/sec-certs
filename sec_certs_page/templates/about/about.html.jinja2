@@ -1,9 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
 {% block title %}
-    <title>
-        {{ "About | sec-certs.org" }}
-    </title>
+    <title>About | sec-certs.org</title>
 {% endblock %}
 {% block head %}
 	{{ super() }}
@@ -27,12 +25,14 @@
         </div>
     </div>
 {% endmacro %}
+
 {% macro render_student(name, description, duration) %}
     <div class="border rounded p-2 my-2 me-lg-3">
         <b>{{ name }}</b><br/>
         {{ description|safe }}, <span class="text-muted">{{ duration }}</span>
     </div>
 {% endmacro %}
+
 {% block content %}
 	<div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <main>
