@@ -76,6 +76,15 @@ def files_for_knowledge_base(kb_id: str):
         return []
 
 
+@cache.memoize(timeout=3600)
+def file_metadata(file_id: str):
+    data = get_file_metadata(file_id)
+    if data and "metadata" in data:
+        return data["metadata"]
+    else:
+        return None
+
+
 def get_file_metadata(file_id: str):
     url = f"v1/files/{file_id}"
     response = get(url)

@@ -6,7 +6,7 @@ from .. import mongo
 from ..common.objformats import cert_name
 from ..common.permissions import admin_permission
 from ..common.views import captcha_required
-from ..common.webui import chat_with_model, files_for_hashid, files_for_knowledge_base, get_file_metadata
+from ..common.webui import chat_with_model, file_metadata, files_for_hashid
 from . import chat
 
 
@@ -52,7 +52,7 @@ def files():
     targets_kbid = current_app.config.get(targets_kb)
     resp = []
     for file in files:
-        meta = get_file_metadata(file)
+        meta = file_metadata(file)
         if meta["meta"]["collection_name"] == reports_kbid:
             resp.append("report")
         elif meta["meta"]["collection_name"] == targets_kbid:
