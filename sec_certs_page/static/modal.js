@@ -323,8 +323,17 @@ export function chat_files(files_url, token, certificate_data) {
                 $("#chat-files").html(
                     `Files available <span class="badge bg-secondary">${data.files.join(", ")}</span>`
                 );
+            } else {
+                $("#chat-files").text("No files available.");
             }
             $("#chat-files").data("done", true);
         },
+        error: function (xhr) {
+            let error_message = "An error occurred while fetching files.";
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                error_message = xhr.responseJSON.message;
+            }
+            $("#chat-files").text(error_message).addClass("text-danger");
+        }
     })
 }
