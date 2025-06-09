@@ -63,12 +63,24 @@ def find_file(fname: str, content: bool = False):
 
 
 @cache.memoize(timeout=3600)
+def file_map():
+    data = find_file("*.txt")
+    result = {}
+    for file in data:
+        name = file["filename"]
+        id = file["id"]
+        result.setdefault(name, []).append(id)
+    return result
+
+
 def files_for_hashid(hashid: str):
-    data = find_file(f"{hashid}.txt")
-    return list(map(lambda x: x["id"], data)) if data else []
+    fmap = file_map()
+    if f"{hashid}.txt" not in fmap:
+        return []
+    else:
+        return fmap[f"{hashid}.txt"]
 
 
-@cache.memoize(timeout=3600)
 def files_for_knowledge_base(kb_id: str):
     data = get_knowledge_base(kb_id)
     if data and "files" in data:
@@ -232,7 +244,7 @@ def resolve_files(collection: str, hashid: str):
 
 
 def chat_about(
-    query: str,
+    query,
     collection: str,
     hashid: Optional[str] = None,
     about: str = "entry",
