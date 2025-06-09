@@ -39,7 +39,7 @@ from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
 from .common.search.index import create_index, get_index
-from .common.sentry import DramatiqIntegration
+from .common.sentry import DramatiqIntegration, before_send
 
 # See https://github.com/crocs-muni/sec-certs/issues/470
 sys.setrecursionlimit(8000)
@@ -64,6 +64,7 @@ if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
     sentry_sdk.init(
         dsn=app.config["SENTRY_INGEST"],
         integrations=[FlaskIntegration(), RedisIntegration(), DramatiqIntegration()],
+        before_send=before_send,
         environment=app.config["SENTRY_ENV"],
         sample_rate=app.config["SENTRY_ERROR_SAMPLE_RATE"],
         traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],

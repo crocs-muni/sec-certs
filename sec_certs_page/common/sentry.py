@@ -67,3 +67,14 @@ class DramatiqIntegration(OriginalDramatiqIntegration):
     @staticmethod
     def setup_once() -> None:
         _patch_dramatiq_broker()
+
+
+def before_send(event, hint):
+    # Check if this event is an exception
+    exception = hint.get("exc_info")
+    if exception:
+        exc_type, exc_value, tb = exception
+        # Filter out specific error by type and message
+        if isinstance(exc_value, OSError) and "write error" in str(exc_value):
+            return None  # Drop this event
+    return event  # Otherwise, send as normal
