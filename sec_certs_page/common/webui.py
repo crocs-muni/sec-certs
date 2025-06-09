@@ -76,11 +76,11 @@ def files_for_knowledge_base(kb_id: str):
         return []
 
 
-@cache.memoize(timeout=3600)
+@cache.memoize(timeout=3600, response_filter=lambda meta: meta is not None)
 def file_metadata(file_id: str):
     data = get_file_metadata(file_id)
-    if data and "metadata" in data:
-        return data["metadata"]
+    if data:
+        return data
     else:
         return None
 
