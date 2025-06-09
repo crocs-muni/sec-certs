@@ -209,7 +209,8 @@ def data():
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():
-    return redirect(url_for(".merged_search", searchType="by-name", **request.args))
+    args = {**request.args, "searchType": "by-name"}
+    return redirect(url_for(".merged_search", **args))
 
 
 @cc.route("/mergedsearch/")
@@ -238,7 +239,8 @@ def merged_search():
 @cc.route("/ftsearch/")
 @register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    return redirect(url_for(".merged_search", searchType="fulltext", **request.args))
+    args = {**request.args, "searchType": "fulltext"}
+    return redirect(url_for(".merged_search", **args))
 
 
 @cc.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")

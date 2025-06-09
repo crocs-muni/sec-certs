@@ -133,7 +133,8 @@ def network_graph():
 @fips.route("/search/")
 @register_breadcrumb(fips, ".search", "Search")
 def search():
-    return redirect(url_for(".merged_search", searchType="by-name", **request.args))
+    args = {**request.args, "searchType": "by-name"}
+    return redirect(url_for(".merged_search", **args))
 
 
 @fips.route("/mergedsearch/")
@@ -162,7 +163,8 @@ def merged_search():
 @fips.route("/ftsearch/")
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    return redirect(url_for(".merged_search", searchType="fulltext", **request.args))
+    args = {**request.args, "searchType": "fulltext"}
+    return redirect(url_for(".merged_search", **args))
 
 
 @fips.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
