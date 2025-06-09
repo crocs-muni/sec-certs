@@ -1,12 +1,11 @@
-from flask import current_app, render_template_string, request, session
+from flask import current_app, request, session, url_for
 from markdown2 import markdown
 from nh3 import nh3
 
 from .. import mongo
-from ..common.objformats import cert_name
 from ..common.permissions import admin_permission
 from ..common.views import captcha_required
-from ..common.webui import chat_with_model, file_metadata, files_for_hashid
+from ..common.webui import chat_about, file_name, file_type, resolve_files
 from . import chat
 
 
@@ -14,6 +13,8 @@ from . import chat
 @captcha_required(json=True)
 def authorize():
     """Add "chat_authorized=True" to user's session."""
+    if not current_app.config["CHAT_ENABLED"]:
+        return {"status": "error", "message": "Chat is not enabled."}, 403
     session["chat_authorized"] = True
     return {"status": "ok"}
 
@@ -21,12 +22,16 @@ def authorize():
 @chat.route("/authorized/")
 def authorized():
     """Check if the user is authorized to chat."""
+    if not current_app.config["CHAT_ENABLED"]:
+        return {"status": "error", "message": "Chat is not enabled."}, 403
     return {"authorized": session.get("chat_authorized", False)}
 
 
 @chat.route("/files/", methods=["POST"])
 def files():
     """Query which files are available for a given hashid."""
+    if not current_app.config["CHAT_ENABLED"]:
+        return {"status": "error", "message": "Chat is not enabled."}, 403
     if not admin_permission.can():
         return {"status": "error", "message": "Only admin users can query files."}, 403
     if "chat_authorized" not in session or not session["chat_authorized"]:
@@ -45,24 +50,15 @@ def files():
     cert = mongo.db[collection].find_one({"_id": hashid})
     if not cert:
         return {"status": "error", "message": "Invalid hashid."}, 404
-    files = files_for_hashid(hashid)
-    reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
-    targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
-    reports_kbid = current_app.config.get(reports_kb)
-    targets_kbid = current_app.config.get(targets_kb)
-    resp = []
-    for file in files:
-        meta = file_metadata(file)
-        if meta["meta"]["collection_name"] == reports_kbid:
-            resp.append("report")
-        elif meta["meta"]["collection_name"] == targets_kbid:
-            resp.append("target")
+    resp = resolve_files(collection, hashid)
     return {"status": "ok", "files": resp}
 
 
 @chat.route("/", methods=["POST"])
 def query():
     """Chat with the model."""
+    if not current_app.config["CHAT_ENABLED"]:
+        return {"status": "error", "message": "Chat is not enabled."}, 403
     if not admin_permission.can():
         return {"status": "error", "message": "Only admin users have chat permissions."}, 403
     if "chat_authorized" not in session or not session["chat_authorized"]:
@@ -74,61 +70,23 @@ def query():
         return {"status": "error", "message": "Missing 'query' in request."}, 400
     if "about" not in data:
         return {"status": "error", "message": "Missing 'about' in request."}, 400
-    files = None
-    kbs = None
-    collection = None
-    cert = None
-    if "collection" in data:
-        collection = data["collection"]
-        if collection not in ("cc", "fips", "pp"):
-            return {"status": "error", "message": "Invalid collection specified."}, 400
-        else:
-            reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
-            targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
-            reports_kbid = current_app.config.get(reports_kb)
-            targets_kbid = current_app.config.get(targets_kb)
-            if reports_kbid or targets_kbid:
-                kbs = []
-                if reports_kbid:
-                    kbs.append(reports_kbid)
-                if targets_kbid:
-                    kbs.append(targets_kbid)
-            if "hashid" in data:
-                hashid = data["hashid"]
-                cert = mongo.db[collection].find_one({"_id": hashid})
-                if not cert:
-                    return {"status": "error", "message": "Invalid hashid."}, 404
-                else:
-                    files = files_for_hashid(hashid)
+    if "collection" not in data:
+        return {"status": "error", "message": "Missing 'collection' in request."}, 400
 
+    collection = data["collection"]
     about = data["about"]
-    if about == "entry":
-        if files is None:
-            return {"status": "error", "message": "Missing 'hashid' for entry query."}, 400
-        kbs = None
-        system_addition = render_template_string(
-            current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT", ""), cert_name=cert_name(cert)
-        )
-    elif about == "collection":
-        if kbs is None:
-            return {"status": "error", "message": "Missing knowledge base for collection query."}, 400
-        system_addition = current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_ALL", "")
-        files = None
-    elif about == "both":
-        if files is None:
-            return {"status": "error", "message": "Missing 'hashid' for both query."}, 400
-        if kbs is None:
-            return {"status": "error", "message": "Missing knowledge base for both query."}, 400
-        system_addition = render_template_string(
-            current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_BOTH", ""), cert_name=cert_name(cert)
-        )
-    else:
-        return {"status": "error", "message": "Invalid 'about' value."}, 400
+    hashid = data.get("hashid", None)
+    if collection not in ("cc", "fips", "pp"):
+        return {"status": "error", "message": "Invalid collection specified."}, 400
 
-    result = chat_with_model(data["query"], system_addition, kbs=kbs, files=files)
+    try:
+        result = chat_about(data["query"], collection, hashid, about)
+    except ValueError as e:
+        return {"status": "error", "message": str(e)}, 400
     if result.status_code != 200:
         return {"status": "error", "message": "Chat request failed."}, result.status_code
-    choices = result.json().get("choices", [])
+    json = result.json()
+    choices = json.get("choices", [])
     if not choices:
         return {"status": "error", "message": "No response from the model."}, 500
     choice = choices[0]
@@ -137,6 +95,28 @@ def query():
     response = choice["message"]["content"]
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
-    rendered = markdown(response, extras=["cuddled-lists"])
-    cleaned = nh3.clean(rendered)
-    return {"status": "ok", "response": cleaned, "raw": response}
+    sources = []
+
+    if "sources" in json:
+        for source in json["sources"]:
+            file_id = source["source"]["id"]
+            fname = file_name(file_id)
+            ftype = file_type(file_id, collection)
+            sources.append(
+                {
+                    "id": file_id,
+                    "name": fname,
+                    "type": ftype,
+                    "url": url_for(f"{collection}.entry_{ftype}_txt", hashid=hashid),
+                }
+            )
+    rendered = markdown(response, extras={"cuddled-lists": None, "code-friendly": None})
+    cleaned = nh3.clean(rendered).strip()
+    for i, source in enumerate(sources):
+        tag = f"[{i + 1}]"
+        if tag in rendered:
+            rendered = rendered.replace(
+                tag, f'<a href="{source["url"]}" target="_blank" title="Model used document.">[{source["type"]}]</a>'
+            )
+
+    return {"status": "ok", "response": cleaned, "raw": response, "sources": sources}, 200

@@ -4,9 +4,10 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import requests
-from flask import current_app
+from flask import current_app, render_template_string
 
-from .. import cache
+from .. import cache, mongo
+from .objformats import cert_name
 
 
 def get(url: str, query=None):
@@ -76,13 +77,36 @@ def files_for_knowledge_base(kb_id: str):
         return []
 
 
-@cache.memoize(timeout=3600, response_filter=lambda meta: meta is not None)
+@cache.memoize(timeout=3600)
 def file_metadata(file_id: str):
     data = get_file_metadata(file_id)
     if data:
+        if "data" in data:
+            del data["data"]
         return data
     else:
         return None
+
+
+def file_name(file_id: str):
+    meta = file_metadata(file_id)
+    if meta and "filename" in meta:
+        return meta["filename"]
+    else:
+        return None
+
+
+def file_type(file_id: str, collection: str):
+    reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
+    targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
+    reports_kbid = current_app.config.get(reports_kb)
+    targets_kbid = current_app.config.get(targets_kb)
+    meta = file_metadata(file_id)
+    if meta["meta"]["collection_name"] == reports_kbid:
+        return "report"
+    elif meta["meta"]["collection_name"] == targets_kbid:
+        return "target"
+    raise ValueError("Unknown file type.")
 
 
 def get_file_metadata(file_id: str):
@@ -197,3 +221,63 @@ def chat_with_model(queries, system_addition: str = "", kbs: Optional[list] = No
         data["files"] = file_attr
     response = post(url, data)
     return response
+
+
+def resolve_files(collection: str, hashid: str):
+    files = files_for_hashid(hashid)
+    resp = []
+    for file in files:
+        resp.append(file_type(file, collection))
+    return resp
+
+
+def chat_about(
+    query: str,
+    collection: str,
+    hashid: Optional[str] = None,
+    about: str = "entry",
+):
+    files: Optional[list[str]] = None
+    kbs: Optional[list[str]] = None
+    cert = None
+    reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
+    targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
+    reports_kbid = current_app.config.get(reports_kb)
+    targets_kbid = current_app.config.get(targets_kb)
+    if reports_kbid or targets_kbid:
+        kbs = []
+        if reports_kbid:
+            kbs.append(reports_kbid)
+        if targets_kbid:
+            kbs.append(targets_kbid)
+    if hashid is not None:
+        cert = mongo.db[collection].find_one({"_id": hashid})
+        if not cert:
+            raise ValueError("Invalid hashid.")
+        else:
+            files = files_for_hashid(hashid)
+
+    if about == "entry":
+        if files is None:
+            raise ValueError("Missing 'hashid' for entry query.")
+        kbs = None
+        system_addition = render_template_string(
+            current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT", ""), cert_name=cert_name(cert)
+        )
+    elif about == "collection":
+        if kbs is None:
+            raise ValueError("Missing knowledge base for collection query.")
+        system_addition = current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_ALL", "")
+        files = None
+    elif about == "both":
+        if files is None:
+            raise ValueError("Missing 'hashid' for both query.")
+        if kbs is None:
+            raise ValueError("Missing knowledge base for both query.")
+        system_addition = render_template_string(
+            current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_BOTH", ""), cert_name=cert_name(cert)
+        )
+    else:
+        raise ValueError("Invalid 'about' value.")
+
+    return chat_with_model(query, system_addition, kbs=kbs, files=files)

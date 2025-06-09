@@ -111,6 +111,10 @@
     padding: 0.5em 1em;
 }
 
+.chat-message-assistant p:last-child {
+    margin-bottom: 0;
+}
+
 [aria-expanded="false"] .fa-chevron-up,
 [aria-expanded="true"] .fa-chevron-down {
     display: none;
