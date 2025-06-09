@@ -185,6 +185,16 @@
                     let token = "{{ csrf_token() }}";
                     chat(chat_url, token, chat_history, certificate_data);
                 });
+                $("#chat-input").keypress(function (event) {
+                    if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
+                        event.preventDefault();
+                        if ($("#chat-send").prop("disabled")) {
+                            return;
+                        } else {
+                            $("#chat-send").click();
+                        }
+                    }
+                });
                 $("#chat-fullscreen-btn").click(function () {
                     $("#chat-modal .modal-dialog").toggleClass("modal-lg").toggleClass("modal-fullscreen");
                 });
@@ -233,7 +243,8 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="chat-modal-label">Chat</h5>
                     <div class="ms-auto d-flex align-items-center">
-                        <button type="button" class="btn bg-body text-secondary" id="chat-fullscreen-btn" title="Toggle fullscreen">
+                        <button type="button" class="btn bg-body text-secondary" id="chat-fullscreen-btn"
+                                title="Toggle fullscreen">
                             <i class="fas fa-expand"></i>
                         </button>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
