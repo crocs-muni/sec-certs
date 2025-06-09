@@ -114,8 +114,8 @@ def query():
     cleaned = nh3.clean(rendered).strip()
     for i, source in enumerate(sources):
         tag = f"[{i + 1}]"
-        if tag in rendered:
-            rendered = rendered.replace(
+        if tag in cleaned:
+            cleaned = cleaned.replace(
                 tag, f'<a href="{source["url"]}" target="_blank" title="Model used document.">[{source["type"]}]</a>'
             )
 
