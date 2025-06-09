@@ -169,7 +169,7 @@
         let chat_history = [];
 
         $(function () {
-            {% if is_admin() %}
+            {% if is_admin() and config["CHAT_ENABLED"] %}
                 $("#chat-modal").on("show.bs.modal", function () {
                     let token = "{{ csrf_token() }}";
                     let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";

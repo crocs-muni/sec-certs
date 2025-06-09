@@ -225,7 +225,7 @@
                             </h2>
                             <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#rawDataAccordion">
                                 <div class="accordion-body">
-                                    <pre id="raw-data" ><code>{{ json|tojson(indent=2) }}</code></pre>
+                                    <pre id="raw-data"><code>{{ json|tojson(indent=2) }}</code></pre>
                                 </div>
                             </div>
                         </div>
@@ -246,7 +246,7 @@
 
 {% block footer %}
     {{ super() }}
-    {% if is_admin() %}
+    {% if is_admin() and config["CHAT_ENABLED"] %}
        	{{ chat_icon() }}
     {% endif %}
 {% endblock %}

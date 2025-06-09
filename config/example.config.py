@@ -29,6 +29,7 @@ MAIL_DEFAULT_SENDER = "seccerts@example.com"  # The sender address
 # MAIL_SUPPRESS_SEND = True                     # Whether to suppress all sending (for testing)
 
 # WebUI
+CHAT_ENABLED = False  # Whether to enable the WebUI chat feature
 WEBUI_URL = ""  # The URL of the WebUI API
 WEBUI_KEY = ""  # Your WebUI API key
 WEBUI_MODEL = "llama-4-scout-17b-16e-instruct"  # The model to use for the WebUI
