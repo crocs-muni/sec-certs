@@ -756,7 +756,7 @@ tomli==2.2.1
     #   sphinx
 toolz==1.0.0
     # via datashader
-torch==2.6.0
+torch==2.7.1
     # via
     #   accelerate
     #   sentence-transformers
