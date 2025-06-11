@@ -8,6 +8,7 @@ from flask import current_app, render_template_string
 
 from .. import cache, mongo
 from .objformats import cert_name
+from .views import entry_file_path
 
 
 def get(url: str, query=None):
@@ -243,12 +244,7 @@ def resolve_files(collection: str, hashid: str):
     return resp
 
 
-def chat_about(
-    query,
-    collection: str,
-    hashid: Optional[str] = None,
-    about: str = "entry",
-):
+def chat_rag(queries, collection: str, hashid: Optional[str] = None, about: str = "entry"):
     files: Optional[list[str]] = None
     kbs: Optional[list[str]] = None
     cert = None
@@ -292,4 +288,25 @@ def chat_about(
     else:
         raise ValueError("Invalid 'about' value.")
 
-    return chat_with_model(query, system_addition, kbs=kbs, files=files)
+    return chat_with_model(queries, system_addition, kbs=kbs, files=files)
+
+
+def chat_full(queries, collection: str, hashid: str, document: str = "both"):
+    docs = []
+    if document == "both":
+        docs = ["report", "target"]
+    elif document in ("report", "target"):
+        docs = [document]
+    doc_map = {}
+    for doc in docs:
+        fpath = entry_file_path(hashid, current_app.config[f"DATASET_PATH_{collection.upper()}_DIR"], doc, "txt")
+        if fpath.exists():
+            with fpath.open() as file:
+                doc_map[doc] = file.read()
+    if not doc_map:
+        raise ValueError("No documents found.")
+    cert = mongo.db[collection].find_one({"_id": hashid})
+    system_addition = render_template_string(
+        current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT_FULL"), cert_name=cert_name(cert), **doc_map
+    )
+    return chat_with_model(queries, system_addition)

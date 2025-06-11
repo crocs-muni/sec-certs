@@ -4,17 +4,15 @@ if __name__ == "__main__":
     from tqdm import tqdm
 
     from sec_certs_page import app, mongo
-    from sec_certs_page.common.webui import chat_rag, file_map
+    from sec_certs_page.common.webui import chat_full
 
     with app.app_context():
-        # Prepare the file map for resolving files
-        file_map()
         # Iterate over all certificates in the 'cc' collection
         certs = list(mongo.db.cc.find({}, {"_id": 1, "heuristics": 1}))
         for cert in tqdm(certs, smoothing=0):
             hashid = cert["_id"]
             try:
-                resp = chat_rag(
+                resp = chat_full(
                     queries=[
                         {
                             "role": "user",
@@ -23,9 +21,13 @@ if __name__ == "__main__":
                     ],
                     collection="cc",
                     hashid=hashid,
-                    about="entry",
+                    document="report",
                 )
-                model_id = resp.json()["choices"][0]["message"]["content"]
+                json = resp.json()
+                if "choices" not in json or not json["choices"]:
+                    model_id = "error"
+                else:
+                    model_id = resp.json()["choices"][0]["message"]["content"]
             except ValueError as e:
                 model_id = "error"
             our_id = cert["heuristics"]["cert_id"]

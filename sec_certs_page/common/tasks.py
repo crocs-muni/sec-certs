@@ -648,19 +648,16 @@ class KBUpdater:  # pragma: no cover
             if file_id is None:
                 # Create a new file
                 resp = upload_file(fpath)
-                print("Added", resp["id"], digest, document)
                 # Add it to the kb
                 resp = add_file_to_knowledge_base(kb, resp["id"])
             else:
                 mtime = int(stat.st_mtime)
                 # Check if the file is already in the KB
                 if mtime <= updated_at:
-                    print("Same", file_id, digest, document, mtime, updated_at)
                     continue
                 # Then update the file with new contents
                 with fpath.open("rb") as f:
                     resp = update_file_data_content(file_id, f)
-                print("Updated", file_id, digest, document)
                 # Then trigger also kb update
                 resp = update_file_in_knowledge_base(kb, file_id)
 

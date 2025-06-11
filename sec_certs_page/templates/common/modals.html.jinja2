@@ -181,9 +181,10 @@
                     chat_files(files_url, token, certificate_data);
                 });
                 $("#chat-send").click(function () {
-                    let chat_url = "{{ url_for("chat.query") }}";
+                    let rag_url = "{{ url_for("chat.query_rag") }}";
+                    let full_url = "{{ url_for("chat.query_full") }}";
                     let token = "{{ csrf_token() }}";
-                    chat(chat_url, token, chat_history, certificate_data);
+                    chat(rag_url, full_url, token, chat_history, certificate_data);
                 });
                 $("#chat-input").keypress(function (event) {
                     if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
@@ -262,9 +263,11 @@
                             <div class="d-flex align-items-center gap-2">
                                 <label for="chat-about" class="form-label mb-0">Chat context</label>
                                 <select id="chat-about" class="form-select w-auto">
-                                    <option value="collection">All certificates</option>
-                                    <option value="entry" selected>This certificate</option>
-                                    <option value="both">Both</option>
+                                    <option value="rag-this" selected>(RAG) This certificate</option>
+                                    <option value="rag-both">(RAG) All certificates + this</option>
+                                    <option value="full-report">Full context (report)</option>
+                                    <option value="full-target">Full context (target)</option>
+                                    <option value="full-both">Full context (both)</option>
                                 </select>
                             </div>
                             <span id="chat-files"></span>

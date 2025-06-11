@@ -234,7 +234,7 @@ export function chat_authorize(check_url, auth_url, sitekey, csrf_token) {
     })
 }
 
-export function chat(chat_url, token, chat_history, certificate_data) {
+export function chat(rag_url, full_url, token, chat_history, certificate_data) {
     let message = $("#chat-input").val().trim();
     if (message) {
         // Append the message to the chat history and display it
@@ -245,8 +245,34 @@ export function chat(chat_url, token, chat_history, certificate_data) {
         chat_history.push(full_message);
         let data = {
             query: chat_history,
-            about: $("#chat-about").val()
         };
+        let about = $("#chat-about").val();
+        let url;
+        switch (about) {
+            case "rag-this":
+                url = rag_url;
+                data.about = "entry";
+                break;
+            case "rag-both":
+                url = rag_url;
+                data.about = "both";
+                break;
+            case "full-report":
+                url = full_url;
+                data.context = "report";
+                break;
+            case "full-target":
+                url = full_url;
+                data.context = "target";
+                break;
+            case "full-both":
+                url = full_url;
+                data.context = "both";
+                break;
+            default:
+                // Error out
+                return;
+        }
         // Extract hashid from certificate_data if available
         let hashid = certificate_data?.hashid;
         let collection = certificate_data?.type;
@@ -261,7 +287,7 @@ export function chat(chat_url, token, chat_history, certificate_data) {
         // Show the loading indicator
         $("#chat-messages").append(`<div class="chat-message-loading"><i class="fas fa-spinner fa-spin"></i></div>`);
         // Send the chat history to the server
-        $.ajax(chat_url, {
+        $.ajax(url, {
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(data),
@@ -319,12 +345,12 @@ export function chat_files(files_url, token, certificate_data) {
             "X-CSRFToken": token
         },
         success: function (data) {
-            if (data.files) {
+            if (data.files && data.files.length > 0) {
                 $("#chat-files").html(
-                    `Files available <span class="badge bg-secondary">${data.files.join(", ")}</span>`
+                    `Files available for RAG <span class="badge bg-secondary">${data.files.join(", ")}</span>`
                 );
             } else {
-                $("#chat-files").text("No files available.");
+                $("#chat-files").text("No files available for RAG.");
             }
             $("#chat-files").data("done", true);
         },

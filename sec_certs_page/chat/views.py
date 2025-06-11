@@ -5,7 +5,7 @@ from nh3 import nh3
 from .. import mongo
 from ..common.permissions import admin_permission
 from ..common.views import captcha_required
-from ..common.webui import chat_about, file_name, file_type, resolve_files
+from ..common.webui import chat_full, chat_rag, file_name, file_type, resolve_files
 from . import chat
 
 
@@ -54,8 +54,8 @@ def files():
     return {"status": "ok", "files": resp}
 
 
-@chat.route("/", methods=["POST"])
-def query():
+@chat.route("/rag/", methods=["POST"])
+def query_rag():
     """Chat with the model."""
     if not current_app.config["CHAT_ENABLED"]:
         return {"status": "error", "message": "Chat is not enabled."}, 403
@@ -73,6 +73,13 @@ def query():
     if "collection" not in data:
         return {"status": "error", "message": "Missing 'collection' in request."}, 400
 
+    query = []
+    for message in data["query"]:
+        if "role" not in message or "content" not in message:
+            return {"status": "error", "message": "Invalid query format."}, 400
+        if message["role"] not in ("user", "assistant"):
+            return {"status": "error", "message": "Invalid role in query."}, 400
+        query.append({"role": message["role"], "content": message["content"]})
     collection = data["collection"]
     about = data["about"]
     hashid = data.get("hashid", None)
@@ -80,9 +87,10 @@ def query():
         return {"status": "error", "message": "Invalid collection specified."}, 400
 
     try:
-        result = chat_about(data["query"], collection, hashid, about)
+        result = chat_rag(query, collection, hashid, about)
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
+
     if result.status_code != 200:
         return {"status": "error", "message": "Chat request failed."}, result.status_code
     json = result.json()
@@ -91,12 +99,12 @@ def query():
         return {"status": "error", "message": "No response from the model."}, 500
     choice = choices[0]
     if "message" not in choice or "content" not in choice["message"]:
-        return {"status": "error", "message": "Invalid response format."}, 500
+        return {"status": "error", "message": "Invalid response format from the model."}, 500
     response = choice["message"]["content"]
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
-    sources = []
 
+    sources = []
     if "sources" in json:
         for source in json["sources"]:
             file_id = source["source"]["id"]
@@ -120,3 +128,63 @@ def query():
             )
 
     return {"status": "ok", "response": cleaned, "raw": response, "sources": sources}, 200
+
+
+@chat.route("/full/", methods=["POST"])
+def query_full():
+    """Chat with the model."""
+    if not current_app.config["CHAT_ENABLED"]:
+        return {"status": "error", "message": "Chat is not enabled."}, 403
+    if not admin_permission.can():
+        return {"status": "error", "message": "Only admin users have chat permissions."}, 403
+    if "chat_authorized" not in session or not session["chat_authorized"]:
+        return {"status": "error", "message": "You are not authorized to use the chat."}, 403
+    if not request.is_json:
+        return {"status": "error", "message": "Request must be JSON."}, 400
+    data = request.get_json()
+    if "query" not in data:
+        return {"status": "error", "message": "Missing 'query' in request."}, 400
+    if "context" not in data:
+        return {"status": "error", "message": "Missing 'context' in request."}, 400
+    if "collection" not in data:
+        return {"status": "error", "message": "Missing 'collection' in request."}, 400
+    if "hashid" not in data:
+        return {"status": "error", "message": "Missing 'hashid' in request."}, 400
+
+    query = []
+    for message in data["query"]:
+        if "role" not in message or "content" not in message:
+            return {"status": "error", "message": "Invalid query format."}, 400
+        if message["role"] not in ("user", "assistant"):
+            return {"status": "error", "message": "Invalid role in query."}, 400
+        query.append({"role": message["role"], "content": message["content"]})
+    collection = data["collection"]
+    hashid = data["hashid"]
+    context = data["context"]
+    if context not in ("report", "target", "both"):
+        return {"status": "error", "message": "Invalid context specified."}, 400
+    if collection not in ("cc", "fips", "pp"):
+        return {"status": "error", "message": "Invalid collection specified."}, 400
+
+    try:
+        result = chat_full(query, collection, hashid, context)
+    except ValueError as e:
+        return {"status": "error", "message": str(e)}, 400
+
+    if result.status_code != 200:
+        return {"status": "error", "message": "Chat request failed."}, result.status_code
+    json = result.json()
+    choices = json.get("choices", [])
+    if not choices:
+        return {"status": "error", "message": "No response from the model."}, 500
+    choice = choices[0]
+    if "message" not in choice or "content" not in choice["message"]:
+        return {"status": "error", "message": "Invalid response format from the model."}, 500
+    response = choice["message"]["content"]
+    if not response:
+        return {"status": "error", "message": "Empty response from the model."}, 500
+
+    rendered = markdown(response, extras={"cuddled-lists": None, "code-friendly": None})
+    cleaned = nh3.clean(rendered).strip()
+
+    return {"status": "ok", "response": cleaned, "raw": response, "sources": []}, 200
