@@ -119,6 +119,7 @@ def file_type(file_id: str, collection: str):
         return "report"
     elif meta["meta"]["collection_name"] == targets_kbid:
         return "target"
+    print(meta)
     raise ValueError("Unknown file type.")
 
 

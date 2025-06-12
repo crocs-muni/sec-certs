@@ -249,9 +249,34 @@ def logout():
     return redirect(url_for("index"))
 
 
-@admin.route("/chat-auth-link/")
+@admin.route("/chat-invite")
 @login_required
 @admin_permission.require()
-def chat_auth_link():
-    """Admin page to create chat auth links."""
-    return render_template("admin/chat_auth_link.html.jinja2")
+def chat_invite():
+    """Admin page to create chat auth links and view existing ones."""
+    # Find all chat auth links in redis
+    # Keys are like "chat_auth_token:{token}"
+    keys = redis.keys("chat_auth_token:*")
+    chat_links = []
+    for key in keys:
+        token = (
+            key.decode().split("chat_auth_token:")[-1] if isinstance(key, bytes) else key.split("chat_auth_token:")[-1]
+        )
+        # Get chat duration (value) and link expiry (ttl)
+        chat_duration = redis.get(key)
+        try:
+            chat_duration = int(chat_duration)
+        except Exception:
+            chat_duration = None
+        ttl = redis.ttl(key)
+        # Compose the link
+        link = url_for("chat.consume_auth_link", token=token, _external=True)
+        chat_links.append(
+            {
+                "token": token,
+                "link": link,
+                "chat_duration": chat_duration,
+                "ttl": ttl,
+            }
+        )
+    return render_template("admin/chat_invite.jinja2", chat_links=chat_links)

@@ -349,7 +349,7 @@
             {% endblock %}
             {{ notification_modal() }}
             {{ compare_modal() }}
-            {% if is_admin() and config["CHAT_ENABLED"] %}
+            {% if config["CHAT_ENABLED"] %}
             	{{ chat_modal() }}
             {% endif %}
             <footer>

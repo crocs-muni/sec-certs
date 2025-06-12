@@ -169,13 +169,13 @@
         let chat_history = [];
 
         $(function () {
-            {% if is_admin() and config["CHAT_ENABLED"] %}
-                $("#chat-modal").on("show.bs.modal", function () {
+            {% if config["CHAT_ENABLED"] %}
+                $("#chat-modal").on("show.bs.modal", async function () {
                     let token = "{{ csrf_token() }}";
                     let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
                     let check_url = "{{ url_for("chat.authorized") }}";
                     let auth_url = "{{ url_for("chat.authorize") }}";
-                    chat_authorize(check_url, auth_url, sitekey, token);
+                    await chat_authorize(check_url, auth_url, sitekey, token);
 
                     let files_url = "{{ url_for("chat.files") }}"
                     chat_files(files_url, token, certificate_data);
@@ -256,6 +256,7 @@
                     <p id="chat-authorize">
                         Please authorize to use the chat.
                     </p>
+                    <p id="chat-expires-at" class="text-muted small" style="display: none"></p>
                     <p class="invalid-feedback" id="chat-error" style="display: none"></p>
                     <!-- Chat skeleton start -->
                     <div id="chat-skeleton">
