@@ -6,7 +6,8 @@
         "artifacts_downloaded": false,
         "pdfs_converted": false,
         "auxiliary_datasets_processed": false,
-        "certs_analyzed": false
+        "certs_analyzed": false,
+        "sec_certs_version": "unknown"
     },
     "timestamp": "2025-01-25 17:39:26.873380",
     "name": "ProtectionProfileDataset dataset",

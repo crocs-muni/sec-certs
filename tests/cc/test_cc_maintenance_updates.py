@@ -61,6 +61,8 @@ def test_dataset_to_json(mu_dset: CCDatasetMaintenanceUpdates, data_dir: Path, t
 
     del template_data["timestamp"]
     del data["timestamp"]
+    del template_data["state"]["sec_certs_version"]
+    del data["state"]["sec_certs_version"]
     assert data == template_data
 
 

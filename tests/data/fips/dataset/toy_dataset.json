@@ -6,7 +6,8 @@
         "artifacts_downloaded": true,
         "pdfs_converted": true,
         "auxiliary_datasets_processed": false,
-        "certs_analyzed": false
+        "certs_analyzed": false,
+        "sec_certs_version": "unknown"
     },
     "timestamp": "2022-11-30 16:38:51.953055",
     "name": "FIPSDataset dataset",
