@@ -277,7 +277,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             from sec_certs._version import __version__ as current_version
         except ImportError:
             current_version = "unknown"
-        dset_version = getattr(getattr(dset, 'state', None), 'sec_certs_version', None)
+        dset_version = getattr(getattr(dset, "state", None), "sec_certs_version", None)
         if dset_version and current_version != "unknown" and dset_version != current_version:
             try:
                 dset_v = parse_version(dset_version)
@@ -288,9 +288,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     which = "older than"
                 else:
                     which = "equal to"
-                logger.warning(f"Dataset was created with sec-certs version {dset_version} ({which} your version {current_version}). To install the matching version: pip install sec-certs=={dset_version}")
+                logger.warning(
+                    f"Dataset was created with sec-certs version {dset_version} ({which} your version {current_version}). To install the matching version: pip install sec-certs=={dset_version}"
+                )
             except Exception:
-                logger.warning(f"Dataset was created with sec-certs version {dset_version}, but you are running version {current_version}. To install the matching version: pip install sec-certs=={dset_version}")
+                logger.warning(
+                    f"Dataset was created with sec-certs version {dset_version}, but you are running version {current_version}. To install the matching version: pip install sec-certs=={dset_version}"
+                )
         return dset
 
     @classmethod
