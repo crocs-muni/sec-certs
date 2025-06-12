@@ -247,3 +247,11 @@ def logout():
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
     flash("You've been successfully logged out.", "info")
     return redirect(url_for("index"))
+
+
+@admin.route("/chat-auth-link/")
+@login_required
+@admin_permission.require()
+def chat_auth_link():
+    """Admin page to create chat auth links."""
+    return render_template("admin/chat_auth_link.html.jinja2")
