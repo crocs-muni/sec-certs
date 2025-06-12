@@ -13,8 +13,10 @@ from typing import Any, ClassVar, Generic, TypeVar, cast
 
 import pandas as pd
 import requests
+from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
+from sec_certs._version import __version__
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
@@ -48,6 +50,23 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         pdfs_converted: bool = False
         auxiliary_datasets_processed: bool = False
         certs_analyzed: bool = False
+        sec_certs_version: str | None = None
+
+        def __init__(
+            self,
+            meta_sources_parsed: bool = False,
+            artifacts_downloaded: bool = False,
+            pdfs_converted: bool = False,
+            auxiliary_datasets_processed: bool = False,
+            certs_analyzed: bool = False,
+            sec_certs_version: str | None = None,
+        ):
+            self.meta_sources_parsed = meta_sources_parsed
+            self.artifacts_downloaded = artifacts_downloaded
+            self.pdfs_converted = pdfs_converted
+            self.auxiliary_datasets_processed = auxiliary_datasets_processed
+            self.certs_analyzed = certs_analyzed
+            self.sec_certs_version = sec_certs_version if sec_certs_version is not None else __version__
 
     def __init__(
         self,
@@ -60,7 +79,6 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     ):
         super().__init__()
         self.certs = certs if certs is not None else {}
-
         self.timestamp = datetime.now()
         self.name = name if name else type(self).__name__
         self.description = description if description else datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -254,6 +272,29 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             logger.error(
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
             )
+        # Version check and warning
+        try:
+            from sec_certs._version import __version__ as current_version
+        except ImportError:
+            current_version = "unknown"
+        dset_version = getattr(getattr(dset, "state", None), "sec_certs_version", None)
+        if dset_version and current_version != "unknown" and dset_version != current_version:
+            try:
+                dset_v = parse_version(dset_version)
+                curr_v = parse_version(current_version)
+                if dset_v > curr_v:
+                    which = "newer than"
+                elif dset_v < curr_v:
+                    which = "older than"
+                else:
+                    which = "equal to"
+                logger.warning(
+                    f"Dataset was created with sec-certs version {dset_version} ({which} your version {current_version}). To install the matching version: pip install sec-certs=={dset_version}"
+                )
+            except Exception:
+                logger.warning(
+                    f"Dataset was created with sec-certs version {dset_version}, but you are running version {current_version}. To install the matching version: pip install sec-certs=={dset_version}"
+                )
         return dset
 
     @classmethod

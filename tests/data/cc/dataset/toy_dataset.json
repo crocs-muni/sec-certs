@@ -6,7 +6,8 @@
     "artifacts_downloaded": false,
     "pdfs_converted": false,
     "auxiliary_datasets_processed": false,
-    "certs_analyzed": false
+    "certs_analyzed": false,
+    "sec_certs_version": "unknown"
   },
   "timestamp": "2020-11-16 17:04:14.770153",
   "name": "toy dataset",

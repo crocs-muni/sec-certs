@@ -34,6 +34,8 @@ def test_dataset_to_json(toy_dataset: FIPSDataset, data_dir: Path, tmp_path: Pat
 
     del data["timestamp"]
     del template_data["timestamp"]
+    del data["state"]["sec_certs_version"]
+    del template_data["state"]["sec_certs_version"]
     assert data == template_data
 
 

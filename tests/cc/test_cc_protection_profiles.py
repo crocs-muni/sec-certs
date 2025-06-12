@@ -19,6 +19,8 @@ def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir
 
     del data["timestamp"]
     del template_data["timestamp"]
+    del data["state"]["sec_certs_version"]
+    del template_data["state"]["sec_certs_version"]
     assert data == template_data
 
 
