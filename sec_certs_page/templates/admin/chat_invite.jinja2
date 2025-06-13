@@ -1,0 +1,96 @@
+{% extends "common/base.html.jinja2" %}
+{% block title %}Create chat invite link{% endblock %}
+
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1 class="mb-4">Create chat invite link</h1>
+            <div id="chat-auth-link-form" class="card p-4 shadow-sm">
+                <form id="auth-link-form">
+                    <div class="mb-3">
+                        <label for="link_duration" class="form-label">Link validity (seconds, 60-1209600):</label>
+                        <input type="number" class="form-control" id="link_duration" name="link_duration" min="60"
+                               max="1209600" value="604800" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chat_duration" class="form-label">Chat session duration (seconds,
+                            60-1209600):</label>
+                        <input type="number" class="form-control" id="chat_duration" name="chat_duration" min="60"
+                               max="1209600" value="604800" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate link</button>
+                </form>
+                <div id="auth-link-result" class="mt-4"></div>
+            </div>
+
+            <script>
+                $('#auth-link-form').on('submit', function (e) {
+                    e.preventDefault();
+                    const link_duration = $('#link_duration').val();
+                    const chat_duration = $('#chat_duration').val();
+                    const resultDiv = $('#auth-link-result');
+                    resultDiv.text('Generating...');
+                    $.ajax({
+                        url: "{{ url_for("chat.create_auth_link") }}",
+                        method: 'POST',
+                        contentType: 'application/json',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token() }}'
+                        },
+                        data: JSON.stringify({link_duration, chat_duration}),
+                        success: function (data) {
+                            if (data.status === 'ok') {
+                                resultDiv.html(`<b>Invite Link:</b> <a href="${data.link}" target="_blank">${data.link}</a><br>
+        <b>Link Valid For:</b> ${data.link_expires_in} seconds<br>
+        <b>Chat Session Duration:</b> ${data.chat_expires_in} seconds`);
+                            } else {
+                                resultDiv.text(data.message || 'Error generating link.');
+                            }
+                        },
+                        error: function () {
+                            resultDiv.text('Network or server error.');
+                        }
+                    });
+                });
+            </script>
+        </div>
+
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h2>Chat invite links</h2>
+            {% if chat_links %}
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>Invite link</th>
+                        <th>Link expires in (s)</th>
+                        <th>Chat duration (s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for link in chat_links %}
+                    <tr>
+                        <td><a href="{{ link.link }}" target="_blank">{{ link.link }}</a></td>
+                        <td>
+                            {% if link.ttl is not none and link.ttl >= 0 %}
+                                {{ link.ttl }}
+                            {% else %}
+                                expired
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if link.chat_duration %}
+                                {{ link.chat_duration }}
+                            {% else %}
+                                unknown
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No active chat auth links found.</p>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}
