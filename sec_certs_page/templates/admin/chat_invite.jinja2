@@ -24,32 +24,33 @@
             </div>
 
             <script>
-                document.getElementById('auth-link-form').addEventListener('submit', async function (e) {
+                $('#auth-link-form').on('submit', function (e) {
                     e.preventDefault();
-                    const link_duration = document.getElementById('link_duration').value;
-                    const chat_duration = document.getElementById('chat_duration').value;
-                    const resultDiv = document.getElementById('auth-link-result');
-                    resultDiv.textContent = 'Generating...';
-                    try {
-                        const resp = await fetch("{{ url_for("chat.create_auth_link") }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({link_duration, chat_duration})
-                        });
-                        const data = await resp.json();
-                        if (data.status === 'ok') {
-                            resultDiv.innerHTML = `<b>Invite Link:</b> <a href="${data.link}" target="_blank">${data.link}</a><br>
+                    const link_duration = $('#link_duration').val();
+                    const chat_duration = $('#chat_duration').val();
+                    const resultDiv = $('#auth-link-result');
+                    resultDiv.text('Generating...');
+                    $.ajax({
+                        url: "{{ url_for("chat.create_auth_link") }}",
+                        method: 'POST',
+                        contentType: 'application/json',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token() }}'
+                        },
+                        data: JSON.stringify({link_duration, chat_duration}),
+                        success: function (data) {
+                            if (data.status === 'ok') {
+                                resultDiv.html(`<b>Invite Link:</b> <a href="${data.link}" target="_blank">${data.link}</a><br>
         <b>Link Valid For:</b> ${data.link_expires_in} seconds<br>
-        <b>Chat Session Duration:</b> ${data.chat_expires_in} seconds`;
-                        } else {
-                            resultDiv.textContent = data.message || 'Error generating link.';
+        <b>Chat Session Duration:</b> ${data.chat_expires_in} seconds`);
+                            } else {
+                                resultDiv.text(data.message || 'Error generating link.');
+                            }
+                        },
+                        error: function () {
+                            resultDiv.text('Network or server error.');
                         }
-                    } catch (err) {
-                        resultDiv.textContent = 'Network or server error.';
-                    }
+                    });
                 });
             </script>
         </div>

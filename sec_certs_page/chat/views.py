@@ -88,12 +88,12 @@ def create_auth_link():
     except Exception:
         return {
             "status": "error",
-            "message": "Invalid chat_duration. Must be an integer between 60 and {max_duration} seconds.",
+            "message": f"Invalid chat_duration. Must be an integer between 60 and {max_duration} seconds.",
         }, 400
     if link_duration < 60 or link_duration > max_duration:  # 14 days in seconds
-        return {"status": "error", "message": "link_duration must be between 60 and {max_duration} seconds."}, 400
+        return {"status": "error", "message": f"link_duration must be between 60 and {max_duration} seconds."}, 400
     if chat_duration < 60 or chat_duration > max_duration:  # 14 days in seconds
-        return {"status": "error", "message": "chat_duration must be between 60 and {max_duration} seconds."}, 400
+        return {"status": "error", "message": f"chat_duration must be between 60 and {max_duration} seconds."}, 400
     token = secrets.token_hex(16)  # 32 hex chars
     # Store only chat_duration as the value, use redis key expiry for link validity
     redis.setex(f"chat_auth_token:{token}", link_duration, str(chat_duration))

@@ -448,7 +448,7 @@
 
 {% block footer %}
     {{ super() }}
-    {% config["CHAT_ENABLED"] %}
+    {% if config["CHAT_ENABLED"] %}
     	{{ chat_icon() }}
     {% endif %}
 {% endblock %}
