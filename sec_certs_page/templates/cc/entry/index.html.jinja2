@@ -603,7 +603,7 @@
                             </div>
                         </div>
                         <script type="module">
-                            import {createNetwork} from "{{ url_for("static", filename="network.js") }}";
+                            import {createNetwork} from "/static/network.js";
 
                             async function loadNetwork(){
                                 return createNetwork('network',
@@ -621,8 +621,6 @@
                                 await loadNetwork()
                                 $("#network-skeleton").remove()
                             };
-
-
                         </script>
 
                     {% endif %}
