@@ -574,7 +574,7 @@ tzdata==2025.1
     # via pandas
 tzlocal==5.3.1
     # via dateparser
-urllib3==2.3.0
+urllib3==2.5.0
     # via
     #   requests
     #   types-requests
