@@ -8,6 +8,7 @@ from flag import flag
 from flask import current_app, request
 from flask_principal import Permission, RoleNeed
 from markupsafe import Markup
+from nacl.hashlib import blake2b
 from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
@@ -138,3 +139,27 @@ release = get_default_release()
 @app.template_global()
 def get_release():
     return release
+
+
+@app.template_global()
+@cache.memoize(timeout=0)
+def static_hash(filename: str):
+    """Get the hash of a static file."""
+    bp = current_app.blueprints.get(request.blueprint)
+    if bp is not None and bp.static_folder is not None:
+        path = join(bp.static_folder, filename)
+    elif current_app.static_folder is not None:
+        path = join(current_app.static_folder, filename)
+    else:
+        return None
+
+    try:
+        with open(path, "rb") as f:
+            blake2b_hash = blake2b(f.read(), digest_size=4)
+            return blake2b_hash.hexdigest()
+    except FileNotFoundError:
+        return None
+
+
+# Make sure each startup clears the cache for static hashes
+static_hash.delete_memoized()

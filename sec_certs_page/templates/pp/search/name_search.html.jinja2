@@ -8,7 +8,7 @@
         <script type="module">
             import {
                 nameSearchSetup,
-            } from "/static/search.js";
+            } from "/static/search.js?{{ static_hash("search.js") }}";
 
             $(function () {
                 nameSearchSetup();

@@ -186,7 +186,7 @@
         </main>
     </div>
     <script type="module">
-        import {copyToClipboard} from "/static/clipboard.js";
+        import {copyToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
 
         $(".select-on-click").on("click", copyToClipboard);
     </script>
