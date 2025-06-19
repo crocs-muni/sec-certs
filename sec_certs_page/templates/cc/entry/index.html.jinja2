@@ -1,7 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "common/utils.html.jinja2" import render_process_state %}
+{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons %}
 {% from "common/modals.html.jinja2" import compare_icon, notification_icon, chat_icon %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_references %}
@@ -29,7 +29,7 @@
         <a class="list-group-item list-group-item-action rounded" href="#report-info">Certification report</a>
         <a class="list-group-item list-group-item-action rounded" href="#st-info">Security target</a>
         <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Heuristics</a>
-        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References<a>
+        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References</a>
         <a class="list-group-item list-group-item-action rounded" href="#updates">Updates</a>
         <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
     </div>
@@ -86,32 +86,7 @@
                         <div class="d-flex gap-3 flex-wrap">
                             {{ compare_icon() }}
                             {{ notification_icon() }}
-                            <span class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                    <i class="fa-solid fa-share"></i> Share
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a href="#" data-url="{{ url_for('cc.entry', hashid=hashid) }}" onclick="copyLinkToClipboard(this)"  class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link</span></a>
-                                    </li>
-                                    {% if cert["heuristics"]["cert_id"] %}
-                                        <li>
-                                            <a href="#" data-url="{{ url_for('cc.entry_id', cert_id=cert['heuristics']['cert_id']) }}" onclick="copyLinkToClipboard(this)"
-                                            class="dropdown-item"> <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span></a>
-                                        </li>
-                                    {% endif %}
-
-                                    {% if cert["name"] %}
-                                        <li>
-                                            <a href="#" data-url="{{ url_for('cc.entry_name', name=cert['name']) | safe }}" onclick="copyLinkToClipboard(this)" class="dropdown-item">
-                                                <span>
-                                                    <i class="fa-regular fa-clipboard"></i> Copy link by certificate name
-                                                </span>
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                            </span>
+                            {{ render_share_buttons(hashid, cert_id=cert["heuristics"]["cert_id"], name=cert["name"]) }}
                         </div>
 
                     <div class="row pt-5"  >
@@ -628,7 +603,7 @@
                             </div>
                         </div>
                         <script type="module">
-                            import {createNetwork} from "/static/network.js";
+                            import {createNetwork} from "{{ url_for("static", filename="network.js") }}";
 
                             async function loadNetwork(){
                                 return createNetwork('network',
@@ -721,7 +696,14 @@
                 </div>
             </div>
         </div>
-        <script>
+        <script type="module">
+            import {copyLinkToClipboard} from "/static/clipboard.js";
+
+            $(".copy-on-click").on("click", function (e) {
+                e.preventDefault();
+                copyLinkToClipboard($(this));
+            });
+
             let certificate_data = {
                 name: "{{ cert["name"]|default("", true) }}",
                 hashid: "{{ hashid }}",

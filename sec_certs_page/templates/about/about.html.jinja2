@@ -207,41 +207,6 @@
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
-    <script src="{{ url_for('static', filename='clipboard.js') }}"></script>
-    <script>
-        function selectText(ev) {
-            var e = document, c = ev[0], b, d;
-            if (e.body.createTextRange) {
-                b = document.body.createTextRange();
-                b.moveToElementText(c);
-                b.select()
-            } else {
-                if (window.getSelection) {
-                    d = window.getSelection();
-                    b = document.createRange();
-                    b.selectNodeContents(c);
-                    d.removeAllRanges();
-                    d.addRange(b)
-                }
-            }
-            return $(this)
-        }
-
-        function getSelectionText() {
-            var b = "";
-            if (window.getSelection) {
-                b = window.getSelection().toString()
-            } else {
-                if (document.selection && document.selection.type != "Control") {
-                    b = document.selection.createRange().text
-                }
-            }
-            return b;
-        }
-
-        $(".select-on-click").on("click", copyToClipboard);
-    </script>
 {% endblock %}

@@ -10,18 +10,20 @@
             <div class="row" id="about-research">
                 <div class="col-12 col-md-6">
                     <h1 class="anchor" id="research">Research</h1>
-                    <p class="lead">This page presents all research publications describing the 
+                    <p class="lead">This page presents all research publications describing the
                         sec-certs tool or investigating ecosystem insights gained using this tool.
                     </p>
-                    <p>In the spirit of open research, we decided to publish the dataset as well 
-                        as the python library to explore it for free. You're welcome to check out the 
+                    <p>In the spirit of open research, we decided to publish the dataset as well
+                        as the python library to explore it for free. You're welcome to check out the
                         <a href="{{ url_for('docs.serve_docs', path='index.html') }}">library documentation</a> as
-                        well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and 
-                        website source code</a>.
+                        well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and
+                            website source code</a>.
                     </p>
 
-                    <p>Sec-certs is developed at the <a href="https://crocs.fi.muni.cz" target="_blank">Centre for Research on Cryptography and Security (CRoCS)</a> 
-                        at <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. For more details of our team and project sponsors, 
+                    <p>Sec-certs is developed at the <a href="https://crocs.fi.muni.cz" target="_blank">Centre for
+                        Research on Cryptography and Security (CRoCS)</a>
+                        at <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. For more
+                        details of our team and project sponsors,
                         see the <a href="{{ url_for('about.index') }}">project info page.</a>
                     </p>
 
@@ -44,7 +46,7 @@
                         </div>
                         <div class="collapse" id="paper-1-bib">
                             <div class="card card-body">
-                        	<pre class="select-on-click" title="Click to copy to clipboard">
+                        	<pre class="mb-0 select-on-click" title="Click to copy to clipboard">
 @article{sec-certs,
 	title = {sec-certs: Examining the security certification practice for better vulnerability mitigation},
 	journal = {Computers \& Security},
@@ -96,7 +98,7 @@
                         </div>
                         <div class="collapse" id="paper-2-bib">
                             <div class="card card-body">
-                        	<pre class="select-on-click" title="Click to copy to clipboard">
+                        	<pre class="mb-0 select-on-click" title="Click to copy to clipboard">
 @inproceedings{chain-of-trust,
 	title = {Chain of Trust: Unraveling References Among Common Criteria Certified Products},
 	booktitle = {ICT Systems Security and Privacy Protection},
@@ -146,7 +148,7 @@
                         </div>
                         <div class="collapse" id="paper-3-bib">
                             <div class="card card-body">
-                        	<pre class="select-on-click" title="Click to copy to clipboard">
+                        	<pre class="mb-0 select-on-click" title="Click to copy to clipboard">
 @article{revisiting-references,
 	title = {Revisiting the analysis of references among Common Criteria certified products},
 	journal = {Computers \& Security},
@@ -183,5 +185,9 @@
             </div>
         </main>
     </div>
+    <script type="module">
+        import {copyToClipboard} from "/static/clipboard.js";
 
+        $(".select-on-click").on("click", copyToClipboard);
+    </script>
 {% endblock %}
