@@ -790,7 +790,7 @@ traitlets==5.14.3
     #   matplotlib-inline
     #   nbclient
     #   nbformat
-transformers==4.50.0
+transformers==4.51.0
     # via
     #   sentence-transformers
     #   setfit
