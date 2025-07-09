@@ -700,7 +700,7 @@
                 copyLinkToClipboard($(this));
             });
 
-            let certificate_data = {
+            window.certificate_data = {
                 name: "{{ cert["name"]|default("", true) }}",
                 hashid: "{{ hashid }}",
                 type: "cc",

@@ -178,13 +178,13 @@
                     await chat_authorize(check_url, auth_url, sitekey, token);
 
                     let files_url = "{{ url_for("chat.files") }}"
-                    chat_files(files_url, token, certificate_data);
+                    chat_files(files_url, token, window.certificate_data);
                 });
                 $("#chat-send").click(function () {
                     let rag_url = "{{ url_for("chat.query_rag") }}";
                     let full_url = "{{ url_for("chat.query_full") }}";
                     let token = "{{ csrf_token() }}";
-                    chat(rag_url, full_url, token, chat_history, certificate_data);
+                    chat(rag_url, full_url, token, chat_history, window.certificate_data);
                 });
                 $("#chat-input").keypress(function (event) {
                     if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
@@ -207,10 +207,10 @@
                 update_state();
             });
             $("#notification-add-current").click(function () {
-                add_current_cert("selected_certs_subscription", certificate_data);
+                add_current_cert("selected_certs_subscription", window.certificate_data);
             });
             $("#compare-add-current").click(function () {
-                add_current_cert("selected_certs_comparison", certificate_data);
+                add_current_cert("selected_certs_comparison", window.certificate_data);
             });
             $("#compare-do").click(function () {
                 let cc_url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
