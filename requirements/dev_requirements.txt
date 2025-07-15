@@ -2,7 +2,7 @@ accessible-pygments==0.0.5
     # via pydata-sphinx-theme
 aiohappyeyeballs==2.5.0
     # via aiohttp
-aiohttp==3.11.13
+aiohttp==3.12.14
     # via
     #   datasets
     #   fsspec

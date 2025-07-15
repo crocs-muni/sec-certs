@@ -2,7 +2,7 @@ accelerate==1.4.0
     # via sentence-transformers
 aiohappyeyeballs==2.5.0
     # via aiohttp
-aiohttp==3.11.13
+aiohttp==3.12.14
     # via
     #   datasets
     #   fsspec
