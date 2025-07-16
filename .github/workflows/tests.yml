@@ -8,7 +8,11 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     env:
+      PYTHON: ${{ matrix.python-version }}
       SECCERTS_NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
       - name: apt-get update
@@ -16,10 +20,10 @@ jobs:
       - name: Install Poppler
         run: sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
       - uses: actions/checkout@v4
-      - name: Setup python
+      - name: Setup python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: |
             requirements/test_requirements.txt
@@ -39,11 +43,13 @@ jobs:
           paths: junit.xml
           show: "fail, skip"
       - name: Code coverage upload
+        if: ${{ matrix.python-version == 3.10 }}
         uses: codecov/codecov-action@v4
         with:
+          env_vars: PYTHON
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() &&  matrix.python-version == 3.10 }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
