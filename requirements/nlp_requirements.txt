@@ -622,7 +622,7 @@ traitlets==5.14.3
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
-transformers==4.50.0
+transformers==4.52.1
     # via
     #   sentence-transformers
     #   setfit
