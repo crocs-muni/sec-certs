@@ -590,7 +590,7 @@ tomli==2.2.1
     # via setuptools-scm
 toolz==1.0.0
     # via datashader
-torch==2.6.0
+torch==2.7.1
     # via
     #   accelerate
     #   sentence-transformers
