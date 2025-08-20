@@ -67,7 +67,7 @@ class Indexer:  # pragma: no cover
             for i, (dgst, document_type) in enumerate(to_reindex):
                 fpath = entry_file_path(dgst, self.dataset_path, document_type, "txt")
                 try:
-                    with fpath.open("r") as f:
+                    with fpath.open("r", encoding="utf-8") as f:
                         content = f.read()
                 except FileNotFoundError:
                     continue
