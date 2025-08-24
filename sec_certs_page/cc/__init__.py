@@ -91,5 +91,4 @@ def get_cc_categories():
 
 
 from .commands import *
-from .dash import *
 from .views import *

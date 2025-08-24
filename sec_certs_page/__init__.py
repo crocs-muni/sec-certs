@@ -5,11 +5,18 @@ from pathlib import Path
 
 import sentry_sdk
 from dramatiq import Middleware
-from dramatiq.middleware import (AgeLimit, Callbacks, CurrentMessage,
-                                 Pipelines, Retries, ShutdownNotifications,
-                                 TimeLimit)
+from dramatiq.middleware import (
+    AgeLimit,
+    Callbacks,
+    CurrentMessage,
+    Pipelines,
+    Retries,
+    ShutdownNotifications,
+    TimeLimit,
+)
 from dramatiq.results import Results
-from dramatiq.results.backends import RedisBackend, StubBackend
+from dramatiq.results.backends import StubBackend
+from dramatiq.results.backends.redis import RedisBackend
 from fakeredis import FakeRedis
 from flask import Flask, abort
 from flask_assets import Environment as Assets
@@ -33,7 +40,6 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
-from .common.dash.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send
 
@@ -134,11 +140,6 @@ public(csrf=csrf)
 mail: Mail = Mail(app)
 public(mail=mail)
 
-dash: Dash = Dash(server=app, routes_pathname_prefix="/dash/", use_pages=True, pages_folder="")
-public(dash=dash)
-# This Dash view uses a POST and CSRFProtect is messing it up otherwise.
-csrf.exempt("dash.dash.dispatch")
-
 
 class Sitemap(FlaskSitemap):
     @cache.memoize(args_to_ignore=("self",), timeout=3600 * 24 * 7)
@@ -199,7 +200,10 @@ with app.app_context():
     app.register_blueprint(about)
     app.register_blueprint(chat)
 
-from .dashboard import *
+from .dashboard import init_dashboard
 from .jinja import *
 from .tasks import *
 from .views import *
+
+with app.app_context():
+    init_dashboard(app, csrf)
