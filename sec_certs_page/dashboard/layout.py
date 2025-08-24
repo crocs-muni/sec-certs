@@ -1,26 +1,52 @@
 import dash
 from dash import dcc, html
 
+from .data import DataService
+
 
 class DashboardLayoutManager:
-    """Manages the creation and structure of the dashboard's layout."""
+    """Manages the creation and structure of the dashboard's app shell."""
+
+    def __init__(self, data_service: DataService):
+        self.data_service = data_service
 
     def build_layout(self) -> html.Div:
-        """Constructs the main layout of the dashboard.
-
-        This will eventually fetch user configurations and use the
-        component registries to build a dynamic layout.
-        """
-        # For now, placeholder layout
+        """Constructs the main layout (app shell) of the dashboard."""
         return html.Div(
             [
-                html.H1("Multi-page app with Dash Pages"),
-                html.Div(
+                html.H1("sec-certs.org Data Dashboards"),
+                # --- NAVIGATION ---
+                html.Nav(
                     [
-                        html.Div(dcc.Link(f"{page['name']} - {page['path']}", href=page["relative_path"]))
-                        for page in dash.page_registry.values()
+                        dcc.Link("CC Dashboard", href="/dashboard/cc", style={"marginRight": "20px"}),
+                        dcc.Link("FIPS Dashboard", href="/dashboard/fips"),
                     ]
                 ),
+                html.Hr(),
+                # --- PAGE CONTENT ---
                 dash.page_container,
+                html.Hr(),
+                html.Footer("Dashboard Footer"),
             ]
+        )
+
+    def register_home_page(self) -> None:
+        """Registers the home page of the dashboard."""
+
+        def home_layout():
+            return html.Div(
+                [
+                    html.H1("Welcome to sec-certs.org Data Dashboards"),
+                    html.P("Select a dashboard from the navigation above:"),
+                    html.Ul(
+                        [
+                            html.Li(html.A("Common Criteria Dashboard", href="/dashboard/cc")),
+                            html.Li(html.A("FIPS Dashboard", href="/dashboard/fips")),
+                        ]
+                    ),
+                ]
+            )
+
+        dash.register_page(
+            "dashboard_home", path="/", title="Dashboard Home", name="Dashboard Home", layout=home_layout
         )
