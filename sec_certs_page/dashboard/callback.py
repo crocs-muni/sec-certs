@@ -18,8 +18,8 @@ class CallbackManager:
 
     def __init__(self, cc_graph_registry: GraphRegistry):
         """
-        Args:
-            cc_graph_registry: The registry containing CC dashboard graphs.
+        :param cc_graph_registry: The registry containing CC dashboard graphs.
+        :type cc_graph_registry: GraphRegistry
         """
         self.cc_graph_registry = cc_graph_registry
 
@@ -30,9 +30,9 @@ class CallbackManager:
         It iterates through every graph in the registry and calls its
         `register_callback` method.
 
-        Args:
-            app: The main Dash application instance to which callbacks
-                 will be registered.
+        :param app: The main Dash application instance to which callbacks
+            will be registered.
+        :type app: Dash
         """
         for graph in self.cc_graph_registry:
             graph.register_callback(app)

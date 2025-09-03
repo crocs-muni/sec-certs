@@ -22,15 +22,15 @@ class BaseGraph(ABC):
 
     This class defines the common interface for graphs, ensuring they can be
     registered and rendered dynamically. It follows the Strategy Pattern, where
-
     each concrete graph class is a different strategy for visualizing data.
     """
 
     def __init__(self, graph_id: str, data_service: DataService):
         """
-        Args:
-            graph_id: A unique identifier for the graph component.
-            data_service: The service to fetch data for the graph.
+        :param graph_id: A unique identifier for the graph component.
+        :type graph_id: str
+        :param data_service: The service to fetch data for the graph.
+        :type data_service: DataService
         """
         self.graph_id = graph_id
         self.data_service = data_service
@@ -52,8 +52,8 @@ class BaseGraph(ABC):
         """
         Renders the graph component.
 
-        Returns:
-            The Dash component (e.g., dcc.Graph) to be displayed.
+        :return: The Dash component (e.g., dcc.Graph) to be displayed.
+        :rtype: Component
         """
         raise NotImplementedError
 
@@ -64,7 +64,7 @@ class BaseGraph(ABC):
 
         Each graph is responsible for its own update logic.
 
-        Args:
-            app: The main Dash application instance.
+        :param app: The main Dash application instance.
+        :type app: Dash
         """
         raise NotImplementedError
