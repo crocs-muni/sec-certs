@@ -2,7 +2,7 @@
 
 from typing import Dict, Iterator
 
-from sec_certs_page.dashboard.graphs.base import BaseGraph
+from .base import BaseGraph
 
 
 class GraphRegistry:

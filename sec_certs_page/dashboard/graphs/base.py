@@ -7,7 +7,7 @@ import plotly.express as px
 from dash import Dash
 from dash.development.base_component import Component
 
-from sec_certs_page.dashboard.data import DataService
+from ..data import DataService
 
 
 class SupportsRegisterCallbacks(Protocol):
