@@ -3,8 +3,7 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
 
-from sec_certs_page import mongo
-
+from .. import mongo
 from ..common.dash.base import Dash
 from . import cc_route, fips_route
 from .callback import CallbackManager
