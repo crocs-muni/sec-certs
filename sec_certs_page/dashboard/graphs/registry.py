@@ -18,11 +18,10 @@ class GraphRegistry:
     def register(self, graph: BaseGraph) -> None:
         """Registers a new graph instance.
 
-        Args:
-            graph: An instance of a class derived from BaseGraph.
+        :param graph: An instance of a class derived from BaseGraph.
+        :type graph: BaseGraph
 
-        Raises:
-            ValueError: If a graph with the same ID is already registered.
+        :raises ValueError: If a graph with the same ID is already registered.
         """
         if graph.id in self._graphs:
             raise ValueError(f"Graph with ID '{graph.id}' is already registered.")
@@ -31,11 +30,11 @@ class GraphRegistry:
     def __getitem__(self, graph_id: str) -> BaseGraph:
         """Retrieves a graph instance by its ID.
 
-        Args:
-            graph_id: The unique identifier of the graph.
+        :param graph_id: The unique identifier of the graph.
+        :type graph_id: str
 
-        Returns:
-            The graph instance.
+        :return: The graph instance.
+        :rtype: BaseGraph
         """
         return self._graphs[graph_id]
 

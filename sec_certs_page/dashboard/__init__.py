@@ -16,7 +16,13 @@ from .layout import DashboardLayoutManager
 
 
 def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
-    """Initializes and configures the Dash dashboard application."""
+    """Initializes and configures the Dash dashboard application.
+
+    :param app: The main Flask application instance.
+    :type app: Flask
+    :param csrf: The CSRF protection instance to exempt Dash routes.
+    :type csrf: CSRFProtect
+    """
     data_service = DataService(mongo=mongo)
 
     # Instantiate and populate the registries with predefined graphs
