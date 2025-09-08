@@ -55,6 +55,7 @@
     "WTForms",
     "markdown2",
     "nh3",
+    "dash",
 
     # Tasks
     "dramatiq[redis]",
