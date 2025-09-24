@@ -4,10 +4,10 @@ import plotly.graph_objects as go
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output
 
-from .base import BaseGraph
+from .base import BaseChart
 
 
-class CCBarChart(BaseGraph):
+class CCBarChart(BaseChart):
     """A bar chart showing the number of certificates by category and year."""
 
     @property

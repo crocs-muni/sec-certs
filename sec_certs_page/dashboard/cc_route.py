@@ -8,16 +8,20 @@ from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
 from ..common.dash.base import Dash
-from .graphs.registry import GraphRegistry
+from .charts.registry import ChartRegistry
+from .filters.registry import FilterRegistry
 
 
-def register_pages(app: Dash, cc_graph_registry: GraphRegistry) -> None:
+def register_pages(app: Dash, cc_graph_registry: ChartRegistry, cc_filter_registry: FilterRegistry) -> None:
     """
     Register CC dashboard page with Dash and its interactive callbacks.
 
-    Args:
-        app: The main Dash application instance for callback registration.
-        cc_graph_registry: The registry containing all available CC graphs.
+    :param app: The main Dash application instance for callback registration.
+    :type app: Dash
+    :param cc_graph_registry: The registry containing all available CC graphs.
+    :type cc_graph_registry: GraphRegistry
+    :param cc_filter_registry: The registry containing all available CC filters.
+    :type cc_filter_registry: FilterRegistry
     """
 
     def layout() -> html.Div:
