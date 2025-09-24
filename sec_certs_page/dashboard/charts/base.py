@@ -1,5 +1,3 @@
-"""Defines the base components for graph creation and registration."""
-
 from abc import ABC, abstractmethod
 from typing import Literal, Optional, Protocol
 
@@ -52,6 +50,28 @@ class BaseChart(ABC):
     def id(self) -> str:
         """The unique identifier for the Dash component."""
         return self.graph_id
+
+    @property
+    def chart_type_selector_id(self) -> str:
+        """The unique identifier for the chart type selector dropdown."""
+        return f"{self.graph_id}-type-selector"
+
+    def _render_header(self) -> list[Component]:
+        """Renders the graph title and a dropdown to switch chart types if multiple are available."""
+        header_elements: list[Component] = [html.H2(self.title)]
+        if len(self.available_chart_types) > 1:
+            header_elements.append(
+                dcc.Dropdown(
+                    id=self.chart_type_selector_id,
+                    options=[
+                        {"label": f"{chart.capitalize()} Chart", "value": chart} for chart in self.available_chart_types
+                    ],
+                    value=self.chart_type,
+                    clearable=False,
+                    style={"width": "200px", "marginBottom": "10px"},
+                )
+            )
+        return header_elements
 
     @property
     @abstractmethod
