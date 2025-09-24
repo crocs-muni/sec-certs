@@ -2,42 +2,42 @@
 
 from typing import Dict, Iterator
 
-from .base import BaseGraph
+from .base import BaseChart
 
 
-class GraphRegistry:
-    """A registry for storing and managing graph components.
+class ChartRegistry:
+    """A registry for storing and managing chart components.
 
     This class follows the Singleton and Registry design patterns to provide a
-    central point of access for all graph instances within the application.
+    central point of access for all chart instances within the application.
     """
 
     def __init__(self) -> None:
-        self._graphs: Dict[str, BaseGraph] = {}
+        self._charts: Dict[str, BaseChart] = {}
 
-    def register(self, graph: BaseGraph) -> None:
-        """Registers a new graph instance.
+    def register(self, chart: BaseChart) -> None:
+        """Registers a new chart instance.
 
-        :param graph: An instance of a class derived from BaseGraph.
-        :type graph: BaseGraph
+        :param chart: An instance of a class derived from BaseChart.
+        :type chart: BaseChart
 
-        :raises ValueError: If a graph with the same ID is already registered.
+        :raises ValueError: If a chart with the same ID is already registered.
         """
-        if graph.id in self._graphs:
-            raise ValueError(f"Graph with ID '{graph.id}' is already registered.")
-        self._graphs[graph.id] = graph
+        if chart.id in self._charts:
+            raise ValueError(f"Chart with ID '{chart.id}' is already registered.")
+        self._charts[chart.id] = chart
 
-    def __getitem__(self, graph_id: str) -> BaseGraph:
-        """Retrieves a graph instance by its ID.
+    def __getitem__(self, chart_id: str) -> BaseChart:
+        """Retrieves a chart instance by its ID.
 
-        :param graph_id: The unique identifier of the graph.
-        :type graph_id: str
+        :param chart_id: The unique identifier of the chart.
+        :type chart_id: str
 
-        :return: The graph instance.
-        :rtype: BaseGraph
+        :return: The chart instance.
+        :rtype: BaseChart
         """
-        return self._graphs[graph_id]
+        return self._charts[chart_id]
 
-    def __iter__(self) -> Iterator[BaseGraph]:
-        """Allows iteration over the registered graphs."""
-        return iter(self._graphs.values())
+    def __iter__(self) -> Iterator[BaseChart]:
+        """Allows iteration over the registered charts."""
+        return iter(self._charts.values())
