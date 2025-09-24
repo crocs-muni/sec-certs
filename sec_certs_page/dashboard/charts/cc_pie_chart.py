@@ -4,10 +4,10 @@ import plotly.graph_objects as go
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output
 
-from .base import BaseGraph
+from .base import BaseChart
 
 
-class CCPieChart(BaseGraph):
+class CCPieChart(BaseChart):
     """A pie chart showing the distribution of CC certificate categories."""
 
     @property

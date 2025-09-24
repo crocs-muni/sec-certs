@@ -5,7 +5,7 @@ Use callback manager to register callbacks for existing graphs and components st
 
 from dash import Dash
 
-from .graphs.registry import GraphRegistry
+from .charts.registry import ChartRegistry
 
 
 class CallbackManager:
@@ -16,7 +16,7 @@ class CallbackManager:
     delegates the callback registration logic to each component itself.
     """
 
-    def __init__(self, cc_graph_registry: GraphRegistry):
+    def __init__(self, cc_graph_registry: ChartRegistry):
         """
         :param cc_graph_registry: The registry containing CC dashboard graphs.
         :type cc_graph_registry: GraphRegistry
