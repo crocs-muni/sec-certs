@@ -200,7 +200,7 @@ with app.app_context():
     app.register_blueprint(about)
     app.register_blueprint(chat)
 
-from .dash import *
+from .dashboard import *
 from .jinja import *
 from .tasks import *
 from .views import *
