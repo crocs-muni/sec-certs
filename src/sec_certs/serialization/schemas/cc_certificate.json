@@ -12,7 +12,7 @@
       "description": "A hex string representing 8 bytes."
     },
     "cc_id": {
-      "type": "string",
+      "type": ["string", "null"],
       "title": "Certificate ID",
       "description": "The unique identifier of the Common Criteria certificate."
     },
@@ -58,7 +58,10 @@
       "description": "State of the document processing pipeline for cert, report, or st document."
     },
     "cc_document_metadata": {
-      "type": "object",
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
         "pdf_file_size_bytes": {
           "type": "integer"
@@ -217,7 +220,10 @@
       "additionalProperties": false
     },
     "cc_document_keywords": {
-      "type": "object",
+      "type": [
+        "object",
+        "null"
+      ],
       "additionalProperties": true,
       "title": "Certificate Document Keywords",
       "description": "Extracted keywords from the certification documents.",
@@ -491,10 +497,6 @@
         },
         "cert_id": {
           "$ref": "#/definitions/cc_id",
-          "type": [
-            "string",
-            "null"
-          ],
           "title": "Certificate ID",
           "description": "The unique identifier of the Common Criteria certificate."
         },

@@ -1,8 +1,8 @@
 {
   "_type": "sec_certs.sample.cc.CCCertificate",
-  "dgst": "8049938203b26f7b",
+  "dgst": "265b6e29d58940b7",
   "status": "archived",
-  "category": "Sample category",
+  "category": "Access Control Devices and Systems",
   "name": "Sample certificate name",
   "manufacturer": "Sample manufacturer",
   "scheme": "DE",

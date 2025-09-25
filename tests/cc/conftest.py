@@ -74,10 +74,10 @@ def cert_two() -> CCCertificate:
 
     return CCCertificate(
         "archived",
-        "Sample category",
+        "Access Control Devices and Systems",
         "Sample certificate name",
         "Sample manufacturer",
-        "Sample scheme",
+        "DE",
         {"Sample security level"},
         date(1900, 1, 2),
         date(1900, 1, 3),
