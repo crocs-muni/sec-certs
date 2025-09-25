@@ -1,17 +1,15 @@
 import json
 import shutil
-from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
-from jsonschema import validate
 
-import sec_certs.serialization.schemas
 from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.serialization.schemas import validator
 from sec_certs.utils import helpers
 
 
@@ -172,13 +170,16 @@ def test_to_pandas(toy_dataset: CCDataset):
 
 
 def test_schema_validate(toy_dataset: CCDataset):
-    with (
-        resources.open_text(sec_certs.serialization.schemas, "cc_certificate.json") as schema_file,
-        TemporaryDirectory() as tmp_dir,
-    ):
-        schema = json.load(schema_file)
+    with TemporaryDirectory() as tmp_dir:
+        single_v = validator("http://sec-certs.org/schemas/cc_certificate.json")
         for cert in toy_dataset:
             fname = Path(tmp_dir) / (cert.dgst + ".json")
             cert.to_json(fname)
             with fname.open("r") as handle:
-                validate(instance=json.load(handle), schema=schema)
+                single_v.validate(json.load(handle))
+
+        dset_v = validator("http://sec-certs.org/schemas/cc_dataset.json")
+        fname = Path(tmp_dir) / "dset.json"
+        toy_dataset.to_json(fname)
+        with fname.open("r") as handle:
+            dset_v.validate(json.load(handle))

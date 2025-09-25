@@ -10,10 +10,7 @@ from tempfile import TemporaryDirectory
 import pytest
 import tests.data.cc.analysis
 import tests.data.common
-from jsonschema import Draft7Validator, validate
-from referencing import Registry, Resource
 
-import sec_certs.serialization.schemas
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
@@ -29,6 +26,7 @@ from sec_certs.heuristics.common import compute_related_cves, compute_transitive
 from sec_certs.model.references_nlp.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR
+from sec_certs.serialization.schemas import validator
 
 
 @pytest.fixture(scope="module")
@@ -265,33 +263,17 @@ def test_segment_extractor(reference_dataset: CCDataset):
     assert not df.empty
 
 
-def test_schema_validate_single(reference_dataset: CCDataset):
-    with (
-        resources.open_text(sec_certs.serialization.schemas, "cc_certificate.json") as schema_file,
-        TemporaryDirectory() as tmp_dir,
-    ):
-        schema = json.load(schema_file)
+def test_schema_validate(reference_dataset: CCDataset):
+    with TemporaryDirectory() as tmp_dir:
+        single_v = validator("http://sec-certs.org/schemas/cc_certificate.json")
         for cert in reference_dataset:
             fname = Path(tmp_dir) / (cert.dgst + ".json")
             cert.to_json(fname)
             with fname.open("r") as handle:
-                validate(instance=json.load(handle), schema=schema)
+                single_v.validate(json.load(handle))
 
-
-def test_schema_validate_full(reference_dataset: CCDataset):
-    registry = Registry()
-    with (
-        resources.open_text(sec_certs.serialization.schemas, "cc_certificate.json") as cert_schema_file,
-        resources.open_text(sec_certs.serialization.schemas, "cc_dataset.json") as dataset_schema_file,
-    ):
-        cert_schema = json.load(cert_schema_file)
-        registry = Resource.from_contents(cert_schema) @ registry
-        dataset_schema = json.load(dataset_schema_file)
-        registry = Resource.from_contents(dataset_schema) @ registry
-    validator = Draft7Validator(schema={"$ref": "http://sec-certs.org/schemas/cc_dataset.json"}, registry=registry)
-
-    with TemporaryDirectory() as tmp_dir:
-        fname = Path(tmp_dir) / "dataset.json"
+        dset_v = validator("http://sec-certs.org/schemas/cc_dataset.json")
+        fname = Path(tmp_dir) / "dset.json"
         reference_dataset.to_json(fname)
         with fname.open("r") as handle:
-            validator.validate(instance=json.load(handle))
+            dset_v.validate(json.load(handle))

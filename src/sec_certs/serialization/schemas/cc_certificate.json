@@ -12,7 +12,10 @@
       "description": "A hex string representing 8 bytes."
     },
     "cc_id": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "title": "Certificate ID",
       "description": "The unique identifier of the Common Criteria certificate."
     },
@@ -56,43 +59,6 @@
       "additionalProperties": false,
       "title": "Certificate Document State (cert, report, st)",
       "description": "State of the document processing pipeline for cert, report, or st document."
-    },
-    "cc_document_metadata": {
-      "type": [
-        "object",
-        "null"
-      ],
-      "properties": {
-        "pdf_file_size_bytes": {
-          "type": "integer"
-        },
-        "pdf_is_encrypted": {
-          "type": "boolean"
-        },
-        "pdf_number_of_pages": {
-          "type": "integer"
-        },
-        "pdf_hyperlinks": {
-          "type": [
-            "object",
-            "null"
-          ],
-          "properties": {
-            "_type": {
-              "const": "Set"
-            },
-            "elements": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "format": "uri"
-              },
-              "uniqueItems": true
-            }
-          }
-        }
-      },
-      "additionalProperties": true
     },
     "cc_document_frontpage_body": {
       "type": "object",
@@ -219,16 +185,6 @@
       },
       "additionalProperties": false
     },
-    "cc_document_keywords": {
-      "type": [
-        "object",
-        "null"
-      ],
-      "additionalProperties": true,
-      "title": "Certificate Document Keywords",
-      "description": "Extracted keywords from the certification documents.",
-      "$comment": "Consult the rules.yaml for the list of possible keywords and their structure."
-    },
     "cc_references": {
       "type": "object",
       "properties": {
@@ -336,17 +292,6 @@
       "additionalProperties": false,
       "title": "SAR",
       "description": "Security Assurance Requirement (SAR) as defined in Common Criteria."
-    },
-    "cve": {
-      "type": "string",
-      "pattern": "^CVE-\\d{4}-\\d{4,}$",
-      "title": "CVE",
-      "description": "Common Vulnerabilities Enumeration (CVE) identifier"
-    },
-    "cpe": {
-      "type": "string",
-      "title": "CPE",
-      "description": "Common Platform Enumeration (CPE) identifier"
     }
   },
   "properties": {
@@ -512,60 +457,19 @@
           "description": "The lab/scheme that issued the certificate."
         },
         "cpe_matches": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/cve"
-          },
-          "uniqueItems": true,
-          "title": "CPE Matches",
-          "description": "List of CPEs (Common Platform Enumerations) associated with the certificate."
+          "$ref": "/schemas/base.json#/definitions/cpe_matches"
         },
         "verified_cpe_matches": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/cve"
-          },
-          "uniqueItems": true,
-          "title": "Verified CPE Matches",
-          "description": "List of verified CPEs (Common Platform Enumerations) associated with the certificate."
+          "$ref": "/schemas/base.json#/definitions/verified_cpe_matches"
         },
         "related_cves": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/cve"
-          },
-          "uniqueItems": true,
-          "title": "Related CVEs",
-          "description": "List of CVEs (Common Vulnerabilities and Exposures) likely associated with the certificate."
+          "$ref": "/schemas/base.json#/definitions/related_cves"
         },
         "direct_transitive_cves": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/cve"
-          },
-          "uniqueItems": true
+          "$ref": "/schemas/base.json#/definitions/direct_transitive_cves"
         },
         "indirect_transitive_cves": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/cve"
-          },
-          "uniqueItems": true
+          "$ref": "/schemas/base.json#/definitions/indirect_transitive_cves"
         },
         "extracted_sars": {
           "type": [
@@ -588,24 +492,7 @@
           "description": "Security Assurance Requirements (SARs) extracted from the certification documents."
         },
         "extracted_versions": {
-          "type": [
-            "object",
-            "null"
-          ],
-          "properties": {
-            "_type": {
-              "const": "Set"
-            },
-            "elements": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            }
-          },
-          "title": "Extracted Versions",
-          "description": "Product versions extracted from the certification documents."
+          "$ref": "/schemas/base.json#/definitions/extracted_versions"
         },
         "prev_certificates": {
           "type": [
@@ -689,22 +576,22 @@
           "const": "sec_certs.sample.cc.CCCertificate.PdfData"
         },
         "report_metadata": {
-          "$ref": "#/definitions/cc_document_metadata",
+          "$ref": "/schemas/base.json#/definitions/document_metadata",
           "title": "Report Metadata",
           "description": "Metadata extracted from the certification report PDF document file."
         },
         "st_metadata": {
-          "$ref": "#/definitions/cc_document_metadata",
+          "$ref": "/schemas/base.json#/definitions/document_metadata",
           "title": "ST Metadata",
           "description": "Metadata extracted from the security target PDF document file."
         },
         "report_keywords": {
-          "$ref": "#/definitions/cc_document_keywords",
+          "$ref": "/schemas/base.json#/definitions/document_keywords",
           "title": "Report Keywords",
           "description": "Keywords extracted from the certification report document."
         },
         "st_keywords": {
-          "$ref": "#/definitions/cc_document_keywords",
+          "$ref": "/schemas/base.json#/definitions/document_keywords",
           "title": "ST Keywords",
           "description": "Keywords extracted from the security target document."
         }

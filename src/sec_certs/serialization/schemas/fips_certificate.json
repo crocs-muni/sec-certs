@@ -1,0 +1,387 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sec-certs.org/schemas/fips_certificate.json",
+  "title": "FIPS 140 Certificate",
+  "description": "Schema for a FIPS 140 certificate.",
+  "type": "object",
+  "definitions": {
+    "fips_dgst": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$",
+      "title": "Certificate Digest",
+      "description": "A hex string representing 8 bytes."
+    },
+    "fips_id": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Certificate ID",
+      "description": "A non-negative integer representing the certificate ID."
+    },
+    "fips_references": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.certificate.References"
+        },
+        "directly_referenced_by": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/fips_id"
+          },
+          "uniqueItems": true,
+          "description": "Certificates that directly reference this certificate."
+        },
+        "indirectly_referenced_by": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/fips_id"
+          },
+          "uniqueItems": true,
+          "description": "Certificates that indirectly reference this certificate."
+        },
+        "directly_referencing": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/fips_id"
+          },
+          "uniqueItems": true,
+          "description": "Certificates that are directly referenced by this certificate."
+        },
+        "indirectly_referencing": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/fips_id"
+          },
+          "uniqueItems": true,
+          "description": "Certificates that are indirectly referenced by this certificate."
+        }
+      }
+    }
+  },
+  "properties": {
+    "_type": {
+      "const": "sec_certs.sample.fips.FIPSCertificate"
+    },
+    "dgst": {
+      "$ref": "#/definitions/fips_dgst"
+    },
+    "cert_id": {
+      "$ref": "#/definitions/fips_id"
+    },
+    "web_data": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.WebData"
+        },
+        "module_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Module Name",
+          "description": "The name of the certified module."
+        },
+        "validation_history": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "_type": {
+                "const": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry"
+              },
+              "date": {
+                "type": "string",
+                "format": "date",
+                "description": "The date of the validation event in YYYY-MM-DD format."
+              },
+              "validation_type": {
+                "enum": [
+                  "Initial",
+                  "Update"
+                ],
+                "description": "The type of validation event."
+              },
+              "lab": {
+                "type": "string",
+                "description": "The name of the lab that performed the validation."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "vendor_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "vendor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "certificate_pdf_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "module_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "standard": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "level": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "caveat": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exceptions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "embodiment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tested_conf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hw_versions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fw_versions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sw_versions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mentioned_certs": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "historical_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "date_sunset": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revoked_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revoked_link": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "pdf_data": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.PdfData"
+        },
+        "keywords": {
+          "$ref": "/schemas/base.json#/definitions/document_keywords",
+          "title": "Security Policy Keywords",
+          "description": "Keywords extracted from the security policy document."
+        },
+        "policy_metadata": {
+          "$ref": "/schemas/base.json#/definitions/document_metadata",
+          "title": "Security Policy Metadata",
+          "description": "Metadata extracted from the security policy document."
+        }
+      }
+    },
+    "heuristics": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.Heuristics"
+        },
+        "algorithms": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "extracted_versions": {
+          "$ref": "/schemas/base.json#/definitions/extracted_versions"
+        },
+        "cpe_matches": {
+          "$ref": "/schemas/base.json#/definitions/cpe_matches"
+        },
+        "verified_cpe_matches": {
+          "$ref": "/schemas/base.json#/definitions/verified_cpe_matches"
+        },
+        "related_cves": {
+          "$ref": "/schemas/base.json#/definitions/related_cves"
+        },
+        "policy_prunned_references": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_id"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "module_prunned_references": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_id"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "policy_processed_references": {
+          "$ref": "#/definitions/fips_references",
+          "description": "References to and from other certificates, based on the security policy document."
+        },
+        "module_processed_references": {
+          "$ref": "#/definitions/fips_references",
+          "description": "References to and from other certificates, based on the module page."
+        },
+        "direct_transitive_cves": {
+          "$ref": "/schemas/base.json#/definitions/direct_transitive_cves"
+        },
+        "indirect_transitive_cves": {
+          "$ref": "/schemas/base.json#/definitions/indirect_transitive_cves"
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate Heuristics",
+      "description": "Heuristic data extracted from the certification documents."
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.InternalState"
+        },
+        "module_download_ok": {
+          "type": "boolean"
+        },
+        "policy_download_ok": {
+          "type": "boolean"
+        },
+        "policy_convert_garbage": {
+          "type": "boolean"
+        },
+        "policy_convert_ok": {
+          "type": "boolean"
+        },
+        "module_extract_ok": {
+          "type": "boolean"
+        },
+        "policy_extract_ok": {
+          "type": "boolean"
+        },
+        "policy_pdf_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$",
+          "description": "SHA256 hash of the policy PDF file."
+        },
+        "policy_txt_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$",
+          "description": "SHA256 hash of the policy txt file."
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
