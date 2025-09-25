@@ -1,0 +1,735 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sec-certs.org/schemas/cc_certificate.json",
+  "title": "CC Certificate",
+  "description": "Schema for a Common Criteria (CC) certificate.",
+  "type": "object",
+  "definitions": {
+    "cc_dgst": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$",
+      "title": "Certificate Digest",
+      "description": "A hex string representing 8 bytes."
+    },
+    "cc_id": {
+      "type": "string",
+      "title": "Certificate ID",
+      "description": "The unique identifier of the Common Criteria certificate."
+    },
+    "cc_document_state": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.document_state.DocumentState"
+        },
+        "convert_garbage": {
+          "type": "boolean",
+          "description": "Whether the document was converted to garbage (e.g., empty or invalid content)."
+        },
+        "convert_ok": {
+          "type": "boolean",
+          "description": "Whether the document was successfully converted from PDF to text."
+        },
+        "download_ok": {
+          "type": "boolean",
+          "description": "Whether the document was successfully downloaded."
+        },
+        "extract_ok": {
+          "type": "boolean",
+          "description": "Whether keyword extraction from the document was successful."
+        },
+        "pdf_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "SHA256 hash of the PDF document, if available."
+        },
+        "txt_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "SHA256 hash of the text document, if available."
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate Document State (cert, report, st)",
+      "description": "State of the document processing pipeline for cert, report, or st document."
+    },
+    "cc_document_metadata": {
+      "type": "object",
+      "properties": {
+        "pdf_file_size_bytes": {
+          "type": "integer"
+        },
+        "pdf_is_encrypted": {
+          "type": "boolean"
+        },
+        "pdf_number_of_pages": {
+          "type": "integer"
+        },
+        "pdf_hyperlinks": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri"
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "cc_document_frontpage_body": {
+      "type": "object",
+      "properties": {
+        "match_rules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of matching rules that were triggered to identify the front page."
+        },
+        "cert_id": {
+          "$ref": "#/definitions/cc_id",
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Certificate ID",
+          "description": "The unique identifier of the Common Criteria certificate."
+        },
+        "cert_item": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Certified Item",
+          "description": "The certified item as extracted from the front page."
+        },
+        "developer": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Developer",
+          "description": "The developer of the certified item as extracted from the front page."
+        },
+        "cert_lab": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Certification Lab",
+          "description": "The lab/scheme that issued the certificate as extracted from the front page."
+        },
+        "ref_protection_profiles": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cc_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "CC Version",
+          "description": "The version of the Common Criteria standard as extracted from the front page."
+        },
+        "cc_security_level": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "CC Security Level",
+          "description": "The security level (e.g., EAL) as extracted from the front page."
+        }
+      },
+      "additionalProperties": false
+    },
+    "cc_document_frontpage": {
+      "type": "object",
+      "properties": {
+        "AU": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "CA": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "FR": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "DE": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "IN": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "IT": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "JP": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "MY": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "NL": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "NO": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "KR": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "PL": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "SG": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "ES": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "SE": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "TR": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        },
+        "US": {
+          "$ref": "#/definitions/cc_document_frontpage_body"
+        }
+      },
+      "additionalProperties": false
+    },
+    "cc_document_keywords": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "Certificate Document Keywords",
+      "description": "Extracted keywords from the certification documents.",
+      "$comment": "Consult the rules.yaml for the list of possible keywords and their structure."
+    },
+    "cc_references": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.certificate.References"
+        },
+        "directly_referenced_by": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cc_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that directly reference this certificate."
+        },
+        "directly_referencing": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cc_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that are directly referenced by this certificate."
+        },
+        "indirectly_referenced_by": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cc_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that indirectly reference this certificate."
+        },
+        "indirectly_referencing": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cc_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that are indirectly referenced by this certificate."
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate References (report, st)",
+      "description": "References to and from other certificates, based on a document."
+    },
+    "cc_sar": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.sar.SAR"
+        },
+        "family": {
+          "type": "string",
+          "title": "SAR Family",
+          "description": "The family of the Security Assurance Requirement (SAR)."
+        },
+        "level": {
+          "type": "integer",
+          "title": "SAR Level",
+          "description": "The level of the Security Assurance Requirement (SAR)."
+        }
+      },
+      "additionalProperties": false,
+      "title": "SAR",
+      "description": "Security Assurance Requirement (SAR) as defined in Common Criteria."
+    },
+    "cve": {
+      "type": "string",
+      "pattern": "^CVE-\\d{4}-\\d{4,}$",
+      "title": "CVE",
+      "description": "Common Vulnerabilities Enumeration (CVE) identifier"
+    },
+    "cpe": {
+      "type": "string",
+      "title": "CPE",
+      "description": "Common Platform Enumeration (CPE) identifier"
+    }
+  },
+  "properties": {
+    "_type": {
+      "const": "sec_certs.sample.cc.CCCertificate"
+    },
+    "name": {
+      "type": "string",
+      "title": "Certificate Name",
+      "description": "The name of the Common Criteria certificate."
+    },
+    "category": {
+      "enum": [
+        "Access Control Devices and Systems",
+        "Boundary Protection Devices and Systems",
+        "Data Protection",
+        "Databases",
+        "Detection Devices and Systems",
+        "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+        "Key Management Systems",
+        "Mobility",
+        "Multi-Function Devices",
+        "Network and Network-Related Devices and Systems",
+        "Operating Systems",
+        "Other Devices and Systems",
+        "Products for Digital Signatures",
+        "Trusted Computing",
+        "Biometric Systems and Devices"
+      ],
+      "title": "Certificate Category",
+      "description": "The category of the Common Criteria certificate."
+    },
+    "scheme": {
+      "enum": [
+        "AU",
+        "CA",
+        "FR",
+        "DE",
+        "IN",
+        "IT",
+        "JP",
+        "MY",
+        "NL",
+        "NO",
+        "KR",
+        "PL",
+        "SG",
+        "ES",
+        "SE",
+        "TR",
+        "US"
+      ],
+      "title": "Certification Scheme",
+      "description": "The certification scheme under which the certificate was issued."
+    },
+    "status": {
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "title": "Certificate Status",
+      "description": "The current status of the Common Criteria certificate."
+    },
+    "not_valid_after": {
+      "type": "string",
+      "format": "date",
+      "title": "Expiry Date",
+      "description": "The date until which the certificate is valid (expiry date)."
+    },
+    "not_valid_before": {
+      "type": "string",
+      "format": "date",
+      "title": "Certification Date",
+      "description": "The date from which the certificate is valid (certification date)."
+    },
+    "cert_link": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri",
+      "title": "Certificate Link",
+      "description": "A URL linking to the official certificate document."
+    },
+    "report_link": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri",
+      "title": "Certification Report Link",
+      "description": "A URL linking to the certification report document."
+    },
+    "st_link": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri",
+      "title": "Security Target Link",
+      "description": "A URL linking to the security target document."
+    },
+    "manufacturer": {
+      "type": "string",
+      "title": "Manufacturer",
+      "description": "The name of the manufacturer of the certified product."
+    },
+    "manufacturer_web": {
+      "type": "string",
+      "format": "uri",
+      "title": "Manufacturer Website",
+      "description": "The website URL of the manufacturer."
+    },
+    "security_level": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "title": "Security Level",
+      "description": "The security levels associated with the certificate."
+    },
+    "dgst": {
+      "$ref": "#/definitions/cc_dgst"
+    },
+    "heuristics": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.cc.CCCertificate.Heuristics"
+        },
+        "eal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "annotated_references": {
+          "type": "null"
+        },
+        "cert_id": {
+          "$ref": "#/definitions/cc_id",
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Certificate ID",
+          "description": "The unique identifier of the Common Criteria certificate."
+        },
+        "cert_lab": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Certification Lab",
+          "description": "The lab/scheme that issued the certificate."
+        },
+        "cpe_matches": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true,
+          "title": "CPE Matches",
+          "description": "List of CPEs (Common Platform Enumerations) associated with the certificate."
+        },
+        "verified_cpe_matches": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true,
+          "title": "Verified CPE Matches",
+          "description": "List of verified CPEs (Common Platform Enumerations) associated with the certificate."
+        },
+        "related_cves": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true,
+          "title": "Related CVEs",
+          "description": "List of CVEs (Common Vulnerabilities and Exposures) likely associated with the certificate."
+        },
+        "direct_transitive_cves": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        },
+        "indirect_transitive_cves": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        },
+        "extracted_sars": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cc_sar"
+              },
+              "uniqueItems": true
+            }
+          },
+          "title": "Extracted SARs",
+          "description": "Security Assurance Requirements (SARs) extracted from the certification documents."
+        },
+        "extracted_versions": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          },
+          "title": "Extracted Versions",
+          "description": "Product versions extracted from the certification documents."
+        },
+        "prev_certificates": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cc_id"
+          },
+          "title": "Previous Certificates",
+          "description": "List of previous versions of the certificate in a series, if applicable."
+        },
+        "next_certificates": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/cc_id"
+          },
+          "title": "Next Certificates",
+          "description": "List of next versions of the certificate in a series, if applicable."
+        },
+        "report_references": {
+          "$ref": "#/definitions/cc_references",
+          "title": "Report References",
+          "description": "References to and from other certificates, based on the certification report document."
+        },
+        "scheme_data": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "title": "Scheme Data",
+          "description": "Scheme-specific data extracted from the scheme websites.",
+          "$comment": "This is a free-form object and can contain any properties."
+        },
+        "st_references": {
+          "$ref": "#/definitions/cc_references",
+          "title": "ST References",
+          "description": "References to and from other certificates, based on the security target document."
+        },
+        "protection_profiles": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate Heuristics",
+      "description": "Heuristic data extracted from the certification documents."
+    },
+    "maintenance_updates": {
+      "type": "object"
+    },
+    "protection_profile_links": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "pdf_data": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.cc.CCCertificate.PdfData"
+        },
+        "report_metadata": {
+          "$ref": "#/definitions/cc_document_metadata",
+          "title": "Report Metadata",
+          "description": "Metadata extracted from the certification report PDF document file."
+        },
+        "st_metadata": {
+          "$ref": "#/definitions/cc_document_metadata",
+          "title": "ST Metadata",
+          "description": "Metadata extracted from the security target PDF document file."
+        },
+        "report_keywords": {
+          "$ref": "#/definitions/cc_document_keywords",
+          "title": "Report Keywords",
+          "description": "Keywords extracted from the certification report document."
+        },
+        "st_keywords": {
+          "$ref": "#/definitions/cc_document_keywords",
+          "title": "ST Keywords",
+          "description": "Keywords extracted from the security target document."
+        }
+      },
+      "title": "Extracted PDF Data",
+      "description": "Data extracted from the certification PDF documents."
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.cc.CCCertificate.InternalState"
+        },
+        "cert": {
+          "$ref": "#/definitions/cc_document_state"
+        },
+        "report": {
+          "$ref": "#/definitions/cc_document_state"
+        },
+        "st": {
+          "$ref": "#/definitions/cc_document_state"
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate Document States",
+      "description": "State of the document processing pipeline for cert, report, and st documents."
+    }
+  },
+  "additionalProperties": false
+}

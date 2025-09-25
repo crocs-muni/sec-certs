@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 import tests.data.cc.analysis
 import tests.data.cc.certificate
+from jsonschema import validate
 
+import sec_certs.serialization.schemas
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CCCertificate
 
@@ -100,3 +102,11 @@ def test_cert_older_dgst(cert_one: CCCertificate):
     cert_one.report_link = None
     with pytest.raises(RuntimeError):
         cert_one.older_dgst
+
+
+def test_schema_validation(data_dir: Path):
+    with (
+        (data_dir / "fictional_cert.json").open("r") as cert,
+        resources.open_text(sec_certs.serialization.schemas, "cc_certificate.json") as schema,
+    ):
+        validate(json.load(cert), json.load(schema))
