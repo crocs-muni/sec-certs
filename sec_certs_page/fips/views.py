@@ -32,7 +32,7 @@ from ..common.views import (
     send_json_attachment,
     sitemap_cert_pipeline,
 )
-from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
+from . import fips, fips_reference_types, fips_status, fips_types, get_fips_references
 from .search import FIPSBasicSearch, FIPSFulltextSearch
 from .tasks import FIPSRenderer
 
@@ -445,7 +445,7 @@ def entry(hashid):
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
             )
         with sentry_sdk.start_span(op="network", description="Find network"):
-            fips_map = get_fips_map()
+            fips_map = get_fips_references()
             cert_network = fips_map.get(hashid, {})
         name = doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else ""
         return render_template(
@@ -484,9 +484,9 @@ def entry_graph_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
-        fips_map = get_fips_map()
+        fips_map = get_fips_references()
         if hashid in fips_map.keys():
-            network_data = node_link_data(fips_map[hashid])
+            network_data = node_link_data(fips_map[hashid], edges="links")
         else:
             network_data = {}
         network_data["highlighted"] = [hashid]

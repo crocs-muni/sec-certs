@@ -1,8 +1,8 @@
 import dash
 import plotly.express as px
-from dash import dcc, html
+from dash import Input, Output, dcc, html
 
-from . import get_cc_analysis
+from . import get_cc_categories
 
 dash.register_page(
     __name__,
@@ -12,15 +12,24 @@ dash.register_page(
         [
             html.H1("This is our CC page"),
             html.Div("This is our CC page content."),
-            dcc.Graph(
-                figure=px.pie(
-                    get_cc_analysis()["categories"],
-                    title="Certificates by category",
-                    names="name",
-                    values="value",
-                    labels={"value": "count"},
-                )
-            ),
+            dcc.Graph(id="cc-category-graph"),
         ]
     ),
 )
+
+
+@dash.callback(
+    Output("cc-category-graph", "figure"),
+    Input("cc-category-graph", "id"),  # Dummy input just to trigger at load
+)
+def update_cc_categories(_):
+    # Now this runs per-request/user, and you can safely fetch data here!
+    df = get_cc_categories()
+    fig = px.pie(
+        df,
+        title="Certificates by category",
+        names="name",
+        values="value",
+        labels={"value": "count"},
+    )
+    return fig
