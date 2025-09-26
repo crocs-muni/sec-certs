@@ -8,9 +8,10 @@ from flask_mail import Message
 
 from .. import mongo, mail
 from ..common.views import register_breadcrumb
+from ..common.permissions import admin_permission
 from ..notifications.utils import derive_token
 from . import user
-from .forms import RegisterForm, PasswordResetRequestForm, PasswordResetForm, MagicLinkForm
+from .forms import LoginForm, RegisterForm, PasswordResetRequestForm, PasswordResetForm, MagicLinkForm
 from .models import User
 
 # OAuth support (optional - only if GitHub OAuth is configured)
@@ -19,6 +20,37 @@ try:
     oauth_available = True
 except ImportError:
     oauth_available = False
+
+
+@user.route("/login", methods=["GET", "POST"])
+@register_breadcrumb(user, ".login", "Login")
+def login():
+    form = LoginForm()
+    if form.is_submitted():
+        if form.validate():
+            user_obj = User.get(form.username.data)
+            if user_obj and user_obj.check_password(form.password.data):
+                login_user(user_obj, form.remember_me.data)
+                identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
+                flash("You've been successfully logged in.", "info")
+                if admin_permission.can():
+                    return redirect(url_for("admin.index"))
+                else:
+                    return redirect(url_for("index"))
+            else:
+                flash("Bad.", "error")
+    return render_template("user/login.html.jinja2", form=form)
+
+
+@user.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    for key in ("identity.name", "identity.auth_type"):
+        session.pop(key, None)
+    identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
+    flash("You've been successfully logged out.", "info")
+    return redirect(url_for("index"))
 
 
 @user.route("/register", methods=["GET", "POST"])
@@ -52,10 +84,10 @@ def register():
             try:
                 mail.send(msg)
                 flash("Registration successful! Please check your email to confirm your account.", "success")
-                return redirect(url_for("admin.login"))
+                return redirect(url_for("user.login"))
             except Exception as e:
                 flash("Registration successful but email could not be sent. Please contact support.", "warning")
-                return redirect(url_for("admin.login"))
+                return redirect(url_for("user.login"))
         except ValueError as e:
             flash(str(e), "error")
             return render_template("user/register.html.jinja2", form=form)
@@ -76,7 +108,7 @@ def confirm_email(token):
     else:
         flash("Invalid or expired confirmation link.", "error")
     
-    return redirect(url_for("admin.login"))
+    return redirect(url_for("user.login"))
 
 
 @user.route("/forgot-password", methods=["GET", "POST"])
@@ -106,7 +138,7 @@ def forgot_password():
                 pass  # Don't reveal if email exists
         
         flash("If the email exists in our system, you will receive password reset instructions.", "info")
-        return redirect(url_for("admin.login"))
+        return redirect(url_for("user.login"))
     
     return render_template("user/forgot_password.html.jinja2", form=form)
 
@@ -131,7 +163,7 @@ def reset_password(token):
     if form.validate_on_submit():
         user_obj.set_password(form.password.data)
         flash("Password reset successfully! You can now log in.", "success")
-        return redirect(url_for("admin.login"))
+        return redirect(url_for("user.login"))
     
     return render_template("user/reset_password.html.jinja2", form=form, token=token)
 
@@ -163,7 +195,7 @@ def magic_link():
                 pass  # Don't reveal if email exists
         
         flash("If the email exists and is confirmed, you will receive a login link.", "info")
-        return redirect(url_for("admin.login"))
+        return redirect(url_for("user.login"))
     
     return render_template("user/magic_link.html.jinja2", form=form)
 
@@ -186,7 +218,7 @@ def magic_login(token):
     else:
         flash("Invalid or expired login link.", "error")
     
-    return redirect(url_for("admin.login"))
+    return redirect(url_for("user.login"))
 
 
 @user.route("/profile")
@@ -341,7 +373,7 @@ if oauth_available:
         
         if not current_app.config.get('GITHUB_OAUTH_CLIENT_ID'):
             flash("GitHub OAuth is not configured.", "error")
-            return redirect(url_for("admin.login"))
+            return redirect(url_for("user.login"))
         
         return redirect(url_for("github.login"))
     
@@ -351,13 +383,13 @@ if oauth_available:
         """Handle GitHub OAuth callback"""
         if not github.authorized:
             flash("Authorization failed.", "error")
-            return redirect(url_for("admin.login"))
+            return redirect(url_for("user.login"))
         
         try:
             resp = github.get("/user")
             if not resp.ok:
                 flash("Failed to fetch user info from GitHub.", "error")
-                return redirect(url_for("admin.login"))
+                return redirect(url_for("user.login"))
             
             github_info = resp.json()
             github_id = str(github_info["id"])
@@ -375,7 +407,7 @@ if oauth_available:
             
             if not github_email:
                 flash("GitHub account must have a public email address.", "error")
-                return redirect(url_for("admin.login"))
+                return redirect(url_for("user.login"))
             
             # Check if user already exists with this GitHub ID
             user_obj = User.get_by_github_id(github_id)
@@ -419,14 +451,14 @@ if oauth_available:
                 return redirect(url_for("index"))
             except ValueError as e:
                 flash("Failed to create account. Please try again.", "error")
-                return redirect(url_for("admin.login"))
+                return redirect(url_for("user.login"))
                 
         except Exception as e:
             current_app.logger.error(f"GitHub OAuth error: {e}")
             flash("Authentication failed. Please try again.", "error")
-            return redirect(url_for("admin.login"))
+            return redirect(url_for("user.login"))
 else:
     @user.route("/auth/github")
     def github_login():
         flash("GitHub OAuth is not available. Please install Flask-Dance.", "error")
-        return redirect(url_for("admin.login"))
+        return redirect(url_for("user.login"))

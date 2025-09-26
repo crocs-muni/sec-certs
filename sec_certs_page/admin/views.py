@@ -2,15 +2,14 @@ import json
 
 import pymongo
 from flask import abort, current_app, flash, redirect, render_template, request, session, url_for
-from flask_login import login_required, login_user, logout_user
-from flask_principal import AnonymousIdentity, Identity, identity_changed
+from flask_login import login_required
 
 from .. import mongo, redis, runtime_config
 from ..common.objformats import StorageFormat
 from ..common.permissions import admin_permission
 from ..common.views import Pagination, register_breadcrumb
 from . import admin
-from .forms import ConfigEditForm, LoginForm
+from .forms import ConfigEditForm
 from .user import User
 
 collections = [
@@ -216,37 +215,6 @@ def config_edit():
         form.key.data = request.args.get("key")
         form.value.data = request.args.get("value")
         return render_template("admin/config/edit.html.jinja2", form=form)
-
-
-@admin.route("/login", methods=["GET", "POST"])
-@register_breadcrumb(admin, ".login", "Login")
-def login():
-    form = LoginForm()
-    if form.is_submitted():
-        if form.validate():
-            user = User.get(form.username.data)
-            if user and user.check_password(form.password.data):
-                login_user(user, form.remember_me.data)
-                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
-                flash("You've been successfully logged in.", "info")
-                if admin_permission.can():
-                    return redirect(url_for(".index"))
-                else:
-                    return redirect(url_for("index"))
-            else:
-                flash("Bad.", "error")
-    return render_template("admin/login.html.jinja2", form=form)
-
-
-@admin.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    for key in ("identity.name", "identity.auth_type"):
-        session.pop(key, None)
-    identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
-    flash("You've been successfully logged out.", "info")
-    return redirect(url_for("index"))
 
 
 @admin.route("/chat-invite")

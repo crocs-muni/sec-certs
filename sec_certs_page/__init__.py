@@ -82,7 +82,7 @@ mongo: PyMongo = PyMongo(app)
 public(mongo=mongo)
 
 login: LoginManager = LoginManager(app)
-login.login_view = "admin.login"
+login.login_view = "user.login"
 public(login=login)
 
 principal: Principal = Principal(app)

@@ -3,6 +3,12 @@ from wtforms import BooleanField, PasswordField, SelectField, StringField, valid
 from wtforms.fields import EmailField
 
 
+class LoginForm(FlaskForm):
+    username = StringField("username", [validators.DataRequired(), validators.Length(min=3, max=32)])
+    password = PasswordField("password", [validators.DataRequired()])
+    remember_me = BooleanField("remember_me", default=True)
+
+
 class RegisterForm(FlaskForm):
     username = StringField("username", [
         validators.DataRequired(), 
