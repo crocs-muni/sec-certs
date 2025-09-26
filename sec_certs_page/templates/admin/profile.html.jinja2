@@ -33,6 +33,18 @@
                                 <p class="form-control-plaintext">{{ user.created_at.strftime('%B %d, %Y') }}</p>
                             </div>
                         </div>
+                        {% if user.github_id %}
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">GitHub:</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-plaintext">
+                                    <span class="badge bg-success">
+                                        <i class="fab fa-github"></i> Connected
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
                         
                         <hr>
                         

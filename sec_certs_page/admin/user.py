@@ -15,13 +15,15 @@ def hash_password(password):
 
 class User(UserMixin):
     def __init__(self, username: str, pwhash: str, email: str, roles: List[str], 
-                 email_confirmed: bool = False, created_at: datetime = None):
+                 email_confirmed: bool = False, created_at: datetime = None,
+                 github_id: str = None):
         self.username = username
         self.pwhash = pwhash
         self.email = email
         self.roles = roles
         self.email_confirmed = email_confirmed
         self.created_at = created_at or datetime.utcnow()
+        self.github_id = github_id
 
     def check_password(self, password):
         return check_password_hash(self.pwhash, password)
@@ -35,6 +37,7 @@ class User(UserMixin):
             "roles": self.roles,
             "email_confirmed": self.email_confirmed,
             "created_at": self.created_at,
+            "github_id": self.github_id,
         }
 
     @property
@@ -59,6 +62,11 @@ class User(UserMixin):
         self.pwhash = hash_password(password)
         self.save()
 
+    def link_github(self, github_id: str):
+        """Link GitHub account"""
+        self.github_id = str(github_id)
+        self.save()
+
     @staticmethod
     def get(username):
         doc = mongo.db.users.find_one({"username": username})
@@ -70,7 +78,8 @@ class User(UserMixin):
             doc["email"], 
             doc["roles"],
             doc.get("email_confirmed", False),
-            doc.get("created_at", datetime.utcnow())
+            doc.get("created_at", datetime.utcnow()),
+            doc.get("github_id")
         )
 
     @staticmethod
@@ -84,11 +93,27 @@ class User(UserMixin):
             doc["email"], 
             doc["roles"],
             doc.get("email_confirmed", False),
-            doc.get("created_at", datetime.utcnow())
+            doc.get("created_at", datetime.utcnow()),
+            doc.get("github_id")
         )
 
     @staticmethod
-    def create(username: str, email: str, password: str, roles: List[str] = None):
+    def get_by_github_id(github_id):
+        doc = mongo.db.users.find_one({"github_id": str(github_id)})
+        if not doc:
+            return None
+        return User(
+            doc["username"], 
+            doc["pwhash"], 
+            doc["email"], 
+            doc["roles"],
+            doc.get("email_confirmed", False),
+            doc.get("created_at", datetime.utcnow()),
+            doc.get("github_id")
+        )
+
+    @staticmethod
+    def create(username: str, email: str, password: str = None, roles: List[str] = None, github_id: str = None):
         """Create a new user"""
         if roles is None:
             roles = []
@@ -98,11 +123,12 @@ class User(UserMixin):
         
         user = User(
             username=username,
-            pwhash=hash_password(password),
+            pwhash=hash_password(password) if password else hash_password(secrets.token_hex(16)),  # Random password for OAuth users
             email=email,
             roles=roles,
-            email_confirmed=False,
-            created_at=datetime.utcnow()
+            email_confirmed=bool(github_id),  # Auto-confirm OAuth users
+            created_at=datetime.utcnow(),
+            github_id=github_id
         )
         user.save()
         return user

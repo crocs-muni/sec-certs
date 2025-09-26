@@ -14,6 +14,15 @@ from . import admin
 from .forms import ConfigEditForm, LoginForm, RegisterForm, PasswordResetRequestForm, PasswordResetForm, MagicLinkForm
 from .user import User
 
+# OAuth support (optional - only if GitHub OAuth is configured)
+try:
+    from flask_dance.contrib.github import make_github_blueprint, github
+    from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
+    from flask_dance.consumer import oauth_authorized
+    oauth_available = True
+except ImportError:
+    oauth_available = False
+
 collections = [
     ("cc", mongo.db.cc_log, mongo.db.cc_diff),
     ("fips", mongo.db.fips_log, mongo.db.fips_diff),
@@ -549,6 +558,107 @@ def unsubscribe(subscription_id):
         return jsonify({"status": "OK", "message": "Subscription removed successfully."})
     else:
         return jsonify({"error": "Subscription not found or not owned by user.", "status": "NOK"}), 404
+
+
+# GitHub OAuth routes (only available if Flask-Dance is installed and configured)
+if oauth_available:
+    @admin.route("/auth/github")
+    def github_login():
+        """Initiate GitHub OAuth login"""
+        if current_user.is_authenticated:
+            return redirect(url_for("index"))
+        
+        if not current_app.config.get('GITHUB_OAUTH_CLIENT_ID'):
+            flash("GitHub OAuth is not configured.", "error")
+            return redirect(url_for("admin.login"))
+        
+        return redirect(url_for("github.login"))
+    
+    
+    @admin.route("/auth/github/callback")
+    def github_callback():
+        """Handle GitHub OAuth callback"""
+        if not github.authorized:
+            flash("Authorization failed.", "error")
+            return redirect(url_for("admin.login"))
+        
+        try:
+            resp = github.get("/user")
+            if not resp.ok:
+                flash("Failed to fetch user info from GitHub.", "error")
+                return redirect(url_for("admin.login"))
+            
+            github_info = resp.json()
+            github_id = str(github_info["id"])
+            github_username = github_info["login"]
+            github_email = github_info.get("email")
+            
+            if not github_email:
+                # Try to get email from user's public emails
+                email_resp = github.get("/user/emails")
+                if email_resp.ok:
+                    emails = email_resp.json()
+                    primary_email = next((e for e in emails if e["primary"]), None)
+                    if primary_email:
+                        github_email = primary_email["email"]
+            
+            if not github_email:
+                flash("GitHub account must have a public email address.", "error")
+                return redirect(url_for("admin.login"))
+            
+            # Check if user already exists with this GitHub ID
+            user = User.get_by_github_id(github_id)
+            if user:
+                login_user(user, remember=True)
+                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+                flash(f"Welcome back, {user.username}!", "success")
+                return redirect(url_for("index"))
+            
+            # Check if user exists with this email
+            user = User.get_by_email(github_email)
+            if user:
+                # Link the GitHub account to existing user
+                user.link_github(github_id)
+                user.confirm_email()  # Auto-confirm email for OAuth users
+                login_user(user, remember=True)
+                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+                flash(f"GitHub account linked successfully! Welcome back, {user.username}!", "success")
+                return redirect(url_for("index"))
+            
+            # Create new user account
+            # Make sure username is unique
+            username = github_username
+            counter = 1
+            while User.get(username):
+                username = f"{github_username}{counter}"
+                counter += 1
+            
+            user = User.create(
+                username=username,
+                email=github_email,
+                password=None,  # No password for OAuth users
+                roles=[],
+                github_id=github_id
+            )
+            
+            if user:
+                login_user(user, remember=True)
+                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
+                flash(f"Account created successfully! Welcome, {user.username}!", "success")
+                return redirect(url_for("index"))
+            else:
+                flash("Failed to create account. Please try again.", "error")
+                return redirect(url_for("admin.login"))
+                
+        except Exception as e:
+            current_app.logger.error(f"GitHub OAuth error: {e}")
+            flash("Authentication failed. Please try again.", "error")
+            return redirect(url_for("admin.login"))
+else:
+    @admin.route("/auth/github")
+    def github_login():
+        flash("GitHub OAuth is not available. Please install Flask-Dance.", "error")
+        return redirect(url_for("admin.login"))
 
 
 @admin.route("/delete-account", methods=["POST"])
