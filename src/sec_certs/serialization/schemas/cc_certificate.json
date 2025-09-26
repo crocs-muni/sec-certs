@@ -5,12 +5,6 @@
   "description": "Schema for a Common Criteria (CC) certificate.",
   "type": "object",
   "definitions": {
-    "cc_dgst": {
-      "type": "string",
-      "pattern": "^[0-9a-fA-F]{16}$",
-      "title": "Certificate Digest",
-      "description": "A hex string representing 8 bytes."
-    },
     "cc_id": {
       "type": [
         "string",
@@ -342,7 +336,9 @@
         "ES",
         "SE",
         "TR",
-        "US"
+        "US",
+        "UK",
+        "QA"
       ],
       "title": "Certification Scheme",
       "description": "The certification scheme under which the certificate was issued."
@@ -395,12 +391,18 @@
       "description": "A URL linking to the security target document."
     },
     "manufacturer": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "title": "Manufacturer",
       "description": "The name of the manufacturer of the certified product."
     },
     "manufacturer_web": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "uri",
       "title": "Manufacturer Website",
       "description": "The website URL of the manufacturer."
@@ -423,7 +425,7 @@
       "description": "The security levels associated with the certificate."
     },
     "dgst": {
-      "$ref": "#/definitions/cc_dgst"
+      "$ref": "/schemas/base.json#/definitions/dgst"
     },
     "heuristics": {
       "type": "object",
@@ -537,13 +539,21 @@
         },
         "protection_profiles": {
           "type": [
-            "array",
+            "object",
             "null"
           ],
-          "items": {
-            "type": "string"
-          },
-          "uniqueItems": true
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "/schemas/base.json#/definitions/dgst"
+              },
+              "uniqueItems": true
+            }
+          }
         }
       },
       "additionalProperties": false,
@@ -554,7 +564,7 @@
       "type": "object"
     },
     "protection_profile_links": {
-      "type": "object",
+      "type": ["object", "null"],
       "properties": {
         "_type": {
           "const": "Set"

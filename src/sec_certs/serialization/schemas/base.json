@@ -17,59 +17,105 @@
     },
     "cpe_matches": {
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/cpe"
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cpe"
+          },
+          "uniqueItems": true
+        }
       },
-      "uniqueItems": true,
       "title": "CPE Matches",
       "description": "List of CPEs (Common Platform Enumerations) associated with the certificate."
     },
     "verified_cpe_matches": {
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/cpe"
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cpe"
+          },
+          "uniqueItems": true
+        }
       },
-      "uniqueItems": true,
       "title": "Verified CPE Matches",
       "description": "List of verified CPEs (Common Platform Enumerations) associated with the certificate."
     },
     "related_cves": {
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/cve"
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        }
       },
-      "uniqueItems": true,
       "title": "Related CVEs",
       "description": "List of CVEs (Common Vulnerabilities and Exposures) likely associated with the certificate."
     },
     "direct_transitive_cves": {
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/cve"
-      },
-      "uniqueItems": true
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        }
+      }
     },
     "indirect_transitive_cves": {
       "type": [
-        "array",
+        "object",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/cve"
-      },
-      "uniqueItems": true
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "dgst": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$",
+      "title": "Certificate Digest",
+      "description": "A hex string representing 8 bytes."
     },
     "extracted_versions": {
       "type": [

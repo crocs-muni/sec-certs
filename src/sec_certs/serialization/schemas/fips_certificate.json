@@ -17,6 +17,12 @@
       "title": "Certificate ID",
       "description": "A non-negative integer representing the certificate ID."
     },
+    "fips_str_id": {
+      "type": "string",
+      "pattern": "^[0-9]+$",
+      "title": "Certificate ID",
+      "description": "A non-negative integer representing the certificate ID, in string form."
+    },
     "fips_references": {
       "type": "object",
       "properties": {
@@ -24,47 +30,67 @@
           "const": "sec_certs.sample.certificate.References"
         },
         "directly_referenced_by": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/fips_id"
+          "type": ["object", "null"],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
           },
-          "uniqueItems": true,
           "description": "Certificates that directly reference this certificate."
         },
         "indirectly_referenced_by": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/fips_id"
+          "type": ["object", "null"],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
           },
-          "uniqueItems": true,
           "description": "Certificates that indirectly reference this certificate."
         },
         "directly_referencing": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/fips_id"
+          "type": ["object", "null"],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
           },
-          "uniqueItems": true,
           "description": "Certificates that are directly referenced by this certificate."
         },
         "indirectly_referencing": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/fips_id"
+          "type": ["object", "null"],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
           },
-          "uniqueItems": true,
           "description": "Certificates that are indirectly referenced by this certificate."
         }
       }
@@ -163,7 +189,7 @@
         },
         "level": {
           "type": [
-            "string",
+            "integer",
             "null"
           ]
         },
@@ -175,9 +201,12 @@
         },
         "exceptions": {
           "type": [
-            "string",
+            "array",
             "null"
-          ]
+          ],
+          "items": {
+            "type": "string"
+          }
         },
         "embodiment": {
           "type": [
@@ -193,9 +222,12 @@
         },
         "tested_conf": {
           "type": [
-            "string",
+            "array",
             "null"
-          ]
+          ],
+          "items": {
+            "type": "string"
+          }
         },
         "hw_versions": {
           "type": [
@@ -216,10 +248,19 @@
           ]
         },
         "mentioned_certs": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["object", "null"],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          }
         },
         "historical_reason": {
           "type": [
@@ -306,7 +347,7 @@
             "elements": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/fips_id"
+                "$ref": "#/definitions/fips_str_id"
               },
               "uniqueItems": true
             }
@@ -321,7 +362,7 @@
             "elements": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/fips_id"
+                "$ref": "#/definitions/fips_str_id"
               },
               "uniqueItems": true
             }
