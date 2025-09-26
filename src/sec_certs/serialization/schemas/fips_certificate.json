@@ -190,21 +190,15 @@
           "description": "The URL of the certificate PDF document."
         },
         "module_type": {
-          "anyOf": [
-            {
-              "enum": [
-                "Firmware",
-                "Firmware-Hybrid",
-                "Hardware",
-                "Software",
-                "Software-Hybrid",
-                "Hybrid"
-              ]
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "enum": [
+            "Firmware",
+            "Firmware-Hybrid",
+            "Hardware",
+            "Software",
+            "Software-Hybrid",
+            "Hybrid",
+            null
+          ]
           "title": "Certified Module Type",
           "description": "The type of the certified module."
         },
@@ -212,7 +206,8 @@
           "enum": [
             "FIPS 140-1",
             "FIPS 140-2",
-            "FIPS 140-3"
+            "FIPS 140-3",
+            null
           ],
           "title": "FIPS Standard",
           "description": "The FIPS standard under which the module was certified."
