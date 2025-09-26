@@ -144,7 +144,7 @@ def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
     graphs = []
     graph_map = {}
     for component in weakly_connected_components(graph):
-        subgraph = graph.subgraph(component)
+        subgraph = graph.subgraph(component).copy()
         graphs.append(subgraph)
         for node in subgraph:
             graph_map[str(node)] = subgraph
@@ -156,7 +156,7 @@ def network_graph_func(graphs, highlighted=None) -> Response:
     nodes = []
     edges = []
     for graph in graphs:
-        link_data = node_link_data(graph)
+        link_data = node_link_data(graph, edges="links")
         nodes.extend(link_data["nodes"])
         edges.extend(link_data["links"])
     network = {"nodes": nodes, "links": edges, "highlighted": highlighted}
