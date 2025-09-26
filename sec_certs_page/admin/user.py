@@ -119,11 +119,11 @@ class User(UserMixin):
             roles = []
         
         if User.get(username) or User.get_by_email(email):
-            return None  # User already exists
+            raise ValueError("User with this username or email already exists")
         
         user = User(
             username=username,
-            pwhash=hash_password(password) if password else hash_password(secrets.token_hex(16)),  # Random password for OAuth users
+            pwhash=hash_password(password) if password else "",  # Empty password for OAuth users
             email=email,
             roles=roles,
             email_confirmed=bool(github_id),  # Auto-confirm OAuth users

@@ -16,9 +16,7 @@ from .user import User
 
 # OAuth support (optional - only if GitHub OAuth is configured)
 try:
-    from flask_dance.contrib.github import make_github_blueprint, github
-    from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
-    from flask_dance.consumer import oauth_authorized
+    from flask_dance.contrib.github import github
     oauth_available = True
 except ImportError:
     oauth_available = False
@@ -267,20 +265,14 @@ def register():
     
     form = RegisterForm()
     if form.validate_on_submit():
-        # Check if user already exists
-        if User.get(form.username.data) or User.get_by_email(form.email.data):
-            flash("Username or email already exists.", "error")
-            return render_template("admin/register.html.jinja2", form=form)
-        
         # Create user
-        user = User.create(
-            username=form.username.data,
-            email=form.email.data,
-            password=form.password.data,
-            roles=[]
-        )
-        
-        if user:
+        try:
+            user = User.create(
+                username=form.username.data,
+                email=form.email.data,
+                password=form.password.data,
+                roles=[]
+            )
             # Send confirmation email
             token = User.generate_confirmation_token(user.username)
             confirmation_url = url_for('admin.confirm_email', token=token, _external=True)
@@ -300,8 +292,9 @@ def register():
             except Exception as e:
                 flash("Registration successful but email could not be sent. Please contact support.", "warning")
                 return redirect(url_for("admin.login"))
-        else:
-            flash("Registration failed. Please try again.", "error")
+        except ValueError as e:
+            flash(str(e), "error")
+            return render_template("admin/register.html.jinja2", form=form)
     
     return render_template("admin/register.html.jinja2", form=form)
 
@@ -633,20 +626,20 @@ if oauth_available:
                 username = f"{github_username}{counter}"
                 counter += 1
             
-            user = User.create(
-                username=username,
-                email=github_email,
-                password=None,  # No password for OAuth users
-                roles=[],
-                github_id=github_id
-            )
-            
-            if user:
+            try:
+                user = User.create(
+                    username=username,
+                    email=github_email,
+                    password=None,  # No password for OAuth users
+                    roles=[],
+                    github_id=github_id
+                )
+                
                 login_user(user, remember=True)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
                 flash(f"Account created successfully! Welcome, {user.username}!", "success")
                 return redirect(url_for("index"))
-            else:
+            except ValueError as e:
                 flash("Failed to create account. Please try again.", "error")
                 return redirect(url_for("admin.login"))
                 
