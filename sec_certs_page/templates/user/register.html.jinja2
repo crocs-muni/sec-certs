@@ -59,13 +59,13 @@
                     </div>
                 </div>
                 
-                <a href="{{ url_for('admin.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
+                <a href="{{ url_for('user.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
                     <i class="fab fa-github"></i> Sign up with GitHub
                 </a>
                 {% endif %}
                 
                 <div class="text-center mt-3">
-                    <p>Already have an account? <a href="{{ url_for('.login') }}">Sign in</a></p>
+                    <p>Already have an account? <a href="{{ url_for('admin.login') }}">Sign in</a></p>
                 </div>
             </form>
         </main>

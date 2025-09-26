@@ -192,10 +192,12 @@ from .docs import docs
 from .fips import fips
 from .notifications import notifications
 from .pp import pp
+from .user import user
 from .vuln import vuln
 
 with app.app_context():
     app.register_blueprint(admin)
+    app.register_blueprint(user)
     app.register_blueprint(cc)
     app.register_blueprint(fips)
     app.register_blueprint(notifications)
@@ -214,7 +216,7 @@ with app.app_context():
                 client_id=app.config['GITHUB_OAUTH_CLIENT_ID'],
                 client_secret=app.config['GITHUB_OAUTH_CLIENT_SECRET'],
                 scope="user:email",
-                redirect_to="admin.github_callback"
+                redirect_to="user.github_callback"
             )
             app.register_blueprint(github_bp, url_prefix="/auth")
     except ImportError:

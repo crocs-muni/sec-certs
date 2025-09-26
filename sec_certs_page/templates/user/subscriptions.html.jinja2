@@ -6,7 +6,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3>My Subscriptions</h3>
-                        <a href="{{ url_for('.profile') }}" class="btn btn-outline-secondary">Back to Profile</a>
+                        <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">Back to Profile</a>
                     </div>
                     <div class="card-body">
                         <p class="text-muted">Manage your notification subscriptions for certificate updates. As a registered user, you can subscribe to certificates without email confirmation.</p>
@@ -107,7 +107,7 @@
                 return;
             }
             
-            fetch(`{{ url_for('.unsubscribe', subscription_id='PLACEHOLDER') }}`.replace('PLACEHOLDER', subscriptionId), {
+            fetch(`{{ url_for('user.unsubscribe', subscription_id='PLACEHOLDER') }}`.replace('PLACEHOLDER', subscriptionId), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,7 +128,7 @@
         }
         
         function subscribeToNew() {
-            fetch('{{ url_for('.quick_subscribe') }}', {
+            fetch('{{ url_for('user.quick_subscribe') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

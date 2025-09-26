@@ -34,15 +34,15 @@
                     </div>
                 </div>
                 
-                <a href="{{ url_for('admin.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
+                <a href="{{ url_for('user.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
                     <i class="fab fa-github"></i> Sign in with GitHub
                 </a>
                 {% endif %}
                 
                 <div class="text-center mt-3">
-                    <p><a href="{{ url_for('.forgot_password') }}">Forgot your password?</a></p>
-                    <p><a href="{{ url_for('.magic_link') }}">Login with email link</a></p>
-                    <p>Don't have an account? <a href="{{ url_for('.register') }}">Create one</a></p>
+                    <p><a href="{{ url_for('user.forgot_password') }}">Forgot your password?</a></p>
+                    <p><a href="{{ url_for('user.magic_link') }}">Login with email link</a></p>
+                    <p>Don't have an account? <a href="{{ url_for('user.register') }}">Create one</a></p>
                 </div>
             </form>
         </main>

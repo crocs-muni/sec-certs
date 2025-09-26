@@ -22,8 +22,8 @@
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Send Login Link</button>
                 
                 <div class="text-center mt-3">
-                    <p><a href="{{ url_for('.login') }}">Back to password login</a></p>
-                    <p>Don't have an account? <a href="{{ url_for('.register') }}">Create one</a></p>
+                    <p><a href="{{ url_for('admin.login') }}">Back to password login</a></p>
+                    <p>Don't have an account? <a href="{{ url_for('user.register') }}">Create one</a></p>
                 </div>
             </form>
         </main>

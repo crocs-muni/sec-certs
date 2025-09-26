@@ -297,7 +297,7 @@
                             <i class="fa fa-user"></i> {{ current_user.username }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{{ url_for('admin.profile') }}"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="fa fa-user"></i> Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{{ url_for('admin.logout') }}"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
@@ -400,11 +400,11 @@
                                     </p>
                                     <p><a href="{{ url_for('about.privacy_policy') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy policy</a></p>
                                     {% if current_user.is_authenticated %}
-                                        <p><a href="{{ url_for('admin.profile') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Profile</a></p>
+                                        <p><a href="{{ url_for('user.profile') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Profile</a></p>
                                         <p><a href="{{ url_for('admin.logout') }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Logout</a></p>
                                     {% else %}
                                         <p><a href="{{ url_for('admin.login') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Login</a></p>
-                                        <p><a href="{{ url_for('admin.register') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Create Account</a></p>
+                                        <p><a href="{{ url_for('user.register') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Create Account</a></p>
                                     {% endif %}
                                 </div>
                             
