@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
 import pytest
 
 from sec_certs.dataset.auxiliary_dataset_handling import CPEDatasetHandler, CVEDatasetHandler
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.heuristics.common import compute_related_cves
+from sec_certs.serialization.schemas import validator
 
 
 @pytest.mark.parametrize(
@@ -140,3 +145,19 @@ def test_keywords_heuristics(processed_dataset: FIPSDataset):
     assert not keywords["pq_crypto"]
     assert keywords["crypto_library"]["OpenSSL"]["OpenSSL"] == 83
     assert keywords["side_channel_analysis"]["SCA"]["timing attacks"] == 1
+
+
+def test_schema_validate(processed_dataset: FIPSDataset):
+    with TemporaryDirectory() as tmp_dir:
+        single_v = validator("http://sec-certs.org/schemas/fips_certificate.json")
+        for cert in processed_dataset:
+            fname = Path(tmp_dir) / (cert.dgst + ".json")
+            cert.to_json(fname)
+            with fname.open("r") as handle:
+                single_v.validate(json.load(handle))
+
+        dset_v = validator("http://sec-certs.org/schemas/fips_dataset.json")
+        fname = Path(tmp_dir) / "dset.json"
+        processed_dataset.to_json(fname)
+        with fname.open("r") as handle:
+            dset_v.validate(json.load(handle))

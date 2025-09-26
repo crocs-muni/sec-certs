@@ -14,6 +14,7 @@ from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.serialization.schemas import validator
 from sec_certs.utils import helpers
 
 
@@ -129,3 +130,19 @@ def test_to_pandas(toy_dataset: FIPSDataset):
     assert df.shape == (len(toy_dataset), len(FIPSCertificate.pandas_columns))
     assert df.index.name == "dgst"
     assert set(df.columns) == set(FIPSCertificate.pandas_columns).union({"year_from"}) - {"dgst"}
+
+
+def test_schema_validate(toy_dataset: FIPSDataset):
+    with TemporaryDirectory() as tmp_dir:
+        single_v = validator("http://sec-certs.org/schemas/fips_certificate.json")
+        for cert in toy_dataset:
+            fname = Path(tmp_dir) / (cert.dgst + ".json")
+            cert.to_json(fname)
+            with fname.open("r") as handle:
+                single_v.validate(json.load(handle))
+
+        dset_v = validator("http://sec-certs.org/schemas/fips_dataset.json")
+        fname = Path(tmp_dir) / "dset.json"
+        toy_dataset.to_json(fname)
+        with fname.open("r") as handle:
+            dset_v.validate(json.load(handle))

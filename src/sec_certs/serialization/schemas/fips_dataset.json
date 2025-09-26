@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sec-certs.org/schemas/fips_dataset.json",
+  "title": "FIPS 140 Dataset",
+  "description": "Schema for a FIPS 140 dataset.",
+  "type": "object",
+  "properties": {
+    "_type": {
+      "const": "sec_certs.dataset.fips.FIPSDataset"
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.dataset.dataset.Dataset.DatasetInternalState"
+        },
+        "meta_sources_parsed": {
+          "type": "boolean"
+        },
+        "artifacts_downloaded": {
+          "type": "boolean"
+        },
+        "pdfs_converted": {
+          "type": "boolean"
+        },
+        "auxiliary_datasets_processed": {
+          "type": "boolean"
+        },
+        "certs_analyzed": {
+          "type": "boolean"
+        }
+      },
+      "title": "Dataset internal state"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Timestamp of the dataset creation"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name of the dataset"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description of the dataset"
+    },
+    "n_certs": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Number of certificates in the dataset"
+    },
+    "certs": {
+      "type": "array",
+      "items": {
+        "$ref": "fips_certificate.json#"
+      },
+      "title": "List of certificates in the dataset"
+    }
+  },
+  "additionalProperties": false
+}

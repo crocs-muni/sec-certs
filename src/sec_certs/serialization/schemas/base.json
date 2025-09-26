@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sec-certs.org/schemas/base.json",
+  "title": "Base sec-certs definitions",
+  "description": "Common definitions used across sec-certs schemas.",
+  "definitions": {
+    "cve": {
+      "type": "string",
+      "pattern": "^CVE-\\d{4}-\\d{4,}$",
+      "title": "CVE",
+      "description": "Common Vulnerabilities Enumeration (CVE) identifier"
+    },
+    "cpe": {
+      "type": "string",
+      "title": "CPE",
+      "description": "Common Platform Enumeration (CPE) identifier"
+    },
+    "cpe_matches": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cpe"
+          },
+          "uniqueItems": true
+        }
+      },
+      "title": "CPE Matches",
+      "description": "List of CPEs (Common Platform Enumerations) associated with the certificate."
+    },
+    "verified_cpe_matches": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cpe"
+          },
+          "uniqueItems": true
+        }
+      },
+      "title": "Verified CPE Matches",
+      "description": "List of verified CPEs (Common Platform Enumerations) associated with the certificate."
+    },
+    "related_cves": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        }
+      },
+      "title": "Related CVEs",
+      "description": "List of CVEs (Common Vulnerabilities and Exposures) likely associated with the certificate."
+    },
+    "direct_transitive_cves": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "indirect_transitive_cves": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cve"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "dgst": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$",
+      "title": "Certificate Digest",
+      "description": "A hex string representing 8 bytes."
+    },
+    "extracted_versions": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "_type": {
+          "const": "Set"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "title": "Extracted Versions",
+      "description": "Product versions extracted from the certification documents."
+    },
+    "document_metadata": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "pdf_file_size_bytes": {
+          "type": "integer",
+          "description": "Size of the PDF document in bytes."
+        },
+        "pdf_is_encrypted": {
+          "type": "boolean",
+          "description": "Indicates if the PDF document is encrypted."
+        },
+        "pdf_number_of_pages": {
+          "type": "integer",
+          "description": "Number of pages in the PDF document."
+        },
+        "pdf_hyperlinks": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Set of hyperlinks found in the PDF document."
+        }
+      },
+      "additionalProperties": true
+    },
+    "document_keywords": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "title": "Certificate Document Keywords",
+      "description": "Extracted keywords from the certification documents.",
+      "$comment": "Consult the rules.yaml for the list of possible keywords and their structure."
+    }
+  }
+}

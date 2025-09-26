@@ -12,6 +12,7 @@ import tests.data.fips.dataset
 
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.serialization.schemas import validator
 
 
 @pytest.fixture(scope="module")
@@ -70,3 +71,9 @@ def test_cert_to_json(certificate: FIPSCertificate, tmp_path: Path, data_dir: Pa
 def test_cert_from_json(certificate: FIPSCertificate, data_dir: Path):
     crt = FIPSCertificate.from_json(data_dir / "fictional_cert.json")
     assert certificate == crt
+
+
+def test_schema_validation(data_dir: Path):
+    with (data_dir / "fictional_cert.json").open("r") as cert:
+        v = validator("http://sec-certs.org/schemas/fips_certificate.json")
+        v.validate(json.load(cert))

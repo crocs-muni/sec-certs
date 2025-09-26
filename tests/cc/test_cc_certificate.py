@@ -10,6 +10,7 @@ import tests.data.cc.certificate
 
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CCCertificate
+from sec_certs.serialization.schemas import validator
 
 
 @pytest.fixture(scope="module")
@@ -100,3 +101,9 @@ def test_cert_older_dgst(cert_one: CCCertificate):
     cert_one.report_link = None
     with pytest.raises(RuntimeError):
         cert_one.older_dgst
+
+
+def test_schema_validation(data_dir: Path):
+    with (data_dir / "fictional_cert.json").open("r") as cert:
+        v = validator("http://sec-certs.org/schemas/cc_certificate.json")
+        v.validate(json.load(cert))

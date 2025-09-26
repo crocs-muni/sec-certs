@@ -1,0 +1,512 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sec-certs.org/schemas/fips_certificate.json",
+  "title": "FIPS 140 Certificate",
+  "description": "Schema for a FIPS 140 certificate.",
+  "type": "object",
+  "definitions": {
+    "fips_dgst": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{16}$",
+      "title": "Certificate Digest",
+      "description": "A hex string representing 8 bytes."
+    },
+    "fips_id": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Certificate ID",
+      "description": "A non-negative integer representing the certificate ID."
+    },
+    "fips_str_id": {
+      "type": "string",
+      "pattern": "^[0-9]+$",
+      "title": "Certificate ID",
+      "description": "A non-negative integer representing the certificate ID, in string form."
+    },
+    "fips_references": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.certificate.References"
+        },
+        "directly_referenced_by": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that directly reference this certificate."
+        },
+        "indirectly_referenced_by": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that indirectly reference this certificate."
+        },
+        "directly_referencing": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that are directly referenced by this certificate."
+        },
+        "indirectly_referencing": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "description": "Certificates that are indirectly referenced by this certificate."
+        }
+      }
+    }
+  },
+  "properties": {
+    "_type": {
+      "const": "sec_certs.sample.fips.FIPSCertificate"
+    },
+    "dgst": {
+      "$ref": "#/definitions/fips_dgst"
+    },
+    "cert_id": {
+      "$ref": "#/definitions/fips_id"
+    },
+    "web_data": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.WebData"
+        },
+        "module_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Module Name",
+          "description": "The name of the certified module."
+        },
+        "validation_history": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "_type": {
+                "const": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry"
+              },
+              "date": {
+                "type": "string",
+                "format": "date",
+                "description": "The date of the validation event in YYYY-MM-DD format."
+              },
+              "validation_type": {
+                "enum": [
+                  "Initial",
+                  "Update"
+                ],
+                "description": "The type of validation event."
+              },
+              "lab": {
+                "type": "string",
+                "description": "The name of the lab that performed the validation."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "vendor_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "title": "Vendor URL",
+          "description": "The URL of the vendor's website."
+        },
+        "vendor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Vendor Name",
+          "description": "The name of the vendor of the module."
+        },
+        "certificate_pdf_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "title": "Certificate PDF URL",
+          "description": "The URL of the certificate PDF document."
+        },
+        "module_type": {
+          "enum": [
+            "Firmware",
+            "Firmware-Hybrid",
+            "Hardware",
+            "Software",
+            "Software-Hybrid",
+            "Hybrid",
+            null
+          ],
+          "title": "Certified Module Type",
+          "description": "The type of the certified module."
+        },
+        "standard": {
+          "enum": [
+            "FIPS 140-1",
+            "FIPS 140-2",
+            "FIPS 140-3",
+            null
+          ],
+          "title": "FIPS Standard",
+          "description": "The FIPS standard under which the module was certified."
+        },
+        "status": {
+          "enum": [
+            "active",
+            "historical",
+            "revoked",
+            null
+          ],
+          "title": "Certificate Status",
+          "description": "The current status of the certificate."
+        },
+        "level": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 4,
+          "title": "Security Level",
+          "description": "The security level of the certified module (1 to 4)."
+        },
+        "caveat": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Caveat",
+          "description": "Any caveats associated with the certification."
+        },
+        "exceptions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Exceptions",
+          "description": "Any exceptions associated with the certification."
+        },
+        "embodiment": {
+          "anyOf": [
+            {
+              "enum": [
+                "Multi-Chip Stand Alone",
+                "Multi-Chip Embedded",
+                "Single Chip",
+                "*"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Embodiment",
+          "description": "The embodiment of the certified module."
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Module Description",
+          "description": "A brief description of the certified module."
+        },
+        "tested_conf": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Tested Configurations",
+          "description": "The tested configuration(s) of the certified module."
+        },
+        "hw_versions": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Hardware Versions",
+          "description": "The hardware version(s) of the certified module."
+        },
+        "fw_versions": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Firmware Versions",
+          "description": "The firmware version(s) of the certified module."
+        },
+        "sw_versions": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Software Versions",
+          "description": "The software version(s) of the certified module."
+        },
+        "mentioned_certs": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          },
+          "title": "Mentioned Certificates",
+          "description": "Other FIPS certificates mentioned in the module page."
+        },
+        "historical_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Historical Reason",
+          "description": "The reason why the certificate is marked as historical (if any)."
+        },
+        "date_sunset": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date",
+          "title": "Sunset Date",
+          "description": "The date when the certificate was sunsetted/revoked/archived (YYYY-MM-DD)."
+        },
+        "revoked_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Revocation Reason",
+          "description": "The reason why the certificate was revoked (if any)."
+        },
+        "revoked_link": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "title": "Revocation Link",
+          "description": "A link to more information about the revocation (if any)."
+        }
+      }
+    },
+    "pdf_data": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.PdfData"
+        },
+        "keywords": {
+          "$ref": "base.json#/definitions/document_keywords",
+          "title": "Security Policy Keywords",
+          "description": "Keywords extracted from the security policy document."
+        },
+        "policy_metadata": {
+          "$ref": "base.json#/definitions/document_metadata",
+          "title": "Security Policy Metadata",
+          "description": "Metadata extracted from the security policy document."
+        }
+      },
+      "title": "Extracted PDF Data",
+      "description": "Data extracted from the certification PDF document (security policy)."
+    },
+    "heuristics": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.Heuristics"
+        },
+        "algorithms": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "extracted_versions": {
+          "$ref": "base.json#/definitions/extracted_versions"
+        },
+        "cpe_matches": {
+          "$ref": "base.json#/definitions/cpe_matches"
+        },
+        "verified_cpe_matches": {
+          "$ref": "base.json#/definitions/verified_cpe_matches"
+        },
+        "related_cves": {
+          "$ref": "base.json#/definitions/related_cves"
+        },
+        "policy_prunned_references": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "module_prunned_references": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/fips_str_id"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "policy_processed_references": {
+          "$ref": "#/definitions/fips_references",
+          "description": "References to and from other certificates, based on the security policy document."
+        },
+        "module_processed_references": {
+          "$ref": "#/definitions/fips_references",
+          "description": "References to and from other certificates, based on the module page."
+        },
+        "direct_transitive_cves": {
+          "$ref": "base.json#/definitions/direct_transitive_cves"
+        },
+        "indirect_transitive_cves": {
+          "$ref": "base.json#/definitions/indirect_transitive_cves"
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate Heuristics",
+      "description": "Heuristic data extracted from the certification documents."
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.sample.fips.FIPSCertificate.InternalState"
+        },
+        "module_download_ok": {
+          "type": "boolean"
+        },
+        "policy_download_ok": {
+          "type": "boolean"
+        },
+        "policy_convert_garbage": {
+          "type": "boolean"
+        },
+        "policy_convert_ok": {
+          "type": "boolean"
+        },
+        "module_extract_ok": {
+          "type": "boolean"
+        },
+        "policy_extract_ok": {
+          "type": "boolean"
+        },
+        "policy_pdf_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$",
+          "description": "SHA256 hash of the policy PDF file."
+        },
+        "policy_txt_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$",
+          "description": "SHA256 hash of the policy txt file."
+        }
+      },
+      "additionalProperties": false,
+      "title": "Certificate Document States",
+      "description": "State of the document processing pipeline for policy and module documents."
+    }
+  },
+  "additionalProperties": false
+}

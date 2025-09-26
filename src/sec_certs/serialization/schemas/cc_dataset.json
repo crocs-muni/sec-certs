@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sec-certs.org/schemas/cc_dataset.json",
+  "title": "CC Dataset",
+  "description": "Schema for a Common Criteria (CC) dataset.",
+  "type": "object",
+  "properties": {
+    "_type": {
+      "const": "sec_certs.dataset.cc.CCDataset"
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "_type": {
+          "const": "sec_certs.dataset.dataset.Dataset.DatasetInternalState"
+        },
+        "meta_sources_parsed": {
+          "type": "boolean"
+        },
+        "artifacts_downloaded": {
+          "type": "boolean"
+        },
+        "pdfs_converted": {
+          "type": "boolean"
+        },
+        "auxiliary_datasets_processed": {
+          "type": "boolean"
+        },
+        "certs_analyzed": {
+          "type": "boolean"
+        }
+      },
+      "title": "Dataset internal state"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Timestamp of the dataset creation"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name of the dataset"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description of the dataset"
+    },
+    "n_certs": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Number of certificates in the dataset"
+    },
+    "certs": {
+      "type": "array",
+      "items": {
+        "$ref": "cc_certificate.json#"
+      },
+      "title": "List of certificates in the dataset"
+    }
+  },
+  "additionalProperties": false
+}

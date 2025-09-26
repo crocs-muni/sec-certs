@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import shutil
 from collections.abc import Generator
 from importlib import resources
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.cc.analysis
@@ -24,6 +26,7 @@ from sec_certs.heuristics.common import compute_related_cves, compute_transitive
 from sec_certs.model.references_nlp.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR
+from sec_certs.serialization.schemas import validator
 
 
 @pytest.fixture(scope="module")
@@ -258,3 +261,19 @@ def test_segment_extractor(reference_dataset: CCDataset):
     df = ReferenceSegmentExtractor()(reference_dataset.certs.values())
     assert df is not None
     assert not df.empty
+
+
+def test_schema_validate(reference_dataset: CCDataset):
+    with TemporaryDirectory() as tmp_dir:
+        single_v = validator("http://sec-certs.org/schemas/cc_certificate.json")
+        for cert in reference_dataset:
+            fname = Path(tmp_dir) / (cert.dgst + ".json")
+            cert.to_json(fname)
+            with fname.open("r") as handle:
+                single_v.validate(json.load(handle))
+
+        dset_v = validator("http://sec-certs.org/schemas/cc_dataset.json")
+        fname = Path(tmp_dir) / "dset.json"
+        reference_dataset.to_json(fname)
+        with fname.open("r") as handle:
+            dset_v.validate(json.load(handle))

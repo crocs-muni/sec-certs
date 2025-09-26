@@ -9,6 +9,7 @@ from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.serialization.schemas import validator
 from sec_certs.utils import helpers
 
 
@@ -166,3 +167,19 @@ def test_to_pandas(toy_dataset: CCDataset):
     assert df.shape == (len(toy_dataset), len(CCCertificate.pandas_columns))
     assert df.index.name == "dgst"
     assert set(df.columns) == (set(CCCertificate.pandas_columns).union({"year_from"})) - {"dgst"}
+
+
+def test_schema_validate(toy_dataset: CCDataset):
+    with TemporaryDirectory() as tmp_dir:
+        single_v = validator("http://sec-certs.org/schemas/cc_certificate.json")
+        for cert in toy_dataset:
+            fname = Path(tmp_dir) / (cert.dgst + ".json")
+            cert.to_json(fname)
+            with fname.open("r") as handle:
+                single_v.validate(json.load(handle))
+
+        dset_v = validator("http://sec-certs.org/schemas/cc_dataset.json")
+        fname = Path(tmp_dir) / "dset.json"
+        toy_dataset.to_json(fname)
+        with fname.open("r") as handle:
+            dset_v.validate(json.load(handle))
