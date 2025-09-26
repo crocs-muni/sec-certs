@@ -198,7 +198,7 @@
             "Software-Hybrid",
             "Hybrid",
             null
-          ]
+          ],
           "title": "Certified Module Type",
           "description": "The type of the certified module."
         },
