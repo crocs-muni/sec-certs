@@ -216,7 +216,8 @@
           "enum": [
             "active",
             "historical",
-            "revoked"
+            "revoked",
+            null
           ],
           "title": "Certificate Status",
           "description": "The current status of the certificate."
