@@ -20,9 +20,10 @@ with fips.open_resource("resources/reference_types.json") as f:
 
 def latest_run() -> bson.ObjectId:
     """Get the latest FIPS processing run ID."""
-    return mongo.db.fips_log.find_one({"ok": True}, sort=[("end_time", pymongo.DESCENDING)], projection={"_id": 1})[
-        "_id"
-    ]
+    result = mongo.db.fips_log.find_one({"ok": True}, sort=[("end_time", pymongo.DESCENDING)], projection={"_id": 1})
+    if result is not None:
+        return result["_id"]
+    return None
 
 
 @cache.cached(timeout=3600, make_cache_key=lambda: "fips_references/" + str(latest_run()))

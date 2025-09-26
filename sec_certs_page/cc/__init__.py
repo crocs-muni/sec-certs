@@ -28,7 +28,10 @@ with cc.open_resource("resources/schemes.json") as f:
 
 def latest_run() -> bson.ObjectId:
     """Get the latest CC processing run ID."""
-    return mongo.db.cc_log.find_one({"ok": True}, sort=[("end_time", pymongo.DESCENDING)], projection={"_id": 1})["_id"]
+    result = mongo.db.cc_log.find_one({"ok": True}, sort=[("end_time", pymongo.DESCENDING)], projection={"_id": 1})
+    if result is None:
+        raise RuntimeError("No successful CC processing run found in cc_log.")
+    return result["_id"]
 
 
 @cache.cached(timeout=3600, make_cache_key=lambda: "cc_references/" + str(latest_run()))
