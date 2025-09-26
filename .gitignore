@@ -13,3 +13,6 @@ __pycache__/
 
 /instance/
 /sec_certs_page/static/gen/
+
+# Test files
+test_*.py

@@ -41,6 +41,10 @@ class PasswordResetForm(FlaskForm):
     ])
 
 
+class MagicLinkForm(FlaskForm):
+    email = EmailField("email", [validators.DataRequired(), validators.Email()])
+
+
 class ConfigEditForm(FlaskForm):
     key = StringField("key", [validators.DataRequired()])
     value = StringField("value")

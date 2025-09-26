@@ -134,6 +134,19 @@ class User(UserMixin):
         return token
 
     @staticmethod
+    def generate_magic_link_token(user_id: str) -> str:
+        """Generate magic link login token"""
+        token = secrets.token_urlsafe(32)
+        mongo.db.email_tokens.insert_one({
+            "token": token,
+            "user_id": user_id,
+            "type": "magic_link",
+            "expires_at": datetime.utcnow() + timedelta(minutes=15),
+            "created_at": datetime.utcnow()
+        })
+        return token
+
+    @staticmethod
     def verify_token(token: str, token_type: str) -> str:
         """Verify token and return user_id if valid"""
         doc = mongo.db.email_tokens.find_one({

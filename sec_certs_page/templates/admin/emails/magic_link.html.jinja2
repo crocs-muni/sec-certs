@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Login Link - sec-certs</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #0d6efd;">Secure Login Link</h2>
+        
+        <p>Hello {{ user.username }},</p>
+        
+        <p>You requested a secure login link for your sec-certs account. Click the button below to log in:</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ login_url }}" style="background-color: #0d6efd; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Log In to sec-certs</a>
+        </div>
+        
+        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p style="word-break: break-all; color: #0d6efd;">{{ login_url }}</p>
+        
+        <p><strong>Important:</strong> This login link will expire in 15 minutes for security reasons.</p>
+        
+        <p>If you did not request this login link, please ignore this email and consider changing your password.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        
+        <p style="font-size: 12px; color: #666;">
+            This email was sent by sec-certs. If you have any questions, please contact our support team.
+        </p>
+    </div>
+</body>
+</html>

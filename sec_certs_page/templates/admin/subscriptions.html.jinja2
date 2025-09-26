@@ -1,0 +1,156 @@
+{% extends "common/base.html.jinja2" %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>My Subscriptions</h3>
+                        <a href="{{ url_for('.profile') }}" class="btn btn-outline-secondary">Back to Profile</a>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Manage your notification subscriptions for certificate updates. As a registered user, you can subscribe to certificates without email confirmation.</p>
+                        
+                        {% if cert_subscriptions or new_cert_subscription %}
+                            <h5>Active Subscriptions</h5>
+                            
+                            {% if new_cert_subscription %}
+                                <div class="alert alert-info d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>New Certificates</strong><br>
+                                        <small class="text-muted">You'll receive notifications when new certificates are published</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="unsubscribe('{{ new_cert_subscription._id }}', 'New Certificates')">
+                                        Unsubscribe
+                                    </button>
+                                </div>
+                            {% endif %}
+                            
+                            {% if cert_subscriptions %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Certificate</th>
+                                                <th>Type</th>
+                                                <th>Updates</th>
+                                                <th>Subscribed</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for sub in cert_subscriptions %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="{{ url_for(sub.certificate.type + '.cert', hashid=sub.certificate.hashid) }}" 
+                                                           class="text-decoration-none">
+                                                            {{ sub.certificate.name }}
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-{% if sub.certificate.type == 'cc' %}primary{% else %}info{% endif %}">
+                                                            {{ sub.certificate.type.upper() }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        {% if sub.updates == 'vuln' %}
+                                                            <span class="badge bg-warning">Vulnerabilities Only</span>
+                                                        {% else %}
+                                                            <span class="badge bg-success">All Updates</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <small class="text-muted">{{ sub.timestamp.strftime('%Y-%m-%d') }}</small>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-danger" 
+                                                                onclick="unsubscribe('{{ sub._id }}', '{{ sub.certificate.name }}')">
+                                                            Unsubscribe
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-envelope fa-3x text-muted mb-3"></i>
+                                <h5>No Active Subscriptions</h5>
+                                <p class="text-muted">You don't have any active subscriptions yet.</p>
+                                <p class="text-muted">Browse certificates and click the <i class="fas fa-envelope"></i> button to subscribe to updates.</p>
+                                <div class="mt-3">
+                                    <a href="{{ url_for('cc.merged_search') }}" class="btn btn-outline-primary me-2">Browse CC Certificates</a>
+                                    <a href="{{ url_for('fips.merged_search') }}" class="btn btn-outline-info">Browse FIPS Certificates</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <h5>Quick Subscribe</h5>
+                        <p class="text-muted">Subscribe to notifications about new certificates:</p>
+                        <button class="btn btn-primary" onclick="subscribeToNew()">
+                            <i class="fas fa-plus"></i> Subscribe to New Certificates
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function unsubscribe(subscriptionId, name) {
+            if (!confirm(`Are you sure you want to unsubscribe from "${name}"?`)) {
+                return;
+            }
+            
+            fetch(`{{ url_for('.unsubscribe', subscription_id='PLACEHOLDER') }}`.replace('PLACEHOLDER', subscriptionId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'OK') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            });
+        }
+        
+        function subscribeToNew() {
+            fetch('{{ url_for('.quick_subscribe') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    selected: [null],
+                    updates: 'new'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'OK') {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            });
+        }
+    </script>
+{% endblock %}
