@@ -287,10 +287,24 @@
 
           
 
-                {% if is_admin() %}
-                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4 nav-button"
-                       role="button"><i
-                            class="fa fa-user"></i> Admin</a>
+                {% if current_user.is_authenticated %}
+                    {% if is_admin() %}
+                        <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4 nav-button me-2"
+                           role="button"><i class="fa fa-cog"></i> Admin</a>
+                    {% endif %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-user"></i> {{ current_user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('admin.profile') }}"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('admin.logout') }}"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for("admin.login") }}" class="btn btn-outline-light px-4 nav-button"
+                       role="button"><i class="fa fa-sign-in-alt"></i> Login</a>
                 {% endif %}
 
                 <a class="mx-3" href="https://github.com/crocs-muni/sec-certs" target="_blank">
@@ -386,9 +400,11 @@
                                     </p>
                                     <p><a href="{{ url_for('about.privacy_policy') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy policy</a></p>
                                     {% if current_user.is_authenticated %}
+                                        <p><a href="{{ url_for('admin.profile') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Profile</a></p>
                                         <p><a href="{{ url_for('admin.logout') }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Logout</a></p>
                                     {% else %}
-                                        <p><a href="{{ url_for('admin.login') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Admin login</a></p>
+                                        <p><a href="{{ url_for('admin.login') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Login</a></p>
+                                        <p><a href="{{ url_for('admin.register') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Create Account</a></p>
                                     {% endif %}
                                 </div>
                             

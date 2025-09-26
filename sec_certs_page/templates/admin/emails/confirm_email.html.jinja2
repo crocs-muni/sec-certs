@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Confirm your email - sec-certs</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #0d6efd;">Welcome to sec-certs!</h2>
+        
+        <p>Hello {{ user.username }},</p>
+        
+        <p>Thank you for creating an account with sec-certs. To complete your registration and activate your account, please confirm your email address by clicking the button below:</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ confirmation_url }}" style="background-color: #0d6efd; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Confirm Email Address</a>
+        </div>
+        
+        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p style="word-break: break-all; color: #0d6efd;">{{ confirmation_url }}</p>
+        
+        <p>This confirmation link will expire in 24 hours for security reasons.</p>
+        
+        <p>If you did not create an account with sec-certs, please ignore this email.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        
+        <p style="font-size: 12px; color: #666;">
+            This email was sent by sec-certs. If you have any questions, please contact our support team.
+        </p>
+    </div>
+</body>
+</html>
