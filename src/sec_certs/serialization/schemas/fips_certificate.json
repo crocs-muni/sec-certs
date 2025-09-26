@@ -374,12 +374,12 @@
           "const": "sec_certs.sample.fips.FIPSCertificate.PdfData"
         },
         "keywords": {
-          "$ref": "/schemas/base.json#/definitions/document_keywords",
+          "$ref": "base.json#/definitions/document_keywords",
           "title": "Security Policy Keywords",
           "description": "Keywords extracted from the security policy document."
         },
         "policy_metadata": {
-          "$ref": "/schemas/base.json#/definitions/document_metadata",
+          "$ref": "base.json#/definitions/document_metadata",
           "title": "Security Policy Metadata",
           "description": "Metadata extracted from the security policy document."
         }
@@ -408,16 +408,16 @@
           }
         },
         "extracted_versions": {
-          "$ref": "/schemas/base.json#/definitions/extracted_versions"
+          "$ref": "base.json#/definitions/extracted_versions"
         },
         "cpe_matches": {
-          "$ref": "/schemas/base.json#/definitions/cpe_matches"
+          "$ref": "base.json#/definitions/cpe_matches"
         },
         "verified_cpe_matches": {
-          "$ref": "/schemas/base.json#/definitions/verified_cpe_matches"
+          "$ref": "base.json#/definitions/verified_cpe_matches"
         },
         "related_cves": {
-          "$ref": "/schemas/base.json#/definitions/related_cves"
+          "$ref": "base.json#/definitions/related_cves"
         },
         "policy_prunned_references": {
           "type": "object",
@@ -458,10 +458,10 @@
           "description": "References to and from other certificates, based on the module page."
         },
         "direct_transitive_cves": {
-          "$ref": "/schemas/base.json#/definitions/direct_transitive_cves"
+          "$ref": "base.json#/definitions/direct_transitive_cves"
         },
         "indirect_transitive_cves": {
-          "$ref": "/schemas/base.json#/definitions/indirect_transitive_cves"
+          "$ref": "base.json#/definitions/indirect_transitive_cves"
         }
       },
       "additionalProperties": false,

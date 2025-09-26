@@ -53,7 +53,7 @@
     "certs": {
       "type": "array",
       "items": {
-        "$ref": "/schemas/fips_certificate.json#"
+        "$ref": "fips_certificate.json#"
       },
       "title": "List of certificates in the dataset"
     }

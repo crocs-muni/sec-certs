@@ -425,7 +425,7 @@
       "description": "The security levels associated with the certificate."
     },
     "dgst": {
-      "$ref": "/schemas/base.json#/definitions/dgst"
+      "$ref": "base.json#/definitions/dgst"
     },
     "heuristics": {
       "type": "object",
@@ -459,19 +459,19 @@
           "description": "The lab/scheme that issued the certificate."
         },
         "cpe_matches": {
-          "$ref": "/schemas/base.json#/definitions/cpe_matches"
+          "$ref": "base.json#/definitions/cpe_matches"
         },
         "verified_cpe_matches": {
-          "$ref": "/schemas/base.json#/definitions/verified_cpe_matches"
+          "$ref": "base.json#/definitions/verified_cpe_matches"
         },
         "related_cves": {
-          "$ref": "/schemas/base.json#/definitions/related_cves"
+          "$ref": "base.json#/definitions/related_cves"
         },
         "direct_transitive_cves": {
-          "$ref": "/schemas/base.json#/definitions/direct_transitive_cves"
+          "$ref": "base.json#/definitions/direct_transitive_cves"
         },
         "indirect_transitive_cves": {
-          "$ref": "/schemas/base.json#/definitions/indirect_transitive_cves"
+          "$ref": "base.json#/definitions/indirect_transitive_cves"
         },
         "extracted_sars": {
           "type": [
@@ -494,7 +494,7 @@
           "description": "Security Assurance Requirements (SARs) extracted from the certification documents."
         },
         "extracted_versions": {
-          "$ref": "/schemas/base.json#/definitions/extracted_versions"
+          "$ref": "base.json#/definitions/extracted_versions"
         },
         "prev_certificates": {
           "type": [
@@ -549,7 +549,7 @@
             "elements": {
               "type": "array",
               "items": {
-                "$ref": "/schemas/base.json#/definitions/dgst"
+                "$ref": "base.json#/definitions/dgst"
               },
               "uniqueItems": true
             }
@@ -586,22 +586,22 @@
           "const": "sec_certs.sample.cc.CCCertificate.PdfData"
         },
         "report_metadata": {
-          "$ref": "/schemas/base.json#/definitions/document_metadata",
+          "$ref": "base.json#/definitions/document_metadata",
           "title": "Report Metadata",
           "description": "Metadata extracted from the certification report PDF document file."
         },
         "st_metadata": {
-          "$ref": "/schemas/base.json#/definitions/document_metadata",
+          "$ref": "base.json#/definitions/document_metadata",
           "title": "ST Metadata",
           "description": "Metadata extracted from the security target PDF document file."
         },
         "report_keywords": {
-          "$ref": "/schemas/base.json#/definitions/document_keywords",
+          "$ref": "base.json#/definitions/document_keywords",
           "title": "Report Keywords",
           "description": "Keywords extracted from the certification report document."
         },
         "st_keywords": {
-          "$ref": "/schemas/base.json#/definitions/document_keywords",
+          "$ref": "base.json#/definitions/document_keywords",
           "title": "ST Keywords",
           "description": "Keywords extracted from the security target document."
         }
