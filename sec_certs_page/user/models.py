@@ -1,5 +1,5 @@
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import secrets
 
 from flask_login import UserMixin, current_user
@@ -22,7 +22,7 @@ class User(UserMixin):
         self.email = email
         self.roles = roles
         self.email_confirmed = email_confirmed
-        self.created_at = created_at or datetime.utcnow()
+        self.created_at = created_at
         self.github_id = github_id
 
     def check_password(self, password):
@@ -118,8 +118,9 @@ class User(UserMixin):
         if roles is None:
             roles = []
         
+        from sec_certs_page.user.views import UserExistsError
         if User.get(username) or User.get_by_email(email):
-            raise ValueError("User with this username or email already exists")
+            raise UserExistsError("User with this username or email already exists")
         
         user = User(
             username=username,

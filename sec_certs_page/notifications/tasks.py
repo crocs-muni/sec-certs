@@ -55,3 +55,19 @@ def cleanup_subscriptions():  # pragma: no cover
     old = datetime.now() - timedelta(days=7)
     res = mongo.db.subs.delete_many({"confirmed": False, "timestamp": {"$lt": old}})
     cleanup_subscriptions.logger.info(f"Deleted {res.deleted_count} subscriptions older than 7 days.")
+
+
+@dramatiq.actor
+def send_user_email(to_email, subject, template, context):
+    """Send user-related emails asynchronously."""
+    from flask import current_app, render_template
+    from .. import mail
+    
+    with current_app.app_context():
+        msg = Message(
+            subject=subject,
+            recipients=[to_email],
+            html=render_template(template, **context),
+            sender=current_app.config["MAIL_DEFAULT_SENDER"]
+        )
+        mail.send(msg)
