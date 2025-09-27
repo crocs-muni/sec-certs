@@ -29,7 +29,7 @@ The app uses the following collections:
 
 ## User Account Schema
 
-The `users` collection has been extended with comprehensive user account functionality:
+The `users` collection stores user account information:
 
 ```javascript
 {
@@ -37,27 +37,23 @@ The `users` collection has been extended with comprehensive user account functio
   username: String,          // Unique username
   email: String,             // User email address
   pwhash: String,           // Password hash (empty string for OAuth-only users)
-  role: String,             // "admin" for administrators, undefined for regular users
-  
-  // Email confirmation
-  email_confirmed: Boolean,      // Whether email is confirmed
-  email_confirmed_at: Date,      // When email was confirmed
-  confirmation_token: String,    // Email confirmation token (24h expiry)
-  confirmation_expires: Date,    // Token expiry time
-  
-  // Password reset
-  reset_token: String,           // Password reset token (1h expiry)
-  reset_expires: Date,           // Token expiry time
-  
-  // Magic link authentication
-  magic_token: String,           // Magic link login token (15min expiry)
-  magic_expires: Date,           // Token expiry time
-  
-  // GitHub OAuth integration
-  github_id: String,             // GitHub user ID
-  github_username: String,       // GitHub username
-  
-  // Timestamps
+  roles: Array,             // Array of roles ["admin"] for administrators, [] for regular users
+  email_confirmed: Boolean, // Whether email is confirmed
+  created_at: Date,         // Account creation timestamp
+  github_id: String         // GitHub user ID (optional)
+}
+```
+
+The `email_tokens` collection stores temporary tokens for email-based operations:
+
+```javascript
+{
+  _id: ObjectId,
+  token: String,            // URL-safe token
+  user_id: String,          // Username of token owner
+  type: String,             // "email_confirmation", "password_reset", or "magic_link"
+  expires_at: Date,         // Token expiry time
+  created_at: Date          // Token creation timestamp
   created_at: Date,              // Account creation time
   last_login: Date               // Last login timestamp
 }
