@@ -5,16 +5,16 @@ from bson import ObjectId
 from flask import abort, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 from flask_dance.contrib.github import github
 from flask_login import current_user, login_required, login_user, logout_user
-from flask_mail import Message
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 
-from .. import app, mail, mongo
+from .. import app, mongo
 from ..common.permissions import admin_permission
 from ..common.views import register_breadcrumb
 from ..notifications.utils import derive_token
 from . import user
 from .forms import LoginForm, MagicLinkForm, PasswordResetForm, PasswordResetRequestForm, RegisterForm
 from .models import User, UserExistsError
+from .tasks import send_confirmation_email, send_magic_link_email, send_password_reset_email
 
 
 @user.route("/login", methods=["GET", "POST"])
@@ -61,34 +61,12 @@ def register():
             new_user = User.create(
                 username=form.username.data, email=form.email.data, password=form.password.data, roles=[]
             )
-            # Send confirmation email
-            token = User.generate_confirmation_token(new_user.username)
-            confirmation_url = url_for("user.confirm_email", token=token, _external=True)
-
-            msg = Message(
-                subject="Confirm your email - sec-certs",
-                recipients=[new_user.email],
-                html=render_template(
-                    "user/emails/confirm_email.html.jinja2", user=new_user, confirmation_url=confirmation_url
-                ),
-                sender=current_app.config.get("MAIL_DEFAULT_SENDER"),
-            )
-
-            # Send confirmation email asynchronously
-            from sec_certs_page.notifications.tasks import send_user_email
-
-            send_user_email.send(
-                new_user.email,
-                "Confirm Your Account",
-                "user/emails/confirm_email.html.jinja2",
-                {"user": new_user, "token": User.generate_confirmation_token(new_user.username)},
-            )
+            send_confirmation_email.send(new_user.username)
             flash("Registration successful! Please check your email to confirm your account.", "success")
             return redirect(url_for("user.login"))
         except UserExistsError:
             flash("A user with that username or email already exists.", "error")
         except Exception as e:
-            current_app.logger.error(f"Registration failed: {e}")
             raise
 
     return render_template("user/register.html.jinja2", form=form)
@@ -115,23 +93,9 @@ def forgot_password():
 
     form = PasswordResetRequestForm()
     if form.validate_on_submit():
-        user_obj = User.get_by_email(form.email.data)
-        if user_obj:
-            token = User.generate_password_reset_token(user_obj.username)
-            reset_url = url_for("user.reset_password", token=token, _external=True)
-
-            msg = Message(
-                subject="Password Reset - sec-certs",
-                recipients=[user_obj.email],
-                html=render_template("user/emails/reset_password.html.jinja2", user=user_obj, reset_url=reset_url),
-                sender=current_app.config.get("MAIL_DEFAULT_SENDER"),
-            )
-
-            try:
-                mail.send(msg)
-            except Exception as e:
-                pass  # Don't reveal if email exists
-
+        user = User.get_by_email(form.email.data)
+        if user:
+            send_password_reset_email.send(user.username)
         flash("If the email exists in our system, you will receive password reset instructions.", "info")
         return redirect(url_for("user.login"))
 
@@ -139,25 +103,10 @@ def forgot_password():
 
 
 @user.route("/change-password")
+@login_required
 @register_breadcrumb(user, ".change_password", "Change Password")
 def change_password():
-    if not current_user.is_authenticated:
-        return redirect(url_for("user.login"))
-
-    token = User.generate_password_reset_token(current_user.username)
-    reset_url = url_for("user.reset_password", token=token, _external=True)
-
-    msg = Message(
-        subject="Password Reset - sec-certs",
-        recipients=[current_user.email],
-        html=render_template("user/emails/reset_password.html.jinja2", user=current_user, reset_url=reset_url),
-        sender=current_app.config.get("MAIL_DEFAULT_SENDER"),
-    )
-
-    try:
-        mail.send(msg)
-    except Exception as e:
-        pass  # Don't reveal if email exists
+    send_password_reset_email.send(current_user.username)
 
     flash("You will receive password reset instructions.", "info")
     return redirect(url_for("index"))
@@ -194,21 +143,7 @@ def magic_link():
     if form.validate_on_submit():
         user_obj = User.get_by_email(form.email.data)
         if user_obj and user_obj.email_confirmed:
-            token = User.generate_magic_link_token(user_obj.username)
-            login_url = url_for("user.magic_login", token=token, _external=True)
-
-            msg = Message(
-                subject="Login Link - sec-certs",
-                recipients=[user_obj.email],
-                html=render_template("user/emails/magic_link.html.jinja2", user=user_obj, login_url=login_url),
-                sender=current_app.config.get("MAIL_DEFAULT_SENDER"),
-            )
-
-            try:
-                mail.send(msg)
-            except Exception as e:
-                pass  # Don't reveal if email exists
-
+            send_magic_link_email.send(user_obj.username)
         flash("If the email exists and is confirmed, you will receive a login link.", "info")
         return redirect(url_for("user.login"))
 
@@ -457,7 +392,6 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
                 return redirect(url_for("user.login"))
 
         except Exception as e:
-            current_app.logger.error(f"GitHub OAuth error: {e}")
             flash("Authentication failed. Please try again.", "error")
             return redirect(url_for("user.login"))
 
