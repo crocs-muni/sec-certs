@@ -27,12 +27,14 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Member Since:</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-plaintext">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                        {% if user.created_at %}
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">Member Since:</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-plaintext">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                                </div>
                             </div>
-                        </div>
+                        {% endif %}
                         {% if user.github_id %}
                             <div class="row mb-3">
                                 <label class="col-sm-3 col-form-label">GitHub:</label>
@@ -50,7 +52,7 @@
 
                         <h5>Account Actions</h5>
                         <div class="d-flex gap-2 flex-wrap">
-                            <a href="{{ url_for('user.forgot_password') }}" class="btn btn-outline-primary">Change
+                            <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-primary">Change
                                 Password</a>
                             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                                     data-bs-target="#deleteAccountModal">

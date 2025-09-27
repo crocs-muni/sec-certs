@@ -1,6 +1,6 @@
-from typing import List
-from datetime import datetime, timedelta, timezone
 import secrets
+from datetime import datetime, timedelta, timezone
+from typing import List, Optional
 
 from flask_login import UserMixin, current_user
 from flask_principal import RoleNeed, UserNeed, identity_loaded
@@ -13,10 +13,32 @@ def hash_password(password):
     return generate_password_hash(password, method="pbkdf2:sha256:1000")
 
 
+def generate_token(username: str, token_type: str, expires: timedelta):
+    token = secrets.token_urlsafe(32)
+    now = datetime.now(timezone.utc)
+    mongo.db.email_tokens.insert_one(
+        {"token": token, "username": username, "type": token_type, "expires_at": now + expires, "created_at": now}
+    )
+    return token
+
+
+class UserExistsError(Exception):
+    """Raised when a user with the same username or email already exists."""
+
+    pass
+
+
 class User(UserMixin):
-    def __init__(self, username: str, pwhash: str, email: str, roles: List[str], 
-                 email_confirmed: bool = False, created_at: datetime = None,
-                 github_id: str = None):
+    def __init__(
+        self,
+        username: str,
+        pwhash: str,
+        email: str,
+        roles: List[str],
+        email_confirmed: bool = False,
+        created_at: Optional[datetime] = None,
+        github_id: Optional[str] = None,
+    ):
         self.username = username
         self.pwhash = pwhash
         self.email = email
@@ -26,6 +48,8 @@ class User(UserMixin):
         self.github_id = github_id
 
     def check_password(self, password):
+        if self.pwhash is None:
+            return False
         return check_password_hash(self.pwhash, password)
 
     @property
@@ -46,11 +70,7 @@ class User(UserMixin):
 
     def save(self):
         """Save or update user in database"""
-        mongo.db.users.update_one(
-            {"username": self.username},
-            {"$set": self.dict},
-            upsert=True
-        )
+        mongo.db.users.update_one({"username": self.username}, {"$set": self.dict}, upsert=True)
 
     def confirm_email(self):
         """Mark email as confirmed"""
@@ -67,19 +87,23 @@ class User(UserMixin):
         self.github_id = str(github_id)
         self.save()
 
+    def delete(self):
+        """Delete user from database"""
+        mongo.db.users.delete_one({"username": self.username})
+
     @staticmethod
     def get(username):
         doc = mongo.db.users.find_one({"username": username})
         if not doc:
             return None
         return User(
-            doc["username"], 
-            doc["pwhash"], 
-            doc["email"], 
+            doc["username"],
+            doc["pwhash"],
+            doc["email"],
             doc["roles"],
             doc.get("email_confirmed", False),
-            doc.get("created_at", datetime.utcnow()),
-            doc.get("github_id")
+            doc.get("created_at"),
+            doc.get("github_id"),
         )
 
     @staticmethod
@@ -88,13 +112,13 @@ class User(UserMixin):
         if not doc:
             return None
         return User(
-            doc["username"], 
-            doc["pwhash"], 
-            doc["email"], 
+            doc["username"],
+            doc["pwhash"],
+            doc["email"],
             doc["roles"],
             doc.get("email_confirmed", False),
-            doc.get("created_at", datetime.utcnow()),
-            doc.get("github_id")
+            doc.get("created_at"),
+            doc.get("github_id"),
         )
 
     @staticmethod
@@ -103,89 +127,71 @@ class User(UserMixin):
         if not doc:
             return None
         return User(
-            doc["username"], 
-            doc["pwhash"], 
-            doc["email"], 
+            doc["username"],
+            doc["pwhash"],
+            doc["email"],
             doc["roles"],
             doc.get("email_confirmed", False),
-            doc.get("created_at", datetime.utcnow()),
-            doc.get("github_id")
+            doc.get("created_at"),
+            doc.get("github_id"),
         )
 
     @staticmethod
-    def create(username: str, email: str, password: str = None, roles: List[str] = None, github_id: str = None):
+    def create(
+        username: str,
+        email: str,
+        password: Optional[str] = None,
+        roles: Optional[List[str]] = None,
+        github_id: Optional[str] = None,
+    ):
         """Create a new user"""
-        if roles is None:
-            roles = []
-        
-        from sec_certs_page.user.views import UserExistsError
         if User.get(username) or User.get_by_email(email):
             raise UserExistsError("User with this username or email already exists")
-        
+
         user = User(
             username=username,
             pwhash=hash_password(password) if password else "",  # Empty password for OAuth users
             email=email,
-            roles=roles,
+            roles=roles if roles is not None else [],
             email_confirmed=bool(github_id),  # Auto-confirm OAuth users
             created_at=datetime.now(timezone.utc),
-            github_id=github_id
+            github_id=github_id,
         )
         user.save()
         return user
 
     @staticmethod
-    def generate_confirmation_token(user_id: str) -> str:
+    def generate_confirmation_token(username: str) -> str:
         """Generate email confirmation token"""
-        token = secrets.token_urlsafe(32)
-        mongo.db.email_tokens.insert_one({
-            "token": token,
-            "user_id": user_id,
-            "type": "email_confirmation",
-            "expires_at": datetime.now(timezone.utc) + timedelta(hours=24),
-            "created_at": datetime.now(timezone.utc)
-        })
-        return token
+        return generate_token(username, token_type="email_confirmation", expires=timedelta(hours=24))
 
     @staticmethod
-    def generate_password_reset_token(user_id: str) -> str:
+    def generate_password_reset_token(username: str) -> str:
         """Generate password reset token"""
-        token = secrets.token_urlsafe(32)
-        mongo.db.email_tokens.insert_one({
-            "token": token,
-            "user_id": user_id,
-            "type": "password_reset",
-            "expires_at": datetime.now(timezone.utc) + timedelta(hours=1),
-            "created_at": datetime.now(timezone.utc)
-        })
-        return token
+        return generate_token(username, token_type="password_reset", expires=timedelta(hours=1))
 
     @staticmethod
-    def generate_magic_link_token(user_id: str) -> str:
+    def generate_magic_link_token(username: str) -> str:
         """Generate magic link login token"""
-        token = secrets.token_urlsafe(32)
-        mongo.db.email_tokens.insert_one({
-            "token": token,
-            "user_id": user_id,
-            "type": "magic_link",
-            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=15),
-            "created_at": datetime.now(timezone.utc)
-        })
-        return token
+        return generate_token(username, token_type="magic_link", expires=timedelta(minutes=15))
 
     @staticmethod
-    def verify_token(token: str, token_type: str) -> str:
+    def verify_token(token: str, token_type: str) -> Optional["User"]:
         """Verify token and return user_id if valid"""
-        doc = mongo.db.email_tokens.find_one({
-            "token": token,
-            "type": token_type,
-            "expires_at": {"$gt": datetime.now(timezone.utc)}
-        })
+        doc = mongo.db.email_tokens.find_one(
+            {"token": token, "type": token_type, "expires_at": {"$gt": datetime.now(timezone.utc)}}
+        )
         if doc:
-            # Remove token after use
-            mongo.db.email_tokens.delete_one({"_id": doc["_id"]})
-            return doc["user_id"]
+            return User.get(doc["username"])
         return None
+
+    def consume_token(self, token: str, token_type: str):
+        """Consume (delete) a token after use"""
+        mongo.db.email_tokens.delete_one({"username": self.username, "token": token, "type": token_type})
+
+    def clear_tokens(self):
+        """Clear all tokens for this user (e.g. after password change)"""
+        mongo.db.email_tokens.delete_many({"username": self.username})
 
 
 login.user_loader(User.get)

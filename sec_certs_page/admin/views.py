@@ -10,7 +10,6 @@ from ..common.permissions import admin_permission
 from ..common.views import Pagination, register_breadcrumb
 from . import admin
 from .forms import ConfigEditForm
-from .user import User
 
 collections = [
     ("cc", mongo.db.cc_log, mongo.db.cc_diff),
