@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from secrets import token_hex
 
 from flask import abort, current_app, flash, redirect, render_template, request, session, url_for, jsonify
@@ -11,15 +11,13 @@ from ..common.views import register_breadcrumb
 from ..common.permissions import admin_permission
 from ..notifications.utils import derive_token
 from . import user
-from .forms import LoginForm, RegisterForm, PasswordResetRequestForm, PasswordResetForm, MagicLinkForm
+from .forms import LoginForm, RegisterForm, PasswordResetRequestForm, PasswordResetForm, MagicLinkForm, ChangePasswordForm
 from .models import User
+from flask_dance.contrib.github import github
 
-# OAuth support (optional - only if GitHub OAuth is configured)
-try:
-    from flask_dance.contrib.github import github
-    oauth_available = True
-except ImportError:
-    oauth_available = False
+class UserExistsError(Exception):
+    """Raised when a user with the same username or email already exists."""
+    pass
 
 
 @user.route("/login", methods=["GET", "POST"])
@@ -81,16 +79,21 @@ def register():
                 sender=current_app.config.get('MAIL_DEFAULT_SENDER')
             )
             
-            try:
-                mail.send(msg)
-                flash("Registration successful! Please check your email to confirm your account.", "success")
-                return redirect(url_for("user.login"))
-            except Exception as e:
-                flash("Registration successful but email could not be sent. Please contact support.", "warning")
-                return redirect(url_for("user.login"))
-        except ValueError as e:
-            flash(str(e), "error")
-            return render_template("user/register.html.jinja2", form=form)
+            # Send confirmation email asynchronously
+            from sec_certs_page.notifications.tasks import send_user_email
+            send_user_email.send(
+                new_user.email,
+                "Confirm Your Account",
+                "user/emails/confirm_email.html.jinja2",
+                {"user": new_user, "token": User.generate_confirmation_token(new_user.username)}
+            )
+            flash("Registration successful! Please check your email to confirm your account.", "success")
+            return redirect(url_for("user.login"))
+        except UserExistsError:
+            flash("A user with that username or email already exists.", "error")
+        except Exception as e:
+            current_app.logger.error(f"Registration failed: {e}")
+            raise
     
     return render_template("user/register.html.jinja2", form=form)
 
@@ -226,6 +229,22 @@ def magic_login(token):
 @register_breadcrumb(user, ".profile", "Profile")
 def profile():
     return render_template("user/profile.html.jinja2", user=current_user)
+
+
+@user.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    
+    if form.validate_on_submit():
+        if current_user.check_password(form.current_password.data):
+            current_user.set_password(form.new_password.data)
+            flash("Password changed successfully.", "success")
+            return redirect(url_for("user.profile"))
+        else:
+            flash("Current password is incorrect.", "error")
+    
+    return render_template("user/change_password.html.jinja2", form=form)
 
 
 @user.route("/subscriptions")
@@ -371,8 +390,8 @@ if oauth_available:
         if current_user.is_authenticated:
             return redirect(url_for("index"))
         
-        if not current_app.config.get('GITHUB_OAUTH_CLIENT_ID'):
-            flash("GitHub OAuth is not configured.", "error")
+        if not current_app.config.get('GITHUB_OAUTH_ENABLED', False):
+            flash("GitHub OAuth is not enabled.", "error")
             return redirect(url_for("user.login"))
         
         return redirect(url_for("github.login"))

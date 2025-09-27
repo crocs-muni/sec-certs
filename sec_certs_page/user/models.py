@@ -128,7 +128,7 @@ class User(UserMixin):
             email=email,
             roles=roles,
             email_confirmed=bool(github_id),  # Auto-confirm OAuth users
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             github_id=github_id
         )
         user.save()
@@ -142,8 +142,8 @@ class User(UserMixin):
             "token": token,
             "user_id": user_id,
             "type": "email_confirmation",
-            "expires_at": datetime.utcnow() + timedelta(hours=24),
-            "created_at": datetime.utcnow()
+            "expires_at": datetime.now(timezone.utc) + timedelta(hours=24),
+            "created_at": datetime.now(timezone.utc)
         })
         return token
 
@@ -155,8 +155,8 @@ class User(UserMixin):
             "token": token,
             "user_id": user_id,
             "type": "password_reset",
-            "expires_at": datetime.utcnow() + timedelta(hours=1),
-            "created_at": datetime.utcnow()
+            "expires_at": datetime.now(timezone.utc) + timedelta(hours=1),
+            "created_at": datetime.now(timezone.utc)
         })
         return token
 
@@ -168,8 +168,8 @@ class User(UserMixin):
             "token": token,
             "user_id": user_id,
             "type": "magic_link",
-            "expires_at": datetime.utcnow() + timedelta(minutes=15),
-            "created_at": datetime.utcnow()
+            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=15),
+            "created_at": datetime.now(timezone.utc)
         })
         return token
 
@@ -179,7 +179,7 @@ class User(UserMixin):
         doc = mongo.db.email_tokens.find_one({
             "token": token,
             "type": token_type,
-            "expires_at": {"$gt": datetime.utcnow()}
+            "expires_at": {"$gt": datetime.now(timezone.utc)}
         })
         if doc:
             # Remove token after use
