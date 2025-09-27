@@ -1,6 +1,6 @@
 {% extends "common/base.html.jinja2" %}
 {% block content %}
-    <div class="container mt-5">
+    <div class="container my-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
@@ -34,30 +34,32 @@
                             </div>
                         </div>
                         {% if user.github_id %}
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">GitHub:</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-plaintext">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 col-form-label">GitHub:</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-plaintext">
                                     <span class="badge bg-success">
                                         <i class="fab fa-github"></i> Connected
                                     </span>
-                                </p>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
                         {% endif %}
-                        
+
                         <hr>
-                        
+
                         <h5>Account Actions</h5>
                         <div class="d-flex gap-2 flex-wrap">
-                            <a href="{{ url_for('user.forgot_password') }}" class="btn btn-outline-primary">Change Password</a>
-                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <a href="{{ url_for('user.forgot_password') }}" class="btn btn-outline-primary">Change
+                                Password</a>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                    data-bs-target="#deleteAccountModal">
                                 Delete Account
                             </button>
                         </div>
-                        
+
                         <hr>
-                        
+
                         <h5>Subscriptions</h5>
                         <p class="text-muted">Manage your notification subscriptions for certificate updates.</p>
                         <a href="{{ url_for('user.subscriptions') }}" class="btn btn-primary">
@@ -70,7 +72,8 @@
     </div>
 
     <!-- Delete Account Modal -->
-    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

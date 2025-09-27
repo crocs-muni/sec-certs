@@ -1,14 +1,14 @@
 {% extends "common/base.html.jinja2" %}
 {% block content %}
     <div class="signin-wrapper">
+        <img class="mb-4" src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
+             height="100">
         <main class="form-signin">
             <form action="{{ url_for(".register") }}" method="post" name="register">
                 {{ form.hidden_tag() }}
-                <img class="mb-4" src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
-                     height="100">
-                <h1 class="h3 mb-3 fw-normal">Create Account</h1>
+                <h1 class="h3 mb-3 fw-normal">Create account</h1>
 
-                <div class="form-floating">
+                <div class="form-floating my-2">
                     {{ form.username(class_="form-control") }}
                     <label for="username">Username</label>
                     {% if form.username.errors %}
@@ -17,8 +17,8 @@
                         </div>
                     {% endif %}
                 </div>
-                
-                <div class="form-floating">
+
+                <div class="form-floating my-2">
                     {{ form.email(class_="form-control") }}
                     <label for="email">Email</label>
                     {% if form.email.errors %}
@@ -28,7 +28,7 @@
                     {% endif %}
                 </div>
 
-                <div class="form-floating">
+                <div class="form-floating my-2">
                     {{ form.password(class_="form-control") }}
                     <label for="password">Password</label>
                     {% if form.password.errors %}
@@ -38,7 +38,7 @@
                     {% endif %}
                 </div>
 
-                <div class="form-floating">
+                <div class="form-floating my-2">
                     {{ form.password_confirm(class_="form-control") }}
                     <label for="password_confirm">Confirm Password</label>
                     {% if form.password_confirm.errors %}
@@ -48,22 +48,22 @@
                     {% endif %}
                 </div>
 
-                <button class="w-100 btn btn-lg btn-primary" type="submit">Create Account</button>
-                
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Create account</button>
+
                 {% if is_github_oauth_enabled() %}
-                <div class="text-center my-3">
-                    <div class="d-flex align-items-center">
-                        <hr class="flex-grow-1">
-                        <span class="px-3 text-muted">or</span>
-                        <hr class="flex-grow-1">
+                    <div class="text-center my-3">
+                        <div class="d-flex align-items-center">
+                            <hr class="flex-grow-1">
+                            <span class="px-3 text-muted">or</span>
+                            <hr class="flex-grow-1">
+                        </div>
                     </div>
-                </div>
-                
-                <a href="{{ url_for('user.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
-                    <i class="fab fa-github"></i> Sign up with GitHub
-                </a>
+
+                    <a href="{{ url_for('user.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
+                        <i class="fab fa-github"></i> Sign up with GitHub
+                    </a>
                 {% endif %}
-                
+
                 <div class="text-center mt-3">
                     <p>Already have an account? <a href="{{ url_for('user.login') }}">Sign in</a></p>
                 </div>
