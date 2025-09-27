@@ -207,8 +207,8 @@ with app.app_context():
     app.register_blueprint(about)
     app.register_blueprint(chat)
     
-    # Setup GitHub OAuth if available and configured
-    try:
+    # Setup GitHub OAuth if enabled and configured
+    if app.config.get('GITHUB_OAUTH_ENABLED', False):
         from flask_dance.contrib.github import make_github_blueprint
         
         if app.config.get('GITHUB_OAUTH_CLIENT_ID') and app.config.get('GITHUB_OAUTH_CLIENT_SECRET'):
@@ -219,8 +219,6 @@ with app.app_context():
                 redirect_to="user.github_callback"
             )
             app.register_blueprint(github_bp, url_prefix="/auth")
-    except ImportError:
-        pass  # Flask-Dance not installed
 
 from .dashboard import *
 from .jinja import *

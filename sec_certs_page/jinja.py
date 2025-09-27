@@ -164,7 +164,11 @@ def static_hash(filename: str):
 @app.template_global("is_github_oauth_enabled")
 def is_github_oauth_enabled():
     """Check if GitHub OAuth is enabled"""
-    return bool(current_app.config.get('GITHUB_OAUTH_CLIENT_ID') and current_app.config.get('GITHUB_OAUTH_CLIENT_SECRET'))
+    return bool(
+        current_app.config.get('GITHUB_OAUTH_ENABLED', False) and
+        current_app.config.get('GITHUB_OAUTH_CLIENT_ID') and 
+        current_app.config.get('GITHUB_OAUTH_CLIENT_SECRET')
+    )
 
 
 # Make sure each startup clears the cache for static hashes
