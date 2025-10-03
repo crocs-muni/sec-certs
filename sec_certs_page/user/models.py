@@ -1,7 +1,10 @@
+import hashlib
 import secrets
+from binascii import unhexlify
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
+from flask import current_app
 from flask_login import UserMixin, current_user
 from flask_principal import RoleNeed, UserNeed, identity_loaded
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -11,6 +14,20 @@ from .. import app, login, mongo
 
 def hash_password(password):
     return generate_password_hash(password, method="pbkdf2:sha256:1000")
+
+
+def derive_secret(*items: str, digest_size: int = 16) -> bytes:
+    blake = hashlib.blake2b(
+        b"".join(map(lambda x: x.encode("utf-8"), items)),
+        key=unhexlify(current_app.config["SECRET_KEY"]),
+        digest_size=digest_size,
+    )
+    return blake.digest()
+
+
+def derive_token(*items: str, digest_size: int = 16) -> str:
+    secret = derive_secret(*items, digest_size=digest_size)
+    return secret.hex()
 
 
 def generate_token(username: str, token_type: str, expires: timedelta):

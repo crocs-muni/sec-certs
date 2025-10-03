@@ -10,7 +10,6 @@ from flask_principal import AnonymousIdentity, Identity, identity_changed
 from .. import app, mongo
 from ..common.permissions import admin_permission
 from ..common.views import register_breadcrumb
-from ..notifications.utils import derive_token
 from . import user
 from .forms import LoginForm, MagicLinkForm, PasswordResetForm, PasswordResetRequestForm, RegisterForm
 from .models import User, UserExistsError
@@ -176,111 +175,6 @@ def magic_login(token):
 @register_breadcrumb(user, ".profile", "Profile")
 def profile():
     return render_template("user/profile.html.jinja2", user=current_user)
-
-
-@user.route("/subscriptions")
-@login_required
-@register_breadcrumb(user, ".subscriptions", "Subscriptions")
-def subscriptions():
-    """User subscription management page"""
-    # Get user's subscriptions from the notification system
-    user_subscriptions = list(mongo.db.subs.find({"email": current_user.email, "confirmed": True}))
-
-    # Group subscriptions by type
-    cert_subscriptions = [sub for sub in user_subscriptions if sub.get("certificate")]
-    new_cert_subscription = next((sub for sub in user_subscriptions if sub.get("updates") == "new"), None)
-
-    return render_template(
-        "user/subscriptions.html.jinja2",
-        cert_subscriptions=cert_subscriptions,
-        new_cert_subscription=new_cert_subscription,
-    )
-
-
-@user.route("/subscriptions/quick-subscribe", methods=["POST"])
-@login_required
-def quick_subscribe():
-    """Quick subscription for logged-in users without email confirmation"""
-    data = request.json
-    if not data or not isinstance(data, dict):
-        return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
-
-    # Validate required fields
-    required_fields = {"selected", "updates"}
-    if not required_fields.issubset(data.keys()):
-        return jsonify({"error": "Missing required fields.", "status": "NOK"}), 400
-
-    if data["updates"] not in ("vuln", "all", "new"):
-        return jsonify({"error": "Invalid update type.", "status": "NOK"}), 400
-
-    # Validate certificates if provided
-    if data["selected"] and data["updates"] != "new":
-        for cert in data["selected"]:
-            if set(cert.keys()) != {"name", "hashid", "type", "url"}:
-                return jsonify({"error": "Invalid certificate data.", "status": "NOK"}), 400
-            if cert["type"] not in ("fips", "cc"):
-                return jsonify({"error": "Invalid certificate type.", "status": "NOK"}), 400
-            if not mongo.db[cert["type"]].find_one({"_id": cert["hashid"]}):
-                return jsonify({"error": "Certificate not found.", "status": "NOK"}), 400
-            del cert["url"]  # Remove URL before storing
-
-    if data["updates"] == "new":
-        data["selected"] = [None]
-
-    request_time = datetime.now()
-    token = token_hex(16)
-    email_token = derive_token("subscription_email", current_user.email, digest_size=16)
-
-    subscriptions = [
-        {
-            "timestamp": request_time,
-            "updates": data["updates"],
-            "email": current_user.email,
-            "token": token,
-            "email_token": email_token,
-            "certificate": cert,
-            "confirmed": True,  # Auto-confirm for logged-in users
-        }
-        for cert in data["selected"]
-    ]
-
-    # Check for existing subscriptions to avoid duplicates
-    existing_subs = []
-    for sub in subscriptions:
-        if sub["certificate"]:
-            existing = mongo.db.subs.find_one(
-                {"email": current_user.email, "certificate.hashid": sub["certificate"]["hashid"], "confirmed": True}
-            )
-            if not existing:
-                existing_subs.append(sub)
-        else:  # New certificate subscription
-            existing = mongo.db.subs.find_one({"email": current_user.email, "updates": "new", "confirmed": True})
-            if not existing:
-                existing_subs.append(sub)
-
-    if existing_subs:
-        mongo.db.subs.insert_many(existing_subs)
-        return jsonify({"status": "OK", "message": f"Added {len(existing_subs)} new subscriptions."})
-    else:
-        return jsonify({"status": "OK", "message": "No new subscriptions added (already subscribed)."})
-
-
-@user.route("/subscriptions/unsubscribe/<string:subscription_id>", methods=["POST"])
-@login_required
-def unsubscribe(subscription_id):
-    """Remove a specific subscription"""
-    try:
-        obj_id = ObjectId(subscription_id)
-    except:
-        return jsonify({"error": "Invalid subscription ID.", "status": "NOK"}), 400
-
-    # Find and delete the subscription, but only if it belongs to the current user
-    result = mongo.db.subs.delete_one({"_id": obj_id, "email": current_user.email})
-
-    if result.deleted_count > 0:
-        return jsonify({"status": "OK", "message": "Subscription removed successfully."})
-    else:
-        return jsonify({"error": "Subscription not found or not owned by user.", "status": "NOK"}), 404
 
 
 @user.route("/delete-account", methods=["POST"])

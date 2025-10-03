@@ -4,12 +4,12 @@
     <main style="min-height: 60vh">
         <div class="col-10 mx-auto p-3 py-md-5">
             <h1>Manage notification subscriptions</h1>
-            <p class="lead">You can manage your notification subscriptions for <strong>{{ email }}</strong> below.</p>
-            <form action="{{ url_for("notify.manage", email_token=email_token) }}" method="post">
+            <p class="lead">You can manage your notification subscriptions for your user account below.</p>
+            <form action="{{ url_for("notify.manage") }}" method="post">
                 {{ form.hidden_tag() }}
                 <div>
                     <h2>Existing certificates</h2>
-                    {% if form.certificates.entries %}
+                    {% if form.changes.entries %}
                         <table class="table">
                             <thead>
                             <tr>
@@ -19,8 +19,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for sub_form in form.certificates.entries %}
+                            {% for sub_form in form.changes.entries %}
                                 <tr>
+                                    {{ sub_form.certificate_type() }}
                                     {{ sub_form.certificate_hashid() }}
                                     <td>
                                         <div class="form-switch">
@@ -38,19 +39,38 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <p>You have no (confirmed) certificate subscriptions. Add them on the certificate page for them to
-                        show up here.</p>
+                        <p>You have no certificate change subscriptions. Add them on the certificate page for them to
+                            show up here.</p>
                     {% endif %}
                     <h2>New certificates</h2>
-                    <div class="form-check my-3">
-                        {{ form.new(class_="form-check-input") }}
-                        {{ form.new.label(class_="form-check-label") }}
-                    </div>
+                    {% if form.new.entries %}
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Subscribed</th>
+                                <th>Scheme</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sub_form in form.new.entries %}
+                                <tr>
+                                    {{ sub_form.which(class_="d-none") }}
+                                    <td>
+                                        <div class="form-switch">
+                                            {{ sub_form.subscribe(class_="form-check-input") }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ sub_form.label }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>You have no new certificate subscription.</p>
+                    {% endif %}
                 </div>
-                <p class="form-text">
-                    Note that if you unsubscribe from all subscriptions (including new certificates) this management page will not show any
-                    subscriptions, and will not allow you to resubscribe. You will have to resubscribe manually.
-                </p>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>

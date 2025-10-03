@@ -2,7 +2,7 @@ import dramatiq
 from flask import render_template, url_for
 
 from .. import mail
-from ..notifications import Message
+from ..common.mail import Message
 from .models import User
 
 

@@ -6,7 +6,7 @@
     {% endif %}
 {%- endmacro %}
 
-{% macro render_process_state (state, document_type, document_name) %}
+{% macro render_process_state(state, document_type, document_name) %}
     {% if document_type in state %}
         {% set download_ok = state[document_type]["download_ok"] %}
         {% set convert_ok = state[document_type]["convert_ok"] %}
@@ -50,7 +50,8 @@
         </button>
         <ul class="dropdown-menu">
             <li>
-                <a href="#" data-url="{{ url_for('.entry', hashid=hashid, _external=True) }}" class="dropdown-item copy-on-click">
+                <a href="#" data-url="{{ url_for('.entry', hashid=hashid, _external=True) }}"
+                   class="dropdown-item copy-on-click">
                     <span>
                         <i class="fa-regular fa-clipboard"></i> Copy link
                     </span>
@@ -70,7 +71,8 @@
 
             {% if name %}
                 <li>
-                    <a href="#" data-url="{{ url_for('.entry_name', name=name, _external=True) }}" class="dropdown-item copy-on-click">
+                    <a href="#" data-url="{{ url_for('.entry_name', name=name, _external=True) }}"
+                       class="dropdown-item copy-on-click">
                         <span>
                             <i class="fa-regular fa-clipboard"></i> Copy link by certificate name
                         </span>
@@ -79,4 +81,46 @@
             {% endif %}
         </ul>
     </div>
+{% endmacro %}
+
+{% macro notification_icon(user, subscribed) %}
+    <span id="notifications" class="position-relative d-inline-block">
+        <button id="notification-icon" class="btn {% if not subscribed %}btn-secondary{% else %}btn-success disabled{% endif %} text-nowrap"
+                {% if not user.is_authenticated %}title="Login to enable notifications."{% else %}title="Notifications"{% endif %}>
+            {% if subscribed %}
+                <i class="fas fa-fw fa-bell" aria-hidden="true"></i>
+                Subscribed
+            {% else %}
+                <i class="fas fa-fw fa-envelope" aria-hidden="true"></i>
+                Subscribe
+            {% endif %}
+        </button>
+    </span>
+{% endmacro %}
+
+{% macro notification_script(csrf_token) %}
+    <script>
+        $("#notification-icon").click(function () {
+            $.ajax("{{ url_for("notify.subscribe") }}", {
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        "cert": window.certificate_data,
+                        "updates": "all"
+                    }),
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token() }}"
+                    },
+                    success: function (data) {
+                        $("#notification-icon").removeClass("btn-secondary").addClass("btn-success disabled");
+                        $("#notification-icon").html('<i class="fas fa-fw fa-bell" aria-hidden="true"></i> Subscribed');
+                        $("#notification-icon").attr("title", "Notifications");
+                    },
+                    error: function (data) {
+
+                    }
+                }
+            )
+        });
+    </script>
 {% endmacro %}

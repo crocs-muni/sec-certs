@@ -1,8 +1,8 @@
 {% extends "common/base.html.jinja2" %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons %}
-{% from "common/modals.html.jinja2" import compare_icon, notification_icon, chat_icon %}
+{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
+{% from "common/modals.html.jinja2" import compare_icon, chat_icon %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block metadata %}
@@ -83,7 +83,7 @@
 
                         <div class="d-flex gap-3 flex-wrap">
                             {{ compare_icon() }}
-                            {{ notification_icon() }}
+                            {{ notification_icon(current_user, subscribed) }}
                             {{ render_share_buttons(hashid, cert_id=cert["heuristics"]["cert_id"], name=cert["name"]) }}
                         </div>
 
@@ -707,6 +707,7 @@
                 url: "{{ url_for("cc.entry", hashid=hashid) }}"
             };
         </script>
+        {{ notification_script(csrf_token) }}
     </main>
 {% endblock %}
 

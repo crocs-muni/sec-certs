@@ -1,4 +1,4 @@
-{% from "common/modals.html.jinja2" import notification_modal, compare_modal, chat_modal, modal_script with context %}
+{% from "common/modals.html.jinja2" import compare_modal, chat_modal, modal_script with context %}
 <!doctype html>
 <html lang="en">
 
@@ -292,6 +292,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
                             <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('notify.manage') }}"><i class="fa fa-envelope"></i> Subscriptions</a></li>
                             {% if is_admin() %}
                                 <li><a class="dropdown-item" href="{{ url_for("admin.index") }}"><i class="fa fa-cog"></i> Admin</a></li>
                             {% endif %}
@@ -359,7 +360,6 @@
             {% endwith %}
             {% block content %}
             {% endblock %}
-            {{ notification_modal() }}
             {{ compare_modal() }}
             {% if config["CHAT_ENABLED"] %}
             	{{ chat_modal() }}

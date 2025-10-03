@@ -13,8 +13,8 @@ For a full version of this email, look at its HTML part.
 
 To unsubscribe from all notifications:
 
-  {{ url_for("notify.unsubscribe_all", email_token=email_token) }}
+  {{ url_for("notify.unsubscribe_all") }}
 
 To manage notification subscriptions:
 
-  {{ url_for("notify.manage", email_token=email_token) }}
+  {{ url_for("notify.manage") }}

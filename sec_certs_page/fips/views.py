@@ -9,6 +9,7 @@ import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_cachecontrol import cache_for
+from flask_login import current_user
 from markupsafe import Markup
 from networkx import node_link_data
 from periodiq import cron
@@ -449,6 +450,14 @@ def entry(hashid):
             local_files = entry_download_files(
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
             )
+        with sentry_sdk.start_span(op="mongo", description="Find subscription"):
+            if current_user.is_authenticated:
+                subs = mongo.db.subs.find_one(
+                    {"username": current_user.username, "type": "changes", "certificate.hashid": hashid}
+                )
+                subscribed = subs["updates"] if subs else None
+            else:
+                subscribed = None
         with sentry_sdk.start_span(op="network", description="Find network"):
             fips_map = get_fips_references()
             cert_network = fips_map.get(hashid, {})
@@ -467,6 +476,7 @@ def entry(hashid):
             network=cert_network,
             policy_link=constants.FIPS_SP_URL.format(doc["cert_id"]),
             title=f"{name} | sec-certs.org",
+            subscribed=subscribed,
         )
     else:
         return abort(404)

@@ -47,23 +47,6 @@ function update_state_core(type, storage_key, action, enable, enable_callback, s
 }
 
 export function update_state() {
-    update_state_core("notification",
-        "selected_certs_subscription",
-        "subscribe",
-        (len) => true,
-        (selected) => {
-            if (selected !== null && selected.length > 0) {
-                $("#notifications-updates-all").prop("disabled", false).prop("checked", true);
-                $("#notifications-updates-vuln").prop("disabled", false);
-                $("#notifications-updates-new").prop("disabled", true);
-            } else {
-                $("#notifications-updates-all").prop("disabled", true);
-                $("#notifications-updates-vuln").prop("disabled", true);
-                $("#notifications-updates-new").prop("disabled", false).prop("checked", true);
-            }
-        },
-
-        (len) => true);
     update_state_core("compare",
         "selected_certs_comparison",
         "do",
@@ -95,67 +78,6 @@ export function add_current_cert(storage_key, current) {
     }
     localStorage.setItem(storage_key, JSON.stringify(selected));
     update_state();
-}
-
-export function notification_subscribe(event, url, sitekey, csrf_token) {
-    event.preventDefault();
-    let selected = localStorage.getItem("selected_certs_subscription");
-    if (selected === null) {
-        if (!$("#notifications-updates-new").prop("checked")) {
-            $("#notifications-error").text("This should not have happened. Please report a bug and clear your browser's localStorage.").show();
-            return;
-        }
-    } else {
-        selected = JSON.parse(selected);
-    }
-    let form = $("#notifications-form").get(0)
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-    turnstile.render("#notification-turnstile", {
-        "sitekey": sitekey,
-        "response-field": false,
-        "callback": (token) => {
-            let updates;
-            if ($("#notifications-updates-all").prop("checked")) {
-                updates = "all";
-            }
-            if ($("#notifications-updates-vuln").prop("checked")) {
-                updates = "vuln";
-            }
-            if ($("#notifications-updates-new").prop("checked")) {
-                updates = "new";
-            }
-            $.ajax(url, {
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({
-                    "selected": selected,
-                    "email": $("#notifications-email").val(),
-                    "updates": updates,
-                    "captcha": token
-                }),
-                headers: {
-                    "X-CSRFToken": csrf_token
-                },
-                success: function () {
-                    localStorage.removeItem("selected_certs_subscription");
-                    $("#notification-some").hide();
-                    $("#notification-done").show();
-                    $("#notification-subscribe").hide();
-                    $("#notifications-error").hide();
-                },
-                error: function (response) {
-                    try {
-                        $("#notifications-error").text(response.responseJSON.error).show();
-                    } catch (error) {
-                        $("#notifications-error").text("Something went wrong with the subscription request, please try again later").show();
-                    }
-                }
-            })
-        }
-    });
 }
 
 export function compare_do(cc_url, fips_url) {

@@ -37,8 +37,8 @@ from sec_certs.dataset.dataset import Dataset
 from tqdm import tqdm
 
 from .. import mail, mongo, redis, whoosh_index
-from ..notifications.utils import Message
 from .diffs import DiffRenderer
+from .mail import Message
 from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
 from .views import entry_file_path
 from .webui import (
