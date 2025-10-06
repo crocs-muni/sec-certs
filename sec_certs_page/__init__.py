@@ -16,6 +16,7 @@ from dramatiq.middleware import (
 )
 from dramatiq.results import Results
 from dramatiq.results.backends import RedisBackend, StubBackend
+from fakeredis import FakeRedis
 from flask import Flask, abort
 from flask_assets import Environment as Assets
 from flask_caching import Cache
@@ -77,7 +78,11 @@ if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
 
 tool_config.load_from_yaml(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
-mongo: PyMongo = PyMongo(app)
+mongo: PyMongo
+if app.testing:
+    mongo = PyMongo(app, uri="mongodb://localhost:27666/seccerts")
+else:
+    mongo = PyMongo(app)
 public(mongo=mongo)
 
 login: LoginManager = LoginManager(app)
@@ -112,7 +117,11 @@ broker: Broker = (
 broker.set_default()
 public(broker=broker)
 
-redis: FlaskRedis = FlaskRedis(app)
+redis: FlaskRedis
+if app.testing:
+    redis = FlaskRedis.from_custom_provider(FakeRedis, app)
+else:
+    redis = FlaskRedis(app)
 public(redis=redis)
 
 runtime_config: RuntimeConfig = RuntimeConfig(app)

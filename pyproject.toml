@@ -87,6 +87,7 @@ test = [
     "pytest-cov",
     "pytest-mock",
     "pytest-env",
+    "fakeredis[lua]",
 ]
 
 
