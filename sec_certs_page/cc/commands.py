@@ -10,30 +10,34 @@ from tqdm import tqdm
 
 from .. import mongo
 from ..cc.tasks import update_kb as update_kb_core
-from ..common.commands import _create, _drop, _query, _status
+from ..common.mongo import collection_status, create_collection, drop_collection, query_collection
 from . import cc
 
 
 @cc.cli.command("create", help="Create the DB of CC certs.")
 def create():  # pragma: no cover
-    _create("cc", ["name", "heuristics.cert_id"], ["heuristics.related_cves._value", "heuristics.cpe_matches._value"])
+    create_collection(
+        "cc", ["name", "heuristics.cert_id"], ["heuristics.related_cves._value", "heuristics.cpe_matches._value"]
+    )
 
 
 @cc.cli.command("drop", help="Drop the DB of CC certs.")
 def drop():  # pragma: no cover
-    _drop(mongo.db.cc)
+    drop_collection(mongo.db.cc)
 
 
 @cc.cli.command("query", help="Query the MongoDB for certs.")
 @click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
 def query(query, projection):  # pragma: no cover
-    _query(query, projection, mongo.db.cc)
+    docs = query_collection(query, projection, mongo.db.cc)
+    for doc in docs:
+        print(json.dumps(doc, indent=2))
 
 
 @cc.cli.command("status", help="Print status information for the MongoDB collection.")
 def status():  # pragma: no cover
-    _status(mongo.db.cc)
+    collection_status(mongo.db.cc)
 
 
 @cc.cli.command("import-map", help="Import old CC dataset to create URL mapping.")

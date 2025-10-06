@@ -12,7 +12,7 @@ from sec_certs.sample.fips_mip import MIPSnapshot
 from tqdm import tqdm
 
 from .. import mongo
-from ..common.commands import _create, _drop, _query, _status
+from ..common.mongo import collection_status, create_collection, drop_collection, query_collection
 from ..common.objformats import ObjFormat
 from . import fips
 from .tasks import update_kb as update_kb_core
@@ -20,26 +20,28 @@ from .tasks import update_kb as update_kb_core
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")
 def create():  # pragma: no cover
-    _create(
+    create_collection(
         "fips", ["web_data.module_name"], ["cert_id", "heuristics.related_cves._value", "heuristics.cpe_matches._value"]
     )
 
 
 @fips.cli.command("drop", help="Drop the DB of FIPS 140 certs.")
 def drop():  # pragma: no cover
-    _drop(mongo.db.fips)
+    drop_collection(mongo.db.fips)
 
 
 @fips.cli.command("query", help="Query the MongoDB for certs.")
 @click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
 def query(query, projection):  # pragma: no cover
-    _query(query, projection, mongo.db.fips)
+    docs = query_collection(query, projection, mongo.db.fips)
+    for doc in docs:
+        print(json.dumps(doc, indent=2))
 
 
 @fips.cli.command("status", help="Print status information for the MongoDB collection.")
 def status():  # pragma: no cover
-    _status(mongo.db.fips)
+    collection_status(mongo.db.fips)
 
 
 @fips.cli.command("import-map", help="Import old FIPS dataset to create URL mapping.")
