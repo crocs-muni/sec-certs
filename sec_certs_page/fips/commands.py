@@ -12,29 +12,30 @@ from sec_certs.sample.fips_mip import MIPSnapshot
 from tqdm import tqdm
 
 from .. import mongo
-from ..common.mongo import collection_status, create_collection, drop_collection, query_collection
+from ..common.mongo import collection_status
 from ..common.objformats import ObjFormat
 from . import fips
+from .mongo import create as create_collection
+from .mongo import drop as drop_collection
+from .mongo import query as query_collection
 from .tasks import update_kb as update_kb_core
 
 
 @fips.cli.command("create", help="Create the DB of FIPS 140 certs.")
 def create():  # pragma: no cover
-    create_collection(
-        "fips", ["web_data.module_name"], ["cert_id", "heuristics.related_cves._value", "heuristics.cpe_matches._value"]
-    )
+    create_collection()
 
 
 @fips.cli.command("drop", help="Drop the DB of FIPS 140 certs.")
 def drop():  # pragma: no cover
-    drop_collection(mongo.db.fips)
+    drop_collection()
 
 
 @fips.cli.command("query", help="Query the MongoDB for certs.")
 @click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
 def query(query, projection):  # pragma: no cover
-    docs = query_collection(query, projection, mongo.db.fips)
+    docs = query_collection(query, projection)
     for doc in docs:
         print(json.dumps(doc, indent=2))
 

@@ -9,28 +9,29 @@ from sec_certs.utils.sanitization import sanitize_link, sanitize_string
 from tqdm import tqdm
 
 from .. import mongo
-from ..cc.tasks import update_kb as update_kb_core
-from ..common.mongo import collection_status, create_collection, drop_collection, query_collection
+from ..common.mongo import collection_status
 from . import cc
+from .mongo import create as create_collection
+from .mongo import drop as drop_collection
+from .mongo import query as query_collection
+from .tasks import update_kb as update_kb_core
 
 
 @cc.cli.command("create", help="Create the DB of CC certs.")
 def create():  # pragma: no cover
-    create_collection(
-        "cc", ["name", "heuristics.cert_id"], ["heuristics.related_cves._value", "heuristics.cpe_matches._value"]
-    )
+    create_collection()
 
 
 @cc.cli.command("drop", help="Drop the DB of CC certs.")
 def drop():  # pragma: no cover
-    drop_collection(mongo.db.cc)
+    drop_collection()
 
 
 @cc.cli.command("query", help="Query the MongoDB for certs.")
 @click.option("-p", "--projection", type=json.loads, help="Projection to use with the query.")
 @click.argument("query", type=json.loads)
 def query(query, projection):  # pragma: no cover
-    docs = query_collection(query, projection, mongo.db.cc)
+    docs = query_collection(query, projection)
     for doc in docs:
         print(json.dumps(doc, indent=2))
 
