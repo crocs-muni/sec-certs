@@ -5,6 +5,7 @@ SECRET_KEY = "some proper randomness here"
 SESSION_PROTECTION = "strong"
 PREFERRED_URL_SCHEME = "https"
 SERVER_NAME = "localhost:5000"
+WTF_CSRF_SSL_STRICT = False
 
 # Sentry
 # SENTRY_INGEST is the URL of your Sentry ingest endpoint.
@@ -14,8 +15,8 @@ SENTRY_ERROR_SAMPLE_RATE = 1.0
 SENTRY_TRACES_SAMPLE_RATE = 1.0
 
 # Turnstile
-TURNSTILE_SITEKEY = ""
-TURNSTILE_SECRET = ""
+TURNSTILE_SITEKEY = "1x00000000000000000000BB"
+TURNSTILE_SECRET = "1x0000000000000000000000000000000AA"
 
 # Email
 MAIL_SERVER = "mail.example.com"  # The outgoing SMTP server to use
@@ -52,7 +53,7 @@ WEBUI_COLLECTION_PP_REPORTS = (
 WEBUI_COLLECTION_PP_TARGETS = ""  # The ID of the knowledge base of Common Criteria Protection Profile security targets
 
 # MongoDB
-MONGO_URI = "mongodb://localhost:27017/seccerts"
+MONGO_URI = "mongodb://localhost:27666/seccerts"
 
 # Redis (for Flask-Redis, dramatiq and Flask-Caching)
 # Redis databases are split up like this:
@@ -76,7 +77,7 @@ X_ACCEL_REDIRECT_PATH = ""
 # WHOOSH
 WHOOSH_INDEX_PATH = "search"
 
-DOCS_AUTH_TOKEN = ""
+DOCS_AUTH_TOKEN = "12345678"
 
 # The way the Common Criteria certificate reference graphs are built.
 # Can be "BOTH" to collect the references from both certificate documents and security targets,
