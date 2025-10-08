@@ -1,7 +1,7 @@
 # A Flask SECRET_KEY used for sensitive operations (like signing session cookies),
 # needs to be properly random.
 # For example the output of "openssl rand -hex 32" or "python -c 'import os; print(os.urandom(16))'"
-SECRET_KEY = "some proper randomness here"
+SECRET_KEY = "cafebabe1234567890deadbeefcafebabe"
 SESSION_PROTECTION = "strong"
 PREFERRED_URL_SCHEME = "https"
 SERVER_NAME = "localhost:5000"
