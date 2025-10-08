@@ -42,4 +42,10 @@ jobs:
           python -m spacy download en_core_web_sm
       - name: Run tests
         run: |
-          pytest --cov sec_certs_page tests
+          pytest --cov sec_certs_page --junitxml=junit.xml -o junit_family=legacy tests
+      - name: Test summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: junit.xml
+          show: "fail, skip"
