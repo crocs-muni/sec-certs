@@ -79,11 +79,7 @@ if not app.testing and app.config["SENTRY_INGEST"]:  # pragma: no cover
 
 tool_config.load_from_yaml(Path(app.instance_path) / app.config["TOOL_SETTINGS_PATH"])
 
-mongo: PyMongo
-if app.testing:
-    mongo = PyMongo(app, uri="mongodb://localhost:27666/seccerts")
-else:
-    mongo = PyMongo(app)
+mongo: PyMongo = PyMongo(app)
 public(mongo=mongo)
 
 login: LoginManager = LoginManager(app)
