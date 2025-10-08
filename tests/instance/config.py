@@ -64,7 +64,8 @@ REDIS_BASE = "redis://localhost:6379/"
 REDIS_URL = REDIS_BASE + "0"
 
 # dramatiq
-DRAMATIQ_BROKER_URL = REDIS_BASE + "1"
+# Not for testing, it is stubbed out.
+# DRAMATIQ_BROKER_URL = REDIS_BASE + "1"
 
 # Cache
 CACHE_TYPE = "RedisCache"
