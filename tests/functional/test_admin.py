@@ -14,7 +14,9 @@ def admin(app):
     email = "example@example.com"
     roles = ["admin"]
     pwhash = hash_password(password)
-    user = User(username, pwhash, email, roles)
+    user = User(
+        username, pwhash, email, roles, email_confirmed=True, created_at=datetime.now(timezone.utc), github_id=None
+    )
     res = mongo.db.users.insert_one(user.dict)
     yield user, password
     mongo.db.users.delete_one({"_id": res.inserted_id})
@@ -25,7 +27,7 @@ def logged_in_client(client: FlaskClient, admin, mocker):
     user, password = admin
     mocker.patch("flask_wtf.csrf.validate_csrf")
     with client.post(
-        "/admin/login",
+        "/user/login",
         data={"username": user.username, "password": password, "remember_me": True},
         follow_redirects=True,
     ):
@@ -36,11 +38,11 @@ def test_login(client: FlaskClient, admin, mocker):
     user, password = admin
     mocker.patch("flask_wtf.csrf.validate_csrf")
 
-    resp = client.get("/admin/login")
+    resp = client.get("/user/login")
     assert resp.status_code == 200
 
     resp = client.post(
-        "/admin/login",
+        "/user/login",
         data={"username": user.username, "password": password, "remember_me": True},
         follow_redirects=True,
     )
@@ -48,7 +50,7 @@ def test_login(client: FlaskClient, admin, mocker):
 
 
 def test_logout(logged_in_client):
-    resp = logged_in_client.get("/admin/logout", follow_redirects=True)
+    resp = logged_in_client.get("/user/logout", follow_redirects=True)
     assert resp.status_code == 200
 
 
