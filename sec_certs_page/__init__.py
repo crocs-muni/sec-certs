@@ -16,6 +16,7 @@ from dramatiq.middleware import (
 )
 from dramatiq.results import Results
 from dramatiq.results.backends import RedisBackend, StubBackend
+from fakeredis import FakeRedis
 from flask import Flask, abort
 from flask_assets import Environment as Assets
 from flask_caching import Cache
@@ -45,7 +46,8 @@ from .common.sentry import DramatiqIntegration, before_send
 # See https://github.com/crocs-muni/sec-certs/issues/470
 sys.setrecursionlimit(8000)
 
-instance_path = os.environ.get("INSTANCE_PATH", None)
+if instance_path := os.environ.get("INSTANCE_PATH", None):
+    instance_path = instance_path.replace("%pkg%", str(Path(__file__).absolute().parent))
 app: Flask = Flask(__name__, instance_path=instance_path, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
 app.jinja_env.trim_blocks = True
@@ -57,7 +59,6 @@ public(app=app)
 
 if os.environ.get("TESTING", False):
     app.testing = True
-    del app.config["DRAMATIQ_BROKER_URL"]
     app.config["DEBUG_TB_ENABLED"] = False
     app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
@@ -112,7 +113,11 @@ broker: Broker = (
 broker.set_default()
 public(broker=broker)
 
-redis: FlaskRedis = FlaskRedis(app)
+redis: FlaskRedis
+if app.testing:
+    redis = FlaskRedis.from_custom_provider(FakeRedis, app)
+else:
+    redis = FlaskRedis(app)
 public(redis=redis)
 
 runtime_config: RuntimeConfig = RuntimeConfig(app)

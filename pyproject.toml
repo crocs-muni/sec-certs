@@ -87,6 +87,7 @@ test = [
     "pytest-cov",
     "pytest-mock",
     "pytest-env",
+    "fakeredis[lua]",
 ]
 
 
@@ -151,7 +152,10 @@ namespaces = false
         "remote: Test that can be done against a remote server.",
     ]
     #addopts = "--cov sec_certs_page"
-    env = ["TESTING=true"]
+    env = [
+        "TESTING=true",
+        "INSTANCE_PATH=%pkg%/../tests/instance",
+    ]
 
 [tool.coverage.run]
     branch = true

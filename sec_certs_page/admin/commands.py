@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from .. import app, mongo
 from ..cc.tasks import reindex_collection as reindex_cc
+from ..common.mongo import init_collections as init_collections_func
 from ..fips.tasks import reindex_collection as reindex_fips
 from .user import User, hash_password
 
@@ -48,38 +49,11 @@ def list_users():  # pragma: no cover
 @app.cli.command("init-collections", help="Initialize the miscellaneous collections.")
 def init_collections():  # pragma: no cover
     click.echo("Remember that CC, FIPS and PP base collections are created through different commands.")
-    current = mongo.db.list_collection_names()
-    collections = {
-        "cc_log",
-        "cc_diff",
-        "cc_old",
-        "cc_scheme",
-        "fips_log",
-        "fips_diff",
-        "fips_old",
-        "fips_mip",
-        "fips_iut",
-        "pp_log",
-        "pp_diff",
-        "users",
-        "feedback",
-        "subs",
-        "cve",
-        "cpe",
-        "cpe_match",
-    }
-    for collection in collections.difference(current):
-        mongo.db.create_collection(collection)
-        click.echo(f"Created collection {collection}.")
-        if collection == "cve":
-            mongo.db[collection].create_index([("vulnerable_cpes.criteria_id", pymongo.ASCENDING)])
-            mongo.db[collection].create_index(
-                [("vulnerable_criteria_configurations.components.0.criteria_id", pymongo.ASCENDING)]
-            )
-        if collection == "cpe_match":
-            mongo.db[collection].create_index([("matches.cpeName", pymongo.ASCENDING)])
-        if collection in ("cc_diff", "fips_diff"):
-            mongo.db[collection].create_index([("dgst", pymongo.ASCENDING)])
+    created, existed = init_collections_func()
+    if created:
+        click.echo(f"Created collections: {', '.join(created)}")
+    if existed:
+        click.echo(f"Collections already present: {', '.join(existed)}")
 
 
 @app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")

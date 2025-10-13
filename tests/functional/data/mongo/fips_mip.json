@@ -1,0 +1,1575 @@
+[{
+	"_id": {
+		"$oid": "61f891ae309360b0d79d54ce"
+	},
+	"_type": "sec_certs.sample.fips_mip.MIPSnapshot",
+	"entries": [
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Barracuda KTINA FIPS Crypto Module",
+			"vendor_name": "Barracuda Networks",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SonicWall Capture Security Appliance (CSa) 1000",
+			"vendor_name": "SonicWall",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ultrastar® DC SN840 NVMe™ PCIe 3.0 Self Encrypting Drive",
+			"vendor_name": "Western Digital Technologies, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Seagate Secure(R) Self-Encrypting Drive",
+			"vendor_name": "Seagate Technology, LLC",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Nuvoton Cryptographic Library 2.0",
+			"vendor_name": "Nuvoton Technology Corporation",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "VMware’s Linux Cryptographic Module",
+			"vendor_name": "VMware, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "NetApp CryptoMod",
+			"vendor_name": "NetApp, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Versa Networks Branch",
+			"vendor_name": "Versa Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cisco FIPS Object Module",
+			"vendor_name": "Cisco Systems",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AN/GRC-262",
+			"vendor_name": "Ultra Electronics - TCS",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CBL-Mariner Kernel Crypto API",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Versa Networks Controller",
+			"vendor_name": "Versa Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CN6000 Series Encryptors",
+			"vendor_name": "Senetas Corporation Ltd., distributed by Thales SA (SafeNet)",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Samsung NVMe TCG Opal SSC SEDs PM1733 Series",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "RSA BSAFE(R) Crypto Module",
+			"vendor_name": "Dell Inc, BSAFE Product Team",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "IBM(R) NVMe FlashCore(TM) Module 2",
+			"vendor_name": "IBM(R) Corporation",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Motorola Solutions Cryptographic Firmware Module",
+			"vendor_name": "Motorola Solutions, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Secure Cryptographic Module (SCM)",
+			"vendor_name": "JVCKENWOOD Corporation",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SecureData Engine",
+			"vendor_name": "SecureAge Technology",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "KIOXIA TCG OPAL SSC Self-Encrypting Solid State Drive XD6 Series",
+			"vendor_name": "KIOXIA Corporation",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Hughes IPsec IP Gateway Server",
+			"vendor_name": "Hughes Network Systems, LLC",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CN Series Encryptors",
+			"vendor_name": "Senetas Corporation Ltd., distributed by Thales SA (SafeNet)",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Qumulo Secure",
+			"vendor_name": "Qumulo, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cryptographic Module for BIG-IP (R)",
+			"vendor_name": "F5 Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "ICU Medical CE3.0 OpenSSL Cryptographic Module",
+			"vendor_name": "ICU Medical, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "BoringCrypto Android",
+			"vendor_name": "Google, LLC.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Google Tensor UFS Inline Storage Encryption Cryptographic Module",
+			"vendor_name": "Google, LLC.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Samsung SCrypto Cryptographic Module",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "ProtectServer Internal Express 2 (PSI-E2)",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Defender HDD 300",
+			"vendor_name": "Kanguru Solutions",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "LogRhythm 7.4.8 Data Processor",
+			"vendor_name": "LogRhythm",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "F5(R) Device Cryptographic Module",
+			"vendor_name": "F5, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Qualcomm(R) Secure Processing Unit",
+			"vendor_name": "Qualcomm Technologies, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SonicWall Network Security Manager Appliance",
+			"vendor_name": "SonicWall, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "LogRhythm 7.4.8 System Monitor Agent",
+			"vendor_name": "LogRhythm",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Look-aside Cryptography and Compression Engine (LCE)",
+			"vendor_name": "Google, LLC",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AT-x220, AT-x320, AT-x950 Secure Management Module",
+			"vendor_name": "Allied Telesis",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "LenelS2 OnGuard Access Control Cryptographic Module",
+			"vendor_name": "Carrier Fire & Security Americas Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ultrastar® DC HC310, Ultrastar® DC HC320, and Ultrastar® DC HC330",
+			"vendor_name": "Western Digital Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Infinera Groove? G30 DCI Platform",
+			"vendor_name": "Infinera Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "KIOXIA TCG Enterprise SSC Crypto Sub-Chip TC58NC1040GTB",
+			"vendor_name": "KIOXIA Corporation",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "BC-FJA (Bouncy Castle FIPS Java API)",
+			"vendor_name": "Legion of the Bouncy Castle",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "QASM Cryptographic Module",
+			"vendor_name": "Crypto4A Technologies Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ultrastar® DC HC550 and DC HC650 TCG Opal Self-Encrypting Drive",
+			"vendor_name": "Western Digital Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cryptographic Module for BIG-IP (R)",
+			"vendor_name": "F5 Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "HSSD_V6 Series",
+			"vendor_name": "Huawei Technologies CO., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "iStorage datAshur Pro",
+			"vendor_name": "iStorage Ltd.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "McAfee Core Cryptographic Module (user)",
+			"vendor_name": "McAfee, LLC",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 8 NSS Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Macronix ArmorFlash MX78 series",
+			"vendor_name": "Macronix International Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "TruLink Control Logic Module CL6792-M1",
+			"vendor_name": "Telephonics Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "VMware's ESXboot Cryptographic Module",
+			"vendor_name": "VMware, Inc.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "FIPS AP43",
+			"vendor_name": "Mist Systems",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 OpenSSL Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "WatchKey ProX USB Token Cryptographic Module",
+			"vendor_name": "WatchData Technologies Pte Ltd",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 7 OpenSSH Client Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Zetetic Cryptographic Module",
+			"vendor_name": "Zetetic, LLC",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Aruba VIA Cryptographic Module",
+			"vendor_name": "Aruba, a Hewlett Packard Enterprise company",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Apple corecrypto Module v11.1 [Intel, Kernel, Software]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Toshiba Secure TCG Opal SSC Self-Encrypting Drive Series MG09ACP18TA and MG09ACP16TA",
+			"vendor_name": "Toshiba Electronic Devices & Storage Corporation",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "nShield Solo XC F2",
+			"vendor_name": "Entrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Seagate Secure(R) TCG Enterprise SSC Self-Encrypting Drives FIPS 140 Module",
+			"vendor_name": "Seagate Technology LLC",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Tactical Key Management Device (TKMD)",
+			"vendor_name": "Christine Wireless, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Thales Luna Backup HSM Cryptographic Module",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 7 OpenSSH Server Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Extreme Networks SLX 9540 and SLX 9740 Switches",
+			"vendor_name": "Extreme Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ubuntu 20.04 Kernel Crypto API Cryptographic Module",
+			"vendor_name": "Canonical Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Virtru JavaScript Cryptographic Library",
+			"vendor_name": "Virtru Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Toshiba Secure TCG Opal SSC Self-Encrypting Drive Series MG09SCP18TA and MG09SCP16TA",
+			"vendor_name": "Toshiba Electronic Devices & Storage Corporation",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "LogRhythm 7.4.8 Console",
+			"vendor_name": "LogRhythm",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AWS Key Management Service HSM",
+			"vendor_name": "Amazon Web Services, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 2",
+			"vendor_name": "Motorola Solutions, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 libgcrypt Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CBL-Mariner OpenSSL Cryptographic Module",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "LogRhythm 7.4.8 AI Engine Server",
+			"vendor_name": "LogRhythm Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Alaris™ PC Unit Model 8015",
+			"vendor_name": "BD",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Samsung NVMe TCG Opal SSC SEDs PM9A3 Series",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Voice Processing Module Cryptographic Module (VPMCM) / Telephone Media Gateway Cryptographic Module (TMGCM)",
+			"vendor_name": "Motorola Solutions, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cryptographic Server HSM",
+			"vendor_name": "Beijing Lianshi Networks Technology Co.,Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Qualcomm(R) Crypto Engine Core",
+			"vendor_name": "Qualcomm Technologies, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SAAB Encrypted Automatic Identification System Cryptographic Module (EAISCM)",
+			"vendor_name": "Saab AB (publ) TransponderTech (SAAB)",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "FortiManager 6.2",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Apple corecrypto Module v11.1 [Apple silicon, User, Software]",
+			"vendor_name": "Apple",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 7 NSS Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Astro Subscriber Motorola Advanced Crypto Engine (MACE) - Security Level 3",
+			"vendor_name": "Motorola Solutions, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AWS-LC Cryptographic Module",
+			"vendor_name": "Amazon Web Services Inc.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Nutanix Cryptographic Module for OpenSSH Client",
+			"vendor_name": "Nutanix, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Vocality RoIP and DTECH M3-SE Multi-Function Gateway Appliances",
+			"vendor_name": "Cubic Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Tera2 PCoIP Zero Client Processors",
+			"vendor_name": "Teradici Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "OSNEXUS Crypto Library",
+			"vendor_name": "OSNEXUS Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Monaco Communication Cryptographic Module 1.0",
+			"vendor_name": "Monaco Enterprises Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "X4i Hardware Security Module (HSM)",
+			"vendor_name": "Pitney Bowes, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Mocana Cryptographic Suite B Module",
+			"vendor_name": "Mocana Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Summit Linux FIPS Core Crypto Module",
+			"vendor_name": "Laird Connectivity",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 8 GnuTLS Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "RAD X-1040 AES-256",
+			"vendor_name": "Vcinity, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Huawei EulerOS 2.0 OpenSSH Server Cryptographic Module",
+			"vendor_name": "Huawei Technologies CO., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Symantec Content Analysis Virtual Appliance",
+			"vendor_name": "Symantec, A Division of Broadcom",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "IQVIA Java Crypto Module",
+			"vendor_name": "IQVIA",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SecureDoc® Cryptographic Engine for Windows",
+			"vendor_name": "WinMagic Corp",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 Kernel Crypto API Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 8 OpenSSL Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Juniper Kernel Crypto Cryptographic Module",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Integrated Management Complex (IMC) and B227 True Random Number Generator (TRNG) Firmware-Hybrid Cryptographic Module",
+			"vendor_name": "Google, LLC",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Mocana Cryptographic Loadable Kernel Module",
+			"vendor_name": "Mocana Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Vocera Cryptographic Module",
+			"vendor_name": "Vocera Communications, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AWS Key Management Service HSM",
+			"vendor_name": "Amazon Web Services, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CRATON2/SECTON embedded V2X HSM",
+			"vendor_name": "Autotalks Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "7705 SAR-OS SAR-A/M Cryptographic Module (SARCM)",
+			"vendor_name": "Nokia Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 7 Unbreakable Enterprise Kernel (UEK 6) Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "ZBR-88W8887-WLAN",
+			"vendor_name": "Zebra Technologies Corporation",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Nutanix Cryptographic Module for OpenSSH Server",
+			"vendor_name": "Nutanix, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "VMware's VPN Crypto Module",
+			"vendor_name": "VMware, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "i.MX 8X SECO HSMv2",
+			"vendor_name": "NXP Semiconductors",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "HyTrust KeyControl Cryptographic Module",
+			"vendor_name": "HyTrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Inline Crypto Engine (ICE)",
+			"vendor_name": "Google, LLC",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Hitachi Virtual Storage Platform (VSP) Encryption Board for NVMe",
+			"vendor_name": "Hitachi, Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Hitachi Virtual Storage Platform (VSP) Encryption Module",
+			"vendor_name": "Hitachi, Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SonicWALL NSsp 14700 and NSsp 15700",
+			"vendor_name": "SonicWall, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Apple corecrypto Module v11.1 [Intel, User, Software]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cryptographic Module for Intel® Platforms' Security Engine Chipset",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "KMF/Wave/Traffic CryptR",
+			"vendor_name": "Motorola Solutions, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "nShield F3 10+ 500+ 6000+ & nShield F3 500+ 1500+ 6000+ for nShield Connect+ and Connect CLX",
+			"vendor_name": "Entrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 GnuTLS Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "NEC Storage Encryption Board for NVMe",
+			"vendor_name": "NEC Corporation",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "u.trust Anchor",
+			"vendor_name": "Utimaco IS GmbH",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cisco Catalyst 9115AXI/AXE, 9120AXI/AXE/AXP, 9130AXI/AXE and 9105AXI/AXW Wireless LAN Access Points",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 7 Libreswan Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Intel(R) Converged Security and Manageability Engine (CSME) Crypto Module for Tiger Point PCH, Mule Creek Canyon PCH, and Rocket Lake PCH",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Command Encryption Module",
+			"vendor_name": "Mitsubishi Space Software Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "NITROXIII CNN35XX-NFBE HSM Family",
+			"vendor_name": "Marvell Semiconductor, Inc.",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "McAfee Core Cryptographic Module (kernel)",
+			"vendor_name": "McAfee, LLC",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "GM01",
+			"vendor_name": "Shanghai Muge Technology Co., Ltd",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "F5(R) vCMP Cryptographic Module",
+			"vendor_name": "F5, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Trusted Platform Module 2.0 SLB 9672",
+			"vendor_name": "Infineon Technologies AG",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Huawei EulerOS 2.0 OpenSSH Client Cryptographic Module",
+			"vendor_name": "Huawei Technologies CO., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SonicWall Network Security Virtual Appliances",
+			"vendor_name": "SonicWall, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "7705 SAR-OS SAR-18/8/X/Ax/Wx/W/H/Hc Data Plane Cryptographic Module (SARDCM)",
+			"vendor_name": "Nokia Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Security Builder® FIPS Module",
+			"vendor_name": "BlackBerry Limited",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Titan-D Chip",
+			"vendor_name": "Google, LLC.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Thales Luna K7 Cryptographic Module",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Microchip Trust Anchor TA100",
+			"vendor_name": "Microchip Technology Inc",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "BC-FNA (Bouncy Castle FIPS .NET API)",
+			"vendor_name": "Legion of the Bouncy Castle Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "RSA BSAFE(R) Crypto-C Micro Edition",
+			"vendor_name": "Dell Inc, BSAFE Product Team",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Non-Volatile Memory express (NVMe) Data Path Security Cluster (DPSC) Module",
+			"vendor_name": "Google, LLC",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 GnuTLS Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "IDPrime 3930 FIDO",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Thales CipherTrust Manager Core Security Module",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "DHSSL Cryptographic Module",
+			"vendor_name": "Zhejiang Dahua Technology Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "KeyVault Hardware Security Module (kvHSM)",
+			"vendor_name": "WiSECURE Technologies",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Extreme® NetIron® CER 2000 Series Ethernet Routers",
+			"vendor_name": "Extreme Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AMD Ryzen PRO 4000 Series PSP Cryptographic CoProcessor",
+			"vendor_name": "Advanced Micro Devices",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ultrastar® DC SN640 NVMe™ PCIe 3.0 Self-Encrypting Drive",
+			"vendor_name": "Western Digital Technologies, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CyberCogs Hardware Security Module",
+			"vendor_name": "CyberCogs, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SK hynix PE8110 M.2 22110D NVMe TCG Opal SSC SED",
+			"vendor_name": "SK hynix Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "VaultIC™ 405 1.2.6",
+			"vendor_name": "WISeKey Semiconductors",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "DINAMO CD, XP, and ST Hardware Security Modules",
+			"vendor_name": "DINAMO Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Hughes HT2300, HT2500, HT2550, HT2650 Satellite Terminals",
+			"vendor_name": "Hughes Network Systems, LLC",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ultrastar® DC SN540 NVMe™ PCIe 3.0 Self Encrypting Drive",
+			"vendor_name": "Western Digital Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cryptographic Module for DSC2-2Q200",
+			"vendor_name": "Pensando Systems, Inc",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CHR Cryptographic Module",
+			"vendor_name": "Atos",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Qualcomm(R) Trusted Execution Environment (TEE) Software Cryptographic Library",
+			"vendor_name": "Qualcomm Technologies, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Zebra DCS Cryptographic Library",
+			"vendor_name": "Zebra Technologies Corporation",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Thunder Series TH3040S, TH5440S, TH5840S and TH7440S-11",
+			"vendor_name": "A10 Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Nutanix Cryptographic Module for OpenSSL",
+			"vendor_name": "Nutanix, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Samsung NVMe TCG Opal SSC SEDs PM1733a Series",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 7 OpenSSL Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "OpenSSL FIPS Provider",
+			"vendor_name": "The OpenSSL Project",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Samsung NVMe TCG Opal SSC SEDs PM1733/PM1735 Series",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Marvell LS2 HSM Family",
+			"vendor_name": "Marvell Semiconductor, Inc.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "OmniSwitch AOS Cryptographic Module",
+			"vendor_name": "ALE USA Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Nokia 1830 Photonic Service Switch (PSS)",
+			"vendor_name": "Nokia Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "FortiAnalyzer 6.2",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Red Hat Enterprise Linux 8 NSS Cryptographic Module",
+			"vendor_name": "Red Hat(R), Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "PTP 700 Point to Point Wireless Ethernet Bridge",
+			"vendor_name": "Cambium Networks, Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Rambus CryptoManager Root of Trust RT-660",
+			"vendor_name": "Rambus Inc.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Apacer TCG SSD SV240 Series",
+			"vendor_name": "Apacer Technology Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "nShield F2 500+ & nShield F2 1500+ & nShield F2 6000+",
+			"vendor_name": "Entrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Samsung NVMe TCG Opal SSC SEDs BM1733a Series",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 8 Unbreakable Enterprise Kernel (UEK6) Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "BoringCrypto",
+			"vendor_name": "Google, LLC.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "KIOXIA TCG Enterprise SSC Crypto Sub-Chip TC58NC1132GTC",
+			"vendor_name": "KIOXIA Corporation",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "NITROXIII CNN35XX-NFBE HSM Family",
+			"vendor_name": "Marvell Semiconductor, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Ubuntu 20.04 OpenSSL Cryptographic Module",
+			"vendor_name": "Canonical Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "ADVA 10TCE-PCN-16GU+AES100G-F encryption module",
+			"vendor_name": "ADVA Optical Networking SE",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "BoringCrypto SoC",
+			"vendor_name": "Google, LLC.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cisco Linux Kernel FIPS Object Module (KFOM) Cryptographic Module",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cisco Catalyst 9800-CL Wireless Controller",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Linux 8 libgcrypt Cryptographic Module",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SK hynix PE8010 and PE8030 NVMe Opal SEDs",
+			"vendor_name": "SK hynix Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Cryptographic Module for Intel(R) Converged Security and Manageability Engine (CSME)",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Check Point Cryptographic Library",
+			"vendor_name": "Check Point Software Technologies Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Huawei EulerOS 2.0 OpenSSL Cryptographic Module",
+			"vendor_name": "Huawei Technologies CO., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SR-OS Cryptographic Module",
+			"vendor_name": "Nokia Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Symantec Integrated Secure Gateway",
+			"vendor_name": "Symantec, A Division of Broadcom",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Aegis Secure Key 3Z and Aegis Secure Key 3NX Cryptographic Module",
+			"vendor_name": "Apricorn",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "KIOXIA TCG OPAL SSC Crypto Sub-Chip TC58NC1132GTC",
+			"vendor_name": "KIOXIA Corporation",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Eclypses Cryptographic Library",
+			"vendor_name": "Eclypses, Inc.",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "TruLink Control Logic Module CL6882-M1",
+			"vendor_name": "Telephonics Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SonicWALL TZ270, TZ270W, TZ370, TZ370W, TZ470, TZ470W, TZ570, TZ570W, TZ570P, TZ670, NSa 2700 and NSa 3700",
+			"vendor_name": "SonicWall, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "CryptoManager Root of Trust (CMRT)",
+			"vendor_name": "Rambus Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Hughes HT2010 Satellite Terminal",
+			"vendor_name": "Hughes Network Systems, LLC",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "7705 SAR-OS SAR-18/8/X/Ax/Wx/W/H/Hc Control Plane Cryptographic Module (SARCPCM)",
+			"vendor_name": "Nokia Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "MiniHSM & MiniHSM for nShield Edge F2",
+			"vendor_name": "Entrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AxioCrypto-M235x",
+			"vendor_name": "Security Platform Inc.",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "TW-900/950 TSM Shadow and TW-870/875 TSM Ghost",
+			"vendor_name": "TrellisWare Technologies, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "MiniHSM & MiniHSM for nShield Edge F3",
+			"vendor_name": "Entrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Titaniam Core Engine",
+			"vendor_name": "Titaniam, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Apple corecrypto Module v11.1 [Apple silicon, Kernel, Software]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SK hynix PE8111 E1.L NVMe TCG Opal SSC SED",
+			"vendor_name": "SK hynix Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Silver Peak ECOS Cryptographic Library",
+			"vendor_name": "Silver Peak Systems Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SX-590-1402",
+			"vendor_name": "silex technology, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Oracle Solaris Userland Cryptographic Framework",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SecHSM V2-1 (AC) and SecHSM V2-1 (DC)",
+			"vendor_name": "Sansec Technology Co., Ltd.",
+			"standard": "FIPS 140-2",
+			"status": "Coordination"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SLS37CSAUS V2X",
+			"vendor_name": "Infineon Technologies AG",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Black Lantern Cryptographic Module",
+			"vendor_name": "Guardtime Federal",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "AMD Ryzen PRO 5000 Series PSP Cryptographic CoProcessor",
+			"vendor_name": "Advanced Micro Devices",
+			"standard": "FIPS 140-3",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "LogRhythm 7.4.8 Platform Manager",
+			"vendor_name": "LogRhythm",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "NPCT7xx TPM 2.0 rev 1.59",
+			"vendor_name": "Nuvoton Technology Corporation",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "nShield Solo XC F3 & nShield Solo XC F3 for nShield Connect XC and for nShield HSMi",
+			"vendor_name": "Entrust, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "Aviat Networks Eclipse Cryptographic Module",
+			"vendor_name": "Aviat Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"status": "Review Pending"
+		},
+		{
+			"_type": "sec_certs.sample.fips_mip.MIPEntry",
+			"module_name": "SecureDoc® Cryptographic Engine for macOS/Linux",
+			"vendor_name": "WinMagic Corp",
+			"standard": "FIPS 140-2",
+			"status": "In Review"
+		}
+	],
+	"timestamp": "2022-02-01T02:49:34.124406",
+	"last_updated": "2022-01-31",
+	"displayed": 234,
+	"not_displayed": 30,
+	"total": 264
+}]
+

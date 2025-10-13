@@ -64,8 +64,8 @@ def get_fips_references():
         }
         fips_references[str(cert["cert_id"])] = reference
 
-        _, _, cc_map = create_graph(fips_references)
-        return cc_map
+    _, _, fips_map = create_graph(fips_references)
+    return fips_map
 
 
 @cache.cached(timeout=3600, make_cache_key=lambda: "fips_standards/" + str(latest_run()))
