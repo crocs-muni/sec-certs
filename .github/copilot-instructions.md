@@ -16,10 +16,38 @@ This is the **page branch** of the sec-certs repository, containing a Flask web 
 ## Critical Setup Requirements
 
 ### MongoDB and Redis are required for tests
-**MongoDB and Redis must be installed.** The tests, expect that a MongoDB server binary is available and use it to spin up a temporary MongoDB server that is filled with test data. Similarly, a fake Redis server is used and caching is disabled.
+**MongoDB and Redis must be installed.** The tests expect that a MongoDB server binary is available and use it to spin up a temporary MongoDB server that is filled with test data. Similarly, a fake Redis server is used and caching is disabled.
+
+#### Ubuntu 24.04+ MongoDB Installation
+MongoDB is not available in the default Ubuntu 24.04 repositories. You must install it from the official MongoDB repository:
+
+```bash
+# Import the public key used by the package management system
+wget -qO - https://pgp.mongodb.com/server-8.0.asc | sudo tee /etc/apt/trusted.gpg.d/mongodb-server-8.0.asc
+
+# Create the list file for MongoDB
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+
+# Reload local package database
+sudo apt update
+
+# Install MongoDB
+sudo apt install -y mongodb-org
+```
+
+For other distributions, see the [MongoDB official installation guide](https://www.mongodb.com/docs/manual/administration/install-on-linux/).
 
 ### Environment Setup
 Only steps 1. through 4. are necessary for running the tests.
+
+1. **Install system dependencies**
+   The core tool (main branch) requires the following system packages:
+   For Debian/Ubuntu it requires the following packages:
+   > build-essential libpoppler-cpp-dev pkg-config python3-dev
+   For Fedora and related:
+   > gcc-c++ pkgconfig poppler-cpp-devel python3-devel
+
+   Furthermore, MongoDB and Redis must be installed.
 
 1. **Create a Python virtual environment** (always do this first):
    ```bash
@@ -28,16 +56,18 @@ Only steps 1. through 4. are necessary for running the tests.
    pip install -U setuptools wheel pip
    ```
 
-2. **Install the application** in editable mode:
-   ```bash
-   pip install -e .
-   ```
-
-3. **Install the sec-certs tool** (this is a dependency but must be installed from the main branch):
+2. **Install the sec-certs tool** (this is a dependency but must be installed from the main branch):
    ```bash
    # Clone main branch separately or use: sec-certs @ git+https://github.com/crocs-muni/sec-certs.git#main
    # The tool is already declared as a dependency in pyproject.toml
    ```
+
+
+3. **Install the application** in editable mode:
+   ```bash
+   pip install -e ".[test, dev]"
+   ```
+
 
 4. **Download the spaCy language model**:
    ```bash
@@ -342,6 +372,8 @@ cd ../page && pip install -e .
 
 These instructions have been validated and tested. If you encounter an issue not covered here:
 1. Verify your virtual environment is activated
-2. Check that you're using Python 3.10+
+2. Ensure that MongoDB is installed and available as `mongod`
+3. Check that you're using Python 3.10+
+4. Ensure that the required system packages are installed
 
 Only search for additional information if these basics are confirmed and the issue persists.
