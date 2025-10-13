@@ -12,6 +12,7 @@ class DashboardLayoutManager:
 
     def build_layout(self) -> html.Div:
         """Constructs the main layout (app shell) of the dashboard."""
+        print("Building main dashboard layout...")
         return html.Div(
             [
                 html.H1("sec-certs.org Data Dashboards"),
@@ -32,6 +33,7 @@ class DashboardLayoutManager:
 
     def register_home_page(self) -> None:
         """Registers the home page of the dashboard."""
+        print("Registering dashboard home page at path=/")
 
         def home_layout():
             return html.Div(
@@ -50,3 +52,4 @@ class DashboardLayoutManager:
         dash.register_page(
             "dashboard_home", path="/", title="Dashboard Home", name="Dashboard Home", layout=home_layout
         )
+        print("✓ Dashboard home page registered successfully")
