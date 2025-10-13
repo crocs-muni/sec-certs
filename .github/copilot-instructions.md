@@ -8,17 +8,18 @@ This is the **page branch** of the sec-certs repository, containing a Flask web 
 - **Type**: Flask web application (~7,700 lines of Python across 62 files)
 - **Languages/Frameworks**: Python 3.10+, Flask, MongoDB, Redis, dramatiq (task queue)
 - **Python Version Required**: 3.10, 3.11, or 3.12
-- **Dependencies**: Managed via `pyproject.toml` with Poetry lockfile
+- **Dependencies**: Managed via `pyproject.toml`
 - **Main Package**: `sec_certs_page/` (14 subdirectories including cc, fips, pp, admin, etc.)
 - **External Services**: MongoDB (certificate storage), Redis (caching and task queue), Whoosh (search indexing)
 - **Related**: Works in HEAD-to-HEAD fashion with the `main` branch of this repository (the sec-certs tool)
 
 ## Critical Setup Requirements
 
-### MongoDB and Redis ARE REQUIRED
-**MongoDB and Redis must be running before you can run tests or the application.** The application will fail to start without them.
+### MongoDB and Redis are required for tests
+**MongoDB and Redis must be installed.** The tests, expect that a MongoDB server binary is available and use it to spin up a temporary MongoDB server that is filled with test data. Similarly, a fake Redis server is used and caching is disabled.
 
 ### Environment Setup
+Only steps 1. through 4. are necessary for running the tests.
 
 1. **Create a Python virtual environment** (always do this first):
    ```bash
@@ -43,6 +44,9 @@ This is the **page branch** of the sec-certs repository, containing a Flask web 
    python -m spacy download en_core_web_sm
    ```
 
+### Standalone Setup
+The following setup is not necessary when running tests, but is required for running the standalone app.
+
 5. **Create the instance directory and configuration**:
    ```bash
    mkdir -p instance
@@ -55,6 +59,8 @@ This is the **page branch** of the sec-certs repository, containing a Flask web 
    - Update MongoDB URI if needed (default: `mongodb://localhost:27017/seccerts`)
    - Update Redis URLs if needed (default: `redis://localhost:6379/`)
    - For local development, comment out or remove the `SERVER_NAME` line
+   - For local development, set the TURNSTILE secrets to the development ones.
+   `TURNSTILE_SITEKEY = "1x00000000000000000000BB"` and `TURNSTILE_SECRET = "1x0000000000000000000000000000000AA"`.
 
 7. **Start MongoDB and Redis**:
    ```bash
@@ -97,13 +103,12 @@ periodiq sec_certs_page:broker -p 2 -t 1
 ```
 
 These workers are only needed if you're working with background tasks (certificate updates, notifications, etc.).
+Tests do not require these workers, instead use mocking to test these tasks directly.
 
 ## Testing
 
 ### Prerequisites for Tests
-- MongoDB must be running
-- Redis must be running
-- MongoDB database should be populated with test data (for functional tests)
+ - MongoDB binary must be available under `mongod`.
 
 ### Running Tests
 
@@ -117,14 +122,14 @@ pytest
 pytest --cov sec_certs_page tests
 ```
 
-**Run only non-remote tests:**
+**Run fast tests only tests:**
 ```bash
-pytest -m "not remote"
+pytest -m "not slow"
 ```
 
 **Test against remote server:**
 ```bash
-TEST_REMOTE=1 pytest
+TEST_REMOTE=1 pytest -m "remote"
 ```
 
 ### Test Markers
@@ -132,7 +137,7 @@ TEST_REMOTE=1 pytest
 - `@pytest.mark.slow` - Slow-running tests
 
 ### Test Environment
-Tests automatically set `TESTING=true` environment variable (configured in `pyproject.toml`).
+Tests automatically set `TESTING=true` environment variable (configured in `pyproject.toml` via `pytest-env`).
 
 ## Code Quality and Linting
 
@@ -233,9 +238,10 @@ sec_certs_page/
 - Search index (search/)
 - CVE/CPE data files
 - Generated webassets cache
+- Generated documentation from the main tool (docs/) uploaded by its actions run
 
 ### MongoDB Collections
-The app uses these MongoDB collections (database: `seccerts`):
+The app uses these MongoDB collections (database: `seccerts`), more are defined in `docs/database.md`:
 - `cc` - Common Criteria certificates
 - `cc_diff` - CC certificate change history
 - `cc_log` - CC update task logs
@@ -258,9 +264,6 @@ The app uses these MongoDB collections (database: `seccerts`):
 - Sets up Flask extensions (login, caching, CORS, CSRF, etc.)
 - Registers all blueprints
 - Configures Sentry monitoring (production)
-- Sets recursion limit to 8000 (see issue #470)
-
-**`sec_certs_page/tasks.py`** - Background task definitions using dramatiq
 
 **`fabfile.py`** - Deployment tasks using Fabric (for production deployment)
 
@@ -286,19 +289,14 @@ The Dockerfile:
 ## Common Workflows and Commands
 
 ### Development Workflow
-```bash
-# 1. Start MongoDB and Redis (in separate terminals)
-mongod
-redis-server
 
-# 2. Activate virtual environment
+Generally, you do not run the app directly. Instead, implement tests and run those.
+```bash
+# 1. Activate virtual environment
 source venv/bin/activate
 
-# 3. Run the Flask app
-flask -A sec_certs_page run
-
-# 4. In another terminal, run tests
-pytest
+# 2. Run tests
+pytest -m "not slow"
 ```
 
 ### Before Committing
@@ -314,32 +312,19 @@ git add .
 git commit -m "Your message"
 ```
 
-### Deployment (Production)
-Uses Fabric tasks in `fabfile.py`:
-```bash
-# Deploy (pull, reload workers)
-fab -H sec-certs.org deploy
-
-# Database operations
-fab -H sec-certs.org dump     # Backup MongoDB
-fab -H sec-certs.org restore  # Restore MongoDB
-```
-
 ## Important Notes and Gotchas
 
 ### Critical Issues to Avoid
 
-1. **ALWAYS ensure MongoDB and Redis are running** before starting the app or tests
-2. **The `instance/` directory must exist** with proper config files before running
-3. **Don't commit the `instance/` directory** - it's gitignored for security reasons
-4. **The app requires Python 3.10+** - lower versions will fail
-5. **Pre-commit hooks must pass** - black, isort, and mypy all need to succeed
-6. **The app sets `sys.setrecursionlimit(8000)`** - this is intentional (issue #470)
-7. **When testing, set `TESTING=true`** environment variable to use stub backends
+1. **The `instance/` directory must exist** with proper config files before running the app
+2. **Don't commit the `instance/` directory** - it's gitignored for security reasons
+3. **The app requires Python 3.10+** - lower versions will fail
+4. **Pre-commit hooks must pass** - black, isort, and mypy all need to succeed
+5. **Use pytest when testing** - it sets the proper test environment variables
 
 ### Environment Variables
 
-- `INSTANCE_PATH` - Override instance directory location
+- `INSTANCE_PATH` - Override instance directory location, set by `pytest-env` for testing.
 - `TESTING` - Set to "true" for test mode (disables dramatiq, Sentry)
 - `TEST_REMOTE` - Set to "1" to run tests against https://sec-certs.org
 
@@ -353,22 +338,10 @@ cd tool && pip install -e .
 cd ../page && pip install -e .
 ```
 
-### Poetry vs pip
-
-The project has a `poetry.lock` file, so you can use Poetry if preferred:
-```bash
-poetry install
-poetry run flask -A sec_certs_page run
-```
-
-However, `pip install -e .` also works and is simpler for development.
-
 ## Trust These Instructions
 
 These instructions have been validated and tested. If you encounter an issue not covered here:
-1. Check that MongoDB and Redis are running
-2. Verify your virtual environment is activated
-3. Ensure instance/ directory exists with config files
-4. Check that you're using Python 3.10+
+1. Verify your virtual environment is activated
+2. Check that you're using Python 3.10+
 
 Only search for additional information if these basics are confirmed and the issue persists.
