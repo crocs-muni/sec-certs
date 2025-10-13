@@ -1,0 +1,1253 @@
+[{
+	"_id": {
+		"$oid": "61f891ad4790725e9e9d4578"
+	},
+	"_type": "sec_certs.sample.fips_iut.IUTSnapshot",
+	"entries": [
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Aruba IAP-315, IAP-345, IAP-377, IAP-503R, IAP-505H, IAP-504, IAP-505, IAP-514, IAP-515, IAP-534, IAP-535, and IAP-555 Access Points with Aruba Instant Firmware",
+			"vendor_name": "Aruba, a Hewlett Packard Enterprise company",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-04-19"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Rambus Root of Trust RT-130",
+			"vendor_name": "Rambus Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-07-11"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Adaptive Security Appliance (ASA) ",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Firebox T20, T20-W, T40, T40-W, T40-CW, T80",
+			"vendor_name": "WatchGuard Technologies, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-08-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Catalyst Embedded Wireless Controllers",
+			"vendor_name": "Cisco Systems, Inc",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-12-21"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Arista MACsec Charlie Hybrid Module",
+			"vendor_name": "Arista Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-12-30"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cryptographic Primitives Library (Windows 10 and Windows Server version 20H2)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "NetApp CryptoMod",
+			"vendor_name": "NetApp, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2022-01-04"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Intel® SSD DC P5520",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-25"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Android Kernel Cryptographic Module",
+			"vendor_name": "Google, LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-17"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Juniper Networks vSRX 3.0 Virtual Firewall",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-04-28"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Kenwood Cryptographic Library (KCL)",
+			"vendor_name": "EF Johnson Technologies",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-05-19"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cryptographic Primitives Library (Windows Server 2019 Standard, Windows Server 2019 Datacenter)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Panorama 10.1 running on M-200, M-500 and M-600",
+			"vendor_name": "Palo Alto Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FortiClient 7.0 for Windows",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-09-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Seagate Secure™ TCG Enterprise SSC Self-Encrypting HDD",
+			"vendor_name": "Seagate Technology, LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-01-11"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Avaya G450",
+			"vendor_name": "Avaya Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-11-23"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "UT-125 FIPS #31 and UT-125 FIPS #41 Cryptographic Modules",
+			"vendor_name": "Icom Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-11-24"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Firepower Threat Defense (FTD) on ASA/ISA Cryptographic Module",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-05-24"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Dynatrace Cryptographic Module",
+			"vendor_name": "Dynatrace LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-08-27"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Sepior TSM",
+			"vendor_name": "Sepior ApS",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-10-29"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Privoro SafeCase Cryptographic Module",
+			"vendor_name": "Privoro LLC.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-13"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Ruckus ICX ™ 7850, ICX™ 7650, ICX™ 7550, ICX™ 7450, ICX™ 7250, ICX™ 7150  Series Switch/Router",
+			"vendor_name": "CommScope Technologies LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Motorola Solutions Cryptographic Firmware Module",
+			"vendor_name": "Motorola Solutions, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-25"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Trellix OpenSSL FIPS Object Module",
+			"vendor_name": "Trellix",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-04"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco ASR 9000 Aggregated Services Routers",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-08-17"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FortiSwitch E series with OS v7.0",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Pensando TLS Library",
+			"vendor_name": "Pensando Systems, Inc",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-10-23"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "XCrypt Full Disk",
+			"vendor_name": "Zettaset, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-08-13"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "TuffServ® Encryption Module",
+			"vendor_name": "Ampex Data Systems Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-01"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "eToken 5110+FIPS",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Commvault Crypto Library (CVCL)",
+			"vendor_name": "Commvault",
+			"standard": "FIPS 140-3",
+			"iut_date": "2022-01-13"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "IBM Cloud Object Storage System’s ™ FIPS Cryptographic Module",
+			"vendor_name": "IBM",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-25"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Avaya G430",
+			"vendor_name": "Avaya Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-11-23"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Panorama 10.1 Virtual Appliances",
+			"vendor_name": "Palo Alto Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Symantec Management CenterVirtual Appliance",
+			"vendor_name": "Symantec & CA Technologies, a division of Broadcom",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-07-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "DIGIPASS GO7",
+			"vendor_name": "OneSpan",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "IBM 4769-001 Enterprise PKCS#11 HSM",
+			"vendor_name": "IBM",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-08-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "IBM 4770-001 Enterprise PKCS#11 HSM",
+			"vendor_name": "IBM",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-08-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Kernel Mode Cryptographic Primitives Library (Windows 10 version 21H1, Windows Server 2022, et al.)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "IBM Cloud Object Storage System’s FIPS Cryptographic Module",
+			"vendor_name": "IBM",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Kernel Mode Cryptographic Primitives Library (Windows Server 2019 Standard, Windows Server 2019 Datacenter)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Oracle OpenSSL FIPS Provider",
+			"vendor_name": "Oracle Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-07"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cr50 U2F",
+			"vendor_name": "Google, LLC",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-05-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Acme Packet 1100,  Acme Packet 3900, Acme Packet 3950, and Acme Packet 4900 (v9.0)",
+			"vendor_name": "Oracle Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-04-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Apple corecrypto Module v12.0 [Intel, User, Software, SL1]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-04-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PTP 820C, PTP 820C-HP, PTP 820S, PTP 820G, PTP 820N, PTP 820A, PTP 850E, PTP 850C, PTP 850S",
+			"vendor_name": "Cambium Networks",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-01-27"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Dell BSAFE Crypto Module for Java, v7.0",
+			"vendor_name": "Dell Inc., BSAFE Product Team",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-09-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "BoringCrypto Android",
+			"vendor_name": "Google, LLC.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2022-01-18"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Riverbed Cryptographic module (VN) for Branch",
+			"vendor_name": "Riverbed Technology, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-09-27"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "nShield 5s F3 & nShield 5s for nShield 5c and for nShield HSMi",
+			"vendor_name": "Entrust",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FortiGate-VM v6.4 & v7.0",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-03-29"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Infoblox Trinzic DDI Appliances TE-815, TE-825, TR-805, ND-805, TE-1415, TE-1425, TR-1405, ND-1405, TE-2215, TE-2225, TR-2205, ND-2205, TE-4015, TE-4025, TR-4005, ND-4005",
+			"vendor_name": "Infoblox",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-10-13"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Adaptive Security Appliance Virtual (ASAv) ",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Secure Enclave",
+			"vendor_name": "Fungible Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-03-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Thales CipherTrust Application Data Protection CryptoAPI (CADP CryptoAPI) Module",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-02-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Advanced Configurable Cryptographic Environment (ACCE) v3 HSM Crypto Module",
+			"vendor_name": "Ultra, Intelligence & Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-08-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco ASA Cryptographic Module on 4K/9K",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FortiOS 6.4 & 7.0",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-03-29"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "WildFire 10.1 running on WF-500",
+			"vendor_name": "Palo Alto Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PAN-OS 10.1 running on PA-220, PA-220R, PA-400 Series, PA-800 Series, PA-3200 Series, PA-5200 Series, PA-5450 and PA-7000 Series NGFWs",
+			"vendor_name": "Palo Alto Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cyphre Crypto Core",
+			"vendor_name": "Cyphre Security Solutions LLC (A Rignet Company)",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-10-29"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "3e-520 Secure Access Point Cryptographic Module",
+			"vendor_name": "3e Technologies International, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-07-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cradlepoint Cryptographic Module",
+			"vendor_name": "Cradlepoint, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Fortanix Data Security Manager",
+			"vendor_name": "Fortanix, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-05-27"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PAN-OS 10.1 VM-Series",
+			"vendor_name": "Palo Alto Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "SPYRUS USB-3 Module",
+			"vendor_name": "SPYRUS, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-17"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "SafeZone FIPS SW Cryptographic Module 2.0",
+			"vendor_name": "Rambus, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Forcepoint NGFW Cryptographic Kernel Module",
+			"vendor_name": "Forcepoint  ",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Privoro SafeCase Cryptographic Module",
+			"vendor_name": "Privoro LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-02-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "DocuSign Signature Appliance",
+			"vendor_name": "DocuSign, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-09-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cryptographic Module",
+			"vendor_name": "Comtech EF Data Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-12-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Riverbed Cryptographic module (VN) for Controller",
+			"vendor_name": "Riverbed Technology, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-09-27"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FlashBlade Data Encryption Module",
+			"vendor_name": "Pure Storage, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-12-03"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Ciena WaveLogic 5 Extreme Modem",
+			"vendor_name": "Ciena Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-04-30"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "NetApp Cryptographic Security Module",
+			"vendor_name": "NetApp, Inc",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-08-24"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "3926-MACSEC",
+			"vendor_name": "Ciena Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-05-04"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Firebox M290, M390, M590, M690, M4800, M5800",
+			"vendor_name": "WatchGuard Technologies, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-08-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Juniper Networks QFX5120-48YM, QFX5120-48T and QFX5210 Ethernet switches",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-23"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "MX10003 3D Universal Edge Router with JNP-MIC1-MACSEC MIC",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Raven Cryptographic Module",
+			"vendor_name": "Google LLC.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-02-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Luna G7 Cryptographic Module",
+			"vendor_name": "Thales",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-02-23"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Arista CloudEOS Router Module",
+			"vendor_name": "Arista Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Dell Crypto Library for Dell iDRAC, Dell CMC and DellOME-M",
+			"vendor_name": "Dell, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-09-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "ExtraHop Cryptographic Module",
+			"vendor_name": "ExtraHop Networks",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-08-19"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Firepower Threat Defense on 4K/9K Cryptographic Module",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Firepower Management Center (FMC) Virtual",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Ciena Waveserver 5 CP Module",
+			"vendor_name": "Ciena Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-04-30"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "MX2010 ,MX2020 with REMX2K-X8-64G ,  RE-S-1800 Routing Engines, MPC9E with  MIC-MACSEC-MRATE",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Apple corecrypto Module v12.0 [Intel, Kernel, Software, SL1]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-04-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Fornetix VaultCore",
+			"vendor_name": "Fornetix LLC",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-05-11"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Acme Packet VME (v9.0)",
+			"vendor_name": "Oracle Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-04-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Seagate Secure™ TCG Opal SSC Self-Encrypting HDD",
+			"vendor_name": "Seagate Technology, LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-01-11"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Catalyst 8300 Series Edge Platforms",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-01-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FibeAir® IP-20C, FibeAir® IP-20C-HP, FibeAir® IP-20S, FibeAir® IP-20G, FibeAir® IP-20N, FibeAir® IP-20A, FibeAir® IP-50E, FibeAir® IP-50C, FibeAir® IP-50S",
+			"vendor_name": "Ceragon Networks",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-01-28"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "IBM® NVMe FlashCore™ Module 2",
+			"vendor_name": "IBM® Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Juniper Networks MX240, MX480 and MX960 series with Macsec card MPC10E-10C and MPC10E-15C",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-11-09"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "CryptoComply",
+			"vendor_name": "SafeLogic",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-04-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco ASA FX-OS Cryptographic Module",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-03"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Trusted Platform Module ST33TPHF2XSPI [A], ST33TPHF2XI2C [B], ST33GTPMASPI [C], ST33GTPMAI2C [D], ST33GTPMISPI [E] & ST33GTPMII2C [F]",
+			"vendor_name": "STMicroelectronics",
+			"standard": "FIPS 140-2",
+			"iut_date": "2022-01-21"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "DocuSign QSCD Appliance",
+			"vendor_name": "DocuSign, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2022-01-21"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Intel® Optane™ Persistent Memory 300 Series ",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-26"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Intel® SSD DC P5316",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-25"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Catalyst 9800 (40/80) Wireless Controllers",
+			"vendor_name": "Cisco Systems, Inc",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-12-04"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "SBC Software Edition Session Border Controller v9.2",
+			"vendor_name": "Ribbon Communications, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-09-07"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FortiGate Appliances with FortiOS 6.4 & 7.0",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-03-29"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Infraguard Processor Module (I.P.M.)",
+			"vendor_name": "Advantor Systems L.L.C.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-12-18"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PTP 700 Point to Point Wireless Ethernet Bridge",
+			"vendor_name": "Cambium Networks, Ltd.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "iLO 5 Cryptographic Module",
+			"vendor_name": "Hewlett Packard Enterprise Development LP",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-10-28"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "AMD Ryzen PRO 5000 Series PSP Cryptographic CoProcessor (models 5475U, 5675U, 5875U)",
+			"vendor_name": "Advanced Micro Devices",
+			"standard": "FIPS 140-3",
+			"iut_date": "2022-01-28"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Infoblox Trinzic Virtual DDI appliance",
+			"vendor_name": "Infoblox",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-10-13"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FunOS Crypto Module",
+			"vendor_name": "Fungible Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-03-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "LogRhythm 7.6 Data Indexer (Linux)",
+			"vendor_name": "LogRhythm",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-10-21"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "cVu 16100 Network Packet Broker",
+			"vendor_name": "cPacket Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "F5(R) vCMP Cryptographic Module",
+			"vendor_name": "F5, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Qradar SIEM Core",
+			"vendor_name": "IBM",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-04-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Compunetix Evergreen MCU",
+			"vendor_name": "Compunetix, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "NFX150, NFX250, NFX350 Series JUNOS 21.4R1 FIPS",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Unbound Multi-Party Cryptographic Module",
+			"vendor_name": "Unbound Security Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-12-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Kernel Mode Cryptographic Primitives Library (Windows 10 and Windows Server version 20H2)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Silver Peak EdgeConnect EC-XS-FIPS, EC-XL-P-FIPS, and EC-XL-P-NM-FIPS 2021",
+			"vendor_name": "Silver Peak Systems Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "3e-520 Secure Access Point Cryptographic Module",
+			"vendor_name": "Ultra Intelligence and Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Mocana Cryptographic Suite B Module",
+			"vendor_name": "Mocana",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Juniper Networks EX4400-48MP/24MP, EX4400-48P/24P, EX4400-48T/24T and EX4400-48F Ethernet switches",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-23"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco FX-OS on 4K/9K Cryptographic Module",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Advanced Configurable Cryptographic Environment (ACCE) v3 HSM Crypto Module",
+			"vendor_name": "Ultra, Intelligence & Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-05-19"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Ruckus ICX 7650 and ICX 7850  Series Switch/Router",
+			"vendor_name": "CommScope Technologies LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PTX1000 Packet Transport Router",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Acme Packet 4600 and Acme Packet 6350 (v9.0)",
+			"vendor_name": "Oracle Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-04-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "CorSSL™ ",
+			"vendor_name": "Corsec Security, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-08-07"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "MX240, MX480, MX960 3D Universal Edge Routers with RE-S-X6-64G and RE1800 Routing Engines with macsec capable MPC MPC7E-10GE",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PTX10008 and PTX10016  packet transport routers  with  routing Engine JNP10K-RE0 and Macsec linecard LC1105-M",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "TRANSEC Module",
+			"vendor_name": "iDirect Government, LLC",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-29"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Annapurna NVMe SSD",
+			"vendor_name": "FADU, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-11-04"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "VMware's VMkernel Cryptographic Module",
+			"vendor_name": "VMware, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-11-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Firepower Threat Defense (FTD) and FX-OS on the FPR 1K and FPR 2K Appliance",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cradlepoint Kernel Cryptographic Module",
+			"vendor_name": "Cradlepoint, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-01"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Tablo Medical Informatics System",
+			"vendor_name": "Outset Medical, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-11-05"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "F5(R) Device Cryptographic Module",
+			"vendor_name": "F5, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "FortiGate 6000 Series with FortiOS 6.4",
+			"vendor_name": "Fortinet, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Apple corecrypto Module v11.1 [Apple silicon, Secure Key Store, Hardware]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-09-21"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "DocuSign QSCD Appliance",
+			"vendor_name": "DocuSign, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-09-04"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "PhioTX, PhioTX-Q",
+			"vendor_name": "Quantum Xchange, Inc",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-13"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cloudpath Enrollment Server (ES)",
+			"vendor_name": "CommScope Technologies LLC",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-07-06"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Mocana Cryptographic Loadable Kernel Module",
+			"vendor_name": "Mocana",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Juniper Networks MX10003 3D Universal Edge Router with  MACSec MIC and EX9253 Ethernet Switch with MACSec Line Card",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "3e-636 CyberFence Cryptographic Module",
+			"vendor_name": "Ultra Intelligence and Communications",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-17"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Brocade Fabric OS FIPS Cryptographic Module",
+			"vendor_name": "Brocade Communications Systems LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-04-07"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Firepower Next-Generation IPS Virtual (NGIPSv) ",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Aruba AOS-CX Cryptographic Module",
+			"vendor_name": "Aruba, a Hewlett Packard Enterprise company",
+			"standard": "FIPS 140-2",
+			"iut_date": "2020-12-11"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "IBM 4770-001 Cryptographic Coprocessor Security Module",
+			"vendor_name": "IBM",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-03"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "DocuSign HSM Appliance",
+			"vendor_name": "DocuSign, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-09-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cryptographic Module for BIG-IP (R)",
+			"vendor_name": "F5, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Dell BSAFE Crypto Module 2.0",
+			"vendor_name": "Dell Inc., BSAFE Product Team",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-11-16"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Hypersecu ServSec HSM Cryptographic Module",
+			"vendor_name": "Hypersecu Information Systems Inc",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-09-08"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Port Authority Series",
+			"vendor_name": "Communication Devices, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-19"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Boot Manager (Windows 10 version 21H1, Windows Server 2022, et al.)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Forcepoint Next Generation Firewall",
+			"vendor_name": "Forcepoint  ",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": " Dell BSAFE Crypto Module for C, v3.0",
+			"vendor_name": "Dell Inc., BSAFE Product Team",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-09-17"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Juniper Networks SRX1500, SRX4100, SRX4200, SRX4600, SRX5400, SRX5600 and SRX5800 Services Gateway",
+			"vendor_name": "Juniper Networks, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-05-28"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Samsung Flash Memory Protector",
+			"vendor_name": "Samsung Electronics Co., Ltd.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-22"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Apple corecrypto Module v11.1 [Apple silicon, Secure Key Store, Hardware, SL2/PHY3]",
+			"vendor_name": "Apple Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-06-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "NextFlex AirGuardian",
+			"vendor_name": "NextFlex",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-10-28"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Catalyst 8500 Series Edge Platforms",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-01-14"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cryptographic Primitives Library (Windows 10 version 21H1, Windows Server 2022, et al.)",
+			"vendor_name": "Microsoft Corporation",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-06-10"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Vehicle Data Device",
+			"vendor_name": "Verizon Connect",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-02-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "3e-636M-HSE CyberFence Cryptographic Module",
+			"vendor_name": "3e Technologies International, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-07-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "SEMPER Secure NOR Flash (S35HS256T, S35HL256T)",
+			"vendor_name": "Infineon Technologies LLC - Memory Solutions",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-11-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Palo Alto Networks SD-WAN Instant-On Network (ION) devices ION 1200 and ION 9000",
+			"vendor_name": "Palo Alto Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Uplogix Model 500, 5000, LM80, LM83X",
+			"vendor_name": "Uplogix, Inc.",
+			"standard": "FIPS 140-2",
+			"iut_date": "2021-12-15"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "wolfCrypt",
+			"vendor_name": "wolfSSL Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-10-30"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco Firepower Threat Defense (FTD) Virtual",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Arista CloudVision Portal Module",
+			"vendor_name": "Arista Networks, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-10-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Intel® Optane™ SSD DC D5800X",
+			"vendor_name": "Intel Corporation",
+			"standard": "FIPS 140-3",
+			"iut_date": "2020-09-26"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "BC-FJA (Bouncy Castle FIPS Java API)",
+			"vendor_name": "Legion of the Bouncy Castle Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-02"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Ruckus ICX 7650 and ICX 7550  Series Switch/Router",
+			"vendor_name": "CommScope Technologies LLC",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-12-20"
+		},
+		{
+			"_type": "sec_certs.sample.fips_iut.IUTEntry",
+			"module_name": "Cisco FX-OS Cryptographic Module on 4K/9K",
+			"vendor_name": "Cisco Systems, Inc.",
+			"standard": "FIPS 140-3",
+			"iut_date": "2021-03-12"
+		}
+	],
+	"timestamp": "2022-02-01T02:49:33.262393",
+	"last_updated": "2022-01-31",
+	"displayed": 179,
+	"not_displayed": 6,
+	"total": 185
+}]
+

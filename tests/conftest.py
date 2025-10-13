@@ -65,6 +65,8 @@ def mongo_data(app, mongodb):
     # Initialize other collections
     init_collections()
     for file in resources.files("tests.functional.data.mongo").iterdir():
+        if not file.name.endswith(".json"):
+            continue
         with file.open("r") as f:
             data = json.load(f, object_hook=object_hook)
         collection = file.name.removesuffix(".json")

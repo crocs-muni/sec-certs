@@ -1,145 +1,144 @@
-[
-  {
-    "_id": "CVE-2019-15809",
-    "_type": "sec_certs.sample.cve.CVE",
-    "cve_id": "CVE-2019-15809",
-    "vulnerable_cpes": [
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*",
-        "criteria_id": "0186C390-E400-4373-851E-6D987ED42453",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:athena-scs:idprotect:010b.0352.0005:*:*:*:*:*:*:*",
-        "criteria_id": "75C17EE8-520A-40DD-9B8D-BB083F4AA5AE",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:athena-scs:idprotect:010e.1245.0002:*:*:*:*:*:*:*",
-        "criteria_id": "083E5B5B-0302-49E2-8D06-C1B059EC3F06",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:athena-scs:idprotect:0106.0130.0401:*:*:*:*:*:*:*",
-        "criteria_id": "0EC44CE0-6A82-4899-AFA2-30FD50491035",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:cryptsoft:s\\/a_idflex_v:010b.0352.0005:*:*:*:*:*:*:*",
-        "criteria_id": "59001249-434B-4E60-9A1D-C2E4128D1DEB",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:tecsec:armored_card:010e.0264.0001:*:*:*:*:*:*:*",
-        "criteria_id": "74454DFB-4399-4872-A1A2-F0AB16968148",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:tecsec:armored_card:108.0264.0001:*:*:*:*:*:*:*",
-        "criteria_id": "6621AEE0-1C99-4E7E-A774-9D06D8D2D241",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:thalesgroup:etoken_4300:010e.1245.0002:*:*:*:*:*:*:*",
-        "criteria_id": "3AAEF776-9202-45EB-AE46-623667611D72",
-        "version_start": null,
-        "version_end": null
-      }
-    ],
-    "vulnerable_criteria_configurations": [],
-    "impact": {
-      "_type": "sec_certs.sample.cve.CVE.Metrics",
-      "base_score": 4.7,
-      "severity": "MEDIUM",
-      "exploitability_score": 1.0,
-      "impact_score": 3.6
-    },
-    "published_date": "2019-10-03T14:15:11.320000",
-    "cwe_ids": {
-      "_type": "set",
-      "_value": [
-        "CWE-203"
-      ]
-    }
-  },
-  {
-    "_id": "CVE-2019-15807",
-    "_type": "sec_certs.sample.cve.CVE",
-    "cve_id": "CVE-2019-15807",
-    "vulnerable_cpes": [
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:linux:linux_kernel:*:*:*:*:*:*:*:*",
-        "criteria_id": "CFD65D95-7180-4086-ADF0-EBCFA4514B4B",
-        "version_start": null,
-        "version_end": [
-          "excluding",
-          "5.1.13"
-        ]
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:debian:debian_linux:8.0:*:*:*:*:*:*:*",
-        "criteria_id": "C11E6FB0-C8C0-4527-9AA0-CB9B316F8F43",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:redhat:enterprise_linux:7.0:*:*:*:*:*:*:*",
-        "criteria_id": "142AD0DD-4CF3-4D74-9442-459CE3347E3A",
-        "version_start": null,
-        "version_end": null
-      },
-      {
-        "_type": "sec_certs.sample.cpe.CPEMatchCriteria",
-        "vulnerable": true,
-        "criteria": "cpe:2.3:o:redhat:enterprise_linux:8.0:*:*:*:*:*:*:*",
-        "criteria_id": "F4CFF558-3C47-480D-A2F0-BABF26042943",
-        "version_start": null,
-        "version_end": null
-      }
-    ],
-    "vulnerable_criteria_configurations": [],
-    "impact": {
-      "_type": "sec_certs.sample.cve.CVE.Metrics",
-      "base_score": 4.7,
-      "severity": "MEDIUM",
-      "exploitability_score": 1.0,
-      "impact_score": 3.6
-    },
-    "published_date": "2019-08-29T18:15:12.657000",
-    "cwe_ids": {
-      "_type": "set",
-      "_value": [
-        "CWE-401"
-      ]
-    }
-  }
-]
+[{
+	"_id": "CVE-2019-15807",
+	"_type": "sec_certs.sample.cve.CVE",
+	"cve_id": "CVE-2019-15807",
+	"vulnerable_cpes": [
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:linux:linux_kernel:*:*:*:*:*:*:*:*",
+			"criteria_id": "CFD65D95-7180-4086-ADF0-EBCFA4514B4B",
+			"version_start": null,
+			"version_end": [
+				"excluding",
+				"5.1.13"
+			]
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:debian:debian_linux:8.0:*:*:*:*:*:*:*",
+			"criteria_id": "C11E6FB0-C8C0-4527-9AA0-CB9B316F8F43",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:redhat:enterprise_linux:7.0:*:*:*:*:*:*:*",
+			"criteria_id": "142AD0DD-4CF3-4D74-9442-459CE3347E3A",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:redhat:enterprise_linux:8.0:*:*:*:*:*:*:*",
+			"criteria_id": "F4CFF558-3C47-480D-A2F0-BABF26042943",
+			"version_start": null,
+			"version_end": null
+		}
+	],
+	"vulnerable_criteria_configurations": [],
+	"impact": {
+		"_type": "sec_certs.sample.cve.CVE.Metrics",
+		"base_score": 4.7,
+		"severity": "MEDIUM",
+		"exploitability_score": 1.0,
+		"impact_score": 3.6
+	},
+	"published_date": "2019-08-29T18:15:12.657000",
+	"cwe_ids": {
+		"_type": "set",
+		"_value": [
+			"CWE-401"
+		]
+	}
+},
+{
+	"_id": "CVE-2019-15809",
+	"_type": "sec_certs.sample.cve.CVE",
+	"cve_id": "CVE-2019-15809",
+	"vulnerable_cpes": [
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*",
+			"criteria_id": "0186C390-E400-4373-851E-6D987ED42453",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:athena-scs:idprotect:010b.0352.0005:*:*:*:*:*:*:*",
+			"criteria_id": "75C17EE8-520A-40DD-9B8D-BB083F4AA5AE",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:athena-scs:idprotect:010e.1245.0002:*:*:*:*:*:*:*",
+			"criteria_id": "083E5B5B-0302-49E2-8D06-C1B059EC3F06",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:athena-scs:idprotect:0106.0130.0401:*:*:*:*:*:*:*",
+			"criteria_id": "0EC44CE0-6A82-4899-AFA2-30FD50491035",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:cryptsoft:s\\/a_idflex_v:010b.0352.0005:*:*:*:*:*:*:*",
+			"criteria_id": "59001249-434B-4E60-9A1D-C2E4128D1DEB",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:tecsec:armored_card:010e.0264.0001:*:*:*:*:*:*:*",
+			"criteria_id": "74454DFB-4399-4872-A1A2-F0AB16968148",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:tecsec:armored_card:108.0264.0001:*:*:*:*:*:*:*",
+			"criteria_id": "6621AEE0-1C99-4E7E-A774-9D06D8D2D241",
+			"version_start": null,
+			"version_end": null
+		},
+		{
+			"_type": "sec_certs.sample.cpe.CPEMatchCriteria",
+			"vulnerable": true,
+			"criteria": "cpe:2.3:o:thalesgroup:etoken_4300:010e.1245.0002:*:*:*:*:*:*:*",
+			"criteria_id": "3AAEF776-9202-45EB-AE46-623667611D72",
+			"version_start": null,
+			"version_end": null
+		}
+	],
+	"vulnerable_criteria_configurations": [],
+	"impact": {
+		"_type": "sec_certs.sample.cve.CVE.Metrics",
+		"base_score": 4.7,
+		"severity": "MEDIUM",
+		"exploitability_score": 1.0,
+		"impact_score": 3.6
+	},
+	"published_date": "2019-10-03T14:15:11.320000",
+	"cwe_ids": {
+		"_type": "set",
+		"_value": [
+			"CWE-203"
+		]
+	}
+}]
+
