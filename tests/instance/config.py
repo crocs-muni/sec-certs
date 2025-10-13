@@ -52,6 +52,11 @@ WEBUI_COLLECTION_PP_REPORTS = (
 )
 WEBUI_COLLECTION_PP_TARGETS = ""  # The ID of the knowledge base of Common Criteria Protection Profile security targets
 
+GITHUB_OAUTH_ENABLED = False
+GITHUB_OAUTH_CLIENT_ID = ""
+GITHUB_OAUTH_CLIENT_SECRET = ""
+
+
 # MongoDB
 MONGO_URI = "mongodb://localhost:27666/seccerts"
 
