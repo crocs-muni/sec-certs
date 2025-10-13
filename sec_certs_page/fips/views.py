@@ -101,6 +101,7 @@ def network():
 
 @fips.route("/network/graph.json")
 def network_graph():
+    fips_references = get_fips_references()
     if "search" in request.args:
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
@@ -116,18 +117,22 @@ def network_graph():
             certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
         else:
             raise BadRequest("Invalid search query.")
-        component_map = get_fips_map()
         components = {}
         ids = []
         for cert in certs:
-            if cert["_id"] not in component_map:
+            if cert["_id"] not in fips_references:
                 continue
             ids.append(cert["_id"])
-            component = component_map[cert["_id"]]
+            component = fips_references[cert["_id"]]
             if id(component) not in components:
                 components[id(component)] = component
         return network_graph_func(list(components.values()), highlighted=ids)
-    return network_graph_func(get_fips_graphs())
+    else:
+        components = {}
+        for component in fips_references.values():
+            if id(component) not in components:
+                components[id(component)] = component
+        return network_graph_func(list(components.values()))
 
 
 @fips.route("/search/")
