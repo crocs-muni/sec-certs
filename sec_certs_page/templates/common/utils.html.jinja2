@@ -117,7 +117,14 @@
                         $("#notification-icon").attr("title", "Notifications");
                     },
                     error: function (data) {
-
+                        // Parse the error message from the response
+                        let errorMessage = "Error subscribing to notifications.";
+                        if (data.responseJSON && data.responseJSON.error) {
+                            errorMessage = data.responseJSON.error;
+                        }
+                        $("#notification-icon").removeClass("btn-secondary").addClass("btn-danger");
+                        $("#notification-icon").html('<i class="fas fa-fw fa-triangle-exclamation" aria-hidden="true"></i> Error');
+                        $("#notification-icon").attr("title", errorMessage);
                     }
                 }
             )

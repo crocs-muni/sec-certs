@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from functools import wraps
 
 from bson import ObjectId
 from flask import abort, current_app, flash, jsonify, redirect, render_template, request, url_for
@@ -11,29 +12,47 @@ from . import notifications
 from .forms import ChangeSubscriptionForm, ManageForm, NewCertificateSubscriptionForm
 
 
+def subscribe_api(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not current_app.config["SUBSCRIPTIONS_ENABLED"]:
+            return (
+                jsonify(
+                    {
+                        "error": "Notification subscriptions are currently disabled.",
+                        "status": "NOK",
+                    }
+                ),
+                400,
+            )
+        if not current_user.is_authenticated:
+            return (
+                jsonify(
+                    {
+                        "error": "You must be logged in to subscribe.",
+                        "status": "NOK",
+                    }
+                ),
+                403,
+            )
+        if not current_user.email_confirmed:
+            return (
+                jsonify(
+                    {
+                        "error": "Please confirm your email to manage subscriptions.",
+                        "status": "NOK",
+                    }
+                ),
+                400,
+            )
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 @notifications.route("/subscribe/", methods=["POST"])
-@login_required
+@subscribe_api
 def subscribe():
-    if not current_app.config["SUBSCRIPTIONS_ENABLED"]:
-        return (
-            jsonify(
-                {
-                    "error": "Notification subscriptions are currently disabled.",
-                    "status": "NOK",
-                }
-            ),
-            400,
-        )
-    if not current_user.email_confirmed:
-        return (
-            jsonify(
-                {
-                    "error": "Please confirm your email to manage subscriptions.",
-                    "status": "NOK",
-                }
-            ),
-            400,
-        )
     data = request.json
     if set(data.keys()) != {"cert", "updates"}:
         return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
@@ -71,28 +90,8 @@ def subscribe():
 
 
 @notifications.route("/subscribe/new/", methods=["POST"])
-@login_required
+@subscribe_api
 def subscribe_new():
-    if not current_app.config["SUBSCRIPTIONS_ENABLED"]:
-        return (
-            jsonify(
-                {
-                    "error": "Notification subscriptions are currently disabled.",
-                    "status": "NOK",
-                }
-            ),
-            400,
-        )
-    if not current_user.email_confirmed:
-        return (
-            jsonify(
-                {
-                    "error": "Please confirm your email to manage subscriptions.",
-                    "status": "NOK",
-                }
-            ),
-            400,
-        )
     data = request.json
     if not isinstance(data, dict):
         return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
@@ -204,7 +203,7 @@ def manage():
 
 
 @notifications.route("/unsubscribe/", methods=["POST"])
-@login_required
+@subscribe_api
 def unsubscribe():
     data = request.json
     if not isinstance(data, dict):
@@ -224,7 +223,7 @@ def unsubscribe():
 
 
 @notifications.route("/unsubscribe/all/", methods=["POST"])
-@login_required
+@subscribe_api
 def unsubscribe_all():
     res = mongo.db.subs.delete_many({"username": current_user.username})
     if res.deleted_count == 0:

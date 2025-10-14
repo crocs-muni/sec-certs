@@ -131,7 +131,7 @@
                 <div class="modal-body" id="chat-body">
                     <p class="invalid-feedback" id="chat-error" style="display: none"></p>
                     <!-- Chat skeleton start -->
-                    {% if not current_user.is_authorized %}
+                    {% if not current_user.is_authenticated %}
                         <div class="alert alert-info" role="alert">
                             Chat is available to authorized users only. Please log in to use this feature.
                         </div>

@@ -1,9 +1,9 @@
 {% extends "common/base.html.jinja2" %}
 
-{% from "common/modals.html.jinja2" import chat_icon, chat_modal with context %}
+{% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_status, render_sars, render_sfrs, render_category %}
-{% from "common/utils.html.jinja2" import render_process_state %}
+{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
 
 {% block title %}
     <title>
@@ -45,6 +45,12 @@
                 </div>
                 <div >
                     <h1>{{ profile["web_data"]["name"]|default("") }}</h1>
+                    <div class="d-flex gap-3 flex-wrap mt-4">
+                        {{ compare_icon() }}
+                        {{ notification_icon(current_user, subscribed) }}
+                        {{ render_share_buttons(hashid, cert_id=None, name=profile["web_data"]["name"]) }}
+                    </div>
+
 
                     {% if "web_data" in profile %}
                         <div class="mt-5 mb-5">
@@ -233,7 +239,14 @@
                 </div>
             </div>
         </div>
-        <script>
+        <script type="module">
+            import {copyLinkToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
+
+            $(".copy-on-click").on("click", function (e) {
+                e.preventDefault();
+                copyLinkToClipboard($(this));
+            });
+
             window.certificate_data = {
                 name: "{{ profile["web_data"]["name"]|default("", true) }}",
                 hashid: "{{ hashid }}",
@@ -241,6 +254,7 @@
                 url: "{{ url_for("pp.entry", hashid=hashid) }}"
             };
         </script>
+        {{ notification_script(csrf_token) }}
     </main>
     {% if config["CHAT_ENABLED"] %}
     	{{ chat_modal() }}
