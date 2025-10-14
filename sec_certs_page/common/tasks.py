@@ -37,6 +37,7 @@ from sec_certs.dataset.dataset import Dataset
 from tqdm import tqdm
 
 from .. import mail, mongo, redis, whoosh_index
+from ..user.models import User
 from .diffs import DiffRenderer
 from .mail import Message
 from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
@@ -420,15 +421,15 @@ class Notifier(DiffRenderer):
 
         # Group the subscriptions by email
         change_sub_emails = mongo.db.subs.find(
-            {"certificate.hashid": {"$in": change_dgsts}, "confirmed": True, "certificate.type": self.collection},
-            {"email": 1},
+            {"certificate.hashid": {"$in": change_dgsts}, "certificate.type": self.collection},
         )
         new_sub_emails = mongo.db.subs.find(
-            {"updates": "new", "confirmed": True},
-            {"email": 1},
+            {"updates": "new", "which": self.collection},
         )
-        emails = {sub["email"] for sub in change_sub_emails} | {sub["email"] for sub in new_sub_emails}
+        usernames = {sub["username"] for sub in change_sub_emails} | {sub["username"] for sub in new_sub_emails}
 
+        if not usernames:
+            return
         # Load Bootstrap CSS
         with current_app.open_resource("static/lib/bootstrap.min.css", "r") as f:
             bootstrap_css = f.read()
@@ -439,10 +440,9 @@ class Notifier(DiffRenderer):
         run_date = run["start_time"].strftime("%d.%m.")
 
         # Go over the subscribed emails
-        for email in emails:
+        for username in usernames:
             cards = []
             urls = []
-            email_token = None
 
             # Go over the subscriptions for a given email and accumulate its rendered diffs
             some_changes = False
@@ -450,15 +450,15 @@ class Notifier(DiffRenderer):
                 mongo.db.subs.find(
                     {
                         "certificate.hashid": {"$in": change_dgsts},
-                        "confirmed": True,
-                        "email": email,
+                        "username": username,
                         "certificate.type": self.collection,
                     }
                 )
             )
             if subscriptions:
-                email_token = subscriptions[0]["email_token"]
                 for sub in subscriptions:
+                    if sub["type"] != "changes":
+                        continue
                     dgst = sub["certificate"]["hashid"]
                     diff = change_diffs[dgst]
                     render = change_renders[dgst]
@@ -478,11 +478,10 @@ class Notifier(DiffRenderer):
 
             # If the user is subscribed for new certs, add them.
             some_new = False
-            new_subscription = next(
-                iter(mongo.db.subs.find({"confirmed": True, "email": email, "updates": "new"})), None
+            new_subscriptions = list(
+                mongo.db.subs.find({"username": username, "type": "new", "which": self.collection})
             )
-            if new_subscription:
-                email_token = new_subscription["email_token"]
+            if new_subscriptions:
                 for dgst, render in new_renders.items():
                     cards.append(render)
                     urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
@@ -490,14 +489,10 @@ class Notifier(DiffRenderer):
             if not some_changes and not some_new:
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
                 continue
-            if email_token is None:
-                logger.error(f"Email token undefined for {email}.")
-                continue
             # Render diffs into body template
             email_core_html = render_template(
                 "notifications/email/notification_email.html.jinja2",
                 cards=cards,
-                email_token=email_token,
                 changes=some_changes,
                 new=some_new,
             )
@@ -512,14 +507,14 @@ class Notifier(DiffRenderer):
             # Render plaintext part
             email_plain = render_template(
                 "notifications/email/notification_email.txt.jinja2",
-                email_token=email_token,
                 urls=urls,
                 changes=some_changes,
                 new=some_new,
             )
+            user = User.get(username=username)
             # Send out the message
             msg = Message(
-                f"Certificate changes from {run_date} | sec-certs.org", [email], body=email_plain, html=email_html
+                f"Certificate changes from {run_date} | sec-certs.org", [user.email], body=email_plain, html=email_html
             )
             mail.send(msg)
 

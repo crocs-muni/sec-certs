@@ -81,7 +81,7 @@ The `subs` collection stores user notification subscriptions. There are generall
     username: String;
     timestamp: Date;
     type: "changes";
-    update: "all" | "vuln";
+    updates: "all" | "vuln";
     certificate: {
         name: String;
         hashid: String;

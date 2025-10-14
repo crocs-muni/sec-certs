@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from flask import url_for
 from flask.testing import FlaskClient
@@ -13,63 +15,45 @@ def certificate(request):
 
 
 @pytest.fixture(params=["all", "vuln"])
-def sub_obj(certificate, request):
-    return {
-        "selected": [
-            {
-                "name": certificate["name"],
-                "hashid": certificate["_id"],
-                "type": "cc",
-                "url": url_for("cc.entry", hashid=certificate["_id"]),
-            }
-        ],
-        "email": "example@example.com",
+def subscription(user, certificate, request):
+    sub = {
+        "username": user[0].username,
+        "timestamp": datetime.now(timezone.utc),
+        "certificate": {
+            "name": certificate["name"],
+            "hashid": certificate["_id"],
+            "type": "cc",
+            "url": url_for("cc.entry", hashid=certificate["_id"]),
+        },
         "updates": request.param,
-        "captcha": "...",
+        "type": "changes",
     }
+    res = mongo.db.subs.insert_one(sub)
+    sub["_id"] = res.inserted_id
+    yield sub
+    mongo.db.subs.delete_one({"_id": res.inserted_id})
 
 
-@pytest.fixture
-def unconfirmed_subscription(client: FlaskClient, mocker: MockerFixture, sub_obj):
-    mocker.patch("sec_certs_page.common.views.validate_captcha")
-    mocker.patch("flask_wtf.csrf.validate_csrf")
-    mocker.patch("dramatiq.Actor.send")
-    client.post("/notify/subscribe/", json=sub_obj)
-    subscription = mongo.db.subs.find_one({"email": sub_obj["email"]})
-    yield subscription
-    mongo.db.subs.delete_one({"_id": subscription["_id"]})
+def test_send_notification(user, mocker, subscription):
+    user, password = user
 
-
-@pytest.fixture
-def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
-    client.get(f"/notify/confirm/{unconfirmed_subscription['token']}")
-    subscription = mongo.db.subs.find_one({"_id": unconfirmed_subscription["_id"]})
-    yield subscription
-    mongo.db.subs.delete_one({"_id": subscription["_id"]})
-
-
-def test_send_notification(app, mocker, confirmed_subscription):
-    runs = set(map(lambda r: r["run_id"], mongo.db.cc_diff.find({}, {"run_id": 1})))
-    from bson.json_util import dumps
-
-    print(dumps(runs))
     m = mocker.patch.object(mail, "send")
-    dgst = confirmed_subscription["certificate"]["hashid"]
-    if confirmed_subscription["updates"] == "vuln":
+    dgst = subscription["certificate"]["hashid"]
+    if subscription["updates"] == "vuln":
         pytest.skip("Skip vuln only sub.")
     diffs = list(mongo.db.cc_diff.find({"dgst": dgst}))
     notify(str(diffs[-1]["run_id"]))
     for call_args in m.call_args_list:
         message = call_args.args[0]
-        if confirmed_subscription["email"] in message.recipients:
+        if user.email in message.recipients:
             break
     else:
         assert False
 
 
 @pytest.mark.slow
-def test_cve_notification(app, mocker, confirmed_subscription):
-    dgst = confirmed_subscription["certificate"]["hashid"]
+def test_cve_notification(user, mocker, subscription):
+    dgst = subscription["certificate"]["hashid"]
     diffs = list(mongo.db.cc_diff.find({"type": "change", "dgst": dgst}))
     m = mocker.patch.object(mail, "send")
 
@@ -81,7 +65,7 @@ def test_cve_notification(app, mocker, confirmed_subscription):
                     vuln_diff = True
                     break
         notify(str(diff["run_id"]))
-        if vuln_diff or confirmed_subscription["updates"] == "all":
+        if vuln_diff or subscription["updates"] == "all":
             assert m.call_count == 1
         else:
             assert m.call_count == 0
