@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from bson import ObjectId
 from flask import abort, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from markupsafe import Markup
@@ -39,6 +40,8 @@ def subscribe():
     if data["updates"] not in ("vuln", "all"):
         return jsonify({"error": "Invalid update type.", "status": "NOK"}), 400
     cert = data["cert"]
+    if not isinstance(cert, dict):
+        return jsonify({"error": "Invalid certificate data.", "status": "NOK"}), 400
     if set(cert.keys()) != {"name", "hashid", "type", "url"}:
         return jsonify({"error": "Invalid certificate data.", "status": "NOK"}), 400
     if cert["type"] not in ("fips", "cc", "pp"):
@@ -50,6 +53,7 @@ def subscribe():
     del cert["url"]
 
     request_time = datetime.now(timezone.utc)
+    # TODO: Maybe drop the name and url from the stored subscription?
 
     sub = {
         "timestamp": request_time,
@@ -90,6 +94,8 @@ def subscribe_new():
             400,
         )
     data = request.json
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
     if set(data.keys()) != {"which"}:
         return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
     if data["which"] not in ("cc", "fips", "pp"):
@@ -113,7 +119,7 @@ def subscribe_new():
         )
 
 
-@notifications.route("/manage", methods=["GET", "POST"])
+@notifications.route("/manage/", methods=["GET", "POST"])
 @login_required
 def manage():
     if not current_user.email_confirmed:
@@ -197,14 +203,18 @@ def manage():
     )
 
 
-@notifications.route("/unsubscribe", methods=["POST"])
+@notifications.route("/unsubscribe/", methods=["POST"])
 @login_required
 def unsubscribe():
     data = request.json
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
     if set(data.keys()) != {"id"}:
         return jsonify({"error": "Invalid data.", "status": "NOK"}), 400
+    if not ObjectId.is_valid(data["id"]):
+        return jsonify({"error": "Invalid subscription ID.", "status": "NOK"}), 400
 
-    res = mongo.db.subs.delete_one({"_id": data["id"], "username": current_user.username})
+    res = mongo.db.subs.delete_one({"_id": ObjectId(data["id"]), "username": current_user.username})
 
     if res.deleted_count == 0:
         flash("No subscriptions found to unsubscribe.", "info")
@@ -213,7 +223,7 @@ def unsubscribe():
     return redirect(url_for("index"))
 
 
-@notifications.route("/unsubscribe/all", methods=["POST"])
+@notifications.route("/unsubscribe/all/", methods=["POST"])
 @login_required
 def unsubscribe_all():
     res = mongo.db.subs.delete_many({"username": current_user.username})

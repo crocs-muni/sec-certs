@@ -2,11 +2,14 @@ import json
 import os
 import subprocess
 import tempfile
+from datetime import datetime, timezone
 from importlib import resources
+from typing import Any, Generator
 
 import pytest
 from bson.json_util import object_hook
 from flask import Flask
+from flask.testing import FlaskClient
 from pymongo import MongoClient
 
 from sec_certs_page import app as sec_certs_app
@@ -15,6 +18,7 @@ from sec_certs_page.cc.mongo import create as cc_create
 from sec_certs_page.common.mongo import init_collections
 from sec_certs_page.fips.mongo import create as fips_create
 from sec_certs_page.pp.mongo import create as pp_create
+from sec_certs_page.user.models import User, hash_password
 
 from .client import RemoteTestClient
 
@@ -74,10 +78,66 @@ def mongo_data(app, mongodb):
     yield
 
 
+# @pytest.fixture(autouse=True, scope="function")
+def clean_mongo(app):
+    with mongo.db.watch(full_document_before_change="whenAvailable") as stream:
+        yield
+        # Clean up any changes made to the DB during the test
+        while stream.alive:
+            change = stream.try_next()
+            if not change:
+                break
+            operation = change["operationType"]
+            pre_image = change.get("fullDocumentBeforeChange")
+            doc_id = change["documentKey"]["_id"]
+            coll = mongo.db[change["ns"]["coll"]]
+
+            if operation == "update" or operation == "replace":
+                if pre_image:
+                    # Restore the previous version of the document
+                    coll.replace_one({"_id": doc_id}, pre_image)
+                    print(f"Rolled back update/replace for _id {doc_id}")
+                else:
+                    print(f"Pre-image missing for update/replace operation on _id {doc_id}")
+            elif operation == "insert":
+                # Remove the inserted document
+                coll.delete_one({"_id": doc_id})
+                print(f"Rolled back insert for _id {doc_id}")
+            else:
+                print(f"Unknown operationType: {operation} for _id {doc_id}")
+
+
 @pytest.fixture(scope="function")
-def client(app: Flask):
+def client(app: Flask) -> Generator[FlaskClient | RemoteTestClient, Any, None]:
     if os.getenv("TEST_REMOTE"):
         yield RemoteTestClient("https://sec-certs.org")
     else:
         with app.test_client() as testing_client:
             yield testing_client
+
+
+@pytest.fixture
+def user(app) -> Generator[tuple[User, str], Any, None]:
+    username = "user"
+    password = "password"
+    email = "example@example.com"
+    roles: list[str] = []
+    pwhash = hash_password(password)
+    user = User(
+        username, pwhash, email, roles, email_confirmed=True, created_at=datetime.now(timezone.utc), github_id=None
+    )
+    res = mongo.db.users.insert_one(user.dict)
+    yield user, password
+    mongo.db.users.delete_one({"_id": res.inserted_id})
+
+
+@pytest.fixture
+def logged_in(client: FlaskClient, user, mocker) -> Generator[FlaskClient, Any, None]:
+    user, password = user
+    mocker.patch("flask_wtf.csrf.validate_csrf")
+    with client.post(
+        "/user/login",
+        data={"username": user.username, "password": password, "remember_me": True},
+        follow_redirects=True,
+    ):
+        yield client
