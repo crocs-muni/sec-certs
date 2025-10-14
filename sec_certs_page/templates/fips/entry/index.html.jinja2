@@ -2,7 +2,7 @@
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
 {% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
-{% from "common/modals.html.jinja2" import compare_icon, chat_icon %}
+{% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "common/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block title %}
@@ -420,6 +420,9 @@
         </script>
         {{ notification_script(csrf_token) }}
     </main>
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_modal() }}
+    {% endif %}
 {% endblock %}
 
 {% block footer %}

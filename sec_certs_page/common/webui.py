@@ -57,6 +57,7 @@ def list_files(content: bool = False):
 def find_file(fname: str, content: bool = False):
     url = "v1/files/search"
     response = get(url, query={"filename": fname, "content": str(content).lower()})
+    print(response.content)
     if response.status_code == 200:
         return response.json()
     else:

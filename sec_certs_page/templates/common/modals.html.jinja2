@@ -56,7 +56,6 @@
             add_current_cert,
             update_state,
             compare_do,
-            chat_authorize,
             chat_files,
             chat
         } from "/static/modal.js?{{ static_hash("modal.js") }}";
@@ -67,11 +66,6 @@
             {% if config["CHAT_ENABLED"] %}
                 $("#chat-modal").on("show.bs.modal", async function () {
                     let token = "{{ csrf_token() }}";
-                    let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
-                    let check_url = "{{ url_for("chat.authorized") }}";
-                    let auth_url = "{{ url_for("chat.authorize") }}";
-                    await chat_authorize(check_url, auth_url, sitekey, token);
-
                     let files_url = "{{ url_for("chat.files") }}"
                     chat_files(files_url, token, window.certificate_data);
                 });
@@ -135,45 +129,46 @@
                     </div>
                 </div>
                 <div class="modal-body" id="chat-body">
-                    <div id="chat-turnstile"></div>
-                    <p id="chat-authorize">
-                        Please authorize to use the chat.
-                    </p>
-                    <p id="chat-expires-at" class="text-muted small" style="display: none"></p>
                     <p class="invalid-feedback" id="chat-error" style="display: none"></p>
                     <!-- Chat skeleton start -->
-                    <div id="chat-skeleton">
-                        <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <label for="chat-about" class="form-label mb-0">Chat context</label>
-                                <select id="chat-about" class="form-select w-auto">
-                                    <option value="rag-this" selected>(RAG) This certificate</option>
-                                    <option value="rag-both">(RAG) All certificates + this</option>
-                                    <option value="full-report">Full context (report)</option>
-                                    <option value="full-target">Full context (target)</option>
-                                    <option value="full-both">Full context (both)</option>
-                                </select>
+                    {% if not current_user.is_authorized %}
+                        <div class="alert alert-info" role="alert">
+                            Chat is available to authorized users only. Please log in to use this feature.
+                        </div>
+                    {% else %}
+                        <div id="chat-skeleton">
+                            <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <label for="chat-about" class="form-label mb-0">Chat context</label>
+                                    <select id="chat-about" class="form-select w-auto">
+                                        <option value="rag-this" selected>(RAG) This certificate</option>
+                                        <option value="rag-both">(RAG) All certificates + this</option>
+                                        <option value="full-report">Full context (report)</option>
+                                        <option value="full-target">Full context (target)</option>
+                                        <option value="full-both">Full context (both)</option>
+                                    </select>
+                                </div>
+                                <span id="chat-files"></span>
                             </div>
-                            <span id="chat-files"></span>
-                        </div>
-                        <div id="chat-messages">
-                            <!-- Messages will appear here -->
-                        </div>
-                        <div class="chat-input-group input-group">
+                            <div id="chat-messages">
+                                <!-- Messages will appear here -->
+                            </div>
+                            <div class="chat-input-group input-group">
                             <textarea id="chat-input" class="form-control" rows="2"
                                       placeholder="Type your message..."></textarea>
-                            <button id="chat-send" class="btn btn-primary" type="button">Send</button>
-                        </div>
-                        {% set placeholders = ["Describe this certificate.",
+                                <button id="chat-send" class="btn btn-primary" type="button">Send</button>
+                            </div>
+                            {% set placeholders = ["Describe this certificate.",
                                                "What is the certificate ID of this certificate?",
                                                "What other certified products are referenced by this certificate?",
                                                "Which evaluation facility performed the evaluation of this certificate?",
                                                "When was this product certified?"] %}
-                        <span class="text-muted mt-2">
+                            <span class="text-muted mt-2">
                             For example, try:<br/><span class="border rounded"
                                                         onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
                         </span>
-                    </div>
+                        </div>
+                    {% endif %}
                     <!-- Chat skeleton end -->
                 </div>
                 <div class="modal-footer">

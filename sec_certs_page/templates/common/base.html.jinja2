@@ -1,4 +1,4 @@
-{% from "common/modals.html.jinja2" import compare_modal, chat_modal, modal_script with context %}
+{% from "common/modals.html.jinja2" import compare_modal, modal_script with context %}
 <!doctype html>
 <html lang="en">
 
@@ -361,9 +361,6 @@
             {% block content %}
             {% endblock %}
             {{ compare_modal() }}
-            {% if config["CHAT_ENABLED"] %}
-            	{{ chat_modal() }}
-            {% endif %}
             <footer>
                 {% block footer %}
                     <div class="row position-relative">

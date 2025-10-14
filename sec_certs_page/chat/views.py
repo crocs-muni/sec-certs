@@ -1,141 +1,33 @@
-import re
-import secrets
-import time
+from functools import wraps
 
-from flask import current_app, render_template, request, session, url_for
+from flask import current_app, request, url_for
 from markdown2 import markdown
 from nh3 import nh3
 
-from .. import mongo, redis
-from ..common.permissions import admin_permission
-from ..common.views import captcha_required
+from .. import mongo
+from ..common.permissions import chat_permission
 from ..common.webui import chat_full, chat_rag, file_name, file_type, resolve_files
 from . import chat
 
-# Remove in-memory store for auth tokens (all tokens are in redis)
-CHAT_AUTH_TOKEN_LIFETIME = 3600 * 24 * 7  # 7 days in seconds
 
+def chat_api(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not current_app.config["CHAT_ENABLED"]:
+            return {"status": "error", "message": "Chat is not enabled."}, 403
+        if not chat_permission.can():
+            return {"status": "error", "message": "You are not authorized to use the chat."}, 403
+        if not request.is_json:
+            return {"status": "error", "message": "Request must be JSON."}, 400
+        return func(*args, **kwargs)
 
-@chat.route("/authorize/", methods=["POST"])
-@captcha_required(json=True)
-def authorize():
-    """Authorize user for chat: admins get infinite expiry, invitees get expiry from invite."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return {"status": "error", "message": "Chat is not enabled."}, 403
-    # Check if this session has an invite token
-    invite_token = session.get("chat_invite_token")
-    if admin_permission.can():
-        # Admin: infinite expiry
-        session["chat_authorized"] = True
-        session["chat_authorized_via"] = "admin"
-        session.pop("chat_authorized_expiry", None)
-        session.pop("chat_invite_token", None)
-        return {"status": "ok", "expires_at": "never"}, 200
-    elif invite_token:
-        # Invited user: check token validity and set expiry
-        if not re.fullmatch(r"[0-9a-f]{32}", invite_token):
-            return {"status": "error", "message": "Invalid invite token format."}, 400
-        value = redis.get(f"chat_auth_token:{invite_token}")
-        now = int(time.time())
-        if not value:
-            session.pop("chat_invite_token", None)
-            return {"status": "error", "message": "Invalid or expired invite link."}, 400
-        try:
-            chat_duration = int(value)
-        except Exception:
-            session.pop("chat_invite_token", None)
-            return {"status": "error", "message": "Corrupted invite link data."}, 400
-        expiry = now + chat_duration
-        session["chat_authorized"] = True
-        session["chat_authorized_via"] = "invite"
-        session["chat_authorized_expiry"] = expiry
-        # Do NOT delete the invite token here; allow multiple users to redeem it
-        session.pop("chat_invite_token", None)
-        return {"status": "ok", "expires_at": expiry}, 200
-    else:
-        return {"status": "error", "message": "Not an admin and no invite token present."}, 403
-
-
-@chat.route("/authorized/")
-def authorized():
-    """Check if the user is authorized to chat."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return {"status": "error", "message": "Chat is not enabled."}, 403
-    return {"authorized": is_chat_authorized(), "expires_at": session.get("chat_authorized_expiry", "never")}
-
-
-@chat.route("/invite/", methods=["POST"])
-def create_auth_link():
-    """Admin endpoint to generate a short-lived chat auth link with custom durations."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return {"status": "error", "message": "Chat is not enabled."}, 403
-    if not admin_permission.can():
-        return {"status": "error", "message": "Only admin users can generate auth links."}, 403
-    data = request.get_json(silent=True) or {}
-    link_duration = data.get("link_duration", CHAT_AUTH_TOKEN_LIFETIME)
-    chat_duration = data.get("chat_duration", CHAT_AUTH_TOKEN_LIFETIME)
-    # Validate durations: must be int, in range 60..max_duration
-    max_duration = 60 * 60 * 24 * 14  # 14 days in seconds
-    try:
-        link_duration = int(link_duration)
-    except Exception:
-        return {
-            "status": "error",
-            "message": f"Invalid link_duration. Must be an integer between 60 and {max_duration} seconds.",
-        }, 400
-    try:
-        chat_duration = int(chat_duration)
-    except Exception:
-        return {
-            "status": "error",
-            "message": f"Invalid chat_duration. Must be an integer between 60 and {max_duration} seconds.",
-        }, 400
-    if link_duration < 60 or link_duration > max_duration:  # 14 days in seconds
-        return {"status": "error", "message": f"link_duration must be between 60 and {max_duration} seconds."}, 400
-    if chat_duration < 60 or chat_duration > max_duration:  # 14 days in seconds
-        return {"status": "error", "message": f"chat_duration must be between 60 and {max_duration} seconds."}, 400
-    token = secrets.token_hex(16)  # 32 hex chars
-    # Store only chat_duration as the value, use redis key expiry for link validity
-    redis.setex(f"chat_auth_token:{token}", link_duration, str(chat_duration))
-    link = url_for("chat.consume_auth_link", token=token, _external=True)
-    return {"status": "ok", "link": link, "link_expires_in": link_duration, "chat_expires_in": chat_duration}
-
-
-@chat.route("/invite/<token>", methods=["GET"])
-def consume_auth_link(token):
-    """Store invite token in session."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return render_template("common/message.html.jinja2", heading="Chat not enabled"), 403
-    if admin_permission.can():
-        return render_template("common/message.html.jinja2", heading="Admins don't need invite links"), 403
-    if not re.fullmatch(r"[0-9a-f]{32}", token) or not redis.exists(f"chat_auth_token:{token}"):
-        return (
-            render_template(
-                "common/message.html.jinja2",
-                heading="Invalid invite link",
-                lead="The provided invite link is not valid or has expired.",
-            ),
-            400,
-        )
-    # Only store the token, do not authorize yet
-    session["chat_invite_token"] = token
-    return render_template(
-        "common/message.html.jinja2",
-        heading="Chat invite accepted",
-        lead="You have accepted the chat invite.",
-        text="You can now navigate to a page of a certificate and start chatting.",
-    )
+    return wrapper
 
 
 @chat.route("/files/", methods=["POST"])
+@chat_api
 def files():
     """Query which files are available for a given hashid."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return {"status": "error", "message": "Chat is not enabled."}, 403
-    if not is_chat_authorized():
-        return {"status": "error", "message": "You are not authorized to use the chat."}, 403
-    if not request.is_json:
-        return {"status": "error", "message": "Request must be JSON."}, 400
     data = request.get_json()
     if "hashid" not in data:
         return {"status": "error", "message": "Missing 'hashid' in request."}, 400
@@ -156,14 +48,9 @@ def files():
 
 
 @chat.route("/rag/", methods=["POST"])
+@chat_api
 def query_rag():
     """Chat with the model."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return {"status": "error", "message": "Chat is not enabled."}, 403
-    if not is_chat_authorized():
-        return {"status": "error", "message": "You are not authorized to use the chat."}, 403
-    if not request.is_json:
-        return {"status": "error", "message": "Request must be JSON."}, 400
     data = request.get_json()
     if "query" not in data:
         return {"status": "error", "message": "Missing 'query' in request."}, 400
@@ -230,14 +117,9 @@ def query_rag():
 
 
 @chat.route("/full/", methods=["POST"])
+@chat_api
 def query_full():
     """Chat with the model."""
-    if not current_app.config["CHAT_ENABLED"]:
-        return {"status": "error", "message": "Chat is not enabled."}, 403
-    if not is_chat_authorized():
-        return {"status": "error", "message": "You are not authorized to use the chat."}, 403
-    if not request.is_json:
-        return {"status": "error", "message": "Request must be JSON."}, 400
     data = request.get_json()
     if "query" not in data:
         return {"status": "error", "message": "Missing 'query' in request."}, 400
@@ -285,29 +167,3 @@ def query_full():
     cleaned = nh3.clean(rendered).strip()
 
     return {"status": "ok", "response": cleaned, "raw": response, "sources": []}, 200
-
-
-# Helper to check session expiry in endpoints
-def is_chat_authorized():
-    authorized = session.get("chat_authorized", False)
-    via = session.get("chat_authorized_via")
-    expiry = session.get("chat_authorized_expiry")
-    now = int(time.time())
-    if not authorized:
-        return False
-    if via == "admin":
-        # Double-check admin status
-        if admin_permission.can():
-            return True
-        else:
-            session.pop("chat_authorized", None)
-            session.pop("chat_authorized_via", None)
-            return False
-    if via == "invite":
-        if expiry and now > expiry:
-            session.pop("chat_authorized", None)
-            session.pop("chat_authorized_expiry", None)
-            session.pop("chat_authorized_via", None)
-            return False
-        return True
-    return False
