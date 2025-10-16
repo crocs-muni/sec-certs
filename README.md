@@ -2,6 +2,8 @@
 
 # seccerts.org page
 
+[![Tests](https://github.com/crocs-muni/sec-certs/actions/workflows/page.yml/badge.svg)](https://github.com/crocs-muni/sec-certs/actions/workflows/page.yml)
+
 This branch contains a [Flask](https://palletsprojects.com/p/flask/) app that is available
 at [sec-certs.org](https://sec-certs.org) and can be used to serve a page with the data locally.
 
