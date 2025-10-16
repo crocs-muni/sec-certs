@@ -154,16 +154,12 @@ def magic_login(token):
     if current_user.is_authenticated:
         return redirect(url_for("index"))
 
-    user_id = User.verify_token(token, "magic_link")
-    if user_id:
-        user_obj = User.get(user_id)
-        if user_obj and user_obj.email_confirmed:
-            login_user(user_obj, remember=True)
-            identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
-            flash("You've been successfully logged in via email link.", "success")
-            return redirect(url_for("index"))
-        else:
-            flash("Invalid login link.", "error")
+    user_obj = User.verify_token(token, "magic_link")
+    if user_obj and user_obj.email_confirmed:
+        login_user(user_obj, remember=True)
+        identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
+        flash("You've been successfully logged in via email link.", "success")
+        return redirect(url_for("index"))
     else:
         flash("Invalid or expired login link.", "error")
 

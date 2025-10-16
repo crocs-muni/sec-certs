@@ -108,15 +108,24 @@ def clean_mongo(app):
 
 
 @pytest.fixture(scope="function")
+def raw_client(app: Flask) -> Generator[FlaskClient | RemoteTestClient, Any, None]:
+    if os.getenv("TEST_REMOTE"):
+        yield RemoteTestClient("https://sec-certs.org")
+    else:
+        with app.app_context():
+            yield app.test_client()
+
+
+@pytest.fixture(scope="function")
 def client(app: Flask) -> Generator[FlaskClient | RemoteTestClient, Any, None]:
     if os.getenv("TEST_REMOTE"):
         yield RemoteTestClient("https://sec-certs.org")
     else:
-        with app.test_client() as testing_client:
+        with app.app_context(), app.test_client() as testing_client:
             yield testing_client
 
 
-@pytest.fixture
+@pytest.fixture()
 def user(app) -> Generator[tuple[User, str], Any, None]:
     username = "user"
     password = "password"
@@ -131,13 +140,31 @@ def user(app) -> Generator[tuple[User, str], Any, None]:
     mongo.db.users.delete_one({"_id": res.inserted_id})
 
 
-@pytest.fixture
-def logged_in(client: FlaskClient, user, mocker) -> Generator[FlaskClient, Any, None]:
-    user, password = user
+@pytest.fixture()
+def username(user):
+    user, _ = user
+    return user.username
+
+
+@pytest.fixture()
+def email(user):
+    user, _ = user
+    return user.email
+
+
+@pytest.fixture()
+def password(user):
+    _, password = user
+    return password
+
+
+@pytest.fixture()
+def logged_in(raw_client: FlaskClient, username, password, mocker) -> Generator[FlaskClient, Any, None]:
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    with client.post(
-        "/user/login",
-        data={"username": user.username, "password": password, "remember_me": True},
-        follow_redirects=True,
-    ):
-        yield client
+    with raw_client:
+        raw_client.post(
+            "/user/login",
+            data={"username": username, "password": password, "remember_me": True},
+            follow_redirects=True,
+        )
+        yield raw_client

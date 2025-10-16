@@ -7,7 +7,7 @@ from sec_certs_page import mongo
 from sec_certs_page.admin import User, hash_password
 
 
-@pytest.fixture
+@pytest.fixture()
 def admin(app):
     username = "admin"
     password = "password"
@@ -22,36 +22,17 @@ def admin(app):
     mongo.db.users.delete_one({"_id": res.inserted_id})
 
 
-@pytest.fixture
-def logged_in_client(client: FlaskClient, admin, mocker):
+@pytest.fixture()
+def logged_in_client(raw_client: FlaskClient, admin, mocker):
     user, password = admin
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    with client.post(
-        "/user/login",
-        data={"username": user.username, "password": password, "remember_me": True},
-        follow_redirects=True,
-    ):
-        yield client
-
-
-def test_login(client: FlaskClient, admin, mocker):
-    user, password = admin
-    mocker.patch("flask_wtf.csrf.validate_csrf")
-
-    resp = client.get("/user/login")
-    assert resp.status_code == 200
-
-    resp = client.post(
-        "/user/login",
-        data={"username": user.username, "password": password, "remember_me": True},
-        follow_redirects=True,
-    )
-    assert resp.status_code == 200
-
-
-def test_logout(logged_in_client):
-    resp = logged_in_client.get("/user/logout", follow_redirects=True)
-    assert resp.status_code == 200
+    with raw_client:
+        raw_client.post(
+            "/user/login",
+            data={"username": user.username, "password": password, "remember_me": True},
+            follow_redirects=True,
+        )
+        yield raw_client
 
 
 def test_home(logged_in_client):
