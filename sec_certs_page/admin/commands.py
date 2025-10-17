@@ -7,7 +7,7 @@ from .. import app, mongo
 from ..cc.tasks import reindex_collection as reindex_cc
 from ..common.mongo import init_collections as init_collections_func
 from ..fips.tasks import reindex_collection as reindex_fips
-from .user import User, hash_password
+from ..user.models import User, hash_password
 
 user_group = AppGroup("user", help="Manage users.")
 app.cli.add_command(user_group)

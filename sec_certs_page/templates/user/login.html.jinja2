@@ -1,0 +1,51 @@
+{% extends "common/base.html.jinja2" %}
+{% block content %}
+    <div class="signin-wrapper">
+        <img class="mb-4 mx-auto d-block" src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
+             height="100">
+        <main class="form-signin">
+            <form action="{{ url_for(".login") }}" method="post" name="login">
+                {{ form.hidden_tag() }}
+                <h1 class="h3 mb-3 fw-normal">Sign in</h1>
+
+
+                <div class="form-floating my-2">
+                    {{ form.username(class_="form-control") }}
+                    <label for="username">Username</label>
+                </div>
+                <div class="form-floating my-2">
+                    {{ form.password(class_="form-control") }}
+                    <label for="password">Password</label>
+                </div>
+
+                <div class="checkbox mb-3">
+                    <label>
+                        {{ form.remember_me }} Remember me
+                    </label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+
+                <div class="text-center">
+                    <div class="d-flex align-items-center">
+                        <hr class="flex-grow-1">
+                        <span class="px-3 py-3 text-muted">or</span>
+                        <hr class="flex-grow-1">
+                    </div>
+                    <a href="{{ url_for('user.magic_link') }}" class="w-100 btn btn-lg btn-outline-secondary mb-2">
+                        <i class="fas fa-envelope"></i> Sign in with email link
+                    </a>
+                </div>
+
+                {% if is_github_oauth_enabled() %}
+                    <a href="{{ url_for('user.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
+                        <i class="fab fa-github"></i> Sign in with GitHub
+                    </a>
+                {% endif %}
+                <div class="text-center mt-3">
+                    <p><a href="{{ url_for('user.forgot_password') }}">Forgot your password?</a></p>
+                    <p class="mt-2">Don't have an account? <a href="{{ url_for('user.register') }}">Create one</a></p>
+                </div>
+            </form>
+        </main>
+    </div>
+{% endblock %}

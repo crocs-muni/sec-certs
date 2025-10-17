@@ -12,20 +12,7 @@
         </button>
     </span>
 {% endmacro %}
-{% macro notification_icon() %}
-    <span id="notifications" class="position-relative d-inline-block">
-        <button id="notification-icon" class="btn btn-secondary text-nowrap" title="Notifications"
-                data-bs-toggle="modal" data-bs-target="#notification-modal">
-            <i class="fas fa-fw fa-envelope" aria-hidden="true"></i>
-            <span id="notification-pill"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                                &nbsp;
-                <span class="visually-hidden">selected certificates for notification subscription</span>
-            </span>
-            Subscribe
-        </button>
-    </span>
-{% endmacro %}
+
 {% macro compare_modal() %}
     <div class="modal fade" id="compare-modal" tabindex="-1" aria-labelledby="compare-modal-label"
          aria-hidden="true">
@@ -62,97 +49,6 @@
         </div>
     </div>
 {% endmacro %}
-{% macro notification_modal() %}
-    <div class="modal fade" id="notification-modal" tabindex="-1" aria-labelledby="notification-modal-label"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="notification-modal-label">Notification subscription</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    {% if not config["SUBSCRIPTIONS_ENABLED"] %}
-                        <p class="fw-bold"><i class="fas fa-exclamation-triangle"></i> Notification
-                            subscriptions are currently disabled.</p>
-                    {% endif %}
-                    <p id="notification-none">
-                        You currently have no selected certificates. Either add certificates from their page to the
-                        selection or subscribe to receive notifications of new certificates below.
-                    </p>
-                    <div id="notification-some">
-                        <form id="notifications-form">
-                            <label class="form-label">Certificates</label>
-                            <table class="table">
-                                <tbody></tbody>
-                            </table>
-
-                            <div>
-                                <label class="form-label">Notification type</label>
-                                <div class="form-check">
-                                    <input type="radio" class="form-check-input" id="notifications-updates-all"
-                                           name="notifications-updates"
-                                           disabled/>
-                                    <label for="notifications-updates-all" class="form-check-label">All
-                                        updates</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="radio" class="form-check-input" id="notifications-updates-vuln"
-                                           name="notifications-updates"
-                                           disabled/>
-                                    <label for="notifications-updates-vuln" class="form-check-label">Vulnerability
-                                        information only</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="radio" class="form-check-input" id="notifications-updates-new"
-                                           name="notifications-updates"
-                                           checked/>
-                                    <label for="notifications-updates-new" class="form-check-label">New
-                                        certificates</label>
-                                </div>
-                                <p class="form-text">You can subscribe to receive notifications of all changes
-                                    and
-                                    updates to the
-                                    certificates above, or only when new vulnerabilities potentially affecting
-                                    the
-                                    certificates are published or when any new certificate is issued.</p>
-                            </div>
-                            <div>
-                                <label for="notifications-email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="notifications-email" required/>
-                                <p class="form-text">Your email will only be used to send you notifications.
-                                    Each notification contains an unsubscribe link. For more, see our
-                                    <a href="{{ url_for("about.index", _anchor="privacy-policy") }}" target="_blank">privacy
-                                        policy</a>.</p>
-                            </div>
-                            <div id="notification-turnstile"></div>
-                        </form>
-                        <p class="invalid-feedback" id="notifications-error"></p>
-                    </div>
-                    <div id="notification-done" style="display: none">
-                        <p>Your subscription request was successfully received. You will need to <b>confirm your
-                            subscription</b> by clicking a confirmation link in an email that will be sent to
-                            you shortly. Notifications will be sent to you only after confirmation. If you do
-                            not confirm your subscription within 7 days, the subscription request will expire.
-                            If you already have a subscription, it will be updated with the new certificates,
-                            but you will need to reconfirm it.
-                        </p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="notification-add-current" class="btn btn-primary" style="display: none"><i
-                            class="fas fa-plus"></i>
-                        Add current certificate
-                    </button>
-                    <button id="notification-subscribe" type="submit" class="btn btn-primary"
-                            form="notifications-form">Subscribe
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endmacro %}
 
 {% macro modal_script() %}
     <script type="module">
@@ -160,8 +56,6 @@
             add_current_cert,
             update_state,
             compare_do,
-            notification_subscribe,
-            chat_authorize,
             chat_files,
             chat
         } from "/static/modal.js?{{ static_hash("modal.js") }}";
@@ -172,11 +66,6 @@
             {% if config["CHAT_ENABLED"] %}
                 $("#chat-modal").on("show.bs.modal", async function () {
                     let token = "{{ csrf_token() }}";
-                    let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
-                    let check_url = "{{ url_for("chat.authorized") }}";
-                    let auth_url = "{{ url_for("chat.authorize") }}";
-                    await chat_authorize(check_url, auth_url, sitekey, token);
-
                     let files_url = "{{ url_for("chat.files") }}"
                     chat_files(files_url, token, window.certificate_data);
                 });
@@ -200,14 +89,8 @@
                     $("#chat-modal .modal-dialog").toggleClass("modal-lg").toggleClass("modal-fullscreen");
                 });
             {% endif %}
-            $("#notification-modal").on("show.bs.modal", function () {
-                update_state();
-            });
             $("#compare-modal").on("show.bs.modal", function () {
                 update_state();
-            });
-            $("#notification-add-current").click(function () {
-                add_current_cert("selected_certs_subscription", window.certificate_data);
             });
             $("#compare-add-current").click(function () {
                 add_current_cert("selected_certs_comparison", window.certificate_data);
@@ -216,12 +99,6 @@
                 let cc_url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
                 let fips_url = "{{ url_for("fips.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
                 compare_do(cc_url, fips_url);
-            });
-            $("#notification-subscribe").click(function (event) {
-                let url = "{{ url_for("notify.subscribe") }}";
-                let sitekey = "{{ config["TURNSTILE_SITEKEY"] }}";
-                let token = "{{ csrf_token() }}";
-                notification_subscribe(event, url, sitekey, token);
             });
             update_state();
         })
@@ -252,45 +129,46 @@
                     </div>
                 </div>
                 <div class="modal-body" id="chat-body">
-                    <div id="chat-turnstile"></div>
-                    <p id="chat-authorize">
-                        Please authorize to use the chat.
-                    </p>
-                    <p id="chat-expires-at" class="text-muted small" style="display: none"></p>
                     <p class="invalid-feedback" id="chat-error" style="display: none"></p>
                     <!-- Chat skeleton start -->
-                    <div id="chat-skeleton">
-                        <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <label for="chat-about" class="form-label mb-0">Chat context</label>
-                                <select id="chat-about" class="form-select w-auto">
-                                    <option value="rag-this" selected>(RAG) This certificate</option>
-                                    <option value="rag-both">(RAG) All certificates + this</option>
-                                    <option value="full-report">Full context (report)</option>
-                                    <option value="full-target">Full context (target)</option>
-                                    <option value="full-both">Full context (both)</option>
-                                </select>
+                    {% if not current_user.is_authenticated %}
+                        <div class="alert alert-info" role="alert">
+                            Chat is available to authorized users only. Please log in to use this feature.
+                        </div>
+                    {% else %}
+                        <div id="chat-skeleton">
+                            <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <label for="chat-about" class="form-label mb-0">Chat context</label>
+                                    <select id="chat-about" class="form-select w-auto">
+                                        <option value="rag-this" selected>(RAG) This certificate</option>
+                                        <option value="rag-both">(RAG) All certificates + this</option>
+                                        <option value="full-report">Full context (report)</option>
+                                        <option value="full-target">Full context (target)</option>
+                                        <option value="full-both">Full context (both)</option>
+                                    </select>
+                                </div>
+                                <span id="chat-files"></span>
                             </div>
-                            <span id="chat-files"></span>
-                        </div>
-                        <div id="chat-messages">
-                            <!-- Messages will appear here -->
-                        </div>
-                        <div class="chat-input-group input-group">
+                            <div id="chat-messages">
+                                <!-- Messages will appear here -->
+                            </div>
+                            <div class="chat-input-group input-group">
                             <textarea id="chat-input" class="form-control" rows="2"
                                       placeholder="Type your message..."></textarea>
-                            <button id="chat-send" class="btn btn-primary" type="button">Send</button>
-                        </div>
-                        {% set placeholders = ["Describe this certificate.",
+                                <button id="chat-send" class="btn btn-primary" type="button">Send</button>
+                            </div>
+                            {% set placeholders = ["Describe this certificate.",
                                                "What is the certificate ID of this certificate?",
                                                "What other certified products are referenced by this certificate?",
                                                "Which evaluation facility performed the evaluation of this certificate?",
                                                "When was this product certified?"] %}
-                        <span class="text-muted mt-2">
+                            <span class="text-muted mt-2">
                             For example, try:<br/><span class="border rounded"
                                                         onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
                         </span>
-                    </div>
+                        </div>
+                    {% endif %}
                     <!-- Chat skeleton end -->
                 </div>
                 <div class="modal-footer">

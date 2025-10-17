@@ -1,17 +1,16 @@
 import json
 
 import pymongo
-from flask import abort, current_app, flash, redirect, render_template, request, session, url_for
-from flask_login import login_required, login_user, logout_user
-from flask_principal import AnonymousIdentity, Identity, identity_changed
+from flask import abort, current_app, flash, redirect, render_template, request, url_for
+from flask_login import login_required
 
 from .. import mongo, redis, runtime_config
 from ..common.objformats import StorageFormat
 from ..common.permissions import admin_permission
 from ..common.views import Pagination, register_breadcrumb
+from ..user.models import User
 from . import admin
-from .forms import ConfigEditForm, LoginForm
-from .user import User
+from .forms import ConfigEditForm, UserEditForm
 
 collections = [
     ("cc", mongo.db.cc_log, mongo.db.cc_diff),
@@ -218,65 +217,52 @@ def config_edit():
         return render_template("admin/config/edit.html.jinja2", form=form)
 
 
-@admin.route("/login", methods=["GET", "POST"])
-@register_breadcrumb(admin, ".login", "Login")
-def login():
-    form = LoginForm()
-    if form.is_submitted():
-        if form.validate():
-            user = User.get(form.username.data)
-            if user and user.check_password(form.password.data):
-                login_user(user, form.remember_me.data)
-                identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
-                flash("You've been successfully logged in.", "info")
-                if admin_permission.can():
-                    return redirect(url_for(".index"))
-                else:
-                    return redirect(url_for("index"))
-            else:
-                flash("Bad.", "error")
-    return render_template("admin/login.html.jinja2", form=form)
-
-
-@admin.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    for key in ("identity.name", "identity.auth_type"):
-        session.pop(key, None)
-    identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
-    flash("You've been successfully logged out.", "info")
-    return redirect(url_for("index"))
-
-
-@admin.route("/chat-invite")
+@admin.route("/users")
 @login_required
 @admin_permission.require()
-def chat_invite():
-    """Admin page to create chat auth links and view existing ones."""
-    # Find all chat auth links in redis
-    # Keys are like "chat_auth_token:{token}"
-    keys = redis.keys("chat_auth_token:*")
-    chat_links = []
-    for key in keys:
-        token = (
-            key.decode().split("chat_auth_token:")[-1] if isinstance(key, bytes) else key.split("chat_auth_token:")[-1]
-        )
-        # Get chat duration (value) and link expiry (ttl)
-        chat_duration = redis.get(key)
-        try:
-            chat_duration = int(chat_duration)
-        except Exception:
-            chat_duration = None
-        ttl = redis.ttl(key)
-        # Compose the link
-        link = url_for("chat.consume_auth_link", token=token, _external=True)
-        chat_links.append(
-            {
-                "token": token,
-                "link": link,
-                "chat_duration": chat_duration,
-                "ttl": ttl,
-            }
-        )
-    return render_template("admin/chat_invite.jinja2", chat_links=chat_links)
+@register_breadcrumb(admin, ".users", "Users")
+def users():
+    page = int(request.args.get("page", 1))
+    per_page = current_app.config.get("SEARCH_ITEMS_PER_PAGE", 25)
+    # find users sorted by creation time if available, otherwise by username
+    users_cursor = mongo.db.users.find({}).sort([("created_at", pymongo.DESCENDING), ("username", pymongo.ASCENDING)])
+    total = mongo.db.users.count_documents({})
+    users_list = list(users_cursor[(page - 1) * per_page : page * per_page])
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        search=False,
+        found=total,
+        total=total,
+        css_framework="bootstrap5",
+        alignment="center",
+    )
+    return render_template("admin/users/list.html.jinja2", users=users_list, pagination=pagination)
+
+
+@admin.route("/user/<username>", methods=["GET", "POST"])
+@login_required
+@admin_permission.require()
+@register_breadcrumb(
+    admin,
+    ".users.user",
+    "User",
+    dynamic_list_constructor=lambda *a, **k: [{"text": str(request.view_args.get("username"))}],
+)
+def edit_user(username):
+    user_doc = mongo.db.users.find_one({"username": username})
+    if not user_doc:
+        return abort(404)
+    form = UserEditForm()
+    # Determine available roles from configuration or known list; fall back to common roles
+    available_roles = User.ROLES
+    form.roles.choices = [(r, r) for r in available_roles]
+    if form.validate_on_submit():
+        # roles comes as list of strings
+        new_roles = list(form.roles.data)
+        mongo.db.users.update_one({"username": username}, {"$set": {"roles": new_roles}})
+        flash("Roles updated.", "success")
+        return redirect(url_for("admin.users"))
+    # prepopulate form
+    form.roles.data = user_doc.get("roles", [])
+    return render_template("admin/users/edit.html.jinja2", user=user_doc, form=form)

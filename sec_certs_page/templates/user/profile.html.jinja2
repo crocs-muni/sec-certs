@@ -1,0 +1,124 @@
+{% extends "common/base.html.jinja2" %}
+{% block content %}
+    <main style="min-height: 60vh">
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3>User</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Username:</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-plaintext">{{ user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Email:</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-plaintext">
+                                {{ user.email }}
+                                {% if user.email_confirmed %}
+                                    <span class="badge bg-success ms-2">Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning ms-2">Not verified</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% if user.created_at %}
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">Member since:</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-plaintext">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if user.github_id %}
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">GitHub:</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-plaintext">
+                                    <span class="badge bg-success">
+                                        <i class="fab fa-github"></i> Connected
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <h5>Manage account</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                data-bs-target="#changePasswordModal">
+                            Change Password
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteAccountModal">
+                            Delete Account
+                        </button>
+                    </div>
+
+                    <hr>
+
+                    <h5>Subscriptions</h5>
+                    <p class="text-muted">Manage your notification subscriptions for certificate updates.</p>
+                    <a href="{{ url_for('notify.manage') }}" class="btn btn-primary">
+                        <i class="fas fa-envelope"></i> Manage Subscriptions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Account Modal -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteAccountModalLabel">Delete Account</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Warning:</strong> This action cannot be undone. Deleting your account will:</p>
+                    <ul>
+                        <li>Permanently remove your profile and login credentials</li>
+                        <li>Cancel all your notification subscriptions</li>
+                        <li>Remove all associated data</li>
+                    </ul>
+                    <p>Are you sure you want to delete your account?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" action="{{ url_for('user.delete_account') }}" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="changePasswordModalLabel">Change Password</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to change your password?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="{{ url_for('user.change_password') }}" class="btn btn-primary">Continue</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from flask import url_for
 from flask.testing import FlaskClient
@@ -11,206 +13,168 @@ def certificate(mongo_data):
     return mongo.db.cc.find_one({"_id": "6ca52f5450bedb2f"})
 
 
-@pytest.fixture()
-def sub_obj(certificate):
-    return {
-        "selected": [
-            {
-                "name": certificate["name"],
-                "hashid": certificate["_id"],
-                "type": "cc",
-                "url": url_for("cc.entry", hashid=certificate["_id"]),
-            }
-        ],
-        "email": "example@example.com",
+def test_subscribe_changes(request, user, logged_in: FlaskClient, mocker: MockerFixture, certificate):
+    user, password = user
+    mocker.patch("flask_wtf.csrf.validate_csrf")
+    sub_obj = {
+        "cert": {
+            "name": certificate["name"],
+            "hashid": certificate["dgst"],
+            "type": "cc",
+            "url": url_for("cc.entry", hashid=certificate["dgst"]),
+        },
         "updates": "all",
-        "captcha": "...",
     }
-
-
-@pytest.fixture()
-def sub_obj_new(certificate):
-    return {
-        "selected": None,
-        "email": "example@example.com",
-        "updates": "new",
-        "captcha": "...",
-    }
-
-
-@pytest.fixture
-def unconfirmed_subscription(client: FlaskClient, mocker: MockerFixture, sub_obj):
-    mocker.patch("sec_certs_page.common.views.validate_captcha")
-    mocker.patch("flask_wtf.csrf.validate_csrf")
-    mocker.patch("dramatiq.Actor.send")
-    client.post("/notify/subscribe/", json=sub_obj)
-    subscription = mongo.db.subs.find_one({"email": sub_obj["email"]})
-    yield subscription
-    mongo.db.subs.delete_one({"_id": subscription["_id"]})
-
-
-@pytest.fixture
-def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
-    client.get(f"/notify/confirm/{unconfirmed_subscription['token']}")
-    subscription = mongo.db.subs.find_one({"_id": unconfirmed_subscription["_id"]})
-    yield subscription
-    mongo.db.subs.delete_one({"_id": subscription["_id"]})
-
-
-def test_subscribe(client: FlaskClient, mocker: MockerFixture, sub_obj):
-    mocker.patch("sec_certs_page.common.views.validate_captcha")
-    mocker.patch("flask_wtf.csrf.validate_csrf")
-    at = mocker.patch("dramatiq.Actor.send")
-    resp = client.post("/notify/subscribe/", json=sub_obj)
+    resp = logged_in.post("/notify/subscribe/", json=sub_obj)
     assert resp.status_code == 200
     assert resp.is_json
     assert resp.json == {"status": "OK"}
-    subscription = mongo.db.subs.find_one({"email": sub_obj["email"]})
-    assert subscription
-    assert subscription["token"]
-    assert subscription["timestamp"]
-    at.assert_called_once_with(subscription["token"])
-    mongo.db.subs.delete_one({"email": sub_obj["email"]})
+
+    sub = mongo.db.subs.find_one({"username": user.username})
+    request.addfinalizer(lambda: mongo.db.subs.delete_one({"_id": sub["_id"]}))
+    assert sub
+    assert sub["timestamp"]
+    assert sub["updates"] == "all"
+    assert sub["type"] == "changes"
+    assert sub["certificate"]["name"] == certificate["name"]
 
 
-def test_subscribe_new(client: FlaskClient, mocker: MockerFixture, sub_obj_new):
-    mocker.patch("sec_certs_page.common.views.validate_captcha")
+def test_subscribe_new(request, user, logged_in: FlaskClient, mocker: MockerFixture):
+    user, password = user
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    at = mocker.patch("dramatiq.Actor.send")
-    resp = client.post("/notify/subscribe/", json=sub_obj_new)
+    sub_obj_new = {
+        "which": "cc",
+    }
+    resp = logged_in.post("/notify/subscribe/new/", json=sub_obj_new)
     assert resp.status_code == 200
     assert resp.is_json
-    assert resp.json == {"status": "OK"}
-    subscription = mongo.db.subs.find_one({"email": sub_obj_new["email"]})
-    assert subscription
-    assert subscription["token"]
-    assert subscription["timestamp"]
-    at.assert_called_once_with(subscription["token"])
-    mongo.db.subs.delete_one({"email": sub_obj_new["email"]})
+    assert resp.json["status"] == "OK"
+
+    sub = mongo.db.subs.find_one({"username": user.username})
+    request.addfinalizer(lambda: mongo.db.subs.delete_one({"_id": sub["_id"]}))
+    assert sub
+    assert sub["timestamp"]
+    assert sub["type"] == "new"
+    assert sub["which"] == "cc"
 
 
-def test_bad_subscribe(client: FlaskClient, mocker: MockerFixture):
-    mocker.patch("sec_certs_page.common.views.validate_captcha")
+def test_bad_subscribe(user, logged_in: FlaskClient, mocker: MockerFixture):
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    at = mocker.patch("dramatiq.Actor.send")
-    resp = client.post("/notify/subscribe/", json={"email": "..."})
+    resp = logged_in.post("/notify/subscribe/", json={"bad": "keys"})
     assert resp.status_code == 400
-    at.assert_not_called()
-    resp = client.post(
-        "/notify/subscribe/", json={"email": "bad-email", "selected": "...", "updates": "...", "captcha": "..."}
-    )
+    resp = logged_in.post("/notify/subscribe/", json={"cert": "...", "updates": "bad"})
     assert resp.status_code == 400
-    at.assert_not_called()
-    resp = client.post(
+    resp = logged_in.post(
         "/notify/subscribe/",
-        json={"email": "example@example.com", "selected": "...", "updates": "bad", "captcha": "..."},
+        json={"cert": "...", "updates": "all"},
     )
     assert resp.status_code == 400
-    at.assert_not_called()
-    resp = client.post(
+    resp = logged_in.post(
         "/notify/subscribe/",
-        json={"email": "example@example.com", "selected": [{"some": "bad"}], "updates": "all", "captcha": "..."},
+        json={"cert": {"a": "bad"}, "updates": "all"},
     )
     assert resp.status_code == 400
-    at.assert_not_called()
-    resp = client.post(
+    resp = logged_in.post(
         "/notify/subscribe/",
-        json={
-            "email": "example@example.com",
-            "selected": [{"hashid": "...", "name": "...", "url": "...", "type": "bad"}],
-            "updates": "all",
-            "captcha": "...",
-        },
+        json={"cert": {"name": "...", "hashid": "...", "url": "...", "type": "bad"}, "updates": "all"},
     )
     assert resp.status_code == 400
-    at.assert_not_called()
-    resp = client.post(
-        "/notify/subscribe/",
-        json={
-            "email": "example@example.com",
-            "selected": [{"hashid": "bad", "name": "...", "url": "...", "type": "fips"}],
-            "updates": "all",
-            "captcha": "...",
-        },
-    )
-    assert resp.status_code == 400
-    at.assert_not_called()
-    resp = client.post(
-        "/notify/subscribe/",
-        json={
-            "email": "example@example.com",
-            "selected": [{"hashid": "b906b2e8d7617202", "name": 5, "url": "...", "type": "cc"}],
-            "updates": "all",
-            "captcha": "...",
-        },
-    )
-    assert resp.status_code == 400
-    at.assert_not_called()
 
 
-def test_confirm(client: FlaskClient, unconfirmed_subscription):
-    resp = client.get(f"/notify/confirm/{unconfirmed_subscription['token']}")
-    assert resp.status_code == 200
-    sub = mongo.db.subs.find_one({"_id": unconfirmed_subscription["_id"]})
-    assert sub["confirmed"]
-
-
-def test_manage(client: FlaskClient, confirmed_subscription, mocker: MockerFixture):
+def test_bad_subscribe_new(user, logged_in: FlaskClient, mocker: MockerFixture):
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    resp = client.get(f"/notify/manage/{confirmed_subscription['email_token']}")
-    assert resp.status_code == 200
-    data = {
-        "certificates-0-certificate_hashid": confirmed_subscription["certificate"]["hashid"],
-        "certificates-0-subscribe": "y",
-        "certificates-0-updates": "vuln",
-        "new": "y",
+    resp = logged_in.post("/notify/subscribe/new/", json="aaa")
+    assert resp.status_code == 400
+    resp = logged_in.post("/notify/subscribe/", json={"bad": "keys"})
+    assert resp.status_code == 400
+    resp = logged_in.post(
+        "/notify/subscribe/new/",
+        json={"which": "bad"},
+    )
+    assert resp.status_code == 400
+
+
+@pytest.fixture(scope="function")
+def subscription(request, user, certificate):
+    user, password = user
+    sub = {
+        "timestamp": datetime.now(timezone.utc),
+        "username": user.username,
+        "type": "changes",
+        "updates": "all",
+        "certificate": {
+            "name": certificate["name"],
+            "hashid": certificate["dgst"],
+            "type": "cc",
+            "url": url_for("cc.entry", hashid=certificate["dgst"]),
+        },
     }
-    resp = client.post(f"/notify/manage/{confirmed_subscription['email_token']}", data=data, follow_redirects=True)
+    res = mongo.db.subs.insert_one(sub)
+    sub["_id"] = res.inserted_id
+    try:
+        yield sub
+    finally:
+        mongo.db.subs.delete_one({"_id": res.inserted_id})
+
+
+def test_manage(user, logged_in: FlaskClient, mocker: MockerFixture, subscription):
+    user, password = user
+    mocker.patch("flask_wtf.csrf.validate_csrf")
+    resp = logged_in.get(f"/notify/manage/")
     assert resp.status_code == 200
-    new_sub = mongo.db.subs.find_one({"email_token": confirmed_subscription["email_token"], "updates": "new"})
-    assert new_sub is not None
+
     data = {
-        "certificates-0-certificate_hashid": confirmed_subscription["certificate"]["hashid"],
-        "certificates-0-subscribe": "y",
-        "certificates-0-updates": "vuln",
+        "new-0-which": "cc",
+        "new-0-subscribe": "y",
+        "new-1-which": "fips",
+        "new-1-subscribe": "y",
+        "new-2-which": "pp",
+        "new-2-subscribe": "y",
     }
-    resp = client.post(f"/notify/manage/{confirmed_subscription['email_token']}", data=data, follow_redirects=True)
+    resp = logged_in.post(f"/notify/manage/", data=data, follow_redirects=True)
     assert resp.status_code == 200
-    new_sub = mongo.db.subs.find_one({"email_token": confirmed_subscription["email_token"], "updates": "new"})
-    assert new_sub is None
-    sub = mongo.db.subs.find_one({"_id": confirmed_subscription["_id"]})
+    subs = list(mongo.db.subs.find({"username": user.username}))
+    assert len(subs) == 4
+    assert all(s["type"] == "new" for s in subs if s["_id"] != subscription["_id"])
+
+    data = {
+        "new-0-which": "cc",
+        "new-0-subscribe": "",
+        "new-1-which": "fips",
+        "new-1-subscribe": "",
+        "new-2-which": "pp",
+        "new-2-subscribe": "",
+    }
+    resp = logged_in.post(f"/notify/manage/", data=data, follow_redirects=True)
+    assert resp.status_code == 200
+    subs = list(mongo.db.subs.find({"username": user.username}))
+    assert len(subs) == 1
+    assert subs[0]["_id"] == subscription["_id"]
+
+    data = {
+        "changes-0-certificate_type": subscription["certificate"]["type"],
+        "changes-0-certificate_hashid": subscription["certificate"]["hashid"],
+        "changes-0-updates": "vuln",
+        "changes-0-subscribe": "y",
+    }
+    resp = logged_in.post(f"/notify/manage/", data=data, follow_redirects=True)
+    assert resp.status_code == 200
+    sub = mongo.db.subs.find_one({"_id": subscription["_id"]})
     assert sub["updates"] == "vuln"
-    del data["certificates-0-subscribe"]
-    resp = client.post(f"/notify/manage/{confirmed_subscription['email_token']}", data=data, follow_redirects=True)
-    assert resp.status_code == 200
-    sub = mongo.db.subs.find_one({"_id": confirmed_subscription["_id"]})
-    assert sub is None
 
 
-def test_unsubscribe_single(client: FlaskClient, confirmed_subscription):
-    resp = client.get(f"/notify/unsubscribe/{confirmed_subscription['token']}")
-    assert resp.status_code == 200
-    sub = list(mongo.db.subs.find({"_id": confirmed_subscription["_id"]}))
-    assert not sub
-
-
-def test_unsubscribe_all(client: FlaskClient, confirmed_subscription):
-    resp = client.get(f"/notify/unsubscribe/all/{confirmed_subscription['email_token']}")
-    assert resp.status_code == 200
-    sub = list(mongo.db.subs.find({"_id": confirmed_subscription["_id"]}))
-    assert not sub
-
-
-def test_unsubscribe_request(client: FlaskClient, confirmed_subscription, mocker: MockerFixture):
+def test_unsubscribe_single(logged_in: FlaskClient, mocker: MockerFixture, subscription):
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    at = mocker.patch("dramatiq.Actor.send")
-    resp = client.get("/notify/unsubscribe/request/")
+    resp = logged_in.post(f"/notify/unsubscribe/", json={"id": str(subscription["_id"])}, follow_redirects=True)
     assert resp.status_code == 200
-    resp = client.post("/notify/unsubscribe/request/", data={"email": confirmed_subscription["email"]})
-    exists_content = resp.data
+    sub = list(mongo.db.subs.find({"_id": subscription["_id"]}))
+    assert not sub
+
+
+def test_unsubscribe_all(user, logged_in: FlaskClient, mocker: MockerFixture, subscription):
+    user, password = user
+    mocker.patch("flask_wtf.csrf.validate_csrf")
+    resp = logged_in.post(f"/notify/unsubscribe/all/", follow_redirects=True)
     assert resp.status_code == 200
-    at.assert_called_once_with(confirmed_subscription["email"])
-    resp = client.post("/notify/unsubscribe/request/", data={"email": "aaaa@bbbb.com"})
-    doesnt_exist_content = resp.data
-    assert resp.status_code == 200
-    assert exists_content == doesnt_exist_content
+    sub = list(mongo.db.subs.find({"username": user.username}))
+    assert not sub

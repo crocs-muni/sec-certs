@@ -1,0 +1,73 @@
+{% extends "common/base.html.jinja2" %}
+{% block content %}
+    <div class="signin-wrapper">
+        <img class="mb-4" src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
+             height="100">
+        <main class="form-signin">
+            <form action="{{ url_for(".register") }}" method="post" name="register">
+                {{ form.hidden_tag() }}
+                <h1 class="h3 mb-3 fw-normal">Create account</h1>
+
+                <div class="form-floating my-2">
+                    {{ form.username(class_="form-control") }}
+                    <label for="username">Username</label>
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.username.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-floating my-2">
+                    {{ form.email(class_="form-control") }}
+                    <label for="email">Email</label>
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-floating my-2">
+                    {{ form.password(class_="form-control") }}
+                    <label for="password">Password</label>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-floating my-2">
+                    {{ form.password_confirm(class_="form-control") }}
+                    <label for="password_confirm">Confirm Password</label>
+                    {% if form.password_confirm.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.password_confirm.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Create account</button>
+
+                {% if is_github_oauth_enabled() %}
+                    <div class="text-center my-3">
+                        <div class="d-flex align-items-center">
+                            <hr class="flex-grow-1">
+                            <span class="px-3 text-muted">or</span>
+                            <hr class="flex-grow-1">
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('user.github_login') }}" class="w-100 btn btn-lg btn-outline-dark">
+                        <i class="fab fa-github"></i> Sign up with GitHub
+                    </a>
+                {% endif %}
+
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="{{ url_for('user.login') }}">Sign in</a></p>
+                </div>
+            </form>
+        </main>
+    </div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "common/base.html.jinja2" %}
+
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1>Users</h1>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Created At</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for u in users %}
+                    <tr>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.roles | join(', ') }}</td>
+                        <td>{{ u.created_at }}</td>
+                        <td><a href="{{ url_for('admin.edit_user', username=u.username) }}"
+                               class="btn btn-sm btn-primary">Edit</a></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">No users found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% if pagination %}
+                <div class="d-flex justify-content-center">
+                    {{ pagination.links }}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}
+

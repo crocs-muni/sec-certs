@@ -7,49 +7,32 @@ from sec_certs_page import mongo
 from sec_certs_page.admin import User, hash_password
 
 
-@pytest.fixture
+@pytest.fixture()
 def admin(app):
     username = "admin"
     password = "password"
     email = "example@example.com"
     roles = ["admin"]
     pwhash = hash_password(password)
-    user = User(username, pwhash, email, roles)
+    user = User(
+        username, pwhash, email, roles, email_confirmed=True, created_at=datetime.now(timezone.utc), github_id=None
+    )
     res = mongo.db.users.insert_one(user.dict)
     yield user, password
     mongo.db.users.delete_one({"_id": res.inserted_id})
 
 
-@pytest.fixture
-def logged_in_client(client: FlaskClient, admin, mocker):
+@pytest.fixture()
+def logged_in_client(raw_client: FlaskClient, admin, mocker):
     user, password = admin
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    with client.post(
-        "/admin/login",
-        data={"username": user.username, "password": password, "remember_me": True},
-        follow_redirects=True,
-    ):
-        yield client
-
-
-def test_login(client: FlaskClient, admin, mocker):
-    user, password = admin
-    mocker.patch("flask_wtf.csrf.validate_csrf")
-
-    resp = client.get("/admin/login")
-    assert resp.status_code == 200
-
-    resp = client.post(
-        "/admin/login",
-        data={"username": user.username, "password": password, "remember_me": True},
-        follow_redirects=True,
-    )
-    assert resp.status_code == 200
-
-
-def test_logout(logged_in_client):
-    resp = logged_in_client.get("/admin/logout", follow_redirects=True)
-    assert resp.status_code == 200
+    with raw_client:
+        raw_client.post(
+            "/user/login",
+            data={"username": user.username, "password": password, "remember_me": True},
+            follow_redirects=True,
+        )
+        yield raw_client
 
 
 def test_home(logged_in_client):

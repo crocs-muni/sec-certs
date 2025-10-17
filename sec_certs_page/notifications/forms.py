@@ -3,20 +3,26 @@ from wtforms import BooleanField, FieldList, FormField, HiddenField, SelectField
 from wtforms.widgets import TableWidget
 
 
-class SubscriptionForm(FlaskForm):
+class ChangeSubscriptionForm(FlaskForm):
     subscribe = BooleanField("Subscribe", [])
+    certificate_type = HiddenField("Certificate Type", [validators.DataRequired()])
     certificate_hashid = HiddenField("Certificate ID", [validators.DataRequired()])
     updates = SelectField(
         "Updates",
         [validators.DataRequired()],
-        choices=[("vuln", "Vulnerability information only"), ("all", "All updates")],
+        choices=[("all", "All updates"), ("vuln", "Vulnerability information only")],
+    )
+
+
+class NewCertificateSubscriptionForm(FlaskForm):
+    subscribe = BooleanField("Subscribe", [])
+    which = StringField(
+        "Which",
+        [validators.DataRequired(), validators.AnyOf(["fips", "cc", "pp"])],
+        render_kw={"readonly": True},
     )
 
 
 class ManageForm(FlaskForm):
-    certificates = FieldList(FormField(SubscriptionForm), widget=TableWidget())
-    new = BooleanField("I want to receive notifications when new certificates appear.", [])
-
-
-class UnsubscribeForm(FlaskForm):
-    email = StringField("email", [validators.DataRequired(), validators.Email()])
+    changes = FieldList(FormField(ChangeSubscriptionForm), widget=TableWidget())
+    new = FieldList(FormField(NewCertificateSubscriptionForm), widget=TableWidget())

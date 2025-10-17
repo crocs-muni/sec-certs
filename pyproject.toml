@@ -45,6 +45,7 @@
     "flask-shell-ipython",
     "Flask-Sitemap",
     "Flask-WTF",
+    "Flask-Dance",
 
     # Web utils
     "filtercss",

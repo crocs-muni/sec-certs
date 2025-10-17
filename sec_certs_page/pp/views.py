@@ -4,6 +4,7 @@ from operator import itemgetter
 import pymongo
 import sentry_sdk
 from flask import abort, current_app, redirect, render_template, request, url_for
+from flask_login import current_user
 from periodiq import cron
 
 from .. import mongo, sitemap
@@ -118,6 +119,14 @@ def entry(hashid):
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
+        with sentry_sdk.start_span(op="mongo", description="Find subscription"):
+            if current_user.is_authenticated:
+                subs = mongo.db.subs.find_one(
+                    {"username": current_user.username, "type": "changes", "certificate.hashid": hashid}
+                )
+                subscribed = subs["updates"] if subs else None
+            else:
+                subscribed = None
         with sentry_sdk.start_span(op="files", description="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_PP_DIR"])
         name = doc["web_data"]["name"] if doc["web_data"] and doc["web_data"]["name"] else ""
@@ -130,6 +139,7 @@ def entry(hashid):
             diff_jsons=diff_jsons,
             diff_renders=diff_renders,
             local_files=local_files,
+            subscribed=subscribed,
             title=f"{name} | sec-certs.org",
             json=StorageFormat(raw_doc).to_json_mapping(),
         )

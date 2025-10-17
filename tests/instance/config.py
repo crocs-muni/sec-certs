@@ -30,7 +30,7 @@ MAIL_DEFAULT_SENDER = "seccerts@example.com"  # The sender address
 # MAIL_SUPPRESS_SEND = True                     # Whether to suppress all sending (for testing)
 
 # WebUI
-CHAT_ENABLED = False  # Whether to enable the WebUI chat feature
+CHAT_ENABLED = True  # Whether to enable the WebUI chat feature
 WEBUI_URL = ""  # The URL of the WebUI API
 WEBUI_KEY = ""  # Your WebUI API key
 WEBUI_MODEL = "llama-4-scout-17b-16e-instruct"  # The model to use for the WebUI
@@ -51,6 +51,11 @@ WEBUI_COLLECTION_PP_REPORTS = (
     ""  # The ID of the knowledge base of Common Criteria Protection Profile certification reports
 )
 WEBUI_COLLECTION_PP_TARGETS = ""  # The ID of the knowledge base of Common Criteria Protection Profile security targets
+
+GITHUB_OAUTH_ENABLED = False
+GITHUB_OAUTH_CLIENT_ID = ""
+GITHUB_OAUTH_CLIENT_SECRET = ""
+
 
 # MongoDB
 MONGO_URI = "mongodb://localhost:27666/seccerts"

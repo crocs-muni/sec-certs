@@ -1,7 +1,8 @@
+from datetime import datetime, timezone
 from functools import partial, wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Literal, Tuple
 
 import flask
 import networkx as nx
@@ -9,6 +10,7 @@ import pendulum
 import requests
 import sentry_sdk
 from flask import Response, abort, current_app, jsonify, make_response, request, send_file
+from flask_login import current_user
 from flask_paginate import Pagination as FlaskPagination
 from networkx import DiGraph, node_link_data, weakly_connected_components
 from werkzeug.exceptions import BadRequest
@@ -215,3 +217,53 @@ def sitemap_cert_pipeline(collection: str):
         {"$group": {"_id": "$_id", "latest_joined_doc": {"$first": "$joined_docs"}}},
         {"$project": {"_id": 1, "timestamp": "$latest_joined_doc.timestamp"}},
     ]
+
+
+def accounting(
+    aggregate: Literal["daily"] | Literal["monthly"] | Literal[None] = "daily",
+    limit: int | None = None,
+    json: bool = True,
+):
+    """A decorator to store accounting information about requests.
+
+    :param aggregate: The aggregation period ("daily", monthly", or None).
+    :param limit: The maximum number of requests allowed in the aggregation period.
+    :param json: Whether to return JSON responses on limit exceeded.
+    """
+
+    def deco(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            now = datetime.now(timezone.utc)
+            if aggregate == "daily":
+                period = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            elif aggregate == "monthly":
+                period = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            else:
+                period = None
+            doc: dict[str, Any] = (
+                {"username": current_user.username} if current_user.is_authenticated else {"ip": request.remote_addr}
+            )
+            doc["endpoint"] = request.endpoint
+            doc["period"] = period
+            present = mongo.db.accounting.find_one(doc)
+            if present:
+                if limit is not None:
+                    if present.get("count", 0) < limit:
+                        mongo.db.accounting.update_one(doc, {"$inc": {"count": 1}})
+                    else:
+                        message = f"You have reached the request limit of {limit} requests {aggregate} ({period})."
+                        if json:
+                            return jsonify({"status": "error", "message": message}), 429
+                        else:
+                            return abort(429, description=message)
+            else:
+                doc["count"] = 1
+                r = mongo.db.accounting.insert_one(doc)
+            res = func(*args, **kwargs)
+
+            return res
+
+        return wrapper
+
+    return deco

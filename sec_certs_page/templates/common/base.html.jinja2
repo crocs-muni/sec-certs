@@ -1,4 +1,4 @@
-{% from "common/modals.html.jinja2" import notification_modal, compare_modal, chat_modal, modal_script with context %}
+{% from "common/modals.html.jinja2" import compare_modal, modal_script with context %}
 <!doctype html>
 <html lang="en">
 
@@ -285,19 +285,32 @@
                     </li>
                 </ul>
 
-          
-
-                {% if is_admin() %}
-                    <a href="{{ url_for("admin.index") }}" class="btn btn-outline-secondary px-4 nav-button"
-                       role="button"><i
-                            class="fa fa-user"></i> Admin</a>
+                {% if current_user.is_authenticated %}
+                    <div class="dropdown me-3">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-user"></i> {{ current_user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('notify.manage') }}"><i class="fa fa-envelope"></i> Subscriptions</a></li>
+                            {% if is_admin() %}
+                                <li><a class="dropdown-item" href="{{ url_for("admin.index") }}"><i class="fa fa-cog"></i> Admin</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('user.logout') }}"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for("user.login") }}" class="btn btn-outline-light px-4 nav-button me-3"
+                       role="button"><i class="fa fa-sign-in-alt"></i> Login</a>
                 {% endif %}
 
+            {# Hide navbar github logo
                 <a class="mx-3" href="https://github.com/crocs-muni/sec-certs" target="_blank">
                     <i class="fa-brands fa-github fs-4 text-light"></i>
                 </a>
+            #}
 
-      
                 <div class="dropdown">
                     <button id="theme" class="nav-link dropdown-toggle text-secondary mx-3 mx-lg-0 py-1 p-lg-0" type="button"
                             data-bs-toggle="dropdown" data-bs-display="static" title="Change theme"></button>
@@ -347,11 +360,7 @@
             {% endwith %}
             {% block content %}
             {% endblock %}
-            {{ notification_modal() }}
             {{ compare_modal() }}
-            {% if config["CHAT_ENABLED"] %}
-            	{{ chat_modal() }}
-            {% endif %}
             <footer>
                 {% block footer %}
                     <div class="row position-relative">
@@ -370,7 +379,7 @@
                                              alt="Masaryk University" style="max-width: 70%" loading="lazy"/>
                                     </a>
                                 </div>
-                            
+
                                 <div class="flex-grow-1 flex-shrink-1 flex-basis-0">
                                     <h5 class="mb-4">Project</h5>
                                     <p><a href="https://github.com/crocs-muni/sec-certs" target="_blank" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Github</a></p>
@@ -386,12 +395,14 @@
                                     </p>
                                     <p><a href="{{ url_for('about.privacy_policy') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy policy</a></p>
                                     {% if current_user.is_authenticated %}
-                                        <p><a href="{{ url_for('admin.logout') }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Logout</a></p>
+                                        <p><a href="{{ url_for('user.profile') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Profile</a></p>
+                                        <p><a href="{{ url_for('user.logout') }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Logout</a></p>
                                     {% else %}
-                                        <p><a href="{{ url_for('admin.login') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Admin login</a></p>
+                                        <p><a href="{{ url_for('user.login') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Login</a></p>
+                                        <p><a href="{{ url_for('user.register') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Create Account</a></p>
                                     {% endif %}
                                 </div>
-                            
+
                                 <div class="flex-grow-1 flex-shrink-1 flex-basis-0">
                                     <h5 class="mb-4">Contact us</h5>
                                     <p><a href="#" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">hello@sec-certs.org</a></p>
@@ -399,7 +410,7 @@
                             </div>
                         </div>
                     </div>
-                  
+
                     <div id="up-top">
                         <a title="Back to top" aria-label="Back to top" href="#">
                             <span id="up-top-icon" class="fa-stack fa-lg z-3">

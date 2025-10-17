@@ -1,0 +1,64 @@
+{% extends "common/base.html.jinja2" %}
+
+{% block content %}
+    <main>
+        <div class="col-10 mx-auto p-3 py-md-5">
+            <h1>Edit user</h1>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="user_username" class="form-label">Username</label>
+                            <input id="user_username" type="text" class="form-control" value="{{ user.username }}"
+                                   readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="user_email" class="form-label">Email</label>
+                            <input id="user_email" type="email" class="form-control" value="{{ user.email or '' }}"
+                                   readonly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="user_email_confirmed" class="form-label">Email confirmed</label>
+                            <input id="user_email_confirmed" type="text" class="form-control"
+                                   value="{% if user.email_confirmed %}Yes{% else %}No{% endif %}" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="user_github_id" class="form-label">GitHub ID</label>
+                            <input id="user_github_id" type="text" class="form-control"
+                                   value="{{ user.github_id or '' }}" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="user_created_at" class="form-label">Created at</label>
+                            <input id="user_created_at" type="text" class="form-control"
+                                   value="{{ user.created_at if user.created_at is not none else '' }}" readonly>
+                        </div>
+                        <form method="post">
+                            {{ form.hidden_tag() }}
+
+                            <div class="mb-3 col-3">
+                                <label for="roles" class="form-label">Roles</label>
+                                <select id="roles" name="roles" class="form-select" multiple>
+                                    {% for val, label in form.roles.choices %}
+                                        <option value="{{ val }}"
+                                                {% if val in form.roles.data %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.roles.errors %}
+                                    <div class="text-danger">{{ form.roles.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </main>
+{% endblock %}

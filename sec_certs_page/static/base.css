@@ -168,6 +168,7 @@
 .signin-wrapper {
     display: flex;
     align-items: center;
+    flex-direction: column;
     padding-top: 40px;
     padding-bottom: 40px;
     min-height: 100vh;
@@ -188,6 +189,7 @@
     z-index: 2;
 }
 
+/*
 .form-signin input[type="email"] {
     margin-bottom: -1px;
     border-bottom-right-radius: 0;
@@ -199,6 +201,7 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+*/
 
 .feature-icon {
     display: inline-flex;

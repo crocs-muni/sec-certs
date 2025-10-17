@@ -1,8 +1,8 @@
 {% extends "common/base.html.jinja2" %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons %}
-{% from "common/modals.html.jinja2" import compare_icon, notification_icon, chat_icon %}
+{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
+{% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "common/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_references %}
 {% block title %}
@@ -52,38 +52,8 @@
                 <h1>{{ cert|fips_name|default("", true) }}</h1>
                 <div class="d-flex gap-3 flex-wrap mt-4">
                     {{ compare_icon() }}
-                    {{ notification_icon() }}
+                    {{ notification_icon(current_user, subscribed) }}
                     {{ render_share_buttons(hashid, cert_id=cert["cert_id"], name=cert|fips_name) }}
-                    <span class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                            <i class="fa-solid fa-share"></i> Share
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="#" data-url="{{ url_for("fips.entry", hashid=hashid) }}" onclick="copyLinkToClipboard(this)" class="dropdown-item">
-                                    <span> <i class="fa-regular fa-clipboard"></i> Copy link</span>
-                                </a>
-                            </li>
-                            {% if cert["cert_id"] %}
-                                <li>
-                                    <a href="#" data-url="{{ url_for("fips.entry_id", cert_id=cert["cert_id"]) }}" onclick="copyLinkToClipboard(this)"
-                                    class="dropdown-item">
-                                        <span><i class="fa-regular fa-clipboard"></i> Copy link by certificate ID</span>
-                                    </a>
-                                </li>
-                            {% endif %}
-                            {% if cert|fips_name %}
-                                <li>
-                                    <a href="#" data-url="{{ url_for("fips.entry_name", name=cert|fips_name) }}" onclick="copyLinkToClipboard(this)"
-                                        class="dropdown-item">
-                                        <span>
-                                            <i class="fa-regular fa-clipboard"></i> Copy link by certificate name
-                                        </span>
-                                    </a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </span>
                 </div>
 
 
@@ -448,7 +418,11 @@
                 url: "{{ url_for("fips.entry", hashid=hashid) }}"
             };
         </script>
+        {{ notification_script(csrf_token) }}
     </main>
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_modal() }}
+    {% endif %}
 {% endblock %}
 
 {% block footer %}

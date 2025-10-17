@@ -47,23 +47,6 @@ function update_state_core(type, storage_key, action, enable, enable_callback, s
 }
 
 export function update_state() {
-    update_state_core("notification",
-        "selected_certs_subscription",
-        "subscribe",
-        (len) => true,
-        (selected) => {
-            if (selected !== null && selected.length > 0) {
-                $("#notifications-updates-all").prop("disabled", false).prop("checked", true);
-                $("#notifications-updates-vuln").prop("disabled", false);
-                $("#notifications-updates-new").prop("disabled", true);
-            } else {
-                $("#notifications-updates-all").prop("disabled", true);
-                $("#notifications-updates-vuln").prop("disabled", true);
-                $("#notifications-updates-new").prop("disabled", false).prop("checked", true);
-            }
-        },
-
-        (len) => true);
     update_state_core("compare",
         "selected_certs_comparison",
         "do",
@@ -97,67 +80,6 @@ export function add_current_cert(storage_key, current) {
     update_state();
 }
 
-export function notification_subscribe(event, url, sitekey, csrf_token) {
-    event.preventDefault();
-    let selected = localStorage.getItem("selected_certs_subscription");
-    if (selected === null) {
-        if (!$("#notifications-updates-new").prop("checked")) {
-            $("#notifications-error").text("This should not have happened. Please report a bug and clear your browser's localStorage.").show();
-            return;
-        }
-    } else {
-        selected = JSON.parse(selected);
-    }
-    let form = $("#notifications-form").get(0)
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-    turnstile.render("#notification-turnstile", {
-        "sitekey": sitekey,
-        "response-field": false,
-        "callback": (token) => {
-            let updates;
-            if ($("#notifications-updates-all").prop("checked")) {
-                updates = "all";
-            }
-            if ($("#notifications-updates-vuln").prop("checked")) {
-                updates = "vuln";
-            }
-            if ($("#notifications-updates-new").prop("checked")) {
-                updates = "new";
-            }
-            $.ajax(url, {
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({
-                    "selected": selected,
-                    "email": $("#notifications-email").val(),
-                    "updates": updates,
-                    "captcha": token
-                }),
-                headers: {
-                    "X-CSRFToken": csrf_token
-                },
-                success: function () {
-                    localStorage.removeItem("selected_certs_subscription");
-                    $("#notification-some").hide();
-                    $("#notification-done").show();
-                    $("#notification-subscribe").hide();
-                    $("#notifications-error").hide();
-                },
-                error: function (response) {
-                    try {
-                        $("#notifications-error").text(response.responseJSON.error).show();
-                    } catch (error) {
-                        $("#notifications-error").text("Something went wrong with the subscription request, please try again later").show();
-                    }
-                }
-            })
-        }
-    });
-}
-
 export function compare_do(cc_url, fips_url) {
     let selected = localStorage.getItem("selected_certs_comparison");
     if (selected === null) {
@@ -183,79 +105,6 @@ export function compare_do(cc_url, fips_url) {
     url = url.replace("XXXXXXXXXXXXXXXX", selected[0]["hashid"]);
     url = url.replace("YYYYYYYYYYYYYYYY", selected[1]["hashid"]);
     window.location.href = url;
-}
-
-function show_chat_expires_at(expires_at) {
-    let msg;
-    if (expires_at === "never") {
-        msg = "Your authorization never expires.";
-    } else if (expires_at === null) {
-        msg = "Authorization expiry: unknown.";
-    } else {
-        // Assume unix timestamp (seconds)
-        let date = new Date(expires_at * 1000);
-        msg = `Your authorization expires at: <b>${date.toLocaleString()}</b>`;
-    }
-    $("#chat-expires-at").html(msg).show();
-}
-
-export function chat_authorize(check_url, auth_url, sitekey, csrf_token) {
-    return new Promise((resolve) => {
-        let auth = false;
-        let expires_at = null;
-        $.ajax(check_url, {
-            method: "GET",
-            success: function (response) {
-                if (response.authorized) {
-                    $("#chat-authorize").hide();
-                    $("#chat-turnstile").hide();
-                    auth = true;
-                    expires_at = response.expires_at;
-                } else {
-                    auth = false;
-                }
-            },
-            complete: function () {
-                if (auth) {
-                    show_chat_expires_at(expires_at);
-                    resolve();
-                    return;
-                }
-                turnstile.render("#chat-turnstile", {
-                    "sitekey": sitekey,
-                    "response-field": false,
-                    "callback": (token) => {
-                        $.ajax(auth_url, {
-                            type: "POST",
-                            contentType: "application/json",
-                            data: JSON.stringify({
-                                "captcha": token
-                            }),
-                            headers: {
-                                "X-CSRFToken": csrf_token
-                            },
-                            success: function (response) {
-                                $("#chat-authorize").hide();
-                                $("#chat-turnstile").hide();
-                                show_chat_expires_at(response.expires_at);
-                                resolve();
-                            },
-                            error: function (xhr) {
-                                $("#chat-authorize").hide();
-                                $("#chat-turnstile").hide();
-                                let error_message = "Something went wrong with the chat authorization request, please try again later.";
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    error_message = xhr.responseJSON.message;
-                                }
-                                $("#chat-error").text(error_message).show();
-                                resolve();
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    });
 }
 
 export function chat(rag_url, full_url, token, chat_history, certificate_data) {

@@ -17,6 +17,11 @@ SENTRY_TRACES_SAMPLE_RATE = 1.0
 TURNSTILE_SITEKEY = ""
 TURNSTILE_SECRET = ""
 
+# GitHub OAuth
+GITHUB_OAUTH_ENABLED = False
+GITHUB_OAUTH_CLIENT_ID = ""
+GITHUB_OAUTH_CLIENT_SECRET = ""
+
 # Email
 MAIL_SERVER = "mail.example.com"  # The outgoing SMTP server to use
 MAIL_DEBUG = False  # Whether to print out SMTP commands and responses (very verbose!)
