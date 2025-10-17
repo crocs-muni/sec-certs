@@ -184,39 +184,39 @@ def get_searcher():
 
 public(whoosh_searcher=whoosh_searcher)
 
-from .about import about
-from .admin import admin
-from .cc import cc
-from .chat import chat
-from .docs import docs
-from .fips import fips
-from .notifications import notifications
-from .pp import pp
-from .user import user
-from .vuln import vuln
+from .about import about as about_bp
+from .admin import admin as admin_bp
+from .cc import cc as cc_bp
+from .chat import chat as chat_bp
+from .docs import docs as docs_bp
+from .fips import fips as fips_bp
+from .notifications import notifications as notifications_bp
+from .pp import pp as pp_bp
+from .user import user as user_bp
+from .vuln import vuln as vuln_bp
 
 with app.app_context():
-    app.register_blueprint(admin)
-    app.register_blueprint(user)
-    app.register_blueprint(cc)
-    app.register_blueprint(fips)
-    app.register_blueprint(notifications)
-    app.register_blueprint(pp)
-    app.register_blueprint(vuln)
-    app.register_blueprint(docs)
-    app.register_blueprint(about)
-    app.register_blueprint(chat)
-    
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(user_bp)
+    app.register_blueprint(cc_bp)
+    app.register_blueprint(fips_bp)
+    app.register_blueprint(notifications_bp)
+    app.register_blueprint(pp_bp)
+    app.register_blueprint(vuln_bp)
+    app.register_blueprint(docs_bp)
+    app.register_blueprint(about_bp)
+    app.register_blueprint(chat_bp)
+
     # Setup GitHub OAuth if enabled and configured
-    if app.config.get('GITHUB_OAUTH_ENABLED', False):
+    if app.config.get("GITHUB_OAUTH_ENABLED", False):
         from flask_dance.contrib.github import make_github_blueprint
-        
-        if app.config.get('GITHUB_OAUTH_CLIENT_ID') and app.config.get('GITHUB_OAUTH_CLIENT_SECRET'):
+
+        if app.config.get("GITHUB_OAUTH_CLIENT_ID") and app.config.get("GITHUB_OAUTH_CLIENT_SECRET"):
             github_bp = make_github_blueprint(
-                client_id=app.config['GITHUB_OAUTH_CLIENT_ID'],
-                client_secret=app.config['GITHUB_OAUTH_CLIENT_SECRET'],
+                client_id=app.config["GITHUB_OAUTH_CLIENT_ID"],
+                client_secret=app.config["GITHUB_OAUTH_CLIENT_SECRET"],
                 scope="user:email",
-                redirect_to="user.github_callback"
+                redirect_to="user.github_callback",
             )
             app.register_blueprint(github_bp, url_prefix="/auth")
 
