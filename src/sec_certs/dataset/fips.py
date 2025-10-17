@@ -49,7 +49,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         ├── certs
         │   └── targets
         │       ├── pdf
-        │       └── txt
+        │       ├── txt
+        │       └── json
         └── dataset.json
     """
 
@@ -96,6 +97,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @only_backed(throw=False)
     def policies_txt_dir(self) -> Path:
         return self.policies_dir / "txt"
+
+    @property
+    @only_backed(throw=False)
+    def policies_json_dir(self) -> Path:
+        return self.policies_dir / "json"
 
     @property
     @only_backed(throw=False)
@@ -192,23 +198,24 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_policies_to_txt(fresh)
+        self._convert_policies_pdfs(fresh)
 
-    def _convert_policies_to_txt(self, fresh: bool = True) -> None:
+    def _convert_policies_pdfs(self, fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.policies_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
 
         if fresh:
-            logger.info("Converting FIPS security policies to .txt")
+            logger.info("Converting FIPS security policies to txt and json.")
         if not fresh and certs_to_process:
             logger.info(
-                f"Converting {len(certs_to_process)} FIPS security polcies to .txt for which previous convert failed."
+                f"Converting {len(certs_to_process)} FIPS security polcies for which previous convert failed."
             )
 
         cert_processing.process_parallel(
             FIPSCertificate.convert_policy_pdf,
             certs_to_process,
-            progress_bar_desc="Converting policies to pdf",
+            progress_bar_desc="Converting policies to txt and json.",
         )
 
     def _download_html_resources(self) -> None:
@@ -245,7 +252,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if self.root_dir is None:
             return
         for cert in self:
-            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
+            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.policies_json_dir, self.module_dir)
 
     @serialize
     @staged(logger, "Downloading and processing certificates.")
