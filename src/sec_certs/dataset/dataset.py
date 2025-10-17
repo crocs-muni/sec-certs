@@ -404,13 +404,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @only_backed()
     def convert_all_pdfs(self, fresh: bool = True) -> None:
         """
-        Converts all pdf artifacts to txt, given the certification scheme.
+        Converts all pdf artifacts to txt and json, given the certification scheme.
         """
         if not self.state.artifacts_downloaded:
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
 
-        logger.info("Converting all PDFs to txt")
+        logger.info("Converting all PDFs to txt and json")
         self._convert_all_pdfs_body(fresh)
 
         self.state.pdfs_converted = True

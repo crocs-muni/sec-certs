@@ -59,30 +59,37 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         │   ├── protection_profiles
         │   │   ├── reports
         │   │   │   ├── pdf
-        │   │   │   └── txt
+        │   │   │   ├── txt
+        │   │   │   └── json
         │   │   ├── pps
         │   │   │   ├── pdf
-        │   │   │   └── txt
+        │   │   │   ├── txt
+        │   │   │   └── json
         │   │   └── dataset.json
         │   └── maintenances
         │       ├── certs
         │       │   ├── reports
         │       │   │   ├── pdf
-        │       │   │   └── txt
+        │       │   │   ├── txt
+        │       │   │   └── json
         │       │   └── targets
         │       │       ├── pdf
-        │       │       └── txt
+        │       │       ├── txt
+        │       │       └── json
         │       └── maintenance_updates.json
         ├── certs
         │   ├── reports
         │   │   ├── pdf
-        │   │   └── txt
+        │   │   ├── txt
+        │   │   └── json
         │   ├── targets
         │   │   ├── pdf
-        │   │   └── txt
+        │   │   ├── txt
+        │   │   └── json
         │   └── certificates
         │       ├── pdf
-        │       └── txt
+        │       ├── txt
+        │       └── json
         └── dataset.json
     """
 
@@ -172,6 +179,14 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     @property
     @only_backed(throw=False)
+    def reports_json_dir(self) -> Path:
+        """
+        Returns directory that holds JSONs associated with certification reports
+        """
+        return self.reports_dir / "json"
+
+    @property
+    @only_backed(throw=False)
     def targets_dir(self) -> Path:
         """
         Returns directory that holds files associated with security targets
@@ -196,6 +211,14 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     @property
     @only_backed(throw=False)
+    def targets_json_dir(self) -> Path:
+        """
+        Returns directory that holds JSONs associated with certification targets
+        """
+        return self.targets_dir / "json"
+
+    @property
+    @only_backed(throw=False)
     def certificates_dir(self) -> Path:
         """
         Returns directory that holds files associated with the certificates
@@ -217,6 +240,14 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         Returns directory that holds TXTs associated with certificates
         """
         return self.certificates_dir / "txt"
+
+    @property
+    @only_backed(throw=False)
+    def certificates_json_dir(self) -> Path:
+        """
+        Returns directory that holds JSONs associated with certification certificates
+        """
+        return self.certificates_dir / "json"
 
     @property
     @only_backed(throw=False)
@@ -291,6 +322,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 self.reports_txt_dir,
                 self.targets_txt_dir,
                 self.certificates_txt_dir,
+                self.reports_json_dir,
+                self.targets_json_dir,
+                self.certificates_json_dir
             )
 
     @only_backed()
@@ -645,62 +679,61 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs of CC certificates",
         )
 
-    @staged(logger, "Converting PDFs of certification reports to txt.")
-    def _convert_reports_to_txt(self, fresh: bool = True) -> None:
+    @staged(logger, "Converting PDFs of certification reports to txt and json.")
+    def _convert_reports_pdf(self, fresh: bool = True) -> None:
         self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.reports_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.report.is_ok_to_convert(fresh)]
 
         if not fresh and certs_to_process:
             logger.info(
-                f"Converting {len(certs_to_process)} PDFs of certification reports to txt for which previous conversion failed."
+                f"Converting {len(certs_to_process)} PDFs of certification reports for which previous conversion failed."
             )
 
         cert_processing.process_parallel(
             CCCertificate.convert_report_pdf,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of certification reports to txt",
+            progress_bar_desc="Converting PDFs of certification reports to txt and json",
         )
 
-    @staged(logger, "Converting PDFs of security targets to txt.")
-    def _convert_targets_to_txt(self, fresh: bool = True) -> None:
+    @staged(logger, "Converting PDFs of security targets to txt and json.")
+    def _convert_targets_pdfs(self, fresh: bool = True) -> None:
         self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.targets_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.st.is_ok_to_convert(fresh)]
 
-        if fresh:
-            logger.info("Converting PDFs of security targets to txt.")
         if not fresh and certs_to_process:
             logger.info(
-                f"Converting {len(certs_to_process)} PDFs of security targets to txt for which previous conversion failed."
+                f"Converting {len(certs_to_process)} PDFs of security targets for which previous conversion failed."
             )
 
         cert_processing.process_parallel(
             CCCertificate.convert_st_pdf,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of security targets to txt",
+            progress_bar_desc="Converting PDFs of security targets to txt and json",
         )
 
-    @staged(logger, "Converting PDFs of certificates to txt.")
-    def _convert_certs_to_txt(self, fresh: bool = True) -> None:
+    @staged(logger, "Converting PDFs of certificates to txt and json.")
+    def _convert_certs_pdfs(self, fresh: bool = True) -> None:
         self.certificates_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.certificates_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.cert.is_ok_to_convert(fresh)]
 
-        if fresh:
-            logger.info("Converting PDFs of certificates to txt.")
         if not fresh and certs_to_process:
             logger.info(
-                f"Converting {len(certs_to_process)} PDFs of certificates to txt for which previous conversion failed."
+                f"Converting {len(certs_to_process)} PDFs of certificates for which previous conversion failed."
             )
 
         cert_processing.process_parallel(
             CCCertificate.convert_cert_pdf,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of certificates to txt",
+            progress_bar_desc="Converting PDFs of certificates to txt and json",
         )
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_reports_to_txt(fresh)
-        self._convert_targets_to_txt(fresh)
-        self._convert_certs_to_txt(fresh)
+        self._convert_reports_pdf(fresh)
+        self._convert_targets_pdfs(fresh)
+        self._convert_certs_pdfs(fresh)
 
     @staged(logger, "Extracting report metadata")
     def _extract_report_metadata(self) -> None:
