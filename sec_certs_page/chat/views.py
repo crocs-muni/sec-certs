@@ -6,6 +6,7 @@ from nh3 import nh3
 
 from .. import mongo
 from ..common.permissions import chat_permission
+from ..common.views import accounting
 from ..common.webui import chat_full, chat_rag, file_name, file_type, resolve_files
 from . import chat
 
@@ -49,6 +50,7 @@ def files():
 
 @chat.route("/rag/", methods=["POST"])
 @chat_api
+@accounting("daily", 100, json=True)
 def query_rag():
     """Chat with the model."""
     data = request.get_json()
@@ -118,6 +120,7 @@ def query_rag():
 
 @chat.route("/full/", methods=["POST"])
 @chat_api
+@accounting("daily", 100, json=True)
 def query_full():
     """Chat with the model."""
     data = request.get_json()

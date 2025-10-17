@@ -245,7 +245,7 @@ def resolve_files(collection: str, hashid: str):
     return resp
 
 
-def chat_rag(queries, collection: str, hashid: Optional[str] = None, about: str = "entry"):
+def chat_rag(queries, collection: str, hashid: Optional[str] = None, about: str = "entry") -> requests.Response:
     files: Optional[list[str]] = None
     kbs: Optional[list[str]] = None
     cert = None
@@ -292,7 +292,7 @@ def chat_rag(queries, collection: str, hashid: Optional[str] = None, about: str 
     return chat_with_model(queries, system_addition, kbs=kbs, files=files)
 
 
-def chat_full(queries, collection: str, hashid: str, document: str = "both"):
+def chat_full(queries, collection: str, hashid: str, document: str = "both") -> requests.Response:
     docs = []
     if document == "both":
         docs = ["report", "target"]

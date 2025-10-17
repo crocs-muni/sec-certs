@@ -13,7 +13,6 @@ The app uses the following collections:
 - `cc_log`: To store a log of "runs" of the background update Celery task mentioned above.
 - `cc_old`: To store the mapping of old CC ids and new CC dgsts.
 - `cc_scheme`: To store the dump of CC scheme websites. **Unused**
-- `feedback`: To store the user feedback given on the site through the feedback form.
 - `fips`: To store the FIPS 140 certificate documents.
 - `fips_diff`: Same as `cc_diff` above but instead for FIPS.
 - `fips_log`: Same as `cc_log` above but instead for FIPS.
@@ -24,7 +23,9 @@ The app uses the following collections:
 - `pp_diff`: Same as `cc_diff` above but instead for protection profiles.
 - `pp_log`: Same as `cc_log` above but instead for protection profiles.
 - `users`: To store the registered users of the site (admins and regular users with extended schema for user accounts)
+- `email_tokens`: To store temporary email tokens for email confirmation, password reset, and magic link login.
 - `subs`: To store the confirmed and unconfirmed notification subscriptions.
+- `accounting`: To store accounting data for users.
 - `cve`: To store the CVE dataset entries.
 - `cpe`: To store the CPE dataset entries
 
@@ -50,6 +51,7 @@ The `users` collection stores user account information:
 - **Admin users**: Have `role: "admin"` and access to admin dashboard
 - **Regular users**: No role field or `role: undefined`, standard user access
 - Both user types use the same authentication system
+- There is also a `chat` role, that allows the user access to the chat interface
 
 ## Email Tokens Schema
 
@@ -99,5 +101,20 @@ The `subs` collection stores user notification subscriptions. There are generall
     timestamp: Date;
     type: "new";
     which: "cc" | "fips" | "pp";
+}
+```
+
+## Accounting Schema
+
+The `accounting` collection stores user accounting data:
+
+```javascript
+{
+    _id: ObjectId;
+    username: String | null;    // The username, or null for anonymous users
+    ip: String | null;          // The IP address for anonymous users, or null for registered users
+    period: Date | null;        // The accounting period (e.g., month)
+    count: int;                 // The number of actions in this period
+    endpoint: String;           // The endpoint accessed
 }
 ```

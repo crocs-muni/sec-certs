@@ -78,8 +78,9 @@ def mongo_data(app, mongodb):
     yield
 
 
-# @pytest.fixture(autouse=True, scope="function")
+@pytest.fixture()
 def clean_mongo(app):
+    queue = []
     with mongo.db.watch(full_document_before_change="whenAvailable") as stream:
         yield
         # Clean up any changes made to the DB during the test
@@ -95,16 +96,20 @@ def clean_mongo(app):
             if operation == "update" or operation == "replace":
                 if pre_image:
                     # Restore the previous version of the document
-                    coll.replace_one({"_id": doc_id}, pre_image)
-                    print(f"Rolled back update/replace for _id {doc_id}")
-                else:
-                    print(f"Pre-image missing for update/replace operation on _id {doc_id}")
+                    queue.append((coll.replace_one, {"_id": doc_id}, pre_image))
+                    # print(f"Rolled back update/replace for _id {doc_id}")
+                # else:
+                # print(f"Pre-image missing for update/replace operation on _id {doc_id}")
             elif operation == "insert":
                 # Remove the inserted document
-                coll.delete_one({"_id": doc_id})
-                print(f"Rolled back insert for _id {doc_id}")
-            else:
-                print(f"Unknown operationType: {operation} for _id {doc_id}")
+                queue.append((coll.delete_one, {"_id": doc_id}))
+                # print(f"Rolled back insert for _id {doc_id}")
+            # else:
+            # print(f"Unknown operationType: {operation} for _id {doc_id}")
+    for item in queue:
+        func = item[0]
+        args = item[1:]
+        func(*args)
 
 
 @pytest.fixture(scope="function")
@@ -130,7 +135,7 @@ def user(app) -> Generator[tuple[User, str], Any, None]:
     username = "user"
     password = "password"
     email = "example@example.com"
-    roles: list[str] = []
+    roles: list[str] = ["chat"]
     pwhash = hash_password(password)
     user = User(
         username, pwhash, email, roles, email_confirmed=True, created_at=datetime.now(timezone.utc), github_id=None
