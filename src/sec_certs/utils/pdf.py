@@ -8,10 +8,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-import pdftotext
 import pikepdf
 import pytesseract
 from PIL import Image
+
+from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.datamodel.base_models import ConversionStatus, InputFormat
+from docling.document_converter import DocumentConverter, PdfFormatOption
+from docling.exceptions import ConversionError
+from docling_core.types.doc import ContentLayer, ImageRefMode
 
 from sec_certs.constants import (
     GARBAGE_ALPHA_CHARS_THRESHOLD,
@@ -73,40 +78,45 @@ def ocr_pdf_file(pdf_path: Path) -> str:
     return contents
 
 
-def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
+def convert_pdf_file(pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
     """
-    Convert a PDF tile to text and save it on the `txt_path`.
+    Convert a PDF file and save the result as a text file to `txt_path`
+    alongisde with a serialized DoclingDocument as JSON to `json_path`.
 
     :param pdf_path: Path to the to-be-converted PDF file.
     :param txt_path: Path to the resulting text file.
-    :return: A tuple of two results, whether OCR was done and what the complete result
-             was (OK/NOK).
+    :param json_path: Path to the resulting JSON file.
+    :return: A boolean if the conversion was successful.
     """
-    txt = None
-    ok = False
-    ocr = False
+
+    pipeline_options = PdfPipelineOptions()
+    pipeline_options.do_ocr = True
+    pipeline_options.do_table_structure = True
+
+    doc_converter = DocumentConverter(
+        format_options={
+            InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
+        }
+    )
+
     try:
-        with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
-            txt = "".join(pdf)
-    except Exception as e:
-        logger.error(f"Error when converting pdf->txt: {e}")
+        conv_res = doc_converter.convert(pdf_path)
 
-    if txt is None or text_is_garbage(txt):
-        logger.warning(f"Detected garbage during conversion of {pdf_path}")
-        ocr = True
-        try:
-            txt = ocr_pdf_file(pdf_path)
-            logger.info(f"OCR OK for {pdf_path}")
-        except Exception as e:
-            logger.error(f"Error during OCR of {pdf_path}, using garbage: {e}")
+        if (conv_res.result.status == ConversionStatus.PARTIAL_SUCCESS):
+            logger.warning(f"Document {pdf_path} was partially converted with the following errors:")
+            for item in conv_res.errors:
+                logger.warning(f"\t{item.error_message}")
 
-    if txt is not None:
-        ok = True
-        with txt_path.open("w", encoding="utf-8") as txt_handle:
-            txt_handle.write(txt)
+        conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
+        conv_res.document.save_as_markdown(txt_path,
+                                           image_placeholder="",
+                                           escape_underscores=False,
+                                           included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE})
+    except ConversionError as e:
+        logger.error(f"Conversion failed for {pdf_path}: {e}")
+        return False
 
-    return ocr, ok
+    return True
 
 
 def parse_pdf_date(dateval: bytes | None) -> datetime | None:
