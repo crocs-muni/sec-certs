@@ -289,7 +289,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         cert_processing.process_parallel(
             ProtectionProfile.convert_report_pdf,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of PP certification reports to txt and json.",
+            progress_bar_desc="Converting PDFs of PP certification reports to txt and json",
         )
 
     @staged(logger, "Converting PDFs of actual Protection Profiles to txt and json.")
@@ -306,7 +306,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         cert_processing.process_parallel(
             ProtectionProfile.convert_pp_pdf,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of actual Protection Profiles to text and json.",
+            progress_bar_desc="Converting PDFs of actual Protection Profiles to txt and json",
         )
 
     def _download_all_artifacts_body(self, fresh=True):
