@@ -99,7 +99,7 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
     try:
         conv_res = doc_converter.convert(pdf_path)
 
-        if conv_res.result.status == ConversionStatus.PARTIAL_SUCCESS:
+        if conv_res.status == ConversionStatus.PARTIAL_SUCCESS:
             logger.warning(f"Document {pdf_path} was partially converted with the following errors:")
             for item in conv_res.errors:
                 logger.warning(f"\t{item.error_message}")
