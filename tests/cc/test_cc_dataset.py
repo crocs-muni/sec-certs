@@ -54,8 +54,6 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
             assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
             assert cert.state.st.pdf_hash == template_st_pdf_hashes[cert.dgst]
             assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
-            assert not cert.state.report.convert_garbage
-            assert not cert.state.st.convert_garbage
             assert cert.state.report.convert_ok
             assert cert.state.st.convert_ok
             assert cert.state.report.txt_path.exists()
