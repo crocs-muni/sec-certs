@@ -165,6 +165,8 @@ docutils==0.21.2
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
+easyocr==1.7.2
+    # via sec-certs (../pyproject.toml)
 et-xmlfile==2.0.0
     # via openpyxl
 evaluate==0.4.6
@@ -409,6 +411,8 @@ networkx==3.5
     #   scikit-image
     #   sec-certs (../pyproject.toml)
     #   torch
+ninja==1.13.0
+    # via easyocr
 nltk==3.9.2
     # via sec-certs (../pyproject.toml)
 nodeenv==1.9.1
@@ -428,12 +432,14 @@ numpy==1.26.4
     #   datasets
     #   datashader
     #   docling-ibm-models
+    #   easyocr
     #   evaluate
     #   holoviews
     #   imageio
     #   matplotlib
     #   numba
     #   opencv-python
+    #   opencv-python-headless
     #   optuna
     #   pandas
     #   pysankeybeta
@@ -461,6 +467,8 @@ openai==2.5.0
     # via sec-certs (../pyproject.toml)
 opencv-python==4.11.0.86
     # via rapidocr
+opencv-python-headless==4.11.0.86
+    # via easyocr
 openpyxl==3.1.5
     # via docling
 optuna==4.5.0
@@ -536,6 +544,7 @@ pillow==11.3.0
     #   docling-core
     #   docling-ibm-models
     #   docling-parse
+    #   easyocr
     #   imageio
     #   matplotlib
     #   ocrmac
@@ -564,7 +573,7 @@ pluggy==1.6.0
     #   docling
     #   pytest
     #   pytest-cov
-polyfactory==2.22.2
+polyfactory==2.22.3
     # via docling
 pre-commit==4.3.0
     # via sec-certs (../pyproject.toml)
@@ -594,7 +603,9 @@ pyarrow==21.0.0
     #   datasets
     #   sec-certs (../pyproject.toml)
 pyclipper==1.3.0.post6
-    # via rapidocr
+    # via
+    #   easyocr
+    #   rapidocr
 pycparser==2.23
     # via cffi
 pyct==0.6.0
@@ -677,6 +688,8 @@ pytest-monitor==1.6.6
     # via sec-certs (../pyproject.toml)
 pytest-profiling==1.8.1
     # via sec-certs (../pyproject.toml)
+python-bidi==0.6.6
+    # via easyocr
 python-dateutil==2.9.0.post0
     # via
     #   dateparser
@@ -705,6 +718,7 @@ pyyaml==6.0.3
     #   dask
     #   datasets
     #   docling-core
+    #   easyocr
     #   huggingface-hub
     #   jupyter-cache
     #   myst-nb
@@ -767,7 +781,9 @@ safetensors[numpy,torch]==0.6.2
     #   docling-ibm-models
     #   transformers
 scikit-image==0.25.2
-    # via umap-learn
+    # via
+    #   easyocr
+    #   umap-learn
 scikit-learn==1.7.2
     # via
     #   pynndescent
@@ -780,6 +796,7 @@ scipy==1.16.2
     #   catboost
     #   datashader
     #   docling
+    #   easyocr
     #   pynndescent
     #   scikit-image
     #   scikit-learn
@@ -802,7 +819,9 @@ setfit==1.1.3
 setuptools-scm==9.2.1
     # via sec-certs (../pyproject.toml)
 shapely==2.1.2
-    # via rapidocr
+    # via
+    #   easyocr
+    #   rapidocr
 shellingham==1.5.4
     # via typer
 six==1.17.0
@@ -896,11 +915,14 @@ torch==2.9.0
     # via
     #   accelerate
     #   docling-ibm-models
+    #   easyocr
     #   safetensors
     #   sentence-transformers
     #   torchvision
 torchvision==0.24.0
-    # via docling-ibm-models
+    # via
+    #   docling-ibm-models
+    #   easyocr
 tornado==6.5.2
     # via
     #   bokeh
