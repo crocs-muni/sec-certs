@@ -64,11 +64,4 @@ class DocumentState(ComplexSerializableType):
 
     @property
     def serialized_attributes(self) -> list[str]:
-        return [
-            "download_ok",
-            "convert_ok",
-            "extract_ok",
-            "pdf_hash",
-            "txt_hash",
-            "json_hash"
-        ]
+        return ["download_ok", "convert_ok", "extract_ok", "pdf_hash", "txt_hash", "json_hash"]

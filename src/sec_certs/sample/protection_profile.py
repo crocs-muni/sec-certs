@@ -307,7 +307,9 @@ class ProtectionProfile(
         """
         Converts certification reports from pdf to txt.
         """
-        ok_result = convert_pdf_file(cert.state.report.pdf_path, cert.state.report.txt_path, cert.state.report.json_path)
+        ok_result = convert_pdf_file(
+            cert.state.report.pdf_path, cert.state.report.txt_path, cert.state.report.json_path
+        )
         cert.state.report.convert_ok = ok_result
         if not ok_result:
             logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")

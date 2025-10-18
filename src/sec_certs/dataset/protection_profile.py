@@ -134,9 +134,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             return
 
         for cert in self:
-            cert.set_local_paths(self.reports_pdf_dir, self.pps_pdf_dir,
-                                 self.reports_txt_dir, self.pps_txt_dir,
-                                 self.reports_json_dir, self.pps_json_dir)
+            cert.set_local_paths(
+                self.reports_pdf_dir,
+                self.pps_pdf_dir,
+                self.reports_txt_dir,
+                self.pps_txt_dir,
+                self.reports_json_dir,
+                self.pps_json_dir,
+            )
 
     HTML_URL = {
         "pp_active.html": constants.CC_PORTAL_BASE_URL + "/pps/index.cfm",

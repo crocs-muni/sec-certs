@@ -208,9 +208,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if fresh:
             logger.info("Converting FIPS security policies to txt and json.")
         if not fresh and certs_to_process:
-            logger.info(
-                f"Converting {len(certs_to_process)} FIPS security polcies for which previous convert failed."
-            )
+            logger.info(f"Converting {len(certs_to_process)} FIPS security polcies for which previous convert failed.")
 
         cert_processing.process_parallel(
             FIPSCertificate.convert_policy_pdf,

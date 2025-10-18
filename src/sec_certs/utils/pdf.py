@@ -10,13 +10,12 @@ from typing import Any
 
 import pikepdf
 import pytesseract
-from PIL import Image
-
-from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.datamodel.base_models import ConversionStatus, InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
 from docling_core.types.doc import ContentLayer, ImageRefMode
+from PIL import Image
 
 from sec_certs.constants import (
     GARBAGE_ALPHA_CHARS_THRESHOLD,
@@ -94,24 +93,24 @@ def convert_pdf_file(pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
     pipeline_options.do_table_structure = True
 
     doc_converter = DocumentConverter(
-        format_options={
-            InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
-        }
+        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)}
     )
 
     try:
         conv_res = doc_converter.convert(pdf_path)
 
-        if (conv_res.result.status == ConversionStatus.PARTIAL_SUCCESS):
+        if conv_res.result.status == ConversionStatus.PARTIAL_SUCCESS:
             logger.warning(f"Document {pdf_path} was partially converted with the following errors:")
             for item in conv_res.errors:
                 logger.warning(f"\t{item.error_message}")
 
         conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
-        conv_res.document.save_as_markdown(txt_path,
-                                           image_placeholder="",
-                                           escape_underscores=False,
-                                           included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE})
+        conv_res.document.save_as_markdown(
+            txt_path,
+            image_placeholder="",
+            escape_underscores=False,
+            included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE},
+        )
     except ConversionError as e:
         logger.error(f"Conversion failed for {pdf_path}: {e}")
         return False

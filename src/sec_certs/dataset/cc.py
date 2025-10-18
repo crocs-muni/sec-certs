@@ -324,7 +324,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 self.certificates_txt_dir,
                 self.reports_json_dir,
                 self.targets_json_dir,
-                self.certificates_json_dir
+                self.certificates_json_dir,
             )
 
     @only_backed()
