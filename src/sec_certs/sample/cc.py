@@ -675,14 +675,16 @@ class CCCertificate(
             self.state.st.pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
         if cert_pdf_dir:
             self.state.cert.pdf_path = Path(cert_pdf_dir) / (self.dgst + ".pdf")
+
         if report_txt_dir:
             self.state.report.txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
         if st_txt_dir:
             self.state.st.txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
         if cert_txt_dir:
             self.state.cert.txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
+
         if report_json_dir:
-            self.state.report.json_path = Path(report_txt_dir) / (self.dgst + ".json")
+            self.state.report.json_path = Path(report_json_dir) / (self.dgst + ".json")
         if st_json_dir:
             self.state.st.json_path = Path(st_json_dir) / (self.dgst + ".json")
         if cert_json_dir:

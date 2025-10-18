@@ -311,7 +311,7 @@ class FIPSCertificate(
             return self._policy_json_path
 
         @policy_json_path.setter
-        def policy_txt_path(self, pth: str | Path | None) -> None:
+        def policy_json_path(self, pth: str | Path | None) -> None:
             self._policy_json_path = Path(pth) if pth else None
 
         @property
@@ -334,7 +334,7 @@ class FIPSCertificate(
                 "policy_extract_ok",
                 "policy_pdf_hash",
                 "policy_txt_hash",
-                "policy_json_hash"
+                "policy_json_hash",
             ]
 
         def module_is_ok_to_download(self, fresh: bool = True) -> bool:
@@ -360,7 +360,9 @@ class FIPSCertificate(
                 else self.policy_convert_ok and not self.policy_extract_ok
             )
 
-    def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, policies_json_dir: Path, modules_html_dir: Path) -> None:
+    def set_local_paths(
+        self, policies_pdf_dir: Path, policies_txt_dir: Path, policies_json_dir: Path, modules_html_dir: Path
+    ) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
         self.state.policy_txt_path = (policies_txt_dir / str(self.dgst)).with_suffix(".txt")
         self.state.policy_json_path = (policies_json_dir / str(self.dgst)).with_suffix(".json")
@@ -603,7 +605,9 @@ class FIPSCertificate(
         """
         Converts policy pdf -> txt, json
         """
-        ok_result = convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path, cert.state.policy_json_path)
+        ok_result = convert_pdf_file(
+            cert.state.policy_pdf_path, cert.state.policy_txt_path, cert.state.policy_json_path
+        )
         cert.state.policy_convert_ok = ok_result
         if not ok_result:
             error_msg = "Failed to convert policy pdf->txt"
