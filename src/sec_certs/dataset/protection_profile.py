@@ -15,6 +15,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
 
 
@@ -286,9 +287,13 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 f"Converting {len(certs_to_process)} PDFs of PP certification reports for which previous conversion failed."
             )
 
+        converter = DoclingConverter()
+        items = [(cert, converter) for cert in certs_to_process]
         cert_processing.process_parallel(
             ProtectionProfile.convert_report_pdf,
-            certs_to_process,
+            items,
+            unpack=True,
+            max_workers=1,
             progress_bar_desc="Converting PDFs of PP certification reports to txt and json",
         )
 
@@ -303,9 +308,13 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 f"Converting {len(certs_to_process)} PDFs of actual Protection Profiles for which previous conversion failed."
             )
 
+        converter = DoclingConverter()
+        items = [(cert, converter) for cert in certs_to_process]
         cert_processing.process_parallel(
             ProtectionProfile.convert_pp_pdf,
-            certs_to_process,
+            items,
+            unpack=True,
+            max_workers=1,
             progress_bar_desc="Converting PDFs of actual Protection Profiles to txt and json",
         )
 

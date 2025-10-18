@@ -27,7 +27,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.extract import extract_keywords, normalize_match_string, scheme_frontpage_functions
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
+from sec_certs.utils.pdf import PdfConverter, extract_pdf_metadata
 
 
 class CCCertificate(
@@ -737,9 +737,11 @@ class CCCertificate(
         return CCCertificate._download_pdf(cert, "cert")
 
     @staticmethod
-    def _convert_pdf(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
+    def _convert_pdf(
+        cert: CCCertificate, doc_type: Literal["report", "st", "cert"], converter: PdfConverter
+    ) -> CCCertificate:
         doc_state = getattr(cert.state, doc_type)
-        ok_result = convert_pdf_file(doc_state.pdf_path, doc_state.txt_path, doc_state.json_path)
+        ok_result = converter.convert(doc_state.pdf_path, doc_state.txt_path, doc_state.json_path)
         doc_state.convert_ok = ok_result
         if not ok_result:
             error_msg = f"failed to convert {doc_type} pdf->txt"
@@ -750,34 +752,34 @@ class CCCertificate(
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: CCCertificate) -> CCCertificate:
+    def convert_report_pdf(cert: CCCertificate, converter: PdfConverter) -> CCCertificate:
         """
         Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
 
         :param CCCertificate cert: cert to convert the pdf report for
         :return CCCertificate: the modified certificate with updated state
         """
-        return CCCertificate._convert_pdf(cert, "report")
+        return CCCertificate._convert_pdf(cert, "report", converter)
 
     @staticmethod
-    def convert_st_pdf(cert: CCCertificate) -> CCCertificate:
+    def convert_st_pdf(cert: CCCertificate, converter: PdfConverter) -> CCCertificate:
         """
         Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
 
         :param CCCertificate cert: cert to convert the pdf security target for
         :return CCCertificate: the modified certificate with updated state
         """
-        return CCCertificate._convert_pdf(cert, "st")
+        return CCCertificate._convert_pdf(cert, "st", converter)
 
     @staticmethod
-    def convert_cert_pdf(cert: CCCertificate) -> CCCertificate:
+    def convert_cert_pdf(cert: CCCertificate, converter: PdfConverter) -> CCCertificate:
         """
         Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
 
         :param CCCertificate cert: cert to convert the certificate for
         :return CCCertificate: the modified certificate with updated state
         """
-        return CCCertificate._convert_pdf(cert, "cert")
+        return CCCertificate._convert_pdf(cert, "cert", converter)
 
     @staticmethod
     def _extract_pdf_metadata(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:

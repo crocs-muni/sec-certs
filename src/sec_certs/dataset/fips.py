@@ -28,6 +28,7 @@ from sec_certs.serialization.json import ComplexSerializableType, only_backed, s
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
+from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
 
 logger = logging.getLogger(__name__)
@@ -210,10 +211,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if not fresh and certs_to_process:
             logger.info(f"Converting {len(certs_to_process)} FIPS security polcies for which previous convert failed.")
 
+        converter = DoclingConverter()
+        items = [(cert, converter) for cert in certs_to_process]
         cert_processing.process_parallel(
             FIPSCertificate.convert_policy_pdf,
-            certs_to_process,
-            progress_bar_desc="Converting policies to txt and json.",
+            items,
+            unpack=True,
+            max_workers=1,
+            progress_bar_desc="Converting FIPS security policies to txt and json",
         )
 
     def _download_html_resources(self) -> None:

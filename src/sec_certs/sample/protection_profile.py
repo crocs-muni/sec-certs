@@ -19,7 +19,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
+from sec_certs.utils.pdf import PdfConverter, extract_pdf_metadata
 
 
 class ProtectionProfile(
@@ -303,11 +303,11 @@ class ProtectionProfile(
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: ProtectionProfile) -> ProtectionProfile:
+    def convert_report_pdf(cert: ProtectionProfile, converter: PdfConverter) -> ProtectionProfile:
         """
         Converts certification reports from pdf to txt.
         """
-        ok_result = convert_pdf_file(
+        ok_result = converter.convert(
             cert.state.report.pdf_path, cert.state.report.txt_path, cert.state.report.json_path
         )
         cert.state.report.convert_ok = ok_result
@@ -319,11 +319,11 @@ class ProtectionProfile(
         return cert
 
     @staticmethod
-    def convert_pp_pdf(cert: ProtectionProfile) -> ProtectionProfile:
+    def convert_pp_pdf(cert: ProtectionProfile, converter: PdfConverter) -> ProtectionProfile:
         """
         Converts the actual protection profile from pdf to txt.
         """
-        ok_result = convert_pdf_file(cert.state.pp.pdf_path, cert.state.pp.txt_path, cert.state.pp.json_path)
+        ok_result = converter.convert(cert.state.pp.pdf_path, cert.state.pp.txt_path, cert.state.pp.json_path)
         cert.state.pp.convert_ok = ok_result
         if not ok_result:
             logger.error(f"Cert dgst: {cert.dgst} failed to convert PP pdf to txt")

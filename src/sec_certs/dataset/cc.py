@@ -39,6 +39,7 @@ from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
 
 
@@ -690,9 +691,13 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of certification reports for which previous conversion failed."
             )
 
+        converter = DoclingConverter()
+        items = [(cert, converter) for cert in certs_to_process]
         cert_processing.process_parallel(
             CCCertificate.convert_report_pdf,
-            certs_to_process,
+            items,
+            unpack=True,
+            max_workers=1,
             progress_bar_desc="Converting PDFs of certification reports to txt and json",
         )
 
@@ -707,9 +712,13 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of security targets for which previous conversion failed."
             )
 
+        converter = DoclingConverter()
+        items = [(cert, converter) for cert in certs_to_process]
         cert_processing.process_parallel(
             CCCertificate.convert_st_pdf,
-            certs_to_process,
+            items,
+            unpack=True,
+            max_workers=1,
             progress_bar_desc="Converting PDFs of security targets to txt and json",
         )
 
@@ -724,9 +733,13 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of certificates for which previous conversion failed."
             )
 
+        converter = DoclingConverter()
+        items = [(cert, converter) for cert in certs_to_process]
         cert_processing.process_parallel(
             CCCertificate.convert_cert_pdf,
-            certs_to_process,
+            items,
+            unpack=True,
+            max_workers=1,
             progress_bar_desc="Converting PDFs of certificates to txt and json",
         )
 
