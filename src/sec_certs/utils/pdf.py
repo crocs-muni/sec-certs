@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import subprocess
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from functools import reduce
 from pathlib import Path
@@ -10,10 +11,12 @@ from typing import Any
 
 import pikepdf
 import pytesseract
+from docling.datamodel.accelerator_options import AcceleratorOptions
 from docling.datamodel.base_models import ConversionStatus, InputFormat
-from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.datamodel.pipeline_options import OcrAutoOptions, ThreadedPdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
+from docling.pipeline.threaded_standard_pdf_pipeline import ThreadedStandardPdfPipeline
 from docling_core.types.doc import ContentLayer, ImageRefMode
 from PIL import Image
 
@@ -27,6 +30,67 @@ from sec_certs.constants import (
 
 logger = logging.getLogger(__name__)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
+logging.getLogger("docling").setLevel(logging.ERROR)
+
+
+# [TODO]: decide if keep here or move to different file
+class PdfConverter(ABC):
+    @abstractmethod
+    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
+        raise NotImplementedError("Not meant to be implemented by the base class.")
+
+
+class DoclingConverter(PdfConverter):
+    def __init__(self):
+        # [TODO]: make it configurable from app config
+        pipeline_options = ThreadedPdfPipelineOptions()
+        pipeline_options.do_ocr = True
+        pipeline_options.ocr_options = OcrAutoOptions()
+        pipeline_options.do_table_structure = True
+        pipeline_options.ocr_batch_size = 4
+        pipeline_options.layout_batch_size = 4
+        pipeline_options.table_batch_size = 4
+        pipeline_options.accelerator_options = AcceleratorOptions(device="auto", num_threads=4)
+
+        self.doc_converter = DocumentConverter(
+            format_options={
+                InputFormat.PDF: PdfFormatOption(
+                    pipeline_cls=ThreadedStandardPdfPipeline, pipeline_options=pipeline_options
+                )
+            }
+        )
+
+    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
+        """
+        Convert a PDF file and save the result as a text file to `txt_path`
+        alongisde with a serialized DoclingDocument as JSON to `json_path`.
+
+        :param pdf_path: Path to the to-be-converted PDF file.
+        :param txt_path: Path to the resulting text file.
+        :param json_path: Path to the resulting JSON file.
+        :return: A boolean if the conversion was successful.
+        """
+
+        try:
+            conv_res = self.doc_converter.convert(pdf_path)
+
+            if conv_res.status == ConversionStatus.PARTIAL_SUCCESS:
+                logger.warning(f"Document {pdf_path} was partially converted with the following errors:")
+                for item in conv_res.errors:
+                    logger.warning(f"\t{item.error_message}")
+
+            conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
+            conv_res.document.save_as_markdown(
+                txt_path,
+                image_placeholder="",
+                escape_underscores=False,
+                included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE},
+            )
+        except ConversionError as e:
+            logger.error(f"Conversion failed for {pdf_path}: {e}")
+            return False
+
+        return True
 
 
 def repair_pdf(file: Path) -> None:
@@ -75,47 +139,6 @@ def ocr_pdf_file(pdf_path: Path) -> str:
             with txt_path.open("r", encoding="utf-8") as f:
                 contents += f.read()
     return contents
-
-
-def convert_pdf_file(pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
-    """
-    Convert a PDF file and save the result as a text file to `txt_path`
-    alongisde with a serialized DoclingDocument as JSON to `json_path`.
-
-    :param pdf_path: Path to the to-be-converted PDF file.
-    :param txt_path: Path to the resulting text file.
-    :param json_path: Path to the resulting JSON file.
-    :return: A boolean if the conversion was successful.
-    """
-
-    pipeline_options = PdfPipelineOptions()
-    pipeline_options.do_ocr = True
-    pipeline_options.do_table_structure = True
-
-    doc_converter = DocumentConverter(
-        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)}
-    )
-
-    try:
-        conv_res = doc_converter.convert(pdf_path)
-
-        if conv_res.status == ConversionStatus.PARTIAL_SUCCESS:
-            logger.warning(f"Document {pdf_path} was partially converted with the following errors:")
-            for item in conv_res.errors:
-                logger.warning(f"\t{item.error_message}")
-
-        conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
-        conv_res.document.save_as_markdown(
-            txt_path,
-            image_placeholder="",
-            escape_underscores=False,
-            included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE},
-        )
-    except ConversionError as e:
-        logger.error(f"Conversion failed for {pdf_path}: {e}")
-        return False
-
-    return True
 
 
 def parse_pdf_date(dateval: bytes | None) -> datetime | None:
