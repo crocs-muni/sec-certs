@@ -1,9 +1,15 @@
+import logging
+from datetime import datetime, timezone
+
 import dramatiq
 from flask import render_template, url_for
+from periodiq import cron
 
-from .. import mail
+from .. import mail, mongo
 from ..common.mail import Message
 from .models import User
+
+logger = logging.getLogger(__name__)
 
 
 def send_user_email(to_email, subject, template, context):
@@ -21,6 +27,7 @@ def send_confirmation_email(username):
     user = User.get(username)
     token = User.generate_confirmation_token(username)
     confirmation_url = url_for("user.confirm_email", token=token, _external=True)
+
     send_user_email(
         user.email,
         "Confirm your email | sec-certs.org",
@@ -34,6 +41,7 @@ def send_password_reset_email(username):
     user = User.get(username)
     token = User.generate_password_reset_token(username)
     reset_url = url_for("user.reset_password", token=token, _external=True)
+
     send_user_email(
         user.email,
         "Password reset | sec-certs.org",
@@ -54,3 +62,9 @@ def send_magic_link_email(username):
         "user/emails/magic_link.html.jinja2",
         {"user": user, "login_url": login_url},
     )
+
+
+@dramatiq.actor(periodic=cron("0 0 * * *"))
+def clear_expired_tokens():
+    deleted = mongo.db.email_tokens.delete_many({"expires_at": {"$lt": datetime.now(timezone.utc)}})
+    logger.info(f"Deleted {deleted.deleted_count} expired email tokens.")
