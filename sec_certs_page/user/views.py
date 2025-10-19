@@ -114,13 +114,15 @@ def change_password():
 @user.route("/reset-password/<token>", methods=["GET", "POST"])
 @register_breadcrumb(user, ".reset_password", "Reset Password")
 def reset_password(token):
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-
     user = User.verify_token(token, "password_reset")
     if not user:
         flash("Invalid or expired reset link.", "error")
         return redirect(url_for("user.forgot_password"))
+
+    if current_user.is_authenticated:
+        if current_user.username != user.username:
+            flash("Invalid or expired reset link.", "error")
+            return redirect(url_for("user.forgot_password"))
 
     form = PasswordResetForm()
     if form.validate_on_submit():
