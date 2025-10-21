@@ -119,6 +119,7 @@ def test_download_and_convert_artifacts(toy_dataset: FIPSDataset, data_dir: Path
         assert crt.state.policy_convert_ok
         assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
         assert crt.state.policy_txt_path.exists()
+        assert crt.state.policy_json_path.exists()
 
         template_policy_txt_path = data_dir / "template_policy_184097a88a9b4ad9.txt"
         assert abs(crt.state.policy_txt_path.stat().st_size - template_policy_txt_path.stat().st_size) < 1000

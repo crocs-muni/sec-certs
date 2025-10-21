@@ -74,11 +74,11 @@
         "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
         "module_download_ok": true,
         "policy_download_ok": true,
-        "policy_convert_garbage": false,
         "policy_convert_ok": true,
         "module_extract_ok": false,
         "policy_extract_ok": false,
         "policy_pdf_hash": "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1",
-        "policy_txt_hash": "cc1f8d0f7bb759894e81cbbfd1cfe02cdc443879fd47d3306f2a1b419fbf2872"
+        "policy_txt_hash": "10298fb461be61ea9e44a7783d80e59d9e1c9e444c865785d4836056524ecf6a",
+        "policy_json_hash": "818afe1611b98805ce549d37dc089781eb4854ce866dd764c584db78abf5171e"
     }
 }
