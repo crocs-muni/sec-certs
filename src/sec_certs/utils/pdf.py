@@ -130,7 +130,7 @@ class DoclingConverter(PdfConverter):
             conv_res.document.save_as_markdown(
                 txt_path,
                 image_placeholder="",
-                escape_underscores=False,
+                escaping_underscores=False,
                 included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE},
             )
         except ConversionError as e:
