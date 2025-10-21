@@ -250,6 +250,7 @@ class FIPSCertificate(
         module_download_ok: bool
         policy_download_ok: bool
 
+        policy_convert_garbage: bool  # deprecated
         policy_convert_ok: bool
 
         module_extract_ok: bool
@@ -268,6 +269,7 @@ class FIPSCertificate(
             self,
             module_download_ok: bool = False,
             policy_download_ok: bool = False,
+            policy_convert_garbage: bool = False,
             policy_convert_ok: bool = False,
             module_extract_ok: bool = False,
             policy_extract_ok: bool = False,

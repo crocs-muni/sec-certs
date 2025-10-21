@@ -11,6 +11,7 @@ class DocumentState(ComplexSerializableType):
     download_ok: bool = False  # Whether download went OK
     convert_ok: bool = False  # Whether conversion went OK
     extract_ok: bool = False  # Whether extraction went OK
+    convert_garbage: bool = False  # deprecated
 
     pdf_hash: str | None = None
     txt_hash: str | None = None
