@@ -125,7 +125,9 @@ def test_download_and_convert_artifacts(toy_pp_dataset: ProtectionProfileDataset
         assert cert.state.report.convert_ok
         assert cert.state.pp.convert_ok
         assert cert.state.report.txt_path.exists()
+        assert cert.state.report.json_path.exists()
         assert cert.state.pp.txt_path.exists()
+        assert cert.state.pp.json_path.exists()
 
     template_report_txt_path = pp_data_dir / "reports/txt/b02ed76d2545326a.txt"
     template_pp_txt_path = pp_data_dir / "pps/txt/b02ed76d2545326a.txt"
@@ -162,7 +164,7 @@ def test_keyword_extraction(toy_pp_dataset: ProtectionProfileDataset, pp_data_di
     report_keywords = toy_pp_dataset["b02ed76d2545326a"].pdf_data.report_keywords
     assert report_keywords
     assert "cc_protection_profile_id" in report_keywords
-    assert report_keywords["cc_protection_profile_id"]["BSI"]["BSI-CC-PP-0062-2010"] == 14
+    assert report_keywords["cc_protection_profile_id"]["BSI"]["BSI-CC-PP-0062-2010"] == 28
 
     pp_keywords = toy_pp_dataset["b02ed76d2545326a"].pdf_data.pp_keywords
     assert pp_keywords

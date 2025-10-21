@@ -57,9 +57,12 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
             assert cert.state.report.convert_ok
             assert cert.state.st.convert_ok
             assert cert.state.report.txt_path.exists()
+            assert cert.state.report.json_path.exists()
             assert cert.state.st.txt_path.exists()
+            assert cert.state.st.json_path.exists()
             if cert.cert_link:
                 assert cert.state.cert.txt_path.exists()
+                assert cert.state.cert.json_path.exists()
 
         template_report_txt_path = data_dir / "report_e3dcf91ef38ddbf0.txt"
         template_st_txt_path = data_dir / "target_e3dcf91ef38ddbf0.txt"
