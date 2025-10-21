@@ -30,10 +30,9 @@ from sec_certs.constants import (
 
 logger = logging.getLogger(__name__)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
-logging.getLogger("docling").setLevel(logging.ERROR)
+logging.getLogger("docling").setLevel(logging.WARNING)
 
 
-# [TODO]: decide if keep here or move to different file
 class PdfConverter(ABC):
     @abstractmethod
     def convert(self, pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
@@ -42,15 +41,63 @@ class PdfConverter(ABC):
 
 class DoclingConverter(PdfConverter):
     def __init__(self):
-        # [TODO]: make it configurable from app config
+        # ThreadedPdfPipeline uses parallelism between pipeline stages and models.
+        # Each pipeline step (preprocess, ocr, layout, table, assemble) runs in its own
+        # dedicated thread. Each stage processes batches of configurable size in a
+        # single execution. There are queues that connect the stages.
+        # Avaiable options:
+        #   ocr_batch_size: int = 4
+        #   layout_batch_size: int = 4
+        #   table_batch_size: int = 4
+        #   queue_max_size: int = 100
+        #   batch_timeout_seconds: float = 2.0 (max wait for filling a batch before processing)
+        #
+        # AcceleratorOptions controls the internal model level parallerism for inference.
+        # These options apply globally to OCR, layout and table model in the pipeline.
+        # Available options:
+        #   num_threads: int = 4
+        #   device: str = "auto" | "cuda" | "cpu" | "mps"
+        #   cuda_use_flash_attention2: bool = False
+        #
+        # So put together visually:
+        # ┌─────────────────────────────────────────────────────┐
+        # │ ThreadedPdfPipeline                                 │
+        # │ ┌─────────────────────────────────────────────────┐ │
+        # │ │ Stage: Preprocess (Thread 1)                    │ │
+        # │ │  └── batch_size=1                               │ │
+        # │ ├─────────────────────────────────────────────────┤ │
+        # │ │ Stage: OCR (Thread 2)                           │ │
+        # │ │  ├── Uses num_threads internally                │ │
+        # │ │  └── Process ocr_batch_size per run             │ │
+        # │ ├─────────────────────────────────────────────────┤ │
+        # │ │ Stage: Layout (Thread 3)                        │ │
+        # │ │  ├── Uses num_threads internally                │ │
+        # │ │  └── Process layout_batch_size per run          │ │
+        # │ ├─────────────────────────────────────────────────┤ │
+        # │ │ Stage: Table (Thread 4)                         │ │
+        # │ │  ├── Uses num_threads internally                │ │
+        # │ │  └── Process table_batch_size per run           │ │
+        # │ ├─────────────────────────────────────────────────┤ │
+        # │ │ Stage: Assemble (Thread 5)                      │ │
+        # │ │  └── batch_size=1                               │ │
+        # │ └─────────────────────────────────────────────────┘ │
+        # └─────────────────────────────────────────────────────┘
         pipeline_options = ThreadedPdfPipelineOptions()
-        pipeline_options.do_ocr = True
-        pipeline_options.ocr_options = OcrAutoOptions()
-        pipeline_options.do_table_structure = True
         pipeline_options.ocr_batch_size = 4
         pipeline_options.layout_batch_size = 4
         pipeline_options.table_batch_size = 4
         pipeline_options.accelerator_options = AcceleratorOptions(device="auto", num_threads=4)
+
+        # Aviable OCR engines are: EasyOCR, RapidOCR, Tesseract or Mac OCR. You can define one, or
+        # docling chooses automatically Mac Ocr, RapidOCR or EasyOCR. With these steps:
+        # 1. If on Darwin device, use Mac OCR.
+        # 2. Attempt to use RapidOCR with ONNX runtime backend if available.
+        # 3. If ONNX runtime is not installed, try EasyOCR.
+        # 4. If EasyOCR is unavailable, fall back to RapidOCR with PyTorch backend.
+        # 5. If none are avaible, it will choose none and log warning.
+        pipeline_options.do_ocr = True
+        pipeline_options.ocr_options = OcrAutoOptions()
+        pipeline_options.do_table_structure = True
 
         self.doc_converter = DocumentConverter(
             format_options={
