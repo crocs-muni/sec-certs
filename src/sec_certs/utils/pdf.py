@@ -33,13 +33,13 @@ logging.getLogger("pypdf").setLevel(logging.ERROR)
 logging.getLogger("docling").setLevel(logging.WARNING)
 
 
-class PdfConverter(ABC):
+class PDFConverter(ABC):
     @abstractmethod
     def convert(self, pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
 
-class DoclingConverter(PdfConverter):
+class DoclingConverter(PDFConverter):
     def __init__(self):
         # ThreadedPdfPipeline uses parallelism between pipeline stages and models.
         # Each pipeline step (preprocess, ocr, layout, table, assemble) runs in its own

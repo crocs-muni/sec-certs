@@ -25,7 +25,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import extract, helpers, tables
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.pdf import PdfConverter, extract_pdf_metadata, repair_pdf
+from sec_certs.utils.pdf import PDFConverter, extract_pdf_metadata, repair_pdf
 
 
 class FIPSHTMLParser:
@@ -603,7 +603,7 @@ class FIPSCertificate(
         return cert
 
     @staticmethod
-    def convert_policy_pdf(cert: FIPSCertificate, converter: PdfConverter) -> FIPSCertificate:
+    def convert_policy_pdf(cert: FIPSCertificate, converter: PDFConverter) -> FIPSCertificate:
         """
         Converts policy pdf -> txt, json
         """

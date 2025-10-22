@@ -19,7 +19,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
-from sec_certs.utils.pdf import PdfConverter, extract_pdf_metadata
+from sec_certs.utils.pdf import PDFConverter, extract_pdf_metadata
 
 
 class ProtectionProfile(
@@ -303,7 +303,7 @@ class ProtectionProfile(
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: ProtectionProfile, converter: PdfConverter) -> ProtectionProfile:
+    def convert_report_pdf(cert: ProtectionProfile, converter: PDFConverter) -> ProtectionProfile:
         """
         Converts certification reports from pdf to txt.
         """
@@ -319,7 +319,7 @@ class ProtectionProfile(
         return cert
 
     @staticmethod
-    def convert_pp_pdf(cert: ProtectionProfile, converter: PdfConverter) -> ProtectionProfile:
+    def convert_pp_pdf(cert: ProtectionProfile, converter: PDFConverter) -> ProtectionProfile:
         """
         Converts the actual protection profile from pdf to txt.
         """
