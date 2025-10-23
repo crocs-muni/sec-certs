@@ -57,9 +57,7 @@ def register():
     if form.validate_on_submit():
         # Create user
         try:
-            new_user = User.create(
-                username=form.username.data, email=form.email.data, password=form.password.data, roles=[]
-            )
+            new_user = User.create(username=form.username.data, email=form.email.data, password=form.password.data)
             send_confirmation_email.send(new_user.username)
             flash("Registration successful! Please check your email to confirm your account.", "success")
             return redirect(url_for("user.login"))

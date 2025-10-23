@@ -47,6 +47,7 @@ class UserExistsError(Exception):
 
 class User(UserMixin):
     ROLES = ["admin", "chat"]
+    DEFAULT_ROLES = ["chat"]
 
     def __init__(
         self,
@@ -171,7 +172,7 @@ class User(UserMixin):
             username=username,
             pwhash=hash_password(password) if password else "",  # Empty password for OAuth users
             email=email,
-            roles=roles if roles is not None else [],
+            roles=roles if roles is not None else User.DEFAULT_ROLES,
             email_confirmed=bool(github_id),  # Auto-confirm OAuth users
             created_at=datetime.now(timezone.utc),
             github_id=github_id,
