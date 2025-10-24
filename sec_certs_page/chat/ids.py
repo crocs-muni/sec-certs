@@ -21,6 +21,7 @@ if __name__ == "__main__":
                             "content": 'What is the certificate ID of this certificate? Respond only with the ID or "null" if it is unknown.',
                         }
                     ],
+                    model="llama-4-scout-17b-16e-instruct",
                     collection="cc",
                     hashid=hashid,
                     about="entry",

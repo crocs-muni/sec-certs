@@ -146,6 +146,8 @@ export function chat(rag_url, full_url, token, chat_history, certificate_data) {
                 // Error out
                 return;
         }
+        // Get the model
+        data.model = $("#chat-model").val();
         // Extract hashid from certificate_data if available
         let hashid = certificate_data?.hashid;
         let collection = certificate_data?.type;

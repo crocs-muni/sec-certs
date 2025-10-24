@@ -60,6 +60,8 @@ def query_rag():
         return {"status": "error", "message": "Missing 'about' in request."}, 400
     if "collection" not in data:
         return {"status": "error", "message": "Missing 'collection' in request."}, 400
+    if "model" not in data:
+        data["model"] = current_app.config["WEBUI_DEFAULT_MODEL"]
 
     query = []
     for message in data["query"]:
@@ -69,13 +71,17 @@ def query_rag():
             return {"status": "error", "message": "Invalid role in query."}, 400
         query.append({"role": message["role"], "content": message["content"]})
     collection = data["collection"]
-    about = data["about"]
-    hashid = data.get("hashid", None)
     if collection not in ("cc", "fips", "pp"):
         return {"status": "error", "message": "Invalid collection specified."}, 400
+    model = data["model"]
+    if model not in current_app.config["WEBUI_MODELS"]:
+        return {"status": "error", "message": "Invalid model specified."}, 400
+
+    about = data["about"]
+    hashid = data.get("hashid", None)
 
     try:
-        result = chat_rag(query, collection, hashid, about)
+        result = chat_rag(query, model, collection, hashid, about)
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
 
@@ -92,6 +98,9 @@ def query_rag():
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
 
+    rendered = markdown(response, extras={"cuddled-lists": None, "code-friendly": None})
+    cleaned = nh3.clean(rendered).strip()
+
     sources = []
     if "sources" in json:
         for source in json["sources"]:
@@ -106,14 +115,13 @@ def query_rag():
                     "url": url_for(f"{collection}.entry_{ftype}_txt", hashid=hashid),
                 }
             )
-    rendered = markdown(response, extras={"cuddled-lists": None, "code-friendly": None})
-    cleaned = nh3.clean(rendered).strip()
-    for i, source in enumerate(sources):
-        tag = f"[{i + 1}]"
-        if tag in cleaned:
-            cleaned = cleaned.replace(
-                tag, f'<a href="{source["url"]}" target="_blank" title="Model used document.">[{source["type"]}]</a>'
-            )
+        for i, source in enumerate(sources):
+            tag = f"[{i + 1}]"
+            if tag in cleaned:
+                cleaned = cleaned.replace(
+                    tag,
+                    f'<a href="{source["url"]}" target="_blank" title="Model used document.">[{source["type"]}]</a>',
+                )
 
     return {"status": "ok", "response": cleaned, "raw": response, "sources": sources}, 200
 
@@ -132,6 +140,8 @@ def query_full():
         return {"status": "error", "message": "Missing 'collection' in request."}, 400
     if "hashid" not in data:
         return {"status": "error", "message": "Missing 'hashid' in request."}, 400
+    if "model" not in data:
+        data["model"] = current_app.config["WEBUI_DEFAULT_MODEL"]
 
     query = []
     for message in data["query"]:
@@ -141,15 +151,19 @@ def query_full():
             return {"status": "error", "message": "Invalid role in query."}, 400
         query.append({"role": message["role"], "content": message["content"]})
     collection = data["collection"]
+    if collection not in ("cc", "fips", "pp"):
+        return {"status": "error", "message": "Invalid collection specified."}, 400
+    model = data["model"]
+    if model not in current_app.config["WEBUI_MODELS"]:
+        return {"status": "error", "message": "Invalid model specified."}, 400
+
     hashid = data["hashid"]
     context = data["context"]
     if context not in ("report", "target", "both"):
         return {"status": "error", "message": "Invalid context specified."}, 400
-    if collection not in ("cc", "fips", "pp"):
-        return {"status": "error", "message": "Invalid collection specified."}, 400
 
     try:
-        result = chat_full(query, collection, hashid, context)
+        result = chat_full(query, model, collection, hashid, context)
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
 

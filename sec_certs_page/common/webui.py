@@ -236,10 +236,12 @@ def delete_knowledge_base(kb_id: str):
         return None
 
 
-def chat_with_model(queries, system_addition: str = "", kbs: Optional[list] = None, files: Optional[list] = None):
+def chat_with_model(
+    model, queries, system_addition: str = "", kbs: Optional[list] = None, files: Optional[list] = None
+):
     url = "chat/completions"
     data = {
-        "model": current_app.config["WEBUI_MODEL"],
+        "model": model,
         "messages": [
             {"role": "system", "content": current_app.config["WEBUI_SYSTEM_PROMPT"] + system_addition},
             *queries,
@@ -265,7 +267,9 @@ def resolve_files(collection: str, hashid: str):
     return resp
 
 
-def chat_rag(queries, collection: str, hashid: Optional[str] = None, about: str = "entry") -> requests.Response:
+def chat_rag(
+    queries, model: str, collection: str, hashid: Optional[str] = None, about: str = "entry"
+) -> requests.Response:
     files: Optional[list[str]] = None
     kbs: Optional[list[str]] = None
     cert = None
@@ -309,10 +313,10 @@ def chat_rag(queries, collection: str, hashid: Optional[str] = None, about: str 
     else:
         raise ValueError("Invalid 'about' value.")
 
-    return chat_with_model(queries, system_addition, kbs=kbs, files=files)
+    return chat_with_model(model, queries, system_addition, kbs=kbs, files=files)
 
 
-def chat_full(queries, collection: str, hashid: str, document: str = "both") -> requests.Response:
+def chat_full(queries, model: str, collection: str, hashid: str, document: str = "both") -> requests.Response:
     docs = []
     if document == "both":
         docs = ["report", "target"]
@@ -330,4 +334,4 @@ def chat_full(queries, collection: str, hashid: str, document: str = "both") -> 
     system_addition = render_template_string(
         current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT_FULL"), cert_name=cert_name(cert), **doc_map
     )
-    return chat_with_model(queries, system_addition)
+    return chat_with_model(model, queries, system_addition)
