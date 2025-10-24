@@ -11,23 +11,36 @@ from .objformats import cert_name
 from .views import entry_file_path
 
 
+def _get_headers():
+    return {"Authorization": f"Bearer {current_app.config['WEBUI_KEY']}", "Content-Type": "application/json"}
+
+
+def _resolve_url(url: str):
+    return urljoin(current_app.config["WEBUI_URL"], url)
+
+
 def get(url: str, query=None):
-    headers = {"Authorization": f"Bearer {current_app.config['WEBUI_KEY']}", "Content-Type": "application/json"}
-    response = requests.get(urljoin(current_app.config["WEBUI_URL"], url), headers=headers, params=query)
+    response = requests.get(_resolve_url(url), headers=_get_headers(), params=query)
     return response
 
 
 def post(url: str, data=None, files=None):
-    headers = {"Authorization": f"Bearer {current_app.config['WEBUI_KEY']}", "Content-Type": "application/json"}
+    headers = _get_headers()
+    full_url = _resolve_url(url)
     if data is not None and files is not None:
         raise ValueError("Cannot send both data and files in the same request.")
     if files is not None:
         headers.pop("Content-Type", None)
-        response = requests.post(urljoin(current_app.config["WEBUI_URL"], url), headers=headers, files=files)
+        response = requests.post(full_url, headers=headers, files=files)
     elif data is not None:
-        response = requests.post(urljoin(current_app.config["WEBUI_URL"], url), headers=headers, json=data)
+        response = requests.post(full_url, headers=headers, json=data)
     else:
-        response = requests.post(urljoin(current_app.config["WEBUI_URL"], url), headers=headers)
+        response = requests.post(full_url, headers=headers)
+    return response
+
+
+def delete(url: str, query=None):
+    response = requests.delete(_resolve_url(url), headers=_get_headers(), params=query)
     return response
 
 
@@ -57,7 +70,6 @@ def list_files(content: bool = False):
 def find_file(fname: str, content: bool = False):
     url = "v1/files/search"
     response = get(url, query={"filename": fname, "content": str(content).lower()})
-    print(response.content)
     if response.status_code == 200:
         return response.json()
     else:
@@ -68,6 +80,8 @@ def find_file(fname: str, content: bool = False):
 def file_map():
     data = find_file("*.txt")
     result = {}
+    if not data:
+        return result
     for file in data:
         name = file["filename"]
         id = file["id"]
@@ -157,6 +171,12 @@ def update_file_data_content(file_id: str, file):
         return response.json()
     else:
         return None
+
+
+def remove_file(file_id: str):
+    url = f"v1/files/{file_id}"
+    response = delete(url)
+    return response.status_code == 200
 
 
 def get_knowledge_bases():
