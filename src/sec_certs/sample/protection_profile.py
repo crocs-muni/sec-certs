@@ -315,7 +315,8 @@ class ProtectionProfile(
             logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
         else:
             cert.state.report.txt_hash = helpers.get_sha256_filepath(cert.state.report.txt_path)
-            cert.state.report.json_hash = helpers.get_sha256_filepath(cert.state.report.json_path)
+            if cert.state.report.json_path.exists():
+                cert.state.report.json_hash = helpers.get_sha256_filepath(cert.state.report.json_path)
         return cert
 
     @staticmethod
@@ -329,7 +330,8 @@ class ProtectionProfile(
             logger.error(f"Cert dgst: {cert.dgst} failed to convert PP pdf to txt")
         else:
             cert.state.pp.txt_hash = helpers.get_sha256_filepath(cert.state.pp.txt_path)
-            cert.state.pp.json_hash = helpers.get_sha256_filepath(cert.state.pp.json_path)
+            if cert.state.pp.json_path.exists():
+                cert.state.pp.json_hash = helpers.get_sha256_filepath(cert.state.pp.json_path)
         return cert
 
     @staticmethod

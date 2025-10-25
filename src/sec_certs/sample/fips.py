@@ -616,7 +616,8 @@ class FIPSCertificate(
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
         else:
             cert.state.policy_txt_hash = helpers.get_sha256_filepath(cert.state.policy_txt_path)
-            cert.state.policy_json_hash = helpers.get_sha256_filepath(cert.state.policy_json_path)
+            if cert.state.policy_json_path.exists():
+                cert.state.policy_json_hash = helpers.get_sha256_filepath(cert.state.policy_json_path)
 
         return cert
 

@@ -748,7 +748,8 @@ class CCCertificate(
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
         else:
             doc_state.txt_hash = helpers.get_sha256_filepath(doc_state.txt_path)
-            doc_state.json_hash = helpers.get_sha256_filepath(doc_state.json_path)
+            if doc_state.json_path.exists():
+                doc_state.json_hash = helpers.get_sha256_filepath(doc_state.json_path)
         return cert
 
     @staticmethod
