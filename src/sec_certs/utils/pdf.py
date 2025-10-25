@@ -35,7 +35,7 @@ logging.getLogger("docling").setLevel(logging.WARNING)
 
 class PDFConverter(ABC):
     @abstractmethod
-    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
+    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
 
@@ -107,7 +107,7 @@ class DoclingConverter(PDFConverter):
             }
         )
 
-    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path) -> bool:
+    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
         """
         Convert a PDF file and save the result as a text file to `txt_path`
         alongisde with a serialized DoclingDocument as JSON to `json_path`.
@@ -134,6 +134,39 @@ class DoclingConverter(PDFConverter):
                 included_content_layers={ContentLayer.BODY, ContentLayer.FURNITURE},
             )
         except ConversionError as e:
+            logger.error(f"Conversion failed for {pdf_path}: {e}")
+            return False
+
+        return True
+
+
+class PdftotextConverter(PDFConverter):
+    def __init__(self):
+        try:
+            import pdftotext
+
+            self.pdftotext = pdftotext
+        except ImportError:
+            raise ImportError("pdftotext is not installed, install it with: pip install pdftotext") from None
+
+    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
+        """
+        Convert a PDF file and save the resulst as a text file to `txt_path`.
+
+        :param pdf_path: Path to the to-be-converted PDF file.
+        :param txt_path: Path to the resulting text file.
+        :param json_path: Not used by this converter.
+        :return: A boolean if the conversion was successful.
+        """
+
+        try:
+            with pdf_path.open("rb") as pdf_handle:
+                pdf = self.pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
+                txt = "".join(pdf)
+
+            with txt_path.open("w", encoding="utf-8") as txt_handle:
+                txt_handle.write(txt)
+        except Exception as e:
             logger.error(f"Conversion failed for {pdf_path}: {e}")
             return False
 
