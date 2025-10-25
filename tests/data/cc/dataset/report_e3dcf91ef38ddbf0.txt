@@ -1,17 +1,5 @@
 Ärendetyp: 6
 
-FMV
-
-Accred. no. 1917
-
-Certification of
-
-Products
-
-ISO/IEC 17065
-
-CSEC
-
 Diarienummer: 18FMV7705-43:1
 
 HEMLIG/
@@ -294,66 +282,14 @@ P.REMOTE_DATA - Passwords and account information from network-attached systems 
 
 Swedish Certification Body for IT Security Certification Report NetIQ® Identity Manager 4.7
 
-kaministration
-
-Workstation
-
-(Console)
-
-12
-
-Identity Manager iManager
-
-2
-
-Reporting Server
-
-Identity Reporting Module
-
-Platform
-
 ## 5 Architectural Information
 
-(RBPM)
+The TOE consists of the following components:
 
-The TOE consists of the following components: Log Manager
-
-Designer / Analyzer
-
-Web Browser
-
-Operating System
-
-General Purpose Computing
-
-(GPC) Platform
-
-Self Service Password Reset
-
-Self Service Password
-
-Reset
-
-Web Browser
-
-Operating System
-
-General Purpose Computing
-
-Platform
-
--  Administration Workstation (Console)2 -б-
+-  Administration Workstation (Console)2
 -  Identity Applications (RBPM)
-
-Operating System
-
-General Purpose Computing
-
 -  Designer aka Identity Manager Designer
 -  Analyzer aka Identity Manager Analyzer
-
-General Purpose Computing
-
 -  Identity Manager
 -  Identity Manager Engine
 -  Identity Vault
@@ -370,14 +306,6 @@ General Purpose Computing
 Figure 1, TOE Deployment with subsystems
 
 The TOE provides the following functions: data synchronization, role management, auditing/reporting, and management.
-
--1-
-
-= TOE Component
-
-= TOE Sub Component
-
-= IT Environment Component
 
 18FMV7705-43:1
 
@@ -455,8 +383,7 @@ The TOE consists of a set of software applications run on one or multiple distri
 |------------------------------------------------------------------------------------|-------------------------------------|
 | Administration Workstation                                                         | Mozilla Firefox 65                  |
 | Identity Applications (RBPM)                                                       | SUSE Linux Enterprise Server 12 SP4 |
-| Designer / Analyzer)                                                               |                                     |
-| Identity Manager (Identity Man- ager Engine)                                       | SUSE Linux Enterprise Server 12 SP4 |
+| Designer / Analyzer) Identity Manager (Identity Man-                               | SUSE Linux Enterprise Server 12 SP4 |
 | Reporting Server (Identity Re- porting Module)                                     | SUSE Linux Enterprise Server 12 SP4 |
 | Log Manager (Sentinel Log Man- agement for Identity Governance and Administration) | SUSE Linux Enterprise Server 12 SP4 |
 | SSO Provider (OneSSO Provider)                                                     | SUSE Linux Enterprise Server 12 SP4 |
