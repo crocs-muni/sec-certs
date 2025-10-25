@@ -9,7 +9,7 @@ from flask_principal import AnonymousIdentity, Identity, identity_changed
 
 from .. import app, mongo
 from ..common.permissions import admin_permission
-from ..common.views import register_breadcrumb
+from ..common.views import check_captcha, register_breadcrumb
 from . import user
 from .forms import LoginForm, MagicLinkForm, PasswordResetForm, PasswordResetRequestForm, RegisterForm
 from .models import User, UserExistsError
@@ -55,6 +55,9 @@ def register():
 
     form = RegisterForm()
     if form.validate_on_submit():
+        if not check_captcha(form.turnstile.data, request.remote_addr):
+            flash("CAPTCHA validation failed. Please try again.", "error")
+            return render_template("user/register.html.jinja2", form=form), 400
         # Create user
         try:
             new_user = User.create(username=form.username.data, email=form.email.data, password=form.password.data)
@@ -63,7 +66,7 @@ def register():
             return redirect(url_for("user.login"))
         except UserExistsError:
             flash("A user with that username or email already exists.", "error")
-        except Exception as e:
+        except Exception:
             raise
 
     return render_template("user/register.html.jinja2", form=form)

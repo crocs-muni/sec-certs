@@ -28,7 +28,7 @@
             <link rel="stylesheet" href="{{ ASSET_URL }}">
         {% endassets %}
         <link rel="preload" as="image" href="{{ url_for("static", filename="img/logo_dark.svg") }}">
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         {% assets output="gen/libs.js",
                 "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/sentry.tracing.min.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>

@@ -48,6 +48,8 @@
                     {% endif %}
                 </div>
 
+                <div class="cf-turnstile" data-sitekey="{{ config["TURNSTILE_SITEKEY"] }}"></div>
+
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Create account</button>
 
                 {% if is_github_oauth_enabled() %}

@@ -47,6 +47,7 @@ def test_magic_link_login(client: FlaskClient, username, email, request):
 
 def test_register(client: FlaskClient, mocker, request):
     mocker.patch("flask_wtf.csrf.validate_csrf")
+    mocker.patch("sec_certs_page.user.views.check_captcha", return_value=True)
     mock_actor = mocker.Mock()
     mock_actor.send = mocker.Mock()
     mocker.patch("sec_certs_page.user.views.send_confirmation_email", mock_actor)

@@ -165,38 +165,17 @@ def network_graph_func(graphs, highlighted=None) -> Response:
     return send_json_attachment(network)
 
 
-def validate_captcha(req, json) -> None:  # pragma: no cover
-    if not request.is_json or not request.json or "captcha" not in request.json:
-        if json:
-            abort(make_response(jsonify({"error": "Captcha missing.", "status": "NOK"}), 400))
-        else:
-            raise BadRequest(description="Captcha missing.")
+def check_captcha(response, remote_addr):
     resp = requests.post(
         "https://challenges.cloudflare.com/turnstile/v0/siteverify",
         data={
-            "response": req.json["captcha"],
+            "response": response,
             "secret": current_app.config["TURNSTILE_SECRET"],
-            "remoteip": req.remote_addr,
+            "remoteip": remote_addr,
         },
     )
     result = resp.json()
-    if not result["success"]:
-        if json:
-            abort(make_response(jsonify({"error": "Captcha invalid.", "status": "NOK"}), 400))
-        else:
-            raise BadRequest(description="Captcha invalid.")
-
-
-def captcha_required(json=False):
-    def captcha_deco(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            validate_captcha(request, json=json)
-            return f(*args, **kwargs)
-
-        return wrapper
-
-    return captcha_deco
+    return bool(result["success"])
 
 
 def register_breadcrumb(app, path, text, order=0, endpoint_arguments_constructor=None, dynamic_list_constructor=None):

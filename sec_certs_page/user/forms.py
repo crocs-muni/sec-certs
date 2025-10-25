@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, SelectField, StringField, validators
-from wtforms.fields import EmailField
+from wtforms import BooleanField, EmailField, PasswordField, StringField, validators
 
 
 class LoginForm(FlaskForm):
@@ -10,20 +9,23 @@ class LoginForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    username = StringField("username", [
-        validators.DataRequired(), 
-        validators.Length(min=3, max=32),
-        validators.Regexp('^[a-zA-Z0-9_]+$', message="Username must contain only letters, numbers and underscores")
-    ])
+    username = StringField(
+        "username",
+        [
+            validators.DataRequired(),
+            validators.Length(min=3, max=32),
+            validators.Regexp("^[a-zA-Z0-9_]+$", message="Username must contain only letters, numbers and underscores"),
+        ],
+    )
     email = EmailField("email", [validators.DataRequired(), validators.Email()])
-    password = PasswordField("password", [
-        validators.DataRequired(), 
-        validators.Length(min=8, message="Password must be at least 8 characters long")
-    ])
-    password_confirm = PasswordField("confirm_password", [
-        validators.DataRequired(),
-        validators.EqualTo('password', message='Passwords must match')
-    ])
+    password = PasswordField(
+        "password",
+        [validators.DataRequired(), validators.Length(min=8, message="Password must be at least 8 characters long")],
+    )
+    password_confirm = PasswordField(
+        "confirm_password", [validators.DataRequired(), validators.EqualTo("password", message="Passwords must match")]
+    )
+    turnstile = StringField("cf-turnstile-response")
 
 
 class PasswordResetRequestForm(FlaskForm):
@@ -31,14 +33,13 @@ class PasswordResetRequestForm(FlaskForm):
 
 
 class PasswordResetForm(FlaskForm):
-    password = PasswordField("password", [
-        validators.DataRequired(), 
-        validators.Length(min=8, message="Password must be at least 8 characters long")
-    ])
-    password_confirm = PasswordField("confirm_password", [
-        validators.DataRequired(),
-        validators.EqualTo('password', message='Passwords must match')
-    ])
+    password = PasswordField(
+        "password",
+        [validators.DataRequired(), validators.Length(min=8, message="Password must be at least 8 characters long")],
+    )
+    password_confirm = PasswordField(
+        "confirm_password", [validators.DataRequired(), validators.EqualTo("password", message="Passwords must match")]
+    )
 
 
 class MagicLinkForm(FlaskForm):
