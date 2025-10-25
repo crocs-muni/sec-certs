@@ -5,7 +5,7 @@ import shutil
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, cast
+from typing import ClassVar, Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -41,6 +41,7 @@ from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
+from sec_certs.utils.tqdm import tqdm
 
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
@@ -680,71 +681,50 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs of CC certificates",
         )
 
-    @staged(logger, "Converting PDFs of certification reports to txt and json.")
-    def _convert_reports_pdf(self, fresh: bool = True) -> None:
-        self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
-        self.reports_json_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_convert(fresh)]
+    def _convert_pdfs(self, doc_type: Literal["report", "target", "certificate"], fresh: bool = True) -> None:
+        doc_type_map = {
+            "report": {"short": "report", "long": "certification report"},
+            "target": {"short": "st", "long": "security target"},
+            "certificate": {"short": "cert", "long": "certificate"},
+        }
+        short_name = doc_type_map[doc_type]["short"]
+        long_name = doc_type_map[doc_type]["long"]
 
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Converting {len(certs_to_process)} PDFs of certification reports for which previous conversion failed."
-            )
+        txt_dir = getattr(self, f"{doc_type}s_txt_dir")
+        json_dir = getattr(self, f"{doc_type}s_json_dir")
+        txt_dir.mkdir(parents=True, exist_ok=True)
+        json_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if getattr(x.state, short_name).is_ok_to_convert(fresh)]
+
+        if not certs_to_process:
+            return
+
+        if not fresh:
+            logger.info(f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed")
 
         converter = DoclingConverter()
-        items = [(cert, converter) for cert in certs_to_process]
-        cert_processing.process_parallel(
-            CCCertificate.convert_report_pdf,
-            items,
-            unpack=True,
-            max_workers=1,
-            progress_bar_desc="Converting PDFs of certification reports to txt and json",
-        )
+        progress_bar = tqdm(total=len(certs_to_process), desc=f"Converting PDFs of {long_name}s")
+        convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
+        for cert in certs_to_process:
+            convert_func(cert, converter)
+            progress_bar.update(1)
 
-    @staged(logger, "Converting PDFs of security targets to txt and json.")
+        progress_bar.close()
+
+    @staged(logger, "Converting PDFs of certification reports")
+    def _convert_reports_pdfs(self, fresh: bool = True) -> None:
+        self._convert_pdfs("report", fresh)
+
+    @staged(logger, "Converting PDFs of security targets")
     def _convert_targets_pdfs(self, fresh: bool = True) -> None:
-        self.targets_txt_dir.mkdir(parents=True, exist_ok=True)
-        self.targets_json_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_convert(fresh)]
+        self._convert_pdfs("target", fresh)
 
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Converting {len(certs_to_process)} PDFs of security targets for which previous conversion failed."
-            )
-
-        converter = DoclingConverter()
-        items = [(cert, converter) for cert in certs_to_process]
-        cert_processing.process_parallel(
-            CCCertificate.convert_st_pdf,
-            items,
-            unpack=True,
-            max_workers=1,
-            progress_bar_desc="Converting PDFs of security targets to txt and json",
-        )
-
-    @staged(logger, "Converting PDFs of certificates to txt and json.")
+    @staged(logger, "Converting PDFs of certificates")
     def _convert_certs_pdfs(self, fresh: bool = True) -> None:
-        self.certificates_txt_dir.mkdir(parents=True, exist_ok=True)
-        self.certificates_json_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_convert(fresh)]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Converting {len(certs_to_process)} PDFs of certificates for which previous conversion failed."
-            )
-
-        converter = DoclingConverter()
-        items = [(cert, converter) for cert in certs_to_process]
-        cert_processing.process_parallel(
-            CCCertificate.convert_cert_pdf,
-            items,
-            unpack=True,
-            max_workers=1,
-            progress_bar_desc="Converting PDFs of certificates to txt and json",
-        )
+        self._convert_pdfs("certificate", fresh)
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_reports_pdf(fresh)
+        self._convert_reports_pdfs(fresh)
         self._convert_targets_pdfs(fresh)
         self._convert_certs_pdfs(fresh)
 
