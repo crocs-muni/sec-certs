@@ -17,6 +17,7 @@ from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
+from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
@@ -26,6 +27,7 @@ from sec_certs.serialization.json import (
     serialize,
 )
 from sec_certs.utils import helpers
+from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
 
 logger = logging.getLogger(__name__)
@@ -410,13 +412,14 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
 
-        logger.info("Converting all PDFs to txt and json")
-        self._convert_all_pdfs_body(fresh)
+        logger.info("Converting all PDFs")
+        converter = config.pdf_converter()
+        self._convert_all_pdfs_body(converter, fresh)
 
         self.state.pdfs_converted = True
 
     @abstractmethod
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
+    def _convert_all_pdfs_body(self, converter: PDFConverter, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize

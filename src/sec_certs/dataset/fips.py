@@ -28,6 +28,7 @@ from sec_certs.serialization.json import ComplexSerializableType, only_backed, s
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
+from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
 
@@ -198,11 +199,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDF security policies",
         )
 
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_policies_pdfs(fresh)
+    def _convert_all_pdfs_body(self, converter: PDFConverter, fresh: bool = True) -> None:
+        self._convert_policies_pdfs(converter, fresh)
 
     @staged(logger, "Converting PDFs of FIPS security policies.")
-    def _convert_policies_pdfs(self, fresh: bool = True) -> None:
+    def _convert_policies_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         self.policies_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
@@ -215,7 +216,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        converter = config.pdf_converter()
         progress_bar = tqdm(total=len(certs_to_process), desc="Converting PDFs of FIPS security policies")
         for cert in certs_to_process:
             FIPSCertificate.convert_policy_pdf(cert, converter)

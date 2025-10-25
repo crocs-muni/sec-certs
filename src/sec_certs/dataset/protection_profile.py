@@ -15,6 +15,7 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
 
@@ -272,11 +273,11 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         return certs
 
-    def _convert_all_pdfs_body(self, fresh=True):
-        self._convert_reports_pdfs(fresh)
-        self._convert_pps_pdfs(fresh)
+    def _convert_all_pdfs_body(self, converter: PDFConverter, fresh=True):
+        self._convert_reports_pdfs(converter, fresh)
+        self._convert_pps_pdfs(converter, fresh)
 
-    def _convert_pdfs(self, doc_type: Literal["report", "pp"], fresh: bool = True) -> None:
+    def _convert_pdfs(self, doc_type: Literal["report", "pp"], converter: PDFConverter, fresh: bool = True) -> None:
         long_name_map = {
             "report": "PP certification report",
             "pp": "Protection Profile",
@@ -297,7 +298,6 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
             )
 
-        converter = config.pdf_converter()
         progress_bar = tqdm(total=len(certs_to_process), desc=f"Converting PDFs of {long_name}s")
         convert_func = getattr(ProtectionProfile, f"convert_{doc_type}_pdf")
         for cert in certs_to_process:
@@ -307,12 +307,12 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         progress_bar.close()
 
     @staged(logger, "Converting PDFs of PP certification reports.")
-    def _convert_reports_pdfs(self, fresh: bool = True):
-        self._convert_pdfs("report", fresh)
+    def _convert_reports_pdfs(self, converter: PDFConverter, fresh: bool = True):
+        self._convert_pdfs("report", converter, fresh)
 
     @staged(logger, "Converting PDFs of actual Protection Profiles.")
-    def _convert_pps_pdfs(self, fresh: bool = True):
-        self._convert_pdfs("pp", fresh)
+    def _convert_pps_pdfs(self, converter: PDFConverter, fresh: bool = True):
+        self._convert_pdfs("pp", converter, fresh)
 
     def _download_all_artifacts_body(self, fresh=True):
         self._download_reports(fresh)
