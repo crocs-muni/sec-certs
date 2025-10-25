@@ -357,7 +357,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def get_certs_from_web(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    @staged(logger, "Processing auxiliary datasets")
+    @staged(logger, "Processing auxiliary datasets.")
     @serialize
     @only_backed()
     def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
@@ -412,7 +412,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
 
-        logger.info("Converting all PDFs")
+        logger.info("Converting all PDFs.")
         converter = config.pdf_converter()
         self._convert_all_pdfs_body(converter, fresh)
 
@@ -445,7 +445,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self.state.certs_analyzed = True
 
     def _analyze_certificates_body(self) -> None:
-        logger.info("Extracting data and heuristics")
+        logger.info("Extracting data and heuristics.")
         self.extract_data()
         self.compute_heuristics()
 

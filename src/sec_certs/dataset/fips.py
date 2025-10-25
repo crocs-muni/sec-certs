@@ -277,7 +277,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
-    @staged(logger, "Extracting Algorithms from policy tables")
+    @staged(logger, "Extracting Algorithms from policy tables.")
     def _extract_algorithms_from_policy_tables(self):
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         cert_processing.process_parallel(
@@ -287,7 +287,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
 
-    @staged(logger, "Extracting security policy metadata from the pdfs")
+    @staged(logger, "Extracting security policy metadata from the pdfs.")
     def _extract_policy_pdf_metadata(self) -> None:
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(

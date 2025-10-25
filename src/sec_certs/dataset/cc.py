@@ -656,7 +656,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         if not fresh and certs_to_process:
             logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC security targets for which previous download failed.."
+                f"Downloading {len(certs_to_process)} PDFs of CC security targets for which previous download failed."
             )
 
         cert_processing.process_parallel(
@@ -672,7 +672,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         if not fresh and certs_to_process:
             logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed.."
+                f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed."
             )
 
         cert_processing.process_parallel(
@@ -702,7 +702,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             return
 
         if not fresh:
-            logger.info(f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed")
+            logger.info(
+                f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
+            )
 
         progress_bar = tqdm(total=len(certs_to_process), desc=f"Converting PDFs of {long_name}s")
         convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
@@ -712,15 +714,15 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         progress_bar.close()
 
-    @staged(logger, "Converting PDFs of certification reports")
+    @staged(logger, "Converting PDFs of certification reports.")
     def _convert_reports_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
         self._convert_pdfs("report", converter, fresh)
 
-    @staged(logger, "Converting PDFs of security targets")
+    @staged(logger, "Converting PDFs of security targets.")
     def _convert_targets_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
         self._convert_pdfs("target", converter, fresh)
 
-    @staged(logger, "Converting PDFs of certificates")
+    @staged(logger, "Converting PDFs of certificates.")
     def _convert_certs_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
         self._convert_pdfs("certificate", converter, fresh)
 
@@ -729,7 +731,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._convert_targets_pdfs(converter, fresh)
         self._convert_certs_pdfs(converter, fresh)
 
-    @staged(logger, "Extracting report metadata")
+    @staged(logger, "Extracting certification reports metadata.")
     def _extract_report_metadata(self) -> None:
         certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -740,7 +742,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    @staged(logger, "Extracting target metadata")
+    @staged(logger, "Extracting security targets metadata.")
     def _extract_target_metadata(self) -> None:
         certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -751,7 +753,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    @staged(logger, "Extracting cert metadata")
+    @staged(logger, "Extracting certificates metadata.")
     def _extract_cert_metadata(self) -> None:
         certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -767,7 +769,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._extract_target_metadata()
         self._extract_cert_metadata()
 
-    @staged(logger, "Extracting report frontpages")
+    @staged(logger, "Extracting certification reports frontpages.")
     def _extract_report_frontpage(self) -> None:
         certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -782,7 +784,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._extract_report_frontpage()
         # We have no frontpage extraction for targets or certificates themselves, only for the reports.
 
-    @staged(logger, "Extracting report keywords")
+    @staged(logger, "Extracting certification reports keywords.")
     def _extract_report_keywords(self) -> None:
         certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -793,7 +795,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    @staged(logger, "Extracting target keywords")
+    @staged(logger, "Extracting security targets keywords.")
     def _extract_target_keywords(self) -> None:
         certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -804,7 +806,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    @staged(logger, "Extracting cert keywords")
+    @staged(logger, "Extracting certificates keywords.")
     def _extract_cert_keywords(self) -> None:
         certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
@@ -822,7 +824,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     @only_backed()
     def extract_data(self) -> None:
-        logger.info("Extracting various data from certification artifacts")
+        logger.info("Extracting various data from certification artifacts.")
         self._extract_pdf_metadata()
         self._extract_pdf_frontpage()
         self._extract_pdf_keywords()
