@@ -750,6 +750,8 @@ class CCCertificate(
             doc_state.txt_hash = helpers.get_sha256_filepath(doc_state.txt_path)
             if doc_state.json_path.exists():
                 doc_state.json_hash = helpers.get_sha256_filepath(doc_state.json_path)
+            else:
+                doc_state.json_hash = None
         return cert
 
     @staticmethod
