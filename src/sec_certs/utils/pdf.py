@@ -117,7 +117,6 @@ class DoclingConverter(PDFConverter):
         :param json_path: Path to the resulting JSON file.
         :return: A boolean if the conversion was successful.
         """
-
         try:
             conv_res = self.doc_converter.convert(pdf_path)
 
@@ -126,7 +125,9 @@ class DoclingConverter(PDFConverter):
                 for item in conv_res.errors:
                     logger.warning(f"\t{item.error_message}")
 
-            conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
+            if json_path is not None:
+                conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
+
             conv_res.document.save_as_markdown(
                 txt_path,
                 image_placeholder="",
