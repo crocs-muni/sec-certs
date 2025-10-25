@@ -115,6 +115,10 @@
     margin-bottom: 0;
 }
 
+.chat-message-assistant table>:not(caption)>*>* {
+    background: #d1dce7;
+}
+
 [aria-expanded="false"] .fa-chevron-up,
 [aria-expanded="true"] .fa-chevron-down {
     display: none;

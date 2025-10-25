@@ -98,8 +98,17 @@ def query_rag():
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
 
-    rendered = markdown(response, extras={"cuddled-lists": None, "code-friendly": None})
-    cleaned = nh3.clean(rendered).strip()
+    rendered = markdown(
+        response,
+        extras={"cuddled-lists": None, "code-friendly": None, "tables": None, "html-classes": {"table": "table"}},
+    )
+
+    def attribute_filter(tag, name, value):
+        if tag == "table" and name == "class":
+            return "table table-light"
+        return None
+
+    cleaned = nh3.clean(rendered, attributes={"table": {"class"}}, attribute_filter=attribute_filter).strip()
 
     sources = []
     if "sources" in json:
@@ -180,7 +189,16 @@ def query_full():
     if not response:
         return {"status": "error", "message": "Empty response from the model."}, 500
 
-    rendered = markdown(response, extras={"cuddled-lists": None, "code-friendly": None})
-    cleaned = nh3.clean(rendered).strip()
+    rendered = markdown(
+        response,
+        extras={"cuddled-lists": None, "code-friendly": None, "tables": None, "html-classes": {"table": "table"}},
+    )
+
+    def attribute_filter(tag, name, value):
+        if tag == "table" and name == "class":
+            return "table table-light"
+        return None
+
+    cleaned = nh3.clean(rendered, attributes={"table": {"class"}}, attribute_filter=attribute_filter).strip()
 
     return {"status": "ok", "response": cleaned, "raw": response, "sources": []}, 200
