@@ -30,6 +30,7 @@ from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
 from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
+from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -201,25 +202,27 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
         self._convert_policies_pdfs(fresh)
 
+    @staged(logger, "Converting PDFs of FIPS security policies.")
     def _convert_policies_pdfs(self, fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         self.policies_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
 
-        if fresh:
-            logger.info("Converting FIPS security policies to txt and json.")
+        if not certs_to_process:
+            logger.info("No FIPS security policies need conversion.")
+            return
         if not fresh and certs_to_process:
-            logger.info(f"Converting {len(certs_to_process)} FIPS security polcies for which previous convert failed.")
+            logger.info(
+                f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
+            )
 
         converter = DoclingConverter()
-        items = [(cert, converter) for cert in certs_to_process]
-        cert_processing.process_parallel(
-            FIPSCertificate.convert_policy_pdf,
-            items,
-            unpack=True,
-            max_workers=1,
-            progress_bar_desc="Converting FIPS security policies to txt and json",
-        )
+        progress_bar = tqdm(total=len(certs_to_process), desc="Converting PDFs of FIPS security policies")
+        for cert in certs_to_process:
+            FIPSCertificate.convert_policy_pdf(cert, converter)
+            progress_bar.update(1)
+
+        progress_bar.close()
 
     def _download_html_resources(self) -> None:
         logger.info("Downloading HTML files that list FIPS certificates.")
