@@ -15,7 +15,6 @@ from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
-from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
 
@@ -298,7 +297,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
             )
 
-        converter = DoclingConverter()
+        converter = config.pdf_converter()
         progress_bar = tqdm(total=len(certs_to_process), desc=f"Converting PDFs of {long_name}s")
         convert_func = getattr(ProtectionProfile, f"convert_{doc_type}_pdf")
         for cert in certs_to_process:

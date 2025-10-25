@@ -28,7 +28,6 @@ from sec_certs.serialization.json import ComplexSerializableType, only_backed, s
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.pdf import DoclingConverter
 from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
 
@@ -216,7 +215,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        converter = DoclingConverter()
+        converter = config.pdf_converter()
         progress_bar = tqdm(total=len(certs_to_process), desc="Converting PDFs of FIPS security policies")
         for cert in certs_to_process:
             FIPSCertificate.convert_policy_pdf(cert, converter)

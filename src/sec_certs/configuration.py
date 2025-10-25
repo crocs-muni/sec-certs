@@ -8,6 +8,8 @@ import yaml
 from pydantic import AnyHttpUrl, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from sec_certs.utils.pdf import DoclingConverter, PDFConverter
+
 
 class Configuration(BaseSettings):
     """
@@ -147,6 +149,9 @@ class Configuration(BaseSettings):
         description="If set to `sec-certs`, will fetch remote datasets from sec-certs.org."
         + " If set to `origin`, will fetch these resources from their origin URL. It is advised to set an"
         + " `nvd_api_key` when setting this to `origin`.",
+    )
+    pdf_converter: type[PDFConverter] = Field(
+        DoclingConverter, description="PDF converter used for all PDF conversions"
     )
 
     def _get_nondefault_keys(self) -> set[str]:
