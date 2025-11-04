@@ -22,34 +22,34 @@ Authorisation: Helén Svensson, Lead Certifier , CSEC
 
 ## Table of Contents
 
-| 1          | Executive Summary                      |   3 |
-|------------|----------------------------------------|-----|
-| 2          | Identification                         |   5 |
-| 3          | Security Policy                        |   6 |
-| 3.1        | Security Management                    |   6 |
-| 3.2        | Security Audit                         |   6 |
-| 3.3        | Identification and Authentication      |   6 |
-| 3.4        | User Data Protection                   |   7 |
-| 3.5        | Trusted Path / Channel                 |   7 |
-| 3.6        | Cryptographic Support                  |   7 |
-| 4          | Assumptions and Clarification of Scope |   8 |
-| 4.1        | Usage Assumptions                      |   8 |
-| 4.2        | Environmental Assumptions              |   8 |
-| 4.3        | Clarification of Scope                 |   8 |
-| 5          | Architectural Information              |   9 |
-| 6          | Documentation                          |  11 |
-| 7          | IT Product Testing                     |  12 |
-| 7.1        | Developer Testing                      |  12 |
-| 7.2        | Evaluator Testing                      |  12 |
-| 7.3        | Penetration Testing                    |  12 |
-| 8          | Evaluated Configuration                |  13 |
-| 9          | Results of the Evaluation              |  14 |
-| 10         | Evaluator Comments and Recommendations |  15 |
-| 11         | Glossary                               |  16 |
-| 12         | Bibliography                           |  17 |
-| Appendix A | Scheme Versions                        |  18 |
-| A.1        | Scheme/Quality Management System       |  18 |
-| A.2        | Scheme Notes                           |  18 |
+| 1          | Executive Summary                             | 3     |
+|------------|-----------------------------------------------|-------|
+| 2          | Identification                                | 5     |
+| 3          | Security Policy                               | 6     |
+| 3.1        | Security Management                           | 6     |
+| 3.2        | Security Audit                                | 6     |
+| 3.3        | Identification and Authentication             | 6     |
+| 3.4        | User Data Protection                          | 7     |
+| 3.5        | Trusted Path / Channel                        | 7     |
+| 3.6        | Cryptographic Support                         | 7     |
+| 4          | Assumptions and Clarification of Scope        | 8     |
+| 4.1        | Usage Assumptions                             | 8     |
+| 4.2        | Environmental Assumptions                     | 8     |
+| 4.3        | Clarification of Scope                        | 8     |
+| 5          | Architectural Information                     | 9     |
+| 6          | Documentation                                 | 11    |
+| 7          | IT Product Testing                            | 12    |
+| 7.1        | Developer Testing                             | 12    |
+| 7.2        | Evaluator Testing                             | 12    |
+| 7.3        | Penetration Testing                           | 12    |
+| 8          | Evaluated Configuration                       | 13    |
+| 9          | Results of the Evaluation                     | 14    |
+| 10         | Evaluator Comments and Recommendations        | 15    |
+| 11         | Glossary                                      | 16    |
+|            |                                               | 17    |
+| 12         | Bibliography                                  |       |
+| Appendix A | Scheme Versions                               | 18    |
+| A.1 A.2    | Scheme/Quality Management System Scheme Notes | 18 18 |
 
 ## Swedish Certification Body for IT Security
 
@@ -124,21 +124,28 @@ Swedish Certification Body for IT Security Certification Report NetIQ® Identity
 
 ## 2 Identification
 
-| Certification Identification                   |                                                                                                                                                                                                                                                                                                                                           |
-|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Certification ID                               | CSEC2018013                                                                                                                                                                                                                                                                                                                               |
-| Name and version of the cer- tified IT product | NetIQ® Identity Manager 4.7 TOE components:  Identity Applications (RBPM) 4.7.3.0.1109  Identity Manager Engine 4.7.3.0.AE  Identity Reporting Module 6.5.0. F14508F  Sentinel Log Management for Identity Govern- ance and Administration 8.2.2.0_5415  One SSO Provider (OSP) 6.3.3.0  Self Service Password Reset (SSPR) 4.4.0.2 |
-| Security Target Identification                 | NetIQ Identity Manager 4.7 Security Target (ST), NetIQ Corporation , 2020-06-01, document version 2.6                                                                                                                                                                                                                                     |
-| EAL                                            | EAL3 + ALC_FLR.2                                                                                                                                                                                                                                                                                                                          |
-| Sponsor                                        | NetIQ Corporation                                                                                                                                                                                                                                                                                                                         |
-| Developer                                      | NetIQ Corporation                                                                                                                                                                                                                                                                                                                         |
-| ITSEF                                          | Combitech AB and EWA-Canada                                                                                                                                                                                                                                                                                                               |
-| Common Criteria version                        | 3.1 release 5                                                                                                                                                                                                                                                                                                                             |
-| CEM version                                    | 3.1 release 5                                                                                                                                                                                                                                                                                                                             |
-| QMS version                                    | 1.23.2                                                                                                                                                                                                                                                                                                                                    |
-| Scheme Notes Release                           | 15.0                                                                                                                                                                                                                                                                                                                                      |
-| Recognition Scope                              | CCRA, SOGIS and EA/MLA                                                                                                                                                                                                                                                                                                                    |
-| Certification date                             | 2020-06-15                                                                                                                                                                                                                                                                                                                                |
+| Certification Identification                   |                                                                                                       |
+|------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| Certification ID                               | CSEC2018013                                                                                           |
+| Name and version of the cer- tified IT product | NetIQ® Identity Manager 4.7                                                                           |
+| Name and version of the cer- tified IT product | TOE components:                                                                                       |
+|                                                |  Identity Applications (RBPM) 4.7.3.0.1109                                                           |
+|                                                |  Identity Manager Engine 4.7.3.0.AE  Identity Reporting Module 6.5.0. F14508F                       |
+|                                                |  Sentinel Log Management for Identity Govern-                                                        |
+|                                                | ance and Administration 8.2.2.0_5415                                                                  |
+|                                                |  One SSO Provider (OSP) 6.3.3.0                                                                      |
+|                                                |  Self Service Password Reset (SSPR) 4.4.0.2 B366 r39762                                              |
+| Security Target Identification                 | NetIQ Identity Manager 4.7 Security Target (ST), NetIQ Corporation , 2020-06-01, document version 2.6 |
+| EAL                                            | EAL3 + ALC_FLR.2                                                                                      |
+| Sponsor                                        | NetIQ Corporation                                                                                     |
+| Developer                                      | NetIQ Corporation                                                                                     |
+| ITSEF                                          | Combitech AB and EWA-Canada                                                                           |
+| Common Criteria version                        | 3.1 release 5                                                                                         |
+| CEM version                                    | 3.1 release 5                                                                                         |
+| QMS version                                    | 1.23.2                                                                                                |
+| Scheme Notes Release                           | 15.0                                                                                                  |
+| Recognition Scope                              | CCRA, SOGIS and EA/MLA                                                                                |
+| Certification date                             | 2020-06-15                                                                                            |
 
 18FMV7705-43:1
 
@@ -382,8 +389,7 @@ The TOE consists of a set of software applications run on one or multiple distri
 | Component                                                                          | Requirements                        |
 |------------------------------------------------------------------------------------|-------------------------------------|
 | Administration Workstation                                                         | Mozilla Firefox 65                  |
-| Identity Applications (RBPM)                                                       | SUSE Linux Enterprise Server 12 SP4 |
-| Designer / Analyzer)                                                               |                                     |
+| Identity Applications (RBPM) Designer / Analyzer)                                  | SUSE Linux Enterprise Server 12 SP4 |
 | Identity Manager (Identity Man- ager Engine)                                       | SUSE Linux Enterprise Server 12 SP4 |
 | Reporting Server (Identity Re- porting Module)                                     | SUSE Linux Enterprise Server 12 SP4 |
 | Log Manager (Sentinel Log Man- agement for Identity Governance and Administration) | SUSE Linux Enterprise Server 12 SP4 |
@@ -479,21 +485,21 @@ Certification Report NetIQ® Identity Manager 4.7
 
 ## 11 Glossary
 
-| CC    | Common Criteria version 3.1                                                   |
-|-------|-------------------------------------------------------------------------------|
-| EAL   | Evaluation Assurance Level                                                    |
-| FIPS  | Federal Information Processing Standard                                       |
-| IDM   | Identity Manager IT Security Evaluation Facility, test                        |
-| ITSEF | labora- tory licensed to operate within a evaluation and certification scheme |
-| NTP   | Network Time Protocol                                                         |
-| OSP   | Organizational Security Policy                                                |
-| OSP   | One SSO Provider                                                              |
-| SSO   | Single Sign On                                                                |
-| SFP   | Security Function Policy                                                      |
-| SFR   | Security Functional Requirement                                               |
-| SSPR  | Self Service Password Reset                                                   |
-| ST    | Security Target                                                               |
-| TOE   | Target of Evaluation                                                          |
+| CC    | Common Criteria version 3.1                                                                                         |
+|-------|---------------------------------------------------------------------------------------------------------------------|
+| EAL   | Evaluation Assurance Level                                                                                          |
+| FIPS  | Federal Information Processing Standard                                                                             |
+| IDM   | Identity Manager                                                                                                    |
+| ITSEF | IT Security Evaluation Facility, test labora- tory licensed to operate within a evaluation and certification scheme |
+| NTP   | Network Time Protocol                                                                                               |
+| OSP   | Organizational Security Policy                                                                                      |
+| OSP   | One SSO Provider                                                                                                    |
+| SSO   | Single Sign On                                                                                                      |
+| SFP   | Security Function Policy                                                                                            |
+| SFR   | Security Functional Requirement                                                                                     |
+| SSPR  | Self Service Password Reset                                                                                         |
+| ST    | Security Target                                                                                                     |
+| TOE   | Target of Evaluation                                                                                                |
 
 18FMV7705-43:1
 

@@ -13,10 +13,15 @@ import pikepdf
 import pytesseract
 from docling.datamodel.accelerator_options import AcceleratorOptions
 from docling.datamodel.base_models import ConversionStatus, InputFormat
-from docling.datamodel.pipeline_options import EasyOcrOptions, ThreadedPdfPipelineOptions
+from docling.datamodel.pipeline_options import (
+    EasyOcrOptions,
+    PdfPipelineOptions,
+    TableFormerMode,
+    TableStructureOptions,
+)
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
-from docling.pipeline.threaded_standard_pdf_pipeline import ThreadedStandardPdfPipeline
+from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
 from docling_core.types.doc import ContentLayer, ImageRefMode
 from PIL import Image
 
@@ -41,7 +46,7 @@ class PDFConverter(ABC):
 
 class DoclingConverter(PDFConverter):
     def __init__(self):
-        # ThreadedPdfPipeline uses parallelism between pipeline stages and models.
+        # StandardPdfPipeline uses parallelism between pipeline stages and models.
         # Each pipeline step (preprocess, ocr, layout, table, assemble) runs in its own
         # dedicated thread. Each stage processes batches of configurable size in a
         # single execution. There are queues that connect the stages.
@@ -82,7 +87,7 @@ class DoclingConverter(PDFConverter):
         # │ │  └── batch_size=1                               │ │
         # │ └─────────────────────────────────────────────────┘ │
         # └─────────────────────────────────────────────────────┘
-        pipeline_options = ThreadedPdfPipelineOptions()
+        pipeline_options = PdfPipelineOptions()
         pipeline_options.ocr_batch_size = 4
         pipeline_options.layout_batch_size = 4
         pipeline_options.table_batch_size = 4
@@ -95,15 +100,14 @@ class DoclingConverter(PDFConverter):
         # 3. If ONNX runtime is not installed, try EasyOCR.
         # 4. If EasyOCR is unavailable, fall back to RapidOCR with PyTorch backend.
         # 5. If none are avaible, it will choose none and log warning.
-        pipeline_options.do_ocr = True
+        pipeline_options.do_ocr = False
         pipeline_options.ocr_options = EasyOcrOptions()
         pipeline_options.do_table_structure = True
+        pipeline_options.table_structure_options = TableStructureOptions(mode=TableFormerMode.FAST)
 
         self.doc_converter = DocumentConverter(
             format_options={
-                InputFormat.PDF: PdfFormatOption(
-                    pipeline_cls=ThreadedStandardPdfPipeline, pipeline_options=pipeline_options
-                )
+                InputFormat.PDF: PdfFormatOption(pipeline_cls=StandardPdfPipeline, pipeline_options=pipeline_options)
             }
         )
 

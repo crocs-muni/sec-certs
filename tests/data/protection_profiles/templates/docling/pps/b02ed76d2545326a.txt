@@ -43,14 +43,14 @@ FSDPP_OSP
 | 5.3                                                                                                                                                     | Security Objectives rationale.......................................................................................................13                  |
 | 5.3.1 Overview................................................................................................................................13        | 5.3.1 Overview................................................................................................................................13        |
 | 5.3.2 Justification for coverage of assumptions...............................................................................14                        | 5.3.2 Justification for coverage of assumptions...............................................................................14                        |
-| 5.3.3 Justification for the coverage of organizational security policies............................................14                                  | 5.3.3 Justification for the coverage of organizational security policies............................................14                                  |
-| 6.                                                                                                                                                      | Extended Component definition......................................................................................................16                   |
+| 5.3.3                                                                                                                                                   | Justification for the coverage of organizational security policies............................................14                                        |
+| 6. Extended Component definition......................................................................................................16                | 6. Extended Component definition......................................................................................................16                |
 | 6.1                                                                                                                                                     | FPT_SPOD Biometric Spoof Detection......................................................................................16                              |
-|                                                                                                                                                         | 6.1.1 Biometric Spoof Detection (FPT_SPOD.1)............................................................................17                              |
-|                                                                                                                                                         | 6.1.2 Justification for the definition of functional family FPT_SPOD.............................................17                                     |
-| 7.                                                                                                                                                      | Security Requirements.....................................................................................................................18            |
-| 7.1                                                                                                                                                     | Security Functional Requirements for the TOE...........................................................................18                               |
-|                                                                                                                                                         | 7.1.1 Security audit (FAU)..............................................................................................................19              |
+| 6.1.1 Biometric Spoof Detection (FPT_SPOD.1)............................................................................17                              |                                                                                                                                                         |
+| 6.1.2 Justification for the definition of functional family FPT_SPOD.............................................17                                     | 6.1.2 Justification for the definition of functional family FPT_SPOD.............................................17                                     |
+| 7. Security Requirements.....................................................................................................................18         | 7. Security Requirements.....................................................................................................................18         |
+| 7.1 Security Functional Requirements for the TOE...........................................................................18                           | 7.1 Security Functional Requirements for the TOE...........................................................................18                           |
+| 7.1.1 Security audit (FAU)..............................................................................................................19              | 7.1.1 Security audit (FAU)..............................................................................................................19              |
 
 2
 
@@ -58,17 +58,17 @@ Bundesamt für Sicherheit in der Informationstechnik
 
 FPSDPP_OSP
 
-| 7.1.2                                                                                                                                                  | User data protection (FDP).....................................................................................................19                      |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 7.1.3                                                                                                                                                  | Security management (FMT)..................................................................................................20                          |
-| 7.1.4                                                                                                                                                  | Protection of the TSF (FPT)...................................................................................................21                       |
-| 7.2                                                                                                                                                    | Security Assurance Requirements for the TOE...........................................................................22                               |
-| 7.3                                                                                                                                                    | Security Requirements rationale..................................................................................................23                    |
-| 7.3.1                                                                                                                                                  | Security Functional Requirements rationale...........................................................................23                                |
-| 7.3.2                                                                                                                                                  | Security Assurance Requirements rationale............................................................................24                                |
-| 8. Appendix.........................................................................................................................................26 | 8. Appendix.........................................................................................................................................26 |
-| 8.1                                                                                                                                                    | Glossary.......................................................................................................................................26      |
-| 8.2                                                                                                                                                    | References...................................................................................................................................27        |
+| 7.1.2   | User data protection (FDP).....................................................................................................19                   |
+|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+|         | 7.1.3 Security management (FMT)..................................................................................................20                 |
+|         | 7.1.4 Protection of the TSF (FPT)...................................................................................................21              |
+| 7.2     | Security Assurance Requirements for the TOE...........................................................................22                            |
+| 7.3     | Security Requirements rationale..................................................................................................23                 |
+|         | 7.3.1 Security Functional Requirements rationale...........................................................................23                       |
+|         | 7.3.2 Security Assurance Requirements rationale............................................................................24                       |
+| 8.      | Appendix.........................................................................................................................................26 |
+| 8.1     | Glossary.......................................................................................................................................26   |
+| 8.2     | References...................................................................................................................................27     |
 
 Bundesamt für Sicherheit in der Informationstechnik
 
@@ -80,15 +80,16 @@ FSDPP_OSP
 
 ## 1.1 PP Reference
 
-| Title:           | Fingerprint Spoof Detection Protection Profile based on OSP (FSDPP_OSP)                                   |
-|------------------|-----------------------------------------------------------------------------------------------------------|
-| Version          | 1.7                                                                                                       |
-| Date             | November, 27 th 2009                                                                                      |
-| Author           | Boris Leidner, Nils Tekampe, TÜV Informationstechnik GmbH                                                 |
-| Registration     | Bundesamt für Sicherheit in der Informationstechnik (BSI) Federal Office for Information Security Germany |
-| Certification-ID | BSI-CC-PP-0062                                                                                            |
-| CC-Version       | 3.1 Revision 3                                                                                            |
-| Keywords         | biometric; fingerprint-recognition; Protection Profile; spoof detection                                   |
+| Title:           | Fingerprint Spoof Detection Protection Profile based on OSP (FSDPP_OSP)   |
+|------------------|---------------------------------------------------------------------------|
+| Version          | 1.7                                                                       |
+| Date             | November, 27 th 2009                                                      |
+| Author           | Boris Leidner, Nils Tekampe, TÜV Informationstechnik GmbH                 |
+| Registration     | Bundesamt für Sicherheit in der Informationstechnik (BSI)                 |
+| Registration     | Federal Office for Information Security Germany                           |
+| Certification-ID | BSI-CC-PP-0062                                                            |
+| CC-Version       | 3.1 Revision 3                                                            |
+| Keywords         | biometric; fingerprint-recognition; Protection Profile; spoof detection   |
 
 ## 1.2 PP Overview
 
@@ -780,24 +781,24 @@ Table 3: Assurance Requirements
 | Assurance Class            | Assurance Component   | Title                                       |
 |----------------------------|-----------------------|---------------------------------------------|
 | Development                | ADV_ARC.1             | Security architecture description           |
-| Development                | ADV_FSP.2             | Security-enforcing functional specification |
-| Development                | ADV_TDS.1             | Basic Design                                |
+|                            | ADV_FSP.2             | Security-enforcing functional specification |
+|                            | ADV_TDS.1             | Basic Design                                |
 | Guidance documents         | AGD_OPE.1             | Operational User Guidance                   |
-| Guidance documents         | AGD_PRE.1             | Preparative Procedures                      |
+|                            | AGD_PRE.1             | Preparative Procedures                      |
 | Life-cycle support         | ALC_CMC.2             | Use of a CMsystem                           |
-| Life-cycle support         | ALC_CMS.2             | Parts of the TOE CMcoverage                 |
-| Life-cycle support         | ALC_DEL.1             | Delivery procedures                         |
-| Life-cycle support         | ALC_FLR.1             | Basic flaw remediation                      |
+|                            | ALC_CMS.2             | Parts of the TOE CMcoverage                 |
+|                            | ALC_DEL.1             | Delivery procedures                         |
+|                            | ALC_FLR.1             | Basic flaw remediation                      |
 | Security Target Evaluation | ASE_CCL.1             | Conformance claims                          |
-| Security Target Evaluation | ASE_ECD.1             | Extended component definition               |
-| Security Target Evaluation | ASE_INT.1             | ST introduction                             |
-| Security Target Evaluation | ASE_OBJ.2             | Security Objectives                         |
-| Security Target Evaluation | ASE_REQ.2             | Derived Security Requirements               |
-| Security Target Evaluation | ASE_SPD.1             | Security problem definition                 |
-| Security Target Evaluation | ASE_TSS.1             | TOE summary specification                   |
+|                            | ASE_ECD.1             | Extended component definition               |
+|                            | ASE_INT.1             | ST introduction                             |
+|                            | ASE_OBJ.2             | Security Objectives                         |
+|                            | ASE_REQ.2             | Derived Security Requirements               |
+|                            | ASE_SPD.1             | Security problem definition                 |
+|                            | ASE_TSS.1             | TOE summary specification                   |
 | Tests                      | ATE_COV.1             | Evidence of coverage                        |
-| Tests                      | ATE_FUN.1             | Functional testing                          |
-| Tests                      | ATE_IND.2             | Independent testing - sample                |
+|                            | ATE_FUN.1             | Functional testing                          |
+|                            | ATE_IND.2             | Independent testing - sample                |
 
 Due to the special character of the technology described in this PP, the Spoof Detection Evaluation Methodology   [FSDEG]   shall   be   applied   during   evaluation.   This   methodology   will   provide   the evaluator with additional information and guidance for some assurance requirements.
 
@@ -817,13 +818,12 @@ This  chapter  proves  that   the   set   of   security   requirements   (TOE)  
 
 Table 4:Fulfillment of Security Objectives
 
-|            | O.AUDIT   | O. RESIDUAL   | O.MANAGEMENT   | O.SPOOF_DETECTION   |
-|------------|-----------|---------------|----------------|---------------------|
-| FAU_GEN.1  | X         |               |                |                     |
-| FDP_RIP.2  |           | X             |                |                     |
-| FMT_MTD.3  |           |               | X              |                     |
-| FMT_SMF.1  |           |               | X              |                     |
-| FPT_SPOD.1 |           |               |                | X                   |
+| O.AUDIT O.MANAGEMENT   | O.   | RESIDUAL   |    | O.SPOOF_DETECTION    |
+|------------------------|------|------------|----|----------------------|
+| X                      |      |            |    | FAU_GEN.1            |
+| X                      |      |            |    | FDP_RIP.2            |
+| X                      |      |            |    | FMT_MTD.3            |
+|                        |      |            | X  | FMT_SMF.1 FPT_SPOD.1 |
 
 The following paragraphs contain more details on this mapping.
 
@@ -970,12 +970,12 @@ FSDPP_OSP
 
 ## 8.2 References
 
-| [FSDPP]   | Fingerprint Spoof Detection Protection Profile, version 1.8, November 2009                                                                                                                                                                                                                          |
-|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Toolbox] | Standard Fake Finger Toolbox for Common Criteria evaluations of Spoof Detection systems, as referenced in [FSDEG]                                                                                                                                                                                   |
-| [FSDEG]   | Fingerprint Spoof Detection Evaluation Guidance, version 2.0 (or a more recent version)                                                                                                                                                                                                             |
-| [CC]      | Common Criteria for Information Technology Security Evaluation - ● Part 1: Introduction and general model, dated July 2009, version 3.1 R3 ● Part 2: Security functional requirements, dated July 2009, version 3.1, R3 ● Part 3: Security assurance requirements, dated July 2009, version 3.1, R3 |
-| [CEM]     | Common Evaluation Methodology for Information Technology Security - Evaluation Methodology, dated July 2009, version 3.1 R3                                                                                                                                                                         |
+| [FSDPP]   | Fingerprint Spoof Detection Protection Profile, version 1.8, November 2009                                                                                                                                              |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Toolbox] | Standard Fake Finger Toolbox for Common Criteria evaluations of Spoof Detection systems, as referenced in [FSDEG]                                                                                                       |
+| [FSDEG]   | Fingerprint Spoof Detection Evaluation Guidance, version 2.0 (or a more recent version)                                                                                                                                 |
+| [CC]      | Common Criteria for Information Technology Security Evaluation - ● Part 1: Introduction and general model, dated July 2009, version 3.1 R3 ● Part 2: Security functional requirements, dated July 2009, version 3.1, R3 |
+| [CEM]     | Common Evaluation Methodology for Information Technology Security - Evaluation Methodology, dated July 2009, version 3.1 R3                                                                                             |
 
 Bundesamt für Sicherheit in der Informationstechnik
 
