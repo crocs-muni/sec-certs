@@ -536,6 +536,8 @@ parso==0.8.5
     # via jedi
 partd==1.4.2
     # via dask
+pdftotext==3.0.0
+    # via sec-certs (../pyproject.toml)
 pexpect==4.9.0
     # via ipython
 pikepdf==10.0.0
