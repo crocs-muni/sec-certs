@@ -13,7 +13,7 @@ import pikepdf
 import pytesseract
 from docling.datamodel.accelerator_options import AcceleratorOptions
 from docling.datamodel.base_models import ConversionStatus, InputFormat
-from docling.datamodel.pipeline_options import OcrAutoOptions, ThreadedPdfPipelineOptions
+from docling.datamodel.pipeline_options import EasyOcrOptions, ThreadedPdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
 from docling.pipeline.threaded_standard_pdf_pipeline import ThreadedStandardPdfPipeline
@@ -96,7 +96,7 @@ class DoclingConverter(PDFConverter):
         # 4. If EasyOCR is unavailable, fall back to RapidOCR with PyTorch backend.
         # 5. If none are avaible, it will choose none and log warning.
         pipeline_options.do_ocr = True
-        pipeline_options.ocr_options = OcrAutoOptions()
+        pipeline_options.ocr_options = EasyOcrOptions()
         pipeline_options.do_table_structure = True
 
         self.doc_converter = DocumentConverter(
