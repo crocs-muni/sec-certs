@@ -383,7 +383,8 @@ The TOE consists of a set of software applications run on one or multiple distri
 |------------------------------------------------------------------------------------|-------------------------------------|
 | Administration Workstation                                                         | Mozilla Firefox 65                  |
 | Identity Applications (RBPM)                                                       | SUSE Linux Enterprise Server 12 SP4 |
-| Designer / Analyzer) Identity Manager (Identity Man-                               | SUSE Linux Enterprise Server 12 SP4 |
+| Designer / Analyzer)                                                               |                                     |
+| Identity Manager (Identity Man- ager Engine)                                       | SUSE Linux Enterprise Server 12 SP4 |
 | Reporting Server (Identity Re- porting Module)                                     | SUSE Linux Enterprise Server 12 SP4 |
 | Log Manager (Sentinel Log Man- agement for Identity Governance and Administration) | SUSE Linux Enterprise Server 12 SP4 |
 | SSO Provider (OneSSO Provider)                                                     | SUSE Linux Enterprise Server 12 SP4 |

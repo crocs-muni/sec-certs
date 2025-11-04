@@ -141,7 +141,7 @@ def test_find_related_cves_criteria_configuration(processed_dataset: FIPSDataset
 def test_keywords_heuristics(processed_dataset: FIPSDataset):
     keywords = processed_dataset["2441"].pdf_data.keywords
     assert keywords
-    assert keywords["symmetric_crypto"]["AES_competition"]["AES"]["AES"] == 67
+    assert keywords["symmetric_crypto"]["AES_competition"]["AES"]["AES"] == 53
     assert not keywords["pq_crypto"]
     assert keywords["crypto_library"]["OpenSSL"]["OpenSSL"] == 83
     assert keywords["side_channel_analysis"]["SCA"]["timing attacks"] == 1

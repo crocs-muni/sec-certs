@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
+from tests.utils import verify_convert_pdfs
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -48,35 +49,12 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         ):
             pytest.xfail(reason="Fail due to error during download")
 
-        toy_dataset.convert_all_pdfs()
-
         for cert in toy_dataset:
             assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
             assert cert.state.st.pdf_hash == template_st_pdf_hashes[cert.dgst]
             assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
-            assert cert.state.report.convert_ok
-            assert cert.state.st.convert_ok
-            assert cert.state.report.txt_path.exists()
-            assert cert.state.report.json_path.exists()
-            assert cert.state.st.txt_path.exists()
-            assert cert.state.st.json_path.exists()
-            if cert.cert_link:
-                assert cert.state.cert.txt_path.exists()
-                assert cert.state.cert.json_path.exists()
 
-        template_report_txt_path = data_dir / "report_e3dcf91ef38ddbf0.txt"
-        template_st_txt_path = data_dir / "target_e3dcf91ef38ddbf0.txt"
-        assert (
-            abs(toy_dataset["e3dcf91ef38ddbf0"].state.st.txt_path.stat().st_size - template_st_txt_path.stat().st_size)
-            < 1000
-        )
-        assert (
-            abs(
-                toy_dataset["e3dcf91ef38ddbf0"].state.report.txt_path.stat().st_size
-                - template_report_txt_path.stat().st_size
-            )
-            < 1000
-        )
+        verify_convert_pdfs(toy_dataset, data_dir, "e3dcf91ef38ddbf0")
 
 
 @pytest.mark.remote

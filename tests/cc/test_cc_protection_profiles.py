@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
+from tests.utils import verify_convert_pdfs
 
 from sec_certs import constants
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
@@ -122,26 +123,8 @@ def test_download_and_convert_artifacts(toy_pp_dataset: ProtectionProfileDataset
     for cert in toy_pp_dataset:
         assert cert.state.pp.pdf_hash == template_pp_pdf_hashes[cert.dgst]
         assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
-        assert cert.state.report.convert_ok
-        assert cert.state.pp.convert_ok
-        assert cert.state.report.txt_path.exists()
-        assert cert.state.report.json_path.exists()
-        assert cert.state.pp.txt_path.exists()
-        assert cert.state.pp.json_path.exists()
 
-    template_report_txt_path = pp_data_dir / "reports/txt/b02ed76d2545326a.txt"
-    template_pp_txt_path = pp_data_dir / "pps/txt/b02ed76d2545326a.txt"
-    assert (
-        abs(
-            toy_pp_dataset["b02ed76d2545326a"].state.report.txt_path.stat().st_size
-            - template_report_txt_path.stat().st_size
-        )
-        < 1000
-    )
-    assert (
-        abs(toy_pp_dataset["b02ed76d2545326a"].state.pp.txt_path.stat().st_size - template_pp_txt_path.stat().st_size)
-        < 1000
-    )
+    verify_convert_pdfs(toy_pp_dataset, pp_data_dir, "b02ed76d2545326a")
 
 
 def test_keyword_extraction(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmpdir):
