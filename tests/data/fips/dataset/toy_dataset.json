@@ -95,7 +95,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "cd61ac2e08ea43ddc6824d406daaf3f5bc1370bb8c1a16313b29e9b34cf630b9",
                 "policy_txt_hash": "fd3c1588a897a114e8603694f326b582294f6ee40c06b430dedf2b10c1fa5792",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -179,7 +179,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "eab0fb2c68771543868254864f3b7b576fa42461fe895d57da5f5c7873d3ebf4",
                 "policy_txt_hash": "a5153056afaf3475697ea8ea024b0caaa1c56b9da7b15d5e0ce77a276a7cf953",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -263,7 +263,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "90a0425ae63aa28b1a365efe6dffe1b091871efb32422cdeb4ab0fe056f51b3a",
                 "policy_txt_hash": "b741eba5464b2e5ad057da3907b52c0163f3483ace52d6f4fce0a13255d2475e",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -347,7 +347,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "51ef058076692a3dc7d051e70e9613598442d38ea9d4d709a7d3a2a7288e4b50",
                 "policy_txt_hash": "27581efa0595a0daa6a71f55903b725e8e8c3619ed767c51a7b924e0ddcc32d3",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -431,7 +431,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "19a4e72da9e25bb1776667ce0153bb14441037742d382e40e3388be321e8ab29",
                 "policy_txt_hash": "f68d9d0b85e348b54ae8569cebd6cd98a8157ebbd0aaea88440bd8271b1b49d5",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -515,7 +515,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "d6c29154d6ac935216ce3b3067989436bd2ec34c5c6249a50858b988d8e5ee4b",
                 "policy_txt_hash": "9a3316575ea311f7a2945d79c64beb2ead789c13bf6f2d8af8d37fd09a613256",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -599,7 +599,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "3c4d11b0edd0c7d2535b2afc732be3cd3d9090a023e5421c120ea365745722fc",
                 "policy_txt_hash": "46152aef1b1c4c7fb4c98873840615973cdc39bfcf6ccf6581e4f63df4a57633",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -683,7 +683,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "263a3374eac8840197cab762ff9d5ef6cb16f50cd0978a6b29c470a47e0612fe",
                 "policy_txt_hash": "2f08752b55cf1c148da9f307d9ba1b9147dbfcc4521a7ccc175b630cfc7fe136",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -767,7 +767,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "1a54d50de140adf39788168b445a8443863dd93e4e2d61c6833117734eeef303",
                 "policy_txt_hash": "21088d33845b139189b1054abb8d98c2bd994885cbc9f2ce47a15d06fc813f00",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -851,7 +851,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "140b89794386b5684a3a29a6ff41b206cacdd9dc91192257510795b5d577c66a",
                 "policy_txt_hash": "b875301d2b9331cb100016a7c380f93ec0352a79f6584addebb933eb161ae4c7",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -935,7 +935,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "3fb4374e11575cf1cddd5e852fe4acc4456c7fb5e03bef4d0e108d9c333f67e4",
                 "policy_txt_hash": "c8d31c56206143407662b4079e60e66299db0bc7be7fb7f72649fefcf0d5a5ad",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1019,7 +1019,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "5a99b0c105ac337b83d15ee7e30a569dfa36d9c329741cf7207a4359180470ae",
                 "policy_txt_hash": "022f49e5061fa19dbc161d898beb8c02e5e314b700d15710424238255b8c298b",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1103,7 +1103,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "102edd217f5526882d7293205e7eb7a08cf1200e5a7942411e0c3fd7f60fca79",
                 "policy_txt_hash": "14ce24aa060f55846826d46aec52b93cf96c9da40bf3ee361aeac0d682bbb2fa",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1187,7 +1187,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "57e27b3b224ac32cd565bb653ae9141a80b6bb2c4121f75b583c64fe55e4bd28",
                 "policy_txt_hash": "d784c6554261dba00314c9ec8fc1145b2d211e4e10b94757f914cfe2d9d4e111",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1271,7 +1271,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "3c12cc775fd0b1dfb896bf5bb5b42116f36576ac55e4c2009083ee6a5d0ac63b",
                 "policy_txt_hash": "7fbeb02d4ed3aa9f5c64c0957e4a8b6542ad7ab86ebe7f5ae5da4863303d5da3",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1355,7 +1355,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "1f7c50818433e91649ae338c80a4b5da158b05812302e1d326d75b80693e26b8",
                 "policy_txt_hash": "719a71302456a5ae9f44064f9707d7b30c4003b378f015812242d353dfacecd5",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1439,7 +1439,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "c3db1ac50cf492cb87f39e78e3f226564596ccf1f3eb518bd6a1796cec001629",
                 "policy_txt_hash": "2ed639ebae177a801d27142a5c4a8b7d1ac313143ff1ff3100297caed537ce3d",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1523,7 +1523,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "6d82b67546b3714a5e54b2385681679e63801727a128be27b08f916d66da702d",
                 "policy_txt_hash": "2aa26b31917696d4105e53a04f57e2105fdbcc0ebb2be34171e3b58c1e2bfcc8",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1607,7 +1607,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1",
                 "policy_txt_hash": "cc1f8d0f7bb759894e81cbbfd1cfe02cdc443879fd47d3306f2a1b419fbf2872",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1691,7 +1691,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "7d120cfc4073c1a120a86b16655c016fb36f4855d376baa811ca6187d1c801d3",
                 "policy_txt_hash": "49df600e899ed4d00a99dbd9727b9fa4ab5f684dbb681b7e6f49b1debf44a7b6",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1775,7 +1775,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "a7b8d26e4e2bf23b0995074ca3566fb43b557e727b6f82fb0ba174185a2ce51a",
                 "policy_txt_hash": "18e94120db72047c5ce2e3c59d27ce266f86c052b04b06e75b0b7cf8cb0c0dd4",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         },
         {
@@ -1859,7 +1859,7 @@
                 "policy_extract_ok": false,
                 "policy_pdf_hash": "c865c04955e36a4068bf5f331e5658d8d62dedeef963c5ac1b02700243143ad4",
                 "policy_txt_hash": "fa544520b43adcd5dffffe34513322f5a63f0d0b0a3dc1d2b8575a7a80f490e4",
-                "policy_json_hash": "None"
+                "policy_json_hash": null
             }
         }
     ]
