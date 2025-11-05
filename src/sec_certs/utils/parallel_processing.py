@@ -76,4 +76,11 @@ def process_parallel(
     pool.join()
     pool.terminate()
 
-    return [r.get() for r in results]
+    if batching:
+        flattened = []
+        for batch in results:
+            if (batch_result := batch.get()) is not None:
+                flattened.extend(batch_result)
+        return flattened
+    else:
+        return [r.get() for r in results]
