@@ -306,10 +306,8 @@ class ProtectionProfile(
     def _convert_pdf(
         cert: ProtectionProfile, doc_type: Literal["report", "pp"], converter: PDFConverter
     ) -> ProtectionProfile:
-        ok_result = converter.convert(
-            cert.state.report.pdf_path, cert.state.report.txt_path, cert.state.report.json_path
-        )
         cert_state = getattr(cert.state, doc_type)
+        ok_result = converter.convert(cert_state.pdf_path, cert_state.txt_path, cert_state.json_path)
         cert_state.convert_ok = ok_result
         if not ok_result:
             logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
