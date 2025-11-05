@@ -303,40 +303,37 @@ class ProtectionProfile(
         return cert
 
     @staticmethod
+    def _convert_pdf(
+        cert: ProtectionProfile, doc_type: Literal["report", "pp"], converter: PDFConverter
+    ) -> ProtectionProfile:
+        ok_result = converter.convert(
+            cert.state.report.pdf_path, cert.state.report.txt_path, cert.state.report.json_path
+        )
+        cert_state = getattr(cert.state, doc_type)
+        cert_state.convert_ok = ok_result
+        if not ok_result:
+            logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
+        else:
+            cert_state.txt_hash = helpers.get_sha256_filepath(cert_state.txt_path)
+            if cert_state.json_path.exists():
+                cert_state.json_hash = helpers.get_sha256_filepath(cert_state.json_path)
+            else:
+                cert_state.json_hash = None
+        return cert
+
+    @staticmethod
     def convert_report_pdf(cert: ProtectionProfile, converter: PDFConverter) -> ProtectionProfile:
         """
         Converts certification reports from pdf to txt.
         """
-        ok_result = converter.convert(
-            cert.state.report.pdf_path, cert.state.report.txt_path, cert.state.report.json_path
-        )
-        cert.state.report.convert_ok = ok_result
-        if not ok_result:
-            logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
-        else:
-            cert.state.report.txt_hash = helpers.get_sha256_filepath(cert.state.report.txt_path)
-            if cert.state.report.json_path.exists():
-                cert.state.report.json_hash = helpers.get_sha256_filepath(cert.state.report.json_path)
-            else:
-                cert.state.report.json_hash = None
-        return cert
+        return ProtectionProfile._convert_pdf(cert, "report", converter)
 
     @staticmethod
     def convert_pp_pdf(cert: ProtectionProfile, converter: PDFConverter) -> ProtectionProfile:
         """
         Converts the actual protection profile from pdf to txt.
         """
-        ok_result = converter.convert(cert.state.pp.pdf_path, cert.state.pp.txt_path, cert.state.pp.json_path)
-        cert.state.pp.convert_ok = ok_result
-        if not ok_result:
-            logger.error(f"Cert dgst: {cert.dgst} failed to convert PP pdf to txt")
-        else:
-            cert.state.pp.txt_hash = helpers.get_sha256_filepath(cert.state.pp.txt_path)
-            if cert.state.pp.json_path.exists():
-                cert.state.pp.json_hash = helpers.get_sha256_filepath(cert.state.pp.json_path)
-            else:
-                cert.state.pp.json_hash = None
-        return cert
+        return ProtectionProfile._convert_pdf(cert, "pp", converter)
 
     @staticmethod
     def extract_report_pdf_metadata(cert: ProtectionProfile) -> ProtectionProfile:
