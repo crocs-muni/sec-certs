@@ -276,18 +276,24 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     @staticmethod
     def _convert_pdf_batch(
         certs: list[ProtectionProfile], doc_type: Literal["report", "pp"], converter_type: type[PDFConverter]
-    ) -> None:
+    ) -> list[ProtectionProfile]:
         converter = converter_type()
         for cert in certs:
             ProtectionProfile._convert_pdf(cert, doc_type, converter)
 
-    @staticmethod
-    def _convert_reports_pdf_batch(certs: list[ProtectionProfile], converter_type: type[PDFConverter]) -> None:
-        ProtectionProfileDataset._convert_pdf_batch(certs, "report", converter_type)
+        return certs
 
     @staticmethod
-    def _convert_pps_pdf_batch(certs: list[ProtectionProfile], converter_type: type[PDFConverter]) -> None:
-        ProtectionProfileDataset._convert_pdf_batch(certs, "pp", converter_type)
+    def _convert_reports_pdf_batch(
+        certs: list[ProtectionProfile], converter_type: type[PDFConverter]
+    ) -> list[ProtectionProfile]:
+        return ProtectionProfileDataset._convert_pdf_batch(certs, "report", converter_type)
+
+    @staticmethod
+    def _convert_pps_pdf_batch(
+        certs: list[ProtectionProfile], converter_type: type[PDFConverter]
+    ) -> list[ProtectionProfile]:
+        return ProtectionProfileDataset._convert_pdf_batch(certs, "pp", converter_type)
 
     def _convert_pdfs(self, doc_type: Literal["report", "pp"], fresh: bool = True) -> None:
         long_name_map = {
@@ -312,7 +318,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         convert_func = getattr(ProtectionProfileDataset, f"_convert_{doc_type}s_pdf_batch")
         convert_func = partial(convert_func, converter_type=config.pdf_converter)
-        cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel(
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
@@ -321,6 +327,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             use_threading=False,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
+        self.update_with_certs(processed_certs)
 
     @staged(logger, "Converting PDFs of PP certification reports.")
     def _convert_reports_pdfs(self, fresh: bool = True):

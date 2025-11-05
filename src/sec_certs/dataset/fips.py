@@ -200,10 +200,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
 
     @staticmethod
-    def _convert_policies_pdf_batch(certs: list[FIPSCertificate], converter_type: type[PDFConverter]) -> None:
+    def _convert_policies_pdf_batch(
+        certs: list[FIPSCertificate], converter_type: type[PDFConverter]
+    ) -> list[FIPSCertificate]:
         converter = converter_type()
         for cert in certs:
             FIPSCertificate.convert_policy_pdf(cert, converter)
+
+        return certs
 
     @staged(logger, "Converting PDFs of FIPS security policies.")
     def _convert_policies_pdfs(self, fresh: bool = True) -> None:
@@ -220,7 +224,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             )
 
         convert_func = partial(FIPSDataset._convert_policies_pdf_batch, converter_type=config.pdf_converter)
-        cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel(
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
@@ -229,6 +233,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             use_threading=False,
             progress_bar_desc="Converting PDFs of FIPS security policies",
         )
+        self.update_with_certs(processed_certs)
 
     def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
         self._convert_policies_pdfs(fresh)

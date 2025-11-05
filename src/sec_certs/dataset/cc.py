@@ -684,22 +684,26 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     @staticmethod
     def _convert_pdf_batch(
         certs: list[CCCertificate], doc_type: Literal["report", "st", "cert"], converter_type: type[PDFConverter]
-    ) -> None:
+    ) -> list[CCCertificate]:
         converter = converter_type()
         for cert in certs:
             CCCertificate._convert_pdf(cert, doc_type, converter)
 
-    @staticmethod
-    def _convert_reports_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> None:
-        CCDataset._convert_pdf_batch(certs, "report", converter_type)
+        return certs
 
     @staticmethod
-    def _convert_sts_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> None:
-        CCDataset._convert_pdf_batch(certs, "st", converter_type)
+    def _convert_reports_pdf_batch(
+        certs: list[CCCertificate], converter_type: type[PDFConverter]
+    ) -> list[CCCertificate]:
+        return CCDataset._convert_pdf_batch(certs, "report", converter_type)
 
     @staticmethod
-    def _convert_certs_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> None:
-        CCDataset._convert_pdf_batch(certs, "cert", converter_type)
+    def _convert_sts_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> list[CCCertificate]:
+        return CCDataset._convert_pdf_batch(certs, "st", converter_type)
+
+    @staticmethod
+    def _convert_certs_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> list[CCCertificate]:
+        return CCDataset._convert_pdf_batch(certs, "cert", converter_type)
 
     def _convert_pdfs(self, doc_type: Literal["report", "target", "certificate"], fresh: bool = True) -> None:
         doc_type_map = {
@@ -726,7 +730,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         convert_func = getattr(CCDataset, f"_convert_{short_name}s_pdf_batch")
         convert_func = partial(convert_func, converter_type=config.pdf_converter)
-        cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel(
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
@@ -735,6 +739,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             use_threading=False,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
+        self.update_with_certs(processed_certs)
 
     @staged(logger, "Converting PDFs of certification reports.")
     def _convert_reports_pdfs(self, fresh: bool = True) -> None:
