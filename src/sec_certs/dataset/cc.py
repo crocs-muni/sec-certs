@@ -4,6 +4,7 @@ import locale
 import shutil
 from collections.abc import Iterator
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import ClassVar, Literal, cast
 
@@ -41,7 +42,6 @@ from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
-from sec_certs.utils.tqdm import tqdm
 
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
@@ -681,9 +681,27 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs of CC certificates",
         )
 
-    def _convert_pdfs(
-        self, doc_type: Literal["report", "target", "certificate"], converter: PDFConverter, fresh: bool = True
+    @staticmethod
+    def _convert_pdf_batch(
+        certs: list[CCCertificate], doc_type: Literal["report", "st", "cert"], converter_type: type[PDFConverter]
     ) -> None:
+        converter = converter_type()
+        for cert in certs:
+            CCCertificate._convert_pdf(cert, doc_type, converter)
+
+    @staticmethod
+    def _convert_reports_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> None:
+        CCDataset._convert_pdf_batch(certs, "report", converter_type)
+
+    @staticmethod
+    def _convert_sts_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> None:
+        CCDataset._convert_pdf_batch(certs, "st", converter_type)
+
+    @staticmethod
+    def _convert_certs_pdf_batch(certs: list[CCCertificate], converter_type: type[PDFConverter]) -> None:
+        CCDataset._convert_pdf_batch(certs, "cert", converter_type)
+
+    def _convert_pdfs(self, doc_type: Literal["report", "target", "certificate"], fresh: bool = True) -> None:
         doc_type_map = {
             "report": {"short": "report", "long": "certification report"},
             "target": {"short": "st", "long": "security target"},
@@ -706,30 +724,34 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
             )
 
-        progress_bar = tqdm(total=len(certs_to_process), desc=f"Converting PDFs of {long_name}s")
-        convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
-        for cert in certs_to_process:
-            convert_func(cert, converter)
-            progress_bar.update(1)
-
-        progress_bar.close()
+        convert_func = getattr(CCDataset, f"_convert_{short_name}s_pdf_batch")
+        convert_func = partial(convert_func, converter_type=config.pdf_converter)
+        cert_processing.process_parallel(
+            convert_func,
+            certs_to_process,
+            config.pdf_conversion_workers,
+            True,
+            config.pdf_conversion_min_batch_size,
+            use_threading=False,
+            progress_bar_desc=f"Converting PDFs of {long_name}s",
+        )
 
     @staged(logger, "Converting PDFs of certification reports.")
-    def _convert_reports_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
-        self._convert_pdfs("report", converter, fresh)
+    def _convert_reports_pdfs(self, fresh: bool = True) -> None:
+        self._convert_pdfs("report", fresh)
 
     @staged(logger, "Converting PDFs of security targets.")
-    def _convert_targets_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
-        self._convert_pdfs("target", converter, fresh)
+    def _convert_targets_pdfs(self, fresh: bool = True) -> None:
+        self._convert_pdfs("target", fresh)
 
     @staged(logger, "Converting PDFs of certificates.")
-    def _convert_certs_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
-        self._convert_pdfs("certificate", converter, fresh)
+    def _convert_certs_pdfs(self, fresh: bool = True) -> None:
+        self._convert_pdfs("certificate", fresh)
 
-    def _convert_all_pdfs_body(self, converter: PDFConverter, fresh: bool = True) -> None:
-        self._convert_reports_pdfs(converter, fresh)
-        self._convert_targets_pdfs(converter, fresh)
-        self._convert_certs_pdfs(converter, fresh)
+    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
+        self._convert_reports_pdfs(fresh)
+        self._convert_targets_pdfs(fresh)
+        self._convert_certs_pdfs(fresh)
 
     @staged(logger, "Extracting certification reports metadata.")
     def _extract_report_metadata(self) -> None:

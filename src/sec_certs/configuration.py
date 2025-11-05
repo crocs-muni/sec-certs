@@ -153,6 +153,12 @@ class Configuration(BaseSettings):
     pdf_converter: type[PDFConverter] = Field(
         PdftotextConverter, description="PDF converter used for all PDF conversions"
     )
+    pdf_conversion_workers: int = Field(
+        2, description="Number of workers for parallel PDF processing. PDFs are divided into batches across workers."
+    )
+    pdf_conversion_min_batch_size: int = Field(
+        5, description="Minimum PDFs per worker batch. Fewer workers are used if there aren't enough PDFs."
+    )
 
     def _get_nondefault_keys(self) -> set[str]:
         """

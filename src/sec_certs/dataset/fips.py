@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import logging
 import shutil
+from functools import partial
 from pathlib import Path
 from typing import ClassVar, Final
 
@@ -30,7 +31,6 @@ from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import fips_dgst
 from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
-from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -199,11 +199,14 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDF security policies",
         )
 
-    def _convert_all_pdfs_body(self, converter: PDFConverter, fresh: bool = True) -> None:
-        self._convert_policies_pdfs(converter, fresh)
+    @staticmethod
+    def _convert_policies_pdf_batch(certs: list[FIPSCertificate], converter_type: type[PDFConverter]) -> None:
+        converter = converter_type()
+        for cert in certs:
+            FIPSCertificate.convert_policy_pdf(cert, converter)
 
     @staged(logger, "Converting PDFs of FIPS security policies.")
-    def _convert_policies_pdfs(self, converter: PDFConverter, fresh: bool = True) -> None:
+    def _convert_policies_pdfs(self, fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         self.policies_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
@@ -216,12 +219,19 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        progress_bar = tqdm(total=len(certs_to_process), desc="Converting PDFs of FIPS security policies")
-        for cert in certs_to_process:
-            FIPSCertificate.convert_policy_pdf(cert, converter)
-            progress_bar.update(1)
+        convert_func = partial(FIPSDataset._convert_policies_pdf_batch, converter_type=config.pdf_converter)
+        cert_processing.process_parallel(
+            convert_func,
+            certs_to_process,
+            config.pdf_conversion_workers,
+            True,
+            config.pdf_conversion_min_batch_size,
+            use_threading=False,
+            progress_bar_desc="Converting PDFs of FIPS security policies",
+        )
 
-        progress_bar.close()
+    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
+        self._convert_policies_pdfs(fresh)
 
     def _download_html_resources(self) -> None:
         logger.info("Downloading HTML files that list FIPS certificates.")
