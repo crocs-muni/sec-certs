@@ -9,6 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+import pdftotext
 import pikepdf
 import pytesseract
 from docling.datamodel.accelerator_options import AcceleratorOptions
@@ -146,14 +147,6 @@ class DoclingConverter(PDFConverter):
 
 
 class PdftotextConverter(PDFConverter):
-    def __init__(self):
-        try:
-            import pdftotext
-
-            self.pdftotext = pdftotext
-        except ImportError:
-            raise ImportError("pdftotext is not installed, install it with: pip install pdftotext") from None
-
     def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
         """
         Convert a PDF file and save the resulst as a text file to `txt_path`.
@@ -164,18 +157,29 @@ class PdftotextConverter(PDFConverter):
         :return: A boolean if the conversion was successful.
         """
 
+        txt = None
         try:
             with pdf_path.open("rb") as pdf_handle:
-                pdf = self.pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
+                pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
                 txt = "".join(pdf)
-
-            with txt_path.open("w", encoding="utf-8") as txt_handle:
-                txt_handle.write(txt)
         except Exception as e:
             logger.error(f"Conversion failed for {pdf_path}: {e}")
-            return False
 
-        return True
+        if txt is None or text_is_garbage(txt):
+            if txt is not None:
+                logger.warning(f"Detected garbage during conversion of {pdf_path}")
+            try:
+                txt = ocr_pdf_file(pdf_path)
+                logger.info(f"OCR OK for {pdf_path}")
+            except Exception as e:
+                logger.error(f"OCR failed for {pdf_path}: {e}")
+
+        if txt is not None:
+            with txt_path.open("w", encoding="utf-8") as txt_handle:
+                txt_handle.write(txt)
+            return True
+
+        return False
 
 
 def repair_pdf(file: Path) -> None:
