@@ -62,6 +62,8 @@ def _verify_fips_convert(dataset: FIPSDataset, data_dir: Path, converter_name: s
 def _verify_converter(
     dataset: Dataset, data_dir: Path, dgst: str, converter: type[PDFConverter], converter_name: str, has_json: bool
 ):
+    crt = dataset[dgst]
+    dataset.certs = {dgst: crt}
     orig_converter = config.pdf_converter
     config.pdf_converter = converter
     dataset.convert_all_pdfs()
