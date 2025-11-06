@@ -155,3 +155,6 @@
 
 [tool.coverage.run]
   source = ["src"]
+  concurrency = ["multiprocessing"]
+  parallel = true
+
