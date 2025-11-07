@@ -8,8 +8,8 @@ import pytest
 import tests.data.protection_profiles
 
 from sec_certs import constants
+from sec_certs.converter import DoclingConverter, PDFConverter, PdftotextConverter
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
-from sec_certs.utils.pdf import DoclingConverter, PDFConverter, PdftotextConverter
 
 
 def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmp_path: Path):

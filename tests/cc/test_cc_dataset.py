@@ -9,11 +9,11 @@ import tests.data.cc.dataset
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import DoclingConverter, PDFConverter, PdftotextConverter
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.serialization.schemas import validator
 from sec_certs.utils import helpers
-from sec_certs.utils.pdf import DoclingConverter, PDFConverter, PdftotextConverter
 
 
 @pytest.fixture(scope="module")
