@@ -12,6 +12,7 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -19,7 +20,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
-from sec_certs.utils.pdf import PDFConverter, extract_pdf_metadata
+from sec_certs.utils.pdf import extract_pdf_metadata
 
 
 class ProtectionProfile(

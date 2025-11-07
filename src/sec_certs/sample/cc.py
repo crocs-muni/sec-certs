@@ -17,6 +17,7 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -27,7 +28,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.extract import extract_keywords, normalize_match_string, scheme_frontpage_functions
-from sec_certs.utils.pdf import PDFConverter, extract_pdf_metadata
+from sec_certs.utils.pdf import extract_pdf_metadata
 
 
 class CCCertificate(

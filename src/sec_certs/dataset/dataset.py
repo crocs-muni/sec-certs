@@ -18,6 +18,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
@@ -27,7 +28,6 @@ from sec_certs.serialization.json import (
     serialize,
 )
 from sec_certs.utils import helpers
-from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
 
 logger = logging.getLogger(__name__)

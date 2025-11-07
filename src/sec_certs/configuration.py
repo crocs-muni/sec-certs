@@ -8,7 +8,7 @@ import yaml
 from pydantic import AnyHttpUrl, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from sec_certs.utils.pdf import PDFConverter, PdftotextConverter
+from sec_certs.converter import PDFConverter, PdftotextConverter
 
 
 class Configuration(BaseSettings):

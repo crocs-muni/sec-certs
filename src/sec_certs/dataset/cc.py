@@ -15,6 +15,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CCMaintenanceUpdateDatasetHandler,
@@ -40,7 +41,6 @@ from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils import parallel_processing as cert_processing
-from sec_certs.utils.pdf import PDFConverter
 from sec_certs.utils.profiling import staged
 
 
