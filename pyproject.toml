@@ -30,8 +30,6 @@
   dependencies = [
     "beautifulsoup4",
     "click",
-    "docling",
-    "easyocr",
     "html5lib",
     "jsonschema",
     "lxml",
@@ -99,6 +97,10 @@
       "sqlite-vec",
       "openai",
       "pyarrow"
+    ]
+    docling = [
+     "docling",
+     "easyocr"
     ]
 
   [project.urls]
