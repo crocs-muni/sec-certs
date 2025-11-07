@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from collections.abc import Generator
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -21,7 +21,7 @@ from sec_certs.utils import helpers
 
 @pytest.fixture(scope="module")
 def data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.fips.dataset, "") as path:
+    with as_file(files(tests.data.fips.dataset)) as path:
         yield path
 
 
@@ -107,7 +107,7 @@ def test_download_meta_html_files():
 
 @pytest.fixture(scope="module")
 def downloaded_toy_dataset(tmp_path_factory):
-    with resources.path(tests.data.fips.dataset, "toy_dataset.json") as path:
+    with as_file(files(tests.data.fips.dataset) / "toy_dataset.json") as path:
         dataset = FIPSDataset.from_json(path)
 
     temp_dir = tmp_path_factory.mktemp("downloaded_dataset")

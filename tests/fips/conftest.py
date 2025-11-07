@@ -1,4 +1,4 @@
-from importlib import resources
+from importlib.resources import as_file, files
 
 import pytest
 import tests.data.fips.dataset
@@ -11,7 +11,7 @@ from sec_certs.heuristics.fips import compute_references
 
 @pytest.fixture(scope="module")
 def toy_dataset() -> FIPSDataset:
-    with resources.path(tests.data.fips.dataset, "toy_dataset.json") as dataset_path:
+    with as_file(files(tests.data.fips.dataset) / "toy_dataset.json") as dataset_path:
         return FIPSDataset.from_json(dataset_path)
 
 

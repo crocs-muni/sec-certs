@@ -1,6 +1,6 @@
 from collections.abc import Generator
 from datetime import date
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 
 import pytest
@@ -15,31 +15,31 @@ from sec_certs.sample.cc import CCCertificate
 
 @pytest.fixture(scope="module")
 def pp_data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.protection_profiles, "") as path:
+    with as_file(files(tests.data.protection_profiles)) as path:
         yield path
 
 
 @pytest.fixture(scope="module")
 def data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.cc.dataset, "") as path:
+    with as_file(files(tests.data.cc.dataset)) as path:
         yield path
 
 
 @pytest.fixture(scope="module")
 def analysis_data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.cc.analysis, "") as path:
+    with as_file(files(tests.data.cc.analysis)) as path:
         yield path
 
 
 @pytest.fixture
 def toy_dataset() -> CCDataset:
-    with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
+    with as_file(files(tests.data.cc.dataset) / "toy_dataset.json") as path:
         return CCDataset.from_json(path)
 
 
 @pytest.fixture
 def toy_pp_dataset() -> ProtectionProfileDataset:
-    with resources.path(tests.data.protection_profiles, "dataset.json") as path:
+    with as_file(files(tests.data.protection_profiles) / "dataset.json") as path:
         return ProtectionProfileDataset.from_json(path)
 
 

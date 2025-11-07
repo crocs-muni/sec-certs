@@ -1,6 +1,6 @@
 import json
 import shutil
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -18,7 +18,7 @@ from sec_certs.utils import helpers
 
 @pytest.fixture(scope="module")
 def downloaded_toy_dataset(tmp_path_factory):
-    with resources.path(tests.data.cc.dataset, "toy_dataset.json") as path:
+    with as_file(files(tests.data.cc.dataset) / "toy_dataset.json") as path:
         dataset = CCDataset.from_json(path)
 
     temp_dir = tmp_path_factory.mktemp("downloaded_dataset")

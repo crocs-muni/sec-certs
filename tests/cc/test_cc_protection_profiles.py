@@ -1,6 +1,6 @@
 import json
 import shutil
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -95,7 +95,7 @@ def test_download_html_files():
 
 @pytest.fixture(scope="module")
 def downloaded_toy_dataset(tmp_path_factory):
-    with resources.path(tests.data.protection_profiles, "dataset.json") as path:
+    with as_file(files(tests.data.protection_profiles) / "dataset.json") as path:
         dataset = ProtectionProfileDataset.from_json(path)
 
     temp_dir = tmp_path_factory.mktemp("downloaded_dataset")
