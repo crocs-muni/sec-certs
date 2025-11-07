@@ -1,13 +1,15 @@
 import json
 import shutil
+from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
-from tests.utils import verify_convert_pdfs
+import tests.data.protection_profiles
 
 from sec_certs import constants
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.utils.pdf import DoclingConverter, PDFConverter, PdftotextConverter
 
 
 def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmp_path: Path):
@@ -91,10 +93,26 @@ def test_download_html_files():
             assert x[1].stat().st_size >= constants.MIN_PP_HTML_SIZE
 
 
-def test_download_and_convert_artifacts(toy_pp_dataset: ProtectionProfileDataset, tmpdir, pp_data_dir):
-    toy_pp_dataset.copy_dataset(tmpdir)
-    toy_pp_dataset.download_all_artifacts()
+@pytest.fixture(scope="module")
+def downloaded_toy_dataset(tmp_path_factory):
+    with resources.path(tests.data.protection_profiles, "dataset.json") as path:
+        dataset = ProtectionProfileDataset.from_json(path)
 
+    temp_dir = tmp_path_factory.mktemp("downloaded_dataset")
+    dataset.copy_dataset(temp_dir)
+    dataset.download_all_artifacts()
+
+    for cert in dataset:
+        for doc_type in ["pp", "report"]:
+            link = getattr(cert.web_data, f"{doc_type}_link")
+            doc_state = getattr(cert.state, doc_type)
+            if link and not doc_state.download_ok:
+                pytest.skip(reason="Skip due to error during download")
+
+    return dataset
+
+
+def test_downloaded_pdf_hashes(downloaded_toy_dataset: ProtectionProfileDataset):
     template_pp_pdf_hashes = {
         "c8b175590bb7fdfb": "f35ea732cfe303415080e0a95b9aa573ff9e02019e9ab971904c7530c2617b80",
         "e315e3e834a61448": "605489cda568c32371d0aeb6841df0dc63277f57113f59a5a60f8a64a1661def",
@@ -106,25 +124,33 @@ def test_download_and_convert_artifacts(toy_pp_dataset: ProtectionProfileDataset
         "b02ed76d2545326a": "e4c2d590fce870cd14fe6571a3258bd094b1e66f83f5e4d4a53a28a96f27490e",
     }
 
-    if not all(
-        [
-            toy_pp_dataset["c8b175590bb7fdfb"].state.pp.download_ok,
-            toy_pp_dataset["c8b175590bb7fdfb"].state.report.download_ok,
-            toy_pp_dataset["e315e3e834a61448"].state.pp.download_ok,
-            toy_pp_dataset["e315e3e834a61448"].state.report.download_ok,
-            toy_pp_dataset["b02ed76d2545326a"].state.pp.download_ok,
-            toy_pp_dataset["b02ed76d2545326a"].state.report.download_ok,
-        ]
-    ):
-        pytest.xfail(reason="Fail due to errror during download")
-
-    toy_pp_dataset.convert_all_pdfs()
-
-    for cert in toy_pp_dataset:
+    for cert in downloaded_toy_dataset:
         assert cert.state.pp.pdf_hash == template_pp_pdf_hashes[cert.dgst]
         assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
 
-    verify_convert_pdfs(toy_pp_dataset, pp_data_dir, "b02ed76d2545326a")
+
+@pytest.mark.parametrize(
+    "converter", [pytest.param(PdftotextConverter), pytest.param(DoclingConverter, marks=pytest.mark.docling)]
+)
+def test_convert_pdfs(
+    downloaded_toy_dataset: ProtectionProfileDataset, pp_data_dir: Path, converter: type[PDFConverter]
+):
+    downloaded_toy_dataset.convert_all_pdfs(converter=converter)
+
+    for cert in downloaded_toy_dataset:
+        assert cert.state.report.convert_ok
+        assert cert.state.pp.convert_ok
+        assert cert.state.report.txt_path.exists()
+        assert cert.state.pp.txt_path.exists()
+        if converter.has_json_output():
+            assert cert.state.report.json_path.exists()
+            assert cert.state.pp.json_path.exists()
+
+    test_crt = downloaded_toy_dataset["b02ed76d2545326a"]
+    template_report_path = pp_data_dir / f"templates/{converter.get_name()}/reports/{test_crt.dgst}.txt"
+    template_pp_path = pp_data_dir / f"templates/{converter.get_name()}/pps/{test_crt.dgst}.txt"
+    assert abs(test_crt.state.report.txt_path.stat().st_size - template_report_path.stat().st_size) < 1000
+    assert abs(test_crt.state.pp.txt_path.stat().st_size - template_pp_path.stat().st_size) < 1000
 
 
 def test_keyword_extraction(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmpdir):
