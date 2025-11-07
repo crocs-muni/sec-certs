@@ -27,7 +27,7 @@ jobs:
       - name: Install python dependencies
         run: |
           pip install -r requirements/test_requirements.txt
-          pip install -r --no-cache-dir requirements/docling_requirements.txt
+          pip install --no-cache-dir -r requirements/docling_requirements.txt
       - name: Install sec-certs
         run: |
           pip install -e .
