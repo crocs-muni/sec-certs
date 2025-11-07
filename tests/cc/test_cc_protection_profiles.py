@@ -6,9 +6,10 @@ from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.protection_profiles
+from tests.conftest import get_converters
 
 from sec_certs import constants
-from sec_certs.converter import DoclingConverter, PDFConverter, PdftotextConverter
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
 
@@ -129,9 +130,7 @@ def test_downloaded_pdf_hashes(downloaded_toy_dataset: ProtectionProfileDataset)
         assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
 
 
-@pytest.mark.parametrize(
-    "converter", [pytest.param(PdftotextConverter), pytest.param(DoclingConverter, marks=pytest.mark.docling)]
-)
+@pytest.mark.parametrize("converter", get_converters())
 def test_convert_pdfs(
     downloaded_toy_dataset: ProtectionProfileDataset, pp_data_dir: Path, converter: type[PDFConverter]
 ):

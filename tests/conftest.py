@@ -7,7 +7,21 @@ import pytest
 
 import tests.data.common
 from sec_certs.configuration import config
+from sec_certs.converter import has_docling, has_pdftotext
 from sec_certs.dataset import CPEDataset, CVEDataset
+
+
+def get_converters():
+    converters = []
+    if has_pdftotext:
+        from sec_certs.converter import PdftotextConverter
+
+        converters.append(PdftotextConverter)
+    if has_docling:
+        from sec_certs.converter import DoclingConverter
+
+        converters.append(pytest.param(DoclingConverter, marks=pytest.mark.docling))
+    return converters
 
 
 @pytest.fixture(scope="module", autouse=True)

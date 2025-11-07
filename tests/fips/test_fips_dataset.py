@@ -9,10 +9,11 @@ from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.fips.dataset
+from tests.conftest import get_converters
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import DoclingConverter, PDFConverter, PdftotextConverter
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.schemas import validator
@@ -128,9 +129,7 @@ def test_downloaded_pdf_hashes(downloaded_toy_dataset: FIPSDataset):
     assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
 
 
-@pytest.mark.parametrize(
-    "converter", [pytest.param(PdftotextConverter), pytest.param(DoclingConverter, marks=pytest.mark.docling)]
-)
+@pytest.mark.parametrize("converter", get_converters())
 def test_convert_pdfs(downloaded_toy_dataset: FIPSDataset, data_dir: Path, converter: type[PDFConverter]):
     downloaded_toy_dataset.convert_all_pdfs(converter=converter)
 

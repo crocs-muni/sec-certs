@@ -6,10 +6,11 @@ from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.cc.dataset
+from tests.conftest import get_converters
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import DoclingConverter, PDFConverter, PdftotextConverter
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.serialization.schemas import validator
@@ -60,9 +61,7 @@ def test_downloaded_pdf_hashes(downloaded_toy_dataset: CCDataset):
         assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
 
 
-@pytest.mark.parametrize(
-    "converter", [pytest.param(PdftotextConverter), pytest.param(DoclingConverter, marks=pytest.mark.docling)]
-)
+@pytest.mark.parametrize("converter", get_converters())
 def test_convert_pdfs(downloaded_toy_dataset: CCDataset, data_dir: Path, converter: type[PDFConverter]):
     downloaded_toy_dataset.convert_all_pdfs(converter=converter)
 
