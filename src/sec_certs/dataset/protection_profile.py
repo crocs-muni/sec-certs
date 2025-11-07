@@ -275,27 +275,29 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     @staticmethod
     def _convert_pdf_batch(
-        certs: list[ProtectionProfile], doc_type: Literal["report", "pp"], converter_type: type[PDFConverter]
+        certs: list[ProtectionProfile], doc_type: Literal["report", "pp"], converter: type[PDFConverter]
     ) -> list[ProtectionProfile]:
-        converter = converter_type()
+        converter_instance = converter()
         for cert in certs:
-            ProtectionProfile._convert_pdf(cert, doc_type, converter)
+            ProtectionProfile._convert_pdf(cert, doc_type, converter_instance)
 
         return certs
 
     @staticmethod
     def _convert_reports_pdf_batch(
-        certs: list[ProtectionProfile], converter_type: type[PDFConverter]
+        certs: list[ProtectionProfile], converter: type[PDFConverter]
     ) -> list[ProtectionProfile]:
-        return ProtectionProfileDataset._convert_pdf_batch(certs, "report", converter_type)
+        return ProtectionProfileDataset._convert_pdf_batch(certs, "report", converter)
 
     @staticmethod
     def _convert_pps_pdf_batch(
-        certs: list[ProtectionProfile], converter_type: type[PDFConverter]
+        certs: list[ProtectionProfile], converter: type[PDFConverter]
     ) -> list[ProtectionProfile]:
-        return ProtectionProfileDataset._convert_pdf_batch(certs, "pp", converter_type)
+        return ProtectionProfileDataset._convert_pdf_batch(certs, "pp", converter)
 
-    def _convert_pdfs(self, doc_type: Literal["report", "pp"], fresh: bool = True) -> None:
+    def _convert_pdfs(
+        self, doc_type: Literal["report", "pp"], converter: type[PDFConverter], fresh: bool = True
+    ) -> None:
         long_name_map = {
             "report": "PP certification report",
             "pp": "Protection Profile",
@@ -317,7 +319,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             )
 
         convert_func = getattr(ProtectionProfileDataset, f"_convert_{doc_type}s_pdf_batch")
-        convert_func = partial(convert_func, converter_type=config.pdf_converter)
+        convert_func = partial(convert_func, converter=converter)
         processed_certs = cert_processing.process_parallel(
             convert_func,
             certs_to_process,
@@ -330,18 +332,18 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         self.update_with_certs(processed_certs)
 
     @staged(logger, "Converting PDFs of PP certification reports.")
-    def _convert_reports_pdfs(self, fresh: bool = True):
-        self._convert_pdfs("report", fresh)
+    def _convert_reports_pdfs(self, converter: type[PDFConverter], fresh: bool = True):
+        self._convert_pdfs("report", converter, fresh)
 
     @staged(logger, "Converting PDFs of actual Protection Profiles.")
-    def _convert_pps_pdfs(self, fresh: bool = True):
-        self._convert_pdfs("pp", fresh)
+    def _convert_pps_pdfs(self, converter: type[PDFConverter], fresh: bool = True):
+        self._convert_pdfs("pp", converter, fresh)
 
-    def _convert_all_pdfs_body(self, fresh=True):
-        self._convert_reports_pdfs(fresh)
-        self._convert_pps_pdfs(fresh)
+    def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True):
+        self._convert_reports_pdfs(converter, fresh)
+        self._convert_pps_pdfs(converter, fresh)
 
-    def _download_all_artifacts_body(self, fresh=True):
+    def _download_all_artifacts_body(self, fresh: bool = True):
         self._download_reports(fresh)
         self._download_pps(fresh)
 

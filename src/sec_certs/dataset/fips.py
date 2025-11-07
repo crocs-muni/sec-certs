@@ -201,16 +201,16 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @staticmethod
     def _convert_policies_pdf_batch(
-        certs: list[FIPSCertificate], converter_type: type[PDFConverter]
+        certs: list[FIPSCertificate], converter: type[PDFConverter]
     ) -> list[FIPSCertificate]:
-        converter = converter_type()
+        converter_instance = converter()
         for cert in certs:
-            FIPSCertificate.convert_policy_pdf(cert, converter)
+            FIPSCertificate.convert_policy_pdf(cert, converter_instance)
 
         return certs
 
     @staged(logger, "Converting PDFs of FIPS security policies.")
-    def _convert_policies_pdfs(self, fresh: bool = True) -> None:
+    def _convert_policies_pdfs(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         self.policies_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
@@ -223,7 +223,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        convert_func = partial(FIPSDataset._convert_policies_pdf_batch, converter_type=config.pdf_converter)
+        convert_func = partial(FIPSDataset._convert_policies_pdf_batch, converter=converter)
         processed_certs = cert_processing.process_parallel(
             convert_func,
             certs_to_process,
@@ -235,8 +235,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed_certs)
 
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_policies_pdfs(fresh)
+    def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
+        self._convert_policies_pdfs(converter, fresh)
 
     def _download_html_resources(self) -> None:
         logger.info("Downloading HTML files that list FIPS certificates.")
