@@ -17,7 +17,7 @@ from docling_core.types.doc import ContentLayer, ImageRefMode
 from sec_certs.converter import PDFConverter
 
 logger = logging.getLogger(__name__)
-logging.getLogger("docling").setLevel(logging.WARNING)
+logging.getLogger("docling").setLevel(logging.ERROR)
 
 
 class DoclingConverter(PDFConverter):
@@ -101,9 +101,10 @@ class DoclingConverter(PDFConverter):
             conv_res = self.doc_converter.convert(pdf_path)
 
             if conv_res.status == ConversionStatus.PARTIAL_SUCCESS:
-                logger.warning(f"Document {pdf_path} was partially converted with the following errors:")
+                logger.warning(f"Document {pdf_path} was partially converted")
+                logger.debug("With following errors:")
                 for item in conv_res.errors:
-                    logger.warning(f"\t{item.error_message}")
+                    logger.debug(f"\t{item.error_message}")
 
             if json_path is not None:
                 conv_res.document.save_as_json(json_path, image_mode=ImageRefMode.PLACEHOLDER)
