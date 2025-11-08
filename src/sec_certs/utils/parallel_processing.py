@@ -10,7 +10,7 @@ from sec_certs.configuration import config
 from sec_certs.utils.tqdm import tqdm
 
 
-def get_batches(items: list, max_workers: int, min_batch_size: int) -> tuple[list[list], list]:
+def get_batches(items: list, max_workers: int, min_batch_size: int) -> tuple[list[list], list[int]]:
     max_batches = max(1, len(items) // min_batch_size)
     actual_workers = min(max_batches, max_workers)
     batch_size = len(items) // actual_workers
@@ -44,6 +44,7 @@ def process_parallel(
         max_workers = cpu_count()
 
     actual_workers = max_workers
+    batch_sizes: list[int] = []
     if batching:
         assert min_batch_size > 1
         unpack = False
