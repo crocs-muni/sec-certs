@@ -3,7 +3,7 @@
 {% set canonical = True %}
 {% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
 {% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
-{% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
+{% from "cc/include.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
 {% from "include/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% block metadata %}
     <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
