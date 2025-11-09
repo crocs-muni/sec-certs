@@ -1,7 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 
 {% set canonical = True %}
-{% from "common/entry.html.jinja2" import render_cve_impact, render_cve_links %}
+{% from "include/entry.html.jinja2" import render_cve_impact, render_cve_links %}
 {% block title %}
     <title>
         {{ cve["_id"] }}

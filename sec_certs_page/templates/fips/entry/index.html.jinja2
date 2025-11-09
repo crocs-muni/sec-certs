@@ -1,10 +1,10 @@
 {% extends "common/base.html.jinja2" %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
-{% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
+{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
+{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "fips/utils.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "common/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
+{% from "include/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% block title %}
     <title>
         {{ cert|fips_name|default("", true) + " | sec-certs.org" }}

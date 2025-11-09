@@ -1,9 +1,9 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
-{% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
+{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
+{% from "include/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_status, render_sars, render_sfrs, render_category %}
-{% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
+{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
 
 {% block title %}
     <title>

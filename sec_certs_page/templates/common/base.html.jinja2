@@ -1,4 +1,4 @@
-{% from "common/modals.html.jinja2" import compare_modal, modal_script with context %}
+{% from "include/modals.html.jinja2" import compare_modal, modal_script with context %}
 <!doctype html>
 <html lang="en">
 
@@ -426,7 +426,7 @@
                 {% endblock %}
                 {{ modal_script() }}
 
-                {% include "common/feedback.html.jinja2" %}
+                {% include "include/feedback.html.jinja2" %}
 
             </footer>
         </div>
