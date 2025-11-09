@@ -5,6 +5,7 @@
 {% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "fips/include.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
 {% from "include/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
+{% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
 {% block title %}
     <title>
         {{ cert|fips_name|default("", true) + " | sec-certs.org" }}
@@ -60,12 +61,7 @@
 
 
                 {% if cves %}
-                    <div class="alert alert-warning mt-4">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        This certificate has known related <a href="#cves" class="alert-link">CVEs</a>, which means that
-                        the
-                        certified product might be vulnerable.
-                    </div>
+                    {{ certificate_vuln_note() }}
                 {% endif %}
 
 
@@ -267,6 +263,8 @@
                     <h2 class="anchor" id="heuristics-info">Heuristics</h2>
                     {% if not cpes and not cves %}
                         <p>No heuristics are available for this certificate.</p>
+                    {% else %}
+                        {{ certificate_note() }}
                     {% endif %}
                     {% if cpes %}
                         <div data-cs-name="CPE matches">

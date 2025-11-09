@@ -1,5 +1,6 @@
 {% extends "common/base.html.jinja2" %}
 
+{% from "include/legal.html.jinja2" import cpe_note %}
 {% set canonical = True %}
 {% block title %}
     <title>
@@ -117,8 +118,7 @@
                               title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
                     </h2>
                     {% if cc_certs or fips_certs %}
-                        <p>Note that this currently lists only certificates matched to the CPE, it does not
-                            include certificates that directly or indirectly reference the matched certificate.</p>
+                        {{ cpe_note() }}
                     {% endif %}
 
                     {% if cc_certs %}
