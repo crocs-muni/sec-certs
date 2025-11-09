@@ -229,7 +229,7 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
 
             if not github_email:
                 # Try to get email from user's public emails
-                email_resp = github.get("/user/emails")
+                email_resp = github.get("/user/email")
                 if email_resp.ok:
                     emails = email_resp.json()
                     primary_email = next((e for e in emails if e["primary"]), None)
