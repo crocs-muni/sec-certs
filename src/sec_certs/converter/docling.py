@@ -118,6 +118,9 @@ class DoclingConverter(PDFConverter):
         except ConversionError as e:
             logger.error(f"Conversion failed for {pdf_path}: {e}")
             return False
+        except Exception:
+            logger.error(f"Unexpected error during conversion of {pdf_path}", exc_info=True)
+            return False
 
         return True
 
