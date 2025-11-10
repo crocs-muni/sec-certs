@@ -43,7 +43,11 @@
 {%- endmacro %}
 
 {% macro render_pdf_meta(pdf_meta, title) %}
-    <table>
+    <table class="w-100">
+        <colgroup>
+            <col style="width:20%">
+            <col style="width:80%">
+        </colgroup>
         <tbody>
         {{ opt_line("Title", "/Title", pdf_meta, title) }}
         {{ opt_line("Subject", "/Subject", pdf_meta, title) }}
@@ -79,9 +83,6 @@
         <a href="https://www.cve.org/CVERecord?id={{ cve["cve_id"] }}"
            target="_blank" rel="noopener" title="CVE at cve.org"
            class="btn btn-outline-secondary btn-sm">{% if full %}cve.org{% else %}C{% endif %}</a>
-        <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cve["cve_id"] }}"
-           target="_blank" rel="noopener" title="CVE at cve.mitre.org"
-           class="btn btn-outline-secondary btn-sm">{% if full %}cve.mitre.org{% else %}M{% endif %}</a>
         <a href="https://nvd.nist.gov/vuln/detail/{{ cve["cve_id"] }}" target="_blank"
            rel="noopener" title="CVE in NIST's Vulnerability Database"
            class="btn btn-outline-secondary btn-sm">{% if full %}nvd.nist.gov{% else %}N{% endif %}</a>
@@ -89,7 +90,7 @@
 {% endmacro %}
 
 {% macro render_cves(cves) %}
-    <div class="my-2">
+    <div class="my-1">
         <table class="table table-striped">
             <colgroup>
                 <col style="width:15%">
@@ -105,7 +106,7 @@
                 <th scope="col" colspan="1" rowspan="2">ID</th>
                 <th scope="col" colspan="1" rowspan="2">Links</th>
                 <th scope="col" colspan="1" rowspan="2">Severity</th>
-                <th scope="col" colspan="3">CVSS Score</th>
+                <th scope="col" colspan="3" class="text-center pb-0">CVSS Score</th>
                 <th scope="col" colspan="1" rowspan="2">Published on</th>
             </tr>
             <tr>
@@ -132,7 +133,7 @@
                     <td>{{ cve["impact"]["base_score"] }}</td>
                     <td>{{ cve["impact"]["explotability_score"] }}</td>
                     <td>{{ cve["impact"]["impact_score"] }}</td>
-                    <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
+                    <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y") }}</td>
 
                 </tr>
                 {% set years.cve = years.current %}
@@ -292,4 +293,65 @@
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "standard_id",
 																  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
+{%- endmacro %}
+
+{% macro render_updates(doc_name, diffs, diff_jsons, diff_renders) %}
+    <ul class="list-unstyled" role="list" aria-label="Change history">
+        {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
+            {# Use the db id to generate stable unique IDs for collapse panels #}
+            {% set panel_id = "diff-data-" ~ diff["_id"] %}
+            <li class="my-3" id="diff-{{ diff['_id'] }}">
+                <div class="row g-2 align-items-start">
+                    <div class="col-12 col-md-2">
+                        <time datetime="{{ diff['timestamp']|strftime('%Y-%m-%d') }}"
+                              title="{{ diff['timestamp']|strftime('%d.%m.%Y') }}"
+                              class="fw-bold d-block">
+                            {{ diff["timestamp"] | strftime("%d.%m.%Y") }}
+                        </time>
+                    </div>
+
+                    <div class="col-12 col-md-8">
+                        <div class="d-flex align-items-start gap-2">
+                            {% if diff["type"] == "new" %}
+                                <span class="badge bg-success" aria-hidden="true">New</span>
+                                <div>The {{ doc_name }} was first processed.</div>
+                            {% elif diff["type"] == "change" %}
+                                <span class="badge bg-primary" aria-hidden="true">Changed</span>
+                                <div>The {{ doc_name }} data changed.</div>
+                            {% elif diff["type"] == "remove" %}
+                                <span class="badge bg-warning text-dark"
+                                      aria-hidden="true">Unavailable</span>
+                                <div>The {{ doc_name }} became unavailable — it disappeared from the
+                                    upstream listing.
+                                </div>
+                            {% elif diff["type"] == "back" %}
+                                <span class="badge bg-info text-dark" aria-hidden="true">Back</span>
+                                <div>The {{ doc_name }} became available again.</div>
+                            {% else %}
+                                <div>The {{ doc_name }} was updated.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-2 d-flex justify-content-md-end align-items-start">
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm toggle-diff"
+                                aria-controls="{{ panel_id }}"
+                                aria-expanded="false"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#{{ panel_id }}"
+                                title="Show changes">
+                            <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
+                            <span class="ms-1">Show diff</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="{{ panel_id }}" class="collapse mt-2" aria-hidden="true">
+                        {{ diff_render|safe }}
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
 {%- endmacro %}
