@@ -224,13 +224,13 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             )
 
         convert_func = partial(FIPSDataset._convert_policies_pdf_batch, converter=converter)
-        processed_certs = cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel_batches(
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
-            True,
             config.pdf_conversion_min_batch_size,
             use_threading=False,
+            use_spawn=True,
             progress_bar_desc="Converting PDFs of FIPS security policies",
         )
         self.update_with_certs(processed_certs)

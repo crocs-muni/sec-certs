@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Iterable
-from multiprocessing import cpu_count
+from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
 from typing import Any
 
@@ -28,12 +28,54 @@ def get_batches(items: list, max_workers: int, min_batch_size: int) -> tuple[lis
     return batches, batch_sizes
 
 
+def process_parallel_batches(
+    func: Callable,
+    items: Iterable,
+    max_workers: int = config.n_threads,
+    min_batch_size: int = 4,
+    callback: Callable | None = None,
+    use_threading: bool = True,
+    use_spawn: bool = False,
+    progress_bar: bool = True,
+    progress_bar_desc: str | None = None,
+) -> list[Any]:
+    assert min_batch_size > 1
+    batch_sizes: list[int] = []
+    batches, batch_sizes = get_batches(list(items), max_workers, min_batch_size)
+    actual_workers = len(batches)
+
+    if use_threading:
+        pool: Pool | ThreadPool = ThreadPool(actual_workers)
+    elif use_spawn:
+        ctx = get_context("spawn")
+        pool = ctx.Pool(actual_workers)
+    else:
+        pool = Pool(actual_workers)
+
+    results = [pool.apply_async(func, (i,), callback=callback) for i in batches]
+
+    if progress_bar is True and items:
+        total = sum(batch_sizes)
+        bar = tqdm(total=total, desc=progress_bar_desc)
+        while not all(all_done := [x.ready() for x in results]):
+            done_count = sum(batch_sizes[i] for i, ready in enumerate(all_done) if ready)
+            bar.update(done_count - bar.n)
+            time.sleep(1)
+
+        bar.update(total - bar.n)
+        bar.close()
+
+    flattened = []
+    for batch in results:
+        if (batch_result := batch.get()) is not None:
+            flattened.extend(batch_result)
+    return flattened
+
+
 def process_parallel(
     func: Callable,
     items: Iterable,
     max_workers: int = config.n_threads,
-    batching: bool = False,
-    min_batch_size: int = 4,
     callback: Callable | None = None,
     use_threading: bool = True,
     progress_bar: bool = True,
@@ -43,16 +85,7 @@ def process_parallel(
     if max_workers == -1:
         max_workers = cpu_count()
 
-    actual_workers = max_workers
-    batch_sizes: list[int] = []
-    if batching:
-        assert min_batch_size > 1
-        unpack = False
-        batches, batch_sizes = get_batches(list(items), max_workers, min_batch_size)
-        actual_workers = len(batches)
-        items = batches
-
-    pool: Pool | ThreadPool = ThreadPool(actual_workers) if use_threading else Pool(actual_workers)
+    pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = (
         [pool.apply_async(func, (*i,), callback=callback) for i in items]
         if unpack
@@ -60,28 +93,16 @@ def process_parallel(
     )
 
     if progress_bar is True and items:
-        total = sum(batch_sizes) if batching else len(results)
-        bar = tqdm(total=total, desc=progress_bar_desc)
+        bar = tqdm(total=len(results), desc=progress_bar_desc)
         while not all(all_done := [x.ready() for x in results]):
-            if batching:
-                done_count = sum(batch_sizes[i] for i, ready in enumerate(all_done) if ready)
-            else:
-                done_count = len(list(filter(lambda x: x, all_done)))
+            done_count = len(list(filter(lambda x: x, all_done)))
             bar.update(done_count - bar.n)
             time.sleep(1)
-
-        bar.update(total - bar.n)
+        bar.update(len(results) - bar.n)
         bar.close()
 
     pool.close()
     pool.join()
     pool.terminate()
 
-    if batching:
-        flattened = []
-        for batch in results:
-            if (batch_result := batch.get()) is not None:
-                flattened.extend(batch_result)
-        return flattened
-    else:
-        return [r.get() for r in results]
+    return [r.get() for r in results]

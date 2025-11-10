@@ -320,13 +320,13 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         convert_func = getattr(ProtectionProfileDataset, f"_convert_{doc_type}s_pdf_batch")
         convert_func = partial(convert_func, converter=converter)
-        processed_certs = cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel_batches(
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
-            True,
             config.pdf_conversion_min_batch_size,
             use_threading=False,
+            use_spawn=True,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
         self.update_with_certs(processed_certs)
