@@ -25,7 +25,7 @@ class RegisterForm(FlaskForm):
     password_confirm = PasswordField(
         "confirm_password", [validators.DataRequired(), validators.EqualTo("password", message="Passwords must match")]
     )
-    turnstile = StringField("cf-turnstile-response")
+    turnstile = StringField(name="cf-turnstile-response")
 
 
 class PasswordResetRequestForm(FlaskForm):
