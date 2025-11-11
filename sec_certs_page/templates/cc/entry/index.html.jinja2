@@ -367,7 +367,7 @@
                                 {% for other in previous %}
                                     <tr>
                                         <td>
-                                            <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] }}</a>
+                                            <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                                             {% if other["name"] == cert["name"] and cert["name"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
                                                       title="Certificate name matches exactly."
@@ -397,7 +397,7 @@
                                 {% for other in next %}
                                     <tr>
                                         <td>
-                                            <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] }}</a>
+                                            <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                                             {% if other["name"] == cert["name"] and cert["name"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
                                                       title="Certificate name matches exactly."
@@ -427,6 +427,11 @@
                         <div data-cs-name="Similar certificates" class="my-3 pt-2">
                             <h4 class="anchor" id="similar">Similar certificates</h4>
                             <table class="table table-striped my-2">
+                                <colgroup>
+                                    <col style="width: 80%"/>
+                                    <col style="width: 15%"/>
+                                    <col style="width: 5%"/>
+                                </colgroup>
                                 <thead>
                                 <tr>
                                     <th scope="col">Name</th>
@@ -437,8 +442,9 @@
                                 {% for similar_cert in similar %}
                                     <tr {% if similar|length > 5 and loop.index0 >= 5 %}
                                         class="collapse similarity-collapse" {% endif %}>
-                                        <td>
-                                            <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}">{{ similar_cert["name"] }}</a>
+                                        <td style="max-width: 70%">
+                                            <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}"
+                                               title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
                                             {% if similar_cert["name"] == cert["name"] and cert["name"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
                                                       title="Certificate name matches exactly."
