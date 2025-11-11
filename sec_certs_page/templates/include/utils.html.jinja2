@@ -22,9 +22,9 @@
     {% if not download_ok or not convert_ok or not extract_ok %}
         <div class="alert alert-warning" style="display: inline-block;">
             <span><span class="fst-italic text-capitalize">{{ document_name }}</span> file processing did not finish successfully.</span>
-            <a data-bs-toggle="collapse" href="#processing-failed-detail" role="button" aria-expanded="false"
-               aria-controls="processing-failed-detail">Show more...</a>
-            <div class="collapse" id="processing-failed-detail">
+            <a data-bs-toggle="collapse" href="#processing-failed-detail-{{ document_type }}" role="button" aria-expanded="false"
+               aria-controls="processing-failed-detail-{{ document_type }}">Show more...</a>
+            <div class="collapse" id="processing-failed-detail-{{ document_type }}">
                 <div>
                     <span>Download pdf: </span>
                     <span class="{% if download_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(download_ok) }}</span>

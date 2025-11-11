@@ -1,4 +1,4 @@
-{% from "common/entry.html.jinja2" import keywords_card %}
+{% from "include/entry.html.jinja2" import keywords_card %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "symmetric_crypto",

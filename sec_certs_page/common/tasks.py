@@ -490,11 +490,13 @@ class Notifier(DiffRenderer):
                 # Nothing to send, due to only "vuln" subscription and non-vuln diffs
                 continue
             # Render diffs into body template
+            subject = f"Certificate changes from {run_date} | sec-certs.org"
             email_core_html = render_template(
                 "notifications/email/notification_email.html.jinja2",
                 cards=cards,
                 changes=some_changes,
                 new=some_new,
+                subject=subject,
             )
             # Filter out unused CSS rules
             cleaned_css = filter_css(bootstrap_parsed, email_core_html)
@@ -510,12 +512,11 @@ class Notifier(DiffRenderer):
                 urls=urls,
                 changes=some_changes,
                 new=some_new,
+                subject=subject,
             )
             user = User.get(username=username)
             # Send out the message
-            msg = Message(
-                f"Certificate changes from {run_date} | sec-certs.org", [user.email], body=email_plain, html=email_html
-            )
+            msg = Message(subject, [user.email], body=email_plain, html=email_html)
             mail.send(msg)
 
 

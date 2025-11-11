@@ -1,7 +1,8 @@
 {% extends "common/base.html.jinja2" %}
 
 {% set canonical = True %}
-{% from "common/entry.html.jinja2" import render_cve_impact, render_cve_links %}
+{% from "include/entry.html.jinja2" import render_cve_impact, render_cve_links %}
+{% from "include/legal.html.jinja2" import cve_note %}
 {% block title %}
     <title>
         {{ cve["_id"] }}
@@ -34,12 +35,7 @@
 
                 <div class="row pt-5">
                     <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="data">Data
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary"
-                                  data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information extracted from CVE data from MITRE and NIST's NVD.">?</span>
-                        </h2>
+                        <h2 class="anchor" id="data">Data</h2>
                         <table class="table table-sm table-borderless w-auto">
                             <colgroup>
                                 <col style="width: 30%"/>
@@ -63,12 +59,7 @@
                         {{ render_cve_links(cve,full=True) }}
                     </div>
                     <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="vulnerable-cpes">Vulnerable configurations
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary"
-                                  data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information automatically extracted from NIST's NVD.">?</span>
-                        </h2>
+                        <h2 class="anchor" id="vulnerable-cpes">Vulnerable configurations</h2>
                         {% if vuln_configs %}
                             {% set configs = namespace(shown=0,rendered=False) %}
                             <ul data-cs-name="Vulnerable configurations">
@@ -140,16 +131,9 @@
         <div class="row bg-dark p-3">
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
                 <div class="mb-3">
-                    <h2 class="anchor" id="vulnerable-certs">Vulnerable certificates
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
-                    </h2>
+                    <h2 class="anchor" id="vulnerable-certs">Vulnerable certificates</h2>
                     {% if cc_certs or fips_certs %}
-                        <p>The CVE was matched to the following certificates. This means the vulnerability likely
-                            affects
-                            said certified devices. However,
-                            this is an automated process that may have false positives and negatives.</p>
+                        {{ cve_note() }}
                     {% endif %}
 
                     {% if cc_certs %}
