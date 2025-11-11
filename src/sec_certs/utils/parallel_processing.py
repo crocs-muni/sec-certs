@@ -13,18 +13,18 @@ from sec_certs.utils.tqdm import tqdm
 _worker_instance: Any = None
 
 
-def _init_worker_instance(instance_cls: type, instance_args: tuple):
+def _init_worker_instance(instance_cls: type, instance_args: tuple) -> None:
     global _worker_instance
     _worker_instance = instance_cls(*instance_args)
 
 
-def _get_worker_instance():
+def _get_worker_instance() -> Any:
     if _worker_instance is None:
         raise RuntimeError("Worker instance not initialized")
     return _worker_instance
 
 
-def _worker_wrapper(item, func):
+def _worker_wrapper(item, func) -> Any:
     instance = _get_worker_instance()
     return func(item, instance)
 
@@ -43,7 +43,7 @@ def process_parallel_with_instance(
     ctx = get_context("spawn")
     pool = ctx.Pool(max_workers, initializer=_init_worker_instance, initargs=(instance_cls, instance_args))
     result = []
-    with pool as pool:
+    with pool:
         wrapper = partial(_worker_wrapper, func=func)
         iterator = pool.imap_unordered(wrapper, items)
         for processed in tqdm(iterator, total=len(items), desc=progress_bar_desc):
