@@ -155,6 +155,17 @@
     </div>
 {%- endmacro %}
 
+{% macro render_cpes(cert, cpes) %}
+    <ul>
+        {% for cpe in cpes %}
+            <li><a href="{{ url_for("vuln.cpe", cpe_id=cpe["uri"]) }}">{{ cpe["uri"] }}</a>
+                {% if cert["heuristics"]["verified_cpe_matches"] and cpe["uri"] in cert["heuristics"]["verified_cpe_matches"] %}
+                    <i class="fas fa-check-square text-success" title="Verified"></i>{% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{%- endmacro %}
+
 {% macro render_references(network, hashid, type, status_func=None) %}
     {% if network and hashid in network.nodes %}
         {% set refs = namespace(outgoing=False, incoming=False) %}
