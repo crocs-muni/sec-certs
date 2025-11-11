@@ -49,6 +49,11 @@ def process_parallel_with_instance(
         for processed in tqdm(iterator, total=len(items), desc=progress_bar_desc):
             result.append(processed)
 
+        # Without this, coverage doesn't work, because Pool.__exit__ calls terminate()
+        # and workers don't have time to save their coverage data.
+        pool.close()
+        pool.join()
+
     return result
 
 
