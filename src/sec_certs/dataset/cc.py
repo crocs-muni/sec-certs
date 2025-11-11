@@ -4,7 +4,6 @@ import locale
 import shutil
 from collections.abc import Iterator
 from datetime import datetime
-from functools import partial
 from pathlib import Path
 from typing import ClassVar, Literal, cast
 
@@ -681,28 +680,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs of CC certificates",
         )
 
-    @staticmethod
-    def _convert_pdf_batch(
-        certs: list[CCCertificate], doc_type: Literal["report", "st", "cert"], converter: type[PDFConverter]
-    ) -> list[CCCertificate]:
-        converter_instance = converter()
-        for cert in certs:
-            CCCertificate._convert_pdf(cert, doc_type, converter_instance)
-
-        return certs
-
-    @staticmethod
-    def _convert_reports_pdf_batch(certs: list[CCCertificate], converter: type[PDFConverter]) -> list[CCCertificate]:
-        return CCDataset._convert_pdf_batch(certs, "report", converter)
-
-    @staticmethod
-    def _convert_sts_pdf_batch(certs: list[CCCertificate], converter: type[PDFConverter]) -> list[CCCertificate]:
-        return CCDataset._convert_pdf_batch(certs, "st", converter)
-
-    @staticmethod
-    def _convert_certs_pdf_batch(certs: list[CCCertificate], converter: type[PDFConverter]) -> list[CCCertificate]:
-        return CCDataset._convert_pdf_batch(certs, "cert", converter)
-
     def _convert_pdfs(
         self, doc_type: Literal["report", "target", "certificate"], converter: type[PDFConverter], fresh: bool = True
     ) -> None:
@@ -728,18 +705,17 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
             )
 
-        convert_func = getattr(CCDataset, f"_convert_{short_name}s_pdf_batch")
-        convert_func = partial(convert_func, converter=converter)
-        processed_certs = cert_processing.process_parallel_batches(
+        convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
+        processed_iterator = cert_processing.process_parallel_with_instance(
+            converter,
+            (),
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
-            config.pdf_conversion_min_batch_size,
-            use_threading=False,
-            use_spawn=True,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
-        self.update_with_certs(processed_certs)
+        for processed in processed_iterator:
+            self.update_with_certs([processed])
 
     @staged(logger, "Converting PDFs of certification reports.")
     def _convert_reports_pdfs(self, converter: type[PDFConverter], fresh: bool = True) -> None:

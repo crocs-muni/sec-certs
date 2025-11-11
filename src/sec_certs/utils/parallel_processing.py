@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Collection, Generator, Iterable
+from functools import partial
 from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
 from typing import Any
@@ -9,67 +10,42 @@ from typing import Any
 from sec_certs.configuration import config
 from sec_certs.utils.tqdm import tqdm
 
-
-def get_batches(items: list, max_workers: int, min_batch_size: int) -> tuple[list[list], list[int]]:
-    max_batches = max(1, len(items) // min_batch_size)
-    actual_workers = min(max_batches, max_workers)
-    batch_size = len(items) // actual_workers
-    remainder = len(items) % actual_workers
-
-    batches = []
-    batch_sizes = []
-    start = 0
-    for i in range(actual_workers):
-        size = batch_size + (1 if i < remainder else 0)
-        batches.append(items[start : start + size])
-        batch_sizes.append(size)
-        start += size
-
-    return batches, batch_sizes
+_worker_instance: Any = None
 
 
-def process_parallel_batches(
+def _init_worker_instance(instance_cls: type, instance_args: tuple):
+    global _worker_instance
+    _worker_instance = instance_cls(*instance_args)
+
+
+def _get_worker_instance():
+    if _worker_instance is None:
+        raise RuntimeError("Worker instance not initialized")
+    return _worker_instance
+
+
+def _worker_wrapper(item, func):
+    instance = _get_worker_instance()
+    return func(item, instance)
+
+
+def process_parallel_with_instance(
+    instance_cls: type,
+    instance_args: tuple,
     func: Callable,
-    items: Iterable,
+    items: Collection,
     max_workers: int = config.n_threads,
-    min_batch_size: int = 4,
-    callback: Callable | None = None,
-    use_threading: bool = True,
-    use_spawn: bool = False,
-    progress_bar: bool = True,
     progress_bar_desc: str | None = None,
-) -> list[Any]:
-    assert min_batch_size > 1
-    batch_sizes: list[int] = []
-    batches, batch_sizes = get_batches(list(items), max_workers, min_batch_size)
-    actual_workers = len(batches)
+) -> Generator[Any, None, None]:
+    if max_workers == -1:
+        max_workers = cpu_count()
 
-    if use_threading:
-        pool: Pool | ThreadPool = ThreadPool(actual_workers)
-    elif use_spawn:
-        ctx = get_context("spawn")
-        pool = ctx.Pool(actual_workers)
-    else:
-        pool = Pool(actual_workers)
-
-    results = [pool.apply_async(func, (i,), callback=callback) for i in batches]
-
-    if progress_bar is True and items:
-        total = sum(batch_sizes)
-        bar = tqdm(total=total, desc=progress_bar_desc)
-        while not all(all_done := [x.ready() for x in results]):
-            done_count = sum(batch_sizes[i] for i, ready in enumerate(all_done) if ready)
-            bar.update(done_count - bar.n)
-            time.sleep(1)
-
-        bar.update(total - bar.n)
-        bar.close()
-
-    flattened = []
-    for batch in results:
-        if (batch_result := batch.get()) is not None:
-            flattened.extend(batch_result)
-    return flattened
+    ctx = get_context("spawn")
+    pool = ctx.Pool(max_workers, initializer=_init_worker_instance, initargs=(instance_cls, instance_args))
+    with pool as pool:
+        wrapper = partial(_worker_wrapper, func=func)
+        iterator = pool.imap_unordered(wrapper, items)
+        yield from tqdm(iterator, total=len(items), desc=progress_bar_desc)
 
 
 def process_parallel(

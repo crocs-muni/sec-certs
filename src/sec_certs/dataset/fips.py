@@ -3,7 +3,6 @@ from __future__ import annotations
 import itertools
 import logging
 import shutil
-from functools import partial
 from pathlib import Path
 from typing import ClassVar, Final
 
@@ -199,16 +198,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDF security policies",
         )
 
-    @staticmethod
-    def _convert_policies_pdf_batch(
-        certs: list[FIPSCertificate], converter: type[PDFConverter]
-    ) -> list[FIPSCertificate]:
-        converter_instance = converter()
-        for cert in certs:
-            FIPSCertificate.convert_policy_pdf(cert, converter_instance)
-
-        return certs
-
     @staged(logger, "Converting PDFs of FIPS security policies.")
     def _convert_policies_pdfs(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
@@ -223,17 +212,17 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        convert_func = partial(FIPSDataset._convert_policies_pdf_batch, converter=converter)
-        processed_certs = cert_processing.process_parallel_batches(
-            convert_func,
+        processed_iterator = cert_processing.process_parallel_with_instance(
+            converter,
+            (),
+            FIPSCertificate.convert_policy_pdf,
             certs_to_process,
             config.pdf_conversion_workers,
-            config.pdf_conversion_min_batch_size,
-            use_threading=False,
-            use_spawn=True,
             progress_bar_desc="Converting PDFs of FIPS security policies",
         )
-        self.update_with_certs(processed_certs)
+
+        for processed in processed_iterator:
+            self.update_with_certs([processed])
 
     def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         self._convert_policies_pdfs(converter, fresh)

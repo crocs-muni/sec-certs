@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import shutil
-from functools import partial
 from pathlib import Path
 from typing import ClassVar, Literal
 
@@ -273,28 +272,6 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         return certs
 
-    @staticmethod
-    def _convert_pdf_batch(
-        certs: list[ProtectionProfile], doc_type: Literal["report", "pp"], converter: type[PDFConverter]
-    ) -> list[ProtectionProfile]:
-        converter_instance = converter()
-        for cert in certs:
-            ProtectionProfile._convert_pdf(cert, doc_type, converter_instance)
-
-        return certs
-
-    @staticmethod
-    def _convert_reports_pdf_batch(
-        certs: list[ProtectionProfile], converter: type[PDFConverter]
-    ) -> list[ProtectionProfile]:
-        return ProtectionProfileDataset._convert_pdf_batch(certs, "report", converter)
-
-    @staticmethod
-    def _convert_pps_pdf_batch(
-        certs: list[ProtectionProfile], converter: type[PDFConverter]
-    ) -> list[ProtectionProfile]:
-        return ProtectionProfileDataset._convert_pdf_batch(certs, "pp", converter)
-
     def _convert_pdfs(
         self, doc_type: Literal["report", "pp"], converter: type[PDFConverter], fresh: bool = True
     ) -> None:
@@ -318,18 +295,17 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
             )
 
-        convert_func = getattr(ProtectionProfileDataset, f"_convert_{doc_type}s_pdf_batch")
-        convert_func = partial(convert_func, converter=converter)
-        processed_certs = cert_processing.process_parallel_batches(
+        convert_func = getattr(ProtectionProfile, f"convert_{doc_type}_pdf")
+        processed_iterator = cert_processing.process_parallel_with_instance(
+            converter,
+            (),
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
-            config.pdf_conversion_min_batch_size,
-            use_threading=False,
-            use_spawn=True,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
-        self.update_with_certs(processed_certs)
+        for processed in processed_iterator:
+            self.update_with_certs([processed])
 
     @staged(logger, "Converting PDFs of PP certification reports.")
     def _convert_reports_pdfs(self, converter: type[PDFConverter], fresh: bool = True):
