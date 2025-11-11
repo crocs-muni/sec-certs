@@ -18,11 +18,6 @@ def changelog():
     return render_template("about/changelog.html.jinja2")
 
 
-@about.route("/methodology/")
-def methodology():
-    return render_template("about/methodology.html.jinja2")
-
-
 @about.route("/privacy-policy/")
 def privacy_policy():
     return render_template("about/privacy-policy.html.jinja2")
