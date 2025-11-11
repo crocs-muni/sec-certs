@@ -64,6 +64,10 @@
 
         $(function () {
             {% if config["CHAT_ENABLED"] %}
+                if (window.location.href.indexOf("#chat") !== -1) {
+                    let chatModal = new bootstrap.Modal(document.getElementById("chat-modal"));
+                    chatModal.show();
+                }
                 $("#chat-modal").on("show.bs.modal", async function () {
                     let token = "{{ csrf_token() }}";
                     let files_url = "{{ url_for("chat.files") }}"
