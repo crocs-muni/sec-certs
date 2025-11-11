@@ -273,7 +273,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         return certs
 
     def _convert_pdfs(
-        self, doc_type: Literal["report", "pp"], converter: type[PDFConverter], fresh: bool = True
+        self, doc_type: Literal["report", "pp"], converter_cls: type[PDFConverter], fresh: bool = True
     ) -> None:
         long_name_map = {
             "report": "PP certification report",
@@ -297,7 +297,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         convert_func = getattr(ProtectionProfile, f"convert_{doc_type}_pdf")
         processed_certs = cert_processing.process_parallel_with_instance(
-            converter,
+            converter_cls,
             (),
             convert_func,
             certs_to_process,
@@ -308,16 +308,16 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         self.update_with_certs(processed_certs)
 
     @staged(logger, "Converting PDFs of PP certification reports.")
-    def _convert_reports_pdfs(self, converter: type[PDFConverter], fresh: bool = True):
-        self._convert_pdfs("report", converter, fresh)
+    def _convert_reports_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True):
+        self._convert_pdfs("report", converter_cls, fresh)
 
     @staged(logger, "Converting PDFs of actual Protection Profiles.")
-    def _convert_pps_pdfs(self, converter: type[PDFConverter], fresh: bool = True):
-        self._convert_pdfs("pp", converter, fresh)
+    def _convert_pps_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True):
+        self._convert_pdfs("pp", converter_cls, fresh)
 
-    def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True):
-        self._convert_reports_pdfs(converter, fresh)
-        self._convert_pps_pdfs(converter, fresh)
+    def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True):
+        self._convert_reports_pdfs(converter_cls, fresh)
+        self._convert_pps_pdfs(converter_cls, fresh)
 
     def _download_all_artifacts_body(self, fresh: bool = True):
         self._download_reports(fresh)

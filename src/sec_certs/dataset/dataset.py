@@ -404,7 +404,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @serialize
     @only_backed()
-    def convert_all_pdfs(self, converter: type[PDFConverter] | None = None, fresh: bool = True) -> None:
+    def convert_all_pdfs(self, converter_cls: type[PDFConverter] | None = None, fresh: bool = True) -> None:
         """
         Converts all pdf artifacts to txt and json, given the certification scheme.
         """
@@ -413,8 +413,8 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             return
 
         logger.info("Converting all PDFs.")
-        converter = converter or config.pdf_converter
-        self._convert_all_pdfs_body(converter, fresh)
+        converter_cls = converter_cls or config.pdf_converter
+        self._convert_all_pdfs_body(converter_cls, fresh)
 
         self.state.pdfs_converted = True
 
