@@ -296,7 +296,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             )
 
         convert_func = getattr(ProtectionProfile, f"convert_{doc_type}_pdf")
-        processed_iterator = cert_processing.process_parallel_with_instance(
+        processed_certs = cert_processing.process_parallel_with_instance(
             converter,
             (),
             convert_func,
@@ -304,8 +304,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             config.pdf_conversion_workers,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
-        for processed in processed_iterator:
-            self.update_with_certs([processed])
+
+        self.update_with_certs(processed_certs)
 
     @staged(logger, "Converting PDFs of PP certification reports.")
     def _convert_reports_pdfs(self, converter: type[PDFConverter], fresh: bool = True):

@@ -212,7 +212,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        processed_iterator = cert_processing.process_parallel_with_instance(
+        processed_certs = cert_processing.process_parallel_with_instance(
             converter,
             (),
             FIPSCertificate.convert_policy_pdf,
@@ -221,8 +221,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Converting PDFs of FIPS security policies",
         )
 
-        for processed in processed_iterator:
-            self.update_with_certs([processed])
+        self.update_with_certs(processed_certs)
 
     def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         self._convert_policies_pdfs(converter, fresh)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Collection, Generator, Iterable
+from collections.abc import Callable, Collection, Iterable
 from functools import partial
 from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
@@ -36,16 +36,20 @@ def process_parallel_with_instance(
     items: Collection,
     max_workers: int = config.n_threads,
     progress_bar_desc: str | None = None,
-) -> Generator[Any, None, None]:
+) -> list[Any]:
     if max_workers == -1:
         max_workers = cpu_count()
 
     ctx = get_context("spawn")
     pool = ctx.Pool(max_workers, initializer=_init_worker_instance, initargs=(instance_cls, instance_args))
+    result = []
     with pool as pool:
         wrapper = partial(_worker_wrapper, func=func)
         iterator = pool.imap_unordered(wrapper, items)
-        yield from tqdm(iterator, total=len(items), desc=progress_bar_desc)
+        for processed in tqdm(iterator, total=len(items), desc=progress_bar_desc):
+            result.append(processed)
+
+    return result
 
 
 def process_parallel(
