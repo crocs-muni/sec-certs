@@ -34,12 +34,7 @@
 
                 <div class="row pt-5">
                     <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="data">Data
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary"
-                                  data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information extracted from CVE data from MITRE and NIST's NVD.">?</span>
-                        </h2>
+                        <h2 class="anchor" id="data">Data</h2>
                         <table class="table table-sm table-borderless w-auto">
                             <colgroup>
                                 <col style="width: 30%"/>
@@ -64,12 +59,7 @@
 
                     </div>
                     <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="linked-cves">Linked CVEs
-                            <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                  class="badge bg-secondary"
-                                  data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="Information automatically extracted from NIST's NVD.">?</span>
-                        </h2>
+                        <h2 class="anchor" id="linked-cves">Linked CVEs</h2>
                         {% if cves %}
                             {% set configs = namespace(shown=0,rendered=False) %}
                             <ul>
@@ -112,11 +102,7 @@
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
 
                 <div class="mb-3">
-                    <h2 class="anchor" id="matched-certs">Matched certificates
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                              class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
-                              title="Information from our heuristic matching between certificates and CPEs. Might contain false positives or negatives.">?</span>
-                    </h2>
+                    <h2 class="anchor" id="matched-certs">Matched certificates</h2>
                     {% if cc_certs or fips_certs %}
                         {{ cpe_note() }}
                     {% endif %}
