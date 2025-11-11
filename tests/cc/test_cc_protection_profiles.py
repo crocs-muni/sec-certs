@@ -134,7 +134,7 @@ def test_downloaded_pdf_hashes(downloaded_toy_dataset: ProtectionProfileDataset)
 def test_convert_pdfs(
     downloaded_toy_dataset: ProtectionProfileDataset, pp_data_dir: Path, converter: type[PDFConverter]
 ):
-    downloaded_toy_dataset.convert_all_pdfs(converter=converter)
+    downloaded_toy_dataset.convert_all_pdfs(converter_cls=converter)
 
     for cert in downloaded_toy_dataset:
         assert cert.state.report.convert_ok
