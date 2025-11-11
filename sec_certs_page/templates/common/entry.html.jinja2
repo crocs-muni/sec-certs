@@ -106,7 +106,9 @@
                 <th scope="col" colspan="1" rowspan="2">ID</th>
                 <th scope="col" colspan="1" rowspan="2">Links</th>
                 <th scope="col" colspan="1" rowspan="2">Severity</th>
-                <th scope="col" colspan="3" class="text-center pb-0"><abbr title="Common Vulnerability Scoring System">CVSS</abbr> Score</th>
+                <th scope="col" colspan="3" class="text-center pb-0"><abbr title="Common Vulnerability Scoring System">CVSS</abbr>
+                    Score
+                </th>
                 <th scope="col" colspan="1" rowspan="2">Published on</th>
             </tr>
             <tr>
@@ -219,6 +221,52 @@
                 </ul>
             {% endif %}
         {% endif %}
+    {% endif %}
+{%- endmacro %}
+
+{% macro render_reference_network(cert, network, hashid,
+                                  entry_graph_json=".entry_graph_json",
+                                  categories=".categories",
+                                  statuses=".statuses",
+                                  reference_types=".reference_types") %}
+    {% if "cert_id" in cert["heuristics"] and not cert["heuristics"]["cert_id"] %}
+        <p>No references are available for this certificate as its ID was not successfully
+            extracted.</p>
+    {% elif not network or network|length <= 1 %}
+        <p>No references are available for this certificate.</p>
+    {% else %}
+        <div class="border rounded">
+            <div id="network"></div>
+            <div id="network-skeleton" class="d-flex justify-content-center align-items-center">
+                <button id="show-network-btn" class="btn btn-primary">Click to load the graph of
+                    references
+                </button>
+                <div id="network-loading" class="d-none spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <script type="module">
+            import {createNetwork} from "/static/network.js?{{ static_hash("network.js") }}";
+
+            async function loadNetwork() {
+                return createNetwork('network',
+                    '{{ url_for(entry_graph_json, hashid=hashid)}}',
+                    '{{ url_for(categories) }}',
+                    '{{ url_for(statuses) }}',
+                    '{{ url_for(reference_types) }}',
+                    600,
+                    300,
+                    true);
+            }
+
+            document.getElementById("show-network-btn").onclick = async function () {
+                $("#network-loading").removeClass("d-none").addClass("d-block")
+                $("#show-network-btn").addClass("d-none")
+                await loadNetwork()
+                $("#network-skeleton").remove()
+            };
+        </script>
     {% endif %}
 {%- endmacro %}
 

@@ -4,7 +4,7 @@
 {% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
 {% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% block metadata %}
     <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
@@ -561,46 +561,7 @@
 
                 <div class="mt-5 mb-5" id="reference-graph">
                     <h2 class="anchor">References</h2>
-                    {% if not cert["heuristics"]["cert_id"] %}
-                        <p>No references are available for this certificate as its ID was not successfully
-                            extracted.</p>
-                    {% elif not network or network|length <= 1 %}
-                        <p>No references are available for this certificate.</p>
-                    {% else %}
-                        <div class="border rounded">
-                            <div id="network"></div>
-                            <div id="network-skeleton" class="d-flex justify-content-center align-items-center">
-                                <button id="show-network-btn" class="btn btn-primary">Click to load the graph of
-                                    references
-                                </button>
-                                <div id="network-loading" class="d-none spinner-border" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                        <script type="module">
-                            import {createNetwork} from "/static/network.js?{{ static_hash("network.js") }}";
-
-                            async function loadNetwork() {
-                                return createNetwork('network',
-                                    '{{ url_for(".entry_graph_json", hashid=hashid)}}',
-                                    '{{ url_for(".categories") }}',
-                                    '{{ url_for(".statuses") }}',
-                                    '{{ url_for(".reference_types") }}',
-                                    600,
-                                    300,
-                                    true);
-                            }
-
-                            document.getElementById("show-network-btn").onclick = async function () {
-                                $("#network-loading").removeClass("d-none").addClass("d-block")
-                                $("#show-network-btn").addClass("d-none")
-                                await loadNetwork()
-                                $("#network-skeleton").remove()
-                            };
-                        </script>
-
-                    {% endif %}
+                    {{ render_reference_network(cert, network, hashid) }}
                 </div>
 
                 <div id="updates" class="mt-5 mb-5">
