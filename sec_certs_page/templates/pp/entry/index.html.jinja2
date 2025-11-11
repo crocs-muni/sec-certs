@@ -1,7 +1,7 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
 {% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta, render_updates %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_eal, render_status, render_sars, render_sfrs, render_category %}
 {% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
 
@@ -152,7 +152,7 @@
                         {% endif %}
                         {% if profile["pdf_data"]["pp_metadata"] %}
                             <h3 class="mt-3">File metadata</h3>
-                            {{ render_pdf_meta(profile["pdf_data"]["pp_metadata"], "Security target") }}
+                            {{ render_pdf_meta(profile["pdf_data"]["pp_metadata"], "Protection profile") }}
                         {% endif %}
                     </div>
                 </div>
@@ -181,38 +181,16 @@
                 </div>
                 <div id="updates" class="mt-5 mb-5">
                     <h2 class="anchor">Updates
-
-                        <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
-                           style="vertical-align: middle" tabindex="0"
-                           class="btn btn-sm btn-outline-primary float-end"
-                           data-bs-toggle="tooltip" data-bs-placement="top"
-                           title="ATOM feed"><i class="fas fa-fw fa-feed" aria-hidden="true"></i><span
-                                class="visually-hidden">Feed</span></a>
+                        {{ render_update_feed_button(hashid) }}
                     </h2>
 
                     {{ render_updates("protection profile", diffs, diff_jsons, diff_renders) }}
                 </div>
                 <div id="raw-data-head" class="mt-5 mb-5">
                     <h2 class="anchor">Raw data
-                        <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
-                           style="vertical-align: middle" tabindex="0" class="btn btn-sm btn-outline-primary float-end"
-                           title="Download."><i class="fas fa-fw fa-download"></i></a></h2>
-                    <div class="accordion" id="rawDataAccordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseOne" aria-controls="collapseOne">
-                                    Toggle raw data
-                                </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse"
-                                 data-bs-parent="#rawDataAccordion">
-                                <div class="accordion-body">
-                                    <pre id="raw-data"><code>{{ json|tojson(indent=2) }}</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        {{ render_raw_data_button(hashid) }}
+                    </h2>
+                    {{ render_raw_data(json) }}
                 </div>
             </div>
         </div>

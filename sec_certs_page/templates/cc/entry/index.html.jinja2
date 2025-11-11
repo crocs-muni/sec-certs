@@ -4,7 +4,7 @@
 {% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
 {% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_updates %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% block metadata %}
     <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
@@ -605,12 +605,7 @@
 
                 <div id="updates" class="mt-5 mb-5">
                     <h2 class="anchor">Updates
-                        <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
-                           style="vertical-align: middle" tabindex="0"
-                           class="btn btn-sm btn-outline-primary float-end"
-                           data-bs-toggle="tooltip" data-bs-placement="top"
-                           title="ATOM feed"><i class="fas fa-fw fa-feed" aria-hidden="true"></i><span
-                                class="visually-hidden">Feed</span></a>
+                        {{ render_update_feed_button(hashid) }}
                     </h2>
 
                     {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
@@ -618,27 +613,9 @@
 
                 <div class="mt-5 mb-5" id="raw-data-head">
                     <h2 class="anchor">Raw data
-                        <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
-                           style="vertical-align: middle" tabindex="0" class="btn btn-sm btn-outline-primary float-end"
-                           title="Download."><i class="fas fa-fw fa-download"></i></a>
+                        {{ render_raw_data_button(hashid) }}
                     </h2>
-                    <div class="accordion" id="rawDataAccordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseOne" aria-controls="collapseOne">
-                                    Toggle raw data
-                                </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse"
-                                 data-bs-parent="#rawDataAccordion">
-                                <div class="accordion-body">
-                                    <pre id="raw-data"><code>{{ json|tojson(indent=2) }}</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    {{ render_raw_data(json) }}
                 </div>
             </div>
         </div>
