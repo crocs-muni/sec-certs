@@ -4,7 +4,7 @@
 {% from "common/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
 {% from "common/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "cc/utils.html.jinja2" import cc_keywords, render_status, render_sars, render_sfrs, render_category, render_eal, render_frontpage %}
-{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_references %}
+{% from "common/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% block metadata %}
     <meta property="description" content="Common Criteria certificate {{ cert["name"]|default("", true) }}"/>
     <meta property="twitter:card" content="summary"/>
@@ -37,11 +37,13 @@
 
 
 {% block content %}
-    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0">
-        <div class="shifted-section">
+    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0"
+          class="shifted-section">
+        <div class="row">
             <div class="col-12 col-sm-10 p-3 pt-md-5">
                 <div class="alert alert-warning d-sm-none" role="alert">
-                    <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+                    <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile
+                    devices.
                 </div>
                 <div>
                     <h1>{{ cert["name"]|default("", true) }}</h1>
@@ -49,7 +51,8 @@
                     {% if cves %}
                         <div class="alert alert-warning mt-4">
                             <i class="fas fa-exclamation-triangle"></i>
-                            This certificate has known related <a href="#cves" class="alert-link">CVEs</a>, which means that
+                            This certificate has known related <a href="#cves" class="alert-link">CVEs</a>, which means
+                            that
                             the certified
                             product might be vulnerable.
                         </div>
@@ -73,7 +76,7 @@
                                         <td class="align-middle">{{ other["heuristics"]["cert_id"] }}</td>
                                         <td>
                                             <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
-                                            class="btn btn-outline-secondary">Compare</a></td>
+                                               class="btn btn-outline-secondary">Compare</a></td>
                                     </tr>
                                 {% endfor %}
                             </table>
@@ -81,20 +84,15 @@
                         </div>
                     {% endif %}
 
-                        <div class="d-flex gap-3 flex-wrap">
-                            {{ compare_icon() }}
-                            {{ notification_icon(current_user, subscribed) }}
-                            {{ render_share_buttons(hashid, cert_id=cert["heuristics"]["cert_id"], name=cert["name"]) }}
-                        </div>
+                    <div class="d-flex gap-3 flex-wrap">
+                        {{ compare_icon() }}
+                        {{ notification_icon(current_user, subscribed) }}
+                        {{ render_share_buttons(hashid, cert_id=cert["heuristics"]["cert_id"], name=cert["name"]) }}
+                    </div>
 
-                    <div class="row pt-5"  >
-                        <div class="col-12 col-md-6" >
-                            <h2  class="anchor" id="csv-info">CSV information
-                                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                    class="badge bg-secondary"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Information extracted from the CSV certificate database provided by the Common Criteria portal."><i class="fa fa-info" aria-hidden="true"></i></span>
-                            </h2>
+                    <div class="row pt-5">
+                        <div class="col-12 col-md-6">
+                            <h2 class="anchor" id="csv-info">CSV information</h2>
                             <table class="table table-sm table-borderless w-auto">
                                 <colgroup>
                                     <col style="width: 30%"/>
@@ -121,14 +119,14 @@
                                 </tr>
                                 <tr data-cs-name="Manufacturer">
                                     <th scope="row">Manufacturer</th>
-                                <td>
-                                    {% if cert["manufacturer_web"] %}
-                                        <a href="{{ cert["manufacturer_web"] }}" target="_blank"
-                                           rel="noopener">{{ cert["manufacturer"] }}</a>
-                                    {% else %}
-                                        {{ cert["manufacturer"] }}
-                                    {% endif %}
-                                </td>
+                                    <td>
+                                        {% if cert["manufacturer_web"] %}
+                                            <a href="{{ cert["manufacturer_web"] }}" target="_blank"
+                                               rel="noopener">{{ cert["manufacturer"] }}</a>
+                                        {% else %}
+                                            {{ cert["manufacturer"] }}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 <tr data-cs-name="Category">
                                     <th scope="row">Category</th>
@@ -167,14 +165,14 @@
                                             ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
                                             {% if update["maintenance_report_link"] %}
                                                 <a href="{{ update["maintenance_report_link"] }}"
-                                                target="_blank"
-                                                rel="noopener"><i class="fas fa-file-contract"></i>
+                                                   target="_blank"
+                                                   rel="noopener"><i class="fas fa-file-contract"></i>
                                                     Certification
                                                     report</a>
                                             {% endif %}
                                             {% if update["maintenance_st_link"] %}
                                                 <a href="{{ update["maintenance_st_link"] }}" target="_blank"
-                                                rel="noopener"><i class="fas fa-file-alt"></i> Security
+                                                   rel="noopener"><i class="fas fa-file-alt"></i> Security
                                                     target</a>
                                             {% endif %}
                                         </td>
@@ -186,14 +184,14 @@
                                                 ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
                                                 {% if update["maintenance_report_link"] %}
                                                     <a href="{{ update["maintenance_report_link"] }}"
-                                                    target="_blank"
-                                                    rel="noopener"><i class="fas fa-file-contract"></i>
+                                                       target="_blank"
+                                                       rel="noopener"><i class="fas fa-file-contract"></i>
                                                         Certification
                                                         report</a>
                                                 {% endif %}
                                                 {% if update["maintenance_st_link"] %}
                                                     <a href="{{ update["maintenance_st_link"] }}" target="_blank"
-                                                    rel="noopener"><i class="fas fa-file-alt"></i> Security
+                                                       rel="noopener"><i class="fas fa-file-alt"></i> Security
                                                         target</a>
                                                 {% endif %}
                                             </td>
@@ -204,17 +202,11 @@
                             </table>
                         </div>
                         <div class="col-12 col-md-6">
-                            <h2>Heuristics summary
-                                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                    class="badge bg-secondary"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Information automatically extracted from the certificate and security target documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                            </h2>
+                            <h2>Heuristics summary</h2>
 
                             {% if cert["heuristics"]["cert_id"] %}
                                 <div data-cs-name="Certificate ID">
-                                    Certificate ID: <span
-                                        class="fw-bold fs-5">{{ cert["heuristics"]["cert_id"] }}</span><br/>
+                                    <span class="fw-bold fs-5">Certificate ID:</span> {{ cert["heuristics"]["cert_id"] }}<br/>
                                 </div>
                             {% endif %}
                         </div>
@@ -223,23 +215,19 @@
             </div>
         </div>
 
-        <div class="row bg-darker-light p-3">
-            <div class="col-12 p-3 py-md-5">
-                <div class="shifted-section">
-                    <div class="mb-5">
-                        <div class="mt-5 mb-3">
-                            <h2 class="anchor" id="cert-info">Certificate
-                                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                    class="badge bg-secondary"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Information automatically extracted from the certificate. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                            </h2>
+        <div class="row bg-darker-light">
+            <div class="col-12 col-sm-10 p-3">
+                <div class="mb-5">
+                    <div class="mt-5 mb-3">
+                        <h2 class="anchor" id="cert-info">Certificate</h2>
 
-                            {{ render_process_state(cert["state"], "cert", "certificate") }}
+                        {{ render_process_state(cert["state"], "cert", "certificate") }}
 
-                        <div class="mt-3 mb-3">
-                            {{ render_local_cert(hashid, local_files, cert['cert_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
-                        </div>
+                        {% if cert["cert_link"] %}
+                            <div class="mt-3 mb-3">
+                                {{ render_local_cert(hashid, local_files, cert['cert_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                            </div>
+                        {% endif %}
 
                         {% if cert["pdf_data"]["cert_keywords"] %}
                             <h3 class="mt-3">Extracted keywords</h3>
@@ -257,96 +245,87 @@
                     </div>
 
                     <div class="mt-5 mb-3">
-                        <div  id="report-info">
-                            <h2 class="anchor">Certification report
-                                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                            class="badge bg-secondary"
-                                            data-bs-toggle="tooltip" data-bs-placement="top"
-                                            title="Information automatically extracted from the certification report. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                            </h2>
+                        <div id="report-info">
+                            <h2 class="anchor">Certification report</h2>
                             {{ render_process_state(cert["state"], "report", "certification report") }}
 
-                            <div class="mt-3 mb-3">
-                                {{ render_local_report(hashid, local_files, cert['report_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
-                            </div>
+                            {% if cert["report_link"] %}
+                                <div class="mt-3 mb-3">
+                                    {{ render_local_report(hashid, local_files, cert['report_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                                </div>
+                            {% endif %}
 
-                                {% if cert["pdf_data"]["report_keywords"] %}
-                                    <h4 class="mt-3">Extracted keywords</h4>
-                                    {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                    {{ device_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                    {{ cc_keywords(cert["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
+                            {% if cert["pdf_data"]["report_keywords"] %}
+                                <h4 class="mt-3">Extracted keywords</h4>
+                                {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                {{ device_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                {{ cc_keywords(cert["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
                                                                                                     "cc_sfr": render_sfrs}) }}
-                                    {{ security_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                    {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
-                                {% endif %}
-                                {% if cert["pdf_data"]["report_metadata"] %}
-                                    <h3 class="mt-3">File metadata</h3>
-                                    {{ render_pdf_meta(cert["pdf_data"]["report_metadata"], "Certification report") }}
-                                {% endif %}
+                                {{ security_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                                {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                            {% endif %}
+                            {% if cert["pdf_data"]["report_metadata"] %}
+                                <h3 class="mt-3">File metadata</h3>
+                                {{ render_pdf_meta(cert["pdf_data"]["report_metadata"], "Certification report") }}
+                            {% endif %}
 
-                                {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
+                            {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
 
-                                {{ render_references(network, hashid, "report", render_status) }}
-                            </div>
+                            {{ render_references(network, hashid, "report", render_status) }}
                         </div>
+                    </div>
 
+                    <div class="mt-5 mb-3">
                         <div id="st-info">
-                            <div class="mt-5 mb-3">
-                                <h2 class="anchor" >Security target
-                                    <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                                class="badge bg-secondary"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Information automatically extracted from the security target. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                                </h2>
+                            <h2 class="anchor">Security target</h2>
 
-                                {{ render_process_state(cert["state"], "st", "security target") }}
+                            {{ render_process_state(cert["state"], "st", "security target") }}
 
+
+                            {% if cert["st_link"] %}
                                 <div class="mt-3 mb-3">
                                     {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
                                 </div>
+                            {% endif %}
 
-                                {% if cert["pdf_data"]["st_keywords"] %}
-                                    <h3 class="mt-3">Extracted keywords</h3>
-                                    {{ cryptography_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                    {{ device_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                    {{ cc_keywords(cert["pdf_data"]["st_keywords"], "target", map_funcs={"cc_sar": render_sars,
+                            {% if cert["pdf_data"]["st_keywords"] %}
+                                <h3 class="mt-3">Extracted keywords</h3>
+                                {{ cryptography_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                {{ device_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                {{ cc_keywords(cert["pdf_data"]["st_keywords"], "target", map_funcs={"cc_sar": render_sars,
                                                                                                     "cc_sfr": render_sfrs}) }}
-                                    {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                    {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
-                                {% endif %}
-                                {% if cert["pdf_data"]["st_metadata"] %}
-                                    <h3 class="mt-3">File metadata</h3>
-                                    {{ render_pdf_meta(cert["pdf_data"]["st_metadata"], "Security target") }}
-                                {% endif %}
+                                {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                                {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                            {% endif %}
+                            {% if cert["pdf_data"]["st_metadata"] %}
+                                <h3 class="mt-3">File metadata</h3>
+                                {{ render_pdf_meta(cert["pdf_data"]["st_metadata"], "Security target") }}
+                            {% endif %}
 
-                                {{ render_references(network, hashid, "st", render_status) }}
-                            </div>
+                            {{ render_references(network, hashid, "st", render_status) }}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-        <div class="shifted-section">
-            <div class="col-12 p-3 py-md-5">
+        <div class="row">
+            <div class="col-12 col-sm-10 p-3 pt-md-5">
                 <div class="mt-3 mb-5" id="heuristics-info">
-                    <h2 class="anchor" >Heuristics
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Information automatically extracted from the certificate and security target documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                    </h2>
+                    <h2 class="anchor">Heuristics</h2>
+
                     {% if not cert["heuristics"]["cert_id"] and not cpes and not cves %}
                         <p>No heuristics are available for this certificate.</p>
                     {% endif %}
+
                     {% if cert["heuristics"]["cert_id"] %}
-                        <div data-cs-name="Certificate ID" class="my-2">
-                            Certificate ID: <span
-                                class="fw-bold fs-5">{{ cert["heuristics"]["cert_id"] }}</span><br/>
+                        <div data-cs-name="Certificate ID" class="my-3 pt-2">
+                            <h4>Certificate ID</h4>
+                            {{ cert["heuristics"]["cert_id"] }}
                         </div>
                     {% endif %}
+
                     {% if cert["heuristics"]["extracted_sars"] %}
-                        <div data-cs-name="Extracted SARs" class="my-2">
+                        <div data-cs-name="Extracted SARs" class="my-3 pt-2">
                             <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
                             {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
                                 {% set sar_name = sar["family"] + "." + sar["level"]|string %}
@@ -355,28 +334,25 @@
                             {% endfor %}
                         </div>
                     {% endif %}
+
                     {% if cpes %}
-                        <div data-cs-name="CPE matches" class="my-2">
+                        <div data-cs-name="CPE matches" class="my-3 pt-2">
                             <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
-                            <ul>
-                                {% for cpe in cpes %}
-                                    <li><a href="{{ url_for("vuln.cpe", cpe_id=cpe["uri"]) }}">{{ cpe["uri"] }}</a>
-                                        {% if cert["heuristics"]["verified_cpe_matches"] and cpe["uri"] in cert["heuristics"]["verified_cpe_matches"] %}
-                                            <i class="fas fa-check-square text-success" title="Verified"></i>{% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                            {{ render_cpes(cert, cpes) }}
                         </div>
                     {% endif %}
+
                     {% if cves %}
-                        <div data-cs-name="Related CVEs" class="my-2">
-                            <h4 class="anchor" id="cves">Related <abbr title="Common Vulnerability Enumeration">CVEs</abbr>
+                        <div data-cs-name="Related CVEs" class="my-3 pt-2">
+                            <h4 class="anchor" id="cves">Related <abbr
+                                    title="Common Vulnerability Enumeration">CVEs</abbr>
                             </h4>
                             {{ render_cves(cves) }}
                         </div>
                     {% endif %}
+
                     {% if previous or next %}
-                        <div data-cs-name="Certificate versions" class="my-2">
+                        <div data-cs-name="Certificate versions" class="my-3 pt-2">
                             <h4 class="anchor" id="versions">Certificate versions</h4>
                             <table class="table table-striped my-2">
                                 <thead>
@@ -397,7 +373,8 @@
                                             <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] }}</a>
                                             {% if other["name"] == cert["name"] and cert["name"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
-                                                    title="Certificate name matches exactly." data-bs-toggle="tooltip"><i
+                                                      title="Certificate name matches exactly."
+                                                      data-bs-toggle="tooltip"><i
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                         </td>
@@ -405,13 +382,14 @@
                                             {{ other["heuristics"]["cert_id"] }}
                                             {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
-                                                    title="Certificate ID matches exactly." data-bs-toggle="tooltip"><i
+                                                      title="Certificate ID matches exactly."
+                                                      data-bs-toggle="tooltip"><i
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                         </td>
                                         <td class="text-end">
                                             <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
-                                            class="btn btn-outline-primary">Compare</a></td>
+                                               class="btn btn-outline-primary">Compare</a></td>
                                     </tr>
                                 {% endfor %}
                                 {% if next %}
@@ -425,7 +403,8 @@
                                             <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] }}</a>
                                             {% if other["name"] == cert["name"] and cert["name"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
-                                                    title="Certificate name matches exactly." data-bs-toggle="tooltip"><i
+                                                      title="Certificate name matches exactly."
+                                                      data-bs-toggle="tooltip"><i
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                         </td>
@@ -433,20 +412,22 @@
                                             {{ other["heuristics"]["cert_id"] }}
                                             {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
-                                                    title="Certificate ID matches exactly." data-bs-toggle="tooltip"><i
+                                                      title="Certificate ID matches exactly."
+                                                      data-bs-toggle="tooltip"><i
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                         </td>
                                         <td class="text-end">
                                             <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
-                                            class="btn btn-outline-primary">Compare</a></td>
+                                               class="btn btn-outline-primary">Compare</a></td>
                                     </tr>
                                 {% endfor %}
                             </table>
                         </div>
                     {% endif %}
+
                     {% if similar %}
-                        <div data-cs-name="Similar certificates" class="my-2">
+                        <div data-cs-name="Similar certificates" class="my-3 pt-2">
                             <h4 class="anchor" id="similar">Similar certificates</h4>
                             <table class="table table-striped my-2">
                                 <thead>
@@ -463,26 +444,27 @@
                                             <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}">{{ similar_cert["name"] }}</a>
                                             {% if similar_cert["name"] == cert["name"] and cert["name"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
-                                                    title="Certificate name matches exactly." data-bs-toggle="tooltip"><i
+                                                      title="Certificate name matches exactly."
+                                                      data-bs-toggle="tooltip"><i
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                             {% if "state" in similar_cert %}
                                                 {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["pdf_hash"] == cert["state"]["cert"]["pdf_hash"] and cert["state"]["cert"]["pdf_hash"] %}
                                                     <span class="badge rounded-pill bg-info text-dark"
-                                                        title="Certificate PDF file matches exactly."
-                                                        data-bs-toggle="tooltip"><i
+                                                          title="Certificate PDF file matches exactly."
+                                                          data-bs-toggle="tooltip"><i
                                                             class="fas fa-file-alt"></i></span>
                                                 {% endif %}
                                                 {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["pdf_hash"] == cert["state"]["report"]["pdf_hash"] and cert["state"]["report"]["pdf_hash"] %}
                                                     <span class="badge rounded-pill bg-info text-dark"
-                                                        title="Certification report PDF file matches exactly."
-                                                        data-bs-toggle="tooltip"><i
+                                                          title="Certification report PDF file matches exactly."
+                                                          data-bs-toggle="tooltip"><i
                                                             class="fas fa-file-alt"></i></span>
                                                 {% endif %}
                                                 {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["pdf_hash"] == cert["state"]["st"]["pdf_hash"] and cert["state"]["st"]["pdf_hash"] %}
                                                     <span class="badge rounded-pill bg-info text-dark"
-                                                        title="Security target PDF file matches exactly."
-                                                        data-bs-toggle="tooltip"><i
+                                                          title="Security target PDF file matches exactly."
+                                                          data-bs-toggle="tooltip"><i
                                                             class="fas fa-file-alt"></i></span>
                                                 {% endif %}
                                             {% endif %}
@@ -491,13 +473,14 @@
                                             {{ similar_cert["heuristics"]["cert_id"] }}
                                             {% if similar_cert["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
                                                 <span class="badge rounded-pill bg-info text-dark"
-                                                    title="Certificate ID matches exactly." data-bs-toggle="tooltip"><i
+                                                      title="Certificate ID matches exactly."
+                                                      data-bs-toggle="tooltip"><i
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                         </td>
                                         <td class="text-end">
                                             <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
-                                            class="btn btn-outline-primary">Compare</a></td>
+                                               class="btn btn-outline-primary">Compare</a></td>
                                     </tr>
                                 {% endfor %}
                             </table>
@@ -515,14 +498,10 @@
                             {% endif %}
                         </div>
                     {% endif %}
+
                     {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
-                        <div data-cs-name="Scheme data" class="my-2">
-                            <h4>Scheme data
-                                <span style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                    class="badge bg-secondary"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Data automatically extracted from scheme websites and matched to the certificate using heuristics. Might contain errors or be for a different certificate.">?</span>
-                            </h4>
+                        <div data-cs-name="Scheme data" class="my-3">
+                            <h4>Scheme data</h4>
                             <table class="table table-sm table-borderless w-auto">
                                 <colgroup>
                                     <col style="width: 20%"/>
@@ -581,120 +560,29 @@
                 </div>
 
                 <div class="mt-5 mb-5" id="reference-graph">
-                    <h2 class="anchor" >References
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Information automatically extracted from the certificate and security target documents. Might contain errors."><i class="fa fa-info" aria-hidden="true"></i></span>
-                    </h2>
-                    {% if not cert["heuristics"]["cert_id"] %}
-                        <p>No references are available for this certificate as its ID was not successfully extracted.</p>
-                    {% elif not network or network|length <= 1 %}
-                        <p>No references are available for this certificate.</p>
-                    {% else %}
-                        <div class="border rounded">
-                            <div id="network"></div>
-                            <div id="network-skeleton" class="d-flex justify-content-center align-items-center">
-                                        <button id="show-network-btn" class="btn btn-primary">Click to load the graph of references</button>
-                                        <div id="network-loading" class="d-none spinner-border" role="status">
-                                            <span class="sr-only">Loading...</span>
-                                        </div>
-                            </div>
-                        </div>
-                        <script type="module">
-                            import {createNetwork} from "/static/network.js?{{ static_hash("network.js") }}";
-
-                            async function loadNetwork(){
-                                return createNetwork('network',
-                                    '{{ url_for(".entry_graph_json", hashid=hashid)}}',
-                                    '{{ url_for(".categories") }}',
-                                    '{{ url_for(".statuses") }}',
-                                    '{{ url_for(".reference_types") }}',
-                                    600,
-                                    300,
-                                    true);
-                            }
-                            document.getElementById("show-network-btn").onclick = async function() {
-                                $("#network-loading").removeClass("d-none").addClass("d-block")
-                                $("#show-network-btn").addClass("d-none")
-                                await loadNetwork()
-                                $("#network-skeleton").remove()
-                            };
-                        </script>
-
-                    {% endif %}
+                    <h2 class="anchor">References</h2>
+                    {{ render_reference_network(cert, network, hashid) }}
                 </div>
 
-                <div class="mt-5 mb-5" id="updates">
-                    <h2 class="anchor" >Updates
-                        <span style="font-size: 0.5em; vertical-align: middle" tabindex="0" class="badge bg-secondary"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Information on how the certificate data changed over time, either due to the changes in our extraction technique or due to actual changes."><i class="fa fa-info" aria-hidden="true"></i></span>
-                        <a role="button" href="{{ url_for('.entry_feed', hashid=hashid) }}"
-                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                        data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="ATOM feed"><i class="fas fa-fw fa-feed"></i></a>
+                <div id="updates" class="mt-5 mb-5">
+                    <h2 class="anchor">Updates
+                        {{ render_update_feed_button(hashid) }}
                     </h2>
-                    <ul>
-                        {% for diff, json_diff, diff_render in zip(diffs, diff_jsons, diff_renders) %}
-                            <li class="my-2" id="diff-{{ diff["_id"] }}">
-                                {% if diff["type"] == "new" %}
-                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate was first processed.
-                                {% elif diff["type"] == "change" %}
-                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate data changed.
-                                {% elif diff["type"] == "remove" %}
-                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became unavailable,
-                                    either the certification report or the security target was unavailable during
-                                    processing.
-                                {% elif diff["type"] == "back" %}
-                                    {{ diff["timestamp"] | strftime("%d.%m.%Y") }} The certificate became available
-                                    again.
-                                {% endif %}
-                                {% if true %} {# is_admin() #}
-                                    <button type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#diff-data{{ loop.index }}"
-                                            tabindex="0"
-                                            class="btn btn-outline-primary btn-sm"
-                                            title="Toggle."><i class="fas fa-fw fa-plus"></i> Show diff
-                                    </button>
-                                    <div id="diff-data{{ loop.index }}" class="collapse py-3">
-                                        {{ diff_render|safe }}
-                                    </div>
-                                    {# <pre id="diff-data{{ loop.index }}"
-                                        class="listing collapse mt-3"><code>{{ json_diff|tojson(indent=2) }}</code></pre>
-                                    #}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
+
+                    {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
                 </div>
 
                 <div class="mt-5 mb-5" id="raw-data-head">
-                    <h2 class="anchor" >Raw data
-                        <a role="button" href="{{ url_for('.entry_json', hashid=hashid) }}"
-                        style="font-size: 0.4em; vertical-align: middle" tabindex="0" class="btn btn-primary"
-                        title="Download."><i class="fas fa-fw fa-download"></i></a>
+                    <h2 class="anchor">Raw data
+                        {{ render_raw_data_button(hashid) }}
                     </h2>
-                    <div class="accordion" id="rawDataAccordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-controls="collapseOne">
-                                    Toggle raw data
-                                </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#rawDataAccordion">
-                                <div class="accordion-body">
-                                    <pre id="raw-data"><code>{{ json|tojson(indent=2) }}</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    {{ render_raw_data(json) }}
                 </div>
             </div>
         </div>
         <script type="module">
             import {copyLinkToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
-
+            // Necessary because of the share buttons.
             $(".copy-on-click").on("click", function (e) {
                 e.preventDefault();
                 copyLinkToClipboard($(this));
@@ -716,7 +604,7 @@
 
 {% block footer %}
     {{ super() }}
-    {% if config["CHAT_ENABLED"]  %}
-    	{{ chat_icon() }}
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_icon() }}
     {% endif %}
 {% endblock %}

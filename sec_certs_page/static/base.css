@@ -120,7 +120,9 @@
 }
 
 [aria-expanded="false"] .fa-chevron-up,
-[aria-expanded="true"] .fa-chevron-down {
+[aria-expanded="false"] .fa-minus,
+[aria-expanded="true"] .fa-chevron-down,
+[aria-expanded="true"] .fa-plus {
     display: none;
 }
 
@@ -393,7 +395,6 @@ h6 {
 
 .shifted-section {
     margin-left: var(--sidebar-width);
-    padding-right: 30px;
 }
 
 @media (max-width: 767.98px) {
