@@ -4,9 +4,72 @@
     <title>About | sec-certs.org</title>
 {% endblock %}
 {% block head %}
-	{{ super() }}
-	<link rel="preload" as="image" href="{{ url_for("static", filename="img/team1_retouch.JPG") }}" />
-	<link rel="preload" as="image" href="{{ url_for("static", filename="img/team2_retouch.JPG") }}" />
+    {{ super() }}
+    <link rel="preload" as="image" href="{{ url_for("static", filename="img/team1_retouch.JPG") }}"/>
+    <style>
+        .photo-wrap {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .photo-wrap img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* hotspot wrapper — positioned by percentages so it scales with image */
+        .hotspot {
+            position: absolute;
+            transform: translate(-50%, -50%); /* centers the marker on the coord */
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* visible marker (small circle) */
+        .hotspot .marker {
+            width: 3.5rem; /* size in relative units; change as needed */
+            height: 3.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0);
+            border: 0;
+            box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); /* used for animated highlight */
+            transition: box-shadow .18s ease, transform .12s ease, background .12s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; /* allow the anchor to receive pointer events */
+        }
+
+        /* optional small inner dot */
+        .hotspot .dot {
+            width: 1.8rem;
+            height: 1.8rem;
+            text-align: center;
+            vertical-align: middle;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            /*box-shadow: 0 0 6px rgba(0, 123, 255, 0.5);*/
+            pointer-events: none;
+        }
+
+        /* hover/focus highlight */
+        .hotspot:hover .marker,
+        .hotspot:focus .marker,
+        .hotspot:active .marker {
+            background: rgba(0, 123, 255, 0.12);
+            box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.12);
+            /*transform: scale(1.06);*/
+        }
+
+        /* make hotspot focusable with keyboard */
+        .hotspot:focus {
+            outline: none;
+        }
+
+    </style>
 {% endblock %}
 
 {% macro render_person(name, description, duration) %}
@@ -34,49 +97,134 @@
 {% endmacro %}
 
 {% block content %}
-	<div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
         <main>
             <div class="row mb-5">
                 <div class="col-12 col-md-6">
                     <h1 class="anchor" id="about">About</h1>
                     <div id="about-info">
                         <div class="pe-lg-3">
-                            <p class="lead">The <b>sec-certs</b> project aims to be the one-stop shop to explore the Common Criteria / FIPS 140
+                            <p class="lead">The <b>sec-certs</b> project aims to be the one-stop shop to explore the
+                                Common Criteria / FIPS 140
                                 certification ecosystem.
                             </p>
-                            <p>It all started in 2019, when we found a vulnerability in a Common Criteria-certified device. We wanted to investigate
+                            <p>It all started in 2019, when we found a vulnerability in a Common Criteria-certified
+                                device. We wanted to investigate
                                 devices using the vulnerable one and understand the vulnerability impact. However,
                                 such analysis proved to be extremely laborious due to the lack of
-                                machine-processable data. We thus started aggregating and analyzing certification data, which enabled unified search,
-                                trend analysis, dependency visualization, and other features. Over time, we started interconnecting with other
+                                machine-processable data. We thus started aggregating and analyzing certification data,
+                                which enabled unified search,
+                                trend analysis, dependency visualization, and other features. Over time, we started
+                                interconnecting with other
                                 public datasets, most notably the list of CVEs.
                             </p>
 
-                            <p>In the spirit of open research, we decided to publish the dataset as well as the Python library to
-                                explore it for free. You're welcome to check out the <a href="{{ url_for("docs.serve_docs", path="index.html") }}" target="_blank">library
-                                documentation</a> as well as the <a href="https://github.com/crocs-muni/sec-certs" target="_blank">full project and website
-                                source code</a>.
+                            <p>In the spirit of open research, we decided to publish the dataset as well as the Python
+                                library to
+                                explore it for free. You're welcome to check out the <a
+                                        href="{{ url_for("docs.serve_docs", path="index.html") }}" target="_blank">library
+                                    documentation</a> as well as the <a href="https://github.com/crocs-muni/sec-certs"
+                                                                        target="_blank">full project and website
+                                    source code</a>.
                             </p>
-                            <p>Over time, we have written multiple research publications on the tool itself and the insights into the
+                            <p>Over time, we have written multiple research publications on the tool itself and the
+                                insights into the
                                 certification ecosystem gained using it. For the list of all publications, see the
-                                <a href="{{ url_for("about.research")}}">Research page</a>. We welcome collaboration of any kind – if you are interested,
-                                feel free to get in touch at <a href="mailto:hello@sec-certs.org">hello@sec-certs.org</a>.
+                                <a href="{{ url_for("about.research") }}">Research page</a>. We welcome collaboration of
+                                any kind – if you are interested,
+                                feel free to get in touch at <a
+                                        href="mailto:hello@sec-certs.org">hello@sec-certs.org</a>.
                             </p>
 
-                            <a class="btn btn-primary m-1 ms-0" href="{{ url_for("docs.serve_docs", path="index.html") }}">Use the library</a>
-                            <a class="btn btn-primary m-1" href="{{ url_for("about.research")}}">Read research</a>
+                            <a class="btn btn-primary m-1 ms-0"
+                               href="{{ url_for("docs.serve_docs", path="index.html") }}">Use the library</a>
+                            <a class="btn btn-primary m-1" href="{{ url_for("about.research") }}">Read research</a>
                             <a class="btn btn-primary m-1" href="mailto:hello@sec-certs.org">Get in touch</a>
                         </div>
-                        
-                       	<img class="w-100 mb-4 pe-lg-3 mt-3" src="{{ url_for("static", filename="img/team1_retouch.JPG") }}" alt="Team photo"
-                       		onmouseover="$(this).attr('src', '{{ url_for("static", filename="img/team2_retouch.JPG") }}')"
-                       		onmouseout="$(this).attr('src', '{{ url_for("static", filename="img/team1_retouch.JPG") }}')" />
+
+                        <div class="photo-wrap">
+                            <img class="w-100 mb-4 pe-lg-3 mt-3"
+                                 src="{{ url_for("static", filename="img/team1_retouch.JPG") }}" alt="Team photo"/>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 14%; top: 50%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ján Jančár"
+                               aria-label="Ján Jančár">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 35%; top: 50%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Petr Švenda"
+                               aria-label="Petr Švenda">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 50%; top: 51%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Yasir Yakup Demircan"
+                               aria-label="Yasir Yakup Demircan">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 64%; top: 53%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Łukasz Chmielewski"
+                               aria-label="Łukasz Chmielewski">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 79%; top: 49%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jiří Michalík"
+                               aria-label="Jiří Michalík">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 79%; top: 26%;"
+                               data-bs-toggle="tooltip" data-bs-placement="right" title="Martin Ukrop"
+                               aria-label="Martin Ukrop">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 68%; top: 29%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Vashek Matyáš"
+                               aria-label="Vashek Matyáš">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 57%; top: 31%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Martin Hofbauer"
+                               aria-label="Martin Hofbauer">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 47%; top: 32%;"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jaroslav Řezník"
+                               aria-label="Jaroslav Řezník">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                            <a class="hotspot" href="javascript:;" role="button" tabindex="0"
+                               style="left: 38%; top: 30%;"
+                               data-bs-toggle="tooltip" data-bs-placement="left" title="Adam Janovský"
+                               aria-label="Adam Janovský">
+                                <span class="marker"><span class="dot" aria-hidden="true"><i
+                                        class="fas fa-user"></i></span></span>
+                            </a>
+                        </div>
                         <h4>Project team</h4>
 
                         <p class="lead pe-lg-3">Sec-certs is developed at the
-                            <a href="https://crocs.fi.muni.cz" target="_blank">Centre for Research on Cryptography and Security (CRoCS)</a> at 
-                            <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. Our lab aims to improve security 
-                            and privacy through applied research (often in cooperation with industry) and advanced education of 
+                            <a href="https://crocs.fi.muni.cz" target="_blank">Centre for Research on Cryptography and
+                                Security (CRoCS)</a> at
+                            <a href="https://www.muni.cz/en" target="_blank">Masaryk University</a>, Czechia. Our lab
+                            aims to improve security
+                            and privacy through applied research (often in cooperation with industry) and advanced
+                            education of
                             future security professionals.</p>
                         {{ render_person("Petr Švenda", "Initial implementation, idea person", "2019-now") }}
                         {{ render_person("Ján Jančár", "Web implementation, anti-idea person", "2019-now") }}
@@ -104,7 +252,9 @@
                 </div>
                 <div class="col-12 col-md-6" id="about-sponsors">
                     <h2 class="anchor" id="sponsors">Sponsors</h2>
-                    <p class="lead pe-lg-3">We greatly appreciate the support we have received over the years. This included direct financial support as well as computing infrastructure, networking and dissemination opportunities.</p>
+                    <p class="lead pe-lg-3">We greatly appreciate the support we have received over the years. This
+                        included direct financial support as well as computing infrastructure, networking and
+                        dissemination opportunities.</p>
                     <div class="row my-5 gx-0 border rounded">
                         <div class="col-4 px-2 pt-1">
                             <a
