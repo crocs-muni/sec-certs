@@ -596,6 +596,8 @@ class KBUpdater:  # pragma: no cover
             return {}
         kb = get_knowledge_base(kbid)
         fmap = {}
+        if not kb:
+            return fmap
         for file in kb["files"]:
             id = file["id"]
             name = file["meta"]["name"]
