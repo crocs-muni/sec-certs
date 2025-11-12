@@ -20,6 +20,19 @@
 ### System Dependencies (REQUIRED)
 **ALWAYS install these system dependencies before pip packages. Code WILL fail without them:**
 
+- **Poppler** (≥20.x): Required by pdftotext library. Older 0.x versions WILL fail.
+- **Tesseract**: Required for OCR of malformed PDFs (with English, French, and German data).
+- **Java**: Required to parse tables in FIPS PDF documents. Must be in PATH. Used by `tabula-java` via `tabula-py`.
+
+Check the installation via:
+```bash
+pdftotext -v
+tesseract --version
+java -version
+```
+
+#### Ubuntu/Debian Installation
+For Ubuntu/Debian systems, run:s
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
@@ -30,10 +43,6 @@ sudo apt-get install -y \
     tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu tesseract-ocr-fra \
     default-jdk
 ```
-
-- **Poppler** (≥20.x): Required by pdftotext library. Older 0.x versions WILL fail.
-- **Tesseract**: Required for OCR of malformed PDFs (with English, French, German data).
-- **Java**: Required to parse tables in FIPS PDF documents. Must be in PATH.
 
 ### Python Environment Setup
 
@@ -61,6 +70,15 @@ python -m spacy download en_core_web_sm
 
 **Note on pip-sync**: Do NOT use `pip-sync requirements/all_requirements.txt` in environments with system packages (like GitHub Actions runners). It tries to uninstall system packages and will fail. Use `pip install -r` instead.
 
+Verify the installation (sec-certs and spacy language model) by importing the package:
+```python
+import sec_certs._version
+print(sec_certs._version.__version__)
+
+import spacy
+print(spacy.load("en_core_web_sm"))
+```
+
 ## Build, Test, and Validation
 
 ### Running Tests
@@ -80,7 +98,7 @@ pytest --cov=sec_certs -m "not remote" --junitxml=junit.xml tests
 - `remote`: Tests requiring remote resources (flaky, run weekly via cron workflow)
 - `xfail`: Known flaky tests due to external server errors
 
-**Typical test runtime**: Fast tests complete in seconds. Full suite (with remote) may take minutes.
+**Typical test runtime**: Fast tests complete in seconds. Full suite will take minutes.
 
 ### Linting and Code Quality
 
@@ -222,21 +240,6 @@ sec-certs/
    - Runs remote/flaky tests with `-m "remote"`
    - Continue on error (expected to be flaky)
 
-### To Replicate CI Locally
-
-```bash
-# Replicate tests.yml
-sudo apt-get update
-sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
-pip install -r requirements/test_requirements.txt
-pip install -e .
-python -m spacy download en_core_web_sm
-pytest --cov=sec_certs -m "not remote" tests
-
-# Replicate pre-commit.yml
-pre-commit run --all-files
-```
-
 ## Common Workflows
 
 ### Adding a New Feature
@@ -267,12 +270,10 @@ from sec_certs.dataset.cc import CCDataset
 dset = CCDataset.from_web()  # Downloads from sec-certs.org
 ```
 
-**Processing from scratch (requires full setup, takes hours):**
+**Processing from scratch (requires full setup, takes hours, DO NOT DO THIS):**
 ```bash
 sec-certs cc all -o ./dataset
 ```
-
-**Note**: Full processing requires NVD API key (set `SECCERTS_NVD_API_KEY` env var) or config change to fetch from sec-certs.org. See docs/user_guide.md.
 
 ## Common Pitfalls and Gotchas
 
