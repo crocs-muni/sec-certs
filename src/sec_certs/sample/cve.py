@@ -27,19 +27,22 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             """
             Loads metrics from dictionary
             """
-            if not dct["metrics"]:
+            if not (metric_dct := CVE.Metrics.find_metrics_to_use(dct.get("metrics"))):
                 return cls(0, "", 0, 0)
-            metric_dct = CVE.Metrics.find_metrics_to_use(dct["metrics"])
-            if not metric_dct:
-                raise ValueError(f"Metrics dictionary for cve {dct['id']} present, but no suitable entry found.")
             return CVE.Metrics.from_metrics_dct(metric_dct)
 
         @staticmethod
-        def find_metrics_to_use(dct: dict) -> dict | None:
+        def find_metrics_to_use(dct: dict | None) -> dict | None:
             """
-            any `Primary` entry available > any `nvd@nist.gov` entry available > just return the first entry if exists.
+            Find any `Primary` entry available > any `nvd@nist.gov` entry available > just return the first entry that we can parse.
             """
-            all_metrics = dct.get("cvssMetricV31", []) + dct.get("cvssMetricV30", []) + dct.get("cvssMetricV2", [])
+            if not dct:
+                return None
+            all_metrics = [
+                dct[metric] for metric in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2") if metric in dct
+            ]
+            # TODO: cvssMetricV40 does not have exploitabilityScore and impactScore, what do we do?
+            #       See https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
 
             for element in all_metrics:
                 if element["type"] == "Primary":
@@ -55,6 +58,9 @@ class CVE(PandasSerializableType, ComplexSerializableType):
 
         @classmethod
         def from_metrics_dct(cls, dct: dict) -> CVE.Metrics:
+            """
+            Parse any 3.1, 3.0 or 2.0 CVSS metrics dictionary.
+            """
             if dct["cvssData"]["version"] == "3.1":
                 return cls(
                     dct["cvssData"]["baseScore"],
