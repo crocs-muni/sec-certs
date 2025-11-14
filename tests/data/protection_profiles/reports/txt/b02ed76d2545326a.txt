@@ -1,701 +1,719 @@
-BSI-CC-PP-0062-2010
+Federal Office for Information Security
+
+## Certification Report
+
+## BSI-CC-PP-0062-2010
+
 for
-Fingerprint Spoof Detection Protection Profile
-based on Organisational Security Policies
-(FSDPP_OSP), Version 1.7
+
+## Fingerprint Spoof Detection Protection Profile based on Organisational Security Policies (FSDPP_OSP), Version 1.7
+
 from
-German Federal Office for
-Information Security (BSI)
-BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
-Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-111
-Certification Report V1.0 ZS-01-01-F-414 V1.40
-BSI-CC-PP-0062-2010
-Common Criteria Protection Profile
-Fingerprint Spoof Detection Protection Profile based on
-Organisational Security Policies (FSDPP_OSP),
-Version 1.7
-developed by the German Federal Office for Information Security (BSI)
-Assurance Package claimed in the Protection Profile:
-Common Criteria Part 3 conformant
-ADV_ARC.1, ADV_FSP.2, ADV_TDS.1, AGD_OPE.1,
-AGD_PRE.1, ALC_CMC.2, ALC_CMS.2, ALC_DEL.1,
-ALC_FLR.1, ASE_CCL.1, ASE_ECD.1, ASE_INT.1,
-ASE_OBJ.2, ASE_REQ.2, ASE_SPD.1, ASE_TSS.1,
-ATE_COV.1, ATE_FUN.1, ATE_IND.2
+
+## German Federal Office for Information Security (BSI)
+
+BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-111
+
+Certification Report V1.0
+
+ZS-01-01-F-414 V1.40
+
 Common Criteria
-Recognition
-Arrangement
-The Protection Profile identified in this certificate has been evaluated at an approved evaluation facility using
-the Common Methodology for IT Security Evaluation (CEM), Version 3.1 for conformance to the Common
-Criteria for IT Security Evaluation (CC), Version 3.1.
-This certificate applies only to the specific version and release of the Protection Profile and in conjunction
-with the complete Certification Report.
-The evaluation has been conducted in accordance with the provisions of the certification scheme of the
-German Federal Office for Information Security (BSI) and the conclusions of the evaluation facility in the
-evaluation technical report are consistent with the evidence adduced.
-This certificate is not an endorsement of the Protection Profile by the Federal Office for Information Security
-or any other organisation that recognises or gives effect to this certificate, and no warranty of the Protection
-Profile by the Federal Office for Information Security or any other organisation that recognises or gives effect
-to this certificate, is either expressed or implied.
-Bonn, 25. February 2010
-For the Federal Office for Information Security
-Bernd Kowalski L.S.
-Head of Department
-Bundesamt für Sicherheit in der Informationstechnik
-Godesberger Allee 185-189 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
-Phone +49 (0)228 99 9582-0 - Fax +49 (0)228 9582-5477 - Infoline +49 (0)228 99 9582-111
-Certification Report BSI-CC-PP-0062-2010
-This page is intentionally left blank.
-4 / 28
-BSI-CC-PP-0062-2010 Certification Report
-Preliminary Remarks
-Under the BSIG1
-Act, the Federal Office for Information Security (BSI) has the task of
-issuing certificates for information technology products as well as for Protection Profiles
-(PP).
-A PP defines an implementation-independent set of IT security requirements for a
-category of products which are intended to meet common consumer needs for IT security.
-The development and certification of a PP or the reference to an existent one gives
-consumers the possibility to express their IT security needs without referring to a special
-product. Product or system certifications can be based on Protection Profiles. For products
-which have been certified based on a Protection Profile an individual certificate will be
-issued.
-Certification of the Protection Profile is carried out on the instigation of the BSI or a
-sponsor.
-A part of the procedure is the technical examination (evaluation) of the Protection Profile
-according to Common Criteria [1].
-The evaluation is normally carried out by an evaluation facility recognised by the BSI or by
-BSI itself.
-The result of the certification procedure is the present Certification Report. This report
-contains among others the certificate (summarised assessment) and the detailed
-Certification Results.
-1
-Act on the Federal Office for Information Security (BSI-Gesetz - BSIG) of 14 August 2009,
-Bundesgesetzblatt I p. 2821
-5 / 28
-Certification Report BSI-CC-PP-0062-2010
-Contents
-A Certification........................................................................................................................7
-1 Specifications of the Certification Procedure.................................................................7
-2 Recognition Agreements................................................................................................7
-2.1 International Recognition of CC - Certificates.........................................................8
-3 Performance of Evaluation and Certification..................................................................8
-4 Validity of the certification result.....................................................................................9
-5 Publication......................................................................................................................9
-B Certification Results.........................................................................................................11
-1 Protection Profile Overview..........................................................................................12
-2 Security Functional Requirements...............................................................................12
-3 Security Assurance Requirements...............................................................................13
-4 Results of the PP-Evaluation........................................................................................13
-5 Obligations and notes for the usage............................................................................14
-6 Protection Profile Document.........................................................................................14
-7 Definitions.....................................................................................................................14
-7.1 Acronyms...............................................................................................................14
-7.2 Glossary.................................................................................................................14
-8 Bibliography..................................................................................................................15
-C Excerpts from the Criteria................................................................................................17
-D Annexes...........................................................................................................................27
-6 / 28
-BSI-CC-PP-0062-2010 Certification Report
-A Certification
-1 Specifications of the Certification Procedure
-The certification body conducts the procedure according to the criteria laid down in the
-following:
-● BSIG2
-● BSI Certification Ordinance3
-● BSI Schedule of Costs4
-● Special decrees issued by the Bundesministerium des Innern (Federal Ministry
-of the Interior)
-● DIN EN 45011 standard
-● BSI certification: Procedural Description (BSI 7125) [3]
-● Common Criteria for IT Security Evaluation (CC), Version 3.15
-[1]
-● Common Methodology for IT Security Evaluation, Version 3.1[2]
-● BSI certification: Application Notes and Interpretation of the Scheme (AIS) [7]
-● Procedure for the Issuance of a PP certificate by the BSI
-2 Recognition Agreements
-In order to avoid multiple certification of the same Protection Profile in different countries a
-mutual recognition of IT security certificates - as far as such certificates are based on CC -
-under certain conditions was agreed.
-2
-Act on the Federal Office for Information Security (BSI-Gesetz - BSIG) of 14 August 2009,
-Bundesgesetzblatt I p. 2821
-3
-Ordinance on the Procedure for Issuance of a Certificate by the Federal Office for Information Security
-(BSI-Zertifizierungsverordnung, BSIZertV) of 07 July 1992, Bundesgesetzblatt I p. 1230
-4
-Schedule of Cost for Official Procedures of the Bundesamt für Sicherheit in der Informationstechnik
-(BSI-Kostenverordnung, BSI-KostV) of 03 March 2005, Bundesgesetzblatt I p. 519
-5
-Proclamation of the Bundesministerium des Innern of 12 February 2007 in the Bundesanzeiger dated
-23 February 2007
-7 / 28
-Certification Report BSI-CC-PP-0062-2010
-2.1 International Recognition of CC - Certificates
-An arrangement (Common Criteria Arrangement) on the mutual recognition of certificates
-based on the CC evaluation assurance levels up to and including EAL 4 has been signed
-in May 2000 (CCRA). It includes also the recognition of Protection Profiles based on the
-CC.
-As of January 2009 the arrangement has been signed by the national bodies of: Australia,
-Austria, Canada, Czech Republic, Denmark, Finland, France, Germany, Greece, Hungary,
-India, Israel, Italy, Japan, Republic of Korea, Malaysia, The Netherlands, New Zealand,
-Norway, Pakistan, Republic of Singapore, Spain, Sweden, Turkey, United Kingdom,
-United States of America. The current list of signatory nations resp. approved certification
-schemes can be seen on the web site: http://www.commoncriteriaportal.org
-The Common Criteria Arrangement logo printed on the certificate indicates that this
-certification is recognised under the terms of this agreement.
-3 Performance of Evaluation and Certification
-The certification body monitors each individual evaluation to ensure a uniform procedure, a
-uniform interpretation of the criteria and uniform ratings.
-The Fingerprint Spoof Detection Protection Profile based on Organisational Security
-Policies (FSDPP_OSP), Version 1.7 has undergone the certification procedure at BSI.
-The evaluation of the Fingerprint Spoof Detection Protection Profile based on
-Organisational Security Policies (FSDPP_OSP), Version 1.7 was conducted by the ITSEF
-SRC Security Research & Consulting GmbH. The evaluation was completed on
-10 December 2009. The ITSEF SRC Security Research & Consulting GmbH is an
-evaluation facility (ITSEF)6
-recognised by the certification body of BSI.
-For this certification procedure the sponsor and applicant is: German Federal Office for
-Information Security (BSI)
-The PP was developed by: TÜV Informationstechnik GmbH
-The certification is concluded with the comparability check and the production of this
-Certification Report. This work was completed by the BSI.
-6
-Information Technology Security Evaluation Facility
-8 / 28
-BSI-CC-PP-0062-2010 Certification Report
-4 Validity of the certification result
-This Certification Report only applies to the version of the Protection Profile as indicated.
-In case of changes to the certified version of the Protection Profile, the validity can be
-extended to the new versions and releases, provided the sponsor applies for assurance
-continuity (i.e. re-certification or maintenance) of the modified Protection Profile, in
-accordance with the procedural requirements, and the evaluation does not reveal any
-security deficiencies.
-For the meaning of the assurance levels please refer to the excerpts from the criteria at
-the end of the Certification Report.
-5 Publication
-The Fingerprint Spoof Detection Protection Profile based on Organisational Security
-Policies (FSDPP_OSP), Version 1.7 has been included in the BSI list of the certified
-Protection Profiles, which is published regularly (see also Internet: https://www.bsi.bund.de
-and [4]). Further information can be obtained from BSI-Infoline +49 228 9582-111.
-Further copies of this Certification Report can be requested from the sponsor7
-of the
-Protection Profile. The Certification Report may also be obtained in electronic form at the
-internet address stated above.
-7
-Federal Office for Information Security (BSI)
-Godesberger Allee 185-189
-53175 Bonn
-9 / 28
-Certification Report BSI-CC-PP-0062-2010
-This page is intentionally left blank.
-10 / 28
-BSI-CC-PP-0062-2010 Certification Report
-B Certification Results
-The following results represent a summary of
-● the certified Protection Profile,
-● the relevant evaluation results from the evaluation facility, and
-● complementary notes and stipulations of the certification body.
-11 / 28
-Certification Report BSI-CC-PP-0062-2010
-1 Protection Profile Overview
-The Fingerprint Spoof Detection Protection Profile based on Organisational Security
-Policies (FSDPP_OSP), Version 1.7 [6] is established by the German Federal Office for
-Information Security (BSI) as a basis for the development of Security Targets in order to
-perform a certification of an IT-product (TOE).
-The Target of Evaluation (TOE) described in the Protection Profile (PP) is a system that
-provides fingerprint spoof detection either as part of or in front of a biometric system for
-fingerprint recognition.
-The TOE determines whether a fingerprint presented to the biometric system is genuine or
-spoofed. The term spoofed biometric characteristics hereby refers to artificially created
-fake fingers which are currently known to circumvent fingerprint recognition systems.
-For this purpose the spoof detection system acquires spoofing evidences for a presented
-fingerprint using a sensor device. This sensor can either be part of the capture device that
-is used to capture the biometric sample of the fingerprint (or even be identical to it) or be a
-separate sensor device (or more than one) that is completely dedicated to spoof detection.
-Beside the fingerprint spoof detection functionality every TOE that claims conformance to
-the PP shall implement:
-● Management functionality to modify security relevant parameters
-● Quality control for management parameters
-● Audit functionality for security relevant events
-● Protection of residual and security relevant data
-The assets to be protected by a TOE claiming conformance to this PP are defined in the
-Protection Profile [6], chapter 4.2. Based on these assets the Security Problem Definition
-is defined in terms of Assumptions and Organisational Security Policies. This is outlined in
-the Protection Profile [6], chapters 4.3 to 4.5.
-These Assumptions and Organisational Security Policies are split into Security Objectives
-to be fulfilled by a TOE claiming conformance to this PP and Security Objectives to be
-fulfilled by the operational environment of a TOE claiming conformance to this PP. These
-Security Objectives are outlined in the PP [6], chapter 5.
-The Protection Profile [6] requires a Security Target based on this PP or another PP
-claiming this PP, to fulfil the CC requirements for strict conformance.
-2 Security Functional Requirements
-Based on the Security Objectives to be fulfilled by a TOE claiming conformance to this PP
-the security policy is expressed by the set of Security Functional Requirements to be
-implemented by a TOE. It covers the following issues: Biometric spoof detection, security
-audit, residual information protection and TOE security management.
-These TOE Security Functional Requirements (SFR) are outlined in the PP [6], chapter
-7.1. They are selected from Common Criteria Part 2 and one of them is newly defined.
-Thus the SFR claim is called:
-Common Criteria Part 2 extended
-12 / 28
-BSI-CC-PP-0062-2010 Certification Report
-3 Security Assurance Requirements
-Due to the special character of the technology described in this PP, an explicit assurance
-package has been defined for the TOE. It has been chosen for this Protection Profile as
-the PP should focus on application cases for which it is sufficient to determine whether the
-Security Functionality claimed by a TOE is working correctly without performing a
-dedicated vulnerability assessment.
-The TOE security assurance package claimed in the Protection Profile is based entirely on
-the assurance components defined in part 3 of the Common Criteria. Thus, this assurance
-package is called:
+
+Bundesamt für Sicherheit in der
+
+Deutsches
+
+BSI-CC-PP-0062-2010
+
+## BSI-CC-PP-0062-2010
+
+Common Criteria Protection Profile
+
+## Fingerprint Spoof Detection Protection Profile based on Organisational Security Policies (FSDPP_OSP),
+
+Version 1.7
+
+developed by the German Federal Office for Information Security (BSI)
+
+Assurance Package claimed in the Protection Profile:
+
 Common Criteria Part 3 conformant
-This explicit assurance package is based on EAL 2 and consists of the following
-Assurance Families:
-ADV_ARC.1, ADV_FSP.2, ADV_TDS.1, AGD_OPE.1, AGD_PRE.1,
-ALC_CMC.2, ALC_CMS.2, ALC_DEL.1, ALC_FLR.1, ASE_CCL.1,
-ASE_ECD.1, ASE_INT.1, ASE_OBJ.2, ASE_REQ.2, ASE_SPD.1,
-ASE_TSS.1, ATE_COV.1, ATE_FUN.1, ATE_IND.2
-(for the definition and scope of assurance packages according to CC see part C or [1],
-part 3 for details).
-The only differences compared to EAL 2 are the omitted AVA_VAN.2 assurance
-component and the added ALC_FLR.1 assurance component.
-Additional guidance in form of the Fingerprint Spoof Detection Evaluation Guidance [8]
-has been provided for some of the assurance components due to the special nature of
-the biometric technology.
-4 Results of the PP-Evaluation
-The Evaluation Technical Report (ETR) [5] was provided by the ITSEF according to the
-Common Criteria [1], the Methodology [2], the requirements of the Scheme [3] and all
-interpretations and guidelines of the Scheme (AIS) [7] as relevant for the TOE.
-As a result of the evaluation the verdict PASS is confirmed for the assurance components
-of the class APE.
+
+ADV_ARC.1, ADV_FSP.2, ADV_TDS.1, AGD_OPE.1,
+
+AGD_PRE.1, ALC_CMC.2, ALC_CMS.2, ALC_DEL.1,
+
+ALC_FLR.1, ASE_CCL.1, ASE_ECD.1, ASE_INT.1,
+
+ASE_OBJ.2, ASE_REQ.2, ASE_SPD.1, ASE_TSS.1,
+
+ATE_COV.1, ATE_FUN.1, ATE_IND.2
+
+The Protection Profile identified in this certificate has been evaluated at an approved evaluation facility using the Common Methodology for IT Security Evaluation (CEM), Version 3.1 for conformance to the Common Criteria for IT Security Evaluation (CC), Version 3.1.
+
+This certificate applies only to the specific version and release of the Protection Profile and in conjunction with the complete Certification Report.
+
+The evaluation has been conducted in accordance with the provisions of the certification scheme of the German Federal Office for Information Security (BSI) and the conclusions of the evaluation facility in the evaluation technical report are consistent with the evidence adduced.
+
+This certificate is not an endorsement of the Protection Profile by the Federal Office for Information Security or any other organisation that recognises or gives effect to this certificate, and no warranty of the Protection Profile by the Federal Office for Information Security or any other organisation that recognises or gives effect to this certificate, is either expressed or implied.
+
+Bonn, 25. February 2010
+
+For the Federal Office for Information Security
+
+Bernd Kowalski
+
+L.S.
+
+Head of Department
+
+IT-Sicherheitszertifikat
+
+Common Criteria Recognition Arrangement
+
+Bundesamt für Sicherheit in der Informationstechnik
+
+Godesberger Allee 185-189 - D-53175 Bonn    -    Postfach 20 03 63 - D-53133 Bonn Phone +49 (0)228 99 9582-0 - Fax +49 (0)228 9582-5477 - Infoline +49 (0)228 99 9582-111
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+This page is intentionally left blank.
+
+4 / 28
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## Preliminary Remarks
+
+Under the BSIG 1 Act, the Federal Office for Information Security  (BSI) has the task of issuing certificates for information technology products as well as for Protection Profiles (PP).
+
+A  PP   defines   an   implementation-independent   set   of   IT   security   requirements   for   a category of products which are intended to meet common consumer needs for IT security. The development and certification of a PP or the reference to an existent one gives consumers the possibility to express their IT security needs without referring to a special product. Product or system certifications can be based on Protection Profiles. For products which have been certified based on a Protection Profile an individual certificate will be issued.
+
+Certification of the Protection Profile is carried out on the instigation of the BSI or a sponsor.
+
+A part of the procedure is the technical examination (evaluation) of the Protection Profile according to Common Criteria [1].
+
+The evaluation is normally carried out by an evaluation facility recognised by the BSI or by BSI itself.
+
+The result of the certification procedure is the present Certification Report. This report contains   among   others   the   certificate   (summarised   assessment)   and   the   detailed Certification Results.
+
+1 Act   on   the   Federal   Office   for   Information   Security (BSI-Gesetz   -   BSIG)  of   14   August   2009, Bundesgesetzblatt I p. 2821
+
+5 / 28
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+## Contents
+
+| A                     | Certification........................................................................................................................7   |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 Specifications      | of the Certification Procedure.................................................................7                                         |
+| 2 Recognition         | Agreements................................................................................................7                              |
+| 2.1 International     | Recognition of CC - Certificates.........................................................8                                               |
+| 3 Performance         | of Evaluation and Certification..................................................................8                                       |
+| 4 Validity of         | the certification result.....................................................................................9                           |
+| 5                     | Publication......................................................................................................................9       |
+| B Certification       | Results.........................................................................................................11                       |
+| 1 Protection          | Profile Overview..........................................................................................12                             |
+| 2 Security Functional | Requirements...............................................................................12                                            |
+| 3 Security Assurance  | Requirements...............................................................................13                                            |
+| 4 Results of          | the PP-Evaluation........................................................................................13                              |
+| 5 Obligations         | and notes for the usage............................................................................14                                    |
+| 6 Protection          | Profile Document.........................................................................................14                              |
+| 7                     | Definitions.....................................................................................................................14       |
+| 7.1                   | Acronyms...............................................................................................................14                |
+| 7.2                   | Glossary.................................................................................................................14              |
+| 8                     | Bibliography..................................................................................................................15         |
+| C Excerpts from       | the Criteria................................................................................................17                           |
+| D                     | Annexes...........................................................................................................................27     |
+
+6 / 28
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## A Certification
+
+## 1 Specifications of the Certification Procedure
+
+The certification body conducts the procedure according to the criteria laid down in the following:
+
+- BSIG 2
+- BSI Certification Ordinance 3
+- BSI Schedule of Costs 4
+- Special decrees issued by the Bundesministerium des Innern (Federal Ministry of the Interior)
+- DIN EN 45011 standard
+- BSI certification: Procedural Description (BSI 7125) [3]
+- Common Criteria for IT Security Evaluation (CC), Version 3.1 5 [1]
+- Common Methodology for IT Security Evaluation, Version 3.1[2]
+- BSI certification: Application Notes and Interpretation of the Scheme (AIS) [7]
+- Procedure for the Issuance of a PP certificate by the BSI
+
+## 2 Recognition Agreements
+
+In order to avoid multiple certification of the same Protection Profile in different countries a mutual recognition of IT security certificates - as far as such certificates are based on CC under certain conditions was agreed.
+
+2 Act on the Federal Office for Information Security (BSI-Gesetz - BSIG) of 14 August 2009, Bundesgesetzblatt I p. 2821
+
+3 Ordinance on the Procedure for Issuance of a Certificate by the Federal Office for Information Security (BSI-Zertifizierungsverordnung, BSIZertV) of 07 July 1992, Bundesgesetzblatt I p. 1230
+
+4 Schedule of Cost for Official Procedures of the Bundesamt für Sicherheit in der Informationstechnik (BSI-Kostenverordnung, BSI-KostV) of 03 March 2005, Bundesgesetzblatt I p. 519
+
+5 Proclamation of the Bundesministerium des Innern of 12 February 2007 in the Bundesanzeiger dated 23 February 2007
+
+7 / 28
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+## 2.1 International Recognition of CC - Certificates
+
+An arrangement (Common Criteria Arrangement) on the mutual recognition of certificates based on the CC evaluation assurance levels up to and including EAL 4 has been signed in May 2000 (CCRA). It includes also the recognition of Protection Profiles based on the CC.
+
+As of January 2009 the arrangement has been signed by the national bodies of: Australia, Austria, Canada, Czech Republic, Denmark, Finland, France, Germany, Greece, Hungary, India, Israel, Italy, Japan, Republic of Korea, Malaysia, The Netherlands, New Zealand, Norway,  Pakistan,   Republic   of   Singapore,   Spain,   Sweden,   Turkey,   United   Kingdom, United States of America. The current list of signatory nations resp. approved certification schemes can be seen on the web site: http://www.commoncriteriaportal.org
+
+The Common Criteria Arrangement logo printed on the certificate indicates that this certification is recognised under the terms of this agreement.
+
+## 3 Performance of Evaluation and Certification
+
+The certification body monitors each individual evaluation to ensure a uniform procedure, a uniform interpretation of the criteria and uniform ratings.
+
+The  Fingerprint   Spoof   Detection   Protection   Profile   based   on   Organisational   Security Policies (FSDPP_OSP), Version 1.7 has undergone the certification procedure at BSI.
+
+The   evaluation   of   the Fingerprint   Spoof   Detection   Protection   Profile   based   on Organisational Security Policies (FSDPP_OSP), Version 1.7 was conducted by the ITSEF SRC   Security   Research   &amp;   Consulting   GmbH.   The   evaluation   was   completed   on 10 December 2009. The ITSEF  SRC Security Research &amp; Consulting GmbH  is an evaluation facility (ITSEF) 6 recognised by the certification body of BSI.
+
+For this certification procedure the sponsor and applicant is:  German Federal Office for Information Security (BSI)
+
+The PP was developed by: TÜV Informationstechnik GmbH
+
+The certification is concluded with the comparability check and the production of this Certification Report. This work was completed by the BSI.
+
+6 Information Technology Security Evaluation Facility
+
+8 / 28
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## 4 Validity of the certification result
+
+This Certification Report only applies to the version of the Protection Profile as indicated.
+
+In case of changes to the certified version of the Protection Profile, the validity can be extended to the new versions and releases, provided the sponsor applies for assurance continuity   (i.e.   re-certification   or   maintenance)   of   the   modified   Protection   Profile,   in accordance with the procedural requirements, and the evaluation does not reveal any security deficiencies.
+
+For the meaning of the assurance levels please refer to the excerpts from the criteria at the end of the Certification Report.
+
+## 5 Publication
+
+The  Fingerprint   Spoof   Detection   Protection   Profile   based   on   Organisational   Security Policies (FSDPP_OSP), Version 1.7  has been included in the BSI list of the certified Protection Profiles, which is published regularly (see also Internet: https://www.bsi.bund.de and [4]). Further information can be obtained from BSI-Infoline +49 228 9582-111.
+
+Further copies of this Certification Report can be requested from  the sponsor 7 of   the Protection Profile. The Certification Report may also be obtained in electronic form at the internet address stated above.
+
+7 Federal Office for Information Security (BSI) Godesberger Allee 185-189 53175 Bonn
+
+9 / 28
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+This page is intentionally left blank.
+
+10 / 28
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## B Certification Results
+
+The following results represent a summary of
+
+- the certified Protection Profile,
+- the relevant evaluation results from the evaluation facility, and
+- complementary notes and stipulations of the certification body.
+
+11 / 28
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+## 1 Protection Profile Overview
+
+The  Fingerprint   Spoof   Detection   Protection   Profile   based   on   Organisational   Security Policies (FSDPP_OSP), Version 1.7 [6] is established by the German Federal Office for Information Security (BSI) as a basis for the development of Security Targets in order to perform a certification of an IT-product (TOE).
+
+The Target of Evaluation (TOE) described in the Protection Profile (PP) is a system that provides fingerprint spoof detection either as part of or in front of a biometric system for fingerprint recognition.
+
+The TOE determines whether a fingerprint presented to the biometric system is genuine or spoofed. The term spoofed biometric characteristics hereby refers to artificially created fake fingers which are currently known to circumvent fingerprint recognition systems.
+
+For this purpose the spoof detection system acquires spoofing evidences for a presented fingerprint using a sensor device. This sensor can either be part of the capture device that is used to capture the biometric sample of the fingerprint (or even be identical to it) or be a separate sensor device (or more than one) that is completely dedicated to spoof detection.
+
+Beside the fingerprint spoof detection functionality every TOE that claims conformance to the PP shall implement:
+
+- Management functionality to modify security relevant parameters
+- Quality control for management parameters
+- Audit functionality for security relevant events
+- Protection of residual and security relevant data
+
+The assets to be protected by a TOE claiming conformance to this PP are defined in the Protection Profile [6], chapter 4.2. Based on these assets the Security Problem Definition is defined in terms of Assumptions and Organisational Security Policies. This is outlined in the Protection Profile [6], chapters 4.3 to 4.5.
+
+These Assumptions and Organisational Security Policies are split into Security Objectives to be fulfilled by a TOE claiming conformance to this PP and Security Objectives to be fulfilled by the operational environment of a TOE claiming conformance to this PP. These Security Objectives are outlined in the PP [6], chapter 5.
+
+The Protection Profile [6] requires a Security Target based on this PP or another PP claiming this PP, to fulfil the CC requirements for strict conformance.
+
+## 2 Security Functional Requirements
+
+Based on the Security Objectives to be fulfilled by a TOE claiming conformance to this PP the security policy is expressed by the set of Security Functional Requirements to be implemented by a TOE. It covers the following issues: Biometric spoof detection, security audit, residual information protection and TOE security management.
+
+These TOE Security Functional Requirements (SFR) are outlined in the PP [6], chapter 7.1. They are selected from Common Criteria Part 2 and one of them is newly defined. Thus the SFR claim is called:
+
+Common Criteria Part 2 extended
+
+12 / 28
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## 3 Security Assurance Requirements
+
+Due to the special character of the technology described in this PP, an explicit assurance package has been defined for the TOE. It has been chosen for this Protection Profile as the PP should focus on application cases for which it is sufficient to determine whether the Security   Functionality   claimed   by   a   TOE   is   working   correctly   without   performing   a dedicated vulnerability assessment.
+
+The TOE security assurance package claimed in the Protection Profile is based entirely on the assurance components defined in part 3 of the Common Criteria. Thus, this assurance package is called:
+
+Common Criteria Part 3 conformant
+
+This   explicit   assurance   package   is   based   on   EAL   2   and   consists   of   the   following Assurance Families:
+
+ADV_ARC.1, ADV_FSP.2, ADV_TDS.1, AGD_OPE.1, AGD_PRE.1, ALC_CMC.2, ALC_CMS.2, ALC_DEL.1, ALC_FLR.1, ASE_CCL.1, ASE_ECD.1, ASE_INT.1, ASE_OBJ.2, ASE_REQ.2, ASE_SPD.1, ASE_TSS.1, ATE_COV.1, ATE_FUN.1, ATE_IND.2
+
+(for the definition and scope of assurance packages according to CC see part C or [1], part 3 for details).
+
+The  only   differences   compared   to   EAL   2   are   the   omitted   AVA_VAN.2   assurance component and the added ALC_FLR.1 assurance component.
+
+Additional guidance in form of the Fingerprint Spoof Detection Evaluation Guidance [8] has been provided for some of the assurance components due to the special nature of the biometric technology.
+
+## 4 Results of the PP-Evaluation
+
+The Evaluation Technical Report (ETR) [5] was provided by the ITSEF according to the Common Criteria [1], the Methodology [2], the requirements of the Scheme [3] and all interpretations and guidelines of the Scheme (AIS) [7] as relevant for the TOE.
+
+As a result of the evaluation the verdict PASS is confirmed for the assurance components of the class APE.
+
 The following assurance components were used:
+
 APE_INT.1 PP introduction
+
 APE_CCL.1 Conformance claims
+
 APE_SPD.1 Security problem definition
+
 APE_OBJ.2 Security objectives
+
 APE_ECD.1 Extended components definition
+
 APE_REQ.2 Derived security requirements
-The results of the evaluation are only applicable to the Protection Profile as defined in
-chapter 1.
+
+The results of the evaluation are only applicable to the Protection Profile as defined in chapter 1.
+
 13 / 28
-Certification Report BSI-CC-PP-0062-2010
-5 Obligations and notes for the usage
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+## 5 Obligations and notes for the usage
+
 The following aspects need to be fulfilled when using the Protection Profile:
-Due to the special character of the technology described in this PP, the Fingerprint Spoof
-Detection Evaluation Guidance [8] shall be applied during evaluation. This document will
-provide the evaluator with additional information and guidance for some assurance
-requirements.
-6 Protection Profile Document
-The Fingerprint Spoof Detection Protection Profile based on Organisational Security
-Policies (FSDPP_OSP), Version 1.7 [6] is being provided within a separate document as
-Annex A of this report.
-7 Definitions
-7.1 Acronyms
-BSI Bundesamt für Sicherheit in der Informationstechnik / Federal Office for
-Information Security, Bonn, Germany
-CCRA Common Criteria Recognition Arrangement
-CC Common Criteria for IT Security Evaluation
-EAL Evaluation Assurance Level
-FSDPP Fingerprint Spoof Detection Protection Profile
-IT Information Technology
-ITSEF Information Technology Security Evaluation Facility
-OSP Organisational Security Policy
-PP Protection Profile
-SF Security Function
-SFP Security Function Policy
-ST Security Target
-TOE Target of Evaluation
-TSF TOE Security Functions
-7.2 Glossary
+
+Due to the special character of the technology described in this PP, the Fingerprint Spoof Detection Evaluation Guidance [8] shall be applied during evaluation. This document will provide   the   evaluator   with   additional   information   and   guidance   for   some   assurance requirements.
+
+## 6 Protection Profile Document
+
+The  Fingerprint   Spoof   Detection   Protection   Profile   based   on   Organisational   Security Policies (FSDPP_OSP), Version 1.7 [6] is being provided within a separate document as Annex A of this report.
+
+## 7 Definitions
+
+## 7.1 Acronyms
+
+| BSI   | Bundesamt für Sicherheit in der Informationstechnik / Federal Office for Information Security, Bonn, Germany   |
+|-------|----------------------------------------------------------------------------------------------------------------|
+| CCRA  | Common Criteria Recognition Arrangement                                                                        |
+| CC    | Common Criteria for IT Security Evaluation                                                                     |
+| EAL   | Evaluation Assurance Level                                                                                     |
+| FSDPP | Fingerprint Spoof Detection Protection Profile                                                                 |
+| IT    | Information Technology                                                                                         |
+| ITSEF | Information Technology Security Evaluation Facility                                                            |
+| OSP   | Organisational Security Policy                                                                                 |
+| PP    | Protection Profile                                                                                             |
+| SF    | Security Function                                                                                              |
+| SFP   | Security Function Policy                                                                                       |
+| ST    | Security Target                                                                                                |
+| TOE   | Target of Evaluation                                                                                           |
+| TSF   | TOE Security Functions                                                                                         |
+
+## 7.2 Glossary
+
 Augmentation - The addition of one or more requirement(s) to a package.
-Extension - The addition to an ST or PP of functional requirements not contained in part 2
-and/or assurance requirements not contained in part 3 of the CC.
-Formal - Expressed in a restricted syntax language with defined semantics based on well-
-established mathematical concepts.
+
+Extension - The addition to an ST or PP of functional requirements not contained in part 2 and/or assurance requirements not contained in part 3 of the CC.
+
+Formal - Expressed in a restricted syntax language with defined semantics based on wellestablished mathematical concepts.
+
 Informal - Expressed in natural language.
+
 14 / 28
-BSI-CC-PP-0062-2010 Certification Report
-Object - An passive entity in the TOE, that contains or receives information, and upon
-which subjects perform operations.
-Protection Profile - An implementation-independent statement of security needs for a
-TOE type.
-Security Target - An implementation-dependent statement of security needs for a specific
-identified TOE.
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+Object - An passive entity in the TOE, that contains or receives information, and upon which subjects perform operations.
+
+Protection Profile - An implementation-independent statement of security needs for a TOE type.
+
+Security Target - An implementation-dependent statement of security needs for a specific identified TOE.
+
 Semiformal - Expressed in a restricted syntax language with defined semantics.
+
 Subject - An active entity in the TOE that performs operations on objects.
-Target of Evaluation - A set of software, firmware and/or hardware possibly accompanied
-by guidance.
-TOE Security Functionality - A set consisting of all hardware, software, and firmware of
-the TOE that must be relied upon for the correct enforcement of the SFRs.
-8 Bibliography
-[1] Common Criteria for Information Technology Security Evaluation, Version 3.1,
-Part 1: Introduction and general model, Revision 3, July 2009
-Part 2: Security functional components, Revision 3, July 2009
-Part 3: Security assurance components, Revision 3, July 2009
-[2] Common Methodology for Information Technology Security Evaluation (CEM),
-Evaluation Methodology, Version 3.1, Revision 3, July 2009
-[3] BSI certification: Procedural Description (BSI 7125)
-[4] German IT Security Certificates (BSI 7148, BSI 7149), periodically updated list
-published also on the BSI Website
-[5] Evaluation Technical Report, Version 1.2, 09 December 2009, Evaluation Technical
-Report (ETR) for a PP evaluation, Certification ID: BSI-CC-PP-0062, SRC Security
-Research & Consulting GmbH (confidential document)
-[6] Fingerprint Spoof Detection Protection Profile based on Organisational Security
-Policies (FSDPP_OSP), BSI-CC-PP-0062, Version 1.7, 27 November 2009, Federal
-Office for Information Security (BSI)
-[7] Application Notes and Interpretations of the Scheme (AIS) as relevant for the TOE.
-[8] Fingerprint Spoof Detection Evaluation Guidance, Version 2.0 (or a more recent
-version), Federal Office for Information Security (BSI)
+
+Target of Evaluation - A set of software, firmware and/or hardware possibly accompanied by guidance.
+
+TOE Security Functionality - A set consisting of all hardware, software, and firmware of the TOE that must be relied upon for the correct enforcement of the SFRs.
+
+## 8 Bibliography
+
+- [1] Common Criteria for Information Technology Security Evaluation, Version 3.1,
+2. Part 1: Introduction and general model, Revision 3, July 2009
+3. Part 2: Security functional components, Revision 3, July 2009
+4. Part 3: Security assurance components, Revision 3, July 2009
+- [2] Common Methodology for Information Technology Security Evaluation (CEM), Evaluation Methodology, Version 3.1, Revision 3, July 2009
+- [3] BSI certification: Procedural Description (BSI 7125)
+- [4] German IT Security Certificates (BSI 7148, BSI 7149), periodically updated list published also on the BSI Website
+- [5] Evaluation Technical Report, Version 1.2, 09 December 2009, Evaluation Technical Report (ETR) for a PP evaluation, Certification ID: BSI-CC-PP-0062, SRC Security Research &amp; Consulting GmbH (confidential document)
+- [6] Fingerprint Spoof Detection Protection Profile based on Organisational Security Policies (FSDPP_OSP), BSI-CC-PP-0062, Version 1.7, 27 November 2009, Federal Office for Information Security (BSI)
+- [7] Application Notes and Interpretations of the Scheme (AIS) as relevant for the TOE.
+- [8] Fingerprint Spoof Detection Evaluation Guidance, Version 2.0 (or a more recent version), Federal Office for Information Security (BSI)
+
 15 / 28
-Certification Report BSI-CC-PP-0062-2010
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
 This page is intentionally left blank.
+
 16 / 28
-BSI-CC-PP-0062-2010 Certification Report
-C Excerpts from the Criteria
-CC Part1:
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## C Excerpts from the Criteria
+
+## CC Part1:
+
 Conformance Claim (chapter 10.4)
-„The conformance claim indicates the source of the collection of requirements that is met
-by a PP or ST that passes its evaluation. This conformance claim contains a CC
-conformance claim that:
-● describes the version of the CC to which the PP or ST claims conformance.
-● describes the conformance to CC Part 2 (security functional requirements) as either:
-– CC Part 2 conformant - A PP or ST is CC Part 2 conformant if all SFRs in that
-PP or ST are based only upon functional components in CC Part 2, or
-– CC Part 2 extended - A PP or ST is CC Part 2 extended if at least one SFR in
-that PP or ST is not based upon functional components in CC Part 2.
-● describes the conformance to CC Part 3 (security assurance requirements) as either:
-– CC Part 3 conformant - A PP or ST is CC Part 3 conformant if all SARs in that
-PP or ST are based only upon assurance components in CC Part 3, or
-– CC Part 3 extended - A PP or ST is CC Part 3 extended if at least one SAR in
-that PP or ST is not based upon assurance components in CC Part 3.
-Additionally, the conformance claim may include a statement made with respect to
-packages, in which case it consists of one of the following:
-● Package name Conformant - A PP or ST is conformant to a pre-defined package
-(e.g. EAL) if:
-– the SFRs of that PP or ST are identical to the SFRs in the package, or
-– the SARs of that PP or ST are identical to the SARs in the package.
-● Package name Augmented - A PP or ST is an augmentation of a predefined package
-if:
-– the SFRs of that PP or ST contain all SFRs in the package, but have at least
-one additional SFR or one SFR that is hierarchically higher than an SFR in the
-package.
-– the SARs of that PP or ST contain all SARs in the package, but have at least
-one additional SAR or one SAR that is hierarchically higher than an SAR in the
-package.
-Note that when a TOE is successfully evaluated to a given ST, any conformance claims of
-the ST also hold for the TOE. A TOE can therefore also be e.g. CC Part 2 conformant.
-Finally, the conformance claim may also include two statements with respect to Protection
+
+'The conformance claim indicates the source of the collection of requirements that is met by a PP or ST that passes its evaluation.  This   conformance   claim   contains   a   CC conformance claim that:
+
+- describes the version of the CC to which the PP or ST claims conformance.
+- describes the conformance to CC Part 2 (security functional requirements) as either:
+- -CC Part 2 conformant - A PP or ST is CC Part 2 conformant if all SFRs in that PP or ST are based only upon functional components in CC Part 2, or
+- -CC Part 2 extended - A PP or ST is CC Part 2 extended if at least one SFR in that PP or ST is not based upon functional components in CC Part 2.
+- describes the conformance to CC Part 3 (security assurance requirements) as either:
+- -CC Part 3 conformant - A PP or ST is CC Part 3 conformant if all SARs in that PP or ST are based only upon assurance components in CC Part 3, or
+- -CC Part 3 extended - A PP or ST is CC Part 3 extended if at least one SAR in that PP or ST is not based upon assurance components in CC Part 3.
+
+Additionally,   the   conformance   claim   may   include   a   statement   made   with   respect   to packages, in which case it consists of one of the following:
+
+- Package name Conformant - A PP or ST is conformant to a pre-defined package (e.g. EAL) if:
+- -the SFRs of that PP or ST are identical to the SFRs in the package, or
+- -the SARs of that PP or ST are identical to the SARs in the package.
+- Package name Augmented - A PP or ST is an augmentation of a predefined package if:
+- -the SFRs of that PP or ST contain all SFRs in the package, but have at least one additional SFR or one SFR that is hierarchically higher than an SFR in the package.
+- -the SARs of that PP or ST contain all SARs in the package, but have at least one additional SAR or one SAR that is hierarchically higher than an SAR in the package.
+
+Note that when a TOE is successfully evaluated to a given ST, any conformance claims of the ST also hold for the TOE. A TOE can therefore also be e.g. CC Part 2 conformant. Finally, the conformance claim may also include two statements with respect to Protection
+
 Profiles:
-● PP Conformant - A PP or TOE meets specific PP(s), which are listed as part of the
-conformance result.
-● Conformance Statement (Only for PPs) - This statement describes the manner in
-which PPs or STs must conform to this PP: strict or demonstrable. For more
-information on this Conformance Statement, see Annex D.
+
+- PP Conformant - A PP or TOE meets specific PP(s), which are listed as part of the conformance result.
+- Conformance Statement (Only for PPs) - This statement describes the manner in which PPs or STs must conform to this PP: strict or demonstrable. For more information on this Conformance Statement, see Annex D.
+
 17 / 28
-Certification Report BSI-CC-PP-0062-2010
-CC Part 3:
-Class APE: Protection Profile evaluation (chapter 10)
-“Evaluating a PP is required to demonstrate that the PP is sound and internally consistent,
-and, if the PP is based on one or more other PPs or on packages, that the PP is a correct
-instantiation of these PPs and packages. These properties are necessary for the PP to be
-suitable for use as the basis for writing an ST or another PP.”
-Assurance Class Assurance Components
-Class APE: Protection
-Profile evaluation
-APE_INT.1 PP introduction
-APE_CCL.1 Conformance claims
-APE_SPD.1 Security problem definition
-APE_OBJ.1 Security objectives for the operational environment
-APE_OBJ.2 Security objectives
-APE_ECD.1 Extended components definition
-APE_REQ.1 Stated security requirements
-APE_REQ.2 Derived security requirements
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+## CC Part 3:
+
+## Class APE: Protection Profile evaluation (chapter 10)
+
+'Evaluating a PP is required to demonstrate that the PP is sound and internally consistent, and, if the PP is based on one or more other PPs or on packages, that the PP is a correct instantiation of these PPs and packages. These properties are necessary for the PP to be suitable for use as the basis for writing an ST or another PP.'
+
+| Assurance Class                          | Assurance Components                                                                        |
+|------------------------------------------|---------------------------------------------------------------------------------------------|
+| Class APE: Protection Profile evaluation | APE_INT.1 PP introduction                                                                   |
+| Class APE: Protection Profile evaluation | APE_CCL.1 Conformance claims                                                                |
+| Class APE: Protection Profile evaluation | APE_SPD.1 Security problem definition                                                       |
+| Class APE: Protection Profile evaluation | APE_OBJ.1 Security objectives for the operational environment APE_OBJ.2 Security objectives |
+| Class APE: Protection Profile evaluation | APE_ECD.1 Extended components definition                                                    |
+| Class APE: Protection Profile evaluation | APE_REQ.1 Stated security requirements APE_REQ.2 Derived security requirements              |
+
 APE: Protection Profile evaluation class decomposition
-Class ASE: Security Target evaluation (chapter 11)
-“Evaluating an ST is required to demonstrate that the ST is sound and internally
-consistent, and, if the ST is based on one or more PPs or packages, that the ST is a
-correct instantiation of these PPs and packages. These properties are necessary for the
-ST to be suitable for use as the basis for a TOE evaluation.”
-Assurance Class Assurance Components
-Class ASE: Security
-Target evaluation
-ASE_INT.1 ST introduction
-ASE_CCL.1 Conformance claims
-ASE_SPD.1 Security problem definition
-ASE_OBJ.1 Security objectives for the operational environment
-ASE_OBJ.2 Security objectives
-ASE_ECD.1 Extended components definition
-ASE_REQ.1 Stated security requirements
-ASE_REQ.2 Derived security requirements
-ASE_TSS.1 TOE summary specification
-ASE_TSS.2 TOE summary specification with architectural design
-summary
+
+## Class ASE: Security Target evaluation (chapter 11)
+
+'Evaluating   an   ST   is   required   to   demonstrate   that   the   ST   is   sound   and   internally consistent, and, if the ST is based on one or more PPs or packages, that the ST is a correct instantiation of these PPs and packages. These properties are necessary for the ST to be suitable for use as the basis for a TOE evaluation.'
+
+| Assurance Class                       | Assurance Components                                                                                      |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| Class ASE: Security Target evaluation | ASE_INT.1 ST introduction                                                                                 |
+| Class ASE: Security Target evaluation | ASE_CCL.1 Conformance claims                                                                              |
+| Class ASE: Security Target evaluation | ASE_SPD.1 Security problem definition                                                                     |
+| Class ASE: Security Target evaluation | ASE_OBJ.1 Security objectives for the operational environment ASE_OBJ.2 Security objectives               |
+| Class ASE: Security Target evaluation | ASE_ECD.1 Extended components definition                                                                  |
+| Class ASE: Security Target evaluation | ASE_REQ.1 Stated security requirements ASE_REQ.2 Derived security requirements                            |
+| Class ASE: Security Target evaluation | ASE_TSS.1 TOE summary specification ASE_TSS.2 TOE summary specification with architectural design summary |
+
 ASE: Security Target evaluation class decomposition
+
 18 / 28
-BSI-CC-PP-0062-2010 Certification Report
-Security assurance components (chapter 7)
-“The following sections describe the constructs used in representing the assurance
-classes, families, and components.“
-“Each assurance class contains at least one assurance family.”
-“Each assurance family contains one or more assurance components.”
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## Security assurance components (chapter 7)
+
+'The   following   sections   describe   the   constructs   used   in   representing   the   assurance classes, families, and components.'
+
+'Each assurance class contains at least one assurance family.'
+
+'Each assurance family contains one or more assurance components.'
+
 The following table shows the assurance class decomposition.
-Assurance Class Assurance Components
-ADV: Development
-ADV_ARC.1 Security architecture description
-ADV_FSP.1 Basic functional specification
-ADV_FSP.2 Security-enforcing functional specification
-ADV_FSP.3 Functional specification with complete summary
-ADV_FSP.4 Complete functional specification
-ADV_FSP.5 Complete semi-formal functional specification with
-additional error information
-ADV_FSP.6 Complete semi-formal functional specification with
-additional formal specification
-ADV_IMP.1 Implementation representation of the TSF
-ADV_IMP.2 Implementation of the TSF
-ADV_INT.1 Well-structured subset of TSF internals
-ADV_INT.2 Well-structured internals
-ADV_INT.3 Minimally complex internals
-ADV_SPM.1 Formal TOE security policy model
-ADV_TDS.1 Basic design
-ADV_TDS.2 Architectural design
-ADV_TDS.3 Basic modular design
-ADV_TDS.4 Semiformal modular design
-ADV_TDS.5 Complete semiformal modular design
-ADV_TDS.6 Complete semiformal modular design with formal high-
-level design presentation
-AGD:
-Guidance documents
-AGD_OPE.1 Operational user guidance
-AGD_PRE.1 Preparative procedures
-ALC: Life cycle support
-ALC_CMC.1 Labelling of the TOE
-ALC_CMC.2 Use of a CM system
-ALC_CMC.3 Authorisation controls
-ALC_CMC.4 Production support, acceptance procedures and
-automation
-ALC_CMC.5 Advanced support
-ALC_CMS.1 TOE CM coverage
-ALC_CMS.2 Parts of the TOE CM coverage
-ALC_CMS.3 Implementation representation CM coverage
-ALC_CMS.4 Problem tracking CM coverage
-ALC_CMS.5 Development tools CM coverage
-ALC_DEL.1 Delivery procedures
-ALC_DVS.1 Identification of security measures
-ALC_DVS.2 Sufficiency of security measures
+
+| Assurance Class         | Assurance Components                                                                                                                                                                                                                                           |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ADV: Development        | ADV_ARC.1 Security architecture description                                                                                                                                                                                                                    |
+| ADV: Development        | ADV_IMP.1 Implementation representation of the TSF ADV_IMP.2 Implementation of the TSF                                                                                                                                                                         |
+| ADV: Development        | ADV_INT.1 Well-structured subset of TSF internals ADV_INT.2 Well-structured internals ADV_INT.3 Minimally complex internals                                                                                                                                    |
+| ADV: Development        | ADV_SPM.1 Formal TOE security policy model                                                                                                                                                                                                                     |
+| ADV: Development        | ADV_TDS.1 Basic design ADV_TDS.2 Architectural design ADV_TDS.3 Basic modular design ADV_TDS.4 Semiformal modular design ADV_TDS.5 Complete semiformal modular design ADV_TDS.6 Complete semiformal modular design with formal high- level design presentation |
+| AGD:                    | AGD_OPE.1 Operational user guidance                                                                                                                                                                                                                            |
+| Guidance documents      | AGD_PRE.1 Preparative procedures                                                                                                                                                                                                                               |
+| ALC: Life cycle support | ALC_CMC.1 Labelling of the TOE ALC_CMC.2 Use of a CM system ALC_CMC.3 Authorisation controls ALC_CMC.4 Production support, acceptance procedures and automation ALC_CMC.5 Advanced support                                                                     |
+| ALC: Life cycle support | ALC_CMS.1 TOE CM coverage ALC_CMS.2 Parts of the TOE CM coverage ALC_CMS.3 Implementation representation CM coverage ALC_CMS.4 Problem tracking CM coverage ALC_CMS.5 Development tools CM coverage                                                            |
+| ALC: Life cycle support | ALC_DEL.1 Delivery procedures                                                                                                                                                                                                                                  |
+| ALC: Life cycle support | ALC_DVS.1 Identification of security measures ALC_DVS.2 Sufficiency of security measures                                                                                                                                                                       |
+
 19 / 28
-Certification Report BSI-CC-PP-0062-2010
-Assurance Class Assurance Components
-ALC_FLR.1 Basic flaw remediation
-ALC_FLR.2 Flaw reporting procedures
-ALC_FLR.3 Systematic flaw remediation
-ALC_LCD.1 Developer defined life-cycle model
-ALC_LCD.2 Measurable life-cycle model
-ALC_TAT.1 Well-defined development tools
-ALC_TAT.2 Compliance with implementation standards
-ALC_TAT.3 Compliance with implementation standards - all parts
-ATE: Tests
-ATE_COV.1 Evidence of coverage
-ATE_COV.2 Analysis of coverage
-ATE_COV.3 Rigorous analysis of coverage
-ATE_DPT.1 Testing: basic design
-ATE_DPT.2 Testing: security enforcing modules
-ATE_DPT.3 Testing: modular design
-ATE_DPT.4 Testing: implementation representation
-ATE_FUN.1 Functional testing
-ATE_FUN.2 Ordered functional testing
-ATE_IND.1 Independent testing – conformance
-ATE_IND.2 Independent testing – sample
-ATE_IND.3 Independent testing – complete
-AVA: Vulnerability
-assessment
-AVA_VAN.1 Vulnerability survey
-AVA_VAN.2 Vulnerability analysis
-AVA_VAN.3 Focused vulnerability analysis
-AVA_VAN.4 Methodical vulnerability analysis
-AVA_VAN.5 Advanced methodical vulnerability analysis
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+| Assurance Class               | Assurance Components                                                                                                                                                                                      |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                               | ALC_FLR.1 Basic flaw remediation ALC_FLR.2 Flaw reporting procedures ALC_FLR.3 Systematic flaw remediation                                                                                                |
+|                               | ALC_LCD.1 Developer defined life-cycle model ALC_LCD.2 Measurable life-cycle model                                                                                                                        |
+|                               | ALC_TAT.1 Well-defined development tools ALC_TAT.2 Compliance with implementation standards ALC_TAT.3 Compliance with implementation standards - all parts                                                |
+| ATE: Tests                    | ATE_COV.1 Evidence of coverage ATE_COV.2 Analysis of coverage ATE_COV.3 Rigorous analysis of coverage                                                                                                     |
+| ATE: Tests                    | ATE_DPT.1 Testing: basic design ATE_DPT.2 Testing: security enforcing modules ATE_DPT.3 Testing: modular design ATE_DPT.4 Testing: implementation representation                                          |
+| ATE: Tests                    | ATE_FUN.1 Functional testing ATE_FUN.2 Ordered functional testing                                                                                                                                         |
+| ATE: Tests                    | ATE_IND.1 Independent testing - conformance ATE_IND.2 Independent testing - sample ATE_IND.3 Independent testing - complete                                                                               |
+| AVA: Vulnerability assessment | AVA_VAN.1 Vulnerability survey AVA_VAN.2 Vulnerability analysis AVA_VAN.3 Focused vulnerability analysis AVA_VAN.4 Methodical vulnerability analysis AVA_VAN.5 Advanced methodical vulnerability analysis |
+
 Assurance class decomposition
+
 20 / 28
-BSI-CC-PP-0062-2010 Certification Report
-Evaluation assurance levels (chapter 8)
-“The Evaluation Assurance Levels (EALs) provide an increasing scale that balances the
-level of assurance obtained with the cost and feasibility of acquiring that degree of
-assurance. The CC approach identifies the separate concepts of assurance in a TOE at
-the end of the evaluation, and of maintenance of that assurance during the operational use
-of the TOE.
-It is important to note that not all families and components from CC Part 3 are included in
-the EALs. This is not to say that these do not provide meaningful and desirable
-assurances. Instead, it is expected that these families and components will be considered
-for augmentation of an EAL in those PPs and STs for which they provide utility.”
-Evaluation assurance level (EAL) overview (chapter 8.1)
-“Table 1 represents a summary of the EALs. The columns represent a hierarchically
-ordered set of EALs, while the rows represent assurance families. Each number in the
-resulting matrix identifies a specific assurance component where applicable.
-As outlined in the next Section, seven hierarchically ordered evaluation assurance levels
-are defined in the CC for the rating of a TOE's assurance. They are hierarchically ordered
-inasmuch as each EAL represents more assurance than all lower EALs. The increase in
-assurance from EAL to EAL is accomplished by substitution of a hierarchically higher
-assurance component from the same assurance family (i.e. increasing rigour, scope,
-and/or depth) and from the addition of assurance components from other assurance
-families (i.e. adding new requirements).
-These EALs consist of an appropriate combination of assurance components as described
-in chapter 7 of this CC Part 3. More precisely, each EAL includes no more than one
-component of each assurance family and all assurance dependencies of every component
-are addressed.
-While the EALs are defined in the CC, it is possible to represent other combinations of
-assurance. Specifically, the notion of “augmentation” allows the addition of assurance
-components (from assurance families not already included in the EAL) or the substitution
-of assurance components (with another hierarchically higher assurance component in the
-same assurance family) to an EAL. Of the assurance constructs defined in the CC, only
-EALs may be augmented. The notion of an “EAL minus a constituent assurance
-component” is not recognised by the standard as a valid claim. Augmentation carries with
-it the obligation on the part of the claimant to justify the utility and added value of the
-added assurance component to the EAL. An EAL may also be augmented with extended
-assurance requirements.
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## Evaluation assurance levels (chapter 8)
+
+'The Evaluation Assurance Levels (EALs) provide an increasing scale that balances the level   of   assurance   obtained   with   the   cost   and   feasibility   of   acquiring   that   degree   of assurance. The CC approach identifies the separate concepts of assurance in a TOE at the end of the evaluation, and of maintenance of that assurance during the operational use of the TOE.
+
+It is important to note that not all families and components from CC Part 3 are included in the   EALs.   This   is   not   to   say   that   these   do   not   provide   meaningful   and   desirable assurances. Instead, it is expected that these families and components will be considered for augmentation of an EAL in those PPs and STs for which they provide utility.'
+
+## Evaluation assurance level (EAL) overview (chapter 8.1)
+
+'Table 1 represents a summary of the EALs. The columns represent a hierarchically ordered set of EALs, while the rows represent assurance families. Each number in the resulting matrix identifies a specific assurance component where applicable.
+
+As outlined in the next Section, seven hierarchically ordered evaluation assurance levels are defined in the CC for the rating of a TOE's assurance. They are hierarchically ordered inasmuch as each EAL represents more assurance than all lower EALs. The increase in assurance from EAL to EAL is accomplished by substitution of a hierarchically higher assurance component from the same assurance family (i.e. increasing rigour, scope, and/or depth) and from the addition of assurance components from other assurance families (i.e. adding new requirements).
+
+These EALs consist of an appropriate combination of assurance components as described in chapter 7 of this CC Part 3. More precisely, each EAL includes no more than one component of each assurance family and all assurance dependencies of every component are addressed.
+
+While the EALs are defined in the CC, it is possible to represent other combinations of assurance. Specifically, the notion of 'augmentation' allows the addition of assurance components (from assurance families not already included in the EAL) or the substitution of assurance components (with another hierarchically higher assurance component in the same assurance family) to an EAL. Of the assurance constructs defined in the CC, only EALs   may   be   augmented.   The   notion   of   an   'EAL   minus   a   constituent   assurance component' is not recognised by the standard as a valid claim. Augmentation carries with it the obligation on the part of the claimant to justify the utility and added value of the added assurance component to the EAL. An EAL may also be augmented with extended assurance requirements.
+
 21 / 28
-Certification Report BSI-CC-PP-0062-2010
-Assurance
-Class
-Assurance
-Family
-Assurance Components by
-Evaluation Assurance Level
-EAL1 EAL2 EAL3 EAL4 EAL5 EAL6 EAL7
-Development ADV_ARC 1 1 1 1 1 1
-ADV_FSP 1 2 3 4 5 5 6
-ADV_IMP 1 1 2 2
-ADV_INT 2 3 3
-ADV_SPM 1 1
-ADV_TDS 1 2 3 4 5 6
-Guidance AGD_OPE 1 1 1 1 1 1 1
-Documents AGD_PRE 1 1 1 1 1 1 1
-Life cycle
-Support
-ALC_CMC 1 2 3 4 4 5 5
-ALC_CMS 1 2 3 4 5 5 5
-ALC_DEL 1 1 1 1 1 1
-ALC_DVS 1 1 1 2 2
-ALC_FLR
-ALC_LCD 1 1 1 1 2
-ALC_TAT 1 2 3 3
-Security Target
-Evaluation
-ASE_CCL 1 1 1 1 1 1 1
-ASE_ECD 1 1 1 1 1 1 1
-ASE_INT 1 1 1 1 1 1 1
-ASE_OBJ 1 2 2 2 2 2 2
-ASR_REQ 1 2 2 2 2 2 2
-ASE_SPD 1 1 1 1 1 1
-ASE_TSS 1 1 1 1 1 1 1
-Tests ATE_COV 1 2 2 2 3 3
-ATE_DPT 1 1 3 3 4
-ATE_FUN 1 1 1 1 2 2
-ATE_IND 1 2 2 2 2 2 3
-Vulnerability
-assessment
-AVA_VAN 1 2 2 3 4 5 5
-Table 1: Evaluation assurance level summary”
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+Table 1: Evaluation assurance level summary'
+
+| Assurance Class          | Assurance Family   | Assurance Components by Evaluation Assurance Level   | Assurance Components by Evaluation Assurance Level   | Assurance Components by Evaluation Assurance Level   | Assurance Components by Evaluation Assurance Level   | Assurance Components by Evaluation Assurance Level   | Assurance Components by Evaluation Assurance Level   | Assurance Components by Evaluation Assurance Level   |
+|--------------------------|--------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|
+|                          |                    | EAL1                                                 | EAL2                                                 | EAL3                                                 | EAL4                                                 | EAL5                                                 | EAL6                                                 | EAL7                                                 |
+| Development              | ADV_ARC            |                                                      | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    |
+| Development              | ADV_FSP            | 1                                                    | 2                                                    | 3                                                    | 4                                                    | 5                                                    | 5                                                    | 6                                                    |
+| Development              | ADV_IMP            |                                                      |                                                      |                                                      | 1                                                    | 1                                                    | 2                                                    | 2                                                    |
+| Development              | ADV_INT            |                                                      |                                                      |                                                      |                                                      | 2                                                    | 3                                                    | 3                                                    |
+| Development              | ADV_SPM            |                                                      |                                                      |                                                      |                                                      |                                                      | 1                                                    | 1                                                    |
+| Development              | ADV_TDS            |                                                      | 1                                                    | 2                                                    | 3                                                    | 4                                                    | 5                                                    | 6                                                    |
+| Guidance                 | AGD_OPE            | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    |
+| Documents                | AGD_PRE            | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    |
+| Life cycle Support       | ALC_CMC            | 1                                                    | 2                                                    | 3                                                    | 4                                                    | 4                                                    | 5                                                    | 5                                                    |
+|                          | ALC_CMS            | 1                                                    | 2                                                    | 3                                                    | 4                                                    | 5                                                    | 5                                                    | 5                                                    |
+|                          | ALC_DEL            |                                                      | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    |
+|                          | ALC_DVS            |                                                      |                                                      | 1                                                    | 1                                                    | 1                                                    | 2                                                    | 2                                                    |
+|                          | ALC_FLR            |                                                      |                                                      |                                                      |                                                      |                                                      |                                                      |                                                      |
+|                          | ALC_LCD            |                                                      |                                                      | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 2                                                    |
+| Security Target          | ALC_TAT ASE_CCL    |                                                      |                                                      |                                                      | 1                                                    | 2                                                    | 3                                                    | 3 1                                                  |
+| Evaluation               |                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1 1                                                  | 1 1                                                  | 1                                                    |
+| Evaluation               | ASE_ECD            | 1                                                    | 1 1                                                  | 1 1                                                  | 1 1                                                  | 1                                                    | 1                                                    | 1                                                    |
+| Evaluation               | ASE_INT            | 1                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    |
+| Evaluation               | ASE_OBJ ASR_REQ    | 1 1                                                  | 2                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    |
+| Evaluation               | ASE_SPD            |                                                      | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    |
+| Evaluation               | ASE_TSS            | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 1                                                    |
+| Tests                    | ATE_COV            |                                                      | 1                                                    | 2                                                    | 2                                                    | 2                                                    | 3                                                    | 3                                                    |
+| Tests                    | ATE_DPT            |                                                      |                                                      | 1                                                    | 1                                                    | 3                                                    | 3                                                    | 4                                                    |
+| Tests                    | ATE_FUN            |                                                      | 1                                                    | 1                                                    | 1                                                    | 1                                                    | 2                                                    | 2                                                    |
+| Tests                    | ATE_IND            | 1                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    | 2                                                    | 3                                                    |
+| Vulnerability assessment | AVA_VAN            | 1                                                    | 2                                                    | 2                                                    | 3                                                    | 4                                                    | 5                                                    | 5                                                    |
+
 22 / 28
-BSI-CC-PP-0062-2010 Certification Report
-Evaluation assurance level 1 (EAL1) - functionally tested (chapter 8.3)
-“Objectives
-EAL1 is applicable where some confidence in correct operation is required, but the threats
-to security are not viewed as serious. It will be of value where independent assurance is
-required to support the contention that due care has been exercised with respect to the
-protection of personal or similar information.
-EAL1 requires only a limited security target. It is sufficient to simply state the SFRs that the
-TOE must meet, rather than deriving them from threats, OSPs and assumptions through
-security objectives.
-EAL1 provides an evaluation of the TOE as made available to the customer, including
-independent testing against a specification, and an examination of the guidance
-documentation provided. It is intended that an EAL1 evaluation could be successfully
-conducted without assistance from the developer of the TOE, and for minimal outlay.
-An evaluation at this level should provide evidence that the TOE functions in a manner
-consistent with its documentation.”
-Evaluation assurance level 2 (EAL2) - structurally tested (chapter 8.4)
-“Objectives
-EAL2 requires the co-operation of the developer in terms of the delivery of design
-information and test results, but should not demand more effort on the part of the
-developer than is consistent with good commercial practise. As such it should not require a
-substantially increased investment of cost or time.
-EAL2 is therefore applicable in those circumstances where developers or users require a
-low to moderate level of independently assured security in the absence of ready
-availability of the complete development record. Such a situation may arise when securing
-legacy systems, or where access to the developer may be limited.”
-Evaluation assurance level 3 (EAL3) - methodically tested and checked (chapter 8.5)
-“Objectives
-EAL3 permits a conscientious developer to gain maximum assurance from positive
-security engineering at the design stage without substantial alteration of existing sound
-development practises.
-EAL3 is applicable in those circumstances where developers or users require a moderate
-level of independently assured security, and require a thorough investigation of the TOE
-and its development without substantial re-engineering.”
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## Evaluation assurance level 1 (EAL1) - functionally tested (chapter 8.3)
+
+## 'Objectives
+
+EAL1 is applicable where some confidence in correct operation is required, but the threats to security are not viewed as serious. It will be of value where independent assurance is required to support the contention that due care has been exercised with respect to the protection of personal or similar information.
+
+EAL1 requires only a limited security target. It is sufficient to simply state the SFRs that the TOE must meet, rather than deriving them from threats, OSPs and assumptions through security objectives.
+
+EAL1 provides an evaluation of the TOE as made available to the customer, including independent   testing   against   a   specification,   and   an   examination   of   the   guidance documentation provided. It is intended that an EAL1 evaluation could be successfully conducted without assistance from the developer of the TOE, and for minimal outlay.
+
+An evaluation at this level should provide evidence that the TOE functions in a manner consistent with its documentation.'
+
+## Evaluation assurance level 2 (EAL2) - structurally tested (chapter 8.4)
+
+## 'Objectives
+
+EAL2 requires the co-operation of  the   developer   in   terms   of   the   delivery   of   design information   and   test   results,   but   should   not   demand   more   effort   on   the   part   of   the developer than is consistent with good commercial practise. As such it should not require a substantially increased investment of cost or time.
+
+EAL2 is therefore applicable in those circumstances where developers or users require a low   to   moderate   level   of   independently   assured   security   in   the   absence   of   ready availability of the complete development record. Such a situation may arise when securing legacy systems, or where access to the developer may be limited.'
+
+## Evaluation assurance level 3 (EAL3) - methodically tested and checked (chapter 8.5)
+
+## 'Objectives
+
+EAL3 permits   a   conscientious   developer   to   gain   maximum   assurance   from   positive security engineering at the design stage without substantial alteration of existing sound development practises.
+
+EAL3 is applicable in those circumstances where developers or users require a moderate level of independently assured security, and require a thorough investigation of the TOE and its development without substantial re-engineering.'
+
 23 / 28
-Certification Report BSI-CC-PP-0062-2010
-Evaluation assurance level 4 (EAL4) - methodically designed, tested, and reviewed
-(chapter 8.6)
-“Objectives
-EAL4 permits a developer to gain maximum assurance from positive security engineering
-based on good commercial development practises which, though rigorous, do not require
-substantial specialist knowledge, skills, and other resources. EAL4 is the highest level at
-which it is likely to be economically feasible to retrofit to an existing product line.
-EAL4 is therefore applicable in those circumstances where developers or users require a
-moderate to high level of independently assured security in conventional commodity TOEs
-and are prepared to incur additional security-specific engineering costs.”
-Evaluation assurance level 5 (EAL5) - semiformally designed and tested (chapter 8.7)
-“Objectives
-EAL5 permits a developer to gain maximum assurance from security engineering based
-upon rigorous commercial development practises supported by moderate application of
-specialist security engineering techniques. Such a TOE will probably be designed and
-developed with the intent of achieving EAL5 assurance. It is likely that the additional costs
-attributable to the EAL5 requirements, relative to rigorous development without the
-application of specialised techniques, will not be large.
-EAL5 is therefore applicable in those circumstances where developers or users require a
-high level of independently assured security in a planned development and require a
-rigorous development approach without incurring unreasonable costs attributable to
-specialist security engineering techniques.”
-Evaluation assurance level 6 (EAL6) - semiformally verified design and tested
-(chapter 8.8)
-“Objectives
-EAL6 permits developers to gain high assurance from application of security engineering
-techniques to a rigorous development environment in order to produce a premium TOE for
-protecting high value assets against significant risks.
-EAL6 is therefore applicable to the development of security TOEs for application in high
-risk situations where the value of the protected assets justifies the additional costs.”
-Evaluation assurance level 7 (EAL7) - formally verified design and tested
-(chapter 8.9)
-“Objectives
-EAL7 is applicable to the development of security TOEs for application in extremely high
-risk situations and/or where the high value of the assets justifies the higher costs. Practical
-application of EAL7 is currently limited to TOEs with tightly focused security functionality
-that is amenable to extensive formal analysis.”
-Class AVA: Vulnerability assessment (chapter 16)
-“The AVA: Vulnerability assessment class addresses the possibility of exploitable
-vulnerabilities introduced in the development or the operation of the TOE.”
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
+## Evaluation assurance level 4 (EAL4) - methodically designed, tested, and reviewed (chapter 8.6)
+
+## 'Objectives
+
+EAL4 permits a developer to gain maximum assurance from positive security engineering based on good commercial development practises which, though rigorous, do not require substantial specialist knowledge, skills, and other resources. EAL4 is the highest level at which it is likely to be economically feasible to retrofit to an existing product line.
+
+EAL4 is therefore applicable in those circumstances where developers or users require a moderate to high level of independently assured security in conventional commodity TOEs and are prepared to incur additional security-specific engineering costs.'
+
+## Evaluation assurance level 5 (EAL5) - semiformally designed and tested (chapter 8.7)
+
+## 'Objectives
+
+EAL5 permits a developer to gain maximum assurance from security engineering based upon rigorous commercial development practises supported by moderate application of specialist security engineering techniques. Such a TOE will probably be designed and developed with the intent of achieving EAL5 assurance. It is likely that the additional costs attributable   to   the   EAL5   requirements,   relative   to   rigorous   development   without   the application of specialised techniques, will not be large.
+
+EAL5 is therefore applicable in those circumstances where developers or users require a high level of independently assured security in a planned development and require a rigorous   development   approach   without   incurring   unreasonable   costs   attributable   to specialist security engineering techniques.'
+
+## Evaluation   assurance   level   6   (EAL6)   -   semiformally   verified   design   and   tested (chapter 8.8)
+
+## 'Objectives
+
+EAL6 permits developers to gain high assurance from application of security engineering techniques to a rigorous development environment in order to produce a premium TOE for protecting high value assets against significant risks.
+
+EAL6 is therefore applicable to the development of security TOEs for application in high risk situations where the value of the protected assets justifies the additional costs.'
+
+## Evaluation   assurance   level   7   (EAL7)   -   formally   verified   design   and   tested (chapter 8.9)
+
+## 'Objectives
+
+EAL7 is applicable to the development of security TOEs for application in extremely high risk situations and/or where the high value of the assets justifies the higher costs. Practical application of EAL7 is currently limited to TOEs with tightly focused security functionality that is amenable to extensive formal analysis.'
+
+## Class AVA: Vulnerability assessment (chapter 16)
+
+'The   AVA:   Vulnerability   assessment   class   addresses   the   possibility   of   exploitable vulnerabilities introduced in the development or the operation of the TOE.'
+
 24 / 28
-BSI-CC-PP-0062-2010 Certification Report
-Vulnerability analysis (AVA_VAN) (chapter 16.1)
-"Objectives
-Vulnerability analysis is an assessment to determine whether potential vulnerabilities
-identified, during the evaluation of the development and anticipated operation of the TOE
-or by other methods (e.g. by flaw hypotheses or quantitative or statistical analysis of the
-security behaviour of the underlying security mechanisms), could allow attackers to violate
-the SFRs.
-Vulnerability analysis deals with the threats that an attacker will be able to discover flaws
-that will allow unauthorised access to data and functionality, allow the ability to interfere
-with or alter the TSF, or interfere with the authorised capabilities of other users.”
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## Vulnerability analysis (AVA_VAN) (chapter 16.1)
+
+## "Objectives
+
+Vulnerability   analysis   is   an   assessment   to   determine   whether   potential   vulnerabilities identified, during the evaluation of the development and anticipated operation of the TOE or by other methods (e.g. by flaw hypotheses or quantitative or statistical analysis of the security behaviour of the underlying security mechanisms), could allow attackers to violate the SFRs.
+
+Vulnerability analysis deals with the threats that an attacker will be able to discover flaws that will allow unauthorised access to data and functionality, allow the ability to interfere with or alter the TSF, or interfere with the authorised capabilities of other users.'
+
 25 / 28
-Certification Report BSI-CC-PP-0062-2010
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
 This page is intentionally left blank.
+
 26 / 28
-BSI-CC-PP-0062-2010 Certification Report
-D Annexes
-List of annexes of this certification report
-Annex A: Fingerprint Spoof Detection Protection Profile based on Organisational
-Security Policies (FSDPP_OSP), Version 1.7 [6] provided within a separate
-document.
+
+BSI-CC-PP-0062-2010
+
+Certification Report
+
+## D Annexes
+
+## List of annexes of this certification report
+
+Annex A: Fingerprint   Spoof   Detection   Protection   Profile   based   on   Organisational Security Policies (FSDPP_OSP), Version 1.7 [6] provided within a separate document.
+
 27 / 28
-Certification Report BSI-CC-PP-0062-2010
+
+Certification Report
+
+BSI-CC-PP-0062-2010
+
 This page is intentionally left blank.
+
 28 / 28
-

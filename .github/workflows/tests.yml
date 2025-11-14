@@ -36,7 +36,7 @@ jobs:
           pip install -e .
           python -m spacy download en_core_web_sm
       - name: Run tests
-        run: pytest --cov=sec_certs -m "not remote" --junitxml=junit.xml -o junit_family=legacy tests
+        run: pytest --cov=sec_certs -m "not remote and not docling" --junitxml=junit.xml -o junit_family=legacy tests
       - name: Test summary
         if: always()
         uses: test-summary/action@v2
