@@ -218,6 +218,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             FIPSCertificate.convert_policy_pdf,
             certs_to_process,
             config.pdf_conversion_workers,
+            config.pdf_conversion_max_chunk_size,
             progress_bar_desc="Converting PDFs of FIPS security policies",
         )
 

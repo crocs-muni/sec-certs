@@ -715,6 +715,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             convert_func,
             certs_to_process,
             config.pdf_conversion_workers,
+            config.pdf_conversion_max_chunk_size,
             progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
 

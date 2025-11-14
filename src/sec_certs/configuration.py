@@ -156,6 +156,12 @@ class Configuration(BaseSettings):
     pdf_conversion_workers: int = Field(
         2, description="Number of workers for parallel PDF processing. PDFs are divided into across workers."
     )
+    # Recommended when using DoclingConverter.
+    # Docling instances accumulate memory during long-running processing. Restarting workers periodically helps prevent memory issues.
+    pdf_conversion_max_chunk_size: int | None = Field(
+        None,
+        description="Maximum number of PDFs to process before restarting the worker pool. Helps control memory usage in converters that gradually accumulate memory during long runs.",
+    )
 
     def _get_nondefault_keys(self) -> set[str]:
         """

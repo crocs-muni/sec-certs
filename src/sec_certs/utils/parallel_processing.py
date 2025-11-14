@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Callable, Collection, Iterable
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
 from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
@@ -9,6 +11,8 @@ from typing import Any
 
 from sec_certs.configuration import config
 from sec_certs.utils.tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 _worker_instance: Any = None
 
@@ -35,24 +39,33 @@ def process_parallel_with_instance(
     func: Callable,
     items: Collection,
     max_workers: int = config.n_threads,
+    max_chunk_size: int | None = None,
     progress_bar_desc: str | None = None,
 ) -> list[Any]:
     if max_workers == -1:
         max_workers = cpu_count()
 
-    ctx = get_context("spawn")
-    pool = ctx.Pool(max_workers, initializer=_init_worker_instance, initargs=(instance_cls, instance_args))
     result = []
-    with pool:
-        wrapper = partial(_worker_wrapper, func=func)
-        iterator = pool.imap_unordered(wrapper, items)
-        for processed in tqdm(iterator, total=len(items), desc=progress_bar_desc):
-            result.append(processed)
+    chunk_size = max_chunk_size if max_chunk_size is not None else len(items)
 
-        # Without this, coverage doesn't work, because Pool.__exit__ calls terminate()
-        # and workers don't have time to save their coverage data.
-        pool.close()
-        pool.join()
+    def processor():
+        for i in range(0, len(items), chunk_size):
+            batch = items[i : i + chunk_size]
+            ctx = get_context("spawn")
+            pool = ProcessPoolExecutor(
+                max_workers, ctx, initializer=_init_worker_instance, initargs=(instance_cls, instance_args)
+            )
+            with pool:
+                wrapper = partial(_worker_wrapper, func=func)
+                futures = {pool.submit(wrapper, item): item for item in batch}
+                for future in as_completed(futures.keys()):
+                    yield future, futures[future]
+
+    for future, item in tqdm(processor(), total=len(items), desc=progress_bar_desc):
+        if (e := future.exception()) is not None:
+            logger.error(f"Processing of {item} failed: {e}")
+        else:
+            result.append(future.result())
 
     return result
 
