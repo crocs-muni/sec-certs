@@ -50,14 +50,14 @@ def process_parallel_with_instance(
 
     def processor():
         for i in range(0, len(items), chunk_size):
-            batch = items[i : i + chunk_size]
+            chunk = items[i : i + chunk_size]
             ctx = get_context("spawn")
             pool = ProcessPoolExecutor(
                 max_workers, ctx, initializer=_init_worker_instance, initargs=(instance_cls, instance_args)
             )
             with pool:
                 wrapper = partial(_worker_wrapper, func=func)
-                futures = {pool.submit(wrapper, item): item for item in batch}
+                futures = {pool.submit(wrapper, item): item for item in chunk}
                 for future in as_completed(futures.keys()):
                     yield future, futures[future]
 
