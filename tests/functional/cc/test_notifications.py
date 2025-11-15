@@ -7,7 +7,7 @@ from sec_certs_page import mail, mongo
 from sec_certs_page.cc.tasks import notify
 
 
-@pytest.fixture(params=["6ca52f5450bedb2f", "e778cd5e29cebbf2"])
+@pytest.fixture(params=["3d1b01ce576f605d", "44f677892bb84ce5"])
 def certificate(request):
     return mongo.db.cc.find_one({"_id": request.param})
 
@@ -49,6 +49,10 @@ def confirmed_subscription(client: FlaskClient, unconfirmed_subscription):
 
 
 def test_send_notification(app, mocker, confirmed_subscription):
+    runs = set(map(lambda r: r["run_id"], mongo.db.cc_diff.find({}, {"run_id": 1})))
+    from bson.json_util import dumps
+
+    print(dumps(runs))
     m = mocker.patch.object(mail, "send")
     dgst = confirmed_subscription["certificate"]["hashid"]
     if confirmed_subscription["updates"] == "vuln":

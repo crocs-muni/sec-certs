@@ -7,7 +7,7 @@ from sec_certs_page import mongo
 
 
 @pytest.fixture()
-def certificate():
+def certificate(mongo_data):
     return mongo.db.cc.find_one({"_id": "6ca52f5450bedb2f"})
 
 

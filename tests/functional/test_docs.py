@@ -4,10 +4,8 @@ from tempfile import TemporaryDirectory
 
 from flask.testing import FlaskClient
 
-from sec_certs_page import app
 
-
-def test_docs_upload(client: FlaskClient):
+def test_docs_upload(app, client: FlaskClient):
     index_text = "This is a test."
     with TemporaryDirectory() as tmpdir:
         index_file = Path(tmpdir) / "index.html"

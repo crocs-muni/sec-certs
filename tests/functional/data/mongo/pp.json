@@ -1,0 +1,3145 @@
+[{
+	"_id": "ecc28509c30de1a5",
+	"_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+	"dgst": "ecc28509c30de1a5",
+	"web_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+		"category": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+		"status": "active",
+		"is_collaborative": false,
+		"name": "Card Operating System Generation 2",
+		"version": "Version 1.9",
+		"security_level": {
+			"_type": "set",
+			"_value": [
+				"AVA_VAN.5",
+				"ATE_DPT.2",
+				"EAL4+",
+				"ALC_DVS.2"
+			]
+		},
+		"not_valid_before": {
+			"_type": "date",
+			"_value": "2014-11-21"
+		},
+		"not_valid_after": null,
+		"report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0082V2a_pdf.pdf",
+		"pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0082V2b_pdf.pdf",
+		"scheme": "DE",
+		"maintenances": []
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+		"report_metadata": {
+			"pdf_file_size_bytes": 573136,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 28,
+			"/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+			"/CreationDate": "D:20141124134119+01'00'",
+			"/Creator": "Writer",
+			"/Keywords": "\"Common Criteria, Certification, Zertifizierung, Protection Profile, Schutzprof, Card Operating System Generation 2 (PP COS G2) Version 1.9\"",
+			"/ModDate": "D:20141125095104+01'00'",
+			"/Producer": "LibreOffice 4.2",
+			"/Subject": "Common Criteria Certification",
+			"/Title": "Certification Report BSI-CC-PP-0082-V2-2014",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://www.commoncriteriaportal.org/",
+					"https://www.bsi.bund.de/",
+					"https://www.bsi.bund.de/zertifizierung"
+				]
+			}
+		},
+		"pp_metadata": {
+			"pdf_file_size_bytes": 1490752,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 172,
+			"/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+			"/Bearbeitet von": "Wolfgang Killmann, Andreas H. Niers, Falk Nedwal",
+			"/Category": "Protection Profile BSI-PP-0082",
+			"/Company": "BSI;T-Systems GEI GmbH",
+			"/CreationDate": "D:20141118112355+01'00'",
+			"/Creator": "Acrobat PDFMaker 10.1 for Word",
+			"/Eigentümer": "BSI",
+			"/Erstellt von": "Wolfgang Killmann, Andreas H. Niers, Falk Nedwa",
+			"/Gegenstand": "Common Criteria Protection Profile BSI-PP-0082",
+			"/Keywords": "\"Card Operating System Generation 2; COS; COS PP; Gesundheitskarte\"",
+			"/ModDate": "D:20141125094818+01'00'",
+			"/Producer": "Adobe PDF Library 10.0",
+			"/SourceModified": "D:20141118102257",
+			"/Subject": "Card Operating System (COS)",
+			"/Title": "Common Criteria Protection Profile BSI-CC-PP-0082-V2",
+			"/_NewReviewCycle": "",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		},
+		"report_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-CC-PP-0082-V2-2014": 14,
+					"BSI-CC-PP-0082-2013": 3
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL 4": 7,
+					"EAL 1": 1,
+					"EAL 2": 1,
+					"EAL1": 6,
+					"EAL3": 4,
+					"EAL5": 6,
+					"EAL7": 4,
+					"EAL2": 3,
+					"EAL4": 4,
+					"EAL6": 3,
+					"EAL 4 augmented": 2
+				},
+				"ITSEC": {
+					"ITSEC Evaluation": 1
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 1,
+					"ADV_FSP．1": 1,
+					"ADV_FSP．2": 1,
+					"ADV_FSP．3": 1,
+					"ADV_FSP．4": 1,
+					"ADV_FSP．5": 1,
+					"ADV_FSP．6": 1,
+					"ADV_IMP．1": 1,
+					"ADV_IMP．2": 1,
+					"ADV_INT．1": 1,
+					"ADV_INT．2": 1,
+					"ADV_INT．3": 1,
+					"ADV_SPM．1": 1,
+					"ADV_TDS．1": 1,
+					"ADV_TDS．2": 1,
+					"ADV_TDS．3": 1,
+					"ADV_TDS．4": 1,
+					"ADV_TDS．5": 1,
+					"ADV_TDS．6": 1,
+					"ADV_ARC": 1,
+					"ADV_FSP": 1,
+					"ADV_IMP": 1,
+					"ADV_INT": 1,
+					"ADV_SPM": 1,
+					"ADV_TDS": 1
+				},
+				"AGD": {
+					"AGD_OPE．1": 1,
+					"AGD_PRE．1": 1,
+					"AGD_OPE": 1,
+					"AGD_PRE": 1
+				},
+				"ALC": {
+					"ALC_DVS．2": 4,
+					"ALC_FLR": 3,
+					"ALC_CMC．1": 1,
+					"ALC_CMC．2": 1,
+					"ALC_CMC．3": 1,
+					"ALC_CMC．4": 1,
+					"ALC_CMC．5": 1,
+					"ALC_CMS．1": 1,
+					"ALC_CMS．2": 1,
+					"ALC_CMS．3": 1,
+					"ALC_CMS．4": 1,
+					"ALC_CMS．5": 1,
+					"ALC_DEL．1": 1,
+					"ALC_DVS．1": 1,
+					"ALC_FLR．1": 1,
+					"ALC_FLR．2": 1,
+					"ALC_FLR．3": 1,
+					"ALC_LCD．1": 1,
+					"ALC_LCD．2": 1,
+					"ALC_TAT．1": 1,
+					"ALC_TAT．2": 1,
+					"ALC_TAT．3": 1,
+					"ALC_CMC": 1,
+					"ALC_CMS": 1,
+					"ALC_DEL": 1,
+					"ALC_DVS": 1,
+					"ALC_TAT": 1
+				},
+				"ATE": {
+					"ATE_DPT．2": 4,
+					"ATE_COV．1": 1,
+					"ATE_COV．2": 1,
+					"ATE_COV．3": 1,
+					"ATE_DPT．1": 1,
+					"ATE_DPT．3": 1,
+					"ATE_DPT．4": 1,
+					"ATE_FUN．1": 1,
+					"ATE_FUN．2": 1,
+					"ATE_IND．1": 1,
+					"ATE_IND．2": 1,
+					"ATE_IND．3": 1,
+					"ATE_COV": 1,
+					"ATE_DPT": 1,
+					"ATE_FUN": 1,
+					"ATE_IND": 1
+				},
+				"AVA": {
+					"AVA_VAN．5": 4,
+					"AVA_VAN．1": 1,
+					"AVA_VAN．2": 1,
+					"AVA_VAN．3": 1,
+					"AVA_VAN．4": 1,
+					"AVA_VAN": 2
+				},
+				"APE": {
+					"APE_INT．1": 2,
+					"APE_CCL．1": 2,
+					"APE_SPD．1": 2,
+					"APE_OBJ．2": 2,
+					"APE_ECD．1": 2,
+					"APE_REQ．2": 2,
+					"APE_OBJ．1": 1,
+					"APE_REQ．1": 1
+				},
+				"ASE": {
+					"ASE_INT．1": 1,
+					"ASE_CCL．1": 1,
+					"ASE_SPD．1": 1,
+					"ASE_OBJ．1": 1,
+					"ASE_OBJ．2": 1,
+					"ASE_ECD．1": 1,
+					"ASE_REQ．1": 1,
+					"ASE_REQ．2": 1,
+					"ASE_TSS．1": 1,
+					"ASE_TSS．2": 1,
+					"ASE_CCL": 1,
+					"ASE_ECD": 1,
+					"ASE_INT": 1,
+					"ASE_OBJ": 1,
+					"ASE_SPD": 1,
+					"ASE_TSS": 1
+				}
+			},
+			"cc_sfr": {},
+			"cc_claims": {},
+			"vendor": {},
+			"eval_facility": {
+				"SRC": {
+					"SRC Security Research & Consulting": 3
+				}
+			},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"HPC": {
+						"HPC": 3
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {
+				"PACE": {
+					"PACE": 3
+				}
+			},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"technical_report_id": {
+				"BSI": {
+					"BSI 7125": 2,
+					"BSI 2": 1,
+					"BSI 7148": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"BSI": {
+					"AIS 32": 1,
+					"AIS 41": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {
+				"ConfidentialDocument": {
+					"Profile 'Card Operating System Generation 2 (PP COS G2)', SRC Security Research & Consulting GmbH (confidential document) [6] Common Criteria Protection Profile 'Card Operating System Generation 2 (PP COS G2)', Version 1": 1
+				}
+			}
+		},
+		"pp_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-CC-PP-0082-V2": 173,
+					"BSI-CC-PP-0084": 3,
+					"BSI-CC-PP-0035-2007": 55,
+					"BSI-CC-PP- 0035-2007": 7,
+					"BSI-CC-PP-0035-": 7,
+					"BSI-CC-PP-0035": 2,
+					"BSI-CC-PP-0059": 3,
+					"BSI-CC-PP-0075": 3,
+					"BSI-CC-PP-0071": 3,
+					"BSI-CC-PP-0072": 4,
+					"BSI-CC-PP-0035-2007-2007": 1,
+					"BSI-CC-PP-0084-2014": 1
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL4": 14,
+					"EAL4 augmented": 4
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 10,
+					"ADV_FSP．4": 6,
+					"ADV_IMP．1": 6,
+					"ADV_TDS．3": 3,
+					"ADV_ARC": 2,
+					"ADV_FSP": 2,
+					"ADV_IMP": 2
+				},
+				"AGD": {
+					"AGD_OPE．1": 6,
+					"AGD_PRE．1": 2,
+					"AGD_OPE": 2,
+					"AGD_PRE": 2
+				},
+				"ALC": {
+					"ALC_DVS．2": 11,
+					"ALC_CMC．4": 1,
+					"ALC_CMS．4": 1,
+					"ALC_DEL．1": 1,
+					"ALC_LCD．1": 1,
+					"ALC_TAT．1": 1,
+					"ALC_DEL": 2,
+					"ALC_DVS": 2,
+					"ALC_CMS": 2,
+					"ALC_CMC": 2
+				},
+				"ATE": {
+					"ATE_FUN．1": 7,
+					"ATE_IND．2": 6,
+					"ATE_DPT．2": 10,
+					"ATE_COV．2": 1,
+					"ATE_COV": 2,
+					"ATE_DPT．1": 1
+				},
+				"AVA": {
+					"AVA_VAN．5": 9,
+					"AVA_VAN": 2
+				},
+				"ASE": {
+					"ASE_CCL．1": 1,
+					"ASE_ECD．1": 1,
+					"ASE_INT．1": 1,
+					"ASE_OBJ．2": 1,
+					"ASE_REQ．2": 1,
+					"ASE_SPD．1": 1,
+					"ASE_TSS．1": 1
+				}
+			},
+			"cc_sfr": {
+				"FAU": {
+					"FAU_SAS": 6,
+					"FAU_SAS．1": 1
+				},
+				"FCS": {
+					"FCS_COP": 191,
+					"FCS_RNG": 21,
+					"FCS_RNG．1": 18,
+					"FCS_RNG．1．1": 4,
+					"FCS_RNG．1．2": 3,
+					"FCS_CKM": 95,
+					"FCS_CKM．4": 82,
+					"FCS_CKM．1": 53,
+					"FCS_COP．1": 34,
+					"FCS_CKM．2": 13,
+					"FCS_CKM．4．1": 1
+				},
+				"FDP": {
+					"FDP_SDI．2": 9,
+					"FDP_ACF": 100,
+					"FDP_ITT": 5,
+					"FDP_IFC": 5,
+					"FDP_RIP．1": 13,
+					"FDP_ACC": 105,
+					"FDP_ITT．1": 1,
+					"FDP_IFC．1": 13,
+					"FDP_RIP．1．1": 1,
+					"FDP_SDI．1": 1,
+					"FDP_SDI．2．1": 1,
+					"FDP_SDI．2．2": 1,
+					"FDP_ACF．1": 47,
+					"FDP_ACC．1": 46,
+					"FDP_ITC．1": 48,
+					"FDP_ITC．2": 48,
+					"FDP_RIP": 13,
+					"FDP_UCT": 5,
+					"FDP_UCT．1": 1,
+					"FDP_UIT": 6,
+					"FDP_UIT．1": 2
+				},
+				"FIA": {
+					"FIA_AFL": 19,
+					"FIA_SOS．1": 7,
+					"FIA_USB．1": 31,
+					"FIA_API．1": 18,
+					"FIA_API": 13,
+					"FIA_API．1．1": 2,
+					"FIA_ATD．1": 20,
+					"FIA_UAU．1": 18,
+					"FIA_UAU．4": 10,
+					"FIA_UAU．5": 17,
+					"FIA_UAU．6": 11,
+					"FIA_USB": 34,
+					"FIA_UAU": 53,
+					"FIA_UID．1": 20,
+					"FIA_SOS．1．1": 1,
+					"FIA_AFL．1": 4,
+					"FIA_ATD．1．1": 1,
+					"FIA_UAU．1．1": 2,
+					"FIA_UAU．1．2": 1,
+					"FIA_UAU．4．1": 1,
+					"FIA_UAU．5．1": 1,
+					"FIA_UAU．5．2": 1,
+					"FIA_UAU．6．1": 1,
+					"FIA_UID．1．1": 2,
+					"FIA_UID．1．2": 1,
+					"FIA_USB．1．1": 1,
+					"FIA_USB．1．2": 1,
+					"FIA_USB．1．3": 2,
+					"FIA_UID": 12,
+					"FIA_ATD": 9
+				},
+				"FMT": {
+					"FMT_MTD": 38,
+					"FMT_SMF．1": 52,
+					"FMT_MSA．1": 10,
+					"FMT_LIM": 11,
+					"FMT_SMR．1": 44,
+					"FMT_MSA．3": 38,
+					"FMT_MSA": 58,
+					"FMT_LIM．1": 1,
+					"FMT_LIM．2": 1,
+					"FMT_SMR．1．1": 1,
+					"FMT_SMR．1．2": 1,
+					"FMT_SMF．1．1": 1,
+					"FMT_MSA．3．1": 1,
+					"FMT_MSA．3．2": 1,
+					"FMT_MTD．1": 5,
+					"FMT_SMR": 16
+				},
+				"FPT": {
+					"FPT_EMS": 18,
+					"FPT_ITE": 16,
+					"FPT_FLS": 5,
+					"FPT_PHP": 5,
+					"FPT_ITT": 5,
+					"FPT_EMS．1": 17,
+					"FPT_EMS．1．1": 3,
+					"FPT_EMS．1．2": 3,
+					"FPT_ITE．1": 13,
+					"FPT_ITE．2": 13,
+					"FPT_ITE．1．1": 2,
+					"FPT_ITE．1．2": 2,
+					"FPT_ITE．2．1": 5,
+					"FPT_ITE．2．2": 2,
+					"FPT_FLS．1": 13,
+					"FPT_TDC．1": 7,
+					"FPT_TST．1": 9,
+					"FPT_PHP．3": 2,
+					"FPT_ITT．1": 1,
+					"FPT_FLS．1．1": 1,
+					"FPT_TST": 2,
+					"FPT_TDC．1．1": 1,
+					"FPT_TDC．1．2": 1,
+					"FPT_TST．1．1": 1,
+					"FPT_TST．1．2": 1,
+					"FPT_TST．1．3": 1,
+					"FPT_ITC．1": 1
+				},
+				"FRU": {
+					"FRU_FLT": 5,
+					"FRU_FLT．2": 1
+				},
+				"FTP": {
+					"FTP_ITC": 28,
+					"FTP_ITC．1": 26,
+					"FTP_TRP．1": 4
+				}
+			},
+			"cc_claims": {
+				"O": {
+					"O．RND": 4,
+					"O．PACE_CHIP": 2
+				},
+				"T": {
+					"T．RND": 5
+				},
+				"A": {
+					"A．S": 1,
+					"A．V": 1
+				},
+				"OE": {
+					"OE．TC_PIN": 1
+				}
+			},
+			"vendor": {
+				"NXP": {
+					"NXP Semiconductors": 2
+				},
+				"Infineon": {
+					"Infineon Technologies AG": 2
+				},
+				"STMicroelectronics": {
+					"STMicroelectronics": 1
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 45,
+						"AES128": 1,
+						"AES-": 1,
+						"AES-256": 1
+					}
+				},
+				"DES": {
+					"3DES": {
+						"TDEA": 1
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"CMAC": 35
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA 3072": 1
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 6
+					},
+					"ECDSA": {
+						"ECDSA": 32
+					},
+					"ECC": {
+						"ECC": 11
+					}
+				},
+				"FF": {
+					"DH": {
+						"DH": 16,
+						"Diffie-Hellman": 1
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 1
+					},
+					"SHA2": {
+						"SHA-256": 10,
+						"SHA-384": 5,
+						"SHA-512": 2
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 52
+				},
+				"KA": {
+					"Key agreement": 1,
+					"Key Agreement": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					},
+					"TLS": {
+						"TLS": 2
+					}
+				},
+				"PACE": {
+					"PACE": 276
+				}
+			},
+			"randomness": {
+				"RNG": {
+					"RND": 9,
+					"RNG": 20
+				}
+			},
+			"cipher_mode": {
+				"CBC": {
+					"CBC": 6
+				}
+			},
+			"ecc_curve": {
+				"Brainpool": {
+					"brainpoolP256r1": 3,
+					"brainpoolP384r1": 3,
+					"brainpoolP512r1": 3
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"Leak-Inherent": 8,
+					"Physical Probing": 2,
+					"side channel": 1,
+					"SPA": 2,
+					"DPA": 2,
+					"timing attacks": 1
+				},
+				"FI": {
+					"Malfunction": 11,
+					"malfunction": 1,
+					"DFA": 1
+				},
+				"other": {
+					"Bleichenbacher attack": 1,
+					"JIL": 2
+				}
+			},
+			"technical_report_id": {
+				"BSI": {
+					"BSI TR-03116": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS180-4": 1,
+					"FIPS 180-4": 1,
+					"FIPS 197": 3
+				},
+				"NIST": {
+					"NIST SP 800-67": 3,
+					"NIST SP 800-38B": 1
+				},
+				"PKCS": {
+					"PKCS #1": 1,
+					"PKCS#3": 4
+				},
+				"RFC": {
+					"RFC5639": 3,
+					"RFC 5639": 1
+				},
+				"ISO": {
+					"ISO/IEC 9797-1": 1
+				},
+				"CC": {
+					"CCMB-2012-09-001": 3,
+					"CCMB-2012-09-002": 2,
+					"CCMB-2012-09-003": 3,
+					"CCMB-2012-09-004": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"report_filename": "pp0082V2a_pdf.pdf",
+		"pp_filename": "pp0082V2b_pdf.pdf"
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+	},
+	"state": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+		"pp": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "3614e329b03c684af37104afecb0e9f801d953687d9b78a3c58b949cb835c73e",
+			"txt_hash": "b569aa03a1cdee37429bf6099dedab21a1ae82f28d37c24c4da71a968aaf0da2"
+		},
+		"report": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "a488a660c60d9b62cf20608f3e66b913112ccd594f10b37003c55ab88a37409a",
+			"txt_hash": "fc4212cf12c413964cea742086c9a2ffb15feb130a34ecd567528907695104d5"
+		}
+	}
+},
+{
+	"_id": "7b81fd67c02d34de",
+	"_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+	"dgst": "7b81fd67c02d34de",
+	"web_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+		"category": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+		"status": "active",
+		"is_collaborative": false,
+		"name": "(U)SIM Java Card Platform Protection Profile / Basic Configuration (ref. PU-2009-RT-79, version 2.0.2), Version 2.0.2",
+		"version": "2.0.2",
+		"security_level": {
+			"_type": "set",
+			"_value": [
+				"EAL4+",
+				"ALC_DVS.2"
+			]
+		},
+		"not_valid_before": {
+			"_type": "date",
+			"_value": "2010-07-12"
+		},
+		"not_valid_after": null,
+		"report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/ANSSI-CC_PP-2010-04en.pdf",
+		"pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/ANSSI-CC-cible_PP-2010-04en.pdf",
+		"scheme": "FR",
+		"maintenances": []
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+		"report_metadata": {
+			"pdf_file_size_bytes": 196358,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 15,
+			"/CreationDate": "D:20100712104826+02'00'",
+			"/Subject": "(U)SIM Java Card Platform Protection Profile / Basic Configuration",
+			"/Keywords": "",
+			"/Producer": "Acrobat Distiller 8.0.0 (Windows)",
+			"/ModDate": "D:20100728165106+02'00'",
+			"/Title": "ANSSI-CC-PP-2010/04",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		},
+		"pp_metadata": {
+			"pdf_file_size_bytes": 436659,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 85,
+			"/CreationDate": "D:20100728165416+02'00'",
+			"/Keywords": "",
+			"/Producer": "Acrobat Distiller 8.0.0 (Windows)",
+			"/ModDate": "D:20100728165416+02'00'",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		},
+		"report_keywords": {
+			"cc_cert_id": {
+				"FR": {
+					"ANSSI-CC-PP-2010/04": 16
+				}
+			},
+			"cc_protection_profile_id": {
+				"ANSSI": {
+					"ANSSI-CC-PP-2010/04": 16,
+					"ANSSI-CC-PP-": 1
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL 4": 2,
+					"EAL4+": 1,
+					"EAL7": 1,
+					"EAL4": 1,
+					"EAL 1": 1,
+					"EAL 3": 1,
+					"EAL 5": 1,
+					"EAL 7": 1,
+					"EAL 4 augmented": 1
+				},
+				"ITSEC": {
+					"ITSEC E6 High": 1
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC": 1,
+					"ADV_FSP": 1,
+					"ADV_IMP": 1,
+					"ADV_INT": 1,
+					"ADV_SPM": 1,
+					"ADV_TDS": 1
+				},
+				"AGD": {
+					"AGD_OPE": 1,
+					"AGD_PRE": 1
+				},
+				"ALC": {
+					"ALC_DVS．2": 2,
+					"ALC_FLR": 2,
+					"ALC_CMC": 1,
+					"ALC_CMS": 1,
+					"ALC_DEL": 1,
+					"ALC_DVS": 1,
+					"ALC_TAT": 1
+				},
+				"ATE": {
+					"ATE_COV": 1,
+					"ATE_DPT": 1,
+					"ATE_FUN": 1,
+					"ATE_IND": 1
+				},
+				"AVA": {
+					"AVA_VAN．5": 2,
+					"AVA_VAN": 1
+				},
+				"APE": {
+					"APE_CCL．1": 1,
+					"APE_ECD．1": 1,
+					"APE_INT．1": 1,
+					"APE_OBJ．2": 1,
+					"APE_REQ．2": 1,
+					"APE_SPD．1": 1
+				},
+				"ASE": {
+					"ASE_CCL": 1,
+					"ASE_ECD": 1,
+					"ASE_INT": 1,
+					"ASE_OBJ": 1,
+					"ASE_REQ": 1,
+					"ASE_SPD": 1,
+					"ASE_TSS": 1
+				}
+			},
+			"cc_sfr": {
+				"FAU": {
+					"FAU_ARP．1": 1
+				},
+				"FCO": {
+					"FCO_NRO．2": 2
+				},
+				"FCS": {
+					"FCS_COP．1": 2,
+					"FCS_CKM．1": 1,
+					"FCS_CKM．2": 1,
+					"FCS_CKM．3": 1,
+					"FCS_CKM．4": 1
+				},
+				"FDP": {
+					"FDP_ACC．1": 1,
+					"FDP_ACF．1": 2,
+					"FDP_IFC．2": 2,
+					"FDP_IFF．1": 2,
+					"FDP_ITC．2": 2,
+					"FDP_ROL．1": 2,
+					"FDP_UIT．1": 2,
+					"FDP_ACC．2": 1,
+					"FDP_IFC．1": 1,
+					"FDP_RIP．1": 1,
+					"FDP_SDI．2": 1
+				},
+				"FIA": {
+					"FIA_UAU．1": 1,
+					"FIA_UAU．4": 1,
+					"FIA_UID．1": 2,
+					"FIA_ATD．1": 1,
+					"FIA_UID．2": 1,
+					"FIA_USB．1": 1
+				},
+				"FMT": {
+					"FMT_MSA．1": 2,
+					"FMT_MSA．3": 2,
+					"FMT_SMF．1": 2,
+					"FMT_SMR．1": 2,
+					"FMT_MTD．1": 1,
+					"FMT_MTD．3": 1,
+					"FMT_MSA．2": 1,
+					"FMT_REV．1": 1
+				},
+				"FPR": {
+					"FPR_UNO．1": 1
+				},
+				"FPT": {
+					"FPT_FLS．1": 2,
+					"FPT_RCV．3": 1,
+					"FPT_TDC．1": 1
+				},
+				"FTP": {
+					"FTP_ITC．1": 2
+				}
+			},
+			"cc_claims": {
+				"T": {
+					"T．PHYSICAL": 1
+				},
+				"A": {
+					"A．S": 2
+				},
+				"OE": {
+					"OE．CARD-MANAGEMENT": 1,
+					"OE．SCP": 6
+				}
+			},
+			"vendor": {},
+			"eval_facility": {
+				"Thales": {
+					"THALES - CEACI": 2
+				},
+				"TrustedLabs": {
+					"Trusted Labs": 2
+				}
+			},
+			"symmetric_crypto": {},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"technical_report_id": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"CC": {
+					"CCMB-2009-07-001": 1,
+					"CCMB-2009-07-002": 1,
+					"CCMB-2009-07-003": 1,
+					"CCMB-2009-07-004": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"pp_keywords": {
+			"cc_cert_id": {
+				"FR": {
+					"ANSSI-CC-PP-2009/02": 1,
+					"ANSSI-CC-PP-2010/03": 1
+				}
+			},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-PP-0035": 1
+				},
+				"ANSSI": {
+					"ANSSI-CC-PP-2009/02": 1,
+					"ANSSI-CC-PP-2010/03": 1
+				},
+				"other": {
+					"PP-SSCD": 1
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL4+": 3,
+					"EAL4": 5,
+					"EAL 4": 2,
+					"EAL4 augmented": 3,
+					"EAL 4 augmented": 1
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 5,
+					"ADV_FSP．1": 3,
+					"ADV_TDS．1": 2,
+					"ADV_FSP．4": 9,
+					"ADV_TDS．3": 8,
+					"ADV_IMP．1": 4,
+					"ADV_FSP．2": 2,
+					"ADV_TDS．2": 1
+				},
+				"AGD": {
+					"AGD_ADM": 1,
+					"AGD_USR": 1,
+					"AGD_OPE．1": 5,
+					"AGD_PRE．1": 5
+				},
+				"ALC": {
+					"ALC_DVS．2": 8,
+					"ALC_TAT．1": 3,
+					"ALC_CMC．4": 1,
+					"ALC_CMS．1": 1,
+					"ALC_DVS．1": 1,
+					"ALC_LCD．1": 3,
+					"ALC_CMS．4": 1,
+					"ALC_DEL．1": 1
+				},
+				"ATE": {
+					"ATE_COV．2": 3,
+					"ATE_FUN．1": 6,
+					"ATE_COV．1": 2,
+					"ATE_DPT．1": 2
+				},
+				"AVA": {
+					"AVA_VAN．5": 8
+				},
+				"ASE": {
+					"ASE_CCL．1": 1,
+					"ASE_ECD．1": 4,
+					"ASE_INT．1": 5,
+					"ASE_REQ．1": 2,
+					"ASE_REQ．2": 2,
+					"ASE_OBJ．2": 3,
+					"ASE_SPD．1": 2,
+					"ASE_TSS．1": 1
+				}
+			},
+			"cc_sfr": {
+				"FCO": {
+					"FCO_NRO": 10,
+					"FCO_NRO．2": 3
+				},
+				"FCS": {
+					"FCS_COP": 7,
+					"FCS_COP．1": 5,
+					"FCS_CKM．1": 1,
+					"FCS_CKM．4": 1
+				},
+				"FDP": {
+					"FDP_UIT": 7,
+					"FDP_ROL": 9,
+					"FDP_ITC": 8,
+					"FDP_ACC": 15,
+					"FDP_ACF": 10,
+					"FDP_IFC": 19,
+					"FDP_IFF": 18,
+					"FDP_UIT．1": 2,
+					"FDP_ROL．1": 2,
+					"FDP_ITC．2": 6,
+					"FDP_ACC．1": 7,
+					"FDP_ACF．1": 5,
+					"FDP_IFC．2": 2,
+					"FDP_IFF．1": 6,
+					"FDP_IFF．1．4": 1,
+					"FDP_IFF．1．2": 1,
+					"FDP_IFC．1": 6,
+					"FDP_ITC．1": 1
+				},
+				"FIA": {
+					"FIA_UID": 16,
+					"FIA_UAU": 20,
+					"FIA_UID．1": 5,
+					"FIA_UAU．1": 2,
+					"FIA_UAU．4": 1
+				},
+				"FMT": {
+					"FMT_MSA": 52,
+					"FMT_SMF": 24,
+					"FMT_SMR": 19,
+					"FMT_MSA．1": 4,
+					"FMT_MSA．3": 6,
+					"FMT_MSA．3．1": 2,
+					"FMT_SMF．1": 4,
+					"FMT_SMR．1": 6
+				},
+				"FPT": {
+					"FPT_FLS": 16,
+					"FPT_RPL": 7,
+					"FPT_TDC": 7,
+					"FPT_FLS．1": 2,
+					"FPT_RPL．1": 2,
+					"FPT_TDC．1": 3
+				},
+				"FTP": {
+					"FTP_ITC": 25,
+					"FTP_TRP": 9,
+					"FTP_ITC．1": 8,
+					"FTP_TRP．1": 6
+				}
+			},
+			"cc_claims": {
+				"D": {
+					"D．APSD_KEYS": 4,
+					"D．APP_KEYS": 4,
+					"D．CASD_KEYS": 5,
+					"D．ISD_KEYS": 5,
+					"D．VASD_KEYS": 4,
+					"D．GP_CODE": 3,
+					"D．CARD-MNGT-DATA": 1,
+					"D．JCS-CODE": 1,
+					"D．JCS-DATA": 1,
+					"D．SCWS-CODE": 1,
+					"D．SCWS-AUTH": 1,
+					"D．SCWS-DATA": 1,
+					"D．CARD_MNGT_DATA": 4,
+					"D．SCWS_CODE": 3,
+					"D．SCWS_AUTH": 3,
+					"D．SCWS_DATA": 4,
+					"D．APP_C_DATA": 3,
+					"D．APP_I_DATA": 3,
+					"D．APP_CODE": 1,
+					"D．JCS_DATA": 1
+				},
+				"O": {
+					"O．CARD-MANAGEMENT": 32,
+					"O．INSTALL": 2,
+					"O．LOAD": 2,
+					"O．DELETION": 1,
+					"O．DOMAIN-RIGHTS": 28,
+					"O．APPLI-AUTH": 15,
+					"O．COMM_AUTH": 18,
+					"O．COMM_INTEGRITY": 18,
+					"O．COMM_CONFIDENTIALITY": 15,
+					"O．INPUT-VALIDATION": 12,
+					"O．DOS-DETECTION": 9,
+					"O．REPLAY": 13,
+					"O．OPERATE": 1,
+					"O．RESSOURCES": 1,
+					"O．DOMAIN-": 1
+				},
+				"T": {
+					"T．PHYSICAL": 7,
+					"T．INTEG-USER-DATA": 10,
+					"T．INTEG-APPLI-DATA": 2,
+					"T．COM_EXPLOIT": 8,
+					"T．UNAUTHORIZED_CARD_MNG": 1,
+					"T．INSTALL": 1,
+					"T．LIFE_CYCLE": 7,
+					"T．UNAUTHORIZED_ACCESS": 6,
+					"T．CONFID-APPLI-DATA": 1,
+					"T．SCWS_FLAW": 9,
+					"T．OBSOLETE_CONF": 6,
+					"T．REPLAY": 6,
+					"T．DOS": 7,
+					"T．UNAUTHORIZED_CARD_MNGT": 9
+				},
+				"A": {
+					"A．S": 3,
+					"A．MOBILE-OPERATOR": 6,
+					"A．OTA-ADMIN": 6,
+					"A．APPS-PROVIDER": 6,
+					"A．VERIFICATION-": 3,
+					"A．KEY-ESCROW": 6,
+					"A．PERSONALIZER": 6,
+					"A．CONTROLLING-": 3,
+					"A．PRODUCTION": 6,
+					"A．VERIFICATION-AUTHORITY": 3,
+					"A．CONTROLLING-AUTHORITY": 3
+				},
+				"OE": {
+					"OE．CARD-MANAGEMENT": 3,
+					"OE．MOBILE-OPERATOR": 8,
+					"OE．OTA-ADMIN": 6,
+					"OE．APPS-PROVIDER": 8,
+					"OE．VERIFICATION-AUTHORITY": 5,
+					"OE．KEY-ESCROW": 8,
+					"OE．PERSONALIZER": 6,
+					"OE．CONTROLLING-AUTHORITY": 6,
+					"OE．PRODUCTION": 7,
+					"OE．SECURE-APPS-": 1,
+					"OE．VERIFICATION": 4,
+					"OE．BASIC-APPS-VALIDATION": 8,
+					"OE．AID-MANAGEMENT": 8,
+					"OE．OTA-LOADING": 6,
+					"OE．OTA-SERVERS": 8,
+					"OE．AP-KEYS": 8,
+					"OE．OPERATOR-KEYS": 8,
+					"OE．KEY-GENERATION": 6,
+					"OE．CA-KEYS": 10,
+					"OE．VA-KEYS": 9,
+					"OE．KEY-CHANGE": 9,
+					"OE．SECURITY-DOMAINS": 6,
+					"OE．QUOTAS": 8,
+					"OE．SHARE-CONTROL": 8,
+					"OE．SCP-SUPPORT": 15,
+					"OE．SCWS-ACP-ENFORCER": 6,
+					"OE．SECURE-APPS-CERTIFICATION": 6,
+					"OE．URI-FILE-ACCESS": 7,
+					"OE．SCP-IC": 1,
+					"OE．SCP": 1,
+					"OE．VERIFICATION-": 1,
+					"OE．CONTROLLING-": 2,
+					"OE．BASIC-APPS-": 1
+				},
+				"OSP": {
+					"OSP．SECURE-APPS-": 2,
+					"OSP．VERIFICATION": 4,
+					"OSP．BASIC-APPS-VALIDATION": 6,
+					"OSP．SHARE-CONTROL": 6,
+					"OSP．AID-MANAGEMENT": 6,
+					"OSP．OTA-LOADING": 6,
+					"OSP．OTA-SERVERS": 6,
+					"OSP．APSD-KEYS": 6,
+					"OSP．OPERATOR-KEYS": 6,
+					"OSP．KEY-GENERATION": 6,
+					"OSP．CASD-KEYS": 6,
+					"OSP．VASD-KEYS": 6,
+					"OSP．KEY-CHANGE": 6,
+					"OSP．SECURITY-DOMAINS": 6,
+					"OSP．QUOTAS": 6,
+					"OSP．URI-FILE-ACCESS": 6,
+					"OSP．SECURE-APPS-CERTIFICATION": 4
+				}
+			},
+			"vendor": {},
+			"eval_facility": {
+				"TrustedLabs": {
+					"Trusted Labs": 7
+				}
+			},
+			"symmetric_crypto": {
+				"DES": {
+					"DES": {
+						"DES": 7
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 1
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 4
+				}
+			},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"DPA": 1
+				},
+				"FI": {
+					"physical tampering": 2
+				}
+			},
+			"technical_report_id": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"PKCS": {
+					"PKCS#1": 2
+				},
+				"RFC": {
+					"RFC 2616": 1
+				},
+				"SCP": {
+					"SCP02": 2,
+					"SCP80": 1
+				},
+				"CC": {
+					"CCMB-2009-07-001": 2,
+					"CCMB-2009-07-002": 1,
+					"CCMB-2009-07-003": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"report_filename": "ANSSI-CC_PP-2010-04en.pdf",
+		"pp_filename": "ANSSI-CC-cible_PP-2010-04en.pdf"
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+	},
+	"state": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+		"pp": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "0977787f7217bf4cf76686e3d7dbb2cac8424843f5170cb08b0690c269ac9ec0",
+			"txt_hash": "1b52f4234e6a37e2be6709940409428bde684daf2af57bf85b97bf68a5f9f9dd"
+		},
+		"report": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "3d8977dee0fabf45b5066e2e62a50ec79ad18ccd42839f15325981c595691cf7",
+			"txt_hash": "8b704c5cdfc454d5e2dfa3c6a77f2f1dd188bb7ccc7409d88f3761ce594b57a7"
+		}
+	}
+},
+{
+	"_id": "7bf1cb12d183dcc0",
+	"_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+	"dgst": "7bf1cb12d183dcc0",
+	"web_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+		"category": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+		"status": "active",
+		"is_collaborative": false,
+		"name": "Card Operating System Generation 2",
+		"version": "Version 2.0",
+		"security_level": {
+			"_type": "set",
+			"_value": [
+				"AVA_VAN.5",
+				"ATE_DPT.2",
+				"EAL4+",
+				"ALC_DVS.2"
+			]
+		},
+		"not_valid_before": {
+			"_type": "date",
+			"_value": "2018-07-10"
+		},
+		"not_valid_after": null,
+		"report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0082V3a_pdf.pdf",
+		"pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0082V3b_pdf.pdf",
+		"scheme": "DE",
+		"maintenances": []
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+		"report_metadata": {
+			"pdf_file_size_bytes": 460182,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 17,
+			"/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+			"/CreationDate": "D:20180711091101+02'00'",
+			"/Creator": "Writer",
+			"/Keywords": "\"Common Criteria, Certification, Zertifizierung, Protection Profile, Schutzprofil, PP COS G2, gematik, eHealth\"",
+			"/ModDate": "D:20180711091926+02'00'",
+			"/Producer": "LibreOffice 5.2",
+			"/Subject": "Common Criteria, Certification, Protection Profile",
+			"/Title": "Certification Report BSI-CC-PP-0082-V3-2018",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://www.sogisportal.eu/",
+					"http://www.commoncriteriaportal.org/",
+					"https://www.bsi.bund.de/"
+				]
+			}
+		},
+		"pp_metadata": {
+			"pdf_file_size_bytes": 2489863,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 195,
+			"/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+			"/CreationDate": "D:20180712103713+02'00'",
+			"/Creator": "Microsoft® Word 2010",
+			"/Keywords": "\"eHealth - Card Operating System Generation 2; COS; COS PP; Gesundheitskarte\"",
+			"/ModDate": "D:20180712105530+02'00'",
+			"/Producer": "Microsoft® Word 2010",
+			"/Subject": "PP COS G2",
+			"/Title": "Common Criteria Protection Profile BSI-CC-PP-0082-V3",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		},
+		"report_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-CC-PP-0082-V3-2018": 10,
+					"BSI-CC-PP-0082-V2-": 1,
+					"BSI-CC-PP-0082-V2-2014": 2,
+					"BSI-CC-PP-0084": 1,
+					"BSI-CC-PP-0084-2014": 1
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL 4": 3,
+					"EAL 2": 1,
+					"EAL 4 augmented": 2
+				}
+			},
+			"cc_sar": {
+				"ALC": {
+					"ALC_DVS．2": 2,
+					"ALC_FLR": 1
+				},
+				"ATE": {
+					"ATE_DPT．2": 2
+				},
+				"AVA": {
+					"AVA_VAN．5": 2
+				},
+				"APE": {
+					"APE_INT．1": 1,
+					"APE_CCL．1": 1,
+					"APE_SPD．1": 1,
+					"APE_OBJ．2": 1,
+					"APE_ECD．1": 1,
+					"APE_REQ．2": 1
+				}
+			},
+			"cc_sfr": {},
+			"cc_claims": {},
+			"vendor": {},
+			"eval_facility": {
+				"SRC": {
+					"SRC Security Research & Consulting": 3
+				}
+			},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"HPC": {
+						"HPC": 3
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 1
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {
+				"PACE": {
+					"PACE": 2
+				}
+			},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"technical_report_id": {
+				"BSI": {
+					"BSI 7148": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"BSI": {
+					"AIS 14": 1,
+					"AIS 32": 1,
+					"AIS 38": 1
+				},
+				"ISO": {
+					"ISO/IEC 15408": 4,
+					"ISO/IEC 18045": 4,
+					"ISO/IEC 17065": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {
+				"ConfidentialDocument": {
+					"Profile Card Operating System Generation 2 (PP COS G2), SRC Security Research & Consulting GmbH (confidential document) [7] Common Criteria Protection Profile Card Operating System Generation 2 (PP COS G2": 1
+				}
+			}
+		},
+		"pp_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-CC-PP-0082-V3": 197,
+					"BSI-CC-PP-0084": 1,
+					"BSI-CC-PP-0082-V2": 1,
+					"BSI-CC-PP-0084-2014": 62,
+					"BSI-CC-PP- 0084-2014": 8,
+					"BSI-CC-PP-0035-2007": 4,
+					"BSI-CC-PP-0035-": 1,
+					"BSI-CC-PP-0084-": 9,
+					"BSI-CC-PP-0014-2014": 1,
+					"BSI-CC-PP-0059-2009-MA-02": 1,
+					"BSI-CC-PP-0075-2012-MA-01": 1,
+					"BSI-CC-PP-0071-2012-MA-01": 1,
+					"BSI-CC-PP-0072-2012-MA-01": 1
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL4": 14,
+					"EAL4 augmented": 4
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 10,
+					"ADV_FSP．4": 6,
+					"ADV_IMP．1": 6,
+					"ADV_TDS．3": 3,
+					"ADV_ARC": 2,
+					"ADV_FSP": 2,
+					"ADV_IMP": 2
+				},
+				"AGD": {
+					"AGD_OPE．1": 6,
+					"AGD_PRE．1": 2,
+					"AGD_OPE": 2,
+					"AGD_PRE": 2
+				},
+				"ALC": {
+					"ALC_DVS．2": 11,
+					"ALC_CMC．4": 1,
+					"ALC_CMS．4": 1,
+					"ALC_DEL．1": 1,
+					"ALC_LCD．1": 1,
+					"ALC_TAT．1": 1,
+					"ALC_DEL": 2,
+					"ALC_DVS": 2,
+					"ALC_CMS": 2,
+					"ALC_CMC": 2
+				},
+				"ATE": {
+					"ATE_FUN．1": 7,
+					"ATE_IND．2": 6,
+					"ATE_DPT．2": 10,
+					"ATE_COV．2": 1,
+					"ATE_COV": 2,
+					"ATE_DPT．1": 1
+				},
+				"AVA": {
+					"AVA_VAN．5": 9,
+					"AVA_VAN": 2
+				},
+				"ASE": {
+					"ASE_CCL．1": 1,
+					"ASE_ECD．1": 1,
+					"ASE_INT．1": 1,
+					"ASE_OBJ．2": 1,
+					"ASE_REQ．2": 1,
+					"ASE_SPD．1": 1,
+					"ASE_TSS．1": 1
+				}
+			},
+			"cc_sfr": {
+				"FAU": {
+					"FAU_SAS": 6,
+					"FAU_SAS．1": 1
+				},
+				"FCS": {
+					"FCS_COP": 164,
+					"FCS_RNG": 18,
+					"FCS_RNG．1": 16,
+					"FCS_CKM": 87,
+					"FCS_CKM．4": 72,
+					"FCS_RNG．1．1": 3,
+					"FCS_RNG．1．2": 2,
+					"FCS_CKM．1": 53,
+					"FCS_COP．1": 30,
+					"FCS_CKM．2": 12,
+					"FCS_CKM．4．1": 1
+				},
+				"FDP": {
+					"FDP_SDI．2": 10,
+					"FDP_ACF": 100,
+					"FDP_ITT": 5,
+					"FDP_IFC": 5,
+					"FDP_SDC": 6,
+					"FDP_SDI": 5,
+					"FDP_RIP．1": 13,
+					"FDP_ACC": 105,
+					"FDP_SDC．1": 1,
+					"FDP_ITT．1": 1,
+					"FDP_IFC．1": 13,
+					"FDP_RIP．1．1": 1,
+					"FDP_SDI．1": 1,
+					"FDP_SDI．2．1": 1,
+					"FDP_SDI．2．2": 1,
+					"FDP_ACF．1": 46,
+					"FDP_ACC．1": 45,
+					"FDP_ITC．1": 48,
+					"FDP_ITC．2": 48,
+					"FDP_RIP": 13,
+					"FDP_UCT": 5,
+					"FDP_UCT．1": 1,
+					"FDP_UIT": 6,
+					"FDP_UIT．1": 2
+				},
+				"FIA": {
+					"FIA_AFL": 20,
+					"FIA_SOS．1": 7,
+					"FIA_USB．1": 31,
+					"FIA_API．1": 18,
+					"FIA_API": 13,
+					"FIA_API．1．1": 2,
+					"FIA_ATD．1": 20,
+					"FIA_UAU．1": 18,
+					"FIA_UAU．4": 10,
+					"FIA_UAU．5": 18,
+					"FIA_UAU．6": 11,
+					"FIA_USB": 34,
+					"FIA_UAU": 53,
+					"FIA_UID．1": 20,
+					"FIA_SOS．1．1": 1,
+					"FIA_AFL．1": 4,
+					"FIA_ATD．1．1": 1,
+					"FIA_UAU．1．1": 2,
+					"FIA_UAU．1．2": 1,
+					"FIA_UAU．4．1": 1,
+					"FIA_UAU．5．1": 1,
+					"FIA_UAU．5．2": 1,
+					"FIA_UAU．6．1": 1,
+					"FIA_UID．1．1": 2,
+					"FIA_UID．1．2": 1,
+					"FIA_USB．1．1": 1,
+					"FIA_USB．1．2": 1,
+					"FIA_USB．1．3": 2,
+					"FIA_UID": 12,
+					"FIA_ATD": 9
+				},
+				"FMT": {
+					"FMT_MTD": 38,
+					"FMT_SMF．1": 52,
+					"FMT_MSA．1": 10,
+					"FMT_LIM": 11,
+					"FMT_SMR．1": 44,
+					"FMT_MSA．3": 38,
+					"FMT_MSA": 58,
+					"FMT_LIM．1": 1,
+					"FMT_LIM．2": 1,
+					"FMT_SMR．1．1": 1,
+					"FMT_SMR．1．2": 1,
+					"FMT_SMF．1．1": 1,
+					"FMT_MSA．3．1": 1,
+					"FMT_MSA．3．2": 1,
+					"FMT_MTD．1": 5,
+					"FMT_SMR": 16
+				},
+				"FPT": {
+					"FPT_EMS": 19,
+					"FPT_ITE": 16,
+					"FPT_FLS": 5,
+					"FPT_PHP": 5,
+					"FPT_ITT": 5,
+					"FPT_EMS．1": 17,
+					"FPT_EMS．1．1": 3,
+					"FPT_EMS．1．2": 3,
+					"FPT_ITE．1": 14,
+					"FPT_ITE．2": 13,
+					"FPT_ITE．1．1": 2,
+					"FPT_ITE．1．2": 2,
+					"FPT_ITE．2．1": 5,
+					"FPT_ITE．2．2": 2,
+					"FPT_FLS．1": 13,
+					"FPT_TDC．1": 7,
+					"FPT_TST．1": 9,
+					"FPT_PHP．3": 2,
+					"FPT_ITT．1": 1,
+					"FPT_FLS．1．1": 1,
+					"FPT_TST": 2,
+					"FPT_TDC．1．1": 1,
+					"FPT_TDC．1．2": 1,
+					"FPT_TST．1．1": 1,
+					"FPT_TST．1．2": 1,
+					"FPT_TST．1．3": 1
+				},
+				"FRU": {
+					"FRU_FLT": 5,
+					"FRU_FLT．2": 1
+				},
+				"FTP": {
+					"FTP_ITC": 28,
+					"FTP_ITC．1": 28,
+					"FTP_TRP．1": 4
+				}
+			},
+			"cc_claims": {
+				"O": {
+					"O．RND": 4,
+					"O．PACE_CHIP": 2
+				},
+				"T": {
+					"T．RND": 5
+				},
+				"OE": {
+					"OE．TC_PIN": 1
+				}
+			},
+			"vendor": {
+				"NXP": {
+					"NXP Semiconductors": 2
+				},
+				"Infineon": {
+					"Infineon Technologies AG": 2
+				},
+				"STMicroelectronics": {
+					"STMicroelectronics": 1
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 46,
+						"AES-128": 1,
+						"AES-": 1,
+						"AES-256": 1
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 3
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"CMAC": 37
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA 3072": 1
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 6
+					},
+					"ECDSA": {
+						"ECDSA": 33
+					},
+					"ECC": {
+						"ECC": 11
+					}
+				},
+				"FF": {
+					"DH": {
+						"Diffie-Hellman": 2,
+						"DH": 16
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 1
+					},
+					"SHA2": {
+						"SHA-256": 9,
+						"SHA-384": 5,
+						"SHA-512": 2
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 47
+				},
+				"KA": {
+					"Key agreement": 1,
+					"Key Agreement": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					},
+					"TLS": {
+						"TLS": 2
+					}
+				},
+				"PACE": {
+					"PACE": 285
+				}
+			},
+			"randomness": {
+				"RNG": {
+					"RND": 9,
+					"RNG": 19
+				}
+			},
+			"cipher_mode": {
+				"CBC": {
+					"CBC": 4
+				}
+			},
+			"ecc_curve": {
+				"Brainpool": {
+					"brainpoolP256r1": 3,
+					"brainpoolP384r1": 3,
+					"brainpoolP512r1": 3
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"Leak-Inherent": 9,
+					"Physical Probing": 2,
+					"side channel": 1,
+					"SPA": 2,
+					"DPA": 2,
+					"timing attacks": 1
+				},
+				"FI": {
+					"Malfunction": 10,
+					"malfunction": 1,
+					"DFA": 1
+				},
+				"other": {
+					"Bleichenbacher attack": 1,
+					"JIL": 6
+				}
+			},
+			"technical_report_id": {
+				"BSI": {
+					"BSI TR-03143": 6
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS180-4": 1,
+					"FIPS 180-4": 1,
+					"FIPS 197": 3,
+					"FIPS PUB 197": 1,
+					"FIPS PUB 180-4": 1
+				},
+				"NIST": {
+					"NIST SP 800-38B": 1
+				},
+				"PKCS": {
+					"PKCS #1": 2,
+					"PKCS#3": 4,
+					"PKCS #3": 1
+				},
+				"RFC": {
+					"RFC5639": 3,
+					"RFC 5639": 1
+				},
+				"CC": {
+					"CCMB-2017-04-001": 2,
+					"CCMB-2017-04-002": 2,
+					"CCMB-2017-04-003": 2,
+					"CCMB-2017-04-004": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"report_filename": "pp0082V3a_pdf.pdf",
+		"pp_filename": "pp0082V3b_pdf.pdf"
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+	},
+	"state": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+		"pp": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "1e85c4c28adbda2a0792f4445bf590b86077c20e616461f6b7674a19a643dc41",
+			"txt_hash": "d91111982276e193f7de8a60d775d1b40e5328be80f2799fc33506e8840b2011"
+		},
+		"report": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "5cbe2329f14736c64d5bf70f37354cc5b309d836dedc4347b05cd9482bc0869b",
+			"txt_hash": "4fef94161ffa62cbd69f3f8ca6734daf680084f08e5436aceab622eb01966cc0"
+		}
+	}
+},
+{
+	"_id": "477fa2c9a8069ca7",
+	"_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+	"dgst": "477fa2c9a8069ca7",
+	"web_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+		"category": "Trusted Computing",
+		"status": "active",
+		"is_collaborative": false,
+		"name": "ANSSI-CC-PP-2018/03 « PC Client Specific TPM » (TPM Library specification Family “2.0”, Level 0)",
+		"version": "Revision 1.38, Version 1.1",
+		"security_level": {
+			"_type": "set",
+			"_value": [
+				"AVA_VAN.4",
+				"EAL4+",
+				"ALC_FLR.1"
+			]
+		},
+		"not_valid_before": {
+			"_type": "date",
+			"_value": "2018-08-10"
+		},
+		"not_valid_after": null,
+		"report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/anssi-cc-pp-2018_03.pdf",
+		"pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/anssi-cc-pp-2018_03-pp.pdf",
+		"scheme": "FR",
+		"maintenances": []
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+		"report_metadata": {
+			"pdf_file_size_bytes": 625556,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 12,
+			"/CreationDate": "D:20180814165207+02'00'",
+			"/Creator": "Microsoft® Word 2010",
+			"/ModDate": "D:20180816152259+02'00'",
+			"/Producer": "Microsoft® Word 2010",
+			"/Subject": "",
+			"/Title": "",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"mailto:certification@ssi.gouv.fr",
+					"http://www.ssi.gouv.fr/"
+				]
+			}
+		},
+		"pp_metadata": {
+			"pdf_file_size_bytes": 1147760,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 122,
+			"/CreationDate": "D:20180716012916+02'00'",
+			"/Creator": "PDFCreator 2.4.1.13",
+			"/Keywords": "",
+			"/ModDate": "D:20180816152246+02'00'",
+			"/Producer": "PDFCreator 2.4.1.13",
+			"/Subject": "",
+			"/Title": "",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		},
+		"report_keywords": {
+			"cc_cert_id": {
+				"FR": {
+					"ANSSI-CC-PP-2018/03": 13
+				}
+			},
+			"cc_protection_profile_id": {
+				"ANSSI": {
+					"ANSSI-CC-PP-2018/03": 13
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL 4": 1,
+					"EAL4": 1,
+					"EAL2": 1,
+					"EAL 1": 1,
+					"EAL 3": 1,
+					"EAL 5": 1,
+					"EAL 7": 1
+				}
+			},
+			"cc_sar": {
+				"ADO": {
+					"ADO_DEL": 1
+				},
+				"ADV": {
+					"ADV_ARC": 1,
+					"ADV_FSP": 1,
+					"ADV_IMP": 1,
+					"ADV_INT": 1,
+					"ADV_SPM": 1,
+					"ADV_TDS": 1
+				},
+				"AGD": {
+					"AGD_OPE": 1,
+					"AGD_PRE": 1
+				},
+				"ALC": {
+					"ALC_FLR．1": 2,
+					"ALC_CMC": 1,
+					"ALC_CMS": 1,
+					"ALC_DVS": 1,
+					"ALC_FLR": 1,
+					"ALC_LCD": 1,
+					"ALC_TAT": 1
+				},
+				"ATE": {
+					"ATE_COV": 1,
+					"ATE_DPT": 1,
+					"ATE_FUN": 1,
+					"ATE_IND": 1
+				},
+				"AVA": {
+					"AVA_VAN．4": 2,
+					"AVA_VAN": 1
+				},
+				"APE": {
+					"APE_CCL．1": 1,
+					"APE_ECD．1": 1,
+					"APE_INT．1": 1,
+					"APE_OBJ．2": 1,
+					"APE_REQ．2": 1,
+					"APE_SPD．1": 1
+				},
+				"ASE": {
+					"ASE_CCL": 1,
+					"ASE_ECD": 1,
+					"ASE_INT": 1,
+					"ASE_OBJ": 1,
+					"ASE_REQ": 1,
+					"ASE_SPD": 1,
+					"ASE_TSS": 1
+				}
+			},
+			"cc_sfr": {
+				"FCO": {
+					"FCO_NRO．1": 1
+				},
+				"FCS": {
+					"FCS_RNG．1": 1,
+					"FCS_CKM．1": 1,
+					"FCS_CKM．4": 1,
+					"FCS_COP．1": 1
+				},
+				"FDP": {
+					"FDP_ACC．1": 1,
+					"FDP_ACC．2": 1,
+					"FDP_ACF．1": 1,
+					"FDP_ETC．1": 1,
+					"FDP_ETC．2": 1,
+					"FDP_ITC．1": 1,
+					"FDP_ITC．2": 1,
+					"FDP_RIP．1": 1,
+					"FDP_SDI．1": 1,
+					"FDP_UCT．1": 1,
+					"FDP_UIT．1": 1,
+					"FDP_ITT．1": 1
+				},
+				"FIA": {
+					"FIA_AFL．1": 1,
+					"FIA_SOS．2": 1,
+					"FIA_UAU．1": 1,
+					"FIA_UAU．5": 1,
+					"FIA_UAU．6": 1,
+					"FIA_UID．1": 1,
+					"FIA_USB．1": 1
+				},
+				"FMT": {
+					"FMT_MOF．1": 1,
+					"FMT_MSA．1": 1,
+					"FMT_MSA．2": 1,
+					"FMT_MSA．3": 1,
+					"FMT_MSA．4": 1,
+					"FMT_MTD．1": 1,
+					"FMT_SMR．1": 1,
+					"FMT_SMF．1": 1
+				},
+				"FPT": {
+					"FPT_FLS．1": 1,
+					"FPT_PHP．3": 1,
+					"FPT_STM．1": 1,
+					"FPT_TST．1": 1
+				},
+				"FTP": {
+					"FTP_ITC．1": 1
+				}
+			},
+			"cc_claims": {},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"technical_report_id": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"CC": {
+					"CCMB-2017-04-001": 1,
+					"CCMB-2017-04-002": 1,
+					"CCMB-2017-04-003": 1,
+					"CCMB-2017-04-004": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"pp_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {},
+			"cc_security_level": {
+				"EAL": {
+					"EAL 4": 1,
+					"EAL4": 8,
+					"EAL 4 augmented": 1,
+					"EAL4 augmented": 1
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 2,
+					"ADV_FSP．4": 1,
+					"ADV_IMP．1": 2,
+					"ADV_TDS．3": 2,
+					"ADV_FSP．2": 1
+				},
+				"AGD": {
+					"AGD_PRE．1": 3,
+					"AGD_OPE．1": 2
+				},
+				"ALC": {
+					"ALC_FLR．1": 7,
+					"ALC_CMS": 1,
+					"ALC_DEL": 1,
+					"ALC_CMC．4": 1,
+					"ALC_CMS．4": 1,
+					"ALC_DEL．1": 1,
+					"ALC_DVS．1": 2,
+					"ALC_LCD．1": 1,
+					"ALC_TAT．1": 1
+				},
+				"ATE": {
+					"ATE_COV．2": 1,
+					"ATE_DPT．1": 1,
+					"ATE_FUN．1": 1,
+					"ATE_IND．2": 1
+				},
+				"AVA": {
+					"AVA_VAN．4": 8
+				},
+				"ASE": {
+					"ASE_CCL．1": 1,
+					"ASE_ECD．1": 1,
+					"ASE_INT．1": 1,
+					"ASE_OBJ．2": 1,
+					"ASE_REQ．2": 1,
+					"ASE_SPD．1": 1,
+					"ASE_TSS．1": 1
+				}
+			},
+			"cc_sfr": {
+				"FCO": {
+					"FCO_NRO": 12,
+					"FCO_NRO．1": 6
+				},
+				"FCS": {
+					"FCS_RNG": 4,
+					"FCS_RNG．1": 8,
+					"FCS_RNG．1．1": 3,
+					"FCS_RNG．1．2": 3,
+					"FCS_COP．1": 19,
+					"FCS_CKM": 37,
+					"FCS_CKM．2": 8,
+					"FCS_CKM．4": 39,
+					"FCS_CKM．1": 23,
+					"FCS_CKM．4．1": 1,
+					"FCS_COP": 53
+				},
+				"FDP": {
+					"FDP_ACC．1": 62,
+					"FDP_IFC．1": 41,
+					"FDP_RIP．1": 4,
+					"FDP_RIP．1．1": 1,
+					"FDP_ITC．1": 21,
+					"FDP_ITC．2": 23,
+					"FDP_ITT．1": 4,
+					"FDP_ITT．1．1": 1,
+					"FDP_ACC": 70,
+					"FDP_ACF．1": 43,
+					"FDP_ACC．2": 2,
+					"FDP_ACF": 44,
+					"FDP_UIT": 13,
+					"FDP_UIT．1": 5,
+					"FDP_SDI．1": 7,
+					"FDP_SDI．1．1": 1,
+					"FDP_ETC": 9,
+					"FDP_ETC．2": 4,
+					"FDP_ITC": 10,
+					"FDP_UCT": 11,
+					"FDP_UCT．1": 3,
+					"FDP_ETC．1": 2
+				},
+				"FIA": {
+					"FIA_UID．1": 15,
+					"FIA_UAU．5．2": 2,
+					"FIA_SOS．2": 4,
+					"FIA_SOS．2．1": 1,
+					"FIA_SOS．2．2": 1,
+					"FIA_AFL": 17,
+					"FIA_UAU．1": 17,
+					"FIA_AFL．1": 8,
+					"FIA_UID．1．1": 1,
+					"FIA_UID．1．2": 1,
+					"FIA_UAU．1．1": 1,
+					"FIA_UAU．1．2": 1,
+					"FIA_UAU．5": 7,
+					"FIA_UAU．5．1": 1,
+					"FIA_UAU．6": 5,
+					"FIA_UAU．6．1": 1,
+					"FIA_USB．1": 7,
+					"FIA_ATD．1": 2,
+					"FIA_USB．1．1": 1,
+					"FIA_USB．1．2": 1,
+					"FIA_USB．1．3": 1,
+					"FIA_UAU": 1
+				},
+				"FMT": {
+					"FMT_SMR．1": 59,
+					"FMT_SMR．1．1": 1,
+					"FMT_SMR．1．2": 1,
+					"FMT_SMF．1": 34,
+					"FMT_SMF．1．1": 1,
+					"FMT_MSA．2": 4,
+					"FMT_MSA．1": 23,
+					"FMT_MSA．2．1": 1,
+					"FMT_MSA": 109,
+					"FMT_MSA．4": 4,
+					"FMT_MTD": 9,
+					"FMT_MTD．1": 2,
+					"FMT_MSA．3": 30,
+					"FMT_MOF": 4,
+					"FMT_MOF．1": 1
+				},
+				"FPT": {
+					"FPT_STM．1": 4,
+					"FPT_STM．1．1": 1,
+					"FPT_TST．1": 9,
+					"FPT_TST．1．1": 2,
+					"FPT_TST．1．2": 1,
+					"FPT_TST．1．3": 1,
+					"FPT_FLS": 13,
+					"FPT_FLS．1": 2,
+					"FPT_FLS．1．1": 1,
+					"FPT_PHP．3": 5,
+					"FPT_PHP．3．1": 1,
+					"FPT_ITT．1": 4,
+					"FPT_ITT．1．1": 1,
+					"FPT_TDC．1": 3
+				},
+				"FTP": {
+					"FTP_ITC．1": 10,
+					"FTP_TRP．1": 10,
+					"FTP_ITC": 5,
+					"FTP_ITC．1．1": 1,
+					"FTP_ITC．1．2": 1,
+					"FTP_ITC．1．3": 1
+				}
+			},
+			"cc_claims": {
+				"O": {
+					"O．DAC": 7,
+					"O．ECDAA": 7
+				},
+				"OE": {
+					"OE．ECDAA": 3
+				},
+				"OSP": {
+					"OSP．ECDAA": 3
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES-128": 1,
+						"AES": 3
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 40
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"ECC": {
+					"ECDH": {
+						"ECDH": 4
+					},
+					"ECDSA": {
+						"ECDSA": 1
+					},
+					"ECC": {
+						"ECC": 14
+					}
+				},
+				"FF": {
+					"DH": {
+						"Diffie-Hellman": 1
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 3
+					},
+					"SHA2": {
+						"SHA-256": 2,
+						"SHA-384": 1
+					}
+				}
+			},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {
+				"PRNG": {
+					"PRNG": 1,
+					"DRBG": 8
+				},
+				"RNG": {
+					"RNG": 26
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 4
+				},
+				"CBC": {
+					"CBC": 2
+				},
+				"CTR": {
+					"CTR": 3
+				},
+				"CFB": {
+					"CFB": 4
+				},
+				"OFB": {
+					"OFB": 2
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-256": 2
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"physical probing": 2
+				},
+				"FI": {
+					"physical tampering": 7,
+					"malfunction": 4,
+					"Malfunction": 3
+				}
+			},
+			"technical_report_id": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 180-4": 1,
+					"FIPS 198-1": 2,
+					"FIPS PUB 186-4": 3
+				},
+				"NIST": {
+					"NIST SP 800-90A": 3,
+					"NIST SP 800-107": 1
+				},
+				"PKCS": {
+					"PKCS #1": 1
+				},
+				"RFC": {
+					"RFC-2119": 1,
+					"RFC 2104": 1,
+					"RFC 2119": 1,
+					"RFC 3447": 1
+				},
+				"ISO": {
+					"ISO/IEC 10116": 2,
+					"ISO/IEC 18033-3": 2,
+					"ISO/IEC 9797-2": 2,
+					"ISO/IEC 14888-3": 2,
+					"ISO/IEC 15946-1": 2,
+					"ISO/IEC 10118-3": 1,
+					"ISO/IEC 10116:2006": 1
+				},
+				"CC": {
+					"CCMB-2017-04-001": 1,
+					"CCMB-2017-04-002": 1,
+					"CCMB-2017-04-003": 1,
+					"CCMB-2017-04-004": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"report_filename": "anssi-cc-pp-2018_03.pdf",
+		"pp_filename": "anssi-cc-pp-2018_03-pp.pdf"
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+	},
+	"state": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+		"pp": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "8971926fb9516eaefe2c48eda37fca7544d902b5bde1f0bd4ad153f44b3a1e10",
+			"txt_hash": "d7fe9655d51714c5bf45e63e61c2d881839185a1ff4e14f61ca7966eb5413589"
+		},
+		"report": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "5d6639aa727515c822ed9f844361bdae928999b0f2ee524107a8692f1bcb6048",
+			"txt_hash": "b6eb438d9bc242189973aaae7ace80925e8a81fb5e19dcddf73bb6b7bc5ad012"
+		}
+	}
+},
+{
+	"_id": "55ed365edb2c317f",
+	"_type": "sec_certs.sample.protection_profile.ProtectionProfile",
+	"dgst": "55ed365edb2c317f",
+	"web_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.WebData",
+		"category": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+		"status": "active",
+		"is_collaborative": false,
+		"name": "Card Operating System Generation 2",
+		"version": "Version 1.0",
+		"security_level": {
+			"_type": "set",
+			"_value": [
+				"AVA_VAN.5",
+				"ATE_DPT.2",
+				"EAL4+",
+				"ALC_DVS.2"
+			]
+		},
+		"not_valid_before": {
+			"_type": "date",
+			"_value": "2013-09-06"
+		},
+		"not_valid_after": null,
+		"report_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0082a_pdf.pdf",
+		"pp_link": "https://www.commoncriteriaportal.org/nfs/ccpfiles/files/ppfiles/pp0082b_pdf.pdf",
+		"scheme": "DE",
+		"maintenances": []
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.PdfData",
+		"report_metadata": {
+			"pdf_file_size_bytes": 821103,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 28,
+			"/Author": "Bundesamt für Sicherheit in der Informationstechnik",
+			"/CreationDate": "D:20130904100320+02'00'",
+			"/Creator": "Writer",
+			"/Keywords": "\"Common Criteria, Certification, Zertifizierung, Protection Profile, Schutzprofil\"",
+			"/ModDate": "D:20130904100820+02'00'",
+			"/Producer": "LibreOffice 3.6",
+			"/Subject": "Protection Profile Certification",
+			"/Title": "Certification Report BSI-CC-PP-0082-2013",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"https://www.bsi.bund.de/"
+				]
+			}
+		},
+		"pp_metadata": {
+			"pdf_file_size_bytes": 2604487,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 153,
+			"/Title": "Common Criteria Protection Profile BSI-PP-0082",
+			"/Author": "BSI;Wolfgang Killmann;Andreas H. Niers;Falk Nedwal",
+			"/Subject": "COS",
+			"/Keywords": "Card Operating System Generation 2; COS; COS PP; Gesundheitskarte",
+			"/Creator": "Microsoft® Office Word 2007",
+			"/CreationDate": "D:20130823161259+02'00'",
+			"/ModDate": "D:20130823161259+02'00'",
+			"/Producer": "Microsoft® Office Word 2007",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://www.bsi.bund.de/",
+					"http://tools.ietf.org/html/rfc5639"
+				]
+			}
+		},
+		"report_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-CC-PP-0082-2013": 14
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL 4": 5,
+					"EAL 1": 1,
+					"EAL1": 6,
+					"EAL3": 4,
+					"EAL5": 6,
+					"EAL7": 4,
+					"EAL2": 3,
+					"EAL4": 4,
+					"EAL6": 3,
+					"EAL 4 augmented": 2
+				},
+				"ITSEC": {
+					"ITSEC Evaluation": 1
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 1,
+					"ADV_FSP．1": 1,
+					"ADV_FSP．2": 1,
+					"ADV_FSP．3": 1,
+					"ADV_FSP．4": 1,
+					"ADV_FSP．5": 1,
+					"ADV_FSP．6": 1,
+					"ADV_IMP．1": 1,
+					"ADV_IMP．2": 1,
+					"ADV_INT．1": 1,
+					"ADV_INT．2": 1,
+					"ADV_INT．3": 1,
+					"ADV_SPM．1": 1,
+					"ADV_TDS．1": 1,
+					"ADV_TDS．2": 1,
+					"ADV_TDS．3": 1,
+					"ADV_TDS．4": 1,
+					"ADV_TDS．5": 1,
+					"ADV_TDS．6": 1,
+					"ADV_ARC": 1,
+					"ADV_FSP": 1,
+					"ADV_IMP": 1,
+					"ADV_INT": 1,
+					"ADV_SPM": 1,
+					"ADV_TDS": 1
+				},
+				"AGD": {
+					"AGD_OPE．1": 1,
+					"AGD_PRE．1": 1,
+					"AGD_OPE": 1,
+					"AGD_PRE": 1
+				},
+				"ALC": {
+					"ALC_DVS．2": 3,
+					"ALC_CMC．1": 1,
+					"ALC_CMC．2": 1,
+					"ALC_CMC．3": 1,
+					"ALC_CMC．4": 1,
+					"ALC_CMC．5": 1,
+					"ALC_CMS．1": 1,
+					"ALC_CMS．2": 1,
+					"ALC_CMS．3": 1,
+					"ALC_CMS．4": 1,
+					"ALC_CMS．5": 1,
+					"ALC_DEL．1": 1,
+					"ALC_DVS．1": 1,
+					"ALC_FLR．1": 1,
+					"ALC_FLR．2": 1,
+					"ALC_FLR．3": 1,
+					"ALC_LCD．1": 1,
+					"ALC_LCD．2": 1,
+					"ALC_TAT．1": 1,
+					"ALC_TAT．2": 1,
+					"ALC_TAT．3": 1,
+					"ALC_CMC": 1,
+					"ALC_CMS": 1,
+					"ALC_DEL": 1,
+					"ALC_DVS": 1,
+					"ALC_FLR": 1,
+					"ALC_TAT": 1
+				},
+				"ATE": {
+					"ATE_DPT．2": 3,
+					"ATE_COV．1": 1,
+					"ATE_COV．2": 1,
+					"ATE_COV．3": 1,
+					"ATE_DPT．1": 1,
+					"ATE_DPT．3": 1,
+					"ATE_DPT．4": 1,
+					"ATE_FUN．1": 1,
+					"ATE_FUN．2": 1,
+					"ATE_IND．1": 1,
+					"ATE_IND．2": 1,
+					"ATE_IND．3": 1,
+					"ATE_COV": 1,
+					"ATE_DPT": 1,
+					"ATE_FUN": 1,
+					"ATE_IND": 1
+				},
+				"AVA": {
+					"AVA_VAN．5": 3,
+					"AVA_VAN．1": 1,
+					"AVA_VAN．2": 1,
+					"AVA_VAN．3": 1,
+					"AVA_VAN．4": 1,
+					"AVA_VAN": 2
+				},
+				"APE": {
+					"APE_INT．1": 2,
+					"APE_CCL．1": 2,
+					"APE_SPD．1": 2,
+					"APE_OBJ．2": 2,
+					"APE_ECD．1": 2,
+					"APE_REQ．2": 2,
+					"APE_OBJ．1": 1,
+					"APE_REQ．1": 1
+				},
+				"ASE": {
+					"ASE_INT．1": 1,
+					"ASE_CCL．1": 1,
+					"ASE_SPD．1": 1,
+					"ASE_OBJ．1": 1,
+					"ASE_OBJ．2": 1,
+					"ASE_ECD．1": 1,
+					"ASE_REQ．1": 1,
+					"ASE_REQ．2": 1,
+					"ASE_TSS．1": 1,
+					"ASE_TSS．2": 1,
+					"ASE_CCL": 1,
+					"ASE_ECD": 1,
+					"ASE_INT": 1,
+					"ASE_OBJ": 1,
+					"ASE_SPD": 1,
+					"ASE_TSS": 1
+				}
+			},
+			"cc_sfr": {},
+			"cc_claims": {},
+			"vendor": {},
+			"eval_facility": {
+				"SRC": {
+					"SRC Security Research & Consulting": 3
+				}
+			},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"HPC": {
+						"HPC": 3
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"technical_report_id": {
+				"BSI": {
+					"BSI 7125": 2,
+					"BSI 2": 1,
+					"BSI 7148": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"BSI": {
+					"AIS 32": 1,
+					"AIS 41": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {
+				"ConfidentialDocument": {
+					"Profile 'Card Operating System Generation 2 (PP COS G2)', SRC Security Research & Consulting GmbH (confidential document) [6] Common Criteria Protection Profile 'Card Operating System Generation 2 (PP COS G2)', Version 1": 1
+				}
+			}
+		},
+		"pp_keywords": {
+			"cc_cert_id": {},
+			"cc_protection_profile_id": {
+				"BSI": {
+					"BSI-CC-PP-0082": 153,
+					"BSI-PP-0035": 70,
+					"BSI-PP- 0035": 6,
+					"BSI-CC-PP-0035": 2,
+					"BSI-CC-PP-0075": 3,
+					"BSI-CC-PP-0059": 3,
+					"BSI-CC-PP-0071": 3,
+					"BSI-CC-PP-0072": 4
+				}
+			},
+			"cc_security_level": {
+				"EAL": {
+					"EAL4": 14,
+					"EAL4 augmented": 4
+				}
+			},
+			"cc_sar": {
+				"ADV": {
+					"ADV_ARC．1": 10,
+					"ADV_FSP．4": 6,
+					"ADV_IMP．1": 6,
+					"ADV_TDS．3": 3,
+					"ADV_ARC": 2,
+					"ADV_FSP": 2,
+					"ADV_IMP": 2
+				},
+				"AGD": {
+					"AGD_OPE．1": 6,
+					"AGD_PRE．1": 2,
+					"AGD_OPE": 2,
+					"AGD_PRE": 2
+				},
+				"ALC": {
+					"ALC_DVS．2": 11,
+					"ALC_CMC．4": 1,
+					"ALC_CMS．4": 1,
+					"ALC_DEL．1": 1,
+					"ALC_LCD．1": 1,
+					"ALC_TAT．1": 1,
+					"ALC_DEL": 2,
+					"ALC_DVS": 2,
+					"ALC_CMS": 2,
+					"ALC_CMC": 2
+				},
+				"ATE": {
+					"ATE_FUN．1": 6,
+					"ATE_IND．2": 5,
+					"ATE_DPT．2": 10,
+					"ATE_COV．2": 1,
+					"ATE_COV": 2,
+					"ATE_DPT．1": 1
+				},
+				"AVA": {
+					"AVA_VAN．5": 9,
+					"AVA_VAN": 2
+				},
+				"ASE": {
+					"ASE_CCL．1": 1,
+					"ASE_ECD．1": 1,
+					"ASE_INT．1": 1,
+					"ASE_OBJ．2": 1,
+					"ASE_REQ．2": 1,
+					"ASE_SPD．1": 1,
+					"ASE_TSS．1": 1
+				}
+			},
+			"cc_sfr": {
+				"FAU": {
+					"FAU_SAS": 6,
+					"FAU_SAS．1": 1
+				},
+				"FCS": {
+					"FCS_RNG": 20,
+					"FCS_RNG．1": 21,
+					"FCS_RNG．1．1": 5,
+					"FCS_RNG．1．2": 3,
+					"FCS_COP": 162,
+					"FCS_CKM": 74,
+					"FCS_CKM．4": 75,
+					"FCS_CKM．1": 45,
+					"FCS_COP．1": 30,
+					"FCS_CKM．2": 12,
+					"FCS_COP．1．1": 1,
+					"FCS_CKM．4．1": 1
+				},
+				"FDP": {
+					"FDP_ITT": 5,
+					"FDP_IFC": 5,
+					"FDP_RIP．1": 11,
+					"FDP_ACC": 101,
+					"FDP_ACF": 94,
+					"FDP_ITT．1": 1,
+					"FDP_IFC．1": 13,
+					"FDP_RIP．1．1": 1,
+					"FDP_ACF．1": 47,
+					"FDP_ACC．1": 46,
+					"FDP_ITC．1": 40,
+					"FDP_ITC．2": 40,
+					"FDP_RIP": 5,
+					"FDP_UCT": 4,
+					"FDP_UCT．1": 1,
+					"FDP_UIT": 5,
+					"FDP_UIT．1": 2
+				},
+				"FIA": {
+					"FIA_API": 6,
+					"FIA_API．1": 16,
+					"FIA_API．1．1": 2,
+					"FIA_AFL": 18,
+					"FIA_ATD．1": 15,
+					"FIA_UAU．1": 18,
+					"FIA_UAU．4": 10,
+					"FIA_UAU．5": 15,
+					"FIA_UAU．6": 10,
+					"FIA_USB．1": 24,
+					"FIA_USB": 17,
+					"FIA_UAU": 28,
+					"FIA_UID．1": 17,
+					"FIA_AFL．1": 4,
+					"FIA_ATD．1．1": 1,
+					"FIA_UAU．1．1": 2,
+					"FIA_UAU．1．2": 1,
+					"FIA_UAU．4．1": 1,
+					"FIA_UAU．5．1": 1,
+					"FIA_UAU．5．2": 1,
+					"FIA_UAU．6．1": 1,
+					"FIA_UID．1．1": 2,
+					"FIA_UID．1．2": 1,
+					"FIA_USB．1．1": 1,
+					"FIA_USB．1．2": 1,
+					"FIA_USB．1．3": 2,
+					"FIA_UID": 9,
+					"FIA_ATD": 7
+				},
+				"FMT": {
+					"FMT_LIM": 11,
+					"FMT_SMR．1": 39,
+					"FMT_MSA．3": 38,
+					"FMT_SMF．1": 48,
+					"FMT_MSA": 55,
+					"FMT_MTD": 29,
+					"FMT_LIM．1": 1,
+					"FMT_LIM．2": 1,
+					"FMT_SMR．1．1": 1,
+					"FMT_SMR．1．2": 1,
+					"FMT_SMF．1．1": 1,
+					"FMT_MSA．1": 8,
+					"FMT_MSA．3．1": 1,
+					"FMT_MSA．3．2": 1,
+					"FMT_MTD．1": 4,
+					"FMT_SMR": 7
+				},
+				"FPT": {
+					"FPT_EMS": 9,
+					"FPT_ITE": 16,
+					"FPT_FLS": 5,
+					"FPT_PHP": 5,
+					"FPT_ITT": 5,
+					"FPT_EMS．1": 13,
+					"FPT_EMS．1．1": 3,
+					"FPT_EMS．1．2": 3,
+					"FPT_ITE．1": 13,
+					"FPT_ITE．2": 12,
+					"FPT_ITE．1．1": 2,
+					"FPT_ITE．1．2": 2,
+					"FPT_ITE．2．1": 5,
+					"FPT_ITE．2．2": 2,
+					"FPT_FLS．1": 12,
+					"FPT_TDC．1": 7,
+					"FPT_TST．1": 9,
+					"FPT_PHP．3": 2,
+					"FPT_ITT．1": 1,
+					"FPT_FLS．1．1": 1,
+					"FPT_TST": 2,
+					"FPT_TDC．1．1": 1,
+					"FPT_TDC．1．2": 1,
+					"FPT_TST．1．1": 1,
+					"FPT_TST．1．2": 1,
+					"FPT_TST．1．3": 1,
+					"FPT_ITC．1": 2
+				},
+				"FRU": {
+					"FRU_FLT": 5,
+					"FRU_FLT．2": 1
+				},
+				"FTP": {
+					"FTP_ITC": 19,
+					"FTP_ITC．1": 21,
+					"FTP_TRP．1": 4
+				}
+			},
+			"cc_claims": {
+				"O": {
+					"O．RND": 4,
+					"O．PACE": 5
+				},
+				"T": {
+					"T．RND": 5
+				},
+				"OE": {
+					"OE．TC_PIN": 1
+				}
+			},
+			"vendor": {
+				"NXP": {
+					"NXP Semiconductors": 1
+				},
+				"Infineon": {
+					"Infineon Technologies AG": 1
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 55,
+						"AES128": 1,
+						"AES-": 1,
+						"AES-256": 1
+					}
+				},
+				"DES": {
+					"3DES": {
+						"TDEA": 1
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"CMAC": 33
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"ECC": {
+					"ECDH": {
+						"ECDH": 3
+					},
+					"ECDSA": {
+						"ECDSA": 33
+					},
+					"ECC": {
+						"ECC": 11
+					}
+				},
+				"FF": {
+					"DH": {
+						"DH": 11,
+						"Diffie-Hellman": 1
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 1
+					},
+					"SHA2": {
+						"SHA-256": 10,
+						"SHA-384": 5,
+						"SHA-512": 2
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 33
+				},
+				"KA": {
+					"Key Agreement": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					},
+					"TLS": {
+						"TLS": 2
+					}
+				},
+				"PACE": {
+					"PACE": 190
+				}
+			},
+			"randomness": {
+				"RNG": {
+					"RND": 9,
+					"RNG": 28
+				}
+			},
+			"cipher_mode": {
+				"CBC": {
+					"CBC": 6
+				}
+			},
+			"ecc_curve": {
+				"Brainpool": {
+					"brainpoolP256r1": 2,
+					"brainpoolP384r1": 2,
+					"brainpoolP512r1": 2
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"Leak-Inherent": 9,
+					"Physical Probing": 2,
+					"side channel": 1,
+					"SPA": 2,
+					"DPA": 2,
+					"timing attacks": 1
+				},
+				"FI": {
+					"Malfunction": 11,
+					"malfunction": 1,
+					"DFA": 1
+				},
+				"other": {
+					"Bleichenbacher attack": 1
+				}
+			},
+			"technical_report_id": {
+				"BSI": {
+					"BSI TR-03116": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS180-4": 1,
+					"FIPS 180-4": 1,
+					"FIPS 197": 3
+				},
+				"NIST": {
+					"NIST SP 800-67": 3,
+					"NIST SP 800-38B": 1
+				},
+				"PKCS": {
+					"PKCS #1": 1,
+					"PKCS#3": 2
+				},
+				"RFC": {
+					"RFC5639": 3,
+					"RFC 5639": 1
+				},
+				"ISO": {
+					"ISO/IEC 9797-1": 1
+				},
+				"ICAO": {
+					"ICAO": 1
+				},
+				"CC": {
+					"CCMB-2012-09-001": 3,
+					"CCMB-2012-09-002": 2,
+					"CCMB-2012-09-003": 3,
+					"CCMB-2012-09-004": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"report_filename": "pp0082a_pdf.pdf",
+		"pp_filename": "pp0082b_pdf.pdf"
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.Heuristics"
+	},
+	"state": {
+		"_type": "sec_certs.sample.protection_profile.ProtectionProfile.InternalState",
+		"pp": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "49332970ad55758017d5dcf4559c4900b24694c67ae1009db643bb6363405aab",
+			"txt_hash": "cf91b3a0eac4a2e07c489245d30e0456578a3efba2e8aca28cba19ff19ddcfe1"
+		},
+		"report": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"pdf_hash": "a6cd8a0c24f07cc877bc53f192d8c9d78980699db55c88dc140f75eee18b0d43",
+			"txt_hash": "288e1afe17b4fee889345278f73cff5a6d44b9e277cd73ba38352a95c659bf7a"
+		}
+	}
+}]
+

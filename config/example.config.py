@@ -76,6 +76,8 @@ X_ACCEL_REDIRECT_PATH = ""
 # WHOOSH
 WHOOSH_INDEX_PATH = "search"
 
+DOCS_AUTH_TOKEN = ""
+
 # The way the Common Criteria certificate reference graphs are built.
 # Can be "BOTH" to collect the references from both certificate documents and security targets,
 # or "CERT_ONLY" for collecting references from certs only,

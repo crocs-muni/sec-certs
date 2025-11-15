@@ -119,13 +119,13 @@ def include_static(filename: str):
     bp = current_app.blueprints.get(request.blueprint)
     if bp is not None and bp.static_folder is not None:
         try:
-            with open(join(bp.static_folder, filename), "r") as f:
+            with open(join(bp.static_folder, filename), "r", encoding="utf-8") as f:
                 return Markup(f.read())
         except FileNotFoundError:
             return None
     elif current_app.static_folder is not None:
         try:
-            with open(join(current_app.static_folder, filename), "r") as f:
+            with open(join(current_app.static_folder, filename), "r", encoding="utf-8") as f:
                 return Markup(f.read())
         except FileNotFoundError:
             return None

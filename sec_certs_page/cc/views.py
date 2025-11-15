@@ -34,19 +34,7 @@ from ..common.views import (
     send_json_attachment,
     sitemap_cert_pipeline,
 )
-from . import (
-    cc,
-    cc_categories,
-    cc_eals,
-    cc_reference_types,
-    cc_sars,
-    cc_schemes,
-    cc_sfrs,
-    cc_status,
-    get_cc_analysis,
-    get_cc_graphs,
-    get_cc_map,
-)
+from . import cc, cc_categories, cc_eals, cc_reference_types, cc_sars, cc_schemes, cc_sfrs, cc_status, get_cc_references
 from .search import CCBasicSearch, CCFulltextSearch
 from .tasks import CCRenderer
 
@@ -171,6 +159,7 @@ def network():
 @cc.route("/network/graph.json")
 def network_graph():
     """Common criteria references data."""
+    cc_references = get_cc_references()
     if "search" in request.args:
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
@@ -186,18 +175,22 @@ def network_graph():
             certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
         else:
             raise BadRequest("Invalid search query.")
-        component_map = get_cc_map()
         components = {}
         ids = []
         for cert in certs:
-            if cert["_id"] not in component_map:
+            if cert["_id"] not in cc_references:
                 continue
             ids.append(cert["_id"])
-            component = component_map[cert["_id"]]
+            component = cc_references[cert["_id"]]
             if id(component) not in components:
                 components[id(component)] = component
         return network_graph_func(list(components.values()), highlighted=ids)
-    return network_graph_func(get_cc_graphs())
+    else:
+        components = {}
+        for component in cc_references.values():
+            if id(component) not in components:
+                components[id(component)] = component
+        return network_graph_func(list(components.values()))
 
 
 @cc.route("/data/")
@@ -268,7 +261,7 @@ def compare(one_hashid: str, other_hashid: str):
 @register_breadcrumb(cc, ".analysis", "Analysis")
 def analysis():
     """Common criteria analysis results."""
-    return render_template("cc/analysis.html.jinja2", analysis=get_cc_analysis())
+    return render_template("cc/analysis.html.jinja2")
 
 
 @cc.route("/random/")
@@ -341,7 +334,7 @@ def entry(hashid):
         with sentry_sdk.start_span(op="files", description="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
         with sentry_sdk.start_span(op="network", description="Find network"):
-            cc_map = get_cc_map()
+            cc_map = get_cc_references()
             cert_network = cc_map.get(hashid, {})
         with sentry_sdk.start_span(op="mongo", description="Find prev/next certificates"):
             # No need to "load()" the certs as they have no non-trivial types.
@@ -493,9 +486,9 @@ def entry_graph_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
     if doc:
-        cc_map = get_cc_map()
+        cc_map = get_cc_references()
         if hashid in cc_map.keys():
-            network_data = node_link_data(cc_map[hashid])
+            network_data = node_link_data(cc_map[hashid], edges="links")
         else:
             network_data = {}
         network_data["highlighted"] = [hashid]

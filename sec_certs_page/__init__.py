@@ -15,7 +15,9 @@ from dramatiq.middleware import (
     TimeLimit,
 )
 from dramatiq.results import Results
-from dramatiq.results.backends import RedisBackend, StubBackend
+from dramatiq.results.backends import StubBackend
+from dramatiq.results.backends.redis import RedisBackend
+from fakeredis import FakeRedis
 from flask import Flask, abort
 from flask_assets import Environment as Assets
 from flask_caching import Cache
@@ -38,14 +40,14 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
-from .common.dash.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send
 
 # See https://github.com/crocs-muni/sec-certs/issues/470
 sys.setrecursionlimit(8000)
 
-instance_path = os.environ.get("INSTANCE_PATH", None)
+if instance_path := os.environ.get("INSTANCE_PATH", None):
+    instance_path = instance_path.replace("%pkg%", str(Path(__file__).absolute().parent))
 app: Flask = Flask(__name__, instance_path=instance_path, instance_relative_config=True)
 app.config.from_pyfile("config.py", silent=True)
 app.jinja_env.trim_blocks = True
@@ -57,7 +59,6 @@ public(app=app)
 
 if os.environ.get("TESTING", False):
     app.testing = True
-    del app.config["DRAMATIQ_BROKER_URL"]
     app.config["DEBUG_TB_ENABLED"] = False
     app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
@@ -112,7 +113,11 @@ broker: Broker = (
 broker.set_default()
 public(broker=broker)
 
-redis: FlaskRedis = FlaskRedis(app)
+redis: FlaskRedis
+if app.testing:
+    redis = FlaskRedis.from_custom_provider(FakeRedis, app)
+else:
+    redis = FlaskRedis(app)
 public(redis=redis)
 
 runtime_config: RuntimeConfig = RuntimeConfig(app)
@@ -134,11 +139,6 @@ public(csrf=csrf)
 
 mail: Mail = Mail(app)
 public(mail=mail)
-
-dash: Dash = Dash(server=app, routes_pathname_prefix="/dash/", use_pages=True, pages_folder="")
-public(dash=dash)
-# This Dash view uses a POST and CSRFProtect is messing it up otherwise.
-csrf.exempt("dash.dash.dispatch")
 
 
 class Sitemap(FlaskSitemap):
@@ -200,7 +200,10 @@ with app.app_context():
     app.register_blueprint(about)
     app.register_blueprint(chat)
 
-from .dash import *
+from .dashboard import init_dashboard
 from .jinja import *
 from .tasks import *
 from .views import *
+
+with app.app_context():
+    init_dashboard(app, csrf)

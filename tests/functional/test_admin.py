@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from flask.testing import FlaskClient
 
@@ -28,7 +30,6 @@ def logged_in_client(client: FlaskClient, admin, mocker):
         follow_redirects=True,
     ):
         yield client
-
 
 
 def test_login(client: FlaskClient, admin, mocker):

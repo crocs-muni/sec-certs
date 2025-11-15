@@ -18,7 +18,7 @@ def as_www_data(command, virtual=True):
     # NOTE: not a nice solution, but we need to source the virtual only after
     # we sudo as www-data
     if virtual:
-        command = ["source", "/var/www/sec-certs/virt11/bin/activate.fish", "&&"] + command
+        command = ["source", "/var/www/sec-certs/virt11_flask3/bin/activate.fish", "&&"] + command
     joined_command = " ".join(command)
     www_data_shell.append(f'"{joined_command}"')
     return " ".join(www_data_shell)

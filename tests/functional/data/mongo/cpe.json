@@ -1,0 +1,15 @@
+[{
+	"_id": "cpe:2.3:a:\\@thi.ng\\/egf_project:\\@thi.ng\\/egf:0.2.1:*:*:*:*:node.js:*:*",
+	"_type": "sec_certs.sample.cpe.CPE",
+	"cpe_id": "E1AD7F60-5BF9-4336-83CF-C7F381020437",
+	"uri": "cpe:2.3:a:\\@thi.ng\\/egf_project:\\@thi.ng\\/egf:0.2.1:*:*:*:*:node.js:*:*",
+	"title": "@thi.ng/egf Project @thi.ng/egf 0.2.1 for Node.js"
+},
+{
+	"_id": "cpe:2.3:o:tecsec:armored_card:108.0264.0001:*:*:*:*:*:*:*",
+	"_type": "sec_certs.sample.cpe.CPE",
+	"cpe_id": "E94E1E84-F530-4D3E-963A-BB4E486BF3F7",
+	"uri": "cpe:2.3:o:tecsec:armored_card:108.0264.0001:*:*:*:*:*:*:*",
+	"title": "TecSec Armored Card 108.0264.0001"
+}]
+

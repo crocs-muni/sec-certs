@@ -32,7 +32,7 @@ from ..common.views import (
     send_json_attachment,
     sitemap_cert_pipeline,
 )
-from . import fips, fips_reference_types, fips_status, fips_types, get_fips_graphs, get_fips_map
+from . import fips, fips_reference_types, fips_status, fips_types, get_fips_references
 from .search import FIPSBasicSearch, FIPSFulltextSearch
 from .tasks import FIPSRenderer
 
@@ -101,6 +101,7 @@ def network():
 
 @fips.route("/network/graph.json")
 def network_graph():
+    fips_references = get_fips_references()
     if "search" in request.args:
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
@@ -116,18 +117,22 @@ def network_graph():
             certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
         else:
             raise BadRequest("Invalid search query.")
-        component_map = get_fips_map()
         components = {}
         ids = []
         for cert in certs:
-            if cert["_id"] not in component_map:
+            if cert["_id"] not in fips_references:
                 continue
             ids.append(cert["_id"])
-            component = component_map[cert["_id"]]
+            component = fips_references[cert["_id"]]
             if id(component) not in components:
                 components[id(component)] = component
         return network_graph_func(list(components.values()), highlighted=ids)
-    return network_graph_func(get_fips_graphs())
+    else:
+        components = {}
+        for component in fips_references.values():
+            if id(component) not in components:
+                components[id(component)] = component
+        return network_graph_func(list(components.values()))
 
 
 @fips.route("/search/")
@@ -445,7 +450,7 @@ def entry(hashid):
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
             )
         with sentry_sdk.start_span(op="network", description="Find network"):
-            fips_map = get_fips_map()
+            fips_map = get_fips_references()
             cert_network = fips_map.get(hashid, {})
         name = doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else ""
         return render_template(
@@ -484,9 +489,9 @@ def entry_graph_json(hashid):
     with sentry_sdk.start_span(op="mongo", description="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
-        fips_map = get_fips_map()
+        fips_map = get_fips_references()
         if hashid in fips_map.keys():
-            network_data = node_link_data(fips_map[hashid])
+            network_data = node_link_data(fips_map[hashid], edges="links")
         else:
             network_data = {}
         network_data["highlighted"] = [hashid]

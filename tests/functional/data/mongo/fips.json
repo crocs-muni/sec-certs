@@ -1,0 +1,3780 @@
+[{
+	"_id": "6b86b273ff34fce1",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "6b86b273ff34fce1",
+	"cert_id": 1,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "Entrust Cryptographic Kernel, V1.9",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "1995-10-12"
+				},
+				"validation_type": "Initial",
+				"lab": "DOMUS"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2002-07-18"
+				},
+				"validation_type": "Update",
+				"lab": ""
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2014-05-28"
+				},
+				"validation_type": "Update",
+				"lab": ""
+			}
+		],
+		"vendor_url": "http://www.entrust.com",
+		"vendor": "Entrust, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt1.pdf",
+		"module_type": "Software",
+		"standard": "FIPS 140-1",
+		"status": "historical",
+		"level": 1,
+		"caveat": "For use with PCs",
+		"exceptions": null,
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "This module is used in the Entrust family of products.",
+		"tested_conf": null,
+		"hw_versions": null,
+		"fw_versions": null,
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": "Validation Sunsetting Policy - FIPS 140-1 Certificate",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {},
+			"fips_security_level": {},
+			"fips_certlike": {},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 3085,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 1,
+			"/Producer": "Acrobat Distiller 4.05 for Windows",
+			"/ModDate": "D:20010320090744-05'00'",
+			"/Author": "Randall J. Easter",
+			"/CreationDate": "D:20010320090713",
+			"/Creator": "Microsoft Word 9.0",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": []
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"1.9"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": true,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "e85d2b3dceae2285830e03819c255d22a691aaa340b735a497e79685a8ae4c27",
+		"policy_txt_hash": "f2a653b4879554630ac981eb9c28119e9689b9fa3abbff2e82c486f2a73dfccc"
+	}
+},
+{
+	"_id": "c7ce483fd1cc5fd4",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "c7ce483fd1cc5fd4",
+	"cert_id": 569,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "Odyssey Security Component and Odyssey Security Component/Portable",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2005-08-31"
+				},
+				"validation_type": "Initial",
+				"lab": "Aspect"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2006-01-13"
+				},
+				"validation_type": "Update",
+				"lab": ""
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2006-02-24"
+				},
+				"validation_type": "Update",
+				"lab": ""
+			}
+		],
+		"vendor_url": "http://www.funk.com",
+		"vendor": "Funk Software, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt569.pdf",
+		"module_type": "Software",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 1,
+		"caveat": "None",
+		"exceptions": null,
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "The Odyssey Security Component/Portable is Funk Software, Inc.'s general purpose cryptographic library. Wide-ranging algorithm support is provided, making the library suitable for use in applications such as wireless LAN, IPsec, SSL/TLS, EAP, and so on. Assembly language optimizations allow high-speed operation on specific platforms, while the portable (C) version can be used on a large variety of platforms.",
+		"tested_conf": [
+			"Windows XP, Red Hat Linux 9.0 (single user mode)"
+		],
+		"hw_versions": null,
+		"fw_versions": null,
+		"sw_versions": "1.2",
+		"mentioned_certs": {},
+		"historical_reason": "RNG SP800-131A Revision 1 Transition",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#245": 1,
+					"#246": 1,
+					"#331": 1,
+					"#332": 1,
+					"#309": 1,
+					"#310": 1,
+					"#1": 2,
+					"#322": 1,
+					"#323": 1,
+					"#53": 1,
+					"#55": 1,
+					"#2": 1,
+					"#3": 1,
+					"#133": 2,
+					"#135": 2,
+					"#61": 1,
+					"#62": 1,
+					"#79": 2,
+					"#84": 2
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 1": 3
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC SHA-1": 1,
+					"HMAC SHA 224, 256": 1,
+					"SHA-1": 2,
+					"SHA 224": 2,
+					"PKCS #1": 4,
+					"PKCS#1": 2
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 4
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 4
+					},
+					"3DES": {
+						"Triple-DES": 4
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 8
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"FF": {
+					"DH": {
+						"Diffie-Hellman": 6,
+						"DH": 1
+					},
+					"DSA": {
+						"DSA": 11
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 2
+					}
+				}
+			},
+			"crypto_scheme": {
+				"KA": {
+					"Key Agreement": 2
+				}
+			},
+			"crypto_protocol": {},
+			"randomness": {
+				"PRNG": {
+					"PRNG": 6
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 3
+				},
+				"CBC": {
+					"CBC": 3
+				}
+			},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 9,
+					"FIPS 186-2": 8
+				},
+				"PKCS": {
+					"PKCS #1": 2,
+					"PKCS#1": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 621012,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 20,
+			"/Title": "Microsoft Word - Security Policy - Odyssey Security Component.doc",
+			"/Author": "Owner",
+			"/CreationDate": "D:20060218185406-08'00'",
+			"/Trapped": "/False",
+			"/Producer": "Acrobat Distiller 7.0 (Windows)",
+			"/GTS_PDFXConformance": "PDF/X-1a:2001",
+			"/Creator": "PScript5.dll Version 5.2",
+			"/GTS_PDFXVersion": "PDF/X-1:2001",
+			"/ModDate": "D:20060218185406-08'00'",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"RNG#84",
+				"DSA#133",
+				"CCM#3",
+				"DSA#135",
+				"Triple-DES#331",
+				"HMAC#55",
+				"CCM#2",
+				"AES#246",
+				"AES#245",
+				"SHS#323",
+				"Triple-DES#332",
+				"RSA#62",
+				"RSA#61",
+				"RNG#79",
+				"HMAC#53",
+				"SHS#322"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"-"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": [
+				"310",
+				"309"
+			]
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": {
+				"_type": "set",
+				"_value": [
+					"310",
+					"309"
+				]
+			},
+			"indirectly_referencing": {
+				"_type": "set",
+				"_value": [
+					"310",
+					"309"
+				]
+			}
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "2dea082518933e794bcce27efb708bbb0c95243df4e89ee6005c4f65c9afc6b2",
+		"policy_txt_hash": "f2173fa3706d9c93c7a68883697e737b6709822acc8cca72b8c87fb8be2393de"
+	}
+},
+{
+	"_id": "cfe0815a32292cc3",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "cfe0815a32292cc3",
+	"cert_id": 3305,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "128 Technology Cryptographic Module",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2018-10-18"
+				},
+				"validation_type": "Initial",
+				"lab": "ACUMEN SECURITY, LLC"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2021-03-16"
+				},
+				"validation_type": "Update",
+				"lab": "ÆGISOLVE"
+			}
+		],
+		"vendor_url": "http://www.128technology.com",
+		"vendor": "128 Technology",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/FIPS140ConsolidatedCertOct2018.pdf",
+		"module_type": "Software",
+		"standard": "FIPS 140-2",
+		"status": "active",
+		"level": 1,
+		"caveat": "When operated in FIPS mode. No assurance of the minimum strength of generated keys.",
+		"exceptions": [
+			"Physical Security: N/A",
+			"Mitigation of Other Attacks: N/A"
+		],
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "The 128T Networking Platform is a software-based, distributed routing and network services solution. The 128T Networking Platform uses Secure Vector Routing to simplify network architectures and provide fine-grained, end-to-end control and visibility. 128T runs on general-purpose computer and allows a wide range of deployment models - from remote branch offices to high-capacity network edges to hyper-scale data centers. The platform enables greater security and agility by distributing intelligence throughout the network - without disrupting your existing network infrastructure.",
+		"tested_conf": [
+			"CentOS 7.3 on a Dell Optiplex 755 (single-user mode)"
+		],
+		"hw_versions": null,
+		"fw_versions": null,
+		"sw_versions": "2.2",
+		"mentioned_certs": {},
+		"historical_reason": null,
+		"date_sunset": {
+			"_type": "date",
+			"_value": "2026-03-08"
+		},
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#1": 2
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 1": 2
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC-SHA-1": 2,
+					"HMAC-SHA-224": 2,
+					"HMAC-SHA-256": 2,
+					"HMAC- SHA-384": 1,
+					"HMAC-SHA-512 3164": 2,
+					"HMAC SHA-1": 1,
+					"HMAC SHA- 224": 1,
+					"HMAC SHA- 256": 1,
+					"HMAC SHA-384": 1,
+					"HMAC SHA-512": 1,
+					"HMAC-SHA1": 10,
+					"HMAC-SHA224": 2,
+					"HMAC-SHA256": 2,
+					"HMAC-SHA384": 2,
+					"HMAC-SHA512": 2,
+					"SHA-384": 5,
+					"SHA-2": 12,
+					"SHA-1": 21,
+					"SHA-224": 2,
+					"SHA-256": 3,
+					"SHA-512 3893": 1,
+					"SHA-1 2": 1,
+					"SHA- 224": 1,
+					"SHA- 256": 1,
+					"SHA-512": 1,
+					"SHA- 512": 1,
+					"SHA512": 1,
+					"PKCS #1": 4,
+					"PKCS1": 6,
+					"PKCS#1": 2,
+					"Certificate AES": 1,
+					"Certificate RSA": 1
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 13
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 3
+					},
+					"3DES": {
+						"Triple-DES": 8
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 13,
+						"HMAC-SHA-224": 1,
+						"HMAC-SHA-256": 1,
+						"HMAC-SHA-512": 1,
+						"CMAC": 6
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"ECC": {
+					"ECDSA": {
+						"ECDSA": 12
+					},
+					"ECC": {
+						"ECC": 1
+					}
+				},
+				"FF": {
+					"DH": {
+						"DH": 1
+					},
+					"DSA": {
+						"DSA": 13
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 22
+					},
+					"SHA2": {
+						"SHA-384": 5,
+						"SHA-224": 2,
+						"SHA-256": 3,
+						"SHA-512": 2,
+						"SHA512": 1,
+						"SHA-2": 12
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					},
+					"TLS": {
+						"TLS": 3
+					}
+				}
+			},
+			"randomness": {
+				"DUAL_EC": {
+					"DUAL_EC_DRBG": 1
+				},
+				"PRNG": {
+					"PRNG": 1,
+					"DRBG": 15
+				},
+				"RNG": {
+					"RNG": 3
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 3
+				},
+				"CBC": {
+					"CBC": 3
+				},
+				"CTR": {
+					"CTR": 2
+				},
+				"OFB": {
+					"OFB": 1
+				},
+				"GCM": {
+					"GCM": 4
+				},
+				"CCM": {
+					"CCM": 2
+				},
+				"XTS": {
+					"XTS": 1
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-224": 12,
+					"P-256": 12,
+					"P-384": 8,
+					"P-521": 12,
+					"P-192": 6,
+					"K-233": 5,
+					"K-283": 6,
+					"K-409": 4,
+					"B-233": 4,
+					"B-283": 5,
+					"B-409": 4,
+					"B-571": 6,
+					"K-571": 4,
+					"K-163": 4,
+					"B-163": 4
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 19,
+					"FIPS 140": 3,
+					"FIPS 186-4": 6,
+					"FIPS 186-2": 6
+				},
+				"NIST": {
+					"SP 800-90": 1,
+					"NIST SP 800-131A": 2,
+					"SP 800-90A": 1
+				},
+				"PKCS": {
+					"PKCS #1": 2,
+					"PKCS1": 3,
+					"PKCS#1": 1
+				},
+				"RFC": {
+					"RFC5288": 2,
+					"RFC5289": 2,
+					"RFC 5246": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 551425,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 23,
+			"/Author": "SafeLogic",
+			"/Category": "",
+			"/Client": "128 Technology",
+			"/Comments": "",
+			"/Company": "128 Technology",
+			"/CreationDate": "D:20210311125434-08'00'",
+			"/Creator": "Acrobat PDFMaker 21 for Word",
+			"/DocVersion": "1.0",
+			"/Keywords": "",
+			"/Manager": "",
+			"/ModDate": "D:20210311125442-08'00'",
+			"/Producer": "Adobe PDF Library 21.1.177",
+			"/SourceModified": "D:20210311205428",
+			"/Subject": "128 Technology Cryptographic Module",
+			"/Title": "Security Policy",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://www.safelogic.com/",
+					"http://csrc.nist.gov/groups/STM/cmvp/index.html",
+					"https://www.128technology.com/",
+					"http://www.128technology.com/"
+				]
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"AES#4750",
+				"DRBG#1631",
+				"SHS#3893",
+				"ECDSA#1185",
+				"HMAC#3164",
+				"Triple-DES#2524",
+				"DSA#1273",
+				"RSA#2594"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"128"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "c7305b318364bfcd082579022ef5e2c52a05f5cbb9c6c7086e880da3235eca93",
+		"policy_txt_hash": "b79ff5b0885fb9e6d6fb39b50aafec0dba25425c44bcc24c656c7acbffb944ef"
+	}
+},
+{
+	"_id": "9fbba4a59829746f",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "9fbba4a59829746f",
+	"cert_id": 2961,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "128 Technology Cryptographic Module",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2017-07-18"
+				},
+				"validation_type": "Initial",
+				"lab": "ACUMEN SECURITY, LLC"
+			}
+		],
+		"vendor_url": "https://www.128technology.com",
+		"vendor": "128 Technology",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/FIPS140ConsolidatedCertJuly2017.pdf",
+		"module_type": "Software",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 1,
+		"caveat": "When operated in FIPS mode. The module generates cryptographic keys whose strengths are modified by available entropy. This validation entry is a non-security relevant modification to Cert. #2038.",
+		"exceptions": [
+			"Physical Security: N/A",
+			"Mitigation of Other Attacks: N/A"
+		],
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "The 128T Networking Platform is a software-based, distributed routing and network services solution. The 128T Networking Platform uses Secure Vector Routing to simplify network architectures and provide fine-grained, end-to-end control and visibility. 128T runs on general-purpose computer and allows a wide range of deployment models - from remote branch offices to high-capacity network edges to hyper-scale data centers. The platform enables greater security and agility by distributing intelligence throughout the network - without disrupting your existing network infrastructure. The 128 Tech",
+		"tested_conf": [
+			"CentOS 6.3 on a Dell OptiPlex 755",
+			"Red Hat Enterprise Linux 6.3 on a Dell OptiPlex 755 (single-user mode)",
+			"SUSE Linux Enterprise 11 SP2 on a Dell OptiPlex 755"
+		],
+		"hw_versions": null,
+		"fw_versions": null,
+		"sw_versions": "2.1",
+		"mentioned_certs": {
+			"2038": 1
+		},
+		"historical_reason": "186-2 transition",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#1": 1
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 1": 2
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC-SHA-1": 2,
+					"HMAC-SHA-224": 2,
+					"HMAC-SHA-256": 2,
+					"HMAC- SHA-384": 1,
+					"HMAC-SHA-512 1391": 2,
+					"HMAC SHA-1": 1,
+					"HMAC SHA- 224": 1,
+					"HMAC SHA- 256": 1,
+					"HMAC SHA-384": 1,
+					"HMAC SHA-512": 1,
+					"HMAC-SHA1": 10,
+					"HMAC-SHA224": 2,
+					"HMAC-SHA256": 2,
+					"HMAC-SHA384": 2,
+					"HMAC-SHA512": 2,
+					"SHA-384": 5,
+					"SHA-2": 9,
+					"SHA-1": 17,
+					"SHA-224": 3,
+					"SHA-256": 3,
+					"SHA-512 1954": 1,
+					"SHA- 224": 1,
+					"SHA- 256": 1,
+					"SHA-512": 2,
+					"SHA- 512": 1,
+					"PKCS #1": 2,
+					"PKCS1": 4,
+					"DSA 2": 1,
+					"Certificate AES": 1,
+					"Certificate RSA": 1
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 9
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 2
+					},
+					"3DES": {
+						"Triple-DES": 7
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 15,
+						"HMAC-SHA-224": 1,
+						"HMAC-SHA-256": 1,
+						"HMAC-SHA-512": 1,
+						"CMAC": 4
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"ECC": {
+					"ECDH": {
+						"ECDH": 1
+					},
+					"ECDSA": {
+						"ECDSA": 5
+					},
+					"ECC": {
+						"ECC": 3
+					}
+				},
+				"FF": {
+					"DH": {
+						"DH": 3,
+						"Diffie-Hellman": 1
+					},
+					"DSA": {
+						"DSA": 13
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 17
+					},
+					"SHA2": {
+						"SHA-384": 5,
+						"SHA-224": 3,
+						"SHA-256": 3,
+						"SHA-512": 3,
+						"SHA-2": 9
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					},
+					"TLS": {
+						"TLS": 1
+					}
+				}
+			},
+			"randomness": {
+				"DUAL_EC": {
+					"DUAL_EC_DRBG": 1
+				},
+				"PRNG": {
+					"PRNG": 1,
+					"DRBG": 9
+				},
+				"RNG": {
+					"RNG": 3
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 1
+				},
+				"CBC": {
+					"CBC": 1
+				},
+				"CTR": {
+					"CTR": 1
+				},
+				"OFB": {
+					"OFB": 1
+				},
+				"GCM": {
+					"GCM": 2
+				},
+				"CCM": {
+					"CCM": 2
+				},
+				"XTS": {
+					"XTS": 1
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-224": 10,
+					"P-256": 10,
+					"P-384": 10,
+					"P-521": 10,
+					"P-192": 6,
+					"K-233": 5,
+					"K-283": 5,
+					"K-409": 5,
+					"K-571": 4,
+					"B-233": 5,
+					"B-283": 4,
+					"B-409": 5,
+					"B-571": 5,
+					"K-163": 4,
+					"B-163": 4
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 17,
+					"FIPS 140": 3,
+					"FIPS 186-2": 6,
+					"FIPS 186-4": 6
+				},
+				"NIST": {
+					"SP 800-90": 2,
+					"NIST SP 800-131A": 2
+				},
+				"PKCS": {
+					"PKCS #1": 1,
+					"PKCS1": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 918888,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 19,
+			"/Title": "Security Policy",
+			"/Author": "SafeLogic",
+			"/Subject": "128 Technology Cryptographic Module",
+			"/Creator": "Microsoft® Word 2016",
+			"/CreationDate": "D:20170626121513-04'00'",
+			"/ModDate": "D:20170626121513-04'00'",
+			"/Producer": "Microsoft® Word 2016",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://csrc.nist.gov/groups/STM/cmvp/index.html",
+					"https://www.128technology.com/",
+					"http://www.safelogic.com/",
+					"http://www.128technology.com/"
+				]
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"AES#2273",
+				"SHS#1954",
+				"Triple-DES#1420",
+				"DRBG#281",
+				"RSA#1166",
+				"DSA#709",
+				"CVL#44",
+				"ECDSA#368",
+				"HMAC#1391"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"128"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": [
+				"2038"
+			]
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": {
+				"_type": "set",
+				"_value": [
+					"2912"
+				]
+			},
+			"indirectly_referenced_by": {
+				"_type": "set",
+				"_value": [
+					"2912"
+				]
+			},
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": {
+				"_type": "set",
+				"_value": [
+					"2038"
+				]
+			},
+			"indirectly_referencing": {
+				"_type": "set",
+				"_value": [
+					"2038"
+				]
+			}
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "9609ce126a5b9716ed814a6cf80c4961178bce82099ba22756b745d84294c090",
+		"policy_txt_hash": "3ae75390122b6e601c736cee575c1be45faa896858c8026cd14b12e4944853df"
+	}
+},
+{
+	"_id": "03a3d955b8799a90",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "03a3d955b8799a90",
+	"cert_id": 356,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "IBM® CryptoLite in C",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2003-11-20"
+				},
+				"validation_type": "Initial",
+				"lab": "SAIC-VA"
+			}
+		],
+		"vendor_url": "http://www.zurich.ibm.com/",
+		"vendor": "IBM® Corporation",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt356.pdf",
+		"module_type": "Software",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 1,
+		"caveat": "When operated in FIPS mode",
+		"exceptions": null,
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "IBM CryptoLite is a C software package providing advanced cryptographic services in a very small footprint. CryptoLite supports public key encryption, digital signatures, symmetric ciphers, hash functions, message authentication codes, and other cryptographic algorithms through a simple programming interface. There are no runtime dependencies and the code has been optimized for high performance.",
+		"tested_conf": [
+			"Red Hat Linux 8.0 (single user mode)",
+			"Windows 2000 Professional with SP3"
+		],
+		"hw_versions": null,
+		"fw_versions": null,
+		"sw_versions": "3.0 (FIPS 140/Prod)",
+		"mentioned_certs": {},
+		"historical_reason": "Moved to historical list due to sunsetting",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#15": 1,
+					"#1": 1
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 1": 2,
+					"level 1": 1
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC SHA-1": 3,
+					"SHA-1": 9,
+					"SHA256": 2,
+					"SHA384": 2,
+					"SHA512": 2,
+					"SHA-256": 1,
+					"PKCS #15": 2,
+					"PKCS#15": 2,
+					"PKCS#1": 4,
+					"AES256": 1
+				}
+			},
+			"vendor": {
+				"Microsoft": {
+					"Microsoft": 7,
+					"Microsoft Corporation": 1
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 5,
+						"AES256": 1
+					},
+					"MARS": {
+						"MARS": 1
+					},
+					"RC": {
+						"RC2": 3,
+						"RC4": 2,
+						"RC6": 2
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 6
+					},
+					"3DES": {
+						"3DES": 3
+					}
+				},
+				"miscellaneous": {
+					"Blowfish": {
+						"Blowfish": 2
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 5
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"FF": {
+					"DH": {
+						"DH": 2,
+						"Diffie-Hellman": 1
+					},
+					"DSA": {
+						"DSA": 3
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 9
+					},
+					"SHA2": {
+						"SHA256": 2,
+						"SHA384": 2,
+						"SHA512": 2,
+						"SHA-256": 1
+					}
+				},
+				"MD": {
+					"MD5": {
+						"MD5": 2
+					}
+				}
+			},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {
+				"PRNG": {
+					"PRNG": 5
+				},
+				"RNG": {
+					"RNG": 6
+				}
+			},
+			"cipher_mode": {
+				"CBC": {
+					"CBC": 1
+				}
+			},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS140-2": 4,
+					"FIPS 140-2": 12,
+					"FIPS PUB 140-2": 1,
+					"FIPS PUB 46-3": 1,
+					"FIPS PUB 74": 1,
+					"FIPS PUB 81": 1,
+					"FIPS PUB 180-1": 1,
+					"FIPS PUB 186-2": 1,
+					"FIPS PUB 186": 1,
+					"FIPS180-1": 1,
+					"FIPS 46-3": 2,
+					"FIPS197": 1,
+					"FIPS 186-2": 1
+				},
+				"PKCS": {
+					"PKCS #15": 1,
+					"PKCS#15": 1,
+					"PKCS#1": 2
+				},
+				"RFC": {
+					"RFC1319": 1,
+					"RFC 1321": 1,
+					"RFC2268": 1,
+					"RFC2437": 1
+				},
+				"ISO": {
+					"ISO/IEC 9796": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 150326,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 15,
+			"/Creator": "CLiC Security Policy.doc - Microsoft Word",
+			"/CreationDate": "D:20031029114558Z",
+			"/Title": "CLiC Security Policy.PDF",
+			"/Author": "jhsiung",
+			"/Producer": "Acrobat PDFWriter 4.05 for Windows NT",
+			"/ModDate": "D:20031120140133-05'00'",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"AES#70",
+				"Triple-DES#180",
+				"RSA#1",
+				"SHA-1#163",
+				"DSA#88",
+				"HMAC-SHA-1#163"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"-"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "10835848c2f2a88514aac49bb1fc7c2394cc3153d5436fa14e0e55b36ecacdeb",
+		"policy_txt_hash": "f78936cf9faf03e15f980dc0d9e6478de9983f2e3a45e374d8280f6854c373e9"
+	}
+},
+{
+	"_id": "d5b148567313dccf",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "d5b148567313dccf",
+	"cert_id": 1354,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "Luna® PCI 3000 and Luna® PCI 7000 Cryptographic Modules, V3.0",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2010-07-12"
+				},
+				"validation_type": "Initial",
+				"lab": "SAIC-VA"
+			}
+		],
+		"vendor_url": "http://www.safenet-inc.com",
+		"vendor": "SafeNet, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt1354.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 3,
+		"caveat": "When operated in FIPS mode",
+		"exceptions": null,
+		"embodiment": "Multi-Chip Embedded",
+		"description": "Luna® PCI is a family of high-security cryptographic PCI accelerator cards (the same cards that power the acclaimed Luna½ SA Network HSM). Luna PCI offers dedicated hardware-based key management to protect sensitive cryptographic keys from attack. The high-security hardware design ensures the integrity and protection of encryption keys throughout their life cycle. All digital signing and verification operations are performed within the HSM to increase performance and maintain security. Luna PCI HSMs provide hardware-secured key generation, storage, secure key backup, and accelerated encryption",
+		"tested_conf": null,
+		"hw_versions": "VBD-03-0100",
+		"fw_versions": "4.7.1(3000) and 4.7.1(7000)",
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": "RNG SP800-131A Revision 1 Transition",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#11": 6,
+					"#8": 1,
+					"#1": 4,
+					"#510": 1,
+					"#1135": 1,
+					"#370": 1,
+					"#135": 1,
+					"#645": 1,
+					"#630": 1,
+					"#539": 1,
+					"#1056": 1,
+					"#520": 2,
+					"#827": 1
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 3": 7
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC-SHA1": 2,
+					"HMAC-SHA-224": 2,
+					"HMAC-SHA-256": 2,
+					"HMAC-SHA-384": 2,
+					"HMAC-SHA-512": 2,
+					"SHA-1": 12,
+					"SHA-224": 8,
+					"SHA-256": 8,
+					"SHA-384": 8,
+					"SHA-512": 6,
+					"SHA-512 (Certificate #645": 1,
+					"SHA-512 (Certificate #1056": 1,
+					"RSA 1024": 1,
+					"RSA 4096": 1,
+					"PKCS #11": 12,
+					"PKCS #8": 2,
+					"PKCS #1": 8,
+					"AES 128, 192": 3,
+					"AES 128, 192 and 256": 1,
+					"AES (Certificate #510": 1,
+					"AES 256": 2,
+					"DSA 1024": 3,
+					"DSA (Certificate #370": 1,
+					"DSA-1024": 1
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 12
+					},
+					"CAST": {
+						"CAST5": 1
+					},
+					"RC": {
+						"RC4": 2,
+						"RC2": 1,
+						"RC5": 1
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 1
+					},
+					"3DES": {
+						"TDES": 16
+					}
+				},
+				"miscellaneous": {
+					"ARIA": {
+						"ARIA": 2
+					},
+					"SEED": {
+						"SEED": 2
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 1,
+						"HMAC-SHA-224": 1,
+						"HMAC-SHA-256": 1,
+						"HMAC-SHA-384": 1,
+						"HMAC-SHA-512": 1
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA 1024": 1,
+					"RSA-1024": 3,
+					"RSA-2048": 2,
+					"RSA 4096": 1,
+					"RSA-4096": 1
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 1
+					},
+					"ECDSA": {
+						"ECDSA": 5
+					},
+					"ECC": {
+						"ECC": 5
+					}
+				},
+				"FF": {
+					"DH": {
+						"Diffie-Hellman": 1
+					},
+					"DSA": {
+						"DSA": 6
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 12
+					},
+					"SHA2": {
+						"SHA-224": 8,
+						"SHA-256": 8,
+						"SHA-384": 8,
+						"SHA-512": 8
+					}
+				},
+				"MD": {
+					"MD5": {
+						"MD5": 1
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 4
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					}
+				}
+			},
+			"randomness": {
+				"PRNG": {
+					"PRNG": 3
+				},
+				"RNG": {
+					"RNG": 5
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 3
+				},
+				"CBC": {
+					"CBC": 1
+				}
+			},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"physical probing": 1,
+					"Timing attacks": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS PUB 140-2": 4,
+					"FIPS PUB 186-2": 3,
+					"FIPS PUB 46-3": 2,
+					"FIPS PUB 197": 2,
+					"FIPS 140-2": 3,
+					"FIPS PUB 180-2": 3,
+					"FIPS PUB 198": 1,
+					"FIPS PUB 113": 1
+				},
+				"PKCS": {
+					"PKCS #11": 6,
+					"PKCS #8": 1,
+					"PKCS #1": 4
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 166081,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 33,
+			"/Author": "wangkm",
+			"/CreationDate": "D:20100609083049-04'00'",
+			"/Creator": "PScript5.dll Version 5.2",
+			"/ModDate": "D:20100712091358-04'00'",
+			"/Producer": "Acrobat Distiller 8.1.0 (Windows)",
+			"/Title": "Microsoft Word - CR-2987_SP_PCI_L3.doc",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"RNG#630",
+				"Triple-DES MAC#520",
+				"ECDSA#135",
+				"AES#510",
+				"Triple-DES#520",
+				"HMAC#645",
+				"SHS#1056",
+				"Triple-DES#827",
+				"RSA#539",
+				"DSA#370",
+				"AES#1135"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"4.7.1",
+				"3.0"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "f9c624b080c2ff6e3ff24c03ce58aa5944f1566190e7c26482f3251c138ea0cf",
+		"policy_txt_hash": "863ca04cb2f5f3a33499440b8e8f8ad69038557831a527534b8b0133141c136e"
+	}
+},
+{
+	"_id": "8fe1029e7f1d04f6",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "8fe1029e7f1d04f6",
+	"cert_id": 1775,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "Luna® PCM Key Export (KE) Cryptographic Module",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2012-08-01"
+				},
+				"validation_type": "Initial",
+				"lab": "EWA CANADA"
+			}
+		],
+		"vendor_url": "http://www.safenet-inc.com",
+		"vendor": "SafeNet, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/FIPS140ConsolidatedCertList0020.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 3,
+		"caveat": "When operated in FIPS mode",
+		"exceptions": null,
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "The Luna PCM cryptographic module is a multi-chip standalone hardware cryptographic module in the form of a PCMCIA card that typically resides within a custom computing or secure communications appliance. It is contained in its own secure enclosure that provides physical resistance to tampering. The module provides secure key generation and storage for symmetric keys and asymmetric key pairs along with symmetric and asymmetric cryptographic services. Access to key material and cryptographic services for users and user application software is provided indirectly through the host appliance.",
+		"tested_conf": null,
+		"hw_versions": "LTK-02-0501",
+		"fw_versions": "4.8.7",
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": "RNG SP800-131A Revision 1 Transition",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#11": 5,
+					"#8": 1,
+					"#1": 3
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 3": 11,
+					"level 3": 1
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC-SHA-1": 2,
+					"HMAC-SHA-224": 2,
+					"HMAC-SHA-256": 2,
+					"HMAC-SHA-384": 2,
+					"HMAC-SHA-512 1050": 2,
+					"HMAC SHA-1": 1,
+					"HMAC SHA-224": 1,
+					"HMAC SHA-256": 1,
+					"HMAC SHA-384": 1,
+					"HMAC SHA-512": 1,
+					"SHA-1": 16,
+					"SHA-224": 10,
+					"SHA-256": 13,
+					"SHA-384": 10,
+					"SHA-512": 10,
+					"SHA(1": 8,
+					"SHA( 1": 5,
+					"SHA-1, 224": 30,
+					"SHA1": 2,
+					"SHA256": 4,
+					"SHA512": 4,
+					"SHA224": 2,
+					"SHA384": 4,
+					"RSA 1024": 1,
+					"PKCS #11": 10,
+					"PKCS #8": 2,
+					"PKCS #1": 6,
+					"AES 128, 192": 2,
+					"AES 128, 192 and 256": 1,
+					"AES 256": 2,
+					"DSA 1024": 3
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 14
+					},
+					"CAST": {
+						"CAST5": 1
+					},
+					"RC": {
+						"RC4": 2,
+						"RC2": 1,
+						"RC5": 1
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 1
+					},
+					"3DES": {
+						"TDES": 18,
+						"Triple-DES": 1
+					}
+				},
+				"miscellaneous": {
+					"ARIA": {
+						"ARIA": 3
+					},
+					"SEED": {
+						"SEED": 3
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 6,
+						"HMAC-SHA-224": 1,
+						"HMAC-SHA-256": 1,
+						"HMAC-SHA-384": 1,
+						"HMAC-SHA-512": 1,
+						"CMAC": 2
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA 1024": 1
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 2
+					},
+					"ECDSA": {
+						"ECDSA": 4
+					},
+					"ECC": {
+						"ECC": 5
+					}
+				},
+				"FF": {
+					"DH": {
+						"Diffie-Hellman": 5
+					},
+					"DSA": {
+						"DSA": 7
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 46,
+						"SHA1": 2
+					},
+					"SHA2": {
+						"SHA-224": 10,
+						"SHA-256": 13,
+						"SHA-384": 10,
+						"SHA-512": 10,
+						"SHA224": 4,
+						"SHA384": 6,
+						"SHA256": 2,
+						"SHA512": 2
+					}
+				},
+				"MD": {
+					"MD5": {
+						"MD5": 1
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 4
+				},
+				"KA": {
+					"Key Agreement": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"SSL": {
+						"SSL": 1
+					}
+				}
+			},
+			"randomness": {
+				"PRNG": {
+					"PRNG": 3
+				},
+				"RNG": {
+					"RNG": 5
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 2
+				},
+				"CBC": {
+					"CBC": 2
+				},
+				"OFB": {
+					"OFB": 1
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-192": 10,
+					"P-256": 6,
+					"P-521": 10,
+					"K-233": 5,
+					"K-409": 5,
+					"B-163": 3,
+					"B-283": 4,
+					"B-571": 3,
+					"B-233": 2
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"physical probing": 1,
+					"Timing attacks": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 11,
+					"FIPS PUB 140-2": 3,
+					"FIPS PUB 186-2": 6,
+					"FIPS PUB 197": 2,
+					"FIPS PUB 186-3": 3,
+					"FIPS PUB 180-3": 5,
+					"FIPS PUB 198": 1,
+					"FIPS PUB 113": 1
+				},
+				"NIST": {
+					"SP 800-67": 2,
+					"SP 800-57": 2,
+					"SP 800-56A": 1,
+					"NIST SP 800-108": 2,
+					"NIST SP 800-56A": 1,
+					"NIST SP 800-38B": 1
+				},
+				"PKCS": {
+					"PKCS #11": 5,
+					"PKCS #8": 1,
+					"PKCS #1": 3
+				},
+				"X509": {
+					"X．509": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 460979,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 37,
+			"/Author": "choye",
+			"/CreationDate": "D:20120727155038-04'00'",
+			"/Creator": "PDFCreator Version 1.1.0",
+			"/Keywords": "",
+			"/ModDate": "D:20120801153020-04'00'",
+			"/Producer": "GPL Ghostscript  9.0",
+			"/Subject": "",
+			"/Title": "CR-3139_12",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"ECDSA#241",
+				"AES#1785",
+				"RNG#947",
+				"DSA#561",
+				"HMAC#1050",
+				"Triple-DES#1157",
+				"RSA#892",
+				"KAS#24",
+				"Triple-DES MAC#1157",
+				"SHS#1567"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"4.8.7"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "3d653c513f816e3f97a1481ba9477a037b83281b13c0d29e45b9c2ffd089b03f",
+		"policy_txt_hash": "450a27673c4a87677fdafdcd9405a017b3bf6e4bea98a2effa19e3ebf14cd810"
+	}
+},
+{
+	"_id": "226f76b55acb4970",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "226f76b55acb4970",
+	"cert_id": 310,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "MOVEit Crypto",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2003-03-11"
+				},
+				"validation_type": "Initial",
+				"lab": "SAIC-VA"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2003-03-20"
+				},
+				"validation_type": "Update",
+				"lab": ""
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2004-01-30"
+				},
+				"validation_type": "Update",
+				"lab": ""
+			}
+		],
+		"vendor_url": "http://www.stdnet.com",
+		"vendor": "Standard Networks, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt310.pdf",
+		"module_type": "Software",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 1,
+		"caveat": "When operated in FIPS mode",
+		"exceptions": null,
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "MOVEit Crypto is a 32-bit compact dynamically linked library (DLL) that provides fast encryption services to applications running on Microsoft Windows operating systems. MOVEit Crypto is supported on Windows 95/98/ME/NT 4.0/2000/XP. MOVEit Crypto provides an API featuring NIST-approved AES encryption, SHA-1 hashing, and pseudo-random number generation algorithms. The easy-to-use programming interface allows applications to be written without special code for details like block size, padding mode, and so on. MOVEit Crypto is a member of the MOVEit security and file transfer product family.",
+		"tested_conf": [
+			"Windows 2000 and RedHat Linux 9.0 (single user mode)"
+		],
+		"hw_versions": null,
+		"fw_versions": null,
+		"sw_versions": "1.0.1.0 and 1.1.0.0",
+		"mentioned_certs": {},
+		"historical_reason": "Moved to historical list due to sunsetting",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {},
+			"fips_security_level": {
+				"Level": {
+					"level 1": 1
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC-SHA-1": 4,
+					"HMAC- SHA-1": 1,
+					"SHA-1": 4
+				}
+			},
+			"vendor": {
+				"Microsoft": {
+					"Microsoft": 2
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 7
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 5
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 4
+					}
+				},
+				"MD": {
+					"MD5": {
+						"MD5": 3
+					}
+				}
+			},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {
+				"RNG": {
+					"RNG": 12
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 5
+				},
+				"CBC": {
+					"CBC": 5
+				}
+			},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 7,
+					"FIPS PUB 197": 1,
+					"FIPS PUB 180-1": 1,
+					"FIPS PUB 198": 2,
+					"FIPS PUB 186-2": 2
+				},
+				"RFC": {
+					"RFC 1321": 1,
+					"RFC 2104": 1,
+					"RFC 2202": 1,
+					"RFC 2040": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 503418,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 21,
+			"/Producer": "Acrobat Distiller 5.0 (Windows)",
+			"/Author": "Mark Riordan",
+			"/Creator": "Acrobat PDFMaker 5.0 for Word",
+			"/ModDate": "D:20040130171142-05'00'",
+			"/Title": "MOVEit Crypto",
+			"/CreationDate": "D:20031110125008-06'00'",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://www.stdnet.com/moveit"
+				]
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"HMAC-SHA-1#124",
+				"AES#30",
+				"SHA-1#124"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"-"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": {
+				"_type": "set",
+				"_value": [
+					"569"
+				]
+			},
+			"indirectly_referenced_by": {
+				"_type": "set",
+				"_value": [
+					"569"
+				]
+			},
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "391714adb4cb0ad11447f81ef6d7c8a1fcaee27e6c65542e42d3273c9a5cba97",
+		"policy_txt_hash": "c5afc790293023dd1c13f884ecff9a76ded8425573a4c25c7c15c95c67956b43"
+	}
+},
+{
+	"_id": "3c365ff931ecb0e3",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "3c365ff931ecb0e3",
+	"cert_id": 4129,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "Cisco Aironet 1562e/i/d/ps, 2802e/i, 3802e/i/p, 4800 and IW6300H- AC/DC/DCW Wireless LAN Access Points, AireOS Version 8.10MR3 and IOS-XE 17.3",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2022-01-10"
+				},
+				"validation_type": "Initial",
+				"lab": "ACUMEN SECURITY, LLC"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2022-07-05"
+				},
+				"validation_type": "Update",
+				"lab": "ACUMEN SECURITY, LLC"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2023-01-06"
+				},
+				"validation_type": "Update",
+				"lab": "ACUMEN SECURITY, LLC"
+			}
+		],
+		"vendor_url": "http://www.cisco.com",
+		"vendor": "Cisco Systems, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/January 2022_010222_0702_signed.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-2",
+		"status": "active",
+		"level": 2,
+		"caveat": "The tamper evident seals installed as indicated in the security policy.",
+		"exceptions": [
+			"Mitigation of Other Attacks: N/A"
+		],
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "Cisco Aironet Series Wireless Access Points provide highly secure and reliable wireless connections for both indoor and outdoor environments.",
+		"tested_conf": null,
+		"hw_versions": "1562e, 1562i, 1562d, 1562ps, 2802e, 2802i, 3802e, 3802i, 3802p, 4800, IW6300H-AC, IW6300H-DC and IW6300H-DCW with FIPS Kit: AIR-AP-FIPSKIT=",
+		"fw_versions": "AireOS 8.10.130 and IOS-XE 17.3",
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": null,
+		"date_sunset": {
+			"_type": "date",
+			"_value": "2026-09-21"
+		},
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#5682": 2,
+					"#3783": 1,
+					"#2074": 2,
+					"#1": 1
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 2": 2,
+					"Level 1": 1,
+					"level 2": 3
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC SHA-1": 2,
+					"HMAC-SHA-256 238": 2,
+					"HMAC Cert． #3783": 2,
+					"HMAC- SHA1": 2,
+					"HMAC- SHA256": 2,
+					"HMAC- SHA384": 2,
+					"HMAC- SHA512": 1,
+					"HMAC SHA-256": 1,
+					"HMAC SHA-384": 1,
+					"HMAC SHA-512": 1,
+					"SHA-1": 6,
+					"SHA- 256": 7,
+					"SHA- 384": 2,
+					"SHA- 512": 1,
+					"SHA-512 4554": 1,
+					"SHA-256": 9,
+					"SHA-512 3783": 1,
+					"SHA-384": 13,
+					"SHA-512": 17,
+					"SHA-224": 2,
+					"SHA-512 1539": 1,
+					"SHA1": 2,
+					"SHA256": 2,
+					"SHA384": 2,
+					"SHA512": 1,
+					"RSA 2048": 3,
+					"RSA2": 1,
+					"PKCS1": 4,
+					"PKCS 1": 2,
+					"AES Cert． #5682": 2,
+					"AES- 256": 1,
+					"AES-GCM 128 and 256": 1
+				}
+			},
+			"vendor": {
+				"Cisco": {
+					"Cisco Systems, Inc": 52,
+					"Cisco": 58,
+					"Cisco Systems": 2
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 13,
+						"AES-": 1
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 6,
+						"HMAC-SHA-256": 1
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA 2048": 3
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 1
+					},
+					"ECDSA": {
+						"ECDSA": 4
+					},
+					"ECC": {
+						"ECC": 2
+					}
+				},
+				"FF": {
+					"DH": {
+						"DH": 8,
+						"Diffie-Hellman": 12
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 6,
+						"SHA1": 2
+					},
+					"SHA2": {
+						"SHA-512": 20,
+						"SHA-256": 9,
+						"SHA-384": 13,
+						"SHA-224": 2,
+						"SHA256": 2,
+						"SHA384": 2,
+						"SHA512": 1
+					}
+				}
+			},
+			"crypto_scheme": {
+				"KA": {
+					"Key Agreement": 1
+				}
+			},
+			"crypto_protocol": {
+				"TLS": {
+					"TLS": {
+						"TLS": 8,
+						"TLSv1．2": 1
+					},
+					"DTLS": {
+						"DTLS": 31
+					}
+				}
+			},
+			"randomness": {
+				"PRNG": {
+					"DRBG": 26
+				}
+			},
+			"cipher_mode": {
+				"CBC": {
+					"CBC": 3
+				},
+				"GCM": {
+					"GCM": 5
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-256": 16,
+					"P-384": 16,
+					"P-521": 10
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {
+				"IBM": {
+					"SSC": 4
+				}
+			},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 15,
+					"FIPS PUB 140-2": 1,
+					"FIPS 140": 1,
+					"FIPS 186-4": 1
+				},
+				"NIST": {
+					"SP 800-90A": 14,
+					"SP 800-133": 1,
+					"SP 800-135": 2,
+					"SP 800-52": 1
+				},
+				"PKCS": {
+					"PKCS1": 2,
+					"PKCS 1": 1
+				},
+				"RFC": {
+					"RFC 5288": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 2105116,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 52,
+			"/Author": "Nick Goble",
+			"/Creator": "Microsoft® Word for Microsoft 365",
+			"/CreationDate": "D:20221115180712+05'30'",
+			"/ModDate": "D:20221115180712+05'30'",
+			"/Producer": "Microsoft® Word for Microsoft 365",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://www.cisco.com/",
+					"https://csrc.nist.gov/groups/STM/cmvp/validation.html",
+					"https://csrc.nist.gov/groups/STM/index.html"
+				]
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"SHS#4554",
+				"KTS#3783",
+				"CVL#2074",
+				"KBKDF#238",
+				"AES#5682",
+				"KTS#5682",
+				"DRBG#2298",
+				"HMAC#3783",
+				"ECDSA#1539",
+				"RSA#3057",
+				"RSA#2344",
+				"SHS#3576"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"17.3",
+				"8.10",
+				"8.10.130"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "303965660db170405adae9da7a441821ef483c57e354d8195f17ae28261b8dc8",
+		"policy_txt_hash": "159eb42ccb8cf8f4c2e9d2310abdec062d12bdf09d3d9da3faf67e7ad1510c36"
+	}
+},
+{
+	"_id": "e629fa6598d73276",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "e629fa6598d73276",
+	"cert_id": 15,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "ASTRO XTS 3000 Subscriber Encryption Module",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "1998-01-30"
+				},
+				"validation_type": "Initial",
+				"lab": "DOMUS"
+			}
+		],
+		"vendor_url": "http://www.mot.com",
+		"vendor": "Motorola, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt15.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-1",
+		"status": "revoked",
+		"level": 1,
+		"caveat": "When operated in FIPS mode by selecting the DES algorithm and setting OTAR to inhibited",
+		"exceptions": [
+			"Roles and Services: Level 2"
+		],
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "The ASTRO XTS 3000 radio provides portable analog and digital two-radio communications in trunked and conventional radio systems. It is capable of supporting 12.5 kHz digital channels as well as 25 kHz and 30 kHz analog channels. The ASTRO XTS 3000 Subscriber Encryption Module Controller is available as an option for the ASTRO XTS 3000 radios to provide secure communication capabilities.",
+		"tested_conf": null,
+		"hw_versions": "Release R 3.0",
+		"fw_versions": null,
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": "Revoked",
+		"date_sunset": null,
+		"revoked_reason": "DES Transition Ended",
+		"revoked_link": "http://csrc.nist.gov/groups/STM/common_documents/DESTranPlan.pdf"
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {},
+			"fips_security_level": {
+				"Level": {
+					"Level 2": 1,
+					"Level 1": 2
+				}
+			},
+			"fips_certlike": {},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"DES": {
+					"DES": {
+						"DES": 4
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {
+				"CFB": {
+					"CFB": 2
+				},
+				"OFB": {
+					"OFB": 2
+				}
+			},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-1": 5,
+					"FIPS 81": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 246420,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 6,
+			"/Creator": "HP Digital Sender 8100C",
+			"/CreationDate": "D:20010320151526",
+			"/Author": "",
+			"/Producer": "",
+			"/Title": "",
+			"/Subject": "document",
+			"/ModDate": "D:20010320140635-05'00'",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": []
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"3.0"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": true,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "1e4424e859b1af2fceef6143b19167a671a47f24a4cd56a1d40600061911f71a",
+		"policy_txt_hash": "7f0c1804e8bf0f8c248b9d049d2ccb091cba9b7813b7824f0edde2c2372f5973"
+	}
+},
+{
+	"_id": "0b8c4c7c81ac3255",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "0b8c4c7c81ac3255",
+	"cert_id": 2498,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "Aruba AP-214, AP-215, AP-274, AP-275, AP-277 and AP-228 Wireless Access Points",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2015-12-17"
+				},
+				"validation_type": "Initial",
+				"lab": "LEIDOS CSTL"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2016-01-15"
+				},
+				"validation_type": "Update",
+				"lab": "LEIDOS CSTL"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2016-07-06"
+				},
+				"validation_type": "Update",
+				"lab": "LEIDOS CSTL"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2016-10-03"
+				},
+				"validation_type": "Update",
+				"lab": "LEIDOS CSTL"
+			}
+		],
+		"vendor_url": "http://www.arubanetworks.com",
+		"vendor": "Aruba a Hewlett Packard Enterprise Company",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/FIPS140ConsolidatedCertDec2015.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-2",
+		"status": "historical",
+		"level": 2,
+		"caveat": "When operated in FIPS mode with tamper evident labels installed as indicated in the Security Policy",
+		"exceptions": [
+			"Mitigation of Other Attacks: N/A"
+		],
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "Aruba's 802.11ac Wi-Fi access points operate at gigabit speeds, offering extreme performance for mobile devices. In FIPS 140-2 mode, Aruba APs in conjunction with a Mobility Controller support the IEEE 802.11i/WPA2 client standard along with optional Suite B cryptography. Aruba APs also support wireless intrusion detection/prevention services and wireless mesh topologies.",
+		"tested_conf": null,
+		"hw_versions": "AP-214-F1, AP-215-F1, AP-274-F1, AP-275-F1, AP-277-F1 and AP-228-F1 with FIPS kit 4011570-01",
+		"fw_versions": "ArubaOS 6.4.4-FIPS and ArubaOS 6.5.0-FIPS",
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": "Moved to historical list due to sunsetting",
+		"date_sunset": null,
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#2900": 1,
+					"#326": 1,
+					"#528": 7,
+					"#524": 1,
+					"#1835": 1,
+					"#32": 1,
+					"#1528": 1,
+					"#2440": 1,
+					"#1726": 1,
+					"#2884": 1,
+					"#314": 1,
+					"#519": 1,
+					"#1818": 1,
+					"#1518": 1,
+					"#2425": 1,
+					"#1720": 1,
+					"#1517": 2,
+					"#2424": 1,
+					"#1648": 1,
+					"#1649": 1,
+					"#538": 1,
+					"#967": 1,
+					"#934": 1,
+					"#1446": 1,
+					"#758": 1,
+					"#1075": 1
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 2": 10,
+					"Level 1": 1,
+					"level 2": 1
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"HMAC (Cert． #1835": 1,
+					"HMAC (Cert． #1818": 1,
+					"HMAC-SHA-1 (160": 1,
+					"HMAC-SHA1": 10,
+					"HMAC-SHA256": 4,
+					"HMAC-SHA384": 4,
+					"HMAC-SHA512": 4,
+					"HMAC-SHA-1": 1,
+					"SHS (Cert． #2440": 1,
+					"SHS (Cert． #2425": 1,
+					"SHS (Cert． #2424": 1,
+					"SHA1": 4,
+					"SHA256": 2,
+					"SHA384": 2,
+					"SHA512": 2,
+					"SHA- 1": 1,
+					"RSA 2048": 1,
+					"RSA PKCS#1": 2,
+					"AES (Cert． #2900": 1,
+					"AES (Cert． #2884": 1,
+					"DRBG (Cert． #528": 4,
+					"DRBG (Cert #528": 3,
+					"PKCS#1": 2
+				}
+			},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 11
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 2
+					},
+					"3DES": {
+						"Triple-DES": 9
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"HMAC": 6
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA 2048": 1
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 2
+					},
+					"ECDSA": {
+						"ECDSA": 22
+					}
+				},
+				"FF": {
+					"DH": {
+						"Diffie-Hellman": 20,
+						"DH": 2
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA1": 4
+					},
+					"SHA2": {
+						"SHA256": 2,
+						"SHA384": 2,
+						"SHA512": 2
+					}
+				},
+				"MD": {
+					"MD5": {
+						"MD5": 2
+					}
+				}
+			},
+			"crypto_scheme": {
+				"KEX": {
+					"Key Exchange": 1
+				}
+			},
+			"crypto_protocol": {
+				"IKE": {
+					"IKE": 16,
+					"IKEv1": 16,
+					"IKEv2": 16
+				},
+				"IPsec": {
+					"IPsec": 3
+				},
+				"VPN": {
+					"VPN": 1
+				}
+			},
+			"randomness": {
+				"PRNG": {
+					"DRBG": 19
+				}
+			},
+			"cipher_mode": {
+				"CBC": {
+					"CBC": 1
+				},
+				"GCM": {
+					"GCM": 1
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-256": 14,
+					"P-384": 10
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {
+				"OpenSSL": {
+					"OpenSSL": 6
+				}
+			},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 25,
+					"FIPS 140": 1,
+					"FIPS 186-4": 4
+				},
+				"NIST": {
+					"SP 800-90a": 6
+				},
+				"PKCS": {
+					"PKCS#1": 2
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 1441640,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 48,
+			"/Author": "Harsha Nagaraja",
+			"/Company": "Leidos",
+			"/Content Owner": "",
+			"/ContentType": "ArubaOS FDD",
+			"/CreationDate": "D:20160930103807-04'00'",
+			"/Creator": "Acrobat PDFMaker 11 for Word",
+			"/Keywords": "",
+			"/ModDate": "D:20160930103816-04'00'",
+			"/Producer": "Adobe PDF Library 11.0",
+			"/SourceModified": "D:20160930135747",
+			"/Subject": "",
+			"/Title": "Aruba 6000 and Aruba 800 Series",
+			"/URL": "",
+			"/department name": "",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": [
+					"http://csrc.nist.gov/groups/STM/cmvp/index.html"
+				]
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"HMAC#538",
+				"Triple-DES#1726",
+				"ECDSA#519",
+				"AES#2900",
+				"HMAC#1835",
+				"CVL#314",
+				"RSA#1517",
+				"HMAC#967",
+				"AES#2884",
+				"HMAC#1818",
+				"KBKDF#32",
+				"Triple-DES#1075",
+				"ECDSA#524",
+				"RSA#1518",
+				"SHS#2425",
+				"AES#1649",
+				"SHS#2424",
+				"Triple-DES#758",
+				"AES#1648",
+				"RSA#1528",
+				"DRBG#528",
+				"Triple-DES#1720",
+				"CVL#326",
+				"SHS#1446",
+				"SHS#934",
+				"SHS#2440"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"6.5.0",
+				"6.4.4"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "a55604650526a64f06d9f3a4cf1f41817693c3d1111ba357b8f69ead62268897",
+		"policy_txt_hash": "14c0b5ef2111e191396f490f03a0373507bb6ec5097318ddf085b4826c62c786"
+	}
+},
+{
+	"_id": "8527a891e2241369",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "8527a891e2241369",
+	"cert_id": 14,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "ASTRO Subscriber Encryption Module",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "1998-01-30"
+				},
+				"validation_type": "Initial",
+				"lab": "DOMUS"
+			}
+		],
+		"vendor_url": "http://www.mot.com",
+		"vendor": "Motorola, Inc.",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/140crt14.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-1",
+		"status": "revoked",
+		"level": 1,
+		"caveat": "When operated in FIPS mode by selecting the DES algorithm and setting OTAR to inhibited",
+		"exceptions": [
+			"Roles and Services: Level 2"
+		],
+		"embodiment": "Multi-Chip Stand Alone",
+		"description": "The ASTRO Saber radio provides portable analog and digital two-radio communications in trunked and conventional radio systems. The ASTRO Spectra radio provides analog and digital two-radio communications in trunked and conventional mobile radio systems. They are each capable of supporting 12.5 kHz digital channels as well as 25 kHz and 30 kHz analog channels.",
+		"tested_conf": null,
+		"hw_versions": "Release R 3.0",
+		"fw_versions": null,
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": "Revoked",
+		"date_sunset": null,
+		"revoked_reason": "DES Transition Ended",
+		"revoked_link": "http://csrc.nist.gov/groups/STM/common_documents/DESTranPlan.pdf"
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {},
+			"fips_security_level": {
+				"Level": {
+					"Level 2": 1,
+					"Level 1": 2
+				}
+			},
+			"fips_certlike": {},
+			"vendor": {},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"DES": {
+					"DES": {
+						"DES": 4
+					}
+				}
+			},
+			"asymmetric_crypto": {},
+			"pq_crypto": {},
+			"hash_function": {},
+			"crypto_scheme": {},
+			"crypto_protocol": {},
+			"randomness": {},
+			"cipher_mode": {
+				"CFB": {
+					"CFB": 2
+				},
+				"OFB": {
+					"OFB": 2
+				}
+			},
+			"ecc_curve": {},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {},
+			"device_model": {},
+			"tee_name": {},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-1": 5,
+					"FIPS 81": 1
+				}
+			},
+			"javacard_version": {},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 246420,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 6,
+			"/Creator": "HP Digital Sender 8100C",
+			"/CreationDate": "D:20010320151526",
+			"/Author": "",
+			"/Producer": "",
+			"/Title": "",
+			"/Subject": "document",
+			"/ModDate": "D:20010320140548-05'00'",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": []
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"3.0"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": true,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "3b5bba3b1aea9e1d98e5e57804db2d5694961133103ab117f9e7606b5a420bc3",
+		"policy_txt_hash": "7f0c1804e8bf0f8c248b9d049d2ccb091cba9b7813b7824f0edde2c2372f5973"
+	}
+},
+{
+	"_id": "ae1f31e1ba28b07b",
+	"_type": "sec_certs.sample.fips.FIPSCertificate",
+	"dgst": "ae1f31e1ba28b07b",
+	"cert_id": 3796,
+	"web_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.WebData",
+		"module_name": "IDPrime 930 / 3930",
+		"validation_history": [
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2021-01-25"
+				},
+				"validation_type": "Initial",
+				"lab": "LEIDOS CSTL"
+			},
+			{
+				"_type": "sec_certs.sample.fips.FIPSCertificate.ValidationHistoryEntry",
+				"date": {
+					"_type": "date",
+					"_value": "2022-07-05"
+				},
+				"validation_type": "Update",
+				"lab": "LEIDOS CSTL"
+			}
+		],
+		"vendor_url": "http://www.thalesgroup.com",
+		"vendor": "Thales",
+		"certificate_pdf_url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/certificates/January 2021_080221_0323_signed.pdf",
+		"module_type": "Hardware",
+		"standard": "FIPS 140-2",
+		"status": "active",
+		"level": 2,
+		"caveat": "None",
+		"exceptions": [
+			"Roles, Services, and Authentication: Level 3",
+			"Physical Security: Level 3",
+			"EMI/EMC: Level 3",
+			"Design Assurance: Level 3"
+		],
+		"embodiment": "Single Chip",
+		"description": "IDPrime 930 & 3930 are Minidriver enabled PKI smartcards, contact (930) and dual interface (3930), offering all the necessary services (with either RSA up to 4096 key length or Elliptic curves algorithms) to secure an IT Security and ID access infrastructure. It's includes a re-initialization feature for customers who are not using a CMS.",
+		"tested_conf": null,
+		"hw_versions": "SLE78CFX400VPH - A1977038, SLE78CLFX400VPH - A1714221, SLE78CFX400VPH - A2023188 and SLE78CFX400VPH - A2410334",
+		"fw_versions": "IDCore3130 - Build 11D, IDPrime 930/3930 Applet V4.5 and MSPNP Applet V1.2",
+		"sw_versions": null,
+		"mentioned_certs": {},
+		"historical_reason": null,
+		"date_sunset": {
+			"_type": "date",
+			"_value": "2026-01-24"
+		},
+		"revoked_reason": null,
+		"revoked_link": null
+	},
+	"pdf_data": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
+		"keywords": {
+			"fips_cert_id": {
+				"Cert": {
+					"#1": 1
+				}
+			},
+			"fips_security_level": {
+				"Level": {
+					"Level 2": 37,
+					"Level 3": 2
+				}
+			},
+			"fips_certlike": {
+				"Certlike": {
+					"SHA-2": 6,
+					"SHA-1": 6,
+					"SHA-1 (160": 1,
+					"SHA-224": 1,
+					"SHA-256": 2,
+					"SHA-384": 1,
+					"SHA-512": 2,
+					"RSA 2048": 1,
+					"PKCS#1": 13,
+					"PKCS #1": 2,
+					"PKCS1": 4,
+					"RSA PKCS#1": 3,
+					"AES-128": 5,
+					"AES-128/192/256": 5,
+					"AES 256": 2,
+					"AES 128/192/256": 2,
+					"AES-192": 1,
+					"AES-256": 2,
+					"AES256": 1,
+					"AES 128": 2,
+					"Cert # AES": 1
+				}
+			},
+			"vendor": {
+				"Infineon": {
+					"Infineon": 2
+				},
+				"Gemalto": {
+					"Gemalto": 9
+				},
+				"Thales": {
+					"Thales": 35
+				},
+				"Microsoft": {
+					"Microsoft": 3
+				}
+			},
+			"eval_facility": {},
+			"symmetric_crypto": {
+				"AES_competition": {
+					"AES": {
+						"AES": 31,
+						"AES-128": 5,
+						"AES-192": 1,
+						"AES-256": 2,
+						"AES256": 1
+					}
+				},
+				"DES": {
+					"DES": {
+						"DES": 4
+					},
+					"3DES": {
+						"Triple-DES": 8,
+						"TDES": 1,
+						"TDEA": 1
+					}
+				},
+				"constructions": {
+					"MAC": {
+						"CMAC": 5
+					}
+				}
+			},
+			"asymmetric_crypto": {
+				"RSA": {
+					"RSA-1024": 2,
+					"RSA 2048": 1
+				},
+				"ECC": {
+					"ECDH": {
+						"ECDH": 5
+					},
+					"ECDSA": {
+						"ECDSA": 20
+					},
+					"ECC": {
+						"ECC": 15
+					}
+				}
+			},
+			"pq_crypto": {},
+			"hash_function": {
+				"SHA": {
+					"SHA1": {
+						"SHA-1": 7
+					},
+					"SHA2": {
+						"SHA-224": 1,
+						"SHA-256": 2,
+						"SHA-384": 1,
+						"SHA-512": 2,
+						"SHA-2": 7
+					}
+				}
+			},
+			"crypto_scheme": {
+				"MAC": {
+					"MAC": 9
+				},
+				"KA": {
+					"Key Agreement": 1
+				}
+			},
+			"crypto_protocol": {},
+			"randomness": {
+				"PRNG": {
+					"DRBG": 10
+				},
+				"RNG": {
+					"RNG": 3
+				}
+			},
+			"cipher_mode": {
+				"ECB": {
+					"ECB": 4
+				},
+				"CBC": {
+					"CBC": 2
+				},
+				"CTR": {
+					"CTR": 1
+				}
+			},
+			"ecc_curve": {
+				"NIST": {
+					"P-224": 36,
+					"P-256": 34,
+					"P-384": 34,
+					"P-521": 36,
+					"P-192": 2
+				}
+			},
+			"crypto_engine": {},
+			"tls_cipher_suite": {},
+			"crypto_library": {},
+			"vulnerability": {},
+			"side_channel_analysis": {
+				"SCA": {
+					"Side channel": 1
+				}
+			},
+			"device_model": {},
+			"tee_name": {
+				"IBM": {
+					"SE": 4
+				}
+			},
+			"os_name": {},
+			"cplc_data": {},
+			"ic_data_group": {},
+			"standard_id": {
+				"FIPS": {
+					"FIPS 140-2": 42,
+					"FIPS140-2": 1,
+					"FIPS113": 1,
+					"FIPS 197": 3,
+					"FIPS 186-4": 5,
+					"FIPS 180-4": 2,
+					"FIPS PUB 140-2": 1,
+					"FIPS 186-2": 1
+				},
+				"NIST": {
+					"SP 800-133": 2,
+					"SP 800-38B": 3,
+					"SP 800-90A": 4,
+					"SP 800-67": 2,
+					"SP 800-56A": 2,
+					"SP 800-56B": 3,
+					"SP 800-38F": 1,
+					"SP 800-108": 1
+				},
+				"PKCS": {
+					"PKCS#1": 8,
+					"PKCS #1": 1,
+					"PKCS1": 2
+				},
+				"SCP": {
+					"SCP03": 7
+				}
+			},
+			"javacard_version": {
+				"JavaCard": {
+					"Java Card 3．0．5": 3,
+					"JavaCard 3．0．5": 2,
+					"JavaCard 2．2．2": 1
+				},
+				"GlobalPlatform": {
+					"Global Platform 2．2．1": 1
+				}
+			},
+			"javacard_api_const": {},
+			"javacard_packages": {},
+			"certification_process": {}
+		},
+		"policy_metadata": {
+			"pdf_file_size_bytes": 1061379,
+			"pdf_is_encrypted": false,
+			"pdf_number_of_pages": 35,
+			"/Author": "huntzh",
+			"/CreationDate": "D:20220630122241-04'00'",
+			"/ModDate": "D:20220630122241-04'00'",
+			"/Producer": "Microsoft: Print To PDF",
+			"/Title": "Microsoft Word - R0R29111_IDPrime930_001_SP_L2_submitted_wt.docx",
+			"pdf_hyperlinks": {
+				"_type": "set",
+				"_value": []
+			}
+		}
+	},
+	"heuristics": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
+		"algorithms": {
+			"_type": "set",
+			"_value": [
+				"CVL#1717",
+				"DRBG#2005",
+				"CVL#1713",
+				"ECDSA#1365",
+				"Triple-DES#2651",
+				"CVL#1714",
+				"CVL#1715",
+				"RSA#2802",
+				"SHS#4221",
+				"KBKDF#177",
+				"AES#5243",
+				"KAS-SSC#A2623",
+				"RSA#2803",
+				"CVL#1716"
+			]
+		},
+		"extracted_versions": {
+			"_type": "set",
+			"_value": [
+				"4.5",
+				"1.2"
+			]
+		},
+		"cpe_matches": null,
+		"verified_cpe_matches": null,
+		"related_cves": null,
+		"policy_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"module_prunned_references": {
+			"_type": "set",
+			"_value": []
+		},
+		"policy_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"module_processed_references": {
+			"_type": "sec_certs.sample.certificate.References",
+			"directly_referenced_by": null,
+			"indirectly_referenced_by": null,
+			"directly_referencing": null,
+			"indirectly_referencing": null
+		},
+		"direct_transitive_cves": null,
+		"indirect_transitive_cves": null
+	},
+	"state": {
+		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
+		"module_download_ok": true,
+		"policy_download_ok": true,
+		"policy_convert_garbage": false,
+		"policy_convert_ok": true,
+		"module_extract_ok": true,
+		"policy_extract_ok": true,
+		"policy_pdf_hash": "9cfe70e20befd7737398ede450302163cc6253487c219fb274edd86b7c2e92f4",
+		"policy_txt_hash": "2db96b5ba5ac2b2703ba4e799050bcfc91af0fe830fb54b9a7602f83bf7d2a46"
+	}
+}]
+

@@ -34,7 +34,7 @@ task queue.
 
    # The rest of the setup assumes you are in the "page" directory.
    ```
-   Optionally, you can do the install using `poetry`, the lockfile is provided.
+   Optionally, you can do the install using `uv`, the lockfile is provided.
 2. Create the `instance` directory in the `page` directory.
    ```shell
    mkdir instance
@@ -48,7 +48,7 @@ task queue.
    you can just use `mongorestore` (or consult the `restore` task).
 7. For a fully working deployment, you need more results of the weekly processing that happens on the sec-certs.org
    server:
-     - The CC certificate files
+     - The CC files
      - The PP files
      - The FIPS files
      - The search index
@@ -80,8 +80,8 @@ There is a rudimentary Dockerfile available, it lacks the dramatiq and periodiq 
 
 ### Tests
 
-There are tests, run `pytest --cov sec_certs_page tests` to run them. Note that they rely
-on MongoDB and Redis running and need to have the MongoDB database populated with certificates.
+There are tests, run `pytest --cov sec_certs_page tests` to run them. They rely on having a MongoDB
+server binary that is then temporarily started for the tests.
 
 ### Code style
 

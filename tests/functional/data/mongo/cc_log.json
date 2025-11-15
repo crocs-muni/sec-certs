@@ -1,0 +1,1026 @@
+[{
+	"_id": {
+		"$oid": "669f8076566b7c5a1805773d"
+	},
+	"start_time": {
+		"$date": "2024-07-23T00:09:57.927Z"
+	},
+	"end_time": {
+		"$date": "2024-07-23T12:05:42.639Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5928,
+	"ok": true,
+	"stats": {
+		"new_certs": 5928,
+		"removed_ids": 0,
+		"updated_ids": 0,
+		"cert_states": {
+			"report_download_ok": 5858,
+			"report_convert_garbage": 98,
+			"report_convert_ok": 5850,
+			"report_extract_ok": 5799,
+			"st_download_ok": 5707,
+			"st_convert_garbage": 34,
+			"st_convert_ok": 5702,
+			"st_extract_ok": 5634,
+			"cert_download_ok": 2558,
+			"cert_convert_garbage": 1367,
+			"cert_convert_ok": 2417,
+			"cert_extract_ok": 2375
+		},
+		"changed_ids": 0
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "66ba432a9466f606341743a8"
+	},
+	"start_time": {
+		"$date": "2024-08-12T12:00:07.61Z"
+	},
+	"end_time": {
+		"$date": "2024-08-12T19:15:22.844Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5953,
+	"ok": true,
+	"stats": {
+		"new_certs": 6,
+		"removed_ids": 0,
+		"updated_ids": 5947,
+		"cert_states": {
+			"report_download_ok": 4437,
+			"report_convert_garbage": 74,
+			"report_convert_ok": 4430,
+			"report_extract_ok": 4397,
+			"st_download_ok": 4237,
+			"st_convert_garbage": 26,
+			"st_convert_ok": 4234,
+			"st_extract_ok": 4184,
+			"cert_download_ok": 1944,
+			"cert_convert_garbage": 1049,
+			"cert_convert_ok": 1836,
+			"cert_extract_ok": 1804
+		},
+		"changed_ids": 3854
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "66c0a0e21c78507fd105fc06"
+	},
+	"start_time": {
+		"$date": "2024-08-17T12:52:18.171Z"
+	},
+	"end_time": {
+		"$date": "2024-08-17T15:08:50.83Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5960,
+	"ok": true,
+	"stats": {
+		"new_certs": 7,
+		"removed_ids": 0,
+		"updated_ids": 5953,
+		"cert_states": {
+			"report_download_ok": 664,
+			"report_convert_garbage": 33,
+			"report_convert_ok": 656,
+			"report_extract_ok": 631,
+			"st_download_ok": 167,
+			"st_convert_garbage": 6,
+			"st_convert_ok": 162,
+			"st_extract_ok": 162,
+			"cert_download_ok": 144,
+			"cert_convert_garbage": 139,
+			"cert_convert_ok": 6,
+			"cert_extract_ok": 6
+		},
+		"changed_ids": 5925
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "66c34c34e86d971df595d508"
+	},
+	"start_time": {
+		"$date": "2024-08-19T12:00:09.18Z"
+	},
+	"end_time": {
+		"$date": "2024-08-19T15:44:20.992Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5960,
+	"ok": true,
+	"stats": {
+		"new_certs": 0,
+		"removed_ids": 0,
+		"updated_ids": 5960,
+		"cert_states": {
+			"report_download_ok": 1295,
+			"report_convert_garbage": 53,
+			"report_convert_ok": 1286,
+			"report_extract_ok": 1252,
+			"st_download_ok": 172,
+			"st_convert_garbage": 7,
+			"st_convert_ok": 167,
+			"st_extract_ok": 167,
+			"cert_download_ok": 91,
+			"cert_convert_garbage": 78,
+			"cert_convert_ok": 14,
+			"cert_extract_ok": 13
+		},
+		"changed_ids": 855
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "66c7afc82ff8c812f518b966"
+	},
+	"start_time": {
+		"$date": "2024-08-22T18:04:48.021Z"
+	},
+	"end_time": {
+		"$date": "2024-08-22T23:38:16.386Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5961,
+	"ok": true,
+	"stats": {
+		"new_certs": 4,
+		"removed_ids": 3,
+		"updated_ids": 5957,
+		"cert_states": {
+			"report_download_ok": 5947,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 5938,
+			"report_extract_ok": 5887,
+			"st_download_ok": 5799,
+			"st_convert_garbage": 35,
+			"st_convert_ok": 5793,
+			"st_extract_ok": 5725,
+			"cert_download_ok": 2588,
+			"cert_convert_garbage": 1381,
+			"cert_convert_ok": 2447,
+			"cert_extract_ok": 2405
+		},
+		"changed_ids": 5939
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "66e84cf5ba28c1f98af473e8"
+	},
+	"start_time": {
+		"$date": "2024-09-16T12:00:01.234Z"
+	},
+	"end_time": {
+		"$date": "2024-09-16T17:21:25.086Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5981,
+	"ok": true,
+	"stats": {
+		"new_certs": 4,
+		"removed_ids": 6,
+		"updated_ids": 5977,
+		"cert_states": {
+			"report_download_ok": 5963,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 5954,
+			"report_extract_ok": 5903,
+			"st_download_ok": 5815,
+			"st_convert_garbage": 36,
+			"st_convert_ok": 5808,
+			"st_extract_ok": 5740,
+			"cert_download_ok": 2603,
+			"cert_convert_garbage": 1387,
+			"cert_convert_ok": 2462,
+			"cert_extract_ok": 2420
+		},
+		"changed_ids": 117
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "66fb214d57e77cef5531f166"
+	},
+	"start_time": {
+		"$date": "2024-09-30T12:00:02.794Z"
+	},
+	"end_time": {
+		"$date": "2024-10-01T00:08:13.82Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 5995,
+	"ok": true,
+	"stats": {
+		"new_certs": 16,
+		"removed_ids": 8,
+		"updated_ids": 5979,
+		"cert_states": {
+			"report_download_ok": 5981,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 5972,
+			"report_extract_ok": 5921,
+			"st_download_ok": 5833,
+			"st_convert_garbage": 35,
+			"st_convert_ok": 5827,
+			"st_extract_ok": 5758,
+			"cert_download_ok": 2619,
+			"cert_convert_garbage": 1395,
+			"cert_convert_ok": 2478,
+			"cert_extract_ok": 2436
+		},
+		"changed_ids": 969
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "670d6087d746c9e694e385eb"
+	},
+	"start_time": {
+		"$date": "2024-10-14T12:00:00.516Z"
+	},
+	"end_time": {
+		"$date": "2024-10-14T20:18:47.093Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6000,
+	"ok": true,
+	"stats": {
+		"new_certs": 3,
+		"removed_ids": 12,
+		"updated_ids": 5997,
+		"cert_states": {
+			"report_download_ok": 5985,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 5976,
+			"report_extract_ok": 5925,
+			"st_download_ok": 5838,
+			"st_convert_garbage": 35,
+			"st_convert_ok": 5832,
+			"st_extract_ok": 5763,
+			"cert_download_ok": 2623,
+			"cert_convert_garbage": 1397,
+			"cert_convert_ok": 2482,
+			"cert_extract_ok": 2440
+		},
+		"changed_ids": 1697
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67113c29700c28def2a97449"
+	},
+	"start_time": {
+		"$date": "2024-10-17T11:26:45.075Z"
+	},
+	"end_time": {
+		"$date": "2024-10-17T18:32:41.819Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6006,
+	"ok": true,
+	"stats": {
+		"new_certs": 6,
+		"removed_ids": 12,
+		"updated_ids": 6000,
+		"cert_states": {
+			"report_download_ok": 5991,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 5982,
+			"report_extract_ok": 5931,
+			"st_download_ok": 5844,
+			"st_convert_garbage": 35,
+			"st_convert_ok": 5838,
+			"st_extract_ok": 5769,
+			"cert_download_ok": 2628,
+			"cert_convert_garbage": 1400,
+			"cert_convert_ok": 2487,
+			"cert_extract_ok": 2445
+		},
+		"changed_ids": 2191
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "672264ce790069c1c6f232e2"
+	},
+	"start_time": {
+		"$date": "2024-10-30T10:56:01.819Z"
+	},
+	"end_time": {
+		"$date": "2024-10-30T17:54:38.559Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6026,
+	"ok": true,
+	"stats": {
+		"new_certs": 19,
+		"removed_ids": 15,
+		"updated_ids": 6007,
+		"cert_states": {
+			"report_download_ok": 6010,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6001,
+			"report_extract_ok": 5950,
+			"st_download_ok": 5864,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5856,
+			"st_extract_ok": 5787,
+			"cert_download_ok": 2646,
+			"cert_convert_garbage": 1407,
+			"cert_convert_ok": 2503,
+			"cert_extract_ok": 2460
+		},
+		"changed_ids": 112
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "672ffba8fb882d74835eae78"
+	},
+	"start_time": {
+		"$date": "2024-11-09T17:43:21.303Z"
+	},
+	"end_time": {
+		"$date": "2024-11-10T01:17:44.172Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6033,
+	"ok": true,
+	"stats": {
+		"new_certs": 7,
+		"removed_ids": 15,
+		"updated_ids": 6026,
+		"cert_states": {
+			"report_download_ok": 6017,
+			"report_convert_garbage": 100,
+			"report_convert_ok": 6007,
+			"report_extract_ok": 5956,
+			"st_download_ok": 5871,
+			"st_convert_garbage": 41,
+			"st_convert_ok": 5862,
+			"st_extract_ok": 5789,
+			"cert_download_ok": 2653,
+			"cert_convert_garbage": 1411,
+			"cert_convert_ok": 2512,
+			"cert_extract_ok": 2470
+		},
+		"changed_ids": 3842
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "673f6538a1452c910a80b5ad"
+	},
+	"start_time": {
+		"$date": "2024-11-21T11:03:40.77Z"
+	},
+	"end_time": {
+		"$date": "2024-11-21T17:52:08.479Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6053,
+	"ok": true,
+	"stats": {
+		"new_certs": 3,
+		"removed_ids": 19,
+		"updated_ids": 6050,
+		"cert_states": {
+			"report_download_ok": 6022,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6013,
+			"report_extract_ok": 5962,
+			"st_download_ok": 5876,
+			"st_convert_garbage": 39,
+			"st_convert_ok": 5867,
+			"st_extract_ok": 5794,
+			"cert_download_ok": 2658,
+			"cert_convert_garbage": 1412,
+			"cert_convert_ok": 2517,
+			"cert_extract_ok": 2475
+		},
+		"changed_ids": 6050
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "674df9b4f2031bf1fe70ba63"
+	},
+	"start_time": {
+		"$date": "2024-12-02T12:00:00.333Z"
+	},
+	"end_time": {
+		"$date": "2024-12-02T19:17:24.109Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6095,
+	"ok": true,
+	"stats": {
+		"new_certs": 43,
+		"removed_ids": 20,
+		"updated_ids": 6052,
+		"cert_states": {
+			"report_download_ok": 6064,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6055,
+			"report_extract_ok": 6004,
+			"st_download_ok": 5918,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5910,
+			"st_extract_ok": 5837,
+			"cert_download_ok": 2667,
+			"cert_convert_garbage": 1411,
+			"cert_convert_ok": 2528,
+			"cert_extract_ok": 2486
+		},
+		"changed_ids": 110
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67572c76e54d5dd1c4cb688c"
+	},
+	"start_time": {
+		"$date": "2024-12-09T12:00:03.127Z"
+	},
+	"end_time": {
+		"$date": "2024-12-09T18:44:22.892Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6100,
+	"ok": true,
+	"stats": {
+		"new_certs": 8,
+		"removed_ids": 23,
+		"updated_ids": 6092,
+		"cert_states": {
+			"report_download_ok": 6069,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6060,
+			"report_extract_ok": 6009,
+			"st_download_ok": 5923,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5915,
+			"st_extract_ok": 5842,
+			"cert_download_ok": 2672,
+			"cert_convert_garbage": 1412,
+			"cert_convert_ok": 2533,
+			"cert_extract_ok": 2491
+		},
+		"changed_ids": 2121
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67607184e54d5dd1c4cb70e4"
+	},
+	"start_time": {
+		"$date": "2024-12-16T12:00:01.445Z"
+	},
+	"end_time": {
+		"$date": "2024-12-16T19:29:24.185Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6101,
+	"ok": true,
+	"stats": {
+		"new_certs": 1,
+		"removed_ids": 23,
+		"updated_ids": 6100,
+		"cert_states": {
+			"report_download_ok": 6070,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6061,
+			"report_extract_ok": 6010,
+			"st_download_ok": 5924,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5916,
+			"st_extract_ok": 5843,
+			"cert_download_ok": 2673,
+			"cert_convert_garbage": 1413,
+			"cert_convert_ok": 2534,
+			"cert_extract_ok": 2492
+		},
+		"changed_ids": 2135
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "6772dd6df2031bf1fe70bb44"
+	},
+	"start_time": {
+		"$date": "2024-12-30T12:00:01.588Z"
+	},
+	"end_time": {
+		"$date": "2024-12-30T18:50:37.765Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6113,
+	"ok": true,
+	"stats": {
+		"new_certs": 1,
+		"removed_ids": 25,
+		"updated_ids": 6112,
+		"cert_states": {
+			"report_download_ok": 6082,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6073,
+			"report_extract_ok": 6022,
+			"st_download_ok": 5936,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5928,
+			"st_extract_ok": 5855,
+			"cert_download_ok": 2685,
+			"cert_convert_garbage": 1414,
+			"cert_convert_ok": 2546,
+			"cert_extract_ok": 2504
+		},
+		"changed_ids": 1113
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "677c1753e54d5dd1c4cb79d9"
+	},
+	"start_time": {
+		"$date": "2025-01-06T12:00:01.435Z"
+	},
+	"end_time": {
+		"$date": "2025-01-06T18:48:03.654Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6116,
+	"ok": true,
+	"stats": {
+		"new_certs": 3,
+		"removed_ids": 25,
+		"updated_ids": 6113,
+		"cert_states": {
+			"report_download_ok": 6085,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6076,
+			"report_extract_ok": 6025,
+			"st_download_ok": 5939,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5931,
+			"st_extract_ok": 5858,
+			"cert_download_ok": 2687,
+			"cert_convert_garbage": 1416,
+			"cert_convert_ok": 2548,
+			"cert_extract_ok": 2506
+		},
+		"changed_ids": 2119
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "6797bade4c0fc0deaea59b6a"
+	},
+	"start_time": {
+		"$date": "2025-01-27T12:00:00.237Z"
+	},
+	"end_time": {
+		"$date": "2025-01-27T17:57:02.271Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6155,
+	"ok": true,
+	"stats": {
+		"new_certs": 43,
+		"removed_ids": 29,
+		"updated_ids": 6112,
+		"cert_states": {
+			"report_download_ok": 6089,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6080,
+			"report_extract_ok": 6029,
+			"st_download_ok": 5941,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5933,
+			"st_extract_ok": 5860,
+			"cert_download_ok": 2691,
+			"cert_convert_garbage": 1419,
+			"cert_convert_ok": 2552,
+			"cert_extract_ok": 2510
+		},
+		"changed_ids": 1131
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67a11a93a24f8a02249f2ef7"
+	},
+	"start_time": {
+		"$date": "2025-02-03T12:00:02.001Z"
+	},
+	"end_time": {
+		"$date": "2025-02-03T20:35:47.42Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6173,
+	"ok": true,
+	"stats": {
+		"new_certs": 17,
+		"removed_ids": 30,
+		"updated_ids": 6156,
+		"cert_states": {
+			"report_download_ok": 6142,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6133,
+			"report_extract_ok": 6082,
+			"st_download_ok": 5996,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5988,
+			"st_extract_ok": 5915,
+			"cert_download_ok": 2749,
+			"cert_convert_garbage": 1435,
+			"cert_convert_ok": 2610,
+			"cert_extract_ok": 2568
+		},
+		"changed_ids": 1355
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67a4080e616188395327018d"
+	},
+	"start_time": {
+		"$date": "2025-02-05T18:04:55.043Z"
+	},
+	"end_time": {
+		"$date": "2025-02-06T01:53:34.795Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6179,
+	"ok": true,
+	"stats": {
+		"new_certs": 7,
+		"removed_ids": 32,
+		"updated_ids": 6172,
+		"cert_states": {
+			"report_download_ok": 6150,
+			"report_convert_garbage": 100,
+			"report_convert_ok": 6141,
+			"report_extract_ok": 6089,
+			"st_download_ok": 6004,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 5996,
+			"st_extract_ok": 5923,
+			"cert_download_ok": 2757,
+			"cert_convert_garbage": 1437,
+			"cert_convert_ok": 2618,
+			"cert_extract_ok": 2576
+		},
+		"changed_ids": 6172
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67aa4548d14b3692bb806e73"
+	},
+	"start_time": {
+		"$date": "2025-02-10T12:00:00.586Z"
+	},
+	"end_time": {
+		"$date": "2025-02-10T19:28:24.208Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6194,
+	"ok": true,
+	"stats": {
+		"new_certs": 16,
+		"removed_ids": 33,
+		"updated_ids": 6178,
+		"cert_states": {
+			"report_download_ok": 6165,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6156,
+			"report_extract_ok": 6105,
+			"st_download_ok": 6019,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 6011,
+			"st_extract_ok": 5938,
+			"cert_download_ok": 2772,
+			"cert_convert_garbage": 1441,
+			"cert_convert_ok": 2633,
+			"cert_extract_ok": 2591
+		},
+		"changed_ids": 2253
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67cf20587c38a7c9944aab32"
+	},
+	"start_time": {
+		"$date": "2025-03-10T12:00:02.764Z"
+	},
+	"end_time": {
+		"$date": "2025-03-10T18:24:40.824Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6235,
+	"ok": true,
+	"stats": {
+		"new_certs": 13,
+		"removed_ids": 39,
+		"updated_ids": 6222,
+		"cert_states": {
+			"report_download_ok": 6208,
+			"report_convert_garbage": 100,
+			"report_convert_ok": 6198,
+			"report_extract_ok": 6147,
+			"st_download_ok": 6062,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 6054,
+			"st_extract_ok": 5981,
+			"cert_download_ok": 2813,
+			"cert_convert_garbage": 1454,
+			"cert_convert_ok": 2674,
+			"cert_extract_ok": 2632
+		},
+		"changed_ids": 308
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67eebff77557876db2c02cde"
+	},
+	"start_time": {
+		"$date": "2025-04-03T09:18:42.399Z"
+	},
+	"end_time": {
+		"$date": "2025-04-03T19:05:59.663Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6267,
+	"ok": true,
+	"stats": {
+		"new_certs": 35,
+		"removed_ids": 42,
+		"updated_ids": 6232,
+		"cert_states": {
+			"report_download_ok": 6240,
+			"report_convert_garbage": 99,
+			"report_convert_ok": 6231,
+			"report_extract_ok": 6180,
+			"st_download_ok": 6094,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 6086,
+			"st_extract_ok": 6013,
+			"cert_download_ok": 2844,
+			"cert_convert_garbage": 1469,
+			"cert_convert_ok": 2705,
+			"cert_extract_ok": 2663
+		},
+		"changed_ids": 982
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "682234eb330129f137972551"
+	},
+	"start_time": {
+		"$date": "2025-05-12T12:00:01.455Z"
+	},
+	"end_time": {
+		"$date": "2025-05-12T19:50:35.654Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 6297,
+	"ok": true,
+	"stats": {
+		"new_certs": 7,
+		"removed_ids": 49,
+		"updated_ids": 6290,
+		"cert_states": {
+			"report_download_ok": 6210,
+			"report_convert_garbage": 96,
+			"report_convert_ok": 6203,
+			"report_extract_ok": 6153,
+			"st_download_ok": 6064,
+			"st_convert_garbage": 38,
+			"st_convert_ok": 6055,
+			"st_extract_ok": 5982,
+			"cert_download_ok": 2842,
+			"cert_convert_garbage": 1447,
+			"cert_convert_ok": 2703,
+			"cert_extract_ok": 2662
+		},
+		"changed_ids": 1217
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "6862e052f3fe2413d92e29c2"
+	},
+	"start_time": {
+		"$date": "2025-06-30T12:00:00.439Z"
+	},
+	"end_time": {
+		"$date": "2025-06-30T21:06:58.987Z"
+	},
+	"tool_version": "0.3.2.post1.dev60+g617f4ce",
+	"length": 6363,
+	"ok": true,
+	"stats": {
+		"new_certs": 7,
+		"removed_ids": 52,
+		"updated_ids": 6356,
+		"cert_states": {
+			"report_download_ok": 6276,
+			"report_convert_garbage": 98,
+			"report_convert_ok": 6269,
+			"report_extract_ok": 6219,
+			"st_download_ok": 6130,
+			"st_convert_garbage": 37,
+			"st_convert_ok": 6122,
+			"st_extract_ok": 6049,
+			"cert_download_ok": 2906,
+			"cert_convert_garbage": 1467,
+			"cert_convert_ok": 2767,
+			"cert_extract_ok": 2726
+		},
+		"changed_ids": 27
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+}]
+

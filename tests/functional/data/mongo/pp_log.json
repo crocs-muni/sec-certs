@@ -1,0 +1,112 @@
+[{
+	"_id": {
+		"$oid": "67a24721379204bc94e98461"
+	},
+	"start_time": {
+		"$date": "2025-02-04T16:26:06.443Z"
+	},
+	"end_time": {
+		"$date": "2025-02-04T17:58:09.325Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 495,
+	"ok": true,
+	"stats": {
+		"new_certs": 495,
+		"removed_ids": 0,
+		"updated_ids": 0,
+		"cert_states": {
+			"pp_download_ok": 481,
+			"pp_convert_garbage": 13,
+			"pp_convert_ok": 480,
+			"pp_extract_ok": 475,
+			"report_download_ok": 495,
+			"report_convert_garbage": 106,
+			"report_convert_ok": 411,
+			"report_extract_ok": 410
+		},
+		"changed_ids": 0
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "67fd3c1f8b1d952cd2110f60"
+	},
+	"start_time": {
+		"$date": "2025-04-14T18:45:11.733Z"
+	},
+	"end_time": {
+		"$date": "2025-04-14T18:47:27.768Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 491,
+	"ok": true,
+	"stats": {
+		"new_certs": 0,
+		"removed_ids": 5,
+		"updated_ids": 491,
+		"cert_states": {
+			"pp_download_ok": 491,
+			"pp_convert_garbage": 491,
+			"pp_convert_ok": 0,
+			"pp_extract_ok": 0,
+			"report_download_ok": 491,
+			"report_convert_garbage": 491,
+			"report_convert_ok": 0,
+			"report_extract_ok": 0
+		},
+		"changed_ids": 491
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+},
+{
+	"_id": {
+		"$oid": "6806fe268b1d952cd2111232"
+	},
+	"start_time": {
+		"$date": "2025-04-22T02:49:13.447Z"
+	},
+	"end_time": {
+		"$date": "2025-04-22T04:25:42.872Z"
+	},
+	"tool_version": "0.2.1.post1.dev34+g5f893fb",
+	"length": 491,
+	"ok": true,
+	"stats": {
+		"new_certs": 0,
+		"removed_ids": 5,
+		"updated_ids": 491,
+		"cert_states": {
+			"pp_download_ok": 475,
+			"pp_convert_garbage": 12,
+			"pp_convert_ok": 475,
+			"pp_extract_ok": 470,
+			"report_download_ok": 490,
+			"report_convert_garbage": 103,
+			"report_convert_ok": 409,
+			"report_extract_ok": 408
+		},
+		"changed_ids": 491
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true
+	}
+}]
+

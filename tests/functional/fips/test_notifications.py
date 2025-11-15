@@ -5,7 +5,6 @@ from pytest_mock import MockerFixture
 
 from sec_certs_page import mail, mongo
 from sec_certs_page.fips.tasks import notify
-from sec_certs_page.notifications.tasks import send_confirmation_email
 
 
 @pytest.fixture(params=["6b86b273ff34fce1", "3c365ff931ecb0e3"])

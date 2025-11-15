@@ -127,7 +127,7 @@ def update_cpe_match_data() -> None:  # pragma: no cover
     logger.info("Getting CPE matches.")
     with sentry_sdk.start_span(op="cpe_match.get", description="Get CPE matches."):
         if match_path.exists():
-            with match_path.open("r") as handle:
+            with match_path.open("r", encoding="utf-8") as handle:
                 match_dset = json.load(handle)
         else:
             match_dset = None
