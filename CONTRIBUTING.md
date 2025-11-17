@@ -14,11 +14,11 @@ For complete list of system dependencies, see [docs/installation](https://sec-ce
 
 ### Requirements
 
-Requirements are maintained with [pip-tools](https://github.com/jazzband/pip-tools). The main ideas are:
-- List actual dependencies in [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) without pinning them.
-- Additionally, [compile.sh](https://github.com/crocs-muni/sec-certs/blob/main/requirements/compile.sh) script is used to compile pinned versions of requirements that reside in `.txt` files in the same folder.
+Requirements are maintained via [uv](https://docs.astral.sh/uv/). The main ideas are:
+- List actual dependencies in [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) without (unnecessarily) pinning them.
+- Use `uv lock` to resolve and lock the dependencies.
+- Use `uv sync --inexact` to install these dependencies. Use `--inexact` to keep the `en_core_web_sm` model installed by spacy.
 - Tests, linting and Docker all run against this reproducible environment of pinned requirements.
-- To install all requirements, use `pip install -U pip-tools && pip-sync requirements/all_requirements.txt`
 
 ## Branches
 
@@ -35,7 +35,7 @@ Note on single-sourcing the package version: More can be read [here](https://pac
 ### Currently, the release process is as follows
 
 1. Update dependencies with `pre-commit autoupdate`, pin new versions of linters into `pyproject.toml`.
-2. Run `cd requirements && ./compile.sh` to update dependencies, commit the changes.
+2. Run `uv lock` to update dependencies, commit the changes.
 5. Create a release from GitHub UI. Include release notes, add proper version tag and publish the release (or create it from scratch with new tag).
 6. This will automatically update PyPi and DockerHub packages.
 
@@ -58,8 +58,8 @@ pre-commit run --all-files
 
 To invoke the tools manually, you can, in the repository root, use:
 - Mypy: `mypy .`
-- Ruff: `ruff ." (or with `--fix` flag to apply fixes)
-- Ruff formatL `ruff format --check .`
+- Ruff: `ruff .` (or with `--fix` flag to apply fixes)
+- Ruff format: `ruff format --check .`
 
 ## Tests
 
