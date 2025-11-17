@@ -65,27 +65,6 @@
   ]
 
   [project.optional-dependencies]
-    dev = [
-      "ruff==0.7.4",
-      "mypy==1.13.0",
-      "types-PyYAML",
-      "types-python-dateutil",
-      "types-requests",
-      "datasets",
-      "coverage[toml]",
-      "pytest",
-      "pytest-cov",
-      "pytest-monitor",
-      "pytest-profiling",
-      "pre-commit",
-      "pip-tools",
-      "sphinx",
-      "myst-nb>=0.14",
-      "sphinx-book-theme",
-      "sphinx-design",
-      "sphinx-copybutton",
-      "ipython!=8.7.0",
-    ]
     nlp = [
       "catboost",
       "optuna",
@@ -107,6 +86,29 @@
 
   [project.scripts]
     sec-certs = "sec_certs.cli:main"
+
+[dependency-groups]
+  dev = [
+    "ruff==0.7.4",
+    "mypy==1.13.0",
+    "types-PyYAML",
+    "types-python-dateutil",
+    "types-requests",
+    "datasets",
+    "coverage[toml]",
+    "pytest",
+    "pytest-cov",
+    "pytest-monitor",
+    "pytest-profiling",
+    "pre-commit",
+    "pip-tools",
+    "sphinx",
+    "myst-nb>=0.14",
+    "sphinx-book-theme",
+    "sphinx-design",
+    "sphinx-copybutton",
+    "ipython!=8.7.0",
+  ]
 
 [tool.ruff]
   lint.select = [

@@ -4540,6 +4540,21 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+nlp = [
+    { name = "catboost" },
+    { name = "nltk" },
+    { name = "openai" },
+    { name = "optuna" },
+    { name = "plotly" },
+    { name = "pyarrow" },
+    { name = "scikit-learn" },
+    { name = "sentence-transformers" },
+    { name = "setfit" },
+    { name = "sqlite-vec" },
+    { name = "umap-learn", extra = ["plot"] },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "coverage", extra = ["toml"] },
     { name = "datasets" },
@@ -4563,37 +4578,19 @@ dev = [
     { name = "types-pyyaml" },
     { name = "types-requests" },
 ]
-nlp = [
-    { name = "catboost" },
-    { name = "nltk" },
-    { name = "openai" },
-    { name = "optuna" },
-    { name = "plotly" },
-    { name = "pyarrow" },
-    { name = "scikit-learn" },
-    { name = "sentence-transformers" },
-    { name = "setfit" },
-    { name = "sqlite-vec" },
-    { name = "umap-learn", extra = ["plot"] },
-]
 
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4" },
     { name = "catboost", marker = "extra == 'nlp'" },
     { name = "click" },
-    { name = "coverage", extras = ["toml"], marker = "extra == 'dev'" },
-    { name = "datasets", marker = "extra == 'dev'" },
     { name = "dateparser" },
     { name = "html5lib" },
     { name = "ipykernel" },
-    { name = "ipython", marker = "extra == 'dev'", specifier = "!=8.7.0" },
     { name = "ipywidgets" },
     { name = "jsonschema" },
     { name = "lxml" },
     { name = "matplotlib" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = "==1.13.0" },
-    { name = "myst-nb", marker = "extra == 'dev'", specifier = ">=0.14" },
     { name = "networkx" },
     { name = "nltk", marker = "extra == 'nlp'" },
     { name = "numpy" },
@@ -4603,10 +4600,8 @@ requires-dist = [
     { name = "pdftotext", specifier = ">=3.0.0" },
     { name = "pikepdf" },
     { name = "pillow", specifier = ">=9.2.0" },
-    { name = "pip-tools", marker = "extra == 'dev'" },
     { name = "pkgconfig" },
     { name = "plotly", marker = "extra == 'nlp'" },
-    { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "psutil" },
     { name = "pyarrow", marker = "extra == 'nlp'" },
     { name = "pydantic" },
@@ -4614,15 +4609,10 @@ requires-dist = [
     { name = "pypdf", extras = ["crypto"], specifier = ">=3.1.0" },
     { name = "pysankeybeta" },
     { name = "pytesseract" },
-    { name = "pytest", marker = "extra == 'dev'" },
-    { name = "pytest-cov", marker = "extra == 'dev'" },
-    { name = "pytest-monitor", marker = "extra == 'dev'" },
-    { name = "pytest-profiling", marker = "extra == 'dev'" },
     { name = "python-dateutil" },
     { name = "pyyaml" },
     { name = "rapidfuzz" },
     { name = "requests" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = "==0.7.4" },
     { name = "scikit-learn" },
     { name = "scikit-learn", marker = "extra == 'nlp'" },
     { name = "scipy", specifier = ">=1.9.0" },
@@ -4632,19 +4622,35 @@ requires-dist = [
     { name = "setuptools-scm" },
     { name = "spacy", marker = "platform_machine != 'aarch64'", specifier = ">=3.8.0" },
     { name = "spacy", marker = "platform_machine == 'aarch64'", specifier = "<3.8.0" },
-    { name = "sphinx", marker = "extra == 'dev'" },
-    { name = "sphinx-book-theme", marker = "extra == 'dev'" },
-    { name = "sphinx-copybutton", marker = "extra == 'dev'" },
-    { name = "sphinx-design", marker = "extra == 'dev'" },
     { name = "sqlite-vec", marker = "extra == 'nlp'" },
     { name = "tabula-py" },
     { name = "tqdm" },
-    { name = "types-python-dateutil", marker = "extra == 'dev'" },
-    { name = "types-pyyaml", marker = "extra == 'dev'" },
-    { name = "types-requests", marker = "extra == 'dev'" },
     { name = "umap-learn", extras = ["plot"], marker = "extra == 'nlp'" },
 ]
-provides-extras = ["dev", "nlp"]
+provides-extras = ["nlp"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", extras = ["toml"] },
+    { name = "datasets" },
+    { name = "ipython", specifier = "!=8.7.0" },
+    { name = "mypy", specifier = "==1.13.0" },
+    { name = "myst-nb", specifier = ">=0.14" },
+    { name = "pip-tools" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-monitor" },
+    { name = "pytest-profiling" },
+    { name = "ruff", specifier = "==0.7.4" },
+    { name = "sphinx" },
+    { name = "sphinx-book-theme" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-design" },
+    { name = "types-python-dateutil" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
 
 [[package]]
 name = "sentence-transformers"
