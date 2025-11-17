@@ -1,7 +1,13 @@
 """Fixed dashboard initialization with dynamic filter generation."""
 
+import logging
+from logging import Logger
+
 from flask import Flask
 from flask_wtf import CSRFProtect
+
+from sec_certs_page.dashboard.filters.factory import DashFilterFactory
+from sec_certs_page.dashboard.filters.registry import CCFilterRegistry
 
 from .. import mongo
 from ..common.dash.base import Dash
@@ -12,9 +18,9 @@ from .charts.cc.certs_per_year import CCCertsPerYear
 from .charts.cc.validity_duration import CCValidityDuration
 from .charts.registry import ChartRegistry
 from .data import DataService
-from .filters.dynamic_factory import FilterFactory
-from .filters.registry import FilterRegistry
 from .layout import DashboardLayoutManager
+
+logger: Logger = logging.getLogger(__name__)
 
 
 def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
@@ -31,9 +37,11 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
     # Initialize core services
     data_service = DataService(mongo)
 
+    # Initialize filter registry with data service
+    CCFilterRegistry.initialize_filters(data_service)
+
     # Create registries
     cc_chart_registry = ChartRegistry()
-    cc_filter_registry = FilterRegistry()
 
     # Create and register charts with UNIQUE IDs
     try:
@@ -51,11 +59,7 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
         print(f"✗ Error creating charts: {e}")
         return
 
-    # Create filter factory but don't create filters yet - they'll be created when pages are visited
-    filter_factory = FilterFactory(data_service)
-    print("✓ Filter factory created (filters will be created on-demand when pages are visited)")
-
-    print(f"✓ Registries initialized: {len(list(cc_chart_registry))} charts, 0 filters (will be created on-demand)")
+    print(f"✓ Registries initialized: {len(list(cc_chart_registry))} charts, filters initialized")
 
     # Create Dash app
     url_base_pathname = "/dashboard/"
@@ -70,7 +74,7 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
 
     # CRITICAL FIX: Register routes BEFORE setting layout
     try:
-        cc_route.register_pages(dash_app, cc_chart_registry, cc_filter_registry, filter_factory)
+        cc_route.register_pages(dash_app, cc_chart_registry)
         fips_route.register_pages()
         print("✓ Routes registered successfully")
 
