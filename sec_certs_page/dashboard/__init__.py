@@ -12,7 +12,6 @@ from sec_certs_page.dashboard.filters.registry import CCFilterRegistry
 from .. import mongo
 from ..common.dash.base import Dash
 from . import cc_route, fips_route
-from .callback import CallbackManager
 from .charts.cc.category_distribution import CCCategoryDistribution
 from .charts.cc.certs_per_year import CCCertsPerYear
 from .charts.cc.validity_duration import CCValidityDuration
@@ -37,8 +36,9 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
     # Initialize core services
     data_service = DataService(mongo)
 
-    # Initialize filter registry with data service
-    CCFilterRegistry.initialize_filters(data_service)
+    # Note: Filter options are NOT loaded here - they will be loaded lazily
+    # when the filter components are first rendered or when data is requested.
+    # This improves initial page load performance.
 
     # Create registries
     cc_chart_registry = ChartRegistry()
@@ -53,14 +53,13 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
 
         for chart in charts:
             cc_chart_registry.register(chart)
-            print(f"✓ Registered chart: {chart.id}")
+            logger.info(f"✓ Registered chart: {chart.id}")
 
-    except Exception as e:
-        print(f"✗ Error creating charts: {e}")
+    except Exception:
+        logger.exception("✗ Error creating charts.")
         return
 
-    print(f"✓ Registries initialized: {len(list(cc_chart_registry))} charts, filters initialized")
-
+    logger.info(f"✓ Registries initialized: {len(list(cc_chart_registry))} charts, filters initialized")
     # Create Dash app
     url_base_pathname = "/dashboard/"
     dash_app = Dash(
@@ -72,55 +71,41 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
         pages_folder="",
     )
 
-    # CRITICAL FIX: Register routes BEFORE setting layout
     try:
         cc_route.register_pages(dash_app, cc_chart_registry)
         fips_route.register_pages()
-        print("✓ Routes registered successfully")
+        logger.info("✓ Routes registered successfully")
 
-        # Register home page
         layout_manager = DashboardLayoutManager(data_service=data_service)
         layout_manager.register_home_page()
 
-        # Debug: List all registered pages
         try:
             import dash
 
             if hasattr(dash, "page_registry"):
-                print(f"Registered Dash pages: {list(dash.page_registry.keys())}")
+                logger.info(f"Registered Dash pages: {list(dash.page_registry.keys())}")
                 for page_name, page_info in dash.page_registry.items():
-                    print(f"  - {page_name}: path={page_info.get('path', 'N/A')}")
-        except Exception as e:
-            print(f"Could not list registered pages: {e}")
-
-        # Set main layout
+                    logger.info(f"  - {page_name}: path={page_info.get('path', 'N/A')}")
+        except Exception:
+            logger.exception("Could not list registered pages.")
         dash_app.layout = layout_manager.build_layout()
-        print("✓ Layout configured")
+        logger.info("✓ Layout configured")
 
-    except Exception as e:
-        print(f"✗ Error registering routes/layout: {e}")
+    except Exception:
+        logger.exception("✗ Error registering routes/layout.")
         return
-
-    # OPTIONAL: Use callback manager if you want centralized callback registration
-    # Note: Charts already register their own callbacks in cc_route.register_pages()
-    try:
-        # callback_manager = CallbackManager(cc_chart_registry=cc_chart_registry)
-        # callback_manager.register_callbacks(dash_app)  # Disabled to prevent double registration
-        print("✓ Callback manager not instantiated to prevent double registration")
-    except Exception as e:
-        print(f"WARNING: Callback manager error: {e}")
 
     # Exempt Dash routes from CSRF
     with app.app_context():
         try:
             _exempt_all_dash_endpoints(app, csrf, url_base_pathname)
-            print("✓ CSRF exemptions configured")
-        except Exception as e:
-            print(f"WARNING: CSRF exemption error: {e}")
+            logger.info("✓ CSRF exemptions configured")
+        except Exception:
+            logger.exception("✗ CSRF exemption error")
 
-    print("=== DASHBOARD INITIALIZATION COMPLETE ===")
-    print(f"Dashboard available at: http://localhost:5000{url_base_pathname}")
-    print(f"CC Dashboard at: http://localhost:5000{url_base_pathname}cc")
+    logger.debug("=== DASHBOARD INITIALIZATION COMPLETE ===")
+    logger.debug(f"Dashboard available at: http://localhost:5000{url_base_pathname}")
+    logger.debug(f"CC Dashboard at: http://localhost:5000{url_base_pathname}cc")
 
 
 def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:
