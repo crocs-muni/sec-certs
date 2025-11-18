@@ -6,22 +6,23 @@
   name = "sec-certs"
   authors = [
     { name = "Adam Janovsky", email = "adamjanovsky@mail.muni.cz" },
+    { name = "Adam Janovsky"},
     { name = "Jan Jancar" },
     { name = "Petr Svenda" },
     { name = "Jiri Michalik" },
     { name = "Stanislav Bobon" },
   ]
-  description = "A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks"
+  description = "A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks."
   readme = "README.md"
-  license = { "text" = "MIT" }
+  license = "MIT"
   classifiers = [
-    "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: MIT License",
+    "Development Status :: 4 - Beta",
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
   ]
