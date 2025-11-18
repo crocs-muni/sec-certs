@@ -125,8 +125,52 @@ def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
     except Exception as e:
         print(f"Warning: Could not register chart callbacks: {e}")
 
-    # NOTE: Filter store callback removed - will be added when filters are integrated with charts
-    # For now, filters are just UI components without backend filtering logic
+    # Register callbacks to lazily load filter options from database
+    from sec_certs_page.dashboard.data import DataService
+    from .. import mongo
+
+    data_service = DataService(mongo)
+
+    # Add callbacks to populate dropdown options dynamically
+    for filter_id, filter_spec in CCFilterRegistry.get_all_filters().items():
+        if filter_spec.lazy_load_options and filter_spec.ui_metadata.ui_type.value in ["dropdown", "multi_dropdown"]:
+
+            @app.callback(
+                Output(filter_id, "options"),
+                Input(filter_id, "id"),
+                prevent_initial_call=False,
+            )
+            def load_filter_options(_component_id, filter_spec=filter_spec):
+                """Load filter options from database on first render."""
+                try:
+                    options = data_service.get_distinct_values_with_labels(
+                        field=filter_spec.mongodb_field,
+                        dataset_type="cc",
+                        label_map=filter_spec.label_map,
+                    )
+                    return options
+                except Exception as e:
+                    print(f"Error loading options for {filter_spec.id}: {e}")
+                    return []
+
+    # Register filter store callback to collect all filter values
+    from sec_certs_page.dashboard.filters.factory import DashCallbackHelper
+
+    # Create callback inputs for all filters
+    filter_inputs = DashCallbackHelper.create_callback_inputs()
+
+    if filter_inputs:
+        @app.callback(
+            Output("cc-filter-store", "data"),
+            filter_inputs,
+            prevent_initial_call=False,
+        )
+        def update_filter_store(*filter_values) -> dict:
+            """Collect all filter values into a store for charts to use."""
+            from sec_certs_page.dashboard.filters.registry import CCFilterRegistry
+
+            filters = DashCallbackHelper.collect_filter_values(*filter_values, filter_registry=CCFilterRegistry)
+            return filters
 
     # Add chart accumulation callbacks using Store pattern
     @app.callback(

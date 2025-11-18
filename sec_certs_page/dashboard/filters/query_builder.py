@@ -10,10 +10,13 @@ Architecture:
     - Separation of concerns: configuration vs. query logic
 """
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from sec_certs_page.dashboard.types.common import DatasetType
 from sec_certs_page.dashboard.types.filters import FilterOperator, FilterSpec
+
+if TYPE_CHECKING:
+    from sec_certs_page.dashboard.filters.registry import FilterRegistryInterface
 
 
 class QueryBuilder:
@@ -31,22 +34,28 @@ class QueryBuilder:
         >>> #          "not_valid_before": {"$gte": "2020-01-01"}}
     """
 
-    def __init__(self, dataset_type: DatasetType):
+    def __init__(self, dataset_type: DatasetType, filter_registry: "FilterRegistryInterface"):
         """Initialize query builder.
 
         :param dataset_type: Dataset type ('cc' or 'fips')
+        :param filter_registry: Registry to look up filter specifications
         """
         self.dataset_type = dataset_type
+        self.filter_registry = filter_registry
         self._query_fragments: list[dict[str, Any]] = []
         self._errors: list[str] = []
 
-    def add_filter(self, filter_spec: FilterSpec, value: Any) -> "QueryBuilder":
+    def add_filter(self, filter_id: str, value: Any) -> "QueryBuilder":
         """Add a filter to the query.
 
         :param filter_id: Filter identifier (must match FilterRegistry)
         :param value: Filter value from UI component
         :return: Self for method chaining
         """
+        filter_spec = self.filter_registry.get_filter_definition(filter_id)
+        if filter_spec is None:
+            self._errors.append(f"Unknown filter ID: {filter_id}")
+            return self
 
         query_fragment = self._build_query_fragment(filter_spec, value)
         if query_fragment:
@@ -54,14 +63,14 @@ class QueryBuilder:
 
         return self
 
-    def add_filters(self, filters: dict[FilterSpec, Any]) -> "QueryBuilder":
+    def add_filters(self, filters: dict[str, Any]) -> "QueryBuilder":
         """Add multiple filters at once.
 
         :param filters: Dictionary mapping filter IDs to their values
         :return: Self for method chaining
         """
-        for filter_spec, value in filters.items():
-            self.add_filter(filter_spec, value)
+        for filter_id, value in filters.items():
+            self.add_filter(filter_id, value)
         return self
 
     def build(self) -> dict[str, Any]:
@@ -141,8 +150,16 @@ class QueryBuilder:
         return isinstance(value, filter_spec.data_type)
 
 
-def build_query_from_filters(filter_values: dict[str, Any]) -> dict[str, Any]:
-    """Convenience function to build query from filter values."""
-    builder = QueryBuilder(dataset_type="cc")
+def build_query_from_filters(filter_values: dict[str, Any], dataset_type: DatasetType = "cc") -> dict[str, Any]:
+    """Convenience function to build query from filter values.
+
+    :param filter_values: Dictionary mapping filter IDs to their values
+    :param dataset_type: Dataset type ('cc' or 'fips'), defaults to 'cc'
+    :return: MongoDB query dictionary
+    """
+    from sec_certs_page.dashboard.filters.registry import FilterRegistryFactory
+
+    registry_class = FilterRegistryFactory.get_registry(dataset_type)
+    builder = QueryBuilder(dataset_type=dataset_type, filter_registry=registry_class)
     builder.add_filters(filter_values)
     return builder.build()

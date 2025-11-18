@@ -54,7 +54,7 @@ class CCCategoryDistribution(BaseChart):
                     chart_type = args[1]
 
                 # Apply category filter if available
-                category_filter_key = "cc-category-filter"  # Standard filter ID
+                category_filter_key = "category-filter"  # Standard filter ID from CCFilterRegistry
                 selected_categories = filter_data.get(category_filter_key)
                 if selected_categories and isinstance(selected_categories, list) and len(selected_categories) > 0:
                     df = df[df["category"].isin(selected_categories)]

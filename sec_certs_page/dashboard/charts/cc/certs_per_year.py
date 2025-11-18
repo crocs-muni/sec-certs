@@ -42,7 +42,7 @@ class CCCertsPerYear(BaseChart):
                 return go.Figure()
 
             # Apply filters from the central store
-            selected_categories = filter_data.get("cc-category-filter")
+            selected_categories = filter_data.get("category-filter")  # Standard filter ID from CCFilterRegistry
             if selected_categories:
                 df = df[df["category"].isin(selected_categories)]
 
