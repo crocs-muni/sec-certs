@@ -19,10 +19,6 @@
         "_type": {
           "const": "sec_certs.sample.document_state.DocumentState"
         },
-        "convert_garbage": {
-          "type": "boolean",
-          "description": "Whether the document was converted to garbage (e.g., empty or invalid content)."
-        },
         "convert_ok": {
           "type": "boolean",
           "description": "Whether the document was successfully converted from PDF to text."
@@ -48,6 +44,13 @@
             "null"
           ],
           "description": "SHA256 hash of the text document, if available."
+        },
+        "json_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "SHA256 hash of the document json representation, if available."
         }
       },
       "additionalProperties": false,

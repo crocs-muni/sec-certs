@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup, Tag
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -25,7 +26,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import extract, helpers, tables
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata, repair_pdf
+from sec_certs.utils.pdf import extract_pdf_metadata, repair_pdf
 
 
 class FIPSHTMLParser:
@@ -250,7 +251,7 @@ class FIPSCertificate(
         module_download_ok: bool
         policy_download_ok: bool
 
-        policy_convert_garbage: bool
+        policy_convert_garbage: bool  # deprecated
         policy_convert_ok: bool
 
         module_extract_ok: bool
@@ -258,9 +259,11 @@ class FIPSCertificate(
 
         policy_pdf_hash: str | None
         policy_txt_hash: str | None
+        policy_json_hash: str | None
 
         _policy_pdf_path: Path | None = None
         _policy_txt_path: Path | None = None
+        _policy_json_path: Path | None = None
         _module_html_path: Path | None = None
 
         def __init__(
@@ -273,15 +276,16 @@ class FIPSCertificate(
             policy_extract_ok: bool = False,
             policy_pdf_hash: str | None = None,
             policy_txt_hash: str | None = None,
+            policy_json_hash: str | None = None,
         ):
             self.module_download_ok = module_download_ok
             self.policy_download_ok = policy_download_ok
-            self.policy_convert_garbage = policy_convert_garbage
             self.policy_convert_ok = policy_convert_ok
             self.module_extract_ok = module_extract_ok
             self.policy_extract_ok = policy_extract_ok
             self.policy_pdf_hash = policy_pdf_hash
             self.policy_txt_hash = policy_txt_hash
+            self.policy_json_hash = policy_json_hash
 
         @property
         def policy_pdf_path(self) -> Path:
@@ -304,6 +308,16 @@ class FIPSCertificate(
             self._policy_txt_path = Path(pth) if pth else None
 
         @property
+        def policy_json_path(self) -> Path:
+            if not self._policy_json_path:
+                raise ValueError(f"policy_json_path not set on {type(self)}")
+            return self._policy_json_path
+
+        @policy_json_path.setter
+        def policy_json_path(self, pth: str | Path | None) -> None:
+            self._policy_json_path = Path(pth) if pth else None
+
+        @property
         def module_html_path(self) -> Path:
             if not self._module_html_path:
                 raise ValueError(f"module_html_path not set on {type(self)}")
@@ -318,12 +332,12 @@ class FIPSCertificate(
             return [
                 "module_download_ok",
                 "policy_download_ok",
-                "policy_convert_garbage",
                 "policy_convert_ok",
                 "module_extract_ok",
                 "policy_extract_ok",
                 "policy_pdf_hash",
                 "policy_txt_hash",
+                "policy_json_hash",
             ]
 
         def module_is_ok_to_download(self, fresh: bool = True) -> bool:
@@ -349,9 +363,12 @@ class FIPSCertificate(
                 else self.policy_convert_ok and not self.policy_extract_ok
             )
 
-    def set_local_paths(self, policies_pdf_dir: Path, policies_txt_dir: Path, modules_html_dir: Path) -> None:
+    def set_local_paths(
+        self, policies_pdf_dir: Path, policies_txt_dir: Path, policies_json_dir: Path, modules_html_dir: Path
+    ) -> None:
         self.state.policy_pdf_path = (policies_pdf_dir / str(self.dgst)).with_suffix(".pdf")
         self.state.policy_txt_path = (policies_txt_dir / str(self.dgst)).with_suffix(".txt")
+        self.state.policy_json_path = (policies_json_dir / str(self.dgst)).with_suffix(".json")
         self.state.module_html_path = (modules_html_dir / str(self.dgst)).with_suffix(".html")
 
     @dataclass(eq=True)
@@ -587,23 +604,23 @@ class FIPSCertificate(
         return cert
 
     @staticmethod
-    def convert_policy_pdf(cert: FIPSCertificate) -> FIPSCertificate:
+    def convert_policy_pdf(cert: FIPSCertificate, converter: PDFConverter) -> FIPSCertificate:
         """
-        Converts policy pdf -> txt
+        Converts policy pdf -> txt, json
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.policy_pdf_path, cert.state.policy_txt_path)
-
-        # If OCR was done and the result was garbage
-        cert.state.policy_convert_garbage = ocr_done
-        # And put the whole result into convert_ok
+        ok_result = converter.convert(
+            cert.state.policy_pdf_path, cert.state.policy_txt_path, cert.state.policy_json_path
+        )
         cert.state.policy_convert_ok = ok_result
-
         if not ok_result:
             error_msg = "Failed to convert policy pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst}" + error_msg)
         else:
             cert.state.policy_txt_hash = helpers.get_sha256_filepath(cert.state.policy_txt_path)
-
+            if cert.state.policy_json_path.exists():
+                cert.state.policy_json_hash = helpers.get_sha256_filepath(cert.state.policy_json_path)
+            else:
+                cert.state.policy_json_hash = None
         return cert
 
     @staticmethod

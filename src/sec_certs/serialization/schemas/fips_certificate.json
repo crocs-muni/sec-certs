@@ -480,9 +480,6 @@
         "policy_download_ok": {
           "type": "boolean"
         },
-        "policy_convert_garbage": {
-          "type": "boolean"
-        },
         "policy_convert_ok": {
           "type": "boolean"
         },
@@ -501,6 +498,11 @@
           "type": "string",
           "pattern": "^[0-9a-fA-F]{64}$",
           "description": "SHA256 hash of the policy txt file."
+        },
+        "policy_json_hash": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-fA-F]{64}$",
+          "description": "SHA256 hash of the policy json representation file."
         }
       },
       "additionalProperties": false,

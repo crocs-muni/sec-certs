@@ -1,7 +1,7 @@
 import json
 import shutil
 from collections.abc import Generator
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 
 import pytest
@@ -15,7 +15,7 @@ from sec_certs.serialization.schemas import validator
 
 @pytest.fixture(scope="module")
 def data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.cc.certificate, "") as path:
+    with as_file(files(tests.data.cc.certificate)) as path:
         yield path
 
 
@@ -23,7 +23,7 @@ def data_dir() -> Generator[Path, None, None]:
 def vulnerable_certificate(tmp_path_factory) -> CCCertificate:
     tmp_dir = tmp_path_factory.mktemp("dset")
 
-    with resources.path(tests.data.cc.analysis, "") as analysis_path:
+    with as_file(files(tests.data.cc.analysis)) as analysis_path:
         shutil.copytree(analysis_path, tmp_dir, dirs_exist_ok=True)
     cc_dset = CCDataset.from_json(tmp_dir / "vulnerable_dataset.json")
     cc_dset.download_all_artifacts()

@@ -1,13 +1,73 @@
 from __future__ import annotations
 
+import logging
 import time
-from collections.abc import Callable, Iterable
-from multiprocessing import cpu_count
+from collections.abc import Callable, Collection, Iterable
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from functools import partial
+from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
 from typing import Any
 
 from sec_certs.configuration import config
 from sec_certs.utils.tqdm import tqdm
+
+logger = logging.getLogger(__name__)
+
+_worker_instance: Any = None
+
+
+def _init_worker_instance(instance_cls: type, instance_args: tuple) -> None:
+    global _worker_instance
+    _worker_instance = instance_cls(*instance_args)
+
+
+def _get_worker_instance() -> Any:
+    if _worker_instance is None:
+        raise RuntimeError("Worker instance not initialized")
+    return _worker_instance
+
+
+def _worker_wrapper(item, func) -> Any:
+    instance = _get_worker_instance()
+    return func(item, instance)
+
+
+def process_parallel_with_instance(
+    instance_cls: type,
+    instance_args: tuple,
+    func: Callable,
+    items: Collection,
+    max_workers: int = config.n_threads,
+    max_chunk_size: int | None = None,
+    progress_bar_desc: str | None = None,
+) -> list[Any]:
+    if max_workers == -1:
+        max_workers = cpu_count()
+
+    result = []
+    chunk_size = max_chunk_size if max_chunk_size is not None else len(items)
+
+    def processor():
+        for i in range(0, len(items), chunk_size):
+            chunk = items[i : i + chunk_size]
+            ctx = get_context("spawn")
+            pool = ProcessPoolExecutor(
+                max_workers, ctx, initializer=_init_worker_instance, initargs=(instance_cls, instance_args)
+            )
+            with pool:
+                wrapper = partial(_worker_wrapper, func=func)
+                futures = {pool.submit(wrapper, item): item for item in chunk}
+                for future in as_completed(futures.keys()):
+                    yield future, futures[future]
+
+    for future, item in tqdm(processor(), total=len(items), desc=progress_bar_desc):
+        if (e := future.exception()) is not None:
+            logger.error(f"Processing of {item} failed: {e}")
+        else:
+            result.append(future.result())
+
+    return result
 
 
 def process_parallel(

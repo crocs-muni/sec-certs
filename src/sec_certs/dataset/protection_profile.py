@@ -9,6 +9,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -28,10 +29,12 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         ├── reports
         │   ├── pdf
-        │   └── txt
+        │   ├── txt
+        │   └── json
         ├── pps
         │   ├── pdf
-        │   └── txt
+        │   ├── txt
+        │   └── json
         └── dataset.json
     """
 
@@ -88,6 +91,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     @property
     @only_backed(throw=False)
+    def reports_json_dir(self) -> Path:
+        """
+        Path to jsons of protection profile reports.
+        """
+        return self.reports_dir / "json"
+
+    @property
+    @only_backed(throw=False)
     def pps_pdf_dir(self) -> Path:
         """
         Path to pdfs of protection profiles
@@ -104,6 +115,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     @property
     @only_backed(throw=False)
+    def pps_json_dir(self) -> Path:
+        """
+        Path to jsons of protection profiles.
+        """
+        return self.pps_dir / "json"
+
+    @property
+    @only_backed(throw=False)
     def web_dir(self) -> Path:
         """
         Path to directory with html sources downloaded from commoncriteriaportal.org
@@ -116,7 +135,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             return
 
         for cert in self:
-            cert.set_local_paths(self.reports_pdf_dir, self.pps_pdf_dir, self.reports_txt_dir, self.pps_txt_dir)
+            cert.set_local_paths(
+                self.reports_pdf_dir,
+                self.pps_pdf_dir,
+                self.reports_txt_dir,
+                self.pps_txt_dir,
+                self.reports_json_dir,
+                self.pps_json_dir,
+            )
 
     HTML_URL = {
         "pp_active.html": constants.CC_PORTAL_BASE_URL + "/pps/index.cfm",
@@ -246,43 +272,55 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         return certs
 
-    def _convert_all_pdfs_body(self, fresh=True):
-        self._convert_reports_to_txt(fresh)
-        self._convert_pps_to_txt(fresh)
+    def _convert_pdfs(
+        self, doc_type: Literal["report", "pp"], converter_cls: type[PDFConverter], fresh: bool = True
+    ) -> None:
+        long_name_map = {
+            "report": "PP certification report",
+            "pp": "Protection Profile",
+        }
+        long_name = long_name_map[doc_type]
 
-    @staged(logger, "Converting PDFs of PP certification reports to text.")
-    def _convert_reports_to_txt(self, fresh: bool = True):
-        self.reports_txt_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_convert(fresh)]
+        txt_dir = getattr(self, f"{doc_type}s_txt_dir")
+        json_dir = getattr(self, f"{doc_type}s_json_dir")
+        txt_dir.mkdir(parents=True, exist_ok=True)
+        json_dir.mkdir(parents=True, exist_ok=True)
+        certs_to_process = [x for x in self if getattr(x.state, doc_type).is_ok_to_convert(fresh)]
 
-        if not fresh and certs_to_process:
+        if not certs_to_process:
+            return
+
+        if not fresh:
             logger.info(
-                f"Converting {len(certs_to_process)} PDFs of PP certification reports to text for which previous conversion failed."
+                f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
             )
 
-        cert_processing.process_parallel(
-            ProtectionProfile.convert_report_pdf,
+        convert_func = getattr(ProtectionProfile, f"convert_{doc_type}_pdf")
+        processed_certs = cert_processing.process_parallel_with_instance(
+            converter_cls,
+            (),
+            convert_func,
             certs_to_process,
-            progress_bar_desc="Converting PDFs of PP certification reports to text.",
+            config.pdf_conversion_workers,
+            config.pdf_conversion_max_chunk_size,
+            progress_bar_desc=f"Converting PDFs of {long_name}s",
         )
 
-    @staged(logger, "Converting PDFs of actual Protection Profiles to text.")
-    def _convert_pps_to_txt(self, fresh: bool = True):
-        self.pps_txt_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.pp.is_ok_to_convert(fresh)]
+        self.update_with_certs(processed_certs)
 
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Converting {len(certs_to_process)} PDFs of actual Protection Profiles to text for which previous conversion failed."
-            )
+    @staged(logger, "Converting PDFs of PP certification reports.")
+    def _convert_reports_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True):
+        self._convert_pdfs("report", converter_cls, fresh)
 
-        cert_processing.process_parallel(
-            ProtectionProfile.convert_pp_pdf,
-            certs_to_process,
-            progress_bar_desc="Converting PDFs of actual Protection Profiles to text.",
-        )
+    @staged(logger, "Converting PDFs of actual Protection Profiles.")
+    def _convert_pps_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True):
+        self._convert_pdfs("pp", converter_cls, fresh)
 
-    def _download_all_artifacts_body(self, fresh=True):
+    def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True):
+        self._convert_reports_pdfs(converter_cls, fresh)
+        self._convert_pps_pdfs(converter_cls, fresh)
+
+    def _download_all_artifacts_body(self, fresh: bool = True):
         self._download_reports(fresh)
         self._download_pps(fresh)
 

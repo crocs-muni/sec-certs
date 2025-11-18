@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from collections.abc import Generator
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 
 import pytest
@@ -17,7 +17,7 @@ from sec_certs.sample.fips_mip import MIPEntry, MIPSnapshot, MIPStatus
 
 @pytest.fixture(scope="module")
 def data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.fips.mip, "") as path:
+    with as_file(files(tests.data.fips.mip)) as path:
         yield path
 
 
