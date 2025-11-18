@@ -21,12 +21,13 @@ skinparam classFontColor black
 skinparam packageFontColor #2C3E50
 skinparam titleFontColor #2C3E50
 
-title sec-certs.org Dashboard Architecture v3 (With QueryBuilder)
+title sec-certs.org Dashboard Architecture v3
 
 package "Application Core" #FFE4B5 {
     class "Flask App" as FlaskApp {
         + run()
         + route_handlers
+        + blueprints
     }
 
     class Dash {
@@ -40,7 +41,7 @@ package "Application Core" #FFE4B5 {
     note right of Dash : Custom Dash Application\nExtends plotly.Dash\nIntegrates with Flask server
 
     class DashboardLayoutManager {
-        + data_service : EnhancedDataService
+        + data_service : DataService
         + build_layout() : html.Div
         + register_home_page()
     }
@@ -48,17 +49,20 @@ package "Application Core" #FFE4B5 {
 
     class CallbackManager {
         + cc_chart_registry : ChartRegistry
+        + fips_chart_registry : ChartRegistry
         + register_callbacks(app: Dash)
     }
-    note bottom of CallbackManager : Callback Coordinator\nRegisters chart callbacks
+    note bottom of CallbackManager : Callback Coordinator\nRegisters chart callbacks\nSupports multiple registries
 
     class "init_dashboard()" as Init <<function>> {
         + app : Flask
         + csrf : CSRFProtect
         + bootstrap_components()
         + setup_routing()
+        + create_registries()
+        + register_charts()
     }
-    note right of Init : Bootstrap Function\nInitializes dashboard system\nCreates registries & services
+    note right of Init : Bootstrap Function\nInitializes dashboard system\nCreates registries & services\nNo in-memory caching
 
     Init ..> Dash : creates
     Init ..> CallbackManager : configures
@@ -69,14 +73,18 @@ package "Route Registration" #E6F3FF {
     class "cc_route" <<module>> {
         + register_pages(app, registries, factory)
         + layout(**kwargs) : html.Div
+        + _create_filter_section() : html.Div
+        + _create_charts_section() : html.Div
     }
     note right of "cc_route" : CC Dashboard Page\nLazy filter initialization\nRegisters callbacks
 
     class "fips_route" <<module>> {
-        + register_pages()
+        + register_pages(app, registries, factory)
         + layout(**kwargs) : html.Div
+        + _create_filter_section() : html.Div
+        + _create_charts_section() : html.Div
     }
-    note right of "fips_route" : FIPS Dashboard Page\n(Placeholder)
+    note right of "fips_route" : FIPS Dashboard Page\nMirrors CC structure
 
     "cc_route" .up.> Dash : registers with
     "fips_route" .up.> Dash : registers with
@@ -88,8 +96,10 @@ package "Component Registries" #E6F3FF {
         + register(chart: BaseChart)
         + __getitem__(chart_id: str) : BaseChart
         + __iter__() : Iterator[BaseChart]
+        + __len__() : int
+        + get(chart_id: str, default=None) : Optional[BaseChart]
     }
-    note right of ChartRegistry : Singleton Registry Pattern\nManages chart instances
+    note right of ChartRegistry : Singleton Registry Pattern\nManages chart instances\nSupports iteration
 
     class FilterRegistry {
         - _filters : Dict[str, BaseFilter]
@@ -98,14 +108,15 @@ package "Component Registries" #E6F3FF {
         + __iter__() : Iterator[BaseFilter]
         + clear()
         + __len__() : int
+        + get(filter_id: str, default=None) : Optional[BaseFilter]
     }
-    note right of FilterRegistry : Singleton Registry Pattern\nManages filter instances
+    note right of FilterRegistry : Singleton Registry Pattern\nManages filter instances\nSupports lazy loading
 }
 
 package "Chart Components" #E8F5E8 {
     abstract class BaseChart {
         + graph_id : str
-        + data_service : EnhancedDataService
+        + data_service : DataService
         + color_palette : List[str]
         + chart_type : str
         + available_chart_types : List[str]
@@ -133,9 +144,30 @@ package "Chart Components" #E8F5E8 {
         + register_callback(app: Dash)
     }
 
+    class CCSecurityLevelDistribution {
+        + graph_id : str
+        + render(data: DataFrame) : dcc.Graph
+        + register_callback(app: Dash)
+    }
+
+    class FIPSModulesPerYear {
+        + graph_id : str
+        + render(data: DataFrame) : dcc.Graph
+        + register_callback(app: Dash)
+    }
+
+    class FIPSSecurityLevelDistribution {
+        + graph_id : str
+        + render(data: DataFrame) : dcc.Graph
+        + register_callback(app: Dash)
+    }
+
     CCCategoryDistribution -up-|> BaseChart
     CCCertsPerYear -up-|> BaseChart  
     CCValidityDuration -up-|> BaseChart
+    CCSecurityLevelDistribution -up-|> BaseChart
+    FIPSModulesPerYear -up-|> BaseChart
+    FIPSSecurityLevelDistribution -up-|> BaseChart
 }
 
 package "Filter Components" #F0E6FF {
@@ -149,45 +181,71 @@ package "Filter Components" #F0E6FF {
     class DynamicDropdownFilter {
         + filter_id : str
         + column_name : str
+        + label : str
         + options : List[dict]
+        + multi : bool
         + render(dataset_type: str) : dcc.Dropdown
+        + get_state_schema() : dict
     }
     
     class DynamicTextSearchFilter {
         + filter_id : str
         + column_name : str
+        + label : str
         + placeholder : str
         + render(dataset_type: str) : dcc.Input
+        + get_state_schema() : dict
     }
 
     class DynamicRangeSliderFilter {
         + filter_id : str
         + column_name : str
+        + label : str
         + min_value : float
         + max_value : float
+        + step : Optional[float]
         + render(dataset_type: str) : dcc.RangeSlider
+        + get_state_schema() : dict
+    }
+
+    class DynamicDateRangeFilter {
+        + filter_id : str
+        + column_name : str
+        + label : str
+        + min_date : str
+        + max_date : str
+        + render(dataset_type: str) : dcc.DatePickerRange
+        + get_state_schema() : dict
     }
 
     DynamicDropdownFilter -up-|> BaseFilter
     DynamicTextSearchFilter -up-|> BaseFilter
     DynamicRangeSliderFilter -up-|> BaseFilter
+    DynamicDateRangeFilter -up-|> BaseFilter
 }
 
 package "Filter Factory & Metadata" #F0E6FF {
     class FilterFactory {
-        + data_service : EnhancedDataService
+        + data_service : DataService
         + detector : FilterTypeDetector
         + get_priority_filters_for_dataset(type: str) : List[ColumnMetadata]
         + create_filter(metadata: ColumnMetadata, id: str) : BaseFilter
+        + _create_dropdown_filter(metadata: ColumnMetadata, id: str) : DynamicDropdownFilter
+        + _create_text_search_filter(metadata: ColumnMetadata, id: str) : DynamicTextSearchFilter
+        + _create_range_slider_filter(metadata: ColumnMetadata, id: str) : DynamicRangeSliderFilter
+        + _create_date_range_filter(metadata: ColumnMetadata, id: str) : DynamicDateRangeFilter
     }
-    note right of FilterFactory : Factory Pattern\nDynamic filter creation\nLazy initialization
+    note right of FilterFactory : Factory Pattern\nDynamic filter creation\nLazy initialization\nDataset-aware
 
     class FilterTypeDetector {
         + CATEGORICAL_THRESHOLD : int = 50
+        + DATE_COLUMN_PATTERNS : List[str]
         + {static} detect_filter_type(column: Series, name: str) : ColumnMetadata
         + {static} _should_skip_column(name: str) : bool
+        + {static} _is_date_column(name: str, dtype: str) : bool
+        + {static} _is_categorical(unique_count: int, total: int) : bool
     }
-    note right of FilterTypeDetector : Analyzes columns\nDetermines filter type
+    note right of FilterTypeDetector : Analyzes columns\nDetermines filter type\nHandles dates
 
     enum FilterType {
         DROPDOWN
@@ -206,6 +264,8 @@ package "Filter Factory & Metadata" #F0E6FF {
         + sample_values : List[Any]
         + min_value : float
         + max_value : float
+        + min_date : str
+        + max_date : str
     }
 
     FilterFactory o-right-> FilterTypeDetector : uses
@@ -235,38 +295,41 @@ package "Query Builder Layer" #FFE6E6 {
         + mongodb_field : str
         + operator : FilterOperator
         + data_type : type
-        + transform : Optional[callable]
+        + transform : Optional[Callable]
         + build_query_fragment(value: Any) : Dict
         - _validate_type(value: Any) : bool
+        - _apply_transform(value: Any) : Any
     }
-    note right of FilterDefinition : Defines filter-to-MongoDB mapping\nBuilds query fragments
+    note right of FilterDefinition : Defines filter-to-MongoDB mapping\nBuilds query fragments\nSupports transformations
 
     class QueryFilterRegistry {
         + CC_FILTERS : Dict[str, FilterDefinition]
         + FIPS_FILTERS : Dict[str, FilterDefinition]
         + {static} get_filter_definition(id: str, type: str) : FilterDefinition
-        + {static} get_all_filters(type: str) : Dict
+        + {static} get_all_filters(type: str) : Dict[str, FilterDefinition]
+        + {static} _validate_dataset_type(type: str)
     }
-    note right of QueryFilterRegistry : Central repository\nof filter definitions
+    note right of QueryFilterRegistry : Central repository\nof filter definitions\nSupports CC and FIPS
 
     class QueryBuilder {
         + dataset_type : str
         - _query_fragments : List[Dict]
         - _errors : List[str]
         + add_filter(id: str, value: Any) : QueryBuilder
-        + add_filters(filters: Dict) : QueryBuilder
+        + add_filters(filters: Dict[str, Any]) : QueryBuilder
         + build() : Dict[str, Any]
         + get_errors() : List[str]
         + reset() : QueryBuilder
+        + has_errors() : bool
     }
-    note right of QueryBuilder : Builder Pattern\nConstructs MongoDB queries\nSupports method chaining
+    note right of QueryBuilder : Builder Pattern\nConstructs MongoDB queries\nSupports method chaining\nCollects errors
 
     class "build_query_from_filters()" as QueryFunc <<function>> {
         + filter_values : Dict[str, Any]
         + dataset_type : str
         + returns : Dict[str, Any]
     }
-    note right of QueryFunc : Convenience function\nfor quick query building
+    note right of QueryFunc : Convenience function\nfor quick query building\nHandles empty filters
 
     FilterDefinition o--> FilterOperator : uses
     QueryFilterRegistry o--> FilterDefinition : contains
@@ -276,19 +339,16 @@ package "Query Builder Layer" #FFE6E6 {
 }
 
 package "Data & Persistence Layer" #FFFACD {
-    class EnhancedDataService {
+    class DataService {
         + mongo : PyMongo
-        - _df_cc : DataFrame
-        - _df_fips : DataFrame
-        + get_cc_dataframe() : DataFrame
-        + get_filtered_cc_dataframe(filters: Dict, use_cache: bool) : DataFrame
-        + get_fips_dataframe() : DataFrame
+        + get_cc_dataframe(filter_values: Optional[Dict]) : DataFrame
+        + get_fips_dataframe(filter_values: Optional[Dict]) : DataFrame
         + get_dataset_metadata(type: str) : Dict
-        + clear_cache()
-        - _prepare_cc_dataframe(data: List) : DataFrame
-        - _filter_cached_dataframe(df: DataFrame, filters: Dict) : DataFrame
+        + get_distinct_values(field: str, dataset_type: str) : List[Any]
+        + get_distinct_values_with_labels(field: str, dataset_type: str, label_map: Optional[Dict]) : List[Dict]
+        - _prepare_cc_dataframe(data: List[Dict]) : DataFrame
     }
-    note right of EnhancedDataService : Enhanced Data Access Layer\nSupports both cached and filtered queries\nIntegrates QueryBuilder for MongoDB filtering
+    note right of DataService : Data Access Layer\nAlways queries MongoDB for fresh data\nNo in-memory caching\nIntegrates QueryBuilder for MongoDB filtering\nCaching delegated to external layer (Redis)
 
     class PyMongo <<Flask Extension>> {
         + db : Database
@@ -297,11 +357,12 @@ package "Data & Persistence Layer" #FFFACD {
     note right of PyMongo : MongoDB Connection\nFlask-PyMongo wrapper
 
     class "MongoDB" <<Database>> {
-        + collections: cc, fips
+        + collections: cc, fips, pp
+        + indexes
     }
 
-    EnhancedDataService o-right-> PyMongo : uses
-    EnhancedDataService .down.> QueryFunc : uses for filtering
+    DataService o-right-> PyMongo : uses
+    DataService .down.> QueryFunc : uses for filtering
     PyMongo -down-> "MongoDB" : connects to
 }
 
@@ -312,12 +373,14 @@ package "Data Models" #F5F5F5 {
         + filter()
         + groupby()
         + pivot_table()
+        + to_dict()
     }
     
     entity Component <<Dash>> {
         + id : str
         + children : List
         + style : dict
+        + className : str
     }
 }
 
@@ -334,43 +397,62 @@ DashboardLayoutManager .down.> "fips_route" : registers
 "cc_route" o.right.> FilterRegistry : queries
 "cc_route" o.down.> FilterFactory : uses (lazy init)
 
+"fips_route" o.right.> ChartRegistry : queries
+"fips_route" o.right.> FilterRegistry : queries
+"fips_route" o.down.> FilterFactory : uses (lazy init)
+
 CallbackManager o-down-> ChartRegistry : iterates
 
 ' Registry relationships
 ChartRegistry o-down- "1..*" BaseChart : stores
-FilterRegistry o-down- "1..*" BaseFilter : stores
+FilterRegistry o-down- "0..*" BaseFilter : stores
 
 ' Data flow
-BaseChart o-right-> EnhancedDataService : fetches data
-FilterFactory o-left-> EnhancedDataService : queries metadata
+BaseChart o-right-> DataService : fetches data
+FilterFactory o-left-> DataService : queries metadata
 
 ' Output relationships
 BaseChart .down.> Component : creates
 BaseFilter .down.> Component : creates
-EnhancedDataService -down-> DataFrame : provides
+DataService -down-> DataFrame : provides
 
 ' Notes on implementation details
 note bottom of Init
     Initialization sequence:
-    1. Create EnhancedDataService with PyMongo
-    2. Create ChartRegistry & FilterRegistry
-    3. Instantiate and register charts
-    4. Create FilterFactory (filters created on-demand)
-    5. Create Dash app with use_pages=True
-    6. Register routes (cc_route, fips_route)
-    7. Register home page
-    8. Set layout with dash.page_container
+    1. Create DataService with PyMongo
+    2. Create ChartRegistry instances (CC & FIPS)
+    3. Create FilterRegistry instances (CC & FIPS)
+    4. Instantiate and register charts
+    5. Create FilterFactory (filters created on-demand)
+    6. Create Dash app with use_pages=True
+    7. Register routes (cc_route, fips_route)
+    8. Register home page
+    9. Set layout with dash.page_container
+    10. Register callbacks via CallbackManager
+    
+    Note: No in-memory caching - data always fresh from MongoDB
+    External caching (Redis) can be added at a higher layer
 end note
 
 note bottom of "cc_route"
     Filter to Query Flow:
     1. User interacts with filters (UI components)
     2. Dash callbacks collect filter values
-    3. Filter values passed to EnhancedDataService
+    3. Filter values passed to DataService
     4. QueryBuilder constructs MongoDB query
     5. MongoDB executes filtered query
     6. Results processed into DataFrame
     7. Charts render filtered data
+    
+    Lazy Filter Initialization:
+    - Filters are created on first page render
+    - FilterFactory queries dataset metadata
+    - Filters registered with FilterRegistry
+    
+    No In-Memory Caching:
+    - Every request queries MongoDB directly
+    - Ensures data is always fresh
+    - External caching layer (Redis) optional
 end note
 
 note top of QueryBuilder
@@ -379,10 +461,38 @@ note top of QueryBuilder
     builder.add_filter("category-filter", ["OS"])
     builder.add_filter("not-valid-before-filter", "2020-01-01")
     query = builder.build()
+    # Result:
     # {"$and": [
     #   {"category": {"$in": ["OS"]}},
     #   {"not_valid_before": {"$gte": "2020-01-01"}}
     # ]}
+    
+    Error Handling:
+    - Validates filter definitions exist
+    - Type checks filter values
+    - Collects errors for debugging
+end note
+
+note bottom of DataService
+    Design Philosophy:
+    - No in-memory caching (separation of concerns)
+    - Always queries MongoDB for fresh data
+    - Lower memory footprint
+    - Simplified logic
+    - External caching (Redis) recommended for production
+    
+    Query Execution:
+    1. Receive optional filter values
+    2. Build MongoDB query using QueryBuilder
+    3. Execute query on MongoDB collection
+    4. Transform results to DataFrame
+    5. Apply data preparation (types, cleaning)
+    6. Return fresh DataFrame
+    
+    Filter Support:
+    - Supports filtered queries via filter_values parameter
+    - Uses QueryBuilder for type-safe query construction
+    - Empty filter_values returns all documents
 end note
 
 @enduml
