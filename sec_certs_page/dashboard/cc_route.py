@@ -6,14 +6,13 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
+from sec_certs_page.dashboard.filters.registry import CCFilterRegistry
+
 from ..common.dash.base import Dash
 from .charts.registry import ChartRegistry
-from .filters.registry import FilterRegistry
 
 
-def register_pages(
-    app: Dash, cc_graph_registry: ChartRegistry, cc_filter_registry: FilterRegistry, filter_factory=None
-) -> None:
+def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
     """
     Register CC dashboard page with Dash and its interactive callbacks.
 
@@ -21,62 +20,34 @@ def register_pages(
     :type app: Dash
     :param cc_graph_registry: The registry containing all available CC graphs.
     :type cc_graph_registry: GraphRegistry
-    :param cc_filter_registry: The registry containing all available CC filters.
-    :type cc_filter_registry: FilterRegistry
-    :param filter_factory: Factory for creating filters on-demand
-    """
 
-    # Track if filters have been initialized
-    filters_initialized = False
+    Note: FilterRegistry is used as a class (already initialized during app startup)
+    """
 
     def layout(**kwargs) -> html.Div:
         """Layout with basic graph controls."""
-        nonlocal filters_initialized
+        # Filters are already initialized at app startup via FilterRegistry
+        try:
+            # Get filter components from DashFilterFactory
+            from sec_certs_page.dashboard.filters.factory import DashFilterFactory
 
-        # Create filters on first layout render (true lazy loading!)
-        if filter_factory and not filters_initialized:
-            print("🚀 First visit to /dashboard/cc - loading data and creating filters...")
-            try:
-                priority_metadata = filter_factory.get_priority_filters_for_dataset("cc")
-                print(f"Got {len(priority_metadata)} priority metadata items")
+            filter_components = DashFilterFactory.create_all_filters(with_labels=True)
+            print(f"✓ Created {len(filter_components)} filter components from FilterRegistry")
+        except Exception as e:
+            print(f"ERROR creating filter components: {e}")
+            import traceback
 
-                for meta in priority_metadata:
-                    if meta.filter_type.value in ["dropdown", "text_search"]:
-                        filter_id = f"cc-{meta.name}-filter"
-                        try:
-                            filter_instance = filter_factory.create_filter(meta, filter_id)
-                            if filter_instance:
-                                cc_filter_registry.register(filter_instance)
-                                print(f"  ✓ Registered filter: {filter_id}")
-                        except Exception as e:
-                            print(f"  ERROR creating filter {filter_id}: {e}")
+            traceback.print_exc()
+            filter_components = []
 
-                filters_initialized = True
-                print(f"✓ Created {len(cc_filter_registry)} filters on first page visit")
-            except Exception as e:
-                print(f"ERROR creating filters: {e}")
-                import traceback
-
-                traceback.print_exc()
-
-        print(
-            f"CC Dashboard layout() called - {len(cc_filter_registry)} filters, {len(list(cc_graph_registry))} charts"
-        )
+        print(f"CC Dashboard layout() called - {len(filter_components)} filters, {len(list(cc_graph_registry))} charts")
 
         # Render filters directly in layout
-        filter_components: list[Component] = [html.H3("Filters")]
-        if cc_filter_registry:
-            for filter_instance in cc_filter_registry:
-                try:
-                    rendered = filter_instance.render("cc")
-                    filter_components.append(html.Div(rendered, style={"marginBottom": "10px"}))
-                except Exception as e:
-                    print(f"ERROR rendering filter {filter_instance.id}: {e}")
-                    filter_components.append(
-                        html.P(f"Error rendering {filter_instance.id}: {e}", style={"color": "red"})
-                    )
+        filter_section: list[Component] = [html.H3("Filters")]
+        if filter_components:
+            filter_section.extend(filter_components)
         else:
-            filter_components.append(html.P("No filters available yet.", style={"color": "gray"}))
+            filter_section.append(html.P("No filters available yet.", style={"color": "gray"}))
 
         try:
             return html.Div(
@@ -90,7 +61,7 @@ def register_pages(
                     # Filter Controls Section
                     html.Div(
                         id="cc-filters-container",
-                        children=filter_components,
+                        children=filter_section,
                         style={"marginBottom": "20px", "padding": "10px", "border": "1px solid #ddd"},
                     ),
                     # Graph Controls
