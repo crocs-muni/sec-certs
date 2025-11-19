@@ -23,6 +23,7 @@ Requirements are maintained via [uv](https://docs.astral.sh/uv/). The main ideas
 ## Branches
 
 `main` is the default branch against which all pull requests are to be made. This branch is not neccessarily stable, only the releases are.
+`page` is the branch in which the website https://sec-certs.org is developed.
 
 ## Releases and version strings
 
@@ -34,10 +35,22 @@ Note on single-sourcing the package version: More can be read [here](https://pac
 
 ### Currently, the release process is as follows
 
-1. Update dependencies with `pre-commit autoupdate`, pin new versions of linters into `pyproject.toml`.
-2. Run `uv lock` to update dependencies, commit the changes.
+1. Update `pre-commit` dependencies with `pre-commit autoupdate`, pin new versions of linters into the `dev` depdendency-group of `pyproject.toml`.
+2. Run `uv lock` to update dependencies, commit the changes to `uv.lock`.
+3. Test the build by running `uv build`.
 5. Create a release from GitHub UI. Include release notes, add proper version tag and publish the release (or create it from scratch with new tag).
 6. This will automatically update PyPi and DockerHub packages.
+
+## Virtual environment
+
+We recommend using [`uv`](https://docs.astral.sh/uv/) for managing your environment. The commands in this guide assume you are using it.
+If you do not want to prepend every command with `uv run`, you can use uv to setup a virtual environment for you and activate it:
+
+```
+uv venv
+uv sync --dev --inexact
+source .venv/bin/activate  # or {.fish,.nu,.bat,.ps1} depending on your shell
+```
 
 ## Quality assurance
 
@@ -46,33 +59,35 @@ All commits shall pass the lint pipeline of the following tools:
 - Mypy (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 - Ruff (see [pyproject.toml](https://github.com/crocs-muni/sec-certs/blob/main/pyproject.toml) for settings)
 
-These tools can be installed via [dev_requirements.txt](https://github.com/crocs-muni/sec-certs/blob/main/requirements/dev_requirements.txt) You can use [pre-commit](https://pre-commit.com/) tool to register git hook that will evaluate these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
+These tools can be installed via `uv sync --dev --inexact` (alternatively this can be done via `pip install -e . --group dev`).
+You can use the [pre-commit](https://pre-commit.com/) tool to register git hook that will evaluate these checks prior to any commit and abort the commit for you. Note that the pre-commit is not meant to automatically fix the issues, just warn you.
 
 It should thus suffice to:
 
 ```bash
-pip3 install -r ./dev_requirements.txt &&
-pre-commit install &&
-pre-commit run --all-files
+uv sync --dev --inexact
+uv run pre-commit install
+uv run pre-commit run --all-files
 ```
 
 To invoke the tools manually, you can, in the repository root, use:
-- Mypy: `mypy .`
-- Ruff: `ruff .` (or with `--fix` flag to apply fixes)
-- Ruff format: `ruff format --check .`
+- Mypy: `uv run mypy .`
+- Ruff: `uv run ruff .` (or with `--fix` flag to apply fixes)
+- Ruff format: `uv run ruff format --check .`
 
 ## Tests
 
-Tests are run with `pytest`. The tests are located in `tests` folder and are run with `pytest tests`. The tests are also run on every push to the repository with Github Actions.
+Tests are run with `pytest`. The tests are located in `tests` folder and are run with `uv run pytest tests`. The tests are also run on every push to the repository with Github Actions.
 There are two custom markers for the tests:
 - `slow` for tests that take longer time to run
 - `remote` for tests that require remote resources and are thus flaky.
 
-To exclude slow tests, use `pytest -m "not slow"`. To exclude remote tests, use `pytest -m "not remote"`. To run only slow tests, use `pytest -m "slow"`. To run only remote tests, use `pytest -m "remote"`.
+To exclude slow tests, use `uv run pytest -m "not slow"`. To exclude remote tests, use `uv run pytest -m "not remote"`. To run only slow tests, use `uv run pytest -m "slow"`. To run only remote tests, use `uv run pytest -m "remote"`.
 
 ## Documentation
 
 Every public method of a module that can be leveraged as an API by user should be documented. The docstring style should
-be `sphinx-oneline`.
+be [`sphinx`](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
 
 The documentation is built using `sphinx` with `mnyst` extension that allows for markdown files. Folder `notebooks/examples` is symbolically linked to `/docs` and its contents will be automatically parsed. These notebooks are supposed to be runnable from Binder.
+
