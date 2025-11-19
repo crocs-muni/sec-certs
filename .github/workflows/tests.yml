@@ -22,7 +22,7 @@ jobs:
         run: sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
       - uses: actions/checkout@v4
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -31,7 +31,7 @@ jobs:
           uv sync --locked --dev
           uv run spacy download en_core_web_sm
       - name: Run tests
-        run: uv run pytest --cov=sec_certs -m "not remote" --junitxml=junit.xml -o junit_family=legacy tests
+        run: uv run pytest --cov=sec_certs -m "not remote" --cov-report=xml --cov-report=term --junitxml=junit.xml -o junit_family=legacy tests
       - name: Test summary
         if: always()
         uses: test-summary/action@v2
