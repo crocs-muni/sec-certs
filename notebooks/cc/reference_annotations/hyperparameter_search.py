@@ -14,11 +14,11 @@ import optuna
 import pandas as pd
 import torch
 from rapidfuzz import fuzz
+from sec_certs.model.references.annotator_trainer import ReferenceAnnotatorTrainer
+from sec_certs.model.references.segment_extractor import ReferenceSegmentExtractor
 from sklearn.metrics import f1_score
 
 from sec_certs.dataset import CCDataset
-from sec_certs.model.references.annotator_trainer import ReferenceAnnotatorTrainer
-from sec_certs.model.references.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.utils.helpers import compute_heuristics_version
 from sec_certs.utils.nlp import prec_recall_metric
 

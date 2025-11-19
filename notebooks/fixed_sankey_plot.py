@@ -9,7 +9,7 @@ This code should fix the problems and should be used to produce figures in the r
 import logging
 import warnings
 from collections import defaultdict
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,18 +57,18 @@ def check_data_matches_labels(labels: Union[list[str], set[str]], data: Series, 
 def sankey(
     left: Union[list, ndarray, Series],
     right: Union[ndarray, Series],
-    leftWeight: Optional[ndarray] = None,
-    rightWeight: Optional[ndarray] = None,
-    colorDict: Optional[dict[str, str]] = None,
-    leftLabels: Optional[list[str]] = None,
-    rightLabels: Optional[list[str]] = None,
+    leftWeight: ndarray | None = None,
+    rightWeight: ndarray | None = None,
+    colorDict: dict[str, str] | None = None,
+    leftLabels: list[str] | None = None,
+    rightLabels: list[str] | None = None,
     aspect: int = 4,
     rightColor: bool = False,
     fontsize: int = 14,
-    figureName: Optional[str] = None,
+    figureName: str | None = None,
     closePlot: bool = False,
-    figSize: Optional[tuple[int, int]] = None,
-    ax: Optional[Any] = None,
+    figSize: tuple[int, int] | None = None,
+    ax: Any | None = None,
 ) -> Any:
     """
     Make Sankey Diagram showing flow from left-->right
@@ -151,7 +151,7 @@ def sankey(
     return ax
 
 
-def save_image(figureName: Optional[str]) -> None:
+def save_image(figureName: str | None) -> None:
     if figureName is not None:
         file_name = f"{figureName}.png"
         plt.savefig(file_name, bbox_inches="tight", dpi=150)
@@ -173,15 +173,15 @@ def identify_labels(dataFrame: DataFrame, leftLabels: list[str], rightLabels: li
 
 
 def init_values(
-    ax: Optional[Any],
+    ax: Any | None,
     closePlot: bool,
-    figSize: Optional[tuple[int, int]],
-    figureName: Optional[str],
+    figSize: tuple[int, int] | None,
+    figureName: str | None,
     left: Union[list, ndarray, Series],
-    leftLabels: Optional[list[str]],
-    leftWeight: Optional[ndarray],
-    rightLabels: Optional[list[str]],
-    rightWeight: Optional[ndarray],
+    leftLabels: list[str] | None,
+    leftWeight: ndarray | None,
+    rightLabels: list[str] | None,
+    rightWeight: ndarray | None,
 ) -> tuple[Any, list[str], ndarray, list[str], ndarray]:
     deprecation_warnings(closePlot, figSize, figureName)
     if ax is None:
@@ -202,7 +202,7 @@ def init_values(
     return ax, leftLabels, leftWeight, rightLabels, rightWeight
 
 
-def deprecation_warnings(closePlot: bool, figSize: Optional[tuple[int, int]], figureName: Optional[str]) -> None:
+def deprecation_warnings(closePlot: bool, figSize: tuple[int, int] | None, figureName: str | None) -> None:
     warn = []
     if figureName is not None:
         msg = "use of figureName in sankey() is deprecated"
@@ -286,7 +286,7 @@ def draw_vertical_bars(
 
 
 def create_colors(
-    allLabels: ndarray, colorDict: Optional[dict[str, str]]
+    allLabels: ndarray, colorDict: dict[str, str] | None
 ) -> Union[dict[str, tuple[float, float, float]], dict[str, str]]:
     # If no colorDict given, make one
     if colorDict is None:
