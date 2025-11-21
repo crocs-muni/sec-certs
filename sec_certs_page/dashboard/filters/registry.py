@@ -1,13 +1,11 @@
 import logging
 from datetime import datetime
 from logging import Logger
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
+from sec_certs_page.dashboard.data import DataService
 from sec_certs_page.dashboard.types.common import DatasetType
 from sec_certs_page.dashboard.types.filters import FilterOperator, FilterSpec, FilterUIType, UIMetadata
-
-if TYPE_CHECKING:
-    from sec_certs_page.dashboard.data import DataService
 
 logger: Logger = logging.getLogger(__name__)
 
