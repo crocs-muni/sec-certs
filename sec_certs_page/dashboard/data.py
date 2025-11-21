@@ -156,14 +156,26 @@ class DataService:
         df.not_valid_before = pd.to_datetime(df.not_valid_before, errors="coerce")
         df.not_valid_after = pd.to_datetime(df.not_valid_after, errors="coerce")
 
+        # Extract cert_lab from heuristics (it's an array, take first value if exists)
+        if "heuristics" in df.columns:
+            df["cert_lab"] = df["heuristics"].apply(
+                lambda x: x.get("cert_lab", [None])[0] if isinstance(x, dict) and x.get("cert_lab") else None
+            )
+            # Extract eal from heuristics if not already a top-level column
+            if "eal" not in df.columns:
+                df["eal"] = df["heuristics"].apply(lambda x: x.get("eal") if isinstance(x, dict) else None)
+
         df = df.astype(
             {
                 "category": "category",
                 "status": "category",
                 "scheme": "category",
-                "cert_lab": "category",
             }
         ).fillna(value=np.nan)
+
+        # Convert cert_lab to categorical if it exists
+        if "cert_lab" in df.columns:
+            df["cert_lab"] = df["cert_lab"].astype("category")
 
         df = df.loc[~df.manufacturer.isnull()]
 
