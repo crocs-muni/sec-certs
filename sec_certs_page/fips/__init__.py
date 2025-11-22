@@ -95,5 +95,4 @@ def get_fips_standards():
 
 
 from .commands import *
-from .dash import *
 from .views import *  # noqa

@@ -1,0 +1,368 @@
+@startuml DashboardArchitectureV4
+' Compact layout settings for dense SVG export
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam nodesep 10
+skinparam ranksep 10
+skinparam padding 2
+
+skinparam packageBorderColor #333333
+skinparam packageBackgroundColor #F8F9FA
+skinparam classBorderColor #666666
+skinparam classBackgroundColor white
+skinparam arrowColor #4A90E2
+skinparam noteBackgroundColor #FFF3CD
+skinparam noteBorderColor #FFEAA7
+
+' Compact font settings for smaller, denser output
+skinparam defaultFontSize 9
+skinparam classFontSize 9
+skinparam packageFontSize 10
+skinparam titleFontSize 12
+skinparam noteFontSize 8
+skinparam classFontColor black
+skinparam packageFontColor #2C3E50
+skinparam titleFontColor #2C3E50
+
+title sec-certs.org Dashboard Architecture v3
+
+package "Application Core" #FFE4B5 {
+    class "Flask App" as FlaskApp {
+        + run()
+        + route_handlers
+        + blueprints
+    }
+
+    class Dash {
+        + server : Flask
+        + layout : html.Div
+        + url_base_pathname : str
+        + use_pages : bool
+        + suppress_callback_exceptions : bool
+    }
+    note right of Dash : Custom Dash Application\nExtends plotly.Dash\nIntegrates with Flask server
+
+    class DashboardLayoutManager {
+        + data_service : DataService
+        + build_layout() : html.Div
+        + register_home_page()
+    }
+    note bottom of DashboardLayoutManager : Layout Orchestrator\nBuilds app shell\nUses dash.page_container
+
+    class "init_dashboard()" as Init <<function>> {
+        + app : Flask
+        + csrf : CSRFProtect
+        + bootstrap_components()
+        + setup_routing()
+        + _exempt_all_dash_endpoints()
+    }
+    note right of Init : Bootstrap Function\nInitializes dashboard system\nCreates registries & services\nConfigures CSRF exemptions
+
+    Init ..> Dash : creates
+    Init ..> DashboardLayoutManager : creates
+}
+
+package "Route Registration" #E6F3FF {
+    class "cc_route" <<module>> {
+        + register_pages(app, cc_graph_registry)
+        + layout(**kwargs) : html.Div
+        + add_graph_to_store()
+        + render_all_graphs()
+    }
+    note right of "cc_route" : CC Dashboard Page\nFilter creation via DashFilterFactory\nChart accumulation with Store pattern\nRegisters per-chart callbacks
+
+    class "fips_route" <<module>> {
+        + register_pages()
+        + layout() : html.Div
+        + update_fips_standards()
+    }
+    note right of "fips_route" : FIPS Dashboard Page\nPlaceholder implementation
+
+    "cc_route" .up.> Dash : registers with
+    "fips_route" .up.> Dash : registers with
+}
+
+package "Component Registries" #E6F3FF {
+    class ChartRegistry {
+        - _charts : Dict[str, BaseChart]
+        + register(chart: BaseChart)
+        + __getitem__(chart_id: str) : BaseChart
+        + __iter__() : Iterator[BaseChart]
+    }
+    note right of ChartRegistry : Registry Pattern\nManages chart instances\nSupports iteration
+
+    interface FilterRegistryInterface <<Protocol>> {
+        + _filters : dict[str, FilterSpec]
+        + _initialized : bool
+        + {static} get_filter_definition(id: str) : FilterSpec
+        + {static} get_all_filters() : dict[str, FilterSpec]
+        + {static} get_filters_by_ui_type(type: FilterUIType) : list[FilterSpec]
+    }
+    note right of FilterRegistryInterface : Protocol defining\nfilter registry contract
+
+    class CCFilterRegistry {
+        - {static} _initialized : bool
+        - {static} _filters : dict[str, FilterSpec]
+        + {static} initialize_filters(options: dict)
+        + {static} get_filter_definition(id: str) : FilterSpec
+        + {static} get_all_filters() : dict[str, FilterSpec]
+        + {static} get_filters_by_ui_type(type: FilterUIType) : list[FilterSpec]
+    }
+    note bottom of CCFilterRegistry : Static class\nStores CC filter definitions\nLazy initialization support
+
+    class FIPSFilterRegistry {
+        - {static} _filters : dict[str, FilterSpec]
+        + {static} get_filter_definition(id: str) : FilterSpec
+        + {static} get_all_filters() : dict[str, FilterSpec]
+        + {static} get_filters_by_ui_type(type: FilterUIType) : list[FilterSpec]
+    }
+    note bottom of FIPSFilterRegistry : Static class\nStores FIPS filter definitions
+
+    class FilterRegistryFactory {
+        - {static} _registry_map : dict[str, type]
+        + data_service : DataService
+        + {static} get_registry(dataset_type: str) : type
+        + {static} create_registry(dataset_type: str) : FilterRegistryInterface
+        - _load_filter_options(dataset_type: str)
+    }
+    note right of FilterRegistryFactory : Factory Pattern\nCreates appropriate registry\nLoads filter options
+
+    CCFilterRegistry .up.|> FilterRegistryInterface
+    FIPSFilterRegistry .up.|> FilterRegistryInterface
+    FilterRegistryFactory o-right-> FilterRegistryInterface : creates
+}
+
+package "Chart Components" #E8F5E8 {
+    abstract class BaseChart {
+        + graph_id : str
+        + data_service : DataService
+        + color_palette : List[str]
+        + chart_type : str
+        + available_chart_types : List[str]
+        + chart_type_selector_id : str
+        + {property} id : str
+        + {property} title : str
+        + {abstract} render() : Component
+        + {abstract} register_callback(app: Dash)
+        # _render_header() : list[Component]
+    }
+    note bottom of BaseChart : Strategy Pattern\nProtocol: SupportsRegisterCallbacks\nProvides common chart infrastructure
+    
+    class CCCategoryDistribution {
+        + graph_id : str
+        + title : str = "Category Distribution"
+        + render() : html.Div
+        + register_callback(app: Dash)
+        # update_chart(filter_data, chart_type) : go.Figure
+    }
+    
+    class CCCertsPerYear {
+        + graph_id : str
+        + title : str = "Certificates by Category and Year"
+        + render() : html.Div
+        + register_callback(app: Dash)
+        # update_bar_chart(filter_data) : go.Figure
+    }
+    
+    class CCValidityDuration {
+        + graph_id : str
+        + title : str = "Certificate Validity Duration"
+        + render() : html.Div
+        + register_callback(app: Dash)
+        # update_boxplot(filter_data) : go.Figure
+    }
+
+    CCCategoryDistribution -up-|> BaseChart
+    CCCertsPerYear -up-|> BaseChart  
+    CCValidityDuration -up-|> BaseChart
+}
+
+package "Filter System" #F0E6FF {
+    enum FilterOperator {
+        EQ = "$eq"
+        NE = "$ne"
+        GT = "$gt"
+        GTE = "$gte"
+        LT = "$lt"
+        LTE = "$lte"
+        IN = "$in"
+        NIN = "$nin"
+        REGEX = "$regex"
+        EXISTS = "$exists"
+    }
+
+    enum FilterUIType {
+        DROPDOWN
+        MULTI_DROPDOWN
+        TEXT_SEARCH
+        DATE_PICKER
+        DATE_RANGE
+        RANGE_SLIDER
+        CHECKBOX
+    }
+
+    class UIMetadata <<dataclass>> {
+        + ui_type : FilterUIType
+        + label : str
+        + placeholder : str
+        + options : list | dict | None
+        + min_value : Any
+        + max_value : Any
+        + default_value : Any
+        + help_text : str
+        + multi : bool
+        + clearable : bool
+        + searchable : bool
+    }
+
+    class FilterSpec <<dataclass>> {
+        + id : str
+        + mongodb_field : str
+        + operator : FilterOperator
+        + data_type : type
+        + ui_metadata : UIMetadata
+        + transform : Callable | None
+        + lazy_load_options : bool
+        + label_map : dict[str, str] | None
+    }
+    note right of FilterSpec : Pure configuration\nNo behavior, only data\nUsed by both QueryBuilder\nand DashFilterFactory
+
+    FilterSpec o--> FilterOperator : uses
+    FilterSpec *--> UIMetadata : contains
+    UIMetadata o--> FilterUIType : uses
+}
+
+package "Dash Component Factory" #F0E6FF {
+    class DashFilterFactory <<static>> {
+        + {static} create_filter_component(filter_spec: FilterSpec) : Component
+        + {static} create_filter_with_label(filter_spec: FilterSpec) : html.Div
+        + {static} create_all_filters(with_labels: bool) : list[Component]
+        + {static} create_filter_panel(title: str, columns: int) : dbc.Container
+        - {static} _create_dropdown(filter_spec: FilterSpec) : dcc.Dropdown
+        - {static} _create_text_search(filter_spec: FilterSpec) : dcc.Input
+        - {static} _create_date_picker(filter_spec: FilterSpec) : dcc.DatePickerSingle
+        - {static} _create_date_range(filter_spec: FilterSpec) : dcc.DatePickerRange
+        - {static} _create_range_slider(filter_spec: FilterSpec) : dcc.RangeSlider
+        - {static} _create_checkbox(filter_spec: FilterSpec) : dcc.Checklist
+    }
+    note right of DashFilterFactory : Factory Pattern\nGenerates Dash components\nfrom FilterSpec configuration\nSeparates UI from business logic
+
+    class DashCallbackHelper <<static>> {
+        + {static} collect_filter_values(*args, registry: FilterRegistryInterface) : dict
+        + {static} get_filter_ids() : list[str]
+        + {static} create_callback_inputs() : list[Input]
+    }
+    note right of DashCallbackHelper : Utility class\nSimplifies callback development\nHandles filter value collection
+
+    DashFilterFactory .down.> FilterSpec : reads
+    DashCallbackHelper .down.> FilterRegistryInterface : queries
+}
+
+package "Query Builder Layer" #FFE6E6 {
+    class QueryBuilder {
+        + dataset_type : DatasetType
+        - _query_fragments : list[dict]
+        - _errors : list[str]
+        + add_filter(filter_spec: FilterSpec, value: Any) : QueryBuilder
+        + add_filters(filters: dict) : QueryBuilder
+        + build() : dict[str, Any]
+        + get_errors() : list[str]
+        + reset() : QueryBuilder
+        + has_errors() : bool
+        - {static} _build_query_fragment(spec: FilterSpec, value: Any) : dict | None
+        - {static} _validate_type(spec: FilterSpec, value: Any) : bool
+    }
+    note right of QueryBuilder : Builder Pattern\nConstructs MongoDB queries\nMethod chaining support\nError collection
+
+    class "build_query_from_filters()" as QueryFunc <<function>> {
+        + filter_values : dict[str, Any]
+        + returns : dict[str, Any]
+    }
+    note right of QueryFunc : Convenience function\nSimple query building\nHandles empty filters
+
+    QueryBuilder .down.> FilterSpec : reads
+    QueryBuilder o--> FilterOperator : uses
+    QueryFunc ..> QueryBuilder : creates
+}
+
+package "Data & Persistence Layer" #FFFACD {
+    class DataService {
+        + mongo : PyMongo
+        + get_cc_dataframe(filter_values: dict | None) : DataFrame
+        + get_fips_dataframe(filter_values: dict | None) : DataFrame
+        + get_dataset_metadata(type: str) : dict
+        + get_distinct_values(field: str, dataset_type: str) : list[Any]
+        + get_distinct_values_with_labels(field: str, dataset_type: str, label_map: dict | None) : list[dict]
+        - _prepare_cc_dataframe(data: list[dict]) : DataFrame
+    }
+    note right of DataService : Data Access Layer\nAlways queries MongoDB (no cache)\nIntegrates QueryBuilder\nExternal caching recommended
+
+    class PyMongo <<Flask Extension>> {
+        + db : Database
+        + cx : MongoClient
+    }
+
+    class "MongoDB" <<Database>> {
+        + collections: cc, fips, pp
+        + indexes
+    }
+
+    DataService o-right-> PyMongo : uses
+    DataService .down.> QueryFunc : uses
+    PyMongo -down-> "MongoDB" : connects to
+}
+
+package "Data Models" #F5F5F5 {
+    entity DataFrame <<Pandas>> {
+        + columns : Index
+        + dtypes : Series
+        + filter()
+        + groupby()
+        + pivot_table()
+    }
+    
+    entity Component <<Dash>> {
+        + id : str
+        + children : List
+        + style : dict
+    }
+
+    class DatasetType <<TypeAlias>> {
+        Literal["cc", "fips"]
+    }
+}
+
+' Relationships - Application Flow
+FlaskApp -right-> Init : initializes
+
+Dash *-down- DashboardLayoutManager : contains
+Dash *-down- CallbackManager : contains
+
+DashboardLayoutManager .down.> "cc_route" : registers
+DashboardLayoutManager .down.> "fips_route" : registers
+
+"cc_route" o.right.> ChartRegistry : queries
+"cc_route" o.down.> DashFilterFactory : uses
+"cc_route" .down.> CCFilterRegistry : queries
+
+CallbackManager o-down-> ChartRegistry : iterates
+
+' Registry relationships
+ChartRegistry o-down- "1..*" BaseChart : stores
+CCFilterRegistry o-down- "0..*" FilterSpec : stores
+FIPSFilterRegistry o-down- "0..*" FilterSpec : stores
+
+' Chart-Data flow
+BaseChart o-right-> DataService : fetches data
+BaseChart .down.> Component : creates
+
+' Filter system flow
+DashFilterFactory .down.> Component : creates
+FilterRegistryFactory o-left-> DataService : queries metadata
+
+' Output relationships
+DataService -down-> DataFrame : provides
+
+
+@enduml
