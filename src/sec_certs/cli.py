@@ -216,7 +216,7 @@ def main(
             processing_step.run(dset)
 
         end = datetime.now()
-        logger.info(f"The computation took {(end-start)} seconds.")
+        logger.info(f"The computation took {(end - start)} seconds.")
     except Exception as e:
         click.echo(
             f"Unhandled exception: {e}",

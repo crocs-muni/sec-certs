@@ -1,0 +1,7 @@
+prune tests
+prune paper_artifacts
+prune .github
+prune src/sec_certs/data
+prune docs/_build
+global-exclude __pycache__ *.py[cod]
+exclude codecov.yml Dockerfile .dockerignore .gitignore .pre-commit-config.yaml

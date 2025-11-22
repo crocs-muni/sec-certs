@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 import yaml
 from pydantic import AnyHttpUrl, Field
@@ -121,7 +121,7 @@ class Configuration(BaseSettings):
         True,
         description="During keyword search, first page usually contains addresses - ignore it.",
     )
-    cc_reference_annotator_dir: Optional[Path] = Field(  # noqa: UP007
+    cc_reference_annotator_dir: Path | None = Field(  # noqa: UP007
         None,
         description="Path to directory with serialized reference annotator model. If set to `null`, tool will search default directory for the given dataset.",
     )
@@ -141,7 +141,7 @@ class Configuration(BaseSettings):
         True,
         description="If true, progress bars will be printed to stdout during computation.",
     )
-    nvd_api_key: Optional[str] = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
+    nvd_api_key: str | None = Field(None, description="NVD API key for access to CVEs and CPEs.")  # noqa: UP007
     preferred_source_remote_datasets: Literal["sec-certs", "origin"] = Field(
         "sec-certs",
         description="If set to `sec-certs`, will fetch remote datasets from sec-certs.org."

@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.4
+    rev: v0.14.5
     hooks:
       - id: ruff
       - id: ruff-format
         args: ["--check"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.13.0"
+    rev: "v1.18.2"
     hooks:
       - id: mypy
         additional_dependencies:
