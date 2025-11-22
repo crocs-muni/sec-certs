@@ -38,11 +38,7 @@ from tqdm import tqdm
 
 from .. import mail, mongo, redis, whoosh_index
 from ..user.models import User
-from .diffs import DiffRenderer
-from .mail import Message
-from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
-from .views import entry_file_path
-from .webui import (
+from .ai.webui import (
     add_file_to_knowledge_base,
     get_file_metadata,
     get_knowledge_base,
@@ -50,6 +46,10 @@ from .webui import (
     update_file_in_knowledge_base,
     upload_file,
 )
+from .diffs import DiffRenderer
+from .mail import Message
+from .objformats import ObjFormat, StorageFormat, WorkingFormat, load
+from .views import entry_file_path
 
 logger = logging.getLogger(__name__)
 

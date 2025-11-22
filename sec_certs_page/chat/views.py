@@ -5,9 +5,10 @@ from markdown2 import markdown
 from nh3 import nh3
 
 from .. import mongo
+from ..common.ai.chat import chat_full, chat_rag
+from ..common.ai.webui import file_name, file_type, resolve_files
 from ..common.permissions import chat_permission
 from ..common.views import accounting
-from ..common.webui import chat_full, chat_rag, file_name, file_type, resolve_files
 from . import chat
 
 
