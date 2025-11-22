@@ -1,22 +1,9 @@
-"""MongoDB query builder using filter specifications.
+from typing import Any
 
-This module provides query construction logic that uses FilterSpec objects
-for configuration. The query building logic is centralized here rather than
-in the FilterSpec dataclass.
-
-Architecture:
-    - FilterSpec: Pure configuration (data only, no behavior)
-    - QueryBuilder: Builds MongoDB queries from FilterSpec + values
-    - Separation of concerns: configuration vs. query logic
-"""
-
-from typing import Any, TYPE_CHECKING
-
-from sec_certs_page.dashboard.types.common import DatasetType
-from sec_certs_page.dashboard.types.filters import FilterOperator, FilterSpec
-
-if TYPE_CHECKING:
-    from sec_certs_page.dashboard.filters.registry import FilterRegistryInterface
+from sec_certs_page.dashboard.filters.filter import FilterSpec
+from sec_certs_page.dashboard.filters.registry import FilterSpecRegistry, get_filter_registry
+from sec_certs_page.dashboard.types.common import CollectionName
+from sec_certs_page.dashboard.types.filter import FilterOperator
 
 
 class QueryBuilder:
@@ -24,17 +11,9 @@ class QueryBuilder:
 
     This class uses the Builder pattern to construct MongoDB queries incrementally.
     Each filter added creates a query fragment that's combined into the final query.
-
-    Example usage:
-        >>> builder = QueryBuilder(dataset_type="cc")
-        >>> builder.add_filter("category-filter", ["Operating Systems", "Databases"])
-        >>> builder.add_filter("not-valid-before-filter", "2020-01-01")
-        >>> query = builder.build()
-        >>> # Result: {"category": {"$in": ["Operating Systems", "Databases"]},
-        >>> #          "not_valid_before": {"$gte": "2020-01-01"}}
     """
 
-    def __init__(self, dataset_type: DatasetType, filter_registry: "FilterRegistryInterface"):
+    def __init__(self, dataset_type: CollectionName, filter_registry: FilterSpecRegistry):
         """Initialize query builder.
 
         :param dataset_type: Dataset type ('cc' or 'fips')
@@ -52,7 +31,7 @@ class QueryBuilder:
         :param value: Filter value from UI component
         :return: Self for method chaining
         """
-        filter_spec = self.filter_registry.get_filter_definition(filter_id)
+        filter_spec = self.filter_registry.get_filter(filter_id)
         if filter_spec is None:
             self._errors.append(f"Unknown filter ID: {filter_id}")
             return self
@@ -110,9 +89,6 @@ class QueryBuilder:
     def _build_query_fragment(filter_spec: FilterSpec, value: Any) -> dict[str, Any] | None:
         """Build MongoDB query fragment from filter spec and value.
 
-        This method contains the core query building logic that was previously
-        in FilterDefinition.build_query_fragment().
-
         :param filter_spec: Filter specification with configuration
         :param value: Filter value to apply
         :return: MongoDB query fragment or None if value is invalid
@@ -122,44 +98,27 @@ class QueryBuilder:
 
         transformed_value = filter_spec.transform(value) if filter_spec.transform else value
 
-        if not QueryBuilder._validate_type(filter_spec, transformed_value):
-            return None
-
         if filter_spec.operator == FilterOperator.EQ:
-            return {filter_spec.mongodb_field: transformed_value}
+            return {filter_spec.database_field: transformed_value}
         elif filter_spec.operator == FilterOperator.REGEX:
             return {
-                filter_spec.mongodb_field: {
+                filter_spec.database_field: {
                     FilterOperator.REGEX.value: transformed_value,
                     "$options": "i",
                 }
             }
         else:
-            return {filter_spec.mongodb_field: {filter_spec.operator.value: transformed_value}}
-
-    @staticmethod
-    def _validate_type(filter_spec: FilterSpec, value: Any) -> bool:
-        """Validate value type against filter spec data type.
-
-        :param filter_spec: Filter specification with data type
-        :param value: Value to validate
-        :return: True if value matches expected type
-        """
-        if filter_spec.operator in (FilterOperator.IN, FilterOperator.NIN):
-            return isinstance(value, (list, tuple)) and all(isinstance(v, filter_spec.data_type) for v in value)
-        return isinstance(value, filter_spec.data_type)
+            return {filter_spec.database_field: {filter_spec.operator.value: transformed_value}}
 
 
-def build_query_from_filters(filter_values: dict[str, Any], dataset_type: DatasetType = "cc") -> dict[str, Any]:
+def build_query_from_filters(filter_values: dict[str, Any], dataset_type: CollectionName) -> dict[str, Any]:
     """Convenience function to build query from filter values.
 
     :param filter_values: Dictionary mapping filter IDs to their values
     :param dataset_type: Dataset type ('cc' or 'fips'), defaults to 'cc'
     :return: MongoDB query dictionary
     """
-    from sec_certs_page.dashboard.filters.registry import FilterRegistryFactory
-
-    registry_class = FilterRegistryFactory.get_registry(dataset_type)
-    builder = QueryBuilder(dataset_type=dataset_type, filter_registry=registry_class)
+    filter_registry = get_filter_registry(dataset_type)()
+    builder = QueryBuilder(dataset_type=dataset_type, filter_registry=filter_registry)
     builder.add_filters(filter_values)
     return builder.build()

@@ -12,15 +12,42 @@ Design decisions:
 
 import logging
 from logging import Logger
-from typing import Any, Dict, Optional
+from typing import Any, TypedDict
 
 import numpy as np
 import pandas as pd
 from flask_pymongo import PyMongo
 
 from sec_certs_page.dashboard.filters.query_builder import build_query_from_filters
+from sec_certs_page.dashboard.types.common import CollectionName
 
 logger: Logger = logging.getLogger(__name__)
+
+
+class ColumnStats(TypedDict, total=False):
+    """Statistics for a single column in the dataset.
+
+    Required fields:
+    :param dtype: Data type of the column as string
+    :param unique_count: Number of unique non-null values
+    :param null_count: Number of null/missing values
+    :param total_count: Total number of values (including nulls)
+
+    Optional fields:
+    :param min_value: Minimum value (only for numeric columns)
+    :param max_value: Maximum value (only for numeric columns)
+    :param sample_values: Sample of unique values (only if unique_count <= 50)
+    :param error: Error message if column analysis failed
+    """
+
+    dtype: str
+    unique_count: int
+    null_count: int
+    total_count: int
+    min_value: float
+    max_value: float
+    sample_values: list[Any]
+    error: str
 
 
 class DataService:
@@ -28,12 +55,6 @@ class DataService:
 
     This service queries MongoDB on every call without in-memory caching.
     Caching should be implemented as a separate layer (e.g., Redis).
-
-    Design rationale:
-    - Separation of concerns: data access vs. caching
-    - Always returns fresh data from database
-    - Lower memory footprint
-    - Simplified logic
     """
 
     def __init__(self, mongo: PyMongo):
@@ -43,7 +64,7 @@ class DataService:
         """
         self.mongo = mongo
 
-    def get_cc_dataframe(self, filter_values: Optional[Dict[str, Any]] = None) -> pd.DataFrame:
+    def get_cc_dataframe(self, filter_values: dict[str, Any] | None = None) -> pd.DataFrame:
         """Get CC dataset from MongoDB with optional filtering.
 
         This method always queries MongoDB for fresh data. If you need caching,
@@ -52,8 +73,9 @@ class DataService:
         :param filter_values: Optional dictionary mapping filter IDs to values
         :return: CC dataset as DataFrame (filtered or complete)
         """
-        # Build query from filters or use empty query for all documents
-        query = build_query_from_filters(filter_values, dataset_type="cc") if filter_values else {}
+        query = (
+            build_query_from_filters(filter_values, dataset_type=CollectionName.CommonCriteria) if filter_values else {}
+        )
 
         logger.info(f"Fetching CC dataset from MongoDB with query: {query}")
 
@@ -73,7 +95,7 @@ class DataService:
             logger.exception("Error fetching CC data from MongoDB")
             raise e
 
-    def get_fips_dataframe(self, filter_values: Optional[Dict[str, Any]] = None) -> pd.DataFrame:
+    def get_fips_dataframe(self, filter_values: dict[str, Any] | None = None) -> pd.DataFrame:
         """Get FIPS dataset from MongoDB with optional filtering.
 
         This method always queries MongoDB for fresh data. If you need caching,
@@ -82,8 +104,7 @@ class DataService:
         :param filter_values: Optional dictionary mapping filter IDs to values
         :return: FIPS dataset as DataFrame (filtered or complete)
         """
-        # Build query from filters or use empty query for all documents
-        query = build_query_from_filters(filter_values, dataset_type="fips") if filter_values else {}
+        query = build_query_from_filters(filter_values, dataset_type=CollectionName.FIPS140) if filter_values else {}
 
         logger.info(f"Fetching FIPS dataset from MongoDB with query: {query}")
 
@@ -103,7 +124,7 @@ class DataService:
             logger.exception("Error fetching FIPS data from MongoDB")
             raise e
 
-    def get_distinct_values(self, field: str, dataset_type: str = "cc") -> list[Any]:
+    def get_distinct_values(self, field: str, dataset_type) -> list[Any]:
         """Get distinct values for a field from MongoDB.
 
         This is used to populate filter dropdowns dynamically.
@@ -112,21 +133,22 @@ class DataService:
         :param dataset_type: Type of dataset ('cc' or 'fips')
         :return: List of distinct values (sorted)
         """
-        collection = (
-            self.mongo.db.cc  # pyright: ignore[reportOptionalMemberAccess]
-            if dataset_type.lower() == "cc"
-            else self.mongo.db.fips  # pyright: ignore[reportOptionalMemberAccess]
-        )
+        collections = {
+            "cc": self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
+            "fips": self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
+        }
 
-        # Get distinct values, filtering out None/null
+        collection = collections.get(dataset_type.lower())
+        if collection is None:
+            raise ValueError(f"Unknown dataset type: {dataset_type}")
+
         distinct_values = collection.distinct(field)
-        # Filter out None and empty strings, then sort
         values = [v for v in distinct_values if v is not None and v != ""]
         return sorted(values)
 
     def get_distinct_values_with_labels(
-        self, field: str, dataset_type: str = "cc", label_map: Optional[Dict[str, str]] = None
-    ) -> list[Dict[str, str]]:
+        self, field: str, dataset_type, label_map: dict[str, str] | None = None
+    ) -> list[dict[str, str]]:
         """Get distinct values formatted for Dash dropdown options.
 
         :param field: MongoDB field name
@@ -141,7 +163,7 @@ class DataService:
         else:
             return [{"label": str(v), "value": v} for v in values]
 
-    def _prepare_cc_dataframe(self, data: list[Dict]) -> pd.DataFrame:
+    def _prepare_cc_dataframe(self, data: list[dict]) -> pd.DataFrame:
         """Prepare CC dataframe with proper types and cleaning.
 
         Applies data type conversions, categorical encoding, and basic cleaning
@@ -151,51 +173,54 @@ class DataService:
         :return: Prepared DataFrame
         """
         df = pd.DataFrame(data)
-        df = df.set_index("dgst")
 
-        df.not_valid_before = pd.to_datetime(df.not_valid_before, errors="coerce")
-        df.not_valid_after = pd.to_datetime(df.not_valid_after, errors="coerce")
+        if "dgst" in df.columns:
+            df = df.set_index("dgst")
 
-        # Extract cert_lab from heuristics (it's an array, take first value if exists)
+        if "not_valid_before" in df.columns:
+            df["not_valid_before"] = pd.to_datetime(df["not_valid_before"], errors="coerce")
+        if "not_valid_after" in df.columns:
+            df["not_valid_after"] = pd.to_datetime(df["not_valid_after"], errors="coerce")
+
         if "heuristics" in df.columns:
             df["cert_lab"] = df["heuristics"].apply(
-                lambda x: x.get("cert_lab", [None])[0] if isinstance(x, dict) and x.get("cert_lab") else None
+                lambda x: (x.get("cert_lab", [None])[0] if isinstance(x, dict) and x.get("cert_lab") else None)
             )
-            # Extract eal from heuristics if not already a top-level column
             if "eal" not in df.columns:
                 df["eal"] = df["heuristics"].apply(lambda x: x.get("eal") if isinstance(x, dict) else None)
 
-        df = df.astype(
-            {
-                "category": "category",
-                "status": "category",
-                "scheme": "category",
-            }
-        ).fillna(value=np.nan)
+        categorical_cols = ["category", "status", "scheme"]
+        for col in categorical_cols:
+            if col in df.columns:
+                df[col] = df[col].astype("category")
 
-        # Convert cert_lab to categorical if it exists
         if "cert_lab" in df.columns:
             df["cert_lab"] = df["cert_lab"].astype("category")
 
-        df = df.loc[~df.manufacturer.isnull()]
+        if "manufacturer" in df.columns:
+            df = df.loc[~df["manufacturer"].isnull()]
 
         if "eal" in df.columns:
-            df.eal = df.eal.fillna(value=np.nan)
-            df.eal = pd.Categorical(
-                df.eal,
-                categories=sorted(df.eal.dropna().unique().tolist()),
-                ordered=True,
-            )
+            df["eal"] = df["eal"].fillna(value=np.nan)
+            unique_eals = df["eal"].dropna().unique().tolist()
+            if unique_eals:
+                df["eal"] = pd.Categorical(
+                    df["eal"],
+                    categories=sorted(unique_eals),
+                    ordered=True,
+                )
 
-        df["year_from"] = pd.DatetimeIndex(df.not_valid_before).year
+        if "not_valid_before" in df.columns:
+            df["year_from"] = pd.DatetimeIndex(df["not_valid_before"]).year
 
         return df
 
-    def get_dataset_metadata(self, dataset_type: str) -> Dict[str, Any]:
+    def get_dataset_metadata(self, dataset_type: str) -> tuple[dict[str, ColumnStats], int, int]:
         """Get metadata about a dataset including column information.
 
         :param dataset_type: Type of dataset ('cc' or 'fips')
-        :return: Dictionary containing dataset metadata
+        :return: Tuple of (column_stats, total_records, total_columns) where
+                 column_stats maps column names to their statistics
         """
         if dataset_type.lower() == "cc":
             df = self.get_cc_dataframe()
@@ -205,17 +230,16 @@ class DataService:
             raise ValueError(f"Unknown dataset type: {dataset_type}")
 
         if df.empty:
-            return {"total_records": 0, "total_columns": 0, "columns": []}
+            return {}, 0, 0
 
-        columns_info = []
+        column_stats: dict[str, ColumnStats] = {}
         for col in df.columns:
             try:
                 non_null_data = df[col].dropna()
-                col_info = {
-                    "name": col,
+                col_info: ColumnStats = {
                     "dtype": str(df[col].dtype),
-                    "unique_count": len(non_null_data.unique()) if not non_null_data.empty else 0,
-                    "null_count": df[col].isnull().sum(),
+                    "unique_count": (len(non_null_data.unique()) if not non_null_data.empty else 0),
+                    "null_count": int(df[col].isnull().sum()),
                     "total_count": len(df[col]),
                 }
 
@@ -226,9 +250,15 @@ class DataService:
                 if col_info["unique_count"] <= 50 and not non_null_data.empty:
                     col_info["sample_values"] = list(non_null_data.unique())
 
-                columns_info.append(col_info)
+                column_stats[col] = col_info
             except Exception as e:
                 logger.warning(f"Error analyzing column {col}: {e}")
-                columns_info.append({"name": col, "dtype": str(df[col].dtype), "error": str(e)})
+                column_stats[col] = {
+                    "dtype": str(df[col].dtype),
+                    "unique_count": 0,
+                    "null_count": 0,
+                    "total_count": 0,
+                    "error": str(e),
+                }
 
-        return {"total_records": len(df), "total_columns": len(df.columns), "columns": columns_info}
+        return column_stats, len(df), len(df.columns)
