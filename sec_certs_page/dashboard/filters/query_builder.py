@@ -10,13 +10,12 @@ Architecture:
     - Separation of concerns: configuration vs. query logic
 """
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from sec_certs_page.dashboard.types.common import DatasetType
-from sec_certs_page.dashboard.types.filters import FilterOperator, FilterSpec
+from sec_certs_page.dashboard.types.common import DatasetTypeName
+from sec_certs_page.dashboard.types.filter import FilterOperator, FilterSpec
 
-if TYPE_CHECKING:
-    from sec_certs_page.dashboard.filters.registry import FilterRegistryInterface
+from sec_certs_page.dashboard.filters.registry import FilterRegistryInterface
 
 
 class QueryBuilder:
@@ -34,7 +33,7 @@ class QueryBuilder:
         >>> #          "not_valid_before": {"$gte": "2020-01-01"}}
     """
 
-    def __init__(self, dataset_type: DatasetType, filter_registry: "FilterRegistryInterface"):
+    def __init__(self, dataset_type: DatasetTypeName, filter_registry: "FilterRegistryInterface"):
         """Initialize query builder.
 
         :param dataset_type: Dataset type ('cc' or 'fips')
@@ -150,7 +149,7 @@ class QueryBuilder:
         return isinstance(value, filter_spec.data_type)
 
 
-def build_query_from_filters(filter_values: dict[str, Any], dataset_type: DatasetType = "cc") -> dict[str, Any]:
+def build_query_from_filters(filter_values: dict[str, Any], dataset_type: DatasetTypeName) -> dict[str, Any]:
     """Convenience function to build query from filter values.
 
     :param filter_values: Dictionary mapping filter IDs to their values

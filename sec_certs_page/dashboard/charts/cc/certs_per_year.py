@@ -13,7 +13,7 @@ class CCCertsPerYear(BaseChart):
     """A bar chart showing the number of certificates by category and year."""
 
     def __init__(self, graph_id: str, data_service: DataService):
-        super().__init__(graph_id, data_service, chart_type="bar", available_chart_types=["bar"])
+        super().__init__(graph_id, data_service, chart_type="bar")
 
     @property
     def title(self) -> str:
@@ -23,7 +23,6 @@ class CCCertsPerYear(BaseChart):
         """Renders the bar chart component."""
         return html.Div(
             [
-                *self._render_header(),
                 dcc.Graph(id=self.id),
             ]
         )
@@ -56,7 +55,6 @@ class CCCertsPerYear(BaseChart):
                         name=category,
                         x=category_per_year.index,
                         y=category_per_year[category],
-                        marker=dict(color=self.color_palette[idx % len(self.color_palette)]),
                     )
                 )
 

@@ -8,16 +8,18 @@ from flask_wtf import CSRFProtect
 
 from sec_certs_page.dashboard.filters.factory import DashFilterFactory
 from sec_certs_page.dashboard.filters.registry import CCFilterRegistry
+from sec_certs_page.dashboard.manager import DashboardManager
+from sec_certs_page.dashboard.types.common import DatasetTypeName
 
 from .. import mongo
 from ..common.dash.base import Dash
-from . import cc_route, fips_route
+from . import fips_route, pages
 from .charts.cc.category_distribution import CCCategoryDistribution
 from .charts.cc.certs_per_year import CCCertsPerYear
 from .charts.cc.validity_duration import CCValidityDuration
 from .charts.registry import ChartRegistry
 from .data import DataService
-from .layout import DashboardLayoutManager
+from .layout import DashboardLayout
 
 logger: Logger = logging.getLogger(__name__)
 
@@ -33,31 +35,34 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
     """
     print("=== INITIALIZING DASHBOARD ===")
 
-    # Initialize core services
+    # Initialize core classes
     data_service = DataService(mongo)
 
-    # Note: Filter options are NOT loaded here - they will be loaded lazily
-    # when the filter components are first rendered or when data is requested.
-    # This improves initial page load performance.
+    dashboard_manager = DashboardManager()
 
-    # Create registries
-    cc_chart_registry = ChartRegistry()
+    # Create predefined dashboard and the charts to register in it
+    predefined_dashboard = dashboard_manager.create()
+    predefined_cc_chart_registry = ChartRegistry(dataset_type=DatasetTypeName.CommonCriteria)
 
-    # Create and register charts with UNIQUE IDs
+    charts = [
+        CCCategoryDistribution("cc-category-distribution-v2", data_service),
+        CCCertsPerYear("cc-certs-per-year-v2", data_service),
+        CCValidityDuration("cc-validity-duration-v2", data_service),
+    ]
     try:
-        charts = [
-            CCCategoryDistribution("cc-category-distribution-v2", data_service),
-            CCCertsPerYear("cc-certs-per-year-v2", data_service),
-            CCValidityDuration("cc-validity-duration-v2", data_service),
-        ]
-
         for chart in charts:
-            cc_chart_registry.register(chart)
+            predefined_cc_chart_registry.register(chart)
             logger.info(f"✓ Registered chart: {chart.id}")
 
     except Exception:
         logger.exception("✗ Error creating charts.")
         return
+    predefined_fips_chart_registry = ChartRegistry(dataset_type=DatasetTypeName.FIPS140)
+
+    # Create registries
+    cc_chart_registry = ChartRegistry(dataset_type=DatasetTypeName.CommonCriteria)
+    fips_chart_registry = ChartRegistry(dataset_type=DatasetTypeName.FIPS140)
+
 
     logger.info(f"✓ Registries initialized: {len(list(cc_chart_registry))} charts, filters initialized")
     # Create Dash app
@@ -72,11 +77,11 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
     )
 
     try:
-        cc_route.register_pages(dash_app, cc_chart_registry)
+        pages.register_pages(dash_app, cc_chart_registry)
         fips_route.register_pages()
         logger.info("✓ Routes registered successfully")
 
-        layout_manager = DashboardLayoutManager(data_service=data_service)
+        layout_manager = DashboardLayout(data_service=data_service)
         layout_manager.register_home_page()
 
         try:
@@ -88,7 +93,7 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> None:
                     logger.info(f"  - {page_name}: path={page_info.get('path', 'N/A')}")
         except Exception:
             logger.exception("Could not list registered pages.")
-        dash_app.layout = layout_manager.build_layout()
+        dash_app.layout = layout_manager.create()
         logger.info("✓ Layout configured")
 
     except Exception:

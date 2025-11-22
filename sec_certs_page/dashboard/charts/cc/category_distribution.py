@@ -13,7 +13,7 @@ class CCCategoryDistribution(BaseChart):
     """A chart showing the distribution of CC certificate categories."""
 
     def __init__(self, graph_id: str, data_service: DataService):
-        super().__init__(graph_id, data_service, chart_type="pie", available_chart_types=["pie", "bar"])
+        super().__init__(graph_id, data_service, chart_type="pie")
 
     @property
     def title(self) -> str:
@@ -23,7 +23,6 @@ class CCCategoryDistribution(BaseChart):
         """Renders the chart and its associated dropdown filter."""
         return html.Div(
             [
-                *self._render_header(),
                 dcc.Graph(id=self.id),
             ]
         )
@@ -33,9 +32,6 @@ class CCCategoryDistribution(BaseChart):
         outputs = Output(self.id, "figure")
 
         inputs = [Input("cc-filter-store", "data")]
-
-        if len(self.available_chart_types) > 1:
-            inputs.append(Input(self.chart_type_selector_id, "value"))
 
         @app.callback(outputs, inputs, prevent_initial_call=False)
         def update_chart(*args) -> go.Figure:
@@ -65,11 +61,7 @@ class CCCategoryDistribution(BaseChart):
                 if chart_type == "pie":
                     fig.add_trace(go.Pie(labels=category_counts.index, values=category_counts.values, hole=0.3))
                 elif chart_type == "bar":
-                    fig.add_trace(
-                        go.Bar(
-                            x=category_counts.index, y=category_counts.values, marker=dict(color=self.color_palette[0])
-                        )
-                    )
+                    fig.add_trace(go.Bar(x=category_counts.index, y=category_counts.values))
 
                 fig.update_layout(
                     title=f"Number of issued certificates by category ({chart_type.title()} Chart)",

@@ -2,6 +2,8 @@
 
 from typing import Dict, Iterator
 
+from sec_certs_page.dashboard.types.common import DatasetTypeName
+
 from .base import BaseChart
 
 
@@ -12,7 +14,8 @@ class ChartRegistry:
     central point of access for all chart instances within the application.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, dataset_type: DatasetTypeName) -> None:
+        self.dataset_type = dataset_type
         self._charts: Dict[str, BaseChart] = {}
 
     def register(self, chart: BaseChart) -> None:

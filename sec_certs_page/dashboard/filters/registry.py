@@ -1,28 +1,17 @@
 import logging
 from datetime import datetime
 from logging import Logger
-from typing import Any, Protocol, TypeVar
+from typing import Any, TypeVar
 
 from sec_certs_page.dashboard.data import DataService
-from sec_certs_page.dashboard.types.common import DatasetType
-from sec_certs_page.dashboard.types.filters import FilterOperator, FilterSpec, FilterUIType, UIMetadata
+from sec_certs_page.dashboard.protocols.filter import FilterRegistryInterface
+from sec_certs_page.dashboard.types.common import DatasetTypeName
+from sec_certs_page.dashboard.types.filter import FilterOperator, FilterSpec, FilterUIType, UIMetadata
 
 logger: Logger = logging.getLogger(__name__)
 
 
-TFilterRegistry = TypeVar("TFilterRegistry", bound="FilterRegistryInterface")
-
-
-class FilterRegistryInterface(Protocol):
-    _filters: dict[str, FilterSpec]
-    _initialized: bool
-
-    @classmethod
-    def get_filter_definition(cls, filter_id: str) -> FilterSpec | None: ...
-    @classmethod
-    def get_all_filters(cls) -> dict[str, FilterSpec]: ...
-    @classmethod
-    def get_filters_by_ui_type(cls, ui_type: FilterUIType) -> list[FilterSpec]: ...
+TFilterRegistry = TypeVar("TFilterRegistry", bound=FilterRegistryInterface)
 
 
 class CCFilterRegistry(FilterRegistryInterface):
@@ -201,15 +190,15 @@ class FIPSFilterRegistry(FilterRegistryInterface):
 class FilterRegistryFactory:
     """Factory class for creating filter registries based on dataset type."""
 
-    _registry_map: dict[str, type[FilterRegistryInterface]] = {
-        "cc": CCFilterRegistry,
-        "fips": FIPSFilterRegistry,
+    _registry_map: dict[DatasetTypeName, type[FilterRegistryInterface]] = {
+        DatasetTypeName.CommonCriteria: CCFilterRegistry,
+        DatasetTypeName.FIPS140: FIPSFilterRegistry,
     }
 
     def __init__(self, data_service: DataService):
         self.data_service = data_service
 
-    def _load_filter_options(self, dataset_type: DatasetType) -> None:
+    def _load_filter_options(self, dataset_type: DatasetTypeName) -> None:
         """Load options for all filters of the cc dataset."""
         if self.data_service is None:
             raise RuntimeError("FilterRegistry not initialized with DataService")
@@ -227,7 +216,7 @@ class FilterRegistryFactory:
                     filter.ui_metadata.options = []
 
     @classmethod
-    def get_registry(cls, dataset_type: DatasetType) -> type[FilterRegistryInterface]:
+    def get_registry(cls, dataset_type: DatasetTypeName) -> type[FilterRegistryInterface]:
         """
         Get the appropriate filter registry class for the given dataset type.
 
@@ -240,7 +229,7 @@ class FilterRegistryFactory:
         return cls._registry_map[dataset_type]
 
     @classmethod
-    def create_registry(cls, dataset_type: DatasetType) -> FilterRegistryInterface:
+    def create_registry(cls, dataset_type: DatasetTypeName) -> FilterRegistryInterface:
         """
         Create an instance of the appropriate filter registry.
 

@@ -18,7 +18,7 @@ from dash.development.base_component import Component
 
 from sec_certs_page.dashboard.constants import DBC_GRID_COL_MAX_WIDTH
 from sec_certs_page.dashboard.filters.registry import CCFilterRegistry, FilterRegistryInterface
-from sec_certs_page.dashboard.types.filters import FilterSpec, FilterUIType
+from sec_certs_page.dashboard.types.filter import FilterSpec, FilterUIType
 
 
 class DashFilterFactory:

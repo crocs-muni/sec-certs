@@ -4,13 +4,13 @@ from dash import dcc, html
 from .data import DataService
 
 
-class DashboardLayoutManager:
+class DashboardLayout:
     """Manages the creation and structure of the dashboard's app shell."""
 
     def __init__(self, data_service: DataService):
         self.data_service = data_service
 
-    def build_layout(self) -> html.Div:
+    def create(self) -> html.Div:
         """Constructs the main layout (app shell) of the dashboard."""
         print("Building main dashboard layout...")
         return html.Div(

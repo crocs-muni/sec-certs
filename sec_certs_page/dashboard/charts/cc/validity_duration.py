@@ -15,7 +15,7 @@ class CCValidityDuration(BaseChart):
     """A box plot showing the variance of certificate validity duration per year."""
 
     def __init__(self, graph_id: str, data_service: DataService):
-        super().__init__(graph_id, data_service, available_chart_types=["box"])
+        super().__init__(graph_id, data_service, chart_type="box")
 
     @property
     def title(self) -> str:
@@ -25,7 +25,6 @@ class CCValidityDuration(BaseChart):
         """Renders the box plot and its associated controls."""
         return html.Div(
             [
-                *self._render_header(),
                 dcc.Graph(id=self.id),
             ]
         )
@@ -68,7 +67,6 @@ class CCValidityDuration(BaseChart):
                     "year_from": "Year of Certification",
                 },
                 category_orders={"year_from": sorted_years},
-                color_discrete_sequence=self.color_palette,
             )
             fig.update_layout(height=600)
             return fig

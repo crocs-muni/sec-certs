@@ -1,3 +1,6 @@
-from typing import Literal
+from enum import Enum
 
-DatasetType = Literal["cc", "fips"]
+
+class DatasetTypeName(str, Enum):
+    CommonCriteria = "cc"
+    FIPS140 = "fips"

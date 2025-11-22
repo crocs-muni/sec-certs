@@ -1,18 +1,25 @@
 # sec_certs_page/dashboard/cc_route.py
 """Registers dashboard page route for Common Criteria (CC) dashboard."""
-
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
 from sec_certs_page.dashboard.filters.registry import CCFilterRegistry
+from sec_certs_page.dashboard.types.common import DatasetTypeName
 
 from ..common.dash.base import Dash
-from .charts.registry import ChartRegistry
+
+DASHBOARD_PAGES_MAPPING: dict[DatasetTypeName, str] = {dt: f"/{dt.value}" for dt in DatasetTypeName}
+"""Mapping of dataset types to their dashboard paths for registration in Dash.
+
+.. note::
+    CommonCriteria -> /cc
+    FIPS140 -> /fips
+"""
 
 
-def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
+def register_pages(app: Dash) -> None:
     """
     Register CC dashboard page with Dash and its interactive callbacks.
 
@@ -23,6 +30,10 @@ def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
 
     Note: FilterRegistry is used as a class (already initialized during app startup)
     """
+
+    def init_depebndencies() -> None:
+        """Initialize any dependencies required for the dashboard."""
+        pass  # Currently no additional dependencies to initialize
 
     def layout(**kwargs) -> html.Div:
         """Layout with basic graph controls."""
@@ -106,15 +117,18 @@ def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
                 ]
             )
 
-    print("Registering CC dashboard page at path=/cc")
-    dash.register_page(
-        "cc_dashboard",
-        path="/cc",
-        title="CC Dashboard",
-        name="CC Dashboard",
-        layout=layout,
-    )
-    print("✓ CC dashboard page registered successfully")
+    print("Registering dashboard pages...")
+    for dataset_name, page_path in DASHBOARD_PAGES_MAPPING.items():
+        # TODO: get layout function based on dataset type
+        module_name = dataset_name + "_dashboard"
+        dash.register_page(
+            module_name,
+            path=page_path,
+            title=f"{dataset_name} Dashboard",
+            name=f"{dataset_name} Dashboard",
+            layout=layout,
+        )
+        print(f"✓ {module_name} dashboard page registered successfully")
 
     # Register callbacks for all charts in the registry
     try:
@@ -127,6 +141,7 @@ def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
 
     # Register callbacks to lazily load filter options from database
     from sec_certs_page.dashboard.data import DataService
+
     from .. import mongo
 
     data_service = DataService(mongo)
@@ -160,6 +175,7 @@ def register_pages(app: Dash, cc_graph_registry: ChartRegistry) -> None:
     filter_inputs = DashCallbackHelper.create_callback_inputs()
 
     if filter_inputs:
+
         @app.callback(
             Output("cc-filter-store", "data"),
             filter_inputs,
