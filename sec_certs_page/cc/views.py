@@ -165,13 +165,17 @@ def network_graph():
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
         if request.args["search"] == "basic":
             args = CCBasicSearch.parse_args(args)
-            del args["page"]
+            if "page" in args:
+                del args["page"]
             certs, count, timeline = CCBasicSearch.select_certs(**args)
         elif request.args["search"] == "fulltext":
             args = CCFulltextSearch.parse_args(args)
-            del args["page"]
+            if "page" in args:
+                del args["page"]
             certs, count = CCFulltextSearch.select_certs(**args)
         elif request.args["search"] == "cve":
+            if "cve" not in args:
+                raise BadRequest("Missing 'cve' parameter for CVE search.")
             cve_id = args["cve"]
             certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
         else:
