@@ -173,9 +173,10 @@ def file_type(file_id: str, collection: str) -> str:
     reports_kbid = current_app.config.get(reports_kb)
     targets_kbid = current_app.config.get(targets_kb)
     meta = file_metadata(file_id)
-    if meta["meta"]["collection_name"] == reports_kbid:
+    collection = meta["meta"].get("collection_name")
+    if collection == reports_kbid:
         return "report"
-    elif meta["meta"]["collection_name"] == targets_kbid:
+    elif collection == targets_kbid:
         return "target"
     raise ValueError("Unknown file type.")
 
