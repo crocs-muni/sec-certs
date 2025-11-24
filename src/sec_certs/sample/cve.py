@@ -38,9 +38,9 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             """
             if not dct:
                 return None
-            all_metrics = [
-                dct[metric] for metric in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2") if metric in dct
-            ]
+            all_metrics: list[dict] = sum(
+                (dct[metric] for metric in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2") if metric in dct), []
+            )
             # TODO: cvssMetricV40 does not have exploitabilityScore and impactScore, what do we do?
             #       See https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
 
