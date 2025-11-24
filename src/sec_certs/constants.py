@@ -170,15 +170,17 @@ CC_POLAND_CERTIFIED_URL = CC_POLAND_BASE_URL + "/een/certificates/"
 CC_POLAND_INEVAL_URL = CC_POLAND_BASE_URL + "/en/certifications-in-progress/"
 CC_SINGAPORE_BASE_URL = "https://www.csa.gov.sg"
 CC_SINGAPORE_CERTIFIED_URL = (
-    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-list"
+    CC_SINGAPORE_BASE_URL
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list/"
 )
 CC_SINGAPORE_ARCHIVED_URL = (
-    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-archives"
+    CC_SINGAPORE_BASE_URL
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list-archived/"
 )
 CC_SINGAPORE_API_URL = CC_SINGAPORE_BASE_URL + "/api/CsaCommonProductCriteria/getProduct"
 CC_SINGAPORE_INEVAL_URL = (
     CC_SINGAPORE_BASE_URL
-    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list/in-evaluation"
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list-in-evaluation/"
 )
 CC_SPAIN_BASE_URL = "https://oc.ccn.cni.es"
 CC_SPAIN_CERTIFIED_URL = CC_SPAIN_BASE_URL + "/en/certified-products/certified-products"
