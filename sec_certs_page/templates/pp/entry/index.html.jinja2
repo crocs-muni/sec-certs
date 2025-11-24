@@ -110,7 +110,7 @@
                     <div id="report-info" class="mt-5 mb-3">
                         <h2 class="anchor">Certification report
                         </h2>
-                        {{ render_process_state(profile["state"], "report", "certification report") }}
+                        {{ render_process_state(profile["state"], profile["web_data"]["report_link"], "report", "certification report") }}
                         {% if profile["web_data"]["report_link"] %}
                             <div class="mt-3 mb-3">
                                 {{ render_local_report(hashid, local_files, profile["web_data"]["report_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
@@ -134,7 +134,7 @@
 
                     <div id="profile-info" class="mt-5 mb-3">
                         <h2 class="anchor">Protection Profile</h2>
-                        {{ render_process_state(profile["state"], "pp", "protection profile") }}
+                        {{ render_process_state(profile["state"], profile["web_data"]["pp_link"], "pp", "protection profile") }}
 
                         {% if profile["web_data"]["pp_link"] %}
                             <div class="mt-3 mb-3">

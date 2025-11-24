@@ -216,7 +216,7 @@
                     <div class="mt-5 mb-3">
                         <h2 class="anchor" id="cert-info">Certificate</h2>
 
-                        {{ render_process_state(cert["state"], "cert", "certificate") }}
+                        {{ render_process_state(cert["state"], cert["cert_link"], "cert", "certificate") }}
 
                         {% if cert["cert_link"] %}
                             <div class="mt-3 mb-3">
@@ -242,7 +242,7 @@
                     <div class="mt-5 mb-3">
                         <div id="report-info">
                             <h2 class="anchor">Certification report</h2>
-                            {{ render_process_state(cert["state"], "report", "certification report") }}
+                            {{ render_process_state(cert["state"], cert["report_link"], "report", "certification report") }}
 
                             {% if cert["report_link"] %}
                                 <div class="mt-3 mb-3">
@@ -274,7 +274,7 @@
                         <div id="st-info">
                             <h2 class="anchor">Security target</h2>
 
-                            {{ render_process_state(cert["state"], "st", "security target") }}
+                            {{ render_process_state(cert["state"], cert["st_link"], "st", "security target") }}
 
 
                             {% if cert["st_link"] %}

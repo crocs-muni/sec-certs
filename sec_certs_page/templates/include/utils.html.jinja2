@@ -6,7 +6,7 @@
     {% endif %}
 {%- endmacro %}
 
-{% macro render_process_state(state, document_type, document_name) %}
+{% macro render_process_state(state, document_link, document_type, document_name) %}
     {% if document_type in state %}
         {% set download_ok = state[document_type]["download_ok"] %}
         {% set convert_ok = state[document_type]["convert_ok"] %}
@@ -21,23 +21,28 @@
 
     {% if not download_ok or not convert_ok or not extract_ok %}
         <div class="alert alert-warning" style="display: inline-block;">
-            <span><span class="fst-italic text-capitalize">{{ document_name }}</span> file processing did not finish successfully.</span>
-            <a data-bs-toggle="collapse" href="#processing-failed-detail-{{ document_type }}" role="button" aria-expanded="false"
-               aria-controls="processing-failed-detail-{{ document_type }}">Show more...</a>
-            <div class="collapse" id="processing-failed-detail-{{ document_type }}">
-                <div>
-                    <span>Download pdf: </span>
-                    <span class="{% if download_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(download_ok) }}</span>
+            {% if document_link is None %}
+                <span><span class="fst-italic text-capitalize">{{ document_name }}</span> could not be downloaded, no link is available.</span>
+            {% else %}
+                <span><span class="fst-italic text-capitalize">{{ document_name }}</span> file processing did not finish successfully.</span>
+                <a data-bs-toggle="collapse" href="#processing-failed-detail-{{ document_type }}" role="button"
+                   aria-expanded="false"
+                   aria-controls="processing-failed-detail-{{ document_type }}">Show more...</a>
+                <div class="collapse" id="processing-failed-detail-{{ document_type }}">
+                    <div>
+                        <span>Download pdf: </span>
+                        <span class="{% if download_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(download_ok) }}</span>
+                    </div>
+                    <div>
+                        <span>Convert pdf to text: </span>
+                        <span class="{% if convert_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(convert_ok) }}</span>
+                    </div>
+                    <div>
+                        <span>Extract keywords: </span>
+                        <span class="{% if extract_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(extract_ok) }}</span>
+                    </div>
                 </div>
-                <div>
-                    <span>Convert pdf to text: </span>
-                    <span class="{% if convert_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(convert_ok) }}</span>
-                </div>
-                <div>
-                    <span>Extract keywords: </span>
-                    <span class="{% if extract_ok %}text-success{% else %}text-danger{% endif %}">{{ render_status_text(extract_ok) }}</span>
-                </div>
-            </div>
+            {% endif %}
         </div>
     {% endif %}
 {%- endmacro %}
@@ -85,8 +90,10 @@
 
 {% macro notification_icon(user, subscribed) %}
     <span id="notifications" class="position-relative d-inline-block">
-        <button id="notification-icon" class="btn {% if not subscribed %}btn-secondary{% else %}btn-success disabled{% endif %} text-nowrap"
-                {% if not user.is_authenticated %}title="Login to enable notifications."{% else %}title="Notifications"{% endif %}>
+        <button id="notification-icon"
+                class="btn {% if not subscribed %}btn-secondary{% else %}btn-success disabled{% endif %} text-nowrap"
+                {% if not user.is_authenticated %}title="Login to enable notifications."
+                {% else %}title="Notifications"{% endif %}>
             {% if subscribed %}
                 <i class="fas fa-fw fa-bell" aria-hidden="true"></i>
                 Subscribed

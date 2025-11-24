@@ -238,7 +238,7 @@
                 <div class="mb-3">
                     <h2 class="anchor">Security policy
                     </h2>
-                    {{ render_process_state(cert["state"], "policy", "policy") }}
+                    {{ render_process_state(cert["state"], policy_link, "policy", "policy") }}
                     <div class="mt-3 mb-3">
                         {{ render_local_target(hashid, local_files, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
                     </div>
