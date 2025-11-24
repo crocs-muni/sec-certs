@@ -63,7 +63,8 @@
     "pydantic-settings",
     "psutil",
     "pytesseract",
-  ]
+    "selenium>=4.38.0",
+]
 
   [project.optional-dependencies]
     nlp = [

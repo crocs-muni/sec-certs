@@ -113,7 +113,7 @@ GARBAGE_ALPHA_CHARS_THRESHOLD = 0.5
 CC_AUSTRALIA_BASE_URL = "https://www.cyber.gov.au"
 CC_AUSTRALIA_INEVAL_URL = (
     CC_AUSTRALIA_BASE_URL
-    + "/resources-business-and-government/assessment-and-evaluation-programs/australian-information-security-evaluation-program"
+    + "/business-government/protecting-devices-systems/assessment-evaluation-programs/australian-information-security-evaluation-program"
 )
 CC_CANADA_BASE_URL = "https://www.cyber.gc.ca"
 CC_CANADA_API_URL = CC_CANADA_BASE_URL + "/api/cccs/page/v1/get"

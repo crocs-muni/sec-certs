@@ -21,6 +21,8 @@ import tabula
 from bs4 import BeautifulSoup, NavigableString, Tag
 from dateutil.parser import isoparse
 from requests import ConnectionError, HTTPError, Response
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from urllib3.connectionpool import InsecureRequestWarning
 
 from sec_certs import constants
@@ -72,7 +74,7 @@ __all__ = [
 BASE_HEADERS = {"User-Agent": "sec-certs.org"}
 
 SPOOF_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-Encoding": "gzip, deflate, br, zstd",
     "Accept-Language": "en-US,en;q=0.9",
@@ -80,7 +82,7 @@ SPOOF_HEADERS = {
     "Dnt": "1",
     "Pragma": "no-cache",
     "Priority": "u=0, i",
-    "Sec-Ch-Ua": 'Not?A_Brand";v="99", "Chromium";v="130',
+    "Sec-Ch-Ua": 'Not?A_Brand";v="99", "Chromium";v="142',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Linux"',
 }
@@ -251,24 +253,43 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
 
 def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa: C901
-    session = requests.Session()
-    challenge_soup = _get_page(constants.CC_ANSSI_BASE_URL, session=session)
-    bln_script = challenge_soup.find("head").find_all("script")[1]
-    bln_match = re.search(r"\"value\":\"([a-zA-Z0-9_-]+)\"", bln_script.string)
-    if not bln_match:
-        raise ValueError("Balleen challenge missing")
-    bln_value = bln_match.group(1)
-    session.cookies.set("bln_challengejs", bln_value, domain="cyber.gouv.fr")
-    base_soup = _get_page(url, session=session)
+    if artifacts:
+        raise NotImplementedError("Artifact downloading not implemented for ANSSI scraping.")
+    # Use Selenium + Chrome to navigate ANSSI pages.
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    if "User-Agent" in SPOOF_HEADERS:
+        options.add_argument(f"user-agent={SPOOF_HEADERS['User-Agent']}")
+
+    # Try to create a Chrome webdriver and fail fast if unavailable.
+    try:
+        driver = webdriver.Chrome(options=options)
+    except Exception as ex:
+        raise RuntimeError("Selenium Chrome webdriver is required for ANSSI scraping but is not available.") from ex
+
+    # Bypass Incapsula protection.
+    driver.get(url)
+    session = requests.session()
+    session.cookies.update({c['name']: c['value'] for c in driver.get_cookies()})
+
+    base_soup = BeautifulSoup(driver.page_source, "html5lib")
+    driver.quit()
+
+    # Continue with requests + BeautifulSoup.
+    results: list[dict[str, Any]] = []
+    pbar = tqdm(desc=f"Get FR scheme {name}.")
+
     pager = base_soup.find("nav", class_="pager")
     last_page_a = re.search("[0-9]+", pager.find("a", title="Aller à la dernière page").text)
     if not last_page_a:
         raise ValueError
     pages = int(last_page_a.group())
-    results = []
-    pbar = tqdm(desc=f"Get FR scheme {name}.")
     for page in range(pages + 1):
-        soup = _get_page(url + f"?page={page}", session=session)
+        page_url = url + f"?page={page}"
+        resp = session.get(page_url)
+        soup = BeautifulSoup(resp.content, "html5lib")
         for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
             cert: dict[str, Any] = {
                 "product": sns(row.find("h3").text),
@@ -278,26 +299,41 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
             if description_para:
                 cert["description"] = sns(description_para.text)
             complement_info = row.find("div", class_="info-complement")
-            for li in complement_info.find_all("li"):
-                label = li.find("span").text
-                value = sns(li.find(string=True, recursive=False))
-                if "Commanditaire" in label:
-                    cert["sponsor"] = value
-                elif "Développeur" in label:
-                    cert["developer"] = value
-                elif "Référence du certificat" in label:
-                    cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
-                elif "Niveau" in label:
-                    cert["level"] = value
-                elif "Date de fin de validité" in label:
-                    cert["expiration_date"] = parse_date(value, languages=["fr"])
+            if complement_info:
+                for li in complement_info.find_all("li"):
+                    span = li.find("span")
+                    if not span:
+                        continue
+                    label = span.text
+                    value = sns(li.find(string=True, recursive=False))
+                    if "Commanditaire" in label:
+                        cert["sponsor"] = value
+                    elif "Développeur" in label:
+                        cert["developer"] = value
+                    elif "Référence du certificat" in label:
+                        cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
+                    elif "Niveau" in label:
+                        cert["level"] = value
+                    elif "Date de fin de validité" in label:
+                        cert["expiration_date"] = parse_date(value, languages=["fr"])
             if enhanced:
                 e: dict[str, Any] = {}
-                cert_page = _get_page(cert["url"], session=session)
+                resp = session.get(cert["url"])
+                cert_page = BeautifulSoup(resp.content, "html5lib")
                 infos = cert_page.find("div", class_="product-infos-wrapper")
+                if infos is None:
+                    # Missing info block; skip enhanced parsing for this cert
+                    cert["enhanced"] = e
+                    pbar.update()
+                    results.append(cert)
+                    continue
                 for tr in infos.find_all("tr"):
-                    label = tr.find("th").text
-                    value = sns(tr.find("td").text)
+                    th = tr.find("th")
+                    td = tr.find("td")
+                    if not th or not td:
+                        continue
+                    label = th.text
+                    value = sns(td.text)
                     if "Référence du certificat" in label:
                         e["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
                     elif "Date de certification" in label:
@@ -305,7 +341,6 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                     elif "Date de fin de validité" in label:
                         e["expiration_date"] = parse_date(value, languages=["fr"])
                     elif "Catégorie" in label:
-                        # TODO: translate?
                         e["category"] = value
                     elif "Référentiel" in label:
                         e["cc_version"] = value
@@ -324,23 +359,29 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                     elif "Augmentations" in label:
                         e["augmented"] = value
                 documents = cert_page.find("div", class_="documents")
-                for a in documents.find_all("a"):
-                    if "Rapport de certification" in a.text:
-                        e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
-                        if artifacts:
-                            e["report_hash"] = _get_hash(e["report_link"], session=session)
-                    elif "Cible de sécurité" in a.text:
-                        e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
-                        if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"], session=session)
-                    elif "Certificat" in a.text:
-                        e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
-                        if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"], session=session)
+                if documents:
+                    for a in documents.find_all("a"):
+                        if "Rapport de certification" in a.text:
+                            e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                            if artifacts:
+                                e["report_hash"] = _get_hash(
+                                    e["report_link"], session=session
+                                )
+                        elif "Cible de sécurité" in a.text:
+                            e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                            if artifacts:
+                                e["target_hash"] = _get_hash(
+                                    e["target_link"], session=session
+                                )
+                        elif "Certificat" in a.text:
+                            e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                            if artifacts:
+                                e["cert_hash"] = _get_hash(
+                                    e["cert_link"], session=session
+                                )
                 cert["enhanced"] = e
             pbar.update()
             results.append(cert)
-    pbar.close()
     return results
 
 
@@ -702,13 +743,13 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
             cert["toe_japan_name"] = sns(tds[0].text)
             toe_a = tds[0].find("a")
             if toe_a and "href" in toe_a.attrs:
-                cert["toe_japan_link"] = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
+                cert["toe_japan_link"] = urljoin(constants.CC_JAPAN_BASE_URL, toe_a["href"])
         if len(tds) == 2:
             cert = results[-1]
             cert["certification_date"] = parse_date(sns(tds[1].text), "%Y-%m")
             toe_a = tds[0].find("a")
             if toe_a and "href" in toe_a.attrs:
-                toe_link = urljoin(constants.CC_JAPAN_CERT_BASE_URL, toe_a["href"])
+                toe_link = urljoin(constants.CC_JAPAN_BASE_URL, toe_a["href"])
             else:
                 toe_link = None
             cert["toe_overseas_link"] = toe_link
