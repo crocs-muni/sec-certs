@@ -21,7 +21,7 @@
 
     {% if not download_ok or not convert_ok or not extract_ok %}
         <div class="alert alert-warning" style="display: inline-block;">
-            {% if document_link is None %}
+            {% if document_link is none %}
                 <span><span class="fst-italic text-capitalize">{{ document_name }}</span> could not be downloaded, no link is available.</span>
             {% else %}
                 <span><span class="fst-italic text-capitalize">{{ document_name }}</span> file processing did not finish successfully.</span>
