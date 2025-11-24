@@ -872,75 +872,69 @@ def get_japan_in_evaluation() -> list[dict[str, Any]]:
 
 def _get_malaysia(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa: C901
     session = requests.Session()
-    soup = _get_page(url, session=session)
-    pages_re = re.search("Page [0-9]+ of ([0-9]+)", soup.find("form").text)
-    if not pages_re:
-        raise ValueError
-    total_pages = int(pages_re.group(1))
+    soup = _get_page(url + "?limit=0&start=0", session=session)
     results = []
     pbar = tqdm(desc=f"Get MY scheme {name}.")
-    for i in range(total_pages):
-        soup = _get_page(url + f"?start={i * 10}", session=session)
-        table = soup.find("table", class_="directoryTable")
-        for tr in table.find_all("tr", class_="directoryRow"):
-            tds = tr.find_all("td")
-            cert: dict[str, Any] = {
-                "cert_no": sns(tds[0].text),
-                "developer": sns(tds[1].text),
-                "level": sns(tds[2].text),
-                "product": sns(tds[3].text),
-                "certification_date": parse_date(sns(tds[4].text), "%d-%m-%Y"),
-                "expiration_date": parse_date(sns(tds[5].text), "%d-%m-%Y"),
-                "recognition": sns(tds[6].text),
-                "url": urljoin(constants.CC_MALAYSIA_BASE_URL, tds[7].find("a")["href"]),
-            }
-            if enhanced:
-                e: dict[str, Any] = {}
-                cert_page = _get_page(cert["url"], session=session)
-                for row in cert_page.find_all("div", class_="rsform-table-row"):
-                    left = row.find("div", class_="rsform-left-col")
-                    right = row.find("div", class_="rsform-right-col")
-                    title = left.text
-                    value = sns(right.text)
-                    if "Project ID" in title:
-                        e["cert_id"] = value
-                    elif "Product Name and Version" in title:
-                        e["product"] = sns(right.text)
-                    elif "Product Sponsor / Developer" in title:
-                        e["developer"] = value
-                    elif "Category" in title:
-                        e["category"] = value
-                    elif "Product Type" in title:
-                        e["type"] = value
-                    elif "Scope" in title:
-                        e["scope"] = value
-                    elif "Product Sponsor / Developer Contact Details" in title:
-                        e["developer_contact"] = value
-                    elif "Assurance Level" in title:
-                        e["assurance_level"] = value
-                    elif "Certificate Date" in title:
-                        e["certification_date"] = parse_date(value, "%d-%m-%Y")
-                    elif "Expiry Date" in title:
-                        e["expiration_date"] = parse_date(value, "%d-%m-%Y")
-                    elif "Recognized By" in title:
-                        e["mutual_recognition"] = value
-                    elif "Reports" in title:
-                        for a in right.find_all("a"):
-                            if "ST" in a.text:
-                                e["target_link"] = urljoin(constants.CC_MALAYSIA_BASE_URL, a["href"])
-                                if artifacts:
-                                    e["target_hash"] = _get_hash(e["target_link"], session=session)
-                            elif "CR" in a.text:
-                                e["report_link"] = urljoin(constants.CC_MALAYSIA_BASE_URL, a["href"])
-                                if artifacts:
-                                    e["report_hash"] = _get_hash(e["report_link"], session=session)
-                    elif "Maintenance" in title:
-                        pass
-                    elif "Status" in title:
-                        e["status"] = value
-                cert["enhanced"] = e
-            pbar.update()
-            results.append(cert)
+    table = soup.find("table", class_="directoryTable")
+    for tr in table.find_all("tr", class_="directoryRow"):
+        tds = tr.find_all("td")
+        cert: dict[str, Any] = {
+            "cert_no": sns(tds[0].text),
+            "developer": sns(tds[1].text),
+            "level": sns(tds[2].text),
+            "product": sns(tds[3].text),
+            "certification_date": parse_date(sns(tds[4].text), "%d-%m-%Y"),
+            "expiration_date": parse_date(sns(tds[5].text), "%d-%m-%Y"),
+            "recognition": sns(tds[6].text),
+            "url": urljoin(constants.CC_MALAYSIA_BASE_URL, tds[7].find("a")["href"]),
+        }
+        if enhanced:
+            e: dict[str, Any] = {}
+            cert_page = _get_page(cert["url"], session=session)
+            for row in cert_page.find_all("div", class_="rsform-table-row"):
+                left = row.find("div", class_="rsform-left-col")
+                right = row.find("div", class_="rsform-right-col")
+                title = left.text
+                value = sns(right.text)
+                if "Project ID" in title:
+                    e["cert_id"] = value
+                elif "Product Name and Version" in title:
+                    e["product"] = sns(right.text)
+                elif "Product Sponsor / Developer" in title:
+                    e["developer"] = value
+                elif "Category" in title:
+                    e["category"] = value
+                elif "Product Type" in title:
+                    e["type"] = value
+                elif "Scope" in title:
+                    e["scope"] = value
+                elif "Product Sponsor / Developer Contact Details" in title:
+                    e["developer_contact"] = value
+                elif "Assurance Level" in title:
+                    e["assurance_level"] = value
+                elif "Certificate Date" in title:
+                    e["certification_date"] = parse_date(value, "%d-%m-%Y")
+                elif "Expiry Date" in title:
+                    e["expiration_date"] = parse_date(value, "%d-%m-%Y")
+                elif "Recognized By" in title:
+                    e["mutual_recognition"] = value
+                elif "Reports" in title:
+                    for a in right.find_all("a"):
+                        if "ST" in a.text:
+                            e["target_link"] = urljoin(constants.CC_MALAYSIA_BASE_URL, a["href"])
+                            if artifacts:
+                                e["target_hash"] = _get_hash(e["target_link"], session=session)
+                        elif "CR" in a.text:
+                            e["report_link"] = urljoin(constants.CC_MALAYSIA_BASE_URL, a["href"])
+                            if artifacts:
+                                e["report_hash"] = _get_hash(e["report_link"], session=session)
+                elif "Maintenance" in title:
+                    pass
+                elif "Status" in title:
+                    e["status"] = value
+            cert["enhanced"] = e
+        pbar.update()
+        results.append(cert)
     pbar.close()
     return results
 
