@@ -272,7 +272,7 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
     # Bypass Incapsula protection.
     driver.get(url)
     session = requests.session()
-    session.cookies.update({c['name']: c['value'] for c in driver.get_cookies()})
+    session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
 
     base_soup = BeautifulSoup(driver.page_source, "html5lib")
     driver.quit()
@@ -364,21 +364,15 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                         if "Rapport de certification" in a.text:
                             e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                             if artifacts:
-                                e["report_hash"] = _get_hash(
-                                    e["report_link"], session=session
-                                )
+                                e["report_hash"] = _get_hash(e["report_link"], session=session)
                         elif "Cible de sécurité" in a.text:
                             e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                             if artifacts:
-                                e["target_hash"] = _get_hash(
-                                    e["target_link"], session=session
-                                )
+                                e["target_hash"] = _get_hash(e["target_link"], session=session)
                         elif "Certificat" in a.text:
                             e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                             if artifacts:
-                                e["cert_hash"] = _get_hash(
-                                    e["cert_link"], session=session
-                                )
+                                e["cert_hash"] = _get_hash(e["cert_link"], session=session)
                 cert["enhanced"] = e
             pbar.update()
             results.append(cert)
@@ -418,14 +412,14 @@ def get_germany_certified(  # noqa: C901
     :return: The entries.
     """
     session = requests.Session()
-    base_soup = _get_page(constants.CC_BSI_CERTIFIED_URL, session=session)
+    base_soup = _get_page(constants.CC_BSI_CERTIFIED_URL, session=session, spoof=True)
     category_nav = base_soup.find("ul", class_="no-bullet row")
     results = []
     for li in tqdm(category_nav.find_all("li"), desc="Get DE scheme certified."):
         a = li.find("a")
         url = a["href"]
         category_name = sns(a.text)
-        soup = _get_page(urljoin(constants.CC_BSI_BASE_URL, url), session=session)
+        soup = _get_page(urljoin(constants.CC_BSI_BASE_URL, url), session=session, spoof=True)
         content = soup.find("div", class_="content").find("div", class_="column")
         for table in tqdm(content.find_all("table"), leave=False):
             tbody = table.find("tbody")
@@ -444,7 +438,7 @@ def get_germany_certified(  # noqa: C901
                 }
                 if enhanced:
                     e: dict[str, Any] = {}
-                    cert_page = _get_page(cert["url"], session=session)
+                    cert_page = _get_page(cert["url"], session=session, spoof=True)
                     content = cert_page.find("div", id="content").find("div", class_="column")
                     head = content.find("h1", class_="c-intro__headline")
                     e["product"] = sns(head.next_sibling.text)
@@ -472,7 +466,10 @@ def get_germany_certified(  # noqa: C901
                         # has multiple entries/recertifications
                         e["entries"] = []
                         for link_li in links.find_all("li"):
-                            first_child = next(iter(link_li.children))
+                            children = list(link_li.children)
+                            if not children:
+                                continue
+                            first_child = children[0]
                             if isinstance(first_child, Tag):
                                 link_id = sns(first_child.text)
                             elif isinstance(first_child, NavigableString):
