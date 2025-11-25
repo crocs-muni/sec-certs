@@ -1793,16 +1793,16 @@ def get_turkey_certified() -> list[dict[str, Any]]:
     return results
 
 
-def _get_usa(args, enhanced: bool, artifacts: bool, name):  # noqa: C901
+def _get_usa(status, enhanced: bool, artifacts: bool):  # noqa: C901
     # TODO: There is more information in the API (like about PPs, etc.)
-    def map_cert(cert, files=None):  # noqa: C901
+    def map_cert(cert, url, files=None):  # noqa: C901
         result = {
             "product": cert["product_name"],
             "id": f"CCEVS-VR-VID{cert['product_id']}",
-            "url": urljoin(constants.CC_USA_BASE_URL, f"/product/{cert['product_id']}"),
+            "url": url,
             "certification_date": parse_date(cert["certification_date"], "%m/%d/%Y"),
             "expiration_date": parse_date(cert["sunset_date"], "%m/%d/%Y"),
-            "category": cert["tech_type"],
+            "category": cert["tech_types"],
             "vendor": cert["vendor_id_name"],
             "evaluation_facility": cert["assigned_lab_name"],
             "scheme": cert["submitting_country_id_code"],
@@ -1836,35 +1836,23 @@ def _get_usa(args, enhanced: bool, artifacts: bool, name):  # noqa: C901
 
     session = requests.Session()
     results = []
-    offset = 0
-    got = 0
-    pbar = tqdm(desc=f"Get US scheme {name}.")
-    while True:
-        resp = _getq(
-            constants.CC_USA_PRODUCTS_URL,
-            {"limit": 100, "offset": offset, **args},
-            session,
-        )
-        json = resp.json()
-        count = json["count"]
-        for cert in json["results"]["products"]:
-            got += 1
-            if "from_cc_portal" in cert:
-                continue
-            files = None
-            if enhanced:
-                resp = _getq(
-                    constants.CC_USA_FILES_URL,
-                    {"product_id": cert["product_id"]},
-                    session,
-                )
-                files = resp.json()
-            pbar.update()
-            results.append(map_cert(cert, files))
-        offset += 100
-        if got >= count:
-            break
-    pbar.close()
+    resp = _getq(constants.CC_USA_PRODUCTS_URL, None, session=session)
+    json = resp.json()
+    for cert in tqdm(json, desc=f"Get US scheme {status}."):
+        if cert.get("from_cc_portal", False):
+            continue
+        if cert["status_sort"] != status:
+            continue
+        url = constants.CC_USA_PRODUCT_URL.format(cert["product_id"])
+        files = None
+        if enhanced:
+            resp = _getq(
+                constants.CC_USA_FILES_URL,
+                {"product_id": cert["product_id"]},
+                session,
+            )
+            files = resp.json()
+        results.append(map_cert(cert, url, files))
     return results
 
 
@@ -1878,9 +1866,7 @@ def get_usa_certified(  # noqa: C901
     :param artifacts: Whether to download and compute artifact hashes (way slower, even more data).
     :return: The entries.
     """
-    return _get_usa(
-        {"certification_status": "Certified", "publish_status": "Published"}, enhanced, artifacts, "certified"
-    )
+    return _get_usa("Certified", enhanced, artifacts)
 
 
 def get_usa_in_evaluation() -> list[dict[str, Any]]:
@@ -1889,7 +1875,7 @@ def get_usa_in_evaluation() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    return _get_usa({"status": "In Progress", "publish_status": "Published"}, False, False, "in evaluation")
+    return _get_usa("In Progress", False, False)
 
 
 def get_usa_archived() -> list[dict[str, Any]]:
@@ -1898,7 +1884,7 @@ def get_usa_archived() -> list[dict[str, Any]]:
 
     :return: The entries.
     """
-    return _get_usa({"status": "Archived", "publish_status": "Published"}, False, False, "archived")
+    return _get_usa("Archived", False, False)
 
 
 class EntryType(Enum):
