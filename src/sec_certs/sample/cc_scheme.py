@@ -760,10 +760,7 @@ def _get_japan(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa:
             cert = results[-1]
             cert["certification_date"] = parse_date(sns(tds[1].text), "%Y-%m")
             toe_a = tds[0].find("a")
-            if toe_a and "href" in toe_a.attrs:
-                toe_link = urljoin(constants.CC_JAPAN_BASE_URL, toe_a["href"])
-            else:
-                toe_link = None
+            toe_link = urljoin(constants.CC_JAPAN_BASE_URL, toe_a["href"]) if toe_a and "href" in toe_a.attrs else None
             cert["toe_overseas_link"] = toe_link
     if enhanced:
         for cert in tqdm(results, desc=f"Get JP scheme {name} (enhanced)."):
