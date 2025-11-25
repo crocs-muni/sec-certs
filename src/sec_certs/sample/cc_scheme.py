@@ -106,9 +106,6 @@ def _getq(url: str, params, session=None, spoof=False, retries=0, **kwargs) -> R
                     **kwargs,
                     timeout=10,
                 )
-                print(resp.request)
-                print(resp.request.headers)
-                print(resp.headers)
                 resp.raise_for_status()
             except (HTTPError, ConnectionError) as ex:
                 if retries > 0:

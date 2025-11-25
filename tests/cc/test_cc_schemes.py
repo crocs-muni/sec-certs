@@ -181,6 +181,7 @@ def test_sweden():
 
 
 @pytest.mark.remote
+@pytest.mark.xfail(reason="Turkey's site does not exist anymore.")
 def test_turkey():
     certified = CCSchemes.get_turkey_certified()
     assert len(certified) != 0
