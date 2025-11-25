@@ -106,6 +106,9 @@ def _getq(url: str, params, session=None, spoof=False, retries=0, **kwargs) -> R
                     **kwargs,
                     timeout=10,
                 )
+                print(resp.request)
+                print(resp.request.headers)
+                print(resp.headers)
                 resp.raise_for_status()
             except (HTTPError, ConnectionError) as ex:
                 if retries > 0:
@@ -1663,8 +1666,10 @@ def get_spain_certified(enhanced: bool = True) -> list[dict[str, Any]]:  # noqa:
 def _get_sweden(  # noqa: C901
     url: str, enhanced: bool, artifacts: bool, name
 ) -> list[dict[str, Any]]:
+    driver = _setup_driver()
+    driver.get(url)
+    soup = BeautifulSoup(driver.page_source, "html.parser")
     session = requests.Session()
-    soup = _get_page(url, session=session)
     nav = soup.find("main").find("nav", class_="component-nav-box__list")
     results = []
     for link in tqdm(nav.find_all("a"), desc=f"Get SE scheme {name}."):
@@ -1676,7 +1681,10 @@ def _get_sweden(  # noqa: C901
             e: dict[str, Any] = {}
             if not cert["url"]:
                 continue
-            cert_page = _get_page(cert["url"], session=session)
+            driver.get(cert["url"])
+            session.cookies.clear()
+            session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
+            cert_page = BeautifulSoup(driver.page_source, "html.parser")
             content = cert_page.find("section", class_="container-article")
             head = content.find("h1")
             e["title"] = sns(head.text)
@@ -1723,6 +1731,7 @@ def _get_sweden(  # noqa: C901
                             e["cert_hash"] = _get_hash(e["cert_link"], session=session)
             cert["enhanced"] = e
         results.append(cert)
+    driver.quit()
     return results
 
 
