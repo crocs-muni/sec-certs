@@ -89,23 +89,31 @@ SPOOF_HEADERS = {
 }
 
 
-def _getq(url: str, params, session=None, spoof=False, **kwargs) -> Response:
+def _getq(url: str, params, session=None, spoof=False, retries=0, **kwargs) -> Response:
     headers = {**BASE_HEADERS}
     if spoof:
         headers.update(SPOOF_HEADERS)
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=InsecureRequestWarning)
-        conn = session if session else requests
-        resp = conn.get(
-            url,
-            params=params,
-            headers=headers,
-            verify=False,
-            **kwargs,
-            timeout=10,
-        )
-    resp.raise_for_status()
-    return resp
+        while True:
+            try:
+                warnings.simplefilter("ignore", category=InsecureRequestWarning)
+                conn = session if session else requests
+                resp = conn.get(
+                    url,
+                    params=params,
+                    headers=headers,
+                    verify=False,
+                    **kwargs,
+                    timeout=10,
+                )
+                resp.raise_for_status()
+            except (HTTPError, ConnectionError) as ex:
+                if retries > 0:
+                    retries -= 1
+                    sleep(1)
+                    continue
+                raise ex
+            return resp
 
 
 def _get(url: str, session=None, **kwargs) -> Response:
@@ -276,11 +284,7 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
 
     # Bypass Incapsula protection.
     driver.get(url)
-    session = requests.session()
-    session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
-
     base_soup = BeautifulSoup(driver.page_source, "html5lib")
-    driver.quit()
 
     # Continue with requests + BeautifulSoup.
     results: list[dict[str, Any]] = []
@@ -291,10 +295,13 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
     if not last_page_a:
         raise ValueError
     pages = int(last_page_a.group())
+    session = requests.session()
     for page in range(pages + 1):
         page_url = url + f"?page={page}"
-        resp = session.get(page_url)
-        soup = BeautifulSoup(resp.content, "html5lib")
+        driver.get(page_url)
+        soup = BeautifulSoup(driver.page_source, "html5lib")
+        session.cookies.clear()
+        session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
         for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
             cert: dict[str, Any] = {
                 "product": sns(row.find("h3").text),
@@ -323,8 +330,10 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                         cert["expiration_date"] = parse_date(value, languages=["fr"])
             if enhanced:
                 e: dict[str, Any] = {}
-                resp = session.get(cert["url"])
-                cert_page = BeautifulSoup(resp.content, "html5lib")
+                driver.get(cert["url"])
+                session.cookies.clear()
+                session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
+                cert_page = BeautifulSoup(driver.page_source, "html5lib")
                 infos = cert_page.find("div", class_="product-infos-wrapper")
                 if infos is None:
                     # Missing info block; skip enhanced parsing for this cert
@@ -369,18 +378,19 @@ def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa
                         if "Rapport de certification" in a.text:
                             e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                             if artifacts:
-                                e["report_hash"] = _get_hash(e["report_link"], session=session)
+                                e["report_hash"] = _get_hash(e["report_link"], session=session, spoof=True)
                         elif "Cible de sécurité" in a.text:
                             e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                             if artifacts:
-                                e["target_hash"] = _get_hash(e["target_link"], session=session)
+                                e["target_hash"] = _get_hash(e["target_link"], session=session, spoof=True)
                         elif "Certificat" in a.text:
                             e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
                             if artifacts:
-                                e["cert_hash"] = _get_hash(e["cert_link"], session=session)
+                                e["cert_hash"] = _get_hash(e["cert_link"], session=session, spoof=True)
                 cert["enhanced"] = e
             pbar.update()
             results.append(cert)
+    driver.quit()
     return results
 
 
@@ -417,14 +427,14 @@ def get_germany_certified(  # noqa: C901
     :return: The entries.
     """
     session = requests.Session()
-    base_soup = _get_page(constants.CC_BSI_CERTIFIED_URL, session=session, spoof=True)
+    base_soup = _get_page(constants.CC_BSI_CERTIFIED_URL, session=session, spoof=True, retries=3)
     category_nav = base_soup.find("ul", class_="no-bullet row")
     results = []
     for li in tqdm(category_nav.find_all("li"), desc="Get DE scheme certified."):
         a = li.find("a")
         url = a["href"]
         category_name = sns(a.text)
-        soup = _get_page(urljoin(constants.CC_BSI_BASE_URL, url), session=session, spoof=True)
+        soup = _get_page(urljoin(constants.CC_BSI_BASE_URL, url), session=session, spoof=True, retries=3)
         content = soup.find("div", class_="content").find("div", class_="column")
         for table in tqdm(content.find_all("table"), leave=False):
             tbody = table.find("tbody")
@@ -443,7 +453,7 @@ def get_germany_certified(  # noqa: C901
                 }
                 if enhanced:
                     e: dict[str, Any] = {}
-                    cert_page = _get_page(cert["url"], session=session, spoof=True)
+                    cert_page = _get_page(cert["url"], session=session, spoof=True, retries=3)
                     content = cert_page.find("div", id="content").find("div", class_="column")
                     head = content.find("h1", class_="c-intro__headline")
                     e["product"] = sns(head.next_sibling.text)
@@ -496,15 +506,15 @@ def get_germany_certified(  # noqa: C901
                         if "Certification Report" in title:
                             e["report_link"] = href
                             if artifacts:
-                                e["report_hash"] = _get_hash(href, session=session)
+                                e["report_hash"] = _get_hash(href, session=session, spoof=True, retries=3)
                         elif "Security Target" in title:
                             e["target_link"] = href
                             if artifacts:
-                                e["target_hash"] = _get_hash(href, session=session)
+                                e["target_hash"] = _get_hash(href, session=session, spoof=True, retries=3)
                         elif "Certificate" in title:
                             e["cert_link"] = href
                             if artifacts:
-                                e["cert_hash"] = _get_hash(href, session=session)
+                                e["cert_hash"] = _get_hash(href, session=session, spoof=True, retries=3)
                     description = content.find("div", attrs={"lang": "en"})
                     if description:
                         e["description"] = sns(description.text)
