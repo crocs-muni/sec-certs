@@ -1,7 +1,6 @@
 from typing import Dict, Iterator
 
-from sec_certs_page.dashboard.types.common import CollectionName
-
+from ..types.common import CollectionName
 from .base import BaseChart
 
 

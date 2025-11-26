@@ -2,9 +2,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from sec_certs_page.dashboard.chart.base import BaseChart
-from sec_certs_page.dashboard.chart.chart import Chart
-from sec_certs_page.dashboard.chart.graphs import (
+from ..chart.base import BaseChart
+from ..chart.chart import Chart
+from ..chart.graphs import (
     BarChartComponent,
     BoxChartComponent,
     HistogramChartComponent,
@@ -12,9 +12,9 @@ from sec_certs_page.dashboard.chart.graphs import (
     PieChartComponent,
     ScatterChartComponent,
 )
-from sec_certs_page.dashboard.data import DataService
-from sec_certs_page.dashboard.types.chart import AvailableChartTypes
-from sec_certs_page.dashboard.types.filter import AggregationType
+from ..data import DataService
+from ..types.chart import AvailableChartTypes
+from ..types.filter import AggregationType
 
 
 class ChartFactory:

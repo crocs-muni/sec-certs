@@ -2,7 +2,7 @@ import uuid
 
 from dash.development.base_component import Component
 
-from sec_certs_page.dashboard.types.common import CollectionName
+from ..types.common import CollectionName
 
 
 class DashboardProtocol:

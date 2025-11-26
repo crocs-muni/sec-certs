@@ -1,9 +1,8 @@
 import plotly.graph_objects as go
 from dash import dcc, html
 
-from sec_certs_page.dashboard.chart.chart import Chart
-from sec_certs_page.dashboard.data import DataService
-
+from ...chart.chart import Chart
+from ...data import DataService
 from ..base import BaseChart
 
 
@@ -19,10 +18,8 @@ class CCCertsPerYear(BaseChart):
 
     def render(self, filter_values: dict | None = None) -> html.Div:
         """Render the bar chart with per-chart filter configuration."""
-        # Build filter values from chart's active filters
         active_filters = self.config.get_active_filters() if self.config else {}
 
-        # Extract filter values from FilterSpec objects
         chart_filter_values = {fid: fspec.data for fid, fspec in active_filters.items() if fspec.data is not None}
 
         df = self.data_service.get_cc_dataframe(filter_values=chart_filter_values if chart_filter_values else None)
@@ -35,7 +32,6 @@ class CCCertsPerYear(BaseChart):
                 ]
             )
 
-        # Create figure
         category_per_year = df.groupby(["year_from", "category"]).size().unstack(fill_value=0)
         fig = go.Figure()
 
@@ -48,7 +44,6 @@ class CCCertsPerYear(BaseChart):
                 )
             )
 
-        # Use config for layout customization
         x_label = self.config.x_axis.label if self.config and self.config.x_axis else "Year"
         y_label = self.config.y_axis.label if self.config and self.config.y_axis else "Number of Certificates"
 

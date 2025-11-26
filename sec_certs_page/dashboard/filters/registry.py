@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import ClassVar
 
-from sec_certs_page.dashboard.filters.filter import FilterSpec
-from sec_certs_page.dashboard.types.common import CollectionName
-from sec_certs_page.dashboard.types.filter import DashFilterComponentParams, FilterComponentType, FilterOperator
+from ..filters.filter import FilterSpec
+from ..types.common import CollectionName
+from ..types.filter import DashFilterComponentParams, FilterComponentType, FilterOperator
 
 
 class FilterSpecRegistry:

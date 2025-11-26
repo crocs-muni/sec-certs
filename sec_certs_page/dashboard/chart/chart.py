@@ -3,9 +3,8 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
-from sec_certs_page.dashboard.types.chart import AvailableChartTypes
-
 from ..filters.filter import FilterSpec
+from ..types.chart import AvailableChartTypes
 from ..types.filter import AggregationType
 
 

@@ -1,9 +1,9 @@
 import plotly.graph_objects as go
 from dash import dcc, html
 
-from sec_certs_page.dashboard.chart.base import BaseChart
-from sec_certs_page.dashboard.chart.chart import Chart
-from sec_certs_page.dashboard.data import DataService
+from ...chart.chart import Chart
+from ...data import DataService
+from ..base import BaseChart
 
 
 class CCCategoryDistribution(BaseChart):

@@ -1,12 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from sec_certs_page.dashboard.types.filter import (
-    AggregationType,
-    DashFilterComponentParams,
-    FilterOperator,
-    FilterSpecDict,
-)
+from ..types.filter import AggregationType, DashFilterComponentParams, FilterOperator, FilterSpecDict
 
 
 @dataclass

@@ -1,9 +1,9 @@
 from typing import Any
 
-from sec_certs_page.dashboard.filters.filter import FilterSpec
-from sec_certs_page.dashboard.filters.registry import FilterSpecRegistry, get_filter_registry
-from sec_certs_page.dashboard.types.common import CollectionName
-from sec_certs_page.dashboard.types.filter import FilterOperator
+from ..filters.filter import FilterSpec
+from ..filters.registry import FilterSpecRegistry, get_filter_registry
+from ..types.common import CollectionName
+from ..types.filter import FilterOperator
 
 
 class QueryBuilder:
