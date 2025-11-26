@@ -141,4 +141,4 @@ def _register_dataset_page(
         layout=layout,
     )
 
-    print(f"✓ Registered {page_name} at {page_path}")
+    print(f"✓ Registered {page_name} at /dashboard{page_path}")
