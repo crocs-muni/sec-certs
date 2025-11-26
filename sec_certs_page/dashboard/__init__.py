@@ -1,83 +1,94 @@
 import logging
 from logging import Logger
 
-from flask import Flask
-from flask_wtf import CSRFProtect
+import dash
+from dash import dcc, html
 
 from .. import mongo
 from ..common.dash.base import Dash
 from .callbacks import register_all_callbacks
 from .data import DataService
-from .layout import DashboardLayout
 from .manager import DashboardManager
-from .pages import register_pages
 
 logger: Logger = logging.getLogger(__name__)
 
+# Module-level references for access by page modules
+_dashboard_manager: DashboardManager | None = None
+_data_service: DataService | None = None
 
-def init_dashboard(app: Flask, csrf: CSRFProtect) -> Dash:
+
+def get_dashboard_manager() -> DashboardManager:
+    """Get the dashboard manager instance."""
+    if _dashboard_manager is None:
+        raise RuntimeError("Dashboard not initialized. Call init_dashboard first.")
+    return _dashboard_manager
+
+
+def get_data_service() -> DataService:
+    """Get the data service instance."""
+    if _data_service is None:
+        raise RuntimeError("Dashboard not initialized. Call init_dashboard first.")
+    return _data_service
+
+
+def _register_pages() -> None:
+    """Import and register all dashboard pages with Dash."""
+    # These imports trigger dash.register_page() calls
+    from . import home  # noqa: F401
+    from .pages import cc, fips  # noqa: F401
+
+
+def init_dashboard(dash_app: Dash):
     """
     Initializes and configures the Dash dashboard application with dynamic filters.
 
-    :param app: The main Flask application instance.
-    :type app: Flask
-    :param csrf: The CSRF protection instance to exempt Dash routes.
-    :type csrf: CSRFProtect
+    :param dash_app: The Dash application instance.
+    :type dash_app: Dash
     """
-    print("=== INITIALIZING DASHBOARD ===")
+    global _dashboard_manager, _data_service
 
-    # Create core services
-    data_service = DataService(mongo)
-    dashboard_manager = DashboardManager(data_service)
+    logger.debug("=== INITIALIZING DASHBOARD ===")
 
-    # Register predefined charts
-    dashboard_manager.register_predefined_charts()
+    # Register pages first (must be done after app creation but before layout)
+    _register_pages()
 
-    url_base_pathname = "/dashboard/"
-    dash_app = Dash(
-        __name__,
-        server=app,
-        url_base_pathname=url_base_pathname,
-        use_pages=True,
-        suppress_callback_exceptions=True,
-        pages_folder="",
-    )
+    _data_service = DataService(mongo)
+    _dashboard_manager = DashboardManager(_data_service)
 
-    layout_builder = DashboardLayout(data_service, url_base_pathname)
+    dash_app.layout = layout
 
-    layout_builder.register_home_page()
-    register_pages(
-        filter_factories=dashboard_manager.filter_factories,
-        chart_registries=dashboard_manager.chart_registries,
-    )
-
-    dash_app.layout = layout_builder.create()
+    _dashboard_manager.register_predefined_charts()
 
     register_all_callbacks(
-        app=dash_app,
-        data_service=data_service,
-        filter_factories=dashboard_manager.filter_factories,
-        chart_registries=dashboard_manager.chart_registries,
+        dash_app=dash_app,
+        data_service=_data_service,
+        dashboard_manager=_dashboard_manager,
+        filter_factories=_dashboard_manager.filter_factories,
+        chart_registries=_dashboard_manager.chart_registries,
     )
 
-    with app.app_context():
-        try:
-            _exempt_all_dash_endpoints(app, csrf, url_base_pathname)
-            logger.info("✓ CSRF exemptions configured")
-        except Exception:
-            logger.exception("✗ CSRF exemption error")
-
     logger.debug("=== DASHBOARD INITIALIZATION COMPLETE ===")
-    logger.debug(f"Dashboard available at: http://localhost:5000{url_base_pathname}")
-    logger.debug(f"CC Dashboard at: http://localhost:5000{url_base_pathname}cc")
-
-    return dash_app
+    logger.debug(f"Registered pages: {list(dash.page_registry.keys())}")
 
 
-def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:
-    """Dash is not using CSRF protection, so we need to exempt its routes."""
-    for rule in app.url_map.iter_rules():
-        if rule.rule.startswith(url_base_pathname):
-            view_func = app.view_functions.get(rule.endpoint)
-            if view_func is not None:
-                csrf.exempt(view_func)
+def layout(**kwargs) -> html.Div:
+    """
+    App shell layout - contains only header and page container.
+
+    Individual pages are rendered within dash.page_container.
+    """
+    return html.Div(
+        children=[
+            html.Header(
+                children=[
+                    html.H1(
+                        "Security Certification Data Dashboards",
+                        style={"margin": "0 0 10px 0"},
+                    ),
+                    dcc.Link("Home", href="/", style={"marginRight": "15px"}),
+                ],
+                style={"borderBottom": "1px solid #ddd", "paddingBottom": "10px", "marginBottom": "20px"},
+            ),
+            dash.page_container,
+        ],
+    )
