@@ -1,9 +1,8 @@
 import dash
 from dash import dcc, html
 
-from sec_certs_page.dashboard.types.common import CollectionName
-
 from .data import DataService
+from .types.common import CollectionName
 
 
 class DashboardLayout:

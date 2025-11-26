@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from sec_certs_page.dashboard.chart.chart import Chart
-from sec_certs_page.dashboard.types.common import CollectionName
+from .chart.chart import Chart
+from .types.common import CollectionName
 
 # Namespace UUID for dashboard IDs - ensures deterministic UUID5 generation
 # Generated once using uuid.uuid4() to serve as a consistent namespace

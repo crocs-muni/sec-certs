@@ -1,7 +1,6 @@
-from dash import dcc, html
 from dash.development.base_component import Component
 
-from sec_certs_page.dashboard.chart.base import BaseChart
+from ..chart.base import BaseChart
 
 
 class BarChartComponent(BaseChart):

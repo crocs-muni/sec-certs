@@ -4,10 +4,10 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 from dash.development.base_component import Component
 
-from sec_certs_page.dashboard.filters.filter import FilterSpec
-from sec_certs_page.dashboard.filters.registry import get_filter_registry
-from sec_certs_page.dashboard.types.common import CollectionName
-from sec_certs_page.dashboard.types.filter import FilterComponentType
+from ..filters.filter import FilterSpec
+from ..filters.registry import get_filter_registry
+from ..types.common import CollectionName
+from ..types.filter import FilterComponentType
 
 DBC_GRID_COL_MAX_WIDTH = 12
 """Maximum width for a column in Dash Bootstrap Components grid system."""

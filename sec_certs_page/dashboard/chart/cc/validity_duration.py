@@ -2,8 +2,7 @@ import pandas as pd
 import plotly.express as px
 from dash import dcc, html
 
-from sec_certs_page.dashboard.chart.chart import Chart
-
+from ...chart.chart import Chart
 from ...data import DataService
 from ..base import BaseChart
 
@@ -20,10 +19,8 @@ class CCValidityDuration(BaseChart):
 
     def render(self, filter_values: dict | None = None) -> html.Div:
         """Render the box plot with per-chart filter configuration."""
-        # Build filter values from chart's active filters
         active_filters = self.config.get_active_filters() if self.config else {}
 
-        # Extract filter values from FilterSpec objects
         chart_filter_values = {fid: fspec.data for fid, fspec in active_filters.items() if fspec.data is not None}
 
         df = self.data_service.get_cc_dataframe(filter_values=chart_filter_values if chart_filter_values else None)
@@ -36,7 +33,6 @@ class CCValidityDuration(BaseChart):
                 ]
             )
 
-        # Process dates
         df["not_valid_before"] = pd.to_datetime(df["not_valid_before"], unit="ms", errors="coerce")
         df["not_valid_after"] = pd.to_datetime(df["not_valid_after"], unit="ms", errors="coerce")
         df.dropna(subset=["not_valid_before", "not_valid_after"], inplace=True)
@@ -55,7 +51,6 @@ class CCValidityDuration(BaseChart):
         df["year_from"] = df["not_valid_before"].dt.year
         sorted_years = sorted(df["year_from"].unique())
 
-        # Use config for labels
         x_label = self.config.x_axis.label if self.config and self.config.x_axis else "Year of Certification"
         y_label = (
             self.config.y_axis.label if self.config and self.config.y_axis else "Lifetime of certificates (in days)"

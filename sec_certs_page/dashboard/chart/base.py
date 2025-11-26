@@ -5,8 +5,8 @@ from typing import Literal, Protocol
 from dash import Dash, dcc, html
 from dash.development.base_component import Component
 
-from sec_certs_page.dashboard.chart.chart import Chart
-from sec_certs_page.dashboard.data import DataService
+from ..chart.chart import Chart
+from ..data import DataService
 
 
 class SupportsRegisterCallbacks(Protocol):

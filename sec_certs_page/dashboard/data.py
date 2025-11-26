@@ -18,8 +18,8 @@ import numpy as np
 import pandas as pd
 from flask_pymongo import PyMongo
 
-from sec_certs_page.dashboard.filters.query_builder import build_query_from_filters
-from sec_certs_page.dashboard.types.common import CollectionName
+from .filters.query_builder import build_query_from_filters
+from .types.common import CollectionName
 
 logger: Logger = logging.getLogger(__name__)
 
