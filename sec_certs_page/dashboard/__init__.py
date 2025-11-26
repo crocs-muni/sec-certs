@@ -33,27 +33,26 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> Dash:
     # Register predefined charts
     dashboard_manager.register_predefined_charts()
 
-    url_base_pathname = "/dashboard"
+    url_base_pathname = "/dashboard/"
     dash_app = Dash(
         __name__,
         server=app,
+        url_base_pathname=url_base_pathname,
         use_pages=True,
         suppress_callback_exceptions=True,
         pages_folder="",
     )
 
-    # Create and set layout
-    layout_builder = DashboardLayout(data_service)
-    dash_app.layout = layout_builder.create()
-    layout_builder.register_home_page()
+    layout_builder = DashboardLayout(data_service, url_base_pathname)
 
-    # Register pages (just layouts, no callbacks)
+    layout_builder.register_home_page()
     register_pages(
         filter_factories=dashboard_manager.filter_factories,
         chart_registries=dashboard_manager.chart_registries,
     )
 
-    # Register all callbacks
+    dash_app.layout = layout_builder.create()
+
     register_all_callbacks(
         app=dash_app,
         data_service=data_service,
@@ -70,7 +69,7 @@ def init_dashboard(app: Flask, csrf: CSRFProtect) -> Dash:
 
     logger.debug("=== DASHBOARD INITIALIZATION COMPLETE ===")
     logger.debug(f"Dashboard available at: http://localhost:5000{url_base_pathname}")
-    logger.debug(f"CC Dashboard at: http://localhost:5000{url_base_pathname}/cc")
+    logger.debug(f"CC Dashboard at: http://localhost:5000{url_base_pathname}cc")
 
     return dash_app
 

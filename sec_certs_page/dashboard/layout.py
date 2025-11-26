@@ -9,8 +9,9 @@ from .data import DataService
 class DashboardLayout:
     """Manages the creation and structure of the dashboard's app shell."""
 
-    def __init__(self, data_service: DataService):
+    def __init__(self, data_service: DataService, dashboard_base_path: str) -> None:
         self.data_service = data_service
+        self.base_path = dashboard_base_path
 
     def create(self) -> html.Div:
         """Construct the main layout (app shell) of the dashboard."""
@@ -22,7 +23,7 @@ class DashboardLayout:
             nav_links.append(
                 dcc.Link(
                     f"{dataset_type.value.upper()} Dashboard",
-                    href=f"/{dataset_type.value}",
+                    href=f"{self.base_path}{dataset_type.value}",
                     style={"textDecoration": "none"},
                 )
             )
@@ -48,28 +49,6 @@ class DashboardLayout:
                     ],
                 ),
                 dash.page_container,
-                html.Footer(
-                    style={
-                        "borderTop": "1px solid #eee",
-                        "paddingTop": "15px",
-                        "marginTop": "30px",
-                        "color": "#666",
-                        "fontSize": "14px",
-                    },
-                    children=[
-                        html.A(
-                            "Documentation",
-                            href="https://sec-certs.org/docs",
-                            target="_blank",
-                            style={"marginRight": "20px"},
-                        ),
-                        html.A(
-                            "sec-certs.org",
-                            href="https://sec-certs.org",
-                            target="_blank",
-                        ),
-                    ],
-                ),
             ],
         )
 
@@ -90,7 +69,7 @@ class DashboardLayout:
                     html.P(f"Interactive analysis for {dt.value.upper()} certificates"),
                     dcc.Link(
                         "Open Dashboard →",
-                        href=f"/{dt.value}",
+                        href=f"{self.base_path}{dt.value}",
                         style={
                             "display": "inline-block",
                             "padding": "10px 20px",
