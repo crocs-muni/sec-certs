@@ -163,7 +163,7 @@ def get_australia_in_evaluation(  # noqa: C901
     :return: The entries.
     """
     session = requests.Session()
-    soup = _get_page(constants.CC_AUSTRALIA_INEVAL_URL, session=session, spoof=True)
+    soup = _get_page(constants.CC_AUSTRALIA_INEVAL_URL, session=session, spoof=True, retries=3)
     header = soup.find("h2", string="Products in evaluation")
     table = header.find_next_sibling("table")
     results = []
@@ -182,7 +182,7 @@ def get_australia_in_evaluation(  # noqa: C901
         }
         if enhanced:
             e: dict[str, Any] = {}
-            cert_page = _get_page(cert["url"], session=session, spoof=True)
+            cert_page = _get_page(cert["url"], session=session, spoof=True, retries=3)
             article = cert_page.find("article")
             blocks = article.find("div").find_all("div", class_="flex", recursive=False)
             for h2 in blocks[0].find_all("h2"):
