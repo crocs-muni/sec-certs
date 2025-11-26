@@ -40,6 +40,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
+from .common.dash.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send
 
@@ -215,10 +216,30 @@ with app.app_context():
             )
             app.register_blueprint(github_bp, url_prefix="/auth")
 
-from .dashboard import init_dashboard
 from .jinja import *
 from .tasks import *
 from .views import *
 
 with app.app_context():
-    init_dashboard(app, csrf)
+    url_base_pathname = "/dashboard/"
+    dash_app = Dash(
+        __name__,
+        server=app,
+        url_base_pathname=url_base_pathname,
+        use_pages=True,
+        suppress_callback_exceptions=True,
+        pages_folder="",
+    )
+    from .dashboard import init_dashboard
+
+    init_dashboard(dash_app)
+
+    def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:
+        """Dash is not using CSRF protection, so we need to exempt its routes."""
+        for rule in app.url_map.iter_rules():
+            if rule.rule.startswith(url_base_pathname):
+                view_func = app.view_functions.get(rule.endpoint)
+                if view_func is not None:
+                    csrf.exempt(view_func)
+
+    _exempt_all_dash_endpoints(app, csrf, url_base_pathname)

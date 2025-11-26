@@ -18,6 +18,7 @@ class Dash(OriginalDash):
         app_entry="",
         favicon="",
         renderer="",
+        **kwargs,
     ):
         return render_template(
             "dash.html.jinja2",

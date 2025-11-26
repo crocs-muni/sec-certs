@@ -3,10 +3,11 @@ from uuid import uuid4
 
 from .chart.cc import CCCategoryDistribution, CCCertsPerYear, CCValidityDuration
 from .chart.chart import AxisConfig, Chart
+from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry
 from .dashboard import Dashboard
 from .data import DataService
-from .filters.component_factory import DashFilterFactory
+from .filters.factory import FilterFactory
 from .repository import DashboardRepository
 from .types.chart import AvailableChartTypes
 from .types.common import CollectionName
@@ -27,25 +28,21 @@ class DashboardManager:
             dataset_type: ChartRegistry(dataset_type=dataset_type) for dataset_type in CollectionName
         }
 
-        self.filter_factories: dict[CollectionName, DashFilterFactory] = {
-            dataset_type: DashFilterFactory(dataset_type=dataset_type) for dataset_type in CollectionName
+        self.filter_factories: dict[CollectionName, FilterFactory] = {
+            dataset_type: FilterFactory(dataset_type=dataset_type) for dataset_type in CollectionName
         }
 
     def get_chart_registry(self, dataset_type: CollectionName) -> ChartRegistry:
-        """Get chart registry for a dataset type."""
         return self.chart_registries[dataset_type]
 
-    def get_filter_factory(self, dataset_type: CollectionName) -> DashFilterFactory:
-        """Get filter factory for a dataset type."""
+    def get_filter_factory(self, dataset_type: CollectionName) -> FilterFactory:
         return self.filter_factories[dataset_type]
 
     def register_predefined_charts(self) -> None:
-        """Register all predefined charts with their registries."""
         self._register_cc_charts()
         self._register_fips_charts()
 
     def _register_cc_charts(self) -> None:
-        """Register predefined CC charts."""
         cc_chart_registry = self.chart_registries[CollectionName.CommonCriteria]
 
         category_distribution_config = Chart(
@@ -103,8 +100,82 @@ class DashboardManager:
             cc_chart_registry.register(chart)
 
     def _register_fips_charts(self) -> None:
-        """Register predefined FIPS charts."""
         pass
+
+    def get_dashboard_names(
+        self,
+        user_id: str,
+        dataset_type: CollectionName,
+    ) -> list[dict[str, str]]:
+        """
+        Get dashboard names for dropdown population (INIT-1 lazy loading).
+
+        Returns minimal data: dashboard_id, name, is_default flag.
+        """
+        return self.repository.get_names_by_user(user_id, dataset_type)
+
+    def load_dashboard_with_charts(
+        self,
+        dashboard_id: str,
+    ) -> tuple[Dashboard | None, list]:
+        """
+        Load dashboard and instantiate BaseChart components from stored configs.
+
+        Implements INIT-2 callback reconstruction by using ChartFactory
+        to create runtime chart instances from serialized Chart configs.
+
+        :return: Tuple of (Dashboard, list of BaseChart instances)
+        """
+        dashboard = self.repository.get_by_id(dashboard_id)
+        if dashboard is None:
+            return None, []
+
+        chart_instances = []
+        for chart_config in dashboard.charts:
+            try:
+                chart_instance = ChartFactory.create_chart(chart_config, self.data_service)
+                chart_instances.append(chart_instance)
+            except ValueError as e:
+                print(f"Warning: Could not instantiate chart {chart_config.name}: {e}")
+                continue
+
+        return dashboard, chart_instances
+
+    def load_default_dashboard(
+        self,
+        user_id: str,
+        dataset_type: CollectionName,
+    ) -> tuple[Dashboard | None, list]:
+        """
+        Load user's default dashboard for INIT-3 first access.
+
+        :return: Tuple of (Dashboard, list of BaseChart instances) or (None, [])
+        """
+        dashboard = self.repository.get_default(user_id, dataset_type)
+        if dashboard is None:
+            return None, []
+
+        chart_instances = []
+        for chart_config in dashboard.charts:
+            try:
+                chart_instance = ChartFactory.create_chart(chart_config, self.data_service)
+                chart_instances.append(chart_instance)
+            except ValueError:
+                continue
+
+        return dashboard, chart_instances
+
+    def get_predefined_chart_configs(self, dataset_type: CollectionName) -> list[Chart]:
+        """
+        Get predefined chart configurations for 'Load Predefined' option.
+
+        Returns Chart dataclass instances (not BaseChart) for serialization.
+        """
+        registry = self.chart_registries.get(dataset_type)
+        if not registry:
+            return []
+
+        return [chart.config for chart in registry]
 
     def create_dashboard(
         self,
@@ -114,7 +185,6 @@ class DashboardManager:
         description: Optional[str] = None,
         is_default: bool = False,
     ) -> Dashboard:
-        """Create a new dashboard instance."""
         return Dashboard(
             user_id=user_id,
             collection_name=dataset_type,
@@ -124,11 +194,9 @@ class DashboardManager:
         )
 
     def save_dashboard(self, dashboard: Dashboard) -> str:
-        """Save dashboard to MongoDB."""
         return self.repository.save(dashboard)
 
     def get_dashboard(self, dashboard_id: str) -> Optional[Dashboard]:
-        """Retrieve dashboard from MongoDB."""
         return self.repository.get_by_id(dashboard_id)
 
     def get_user_dashboards(
@@ -136,17 +204,13 @@ class DashboardManager:
         user_id: str,
         dataset_type: Optional[CollectionName] = None,
     ) -> list[Dashboard]:
-        """Get all dashboards for a user."""
         return self.repository.get_by_user(user_id, dataset_type)
 
     def get_default_dashboard(self, user_id: str, dataset_type: CollectionName) -> Optional[Dashboard]:
-        """Get user's default dashboard for a dataset type."""
         return self.repository.get_default(user_id, dataset_type)
 
     def delete_dashboard(self, dashboard_id: str, user_id: str) -> bool:
-        """Delete dashboard from MongoDB."""
         return self.repository.delete(dashboard_id, user_id)
 
     def count_user_dashboards(self, user_id: str, dataset_type: Optional[CollectionName] = None) -> int:
-        """Count dashboards for a user."""
         return self.repository.count_by_user(user_id, dataset_type)
