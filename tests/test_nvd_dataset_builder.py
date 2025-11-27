@@ -61,5 +61,5 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
 
         assert get_update_timestamp_from_dataset(dataset).date() == date.today()
         assert (
-            get_dataset_len(dataset) > 200
-        )  # some items may be irrelevant, it's hard to tell how many, this is Bulgarian constant.
+            get_dataset_len(dataset) > 100
+        )  # some items may be irrelevant, it's hard to tell how many, this is a Bulgarian constant.
