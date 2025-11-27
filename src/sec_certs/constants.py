@@ -113,7 +113,7 @@ GARBAGE_ALPHA_CHARS_THRESHOLD = 0.5
 CC_AUSTRALIA_BASE_URL = "https://www.cyber.gov.au"
 CC_AUSTRALIA_INEVAL_URL = (
     CC_AUSTRALIA_BASE_URL
-    + "/resources-business-and-government/assessment-and-evaluation-programs/australian-information-security-evaluation-program"
+    + "/business-government/protecting-devices-systems/assessment-evaluation-programs/australian-information-security-evaluation-program"
 )
 CC_CANADA_BASE_URL = "https://www.cyber.gc.ca"
 CC_CANADA_API_URL = CC_CANADA_BASE_URL + "/api/cccs/page/v1/get"
@@ -170,15 +170,17 @@ CC_POLAND_CERTIFIED_URL = CC_POLAND_BASE_URL + "/een/certificates/"
 CC_POLAND_INEVAL_URL = CC_POLAND_BASE_URL + "/en/certifications-in-progress/"
 CC_SINGAPORE_BASE_URL = "https://www.csa.gov.sg"
 CC_SINGAPORE_CERTIFIED_URL = (
-    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-list"
+    CC_SINGAPORE_BASE_URL
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list/"
 )
 CC_SINGAPORE_ARCHIVED_URL = (
-    CC_SINGAPORE_BASE_URL + "/Programmes/certification-and-labelling-schemes/csa-common-criteria/product-archives"
+    CC_SINGAPORE_BASE_URL
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list-archived/"
 )
 CC_SINGAPORE_API_URL = CC_SINGAPORE_BASE_URL + "/api/CsaCommonProductCriteria/getProduct"
 CC_SINGAPORE_INEVAL_URL = (
     CC_SINGAPORE_BASE_URL
-    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list/in-evaluation"
+    + "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product-list-in-evaluation/"
 )
 CC_SPAIN_BASE_URL = "https://oc.ccn.cni.es"
 CC_SPAIN_CERTIFIED_URL = CC_SPAIN_BASE_URL + "/en/certified-products/certified-products"
@@ -188,6 +190,7 @@ CC_SWEDEN_INEVAL_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/p
 CC_SWEDEN_ARCHIVED_URL = CC_SWEDEN_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/arkiverade-certifikat-aldre-an-5-ar/"
 CC_TURKEY_ARCHIVED_URL = "https://statik.tse.org.tr/upload/tr/dosya/icerikyonetimi/3300/03112021143434-2.pdf"
 CC_USA_BASE_URL = "https://www.niap-ccevs.org"
-CC_USA_PRODUCTS_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products/"
+CC_USA_PRODUCTS_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products_all/"
+CC_USA_PRODUCT_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products/{}/"
 CC_USA_FILES_URL = CC_USA_BASE_URL + "/api/file/get_pcl_files/"
 CC_USA_GETFILE_URL = CC_USA_BASE_URL + "/api/file/get_public_file/"

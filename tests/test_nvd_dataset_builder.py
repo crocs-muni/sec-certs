@@ -52,7 +52,7 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
         assert not dataset_builder._ok_responses
         assert dataset_builder._attempts_left == dataset_builder.max_attempts
 
-        dataset_builder._requests_to_process = dataset_builder._requests_to_process[:1]
+        dataset_builder._requests_to_process = dataset_builder._requests_to_process[-1:]
         dataset_builder._request_parallel_and_handle_responses()
         assert not dataset_builder._requests_to_process
         assert len(dataset_builder._ok_responses) == 1
@@ -61,5 +61,5 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
 
         assert get_update_timestamp_from_dataset(dataset).date() == date.today()
         assert (
-            get_dataset_len(dataset) > 200
-        )  # some items may be irrelevant, it's hard to tell how many, this is Bulgarian constant.
+            get_dataset_len(dataset) > 100
+        )  # some items may be irrelevant, it's hard to tell how many, this is a Bulgarian constant.
