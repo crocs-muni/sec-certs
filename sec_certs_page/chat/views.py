@@ -122,7 +122,7 @@ def query_rag():
                     "id": file_id,
                     "name": fname,
                     "type": ftype,
-                    "url": url_for(f"{collection}.entry_{ftype}_txt", hashid=hashid),
+                    "url": url_for(f"{collection}.entry_{ftype}_txt", hashid=hashid) if ftype else None,
                 }
             )
         for i, source in enumerate(sources):

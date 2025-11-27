@@ -225,7 +225,7 @@ export function chat_files(files_url, token, certificate_data) {
                     `Files available for RAG <span class="badge bg-secondary">${data.files.join(", ")}</span>`
                 );
             } else {
-                $("#chat-files").text("No files available for RAG.");
+                $("#chat-files").text("No files available for RAG. This wil not work!");
             }
             $("#chat-files").data("done", true);
         },

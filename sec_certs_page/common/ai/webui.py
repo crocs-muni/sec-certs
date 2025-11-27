@@ -166,7 +166,7 @@ def file_name(file_id: str) -> Optional[str]:
         return None
 
 
-def file_type(file_id: str, collection: str) -> str:
+def file_type(file_id: str, collection: str) -> Optional[str]:
     """Determine the file type (report/target) for a given file ID and collection."""
     reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
     targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
@@ -178,7 +178,8 @@ def file_type(file_id: str, collection: str) -> str:
         return "report"
     elif collection == targets_kbid:
         return "target"
-    raise ValueError("Unknown file type.")
+    else:
+        return None
 
 
 def get_file_metadata(file_id: str) -> Optional[dict[str, Any]]:
@@ -391,11 +392,7 @@ def resolve_files(collection: str, hashid: str) -> list[str]:
     files = files_for_hashid(hashid)
     resp = []
     for file in files:
-        try:
-            resp.append(file_type(file, collection))
-        except ValueError:
-            # Just eat the error.
-            # This means the file is not part of the known knowledge bases.
-            # Which means the database may be inconsistent.
-            continue
+        ftype = file_type(file, collection)
+        if ftype and ftype not in resp:
+            resp.append(ftype)
     return resp

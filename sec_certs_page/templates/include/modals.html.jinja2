@@ -68,6 +68,26 @@
                     let chatModal = new bootstrap.Modal(document.getElementById("chat-modal"));
                     chatModal.show();
                 }
+                $("#chat-about").change(function () {
+                    switch ($("#chat-about").val()) {
+                        case "full-both":
+                            $("#chat-info").text("The context includes both the certification report and the security target.");
+                            $("#chat-files").addClass("d-none");
+                            break;
+                        case "full-report":
+                            $("#chat-info").text("The context includes only the certification report.");
+                            $("#chat-files").addClass("d-none");
+                            break;
+                        case "full-target":
+                            $("#chat-info").text("The context includes only the security target.");
+                            $("#chat-files").addClass("d-none");
+                            break;
+                        case "rag-this":
+                            $("#chat-info").text("The certificate's content is used as context for Retrieval-Augmented Generation (RAG).");
+                            $("#chat-files").removeClass("d-none");
+                            break;
+                    }
+                })
                 $("#chat-modal").on("show.bs.modal", async function () {
                     let token = "{{ csrf_token() }}";
                     let files_url = "{{ url_for("chat.files") }}"
@@ -90,8 +110,9 @@
                     }
                 });
                 $("#chat-fullscreen-btn").click(function () {
-                    $("#chat-modal .modal-dialog").toggleClass("modal-lg").toggleClass("modal-fullscreen");
+                    $("#chat-modal .modal-dialog").toggleClass("modal-xl").toggleClass("modal-fullscreen");
                 });
+                $("#chat-about").change();
             {% endif %}
             $("#compare-modal").on("show.bs.modal", function () {
                 update_state();
@@ -120,7 +141,7 @@
 {% macro chat_modal() %}
     <div class="modal fade" id="chat-modal" tabindex="-1" aria-labelledby="chat-modal-label"
          aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chat-modal-label">Chat</h5>
@@ -141,26 +162,28 @@
                         </div>
                     {% else %}
                         <div id="chat-skeleton">
-                            <div class="mb-3 d-flex align-items-center gap-2 justify-content-between">
-                                <div class="d-flex align-items-center gap-2">
-                                    <label for="chat-about" class="form-label mb-0">Chat context</label>
-                                    <select id="chat-about" class="form-select w-auto">
-                                        <option value="full-both" selected>Full context (both)</option>
-                                        <option value="full-report">Full context (report)</option>
-                                        <option value="full-target">Full context (target)</option>
-                                        <option value="rag-this">(RAG) This certificate</option>
-                                    </select>
+                            <div class="mb-3">
+                                <div class="mb-1 d-flex align-items-center gap-2 justify-content-between">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <label for="chat-about" class="form-label mb-0">Chat context</label>
+                                        <select id="chat-about" class="form-select w-auto">
+                                            <option value="full-both" selected>Full context (both)</option>
+                                            <option value="full-report">Full context (report)</option>
+                                            <option value="full-target">Full context (target)</option>
+                                            <option value="rag-this">(RAG) This certificate</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <label for="chat-model" class="form-label mb-0">Model</label>
+                                        <select id="chat-model" class="form-select w-auto">
+                                            {% for model in config["WEBUI_MODELS"] %}
+                                                <option value="{{ model }}"
+                                                        {% if model == config["WEBUI_DEFAULT_MODEL"] %}selected{% endif %}>{{ model }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <label for="chat-model" class="form-label mb-0">Model</label>
-                                    <select id="chat-model" class="form-select w-auto">
-                                        {% for model in config["WEBUI_MODELS"] %}
-                                            <option value="{{ model }}"
-                                                    {% if model == config["WEBUI_DEFAULT_MODEL"] %}selected{% endif %}>{{ model }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <span id="chat-files"></span>
+                                <i class="fas fa-info-circle text-muted"></i> <span id="chat-info" class="text-muted"></span> <span id="chat-files" class="text-muted d-none"></span>
                             </div>
                             <div id="chat-messages">
                                 <!-- Messages will appear here -->
