@@ -8,6 +8,7 @@ import re
 import tempfile
 import warnings
 from collections.abc import Callable, Iterable
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
@@ -135,6 +136,7 @@ def _get_hash(url: str, session=None, **kwargs) -> str | None:
     return h.digest().hex()
 
 
+@contextmanager
 def _setup_driver():
     # Use Selenium + Chrome to navigate ANSSI pages.
     options = Options()
@@ -150,7 +152,10 @@ def _setup_driver():
     except Exception as ex:
         raise RuntimeError("Selenium Chrome webdriver not available.") from ex
 
-    return driver
+    try:
+        yield driver
+    finally:
+        driver.quit()
 
 
 def get_australia_in_evaluation(  # noqa: C901
@@ -280,118 +285,114 @@ def get_canada_in_evaluation() -> list[dict[str, Any]]:
 
 
 def _get_france(url, enhanced, artifacts, name) -> list[dict[str, Any]]:  # noqa: C901
-    driver = _setup_driver()
+    with _setup_driver() as driver:
+        # Bypass Incapsula protection.
+        driver.get(url)
+        base_soup = BeautifulSoup(driver.page_source, "html5lib")
 
-    # Bypass Incapsula protection.
-    driver.get(url)
-    base_soup = BeautifulSoup(driver.page_source, "html5lib")
+        results: list[dict[str, Any]] = []
+        pbar = tqdm(desc=f"Get FR scheme {name}.")
 
-    # Continue with requests + BeautifulSoup.
-    results: list[dict[str, Any]] = []
-    pbar = tqdm(desc=f"Get FR scheme {name}.")
-
-    pager = base_soup.find("nav", class_="pager")
-    last_page_a = re.search("[0-9]+", pager.find("a", title="Aller à la dernière page").text)
-    if not last_page_a:
-        raise ValueError
-    pages = int(last_page_a.group())
-    session = requests.session()
-    for page in range(pages + 1):
-        page_url = url + f"?page={page}"
-        driver.get(page_url)
-        soup = BeautifulSoup(driver.page_source, "html5lib")
-        session.cookies.clear()
-        session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
-        for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
-            cert: dict[str, Any] = {
-                "product": sns(row.find("h3").text),
-                "url": urljoin(constants.CC_ANSSI_BASE_URL, row.find("a")["href"]),
-            }
-            description_para = row.find("p", class_="field-body")
-            if description_para:
-                cert["description"] = sns(description_para.text)
-            complement_info = row.find("div", class_="info-complement")
-            if complement_info:
-                for li in complement_info.find_all("li"):
-                    span = li.find("span")
-                    if not span:
+        pager = base_soup.find("nav", class_="pager")
+        last_page_a = re.search("[0-9]+", pager.find("a", title="Aller à la dernière page").text)
+        if not last_page_a:
+            raise ValueError
+        pages = int(last_page_a.group())
+        session = requests.session()
+        for page in range(pages + 1):
+            page_url = url + f"?page={page}"
+            driver.get(page_url)
+            soup = BeautifulSoup(driver.page_source, "html5lib")
+            session.cookies.clear()
+            session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
+            for row in soup.find_all("article", class_="node--type-produit-certifie-cc"):
+                cert: dict[str, Any] = {
+                    "product": sns(row.find("h3").text),
+                    "url": urljoin(constants.CC_ANSSI_BASE_URL, row.find("a")["href"]),
+                }
+                description_para = row.find("p", class_="field-body")
+                if description_para:
+                    cert["description"] = sns(description_para.text)
+                complement_info = row.find("div", class_="info-complement")
+                if complement_info:
+                    for li in complement_info.find_all("li"):
+                        span = li.find("span")
+                        if not span:
+                            continue
+                        label = span.text
+                        value = sns(li.find(string=True, recursive=False))
+                        if "Commanditaire" in label:
+                            cert["sponsor"] = value
+                        elif "Développeur" in label:
+                            cert["developer"] = value
+                        elif "Référence du certificat" in label:
+                            cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
+                        elif "Niveau" in label:
+                            cert["level"] = value
+                        elif "Date de fin de validité" in label:
+                            cert["expiration_date"] = parse_date(value, languages=["fr"])
+                if enhanced:
+                    e: dict[str, Any] = {}
+                    driver.get(cert["url"])
+                    session.cookies.clear()
+                    session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
+                    cert_page = BeautifulSoup(driver.page_source, "html5lib")
+                    infos = cert_page.find("div", class_="product-infos-wrapper")
+                    if infos is None:
+                        # Missing info block; skip enhanced parsing for this cert
+                        pbar.update()
+                        results.append(cert)
                         continue
-                    label = span.text
-                    value = sns(li.find(string=True, recursive=False))
-                    if "Commanditaire" in label:
-                        cert["sponsor"] = value
-                    elif "Développeur" in label:
-                        cert["developer"] = value
-                    elif "Référence du certificat" in label:
-                        cert["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
-                    elif "Niveau" in label:
-                        cert["level"] = value
-                    elif "Date de fin de validité" in label:
-                        cert["expiration_date"] = parse_date(value, languages=["fr"])
-            if enhanced:
-                e: dict[str, Any] = {}
-                driver.get(cert["url"])
-                session.cookies.clear()
-                session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
-                cert_page = BeautifulSoup(driver.page_source, "html5lib")
-                infos = cert_page.find("div", class_="product-infos-wrapper")
-                if infos is None:
-                    # Missing info block; skip enhanced parsing for this cert
+                    for tr in infos.find_all("tr"):
+                        th = tr.find("th")
+                        td = tr.find("td")
+                        if not th or not td:
+                            continue
+                        label = th.text
+                        value = sns(td.text)
+                        if "Référence du certificat" in label:
+                            e["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
+                        elif "Date de certification" in label:
+                            e["certification_date"] = parse_date(value, languages=["fr"])
+                        elif "Date de fin de validité" in label:
+                            e["expiration_date"] = parse_date(value, languages=["fr"])
+                        elif "Catégorie" in label:
+                            e["category"] = value
+                        elif "Référentiel" in label:
+                            e["cc_version"] = value
+                        elif "Développeur(s)" in label:
+                            e["developer"] = value
+                        elif "Commanditaire(s)" in label:
+                            e["sponsor"] = value
+                        elif "Centre d'évaluation" in label:
+                            e["evaluation_facility"] = value
+                        elif "Niveau" in label:
+                            e["level"] = value
+                        elif "Profil de protection" in label:
+                            e["protection_profile"] = value
+                        elif "Accords de reconnaissance" in label:
+                            e["mutual_recognition"] = value
+                        elif "Augmentations" in label:
+                            e["augmented"] = value
+                    documents = cert_page.find("div", class_="documents")
+                    if documents:
+                        for a in documents.find_all("a"):
+                            if "Rapport de certification" in a.text:
+                                e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                                if artifacts:
+                                    e["report_hash"] = _get_hash(e["report_link"], session=session, spoof=True)
+                            elif "Cible de sécurité" in a.text:
+                                e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                                if artifacts:
+                                    e["target_hash"] = _get_hash(e["target_link"], session=session, spoof=True)
+                            elif "Certificat" in a.text:
+                                e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
+                                if artifacts:
+                                    e["cert_hash"] = _get_hash(e["cert_link"], session=session, spoof=True)
                     cert["enhanced"] = e
-                    pbar.update()
-                    results.append(cert)
-                    continue
-                for tr in infos.find_all("tr"):
-                    th = tr.find("th")
-                    td = tr.find("td")
-                    if not th or not td:
-                        continue
-                    label = th.text
-                    value = sns(td.text)
-                    if "Référence du certificat" in label:
-                        e["cert_id"] = value if not value or value.startswith("ANSSI") else "ANSSI-CC-" + value
-                    elif "Date de certification" in label:
-                        e["certification_date"] = parse_date(value, languages=["fr"])
-                    elif "Date de fin de validité" in label:
-                        e["expiration_date"] = parse_date(value, languages=["fr"])
-                    elif "Catégorie" in label:
-                        e["category"] = value
-                    elif "Référentiel" in label:
-                        e["cc_version"] = value
-                    elif "Développeur(s)" in label:
-                        e["developer"] = value
-                    elif "Commanditaire(s)" in label:
-                        e["sponsor"] = value
-                    elif "Centre d'évaluation" in label:
-                        e["evaluation_facility"] = value
-                    elif "Niveau" in label:
-                        e["level"] = value
-                    elif "Profil de protection" in label:
-                        e["protection_profile"] = value
-                    elif "Accords de reconnaissance" in label:
-                        e["mutual_recognition"] = value
-                    elif "Augmentations" in label:
-                        e["augmented"] = value
-                documents = cert_page.find("div", class_="documents")
-                if documents:
-                    for a in documents.find_all("a"):
-                        if "Rapport de certification" in a.text:
-                            e["report_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
-                            if artifacts:
-                                e["report_hash"] = _get_hash(e["report_link"], session=session, spoof=True)
-                        elif "Cible de sécurité" in a.text:
-                            e["target_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
-                            if artifacts:
-                                e["target_hash"] = _get_hash(e["target_link"], session=session, spoof=True)
-                        elif "Certificat" in a.text:
-                            e["cert_link"] = urljoin(constants.CC_ANSSI_BASE_URL, a["href"])
-                            if artifacts:
-                                e["cert_hash"] = _get_hash(e["cert_link"], session=session, spoof=True)
-                cert["enhanced"] = e
-            pbar.update()
-            results.append(cert)
-    driver.quit()
-    return results
+                pbar.update()
+                results.append(cert)
+        return results
 
 
 def get_france_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:  # noqa: C901
@@ -1476,80 +1477,78 @@ def get_poland_ineval() -> list[dict[str, Any]]:
 
 
 def _get_singapore(url: str, enhanced: bool, artifacts: bool, name) -> list[dict[str, Any]]:  # noqa: C901
-    driver = _setup_driver()
-
-    driver.get(url)
-    current = 1
-    results: list[dict[str, Any]] = []
-    pbar = tqdm(desc=f"Get SG scheme {name}.")
-    while True:
-        driver.get(f"{url}?page={current}")
-        sleep(2)
-        soup = BeautifulSoup(driver.page_source, "html5lib")
-        if "We couldn’t find any articles" in soup.text:
-            break
-        main = soup.find("main", id="main-content")
-        links = main.find_all("a", class_="outline", href=True)
-        for link in links:
-            if not link["href"].startswith(
-                "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product"
-            ):
-                continue
-            cert: dict[str, Any] = {
-                "url": urljoin(constants.CC_SINGAPORE_BASE_URL, link["href"]),
-                "product": sns(link.find("h3").text),
-            }
-            ps = link.find_all("p")
-            ps.pop(0)
-            while ps:
-                p = ps.pop(0)
-                text: str = sns(p.text)  # type: ignore
-                if "Assurance Level" in text:
-                    val = ps.pop(0)
-                    cert["level"] = sns(val)
-                elif "Product Developer" in text:
-                    val = ps.pop(0)
-                    cert["vendor"] = sns(val)
-                elif "Date of" in text:
-                    match = re.match(
-                        "Date of Certificate Issuance: (?P<issue_date>.+) Date of Certificate Expiry: (?P<expiry_date>.+)",
-                        text,
-                    )
-                    if not match:
-                        continue
-                    cert["certification_date"] = parse_date(match.group("issue_date"), "%d %B %Y")
-                    cert["expiration_date"] = parse_date(match.group("expiry_date"), "%d %B %Y")
-            if enhanced:
-                e: dict[str, Any] = {}
-                driver.get(cert["url"])
-                sleep(2)
-                cert_soup = BeautifulSoup(driver.page_source, "html5lib")
-                for li in cert_soup.find("main", id="main-content").find("ul", class_="list-disc"):
-                    if "Security Target" in li.text:
-                        a = li.find("a")
-                        e["target_title"] = sns(a.text)
-                        e["target_link"] = urljoin(constants.CC_SINGAPORE_BASE_URL, a["href"])
-                        if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"])
-                    elif "Certification Report" in li.text:
-                        a = li.find("a")
-                        e["report_title"] = sns(a.text)
-                        e["report_link"] = urljoin(constants.CC_SINGAPORE_BASE_URL, a["href"])
-                        if artifacts:
-                            e["report_hash"] = _get_hash(e["report_link"])
-                    elif "Certificate" in li.text:
-                        a = li.find("a")
-                        e["cert_title"] = sns(a.text)
-                        e["cert_link"] = urljoin(constants.CC_SINGAPORE_BASE_URL, a["href"])
-                        if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"])
-                cert["enhanced"] = e
-            results.append(cert)
-            pbar.update()
-        current += 1
-    pbar.close()
-    driver.quit()
-    return results
+    with _setup_driver() as driver:
+        driver.get(url)
+        current = 1
+        results: list[dict[str, Any]] = []
+        pbar = tqdm(desc=f"Get SG scheme {name}.")
+        while True:
+            driver.get(f"{url}?page={current}")
+            sleep(2)
+            soup = BeautifulSoup(driver.page_source, "html5lib")
+            if "We couldn’t find any articles" in soup.text:
+                break
+            main = soup.find("main", id="main-content")
+            links = main.find_all("a", class_="outline", href=True)
+            for link in links:
+                if not link["href"].startswith(
+                    "/our-programmes/certification-and-labelling-schemes/singapore-common-criteria-scheme/product"
+                ):
+                    continue
+                cert: dict[str, Any] = {
+                    "url": urljoin(constants.CC_SINGAPORE_BASE_URL, link["href"]),
+                    "product": sns(link.find("h3").text),
+                }
+                ps = link.find_all("p")
+                ps.pop(0)
+                while ps:
+                    p = ps.pop(0)
+                    text: str = sns(p.text)  # type: ignore
+                    if "Assurance Level" in text:
+                        val = ps.pop(0)
+                        cert["level"] = sns(val)
+                    elif "Product Developer" in text:
+                        val = ps.pop(0)
+                        cert["vendor"] = sns(val)
+                    elif "Date of" in text:
+                        match = re.match(
+                            "Date of Certificate Issuance: (?P<issue_date>.+) Date of Certificate Expiry: (?P<expiry_date>.+)",
+                            text,
+                        )
+                        if not match:
+                            continue
+                        cert["certification_date"] = parse_date(match.group("issue_date"), "%d %B %Y")
+                        cert["expiration_date"] = parse_date(match.group("expiry_date"), "%d %B %Y")
+                if enhanced:
+                    e: dict[str, Any] = {}
+                    driver.get(cert["url"])
+                    sleep(2)
+                    cert_soup = BeautifulSoup(driver.page_source, "html5lib")
+                    for li in cert_soup.find("main", id="main-content").find("ul", class_="list-disc"):
+                        if "Security Target" in li.text:
+                            a = li.find("a")
+                            e["target_title"] = sns(a.text)
+                            e["target_link"] = urljoin(constants.CC_SINGAPORE_BASE_URL, a["href"])
+                            if artifacts:
+                                e["target_hash"] = _get_hash(e["target_link"])
+                        elif "Certification Report" in li.text:
+                            a = li.find("a")
+                            e["report_title"] = sns(a.text)
+                            e["report_link"] = urljoin(constants.CC_SINGAPORE_BASE_URL, a["href"])
+                            if artifacts:
+                                e["report_hash"] = _get_hash(e["report_link"])
+                        elif "Certificate" in li.text:
+                            a = li.find("a")
+                            e["cert_title"] = sns(a.text)
+                            e["cert_link"] = urljoin(constants.CC_SINGAPORE_BASE_URL, a["href"])
+                            if artifacts:
+                                e["cert_hash"] = _get_hash(e["cert_link"])
+                    cert["enhanced"] = e
+                results.append(cert)
+                pbar.update()
+            current += 1
+        pbar.close()
+        return results
 
 
 def get_singapore_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
@@ -1663,73 +1662,72 @@ def get_spain_certified(enhanced: bool = True) -> list[dict[str, Any]]:  # noqa:
 def _get_sweden(  # noqa: C901
     url: str, enhanced: bool, artifacts: bool, name
 ) -> list[dict[str, Any]]:
-    driver = _setup_driver()
-    driver.get(url)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    session = requests.Session()
-    nav = soup.find("main").find("nav", class_="component-nav-box__list")
-    results = []
-    for link in tqdm(nav.find_all("a"), desc=f"Get SE scheme {name}."):
-        cert: dict[str, Any] = {
-            "product": sns(link.text),
-            "url": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"]),
-        }
-        if enhanced:
-            e: dict[str, Any] = {}
-            if not cert["url"]:
-                continue
-            driver.get(cert["url"])
-            session.cookies.clear()
-            session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
-            cert_page = BeautifulSoup(driver.page_source, "html.parser")
-            content = cert_page.find("section", class_="container-article")
-            head = content.find("h1")
-            e["title"] = sns(head.text)
-            table = content.find("table")
-            if table:
-                for tr in table.find_all("tr"):
-                    tds = tr.find_all("td")
-                    if len(tds) != 2:
-                        continue
-                    title = sns(tds[0].text)
-                    value = sns(tds[1].text)
-                    a = tds[1].find("a")
-                    if not title:
-                        continue
-                    if "Certifierings ID" in title:
-                        e["cert_id"] = value
-                    elif "Giltighet" in title:
-                        e["mutual_recognition"] = value
-                    elif "Produktnamn" in title:
-                        e["product"] = value
-                    elif "Produktkategori" in title:
-                        e["category"] = value
-                    elif "Assuranspaket" in title:
-                        e["assurance_level"] = value
-                    elif "Certifieringsdatum" in title:
-                        e["certification_date"] = parse_date(value, "%Y-%m-%d")
-                    elif "Sponsor" in title:
-                        e["sponsor"] = value
-                    elif "Utvecklare" in title:
-                        e["developer"] = value
-                    elif "Evalueringsföretag" in title:
-                        e["evaluation_facility"] = value
-                    elif "Security Target" in title and a:
-                        e["target_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
-                        if artifacts:
-                            e["target_hash"] = _get_hash(e["target_link"], session=session)
-                    elif "Certifieringsrapport" in title and a:
-                        e["report_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
-                        if artifacts:
-                            e["report_hash"] = _get_hash(e["report_hash"], session=session)
-                    elif "Certifikat" in title and a:
-                        e["cert_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
-                        if artifacts:
-                            e["cert_hash"] = _get_hash(e["cert_link"], session=session)
-            cert["enhanced"] = e
-        results.append(cert)
-    driver.quit()
-    return results
+    with _setup_driver() as driver:
+        driver.get(url)
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        session = requests.Session()
+        nav = soup.find("main").find("nav", class_="component-nav-box__list")
+        results = []
+        for link in tqdm(nav.find_all("a"), desc=f"Get SE scheme {name}."):
+            cert: dict[str, Any] = {
+                "product": sns(link.text),
+                "url": urljoin(constants.CC_SWEDEN_BASE_URL, link["href"]),
+            }
+            if enhanced:
+                e: dict[str, Any] = {}
+                if not cert["url"]:
+                    continue
+                driver.get(cert["url"])
+                session.cookies.clear()
+                session.cookies.update({c["name"]: c["value"] for c in driver.get_cookies()})
+                cert_page = BeautifulSoup(driver.page_source, "html.parser")
+                content = cert_page.find("section", class_="container-article")
+                head = content.find("h1")
+                e["title"] = sns(head.text)
+                table = content.find("table")
+                if table:
+                    for tr in table.find_all("tr"):
+                        tds = tr.find_all("td")
+                        if len(tds) != 2:
+                            continue
+                        title = sns(tds[0].text)
+                        value = sns(tds[1].text)
+                        a = tds[1].find("a")
+                        if not title:
+                            continue
+                        if "Certifierings ID" in title:
+                            e["cert_id"] = value
+                        elif "Giltighet" in title:
+                            e["mutual_recognition"] = value
+                        elif "Produktnamn" in title:
+                            e["product"] = value
+                        elif "Produktkategori" in title:
+                            e["category"] = value
+                        elif "Assuranspaket" in title:
+                            e["assurance_level"] = value
+                        elif "Certifieringsdatum" in title:
+                            e["certification_date"] = parse_date(value, "%Y-%m-%d")
+                        elif "Sponsor" in title:
+                            e["sponsor"] = value
+                        elif "Utvecklare" in title:
+                            e["developer"] = value
+                        elif "Evalueringsföretag" in title:
+                            e["evaluation_facility"] = value
+                        elif "Security Target" in title and a:
+                            e["target_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
+                            if artifacts:
+                                e["target_hash"] = _get_hash(e["target_link"], session=session)
+                        elif "Certifieringsrapport" in title and a:
+                            e["report_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
+                            if artifacts:
+                                e["report_hash"] = _get_hash(e["report_hash"], session=session)
+                        elif "Certifikat" in title and a:
+                            e["cert_link"] = urljoin(constants.CC_SWEDEN_BASE_URL, a["href"])
+                            if artifacts:
+                                e["cert_hash"] = _get_hash(e["cert_link"], session=session)
+                cert["enhanced"] = e
+            results.append(cert)
+        return results
 
 
 def get_sweden_certified(enhanced: bool = True, artifacts: bool = False) -> list[dict[str, Any]]:
