@@ -6,7 +6,7 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, no_type_check
 
 import numpy as np
 
@@ -17,7 +17,8 @@ from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWE
 logger = logging.getLogger(__name__)
 
 
-def search_only_headers_anssi(filepath: Path):  # noqa: C901
+@no_type_check
+def search_only_headers_anssi(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     class HEADER_TYPE(Enum):
         HEADER_FULL = 1
@@ -272,7 +273,8 @@ def search_only_headers_anssi(filepath: Path):  # noqa: C901
     return items_found
 
 
-def search_only_headers_bsi(filepath: Path):  # noqa: C901
+@no_type_check
+def search_only_headers_bsi(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 15
@@ -371,7 +373,8 @@ def search_only_headers_bsi(filepath: Path):  # noqa: C901
     return items_found
 
 
-def search_only_headers_nscib(filepath: Path):  # noqa: C901
+@no_type_check
+def search_only_headers_nscib(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 60
@@ -451,7 +454,8 @@ def search_only_headers_nscib(filepath: Path):  # noqa: C901
     return items_found
 
 
-def search_only_headers_niap(filepath: Path):
+@no_type_check
+def search_only_headers_niap(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 15
@@ -502,7 +506,8 @@ def search_only_headers_niap(filepath: Path):
     return items_found
 
 
-def search_only_headers_canada(filepath: Path):  # noqa: C901
+@no_type_check
+def search_only_headers_canada(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
     NUM_LINES_TO_INVESTIGATE = 20

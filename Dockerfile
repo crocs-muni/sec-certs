@@ -52,14 +52,14 @@ COPY --chown=${NB_UID}:${NB_GID} --from=intermediate /output ${HOME}/sec-certs
 ENV VENV_PATH=${HOME}/venv
 RUN python3 -m venv ${VENV_PATH}
 ENV PATH="${VENV_PATH}/bin:$PATH"
+ENV UV_PROJECT_ENVIRONMENT=${VENV_PATH}
 
 # Install dependencies, notebook is because of mybinder.org
 RUN \
-  pip3 install -U pip wheel pip-tools && \
-  pip-sync requirements/requirements.txt && \
-  pip3 install --no-cache notebook jupyterlab && \
-  pip3 install -e . && \
-  python -m spacy download en_core_web_sm
+  pip install -U pip wheel uv && \
+  uv sync && \
+  pip install --no-cache notebook jupyterlab && \
+  uv run spacy download en_core_web_sm
 
 # just to be sure that pdftotext is in $PATH
 ENV PATH /usr/bin/pdftotext:${PATH}

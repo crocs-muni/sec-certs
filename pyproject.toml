@@ -6,22 +6,23 @@
   name = "sec-certs"
   authors = [
     { name = "Adam Janovsky", email = "adamjanovsky@mail.muni.cz" },
+    { name = "Adam Janovsky"},
     { name = "Jan Jancar" },
     { name = "Petr Svenda" },
     { name = "Jiri Michalik" },
     { name = "Stanislav Bobon" },
   ]
-  description = "A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks"
+  description = "A tool for data scraping and analysis of security certificates from Common Criteria and FIPS 140-2/3 frameworks."
   readme = "README.md"
-  license = { "text" = "MIT" }
+  license = "MIT"
   classifiers = [
-    "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: MIT License",
+    "Development Status :: 4 - Beta",
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
   ]
@@ -51,7 +52,8 @@
     "setuptools-scm",
     "ipykernel",
     "ipywidgets",
-    "spacy<3.8.0",
+    "spacy<3.8.0; platform_machine == 'aarch64'",
+    "spacy>=3.8.0; platform_machine != 'aarch64'",
     "pkgconfig",
     "seaborn",
     "pySankeyBeta",
@@ -61,30 +63,10 @@
     "pydantic-settings",
     "psutil",
     "pytesseract",
-  ]
+    "selenium>=4.38.0",
+]
 
   [project.optional-dependencies]
-    dev = [
-      "ruff==0.7.4",
-      "mypy==1.13.0",
-      "types-PyYAML",
-      "types-python-dateutil",
-      "types-requests",
-      "datasets",
-      "pytest",
-      "pytest-cov",
-      "pytest-monitor",
-      "pytest-profiling",
-      "pre-commit",
-      "pip-tools",
-      "sphinx",
-      "myst-nb>=0.14",
-      "sphinx-book-theme",
-      "sphinx-design",
-      "sphinx-copybutton",
-      "ipython!=8.7.0",
-    ]
-    test = ["pytest", "coverage[toml]", "pytest-cov"]
     nlp = [
       "catboost",
       "optuna",
@@ -110,6 +92,29 @@
 
   [project.scripts]
     sec-certs = "sec_certs.cli:main"
+
+[dependency-groups]
+  dev = [
+    "ruff==0.14.5",
+    "mypy==1.18.2",
+    "types-PyYAML",
+    "types-python-dateutil",
+    "types-requests",
+    "datasets",
+    "coverage[toml]",
+    "pytest",
+    "pytest-cov",
+    "pytest-monitor",
+    "pytest-profiling",
+    "pre-commit",
+    "pip-tools",
+    "sphinx",
+    "myst-nb>=0.14",
+    "sphinx-book-theme",
+    "sphinx-design",
+    "sphinx-copybutton",
+    "ipython!=8.7.0",
+  ]
 
 [tool.ruff]
   lint.select = [
