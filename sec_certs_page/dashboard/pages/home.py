@@ -3,7 +3,7 @@
 import dash
 from dash import dcc, html
 
-from .types.common import CollectionName
+from sec_certs_page.dashboard.types.common import CollectionName
 
 
 def _build_collection_cards() -> list[html.Div]:
@@ -30,7 +30,7 @@ def _build_collection_cards() -> list[html.Div]:
     for collection_name in CollectionName:
         info = collection_info.get(
             collection_name,
-            {"title": collection_name.value.upper(), "description": "", "color": "#666"},
+            {"title": collection_name.upper(), "description": "", "color": "#666"},
         )
 
         card = html.Div(
@@ -56,7 +56,7 @@ def _build_collection_cards() -> list[html.Div]:
                 ),
                 dcc.Link(
                     "Open Dashboard →",
-                    href=f"/{collection_name.value}",
+                    href=f"/{collection_name}",
                     style={
                         "display": "inline-block",
                         "padding": "12px 24px",
@@ -126,7 +126,7 @@ def layout(**kwargs) -> html.Div:
 
 
 dash.register_page(
-    "home",
+    __name__,
     path="/",
     title="Dashboard Home",
     name="Dashboard Home",

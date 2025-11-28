@@ -3,8 +3,8 @@
 import dash
 from dash import html
 
-from ..types.common import CollectionName
-from .common import create_collection_page_layout
+from sec_certs_page.dashboard.pages.common import create_collection_page_layout
+from sec_certs_page.dashboard.types.common import CollectionName
 
 COLLECTION = CollectionName.FIPS140
 
