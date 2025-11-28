@@ -2,7 +2,7 @@
 
 from dash import dcc, html
 
-from ..types.common import CollectionName
+from sec_certs_page.dashboard.types.common import CollectionName
 
 
 def create_collection_page_layout(collection: CollectionName, title: str) -> html.Div:
