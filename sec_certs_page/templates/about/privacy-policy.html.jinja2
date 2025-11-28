@@ -5,56 +5,76 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-    <main>
-        <div class="row my-5">
-            <div class="col-12">
-                <h1 class="anchor" id="privacy-policy">Privacy policy</h1>
-                <p class="lead">This site collects personal data in order to provide notifications about
-                    vulnerabilities or changes in certified products.</p>
-                <h2>Personal data</h2>
-                <p>This site collects the following personal data:</p>
-                <ul>
-                    <li>Email address. It is required to send notifications.</li>
-                </ul>
-                <p>The collected personal data resides only on the server running this site.</p>
-                <h3>Right to access personal data</h3>
-                <p>You have a right to access your personal data that this site collects. If you want to exercise
-                    this right please send an email request to the above email address.</p>
-                <h3>Right to correct personal data</h3>
-                <p>You have a right to correct your personal data that this site collects. If you want to exercise
-                    this right please send an email request to the above email address.</p>
-                <h3>Right to be forgotten</h3>
-                <p>You have a right to have your personal data deleted. Your personal data is deleted automatically
-                    after your notification subscription is cancelled. The personal data associated to an
-                    unconfirmed subscription request is deleted after 7 days from the date of the subscription
-                    request. If you want to exercise this right please send an email request to the above email
-                    address.</p>
-                <h2>Reason for collection</h2>
-                <p>Email addresses are collected in order to provide a notification service, notifying users about
-                    potential vulnerabilities or changes in certified products they subscribed to. The collected
-                    personal data is not provided to any third parties. The emails are sent through a local mail
-                    server and not a third-party service.</p>
-                <h2>Other</h2>
-                <p>This project is open-source, you can find its sources on our
-                    <a href="https://github.com/crocs-muni/sec-certs/tree/page" target="_blank"
-                        rel="noopener">GitHub</a>
-                    where you can see how your personal data is processed.
-                </p>
-                <p>The site uses some third and first-party tools that handle user data, namely <b>Sentry.io</b>,
-                    <b>CloudFlare Turnstile</b> and <b>Matomo</b>. <b>Sentry.io</b> is a third-party service used to
-                    track
-                    errors on the frontend and backend of the site and thus might receive information such as
-                    the IP address, HTTP headers or the client's User-Agent, or other information included in
-                    a JavaScript error. This site is protected by <b>CloudFlare</b> and its
-                    <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy
-                        Policy</a> and
-                    <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener">Terms of
-                        Service</a> apply.
-                    <b>Matomo</b> is a self-hosted service that collects analytics on this site.
-                </p>
+    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <main>
+            <div class="row my-5">
+                <div class="col-12">
+                    <h1 class="anchor" id="privacy-policy">Privacy policy</h1>
+                    <p class="lead">This site collects personal data in order to provide notifications about
+                        vulnerabilities or changes in certified products, as well as other advanced features.</p>
+                    <h2>Personal data</h2>
+                    <p>This site collects the following personal data:</p>
+                    <ul>
+                        <li>Username.</li>
+                        <li>Email address. It is required to send notifications.</li>
+                        <li>GitHub handle and its primary email. It is required to sign-in via GitHub.</li>
+                    </ul>
+                    <p>The collected personal data resides only on the server running this site.</p>
+                    <h3>Right to access personal data</h3>
+                    <p>You have a right to access your personal data that this site collects. If you want to exercise
+                        this right please send an email request to our email address.</p>
+                    <h3>Right to correct personal data</h3>
+                    <p>You have a right to correct your personal data that this site collects. If you want to exercise
+                        this right please send an email request to our email address.</p>
+                    <h3>Right to be forgotten</h3>
+                    <p>You have a right to have your personal data deleted. Your personal data is deleted automatically
+                        after you delete your account. The personal data associated to an
+                        unconfirmed account request is deleted after 7 days from the date of the
+                        request. If you want to exercise this right please send an email request to our email
+                        address.</p>
+                    <h2>Reason for collection</h2>
+                    <p>Email addresses are collected in order to provide a notification service, notifying users about
+                        potential vulnerabilities or changes in certified products they subscribed to. The collected
+                        personal data is not provided to any third parties. The emails are sent through a local mail
+                        server and not a third-party service.</p>
+                    <h2>Other</h2>
+                    <p>This project is open-source, you can find its sources on our
+                        <a href="https://github.com/crocs-muni/sec-certs/tree/page" target="_blank"
+                           rel="noopener">GitHub</a>
+                        where you can see how your personal data is processed.
+                    </p>
+                    <p>The site uses some third and first-party tools that handle user data, namely <span class="fw-semibold">Sentry.io</span>,
+                        <span class="fw-semibold">CloudFlare Turnstile</span>, <span class="fw-semibold">Matomo</span> and <span class="fw-semibold">e-Infra AI Chat</span>.</p>
+
+                    <h4>Sentry.io</h4>
+                    <p>
+                        Sentry.io is a third-party service used to
+                        track errors on the frontend and backend of the site and thus might receive information such as
+                        the IP address, HTTP headers or the client's User-Agent, or other information included in
+                        a JavaScript error.
+                    </p>
+                    <h4>Cloudflare</h4>
+                    <p>
+                        This site is protected by CloudFlare and its
+                        <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy
+                            Policy</a> and
+                        <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener">Terms of
+                            Service</a> apply.
+                    </p>
+                    <h4>Matomo</h4>
+                    <p>
+                        Matomo is a self-hosted service that collects analytics on this site.
+                    </p>
+
+                    <h4>e-Infra AI Chat</h4>
+                    <p>
+                        Finally, e-Infra AI Chat is the backend service used for the AI chat functionality on
+                        this site. We do not store the conversations, nor does the backend service. For more
+                        information, please refer to its <a href="https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai"
+                                                            target="_blank" rel="noopener">documentation</a>.
+                    </p>
+                </div>
             </div>
-        </div>
-    </main>
-</div>
+        </main>
+    </div>
 {% endblock %}

@@ -99,6 +99,11 @@
                     let token = "{{ csrf_token() }}";
                     chat(rag_url, full_url, token, chat_history, window.certificate_data);
                 });
+                $("#chat-reset").click(function () {
+                    chat_history = [];
+                    $("#chat-messages").empty();
+                    $("#chat-error").hide();
+                });
                 $("#chat-input").keypress(function (event) {
                     if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
                         event.preventDefault();
@@ -183,15 +188,22 @@
                                         </select>
                                     </div>
                                 </div>
-                                <i class="fas fa-info-circle text-muted"></i> <span id="chat-info" class="text-muted"></span> <span id="chat-files" class="text-muted d-none"></span>
+                                <i class="fas fa-info-circle text-muted"></i> <span id="chat-info"
+                                                                                    class="text-muted"></span> <span
+                                    id="chat-files" class="text-muted d-none"></span>
                             </div>
-                            <div id="chat-messages">
-                                <!-- Messages will appear here -->
+                            <div id="chat-window" class="position-relative">
+                                <span class="position-absolute btn btn-secondary opacity-50" style="right: 0em; top: 0em;" id="chat-reset" title="Reset chat"><i
+                                    class="fas fa-arrows-rotate"></i></span>
+                                <div id="chat-messages" class="pt-3">
+                                    <!-- Messages will appear here -->
+                                </div>
                             </div>
                             <div class="chat-input-group input-group">
                             <textarea id="chat-input" class="form-control" rows="2"
                                       placeholder="Type your message..."></textarea>
-                                <button id="chat-send" class="btn btn-primary" type="button">Send</button>
+                                <button id="chat-send" class="btn btn-primary px-3" type="button">Send</button>
+
                             </div>
                             {% set placeholders = ["Describe this certificate.",
                                                "What is the certificate ID of this certificate?",
@@ -199,15 +211,17 @@
                                                "Which evaluation facility performed the evaluation of this certificate?",
                                                "When was this product certified?"] %}
                             <span class="text-muted mt-2">
-                            For example, try:<br/><span class="border rounded"
-                                                        onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
+                                <i class="fas fa-question-circle"></i> For example, try:<br/><span
+                                    class="border rounded"
+                                    onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
                         </span>
                         </div>
                     {% endif %}
                     <!-- Chat skeleton end -->
                 </div>
                 <div class="modal-footer">
-                    <span class="text-muted small mt-0 mb-0">Chat uses AI. Check for mistakes.</span>
+                    <span class="text-muted small mt-0 mb-0">Chat uses AI. Check for mistakes. Powered by <a
+                            href="https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai" target="_blank" rel="noopener">e-Infra</a>.</span>
                 </div>
             </div>
         </div>

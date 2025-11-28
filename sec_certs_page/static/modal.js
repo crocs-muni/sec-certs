@@ -222,7 +222,7 @@ export function chat_files(files_url, token, certificate_data) {
         success: function (data) {
             if (data.files && data.files.length > 0) {
                 $("#chat-files").html(
-                    `Files available for RAG <span class="badge bg-secondary">${data.files.join(", ")}</span>`
+                    `Files available: <span class="badge bg-secondary">${data.files.join(", ")}</span>.`
                 );
             } else {
                 $("#chat-files").text("No files available for RAG. This wil not work!");

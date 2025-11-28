@@ -133,7 +133,7 @@ def query_rag():
                     f'<a href="{source["url"]}" target="_blank" title="Model used document.">[{source["type"]}]</a>',
                 )
 
-    return {"status": "ok", "response": cleaned, "raw": response, "sources": sources}, 200
+    return {"status": "ok", "response": cleaned, "raw": response, "sources": sources, "model": model}, 200
 
 
 @chat.route("/full/", methods=["POST"])
@@ -202,4 +202,4 @@ def query_full():
 
     cleaned = nh3.clean(rendered, attributes={"table": {"class"}}, attribute_filter=attribute_filter).strip()
 
-    return {"status": "ok", "response": cleaned, "raw": response, "sources": []}, 200
+    return {"status": "ok", "response": cleaned, "raw": response, "sources": [], "model": model}, 200
