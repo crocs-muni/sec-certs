@@ -70,14 +70,14 @@ def test_convert_pdfs(downloaded_toy_dataset: CCDataset, data_dir: Path, convert
         assert cert.state.report.convert_ok
         assert cert.state.st.txt_path.exists()
         assert cert.state.report.txt_path.exists()
-        if converter.has_json_output():
+        if converter.HAS_JSON_OUTPUT:
             assert cert.state.st.json_path.exists()
             assert cert.state.report.json_path.exists()
 
         if cert.cert_link:
             assert cert.state.cert.convert_ok
             assert cert.state.cert.txt_path.exists()
-            if converter.has_json_output():
+            if converter.HAS_JSON_OUTPUT:
                 assert cert.state.cert.json_path.exists()
 
     test_crt = downloaded_toy_dataset["e3dcf91ef38ddbf0"]

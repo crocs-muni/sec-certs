@@ -21,6 +21,8 @@ logging.getLogger("docling").setLevel(logging.ERROR)
 
 
 class DoclingConverter(PDFConverter):
+    HAS_JSON_OUTPUT = True
+
     def __init__(self):
         """
         StandardPdfPipeline uses parallelism between pipeline stages and models.
@@ -72,22 +74,24 @@ class DoclingConverter(PDFConverter):
         pipeline_options.accelerator_options = AcceleratorOptions(device="auto", num_threads=4)
 
         pipeline_options.do_ocr = False
-        # Docling supports the following OCR engines:
-        #   - EasyOCR
-        #   - RapidOCR
-        #   - Tesseract
-        #   - ocrmac
-        #
-        # You can explicitly choose any engine by assigning its options, for example:
-        #   pipeline_options.ocr_options = EasyOcrOptions()
-        #
-        # or you can set the option to OcrAutoOptions(), then Docling will choose an engine
-        # automatically according to the following steps:
-        # 1. If on Darwin device, use Mac OCR.
-        # 2. Attempt to use RapidOCR with ONNX runtime backend if available.
-        # 3. If ONNX runtime is not installed, try EasyOCR.
-        # 4. If EasyOCR is unavailable, fall back to RapidOCR with PyTorch backend.
-        # 5. If none are available, it will choose none and log warning.
+        """
+        Docling supports the following OCR engines:
+          - EasyOCR
+          - RapidOCR
+          - Tesseract
+          - ocrmac
+
+        You can explicitly choose any engine by assigning its options, for example:
+          pipeline_options.ocr_options = EasyOcrOptions()
+
+        or you can set the option to OcrAutoOptions(), then Docling will choose an engine
+        automatically according to the following steps:
+        1. If on Darwin device, use Mac OCR.
+        2. Attempt to use RapidOCR with ONNX runtime backend if available.
+        3. If ONNX runtime is not installed, try EasyOCR.
+        4. If EasyOCR is unavailable, fall back to RapidOCR with PyTorch backend.
+        5. If none are available, it will choose none and log warning.
+        """
         pipeline_options.ocr_options = EasyOcrOptions()
         pipeline_options.do_table_structure = True
         pipeline_options.table_structure_options = TableStructureOptions(mode=TableFormerMode.FAST)
@@ -133,8 +137,4 @@ class DoclingConverter(PDFConverter):
             logger.error(f"Unexpected error during conversion of {pdf_path}", exc_info=True)
             return False
 
-        return True
-
-    @classmethod
-    def has_json_output(cls) -> bool:
         return True

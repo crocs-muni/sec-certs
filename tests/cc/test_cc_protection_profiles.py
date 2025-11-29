@@ -141,7 +141,7 @@ def test_convert_pdfs(
         assert cert.state.pp.convert_ok
         assert cert.state.report.txt_path.exists()
         assert cert.state.pp.txt_path.exists()
-        if converter.has_json_output():
+        if converter.HAS_JSON_OUTPUT:
             assert cert.state.report.json_path.exists()
             assert cert.state.pp.json_path.exists()
 

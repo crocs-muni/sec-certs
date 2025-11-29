@@ -136,7 +136,7 @@ def test_convert_pdfs(downloaded_toy_dataset: FIPSDataset, data_dir: Path, conve
     for cert in downloaded_toy_dataset:
         assert cert.state.policy_convert_ok
         assert cert.state.policy_txt_path.exists()
-        if converter.has_json_output():
+        if converter.HAS_JSON_OUTPUT:
             assert cert.state.policy_json_path.exists()
 
     test_crt = downloaded_toy_dataset["184097a88a9b4ad9"]
