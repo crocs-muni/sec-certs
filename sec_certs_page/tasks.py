@@ -7,7 +7,7 @@ from periodiq import cron
 
 from . import sitemap, whoosh_index
 from .cc.tasks import update_data as update_cc_data
-from .common.tasks import task
+from .common.tasks.utils import task
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
 from .pp.tasks import update_data as update_pp_data

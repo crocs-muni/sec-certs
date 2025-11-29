@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 if __name__ == "__main__":
-    from common.ai.chat import chat_rag
     from tqdm import tqdm
 
     from sec_certs_page import app, mongo
+    from sec_certs_page.common.ai.chat import chat_rag
     from sec_certs_page.common.ai.webui import file_map
 
     with app.app_context():

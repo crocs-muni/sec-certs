@@ -16,7 +16,7 @@ from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNv
 
 from .. import runtime_config
 from ..common.objformats import ObjFormat
-from ..common.tasks import actor
+from ..common.tasks.utils import actor
 from . import mongo
 
 logger: Logger = logging.getLogger(__name__)

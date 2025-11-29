@@ -16,7 +16,12 @@ from sec_certs.utils.helpers import get_sha256_filepath
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, KBUpdater, Notifier, Updater, actor
+from ..common.tasks.archive import Archiver
+from ..common.tasks.notify import Notifier
+from ..common.tasks.search import Indexer
+from ..common.tasks.update import Updater
+from ..common.tasks.utils import actor
+from ..common.tasks.webui import KBUpdater
 from . import cc_categories
 
 logger = logging.getLogger(__name__)

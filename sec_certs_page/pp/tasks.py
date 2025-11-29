@@ -16,7 +16,11 @@ from .. import mongo, runtime_config
 from ..cc import cc_categories
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
-from ..common.tasks import Archiver, Indexer, KBUpdater, Updater, actor
+from ..common.tasks.archive import Archiver
+from ..common.tasks.search import Indexer
+from ..common.tasks.update import Updater
+from ..common.tasks.utils import actor
+from ..common.tasks.webui import KBUpdater
 
 logger = logging.getLogger(__name__)
 

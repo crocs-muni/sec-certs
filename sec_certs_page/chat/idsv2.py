@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import click
-from common.ai.chat import chat_full
 from tqdm import tqdm
 
 from sec_certs_page import app, mongo
+from sec_certs_page.common.ai.chat import chat_full
 
 
 @click.command()
