@@ -1,6 +1,6 @@
 import json
 from collections.abc import Generator
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 
 import pytest
@@ -12,7 +12,7 @@ from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 
 @pytest.fixture(scope="module")
 def data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.cc.dataset, "") as path:
+    with as_file(files(tests.data.cc.dataset)) as path:
         yield path
 
 

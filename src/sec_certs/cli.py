@@ -12,6 +12,7 @@ import click
 from pydantic import ValidationError
 
 from sec_certs.configuration import config
+from sec_certs.converter import PdftotextConverter
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips import FIPSDataset
@@ -56,8 +57,9 @@ class ProcessingStep:
 
 
 def warn_missing_libs():
-    warn_if_missing_poppler()
-    warn_if_missing_tesseract()
+    if config.pdf_converter == PdftotextConverter:
+        warn_if_missing_poppler()
+        warn_if_missing_tesseract()
 
 
 FRAMEWORK_TO_CONSTRUCTOR: dict[str, type[Dataset]] = {

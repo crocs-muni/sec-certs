@@ -3,15 +3,17 @@ from __future__ import annotations
 import json
 import shutil
 from collections.abc import Generator
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.fips.dataset
+from tests.conftest import get_converters
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.schemas import validator
@@ -20,7 +22,7 @@ from sec_certs.utils import helpers
 
 @pytest.fixture(scope="module")
 def data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.fips.dataset, "") as path:
+    with as_file(files(tests.data.fips.dataset)) as path:
         yield path
 
 
@@ -104,25 +106,42 @@ def test_download_meta_html_files():
         assert (dset.web_dir / "fips_modules_revoked.html").stat().st_size > constants.MIN_FIPS_HTML_SIZE
 
 
-def test_download_and_convert_artifacts(toy_dataset: FIPSDataset, data_dir: Path):
-    crt = toy_dataset["184097a88a9b4ad9"]
-    toy_dataset.certs = {crt.dgst: crt}
-    with TemporaryDirectory() as tmp_dir:
-        toy_dataset.copy_dataset(tmp_dir)
-        toy_dataset.download_all_artifacts()
+@pytest.fixture(scope="module")
+def downloaded_toy_dataset(tmp_path_factory):
+    with as_file(files(tests.data.fips.dataset) / "toy_dataset.json") as path:
+        dataset = FIPSDataset.from_json(path)
 
-        if not crt.state.policy_download_ok or not crt.state.module_download_ok:
-            pytest.xfail(reason="Fail due to error during download")
+    temp_dir = tmp_path_factory.mktemp("downloaded_dataset")
+    dataset.copy_dataset(temp_dir)
+    crt = dataset["184097a88a9b4ad9"]
+    dataset.certs = {crt.dgst: crt}
+    dataset.download_all_artifacts()
 
-        toy_dataset.convert_all_pdfs()
+    for cert in dataset:
+        if not cert.state.policy_download_ok or not cert.state.module_download_ok:
+            pytest.skip(reason="Skip due to error during download")
 
-        assert not crt.state.policy_convert_garbage
-        assert crt.state.policy_convert_ok
-        assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
-        assert crt.state.policy_txt_path.exists()
+    return dataset
 
-        template_policy_txt_path = data_dir / "template_policy_184097a88a9b4ad9.txt"
-        assert abs(crt.state.policy_txt_path.stat().st_size - template_policy_txt_path.stat().st_size) < 1000
+
+def test_downloaded_pdf_hashes(downloaded_toy_dataset: FIPSDataset):
+    crt = downloaded_toy_dataset["184097a88a9b4ad9"]
+    assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
+
+
+@pytest.mark.parametrize("converter", get_converters())
+def test_convert_pdfs(downloaded_toy_dataset: FIPSDataset, data_dir: Path, converter: type[PDFConverter]):
+    downloaded_toy_dataset.convert_all_pdfs(converter_cls=converter)
+
+    for cert in downloaded_toy_dataset:
+        assert cert.state.policy_convert_ok
+        assert cert.state.policy_txt_path.exists()
+        if converter.HAS_JSON_OUTPUT:
+            assert cert.state.policy_json_path.exists()
+
+    test_crt = downloaded_toy_dataset["184097a88a9b4ad9"]
+    template_policy_path = data_dir / f"templates/{converter.get_name()}/policies/{test_crt.dgst}.txt"
+    assert abs(test_crt.state.policy_txt_path.stat().st_size - template_policy_path.stat().st_size) < 1000
 
 
 def test_to_pandas(toy_dataset: FIPSDataset):

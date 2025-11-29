@@ -25,29 +25,29 @@
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": "80bada65614c1b037c13efa78996a8910700d0e05a3ca217286f76d7dacefe62",
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 },
                 "st": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": "d42e4364d037ba742fcd4050a9a84d0e6300f93eb68bcfe8c61f72c429c9ceca",
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 },
                 "cert": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 }
             },
             "pdf_data": {

@@ -12,6 +12,7 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -19,7 +20,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
+from sec_certs.utils.pdf import extract_pdf_metadata
 
 
 class ProtectionProfile(
@@ -232,6 +233,8 @@ class ProtectionProfile(
         pp_pdf_dir: str | Path | None,
         report_txt_dir: str | Path | None,
         pp_txt_dir: str | Path | None,
+        report_json_dir: str | Path | None,
+        pp_json_dir: str | Path | None,
     ) -> None:
         """
         Adjusts local paths for various files.
@@ -244,6 +247,10 @@ class ProtectionProfile(
             self.state.report.txt_path = Path(report_txt_dir) / f"{self.dgst}.txt"
         if pp_txt_dir:
             self.state.pp.txt_path = Path(pp_txt_dir) / f"{self.dgst}.txt"
+        if report_json_dir:
+            self.state.report.json_path = Path(report_json_dir) / f"{self.dgst}.json"
+        if pp_json_dir:
+            self.state.pp.json_path = Path(pp_json_dir) / f"{self.dgst}.json"
 
     @classmethod
     def from_html_row(
@@ -297,32 +304,35 @@ class ProtectionProfile(
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: ProtectionProfile) -> ProtectionProfile:
-        """
-        Converts certification reports from pdf to txt.
-        """
-        ocr_done, ok_result = convert_pdf_file(cert.state.report.pdf_path, cert.state.report.txt_path)
-        cert.state.report.convert_garbage = ocr_done
-        cert.state.report.convert_ok = ok_result
+    def _convert_pdf(
+        cert: ProtectionProfile, doc_type: Literal["report", "pp"], converter: PDFConverter
+    ) -> ProtectionProfile:
+        cert_state = getattr(cert.state, doc_type)
+        ok_result = converter.convert(cert_state.pdf_path, cert_state.txt_path, cert_state.json_path)
+        cert_state.convert_ok = ok_result
         if not ok_result:
             logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
         else:
-            cert.state.report.txt_hash = helpers.get_sha256_filepath(cert.state.report.txt_path)
+            cert_state.txt_hash = helpers.get_sha256_filepath(cert_state.txt_path)
+            if cert_state.json_path.exists():
+                cert_state.json_hash = helpers.get_sha256_filepath(cert_state.json_path)
+            else:
+                cert_state.json_hash = None
         return cert
 
     @staticmethod
-    def convert_pp_pdf(cert: ProtectionProfile) -> ProtectionProfile:
+    def convert_report_pdf(cert: ProtectionProfile, converter: PDFConverter) -> ProtectionProfile:
+        """
+        Converts certification reports from pdf to txt.
+        """
+        return ProtectionProfile._convert_pdf(cert, "report", converter)
+
+    @staticmethod
+    def convert_pp_pdf(cert: ProtectionProfile, converter: PDFConverter) -> ProtectionProfile:
         """
         Converts the actual protection profile from pdf to txt.
         """
-        ocr_done, ok_result = convert_pdf_file(cert.state.pp.pdf_path, cert.state.pp.txt_path)
-        cert.state.pp.convert_garbage = ocr_done
-        cert.state.pp.convert_ok = ok_result
-        if not ok_result:
-            logger.error(f"Cert dgst: {cert.dgst} failed to convert PP pdf to txt")
-        else:
-            cert.state.pp.txt_hash = helpers.get_sha256_filepath(cert.state.pp.txt_path)
-        return cert
+        return ProtectionProfile._convert_pdf(cert, "pp", converter)
 
     @staticmethod
     def extract_report_pdf_metadata(cert: ProtectionProfile) -> ProtectionProfile:

@@ -1,19 +1,42 @@
 import json
 import shutil
+from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
+import tests.data.cc.dataset
+from tests.conftest import get_converters
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.serialization.schemas import validator
 from sec_certs.utils import helpers
 
 
-def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
+@pytest.fixture(scope="module")
+def downloaded_toy_dataset(tmp_path_factory):
+    with as_file(files(tests.data.cc.dataset) / "toy_dataset.json") as path:
+        dataset = CCDataset.from_json(path)
+
+    temp_dir = tmp_path_factory.mktemp("downloaded_dataset")
+    dataset.copy_dataset(temp_dir)
+    dataset.download_all_artifacts()
+
+    for cert in dataset:
+        for doc_type in ["cert", "st", "report"]:
+            link = getattr(cert, f"{doc_type}_link")
+            doc_state = getattr(cert.state, doc_type)
+            if link and not doc_state.download_ok:
+                pytest.skip(reason="Skip due to error during download")
+
+    return dataset
+
+
+def test_downloaded_pdf_hashes(downloaded_toy_dataset: CCDataset):
     template_report_pdf_hashes = {
         "e3dcf91ef38ddbf0": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
         "ed7611868f0f9d97": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
@@ -32,50 +55,36 @@ def test_download_and_convert_pdfs(toy_dataset: CCDataset, data_dir: Path):
         "8f08cacb49a742fb": "4ba78f26f505819183256ca5a6b404fa90c750fe160c41791e4c400f64e2f6d5",
     }
 
-    with TemporaryDirectory() as td:
-        toy_dataset.copy_dataset(td)
-        toy_dataset.download_all_artifacts()
+    for cert in downloaded_toy_dataset:
+        assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
+        assert cert.state.st.pdf_hash == template_st_pdf_hashes[cert.dgst]
+        assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
 
-        if not (
-            toy_dataset["e3dcf91ef38ddbf0"].state.report.download_ok
-            or toy_dataset["e3dcf91ef38ddbf0"].state.st.download_ok
-            or toy_dataset["e3dcf91ef38ddbf0"].state.cert.download_ok
-            or toy_dataset["ed7611868f0f9d97"].state.report.download_ok
-            or toy_dataset["ed7611868f0f9d97"].state.st.download_ok
-            or toy_dataset["8f08cacb49a742fb"].state.report.download_ok
-            or toy_dataset["8f08cacb49a742fb"].state.st.download_ok
-            or toy_dataset["8f08cacb49a742fb"].state.cert.download_ok
-        ):
-            pytest.xfail(reason="Fail due to error during download")
 
-        toy_dataset.convert_all_pdfs()
+@pytest.mark.parametrize("converter", get_converters())
+def test_convert_pdfs(downloaded_toy_dataset: CCDataset, data_dir: Path, converter: type[PDFConverter]):
+    downloaded_toy_dataset.convert_all_pdfs(converter_cls=converter)
 
-        for cert in toy_dataset:
-            assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
-            assert cert.state.st.pdf_hash == template_st_pdf_hashes[cert.dgst]
-            assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
-            assert not cert.state.report.convert_garbage
-            assert not cert.state.st.convert_garbage
-            assert cert.state.report.convert_ok
-            assert cert.state.st.convert_ok
-            assert cert.state.report.txt_path.exists()
-            assert cert.state.st.txt_path.exists()
-            if cert.cert_link:
-                assert cert.state.cert.txt_path.exists()
+    for cert in downloaded_toy_dataset:
+        assert cert.state.st.convert_ok
+        assert cert.state.report.convert_ok
+        assert cert.state.st.txt_path.exists()
+        assert cert.state.report.txt_path.exists()
+        if converter.HAS_JSON_OUTPUT:
+            assert cert.state.st.json_path.exists()
+            assert cert.state.report.json_path.exists()
 
-        template_report_txt_path = data_dir / "report_e3dcf91ef38ddbf0.txt"
-        template_st_txt_path = data_dir / "target_e3dcf91ef38ddbf0.txt"
-        assert (
-            abs(toy_dataset["e3dcf91ef38ddbf0"].state.st.txt_path.stat().st_size - template_st_txt_path.stat().st_size)
-            < 1000
-        )
-        assert (
-            abs(
-                toy_dataset["e3dcf91ef38ddbf0"].state.report.txt_path.stat().st_size
-                - template_report_txt_path.stat().st_size
-            )
-            < 1000
-        )
+        if cert.cert_link:
+            assert cert.state.cert.convert_ok
+            assert cert.state.cert.txt_path.exists()
+            if converter.HAS_JSON_OUTPUT:
+                assert cert.state.cert.json_path.exists()
+
+    test_crt = downloaded_toy_dataset["e3dcf91ef38ddbf0"]
+    template_report_path = data_dir / f"templates/{converter.get_name()}/reports/{test_crt.dgst}.txt"
+    template_st_path = data_dir / f"templates/{converter.get_name()}/targets/{test_crt.dgst}.txt"
+    assert abs(test_crt.state.st.txt_path.stat().st_size - template_st_path.stat().st_size) < 1000
+    assert abs(test_crt.state.report.txt_path.stat().st_size - template_report_path.stat().st_size) < 1000
 
 
 @pytest.mark.remote

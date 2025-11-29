@@ -13,6 +13,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CPEDatasetHandler,
@@ -49,7 +50,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         ├── certs
         │   └── targets
         │       ├── pdf
-        │       └── txt
+        │       ├── txt
+        │       └── json
         └── dataset.json
     """
 
@@ -96,6 +98,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @only_backed(throw=False)
     def policies_txt_dir(self) -> Path:
         return self.policies_dir / "txt"
+
+    @property
+    @only_backed(throw=False)
+    def policies_json_dir(self) -> Path:
+        return self.policies_dir / "json"
 
     @property
     @only_backed(throw=False)
@@ -191,25 +198,34 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDF security policies",
         )
 
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
-        self._convert_policies_to_txt(fresh)
-
-    def _convert_policies_to_txt(self, fresh: bool = True) -> None:
+    @staged(logger, "Converting PDFs of FIPS security policies.")
+    def _convert_policies_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
+        self.policies_json_dir.mkdir(parents=True, exist_ok=True)
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
 
-        if fresh:
-            logger.info("Converting FIPS security policies to .txt")
+        if not certs_to_process:
+            logger.info("No FIPS security policies need conversion.")
+            return
         if not fresh and certs_to_process:
             logger.info(
-                f"Converting {len(certs_to_process)} FIPS security polcies to .txt for which previous convert failed."
+                f"Converting {len(certs_to_process)} PDFs of FIPS security policies for which previous conversion failed."
             )
 
-        cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel_with_instance(
+            converter_cls,
+            (),
             FIPSCertificate.convert_policy_pdf,
             certs_to_process,
-            progress_bar_desc="Converting policies to pdf",
+            config.pdf_conversion_workers,
+            config.pdf_conversion_max_chunk_size,
+            progress_bar_desc="Converting PDFs of FIPS security policies",
         )
+
+        self.update_with_certs(processed_certs)
+
+    def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+        self._convert_policies_pdfs(converter_cls, fresh)
 
     def _download_html_resources(self) -> None:
         logger.info("Downloading HTML files that list FIPS certificates.")
@@ -245,7 +261,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         if self.root_dir is None:
             return
         for cert in self:
-            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.module_dir)
+            cert.set_local_paths(self.policies_pdf_dir, self.policies_txt_dir, self.policies_json_dir, self.module_dir)
 
     @serialize
     @staged(logger, "Downloading and processing certificates.")
@@ -265,7 +281,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
-    @staged(logger, "Extracting Algorithms from policy tables")
+    @staged(logger, "Extracting Algorithms from policy tables.")
     def _extract_algorithms_from_policy_tables(self):
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         cert_processing.process_parallel(
@@ -275,7 +291,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
 
-    @staged(logger, "Extracting security policy metadata from the pdfs")
+    @staged(logger, "Extracting security policy metadata from the pdfs.")
     def _extract_policy_pdf_metadata(self) -> None:
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
