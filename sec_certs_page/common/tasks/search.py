@@ -1,17 +1,28 @@
+import logging
 from abc import abstractmethod
 from pathlib import Path
+from typing import Any
 
 from ... import mongo, whoosh_index
-from ..tasks import logger
 from ..views import entry_file_path
+
+logger = logging.getLogger(__name__)
 
 
 class Indexer:  # pragma: no cover
+    """
+    Base class for reindexing Whoosh documents for a given certificate schema.
+
+    The subclasses should specify the attributes.
+    """
+
     dataset_path: Path
     cert_schema: str
 
     @abstractmethod
-    def create_document(self, dgst, document, cert, content): ...
+    def create_document(self, dgst: str, document: str, cert: dict[str, Any], content: str):
+        """Create a Whoosh document from the given parameters."""
+        ...
 
     def reindex(self, to_reindex):
         logger.info(f"Reindexing {len(to_reindex)} {self.cert_schema} files.")

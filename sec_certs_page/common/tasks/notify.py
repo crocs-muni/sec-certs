@@ -46,12 +46,12 @@ class Notifier(DiffRenderer):
                 continue
 
             subject = f"Certificate changes from {run_date} | sec-certs.org"
-            email_html, email_plain = self._compose_email(cards, urls, some_changes, some_new, subject, bootstrap_parsed)
+            email_html, email_plain = self._compose_email(
+                cards, urls, some_changes, some_new, subject, bootstrap_parsed
+            )
             user = User.get(username=username)
             msg = Message(subject, [user.email], body=email_plain, html=email_html)
             mail.send(msg)
-
-    # --- Private helpers ---
 
     def _load_diffs_and_certs(self, run_oid: ObjectId):
         # Load up the diffs and certs

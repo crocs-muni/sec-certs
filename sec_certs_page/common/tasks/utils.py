@@ -1,4 +1,5 @@
 import json
+import logging
 import secrets
 from datetime import datetime, timedelta
 from functools import wraps
@@ -13,7 +14,8 @@ from redis.exceptions import LockNotOwnedError
 from redis.lock import Lock
 
 from ... import redis
-from ..tasks import logger
+
+logger = logging.getLogger(__name__)
 
 
 def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: float = 60 * 10):  # pragma: no cover
@@ -84,6 +86,10 @@ def single_queue(queue_name: str, timeout: float = 60 * 10):  # pragma: no cover
 
 
 def task(task_name):
+    """
+    A decorator that logs task start and end times to Redis.
+    """
+
     def deco(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -110,7 +116,7 @@ def task(task_name):
     return deco
 
 
-def actor(name, lock_name, queue_name, timeout):
+def actor(name: str, lock_name: str, queue_name: str, timeout: timedelta):
     """
     Usual dramatiq actor setup.
     """

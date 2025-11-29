@@ -10,6 +10,7 @@ import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset import ProtectionProfileDataset
+from sec_certs.dataset.dataset import Dataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import mongo, runtime_config
@@ -140,7 +141,9 @@ def archive_all():  # pragma: no cover
 
 
 class PPUpdater(Updater, PPMixin):  # pragma: no cover
-    def process(self, dset, paths):
+    def process(
+        self, dset: ProtectionProfileDataset, paths: dict[str, Path]
+    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
         to_reindex = set()
         to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
 

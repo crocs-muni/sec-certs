@@ -1,3 +1,4 @@
+import logging
 import os
 from abc import abstractmethod
 from collections import Counter
@@ -5,7 +6,7 @@ from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
 from shutil import rmtree
-from typing import List, Set, Tuple, Type
+from typing import List, Optional, Set, Tuple, Type
 
 import sec_certs
 import sentry_sdk
@@ -23,17 +24,24 @@ from sec_certs.dataset.dataset import Dataset
 
 from ... import mongo
 from ..objformats import ObjFormat, StorageFormat, WorkingFormat
-from ..tasks import logger
+
+logger = logging.getLogger(__name__)
 
 
 class Updater:  # pragma: no cover
+    """
+    Base class for dataset updaters (CC, FIPS, PP).
+
+    The attributes should be set in the subclass.
+    """
+
     collection: str
     diff_collection: str
     log_collection: str
     skip_update: bool
     dset_class: Type[Dataset]
 
-    def make_dataset_paths(self):
+    def make_dataset_paths(self) -> dict[str, Path]:
         """Setup paths from the config for the particular updater (CC, FIPS, PP)."""
         instance_path = Path(current_app.instance_path)
         ns = current_app.config.get_namespace("DATASET_PATH_")
@@ -62,6 +70,42 @@ class Updater:  # pragma: no cover
                 res[f"{document}_{format}"] = path
 
         return res
+
+    def prepare_dataset_paths(self, dset: Dataset, paths: dict[str, Path]):
+        if not dset.auxiliary_datasets_dir.exists():
+            dset.auxiliary_datasets_dir.mkdir(parents=True)
+        if paths["cve_path"].exists() and CVEDatasetHandler in dset.aux_handlers:
+            cve_dset_path = dset.aux_handlers[CVEDatasetHandler].dset_path
+            if cve_dset_path.exists():
+                cve_dset_path.unlink()
+            cve_dset_parent = cve_dset_path.parent
+            cve_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["cve_path"], cve_dset_path)
+        if paths["cpe_path"].exists() and CPEDatasetHandler in dset.aux_handlers:
+            cpe_dset_path = dset.aux_handlers[CPEDatasetHandler].dset_path
+            if cpe_dset_path.exists():
+                cpe_dset_path.unlink()
+            cpe_dset_parent = cpe_dset_path.parent
+            cpe_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["cpe_path"], cpe_dset_path)
+        if paths["cpe_match_path"].exists() and CPEMatchDictHandler in dset.aux_handlers:
+            cpe_match_dset_path = dset.aux_handlers[CPEMatchDictHandler].dset_path
+            if cpe_match_dset_path.exists():
+                cpe_match_dset_path.unlink()
+            cpe_match_dset_parent = cpe_match_dset_path.parent
+            cpe_match_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["cpe_match_path"], cpe_match_dset_path)
+        if (
+            "output_path_pp" in paths
+            and paths["output_path_pp"].exists()
+            and ProtectionProfileDatasetHandler in dset.aux_handlers
+        ):
+            pp_dset_path = dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path
+            if pp_dset_path.exists():
+                pp_dset_path.unlink()
+            pp_dset_parent = pp_dset_path.parent
+            pp_dset_parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(paths["output_path_pp"], pp_dset_path)
 
     def process_new_certs(
         self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
@@ -168,8 +212,26 @@ class Updater:  # pragma: no cover
         if requests:
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
+    def count_cert_states(self, dset: Dataset) -> Counter[str]:
+        cert_states: Counter[str] = Counter()
+        for cert in dset:
+            for attr in cert.state.serialized_attributes:
+                val = getattr(cert.state, attr, False)
+                if isinstance(val, bool):
+                    cert_states[attr] += val
+                elif hasattr(val, "serialized_attributes"):
+                    for other_attr in val.serialized_attributes:
+                        other_val = getattr(val, other_attr, False)
+                        if isinstance(other_val, bool):
+                            cert_states[attr + "_" + other_attr] += other_val
+        return cert_states
+
     @abstractmethod
-    def process(self, dset, paths): ...
+    def process(
+        self, dset: Dataset, paths: dict[str, Path]
+    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
+        """Process the dataset and return sets of cert IDs to reindex and update in the KB."""
+        ...
 
     @abstractmethod
     def dataset_state(self, dset): ...
@@ -205,40 +267,7 @@ class Updater:  # pragma: no cover
         else:
             dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
 
-        if not dset.auxiliary_datasets_dir.exists():
-            dset.auxiliary_datasets_dir.mkdir(parents=True)
-        if paths["cve_path"].exists() and CVEDatasetHandler in dset.aux_handlers:
-            cve_dset_path = dset.aux_handlers[CVEDatasetHandler].dset_path
-            if cve_dset_path.exists():
-                cve_dset_path.unlink()
-            cve_dset_parent = cve_dset_path.parent
-            cve_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cve_path"], cve_dset_path)
-        if paths["cpe_path"].exists() and CPEDatasetHandler in dset.aux_handlers:
-            cpe_dset_path = dset.aux_handlers[CPEDatasetHandler].dset_path
-            if cpe_dset_path.exists():
-                cpe_dset_path.unlink()
-            cpe_dset_parent = cpe_dset_path.parent
-            cpe_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cpe_path"], cpe_dset_path)
-        if paths["cpe_match_path"].exists() and CPEMatchDictHandler in dset.aux_handlers:
-            cpe_match_dset_path = dset.aux_handlers[CPEMatchDictHandler].dset_path
-            if cpe_match_dset_path.exists():
-                cpe_match_dset_path.unlink()
-            cpe_match_dset_parent = cpe_match_dset_path.parent
-            cpe_match_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cpe_match_path"], cpe_match_dset_path)
-        if (
-            "output_path_pp" in paths
-            and paths["output_path_pp"].exists()
-            and ProtectionProfileDatasetHandler in dset.aux_handlers
-        ):
-            pp_dset_path = dset.aux_handlers[ProtectionProfileDatasetHandler].dset_path
-            if pp_dset_path.exists():
-                pp_dset_path.unlink()
-            pp_dset_parent = pp_dset_path.parent
-            pp_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["output_path_pp"], pp_dset_path)
+        self.prepare_dataset_paths(dset, paths)
 
         update_result = None
         run_doc = None
@@ -253,17 +282,7 @@ class Updater:  # pragma: no cover
             removed_ids = old_ids.difference(current_ids)
             updated_ids = current_ids.intersection(old_ids)
 
-            cert_states = Counter()
-            for cert in dset:
-                for attr in cert.state.serialized_attributes:
-                    val = getattr(cert.state, attr, False)
-                    if isinstance(val, bool):
-                        cert_states[attr] += val
-                    elif hasattr(val, "serialized_attributes"):
-                        for other_attr in val.serialized_attributes:
-                            other_val = getattr(val, other_attr, False)
-                            if isinstance(other_val, bool):
-                                cert_states[attr + "_" + other_attr] += other_val
+            cert_states = self.count_cert_states(dset)
 
             # Store the success in the update log
             end = datetime.now()
@@ -312,6 +331,7 @@ class Updater:  # pragma: no cover
             self.update_kb(to_update_kb)
             self.archive(all_ids, {name: str(path) for name, path in paths.items()})
         except Exception as e:
+            logger.info(f"Run errored.")
             # Store the failure in the update log
             end = datetime.now()
             result = {

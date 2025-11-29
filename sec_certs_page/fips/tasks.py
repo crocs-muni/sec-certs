@@ -189,7 +189,9 @@ def archive_all():  # pragma: no cover
 
 
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
-    def process(self, dset: FIPSDataset, paths):
+    def process(
+        self, dset: FIPSDataset, paths: dict[str, Path]
+    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
         to_reindex = set()
         to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
 

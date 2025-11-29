@@ -93,6 +93,12 @@ class DiffRenderer:
     k2map: Mapping[str, Tuple[str, bool]]
 
     def render_diff(self, hashid, cert, diff, **kwargs) -> Markup:
+        """
+        Render a diff into HTML.
+
+        This is quite disgusting, but works for now.
+        """
+
         def render_code_template(template_str: str, vjson, **kws) -> Markup:
             template = Markup(template_str)
             return template.format(vjson=str(WorkingFormat(vjson).to_storage_format().to_json_mapping()), **kws)
