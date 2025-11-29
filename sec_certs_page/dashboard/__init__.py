@@ -55,8 +55,7 @@ If using threaded mode (Flask's ``threaded=True`` or gunicorn's ``--threads``),
 there's a theoretical race condition where two concurrent requests could
 interfere. In practice, this would only cause a brief flash of wrong content
 that gets corrected by client-side routing. For production, prefer multiple
-workers over multiple threads. 
-
+workers over multiple threads.
 """
 
 import logging
