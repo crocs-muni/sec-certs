@@ -5,6 +5,7 @@ from uuid import UUID
 
 from ..filters.filter import FilterSpec
 from ..types.chart import AvailableChartTypes
+from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
 
@@ -78,7 +79,7 @@ class Chart:
     :type filters: dict[str, FilterSpec]
     :param query_pipeline: Cached MongoDB aggregation pipeline (built by QueryBuilder)
     :type query_pipeline: list[dict[str, Any]] | None
-    :param color_scheme: Plotly color scheme name (default: "plotly")
+    :param color_scheme: Plotly color scheme name
     :type color_scheme: str
     :param show_legend: Whether to display chart legend
     :type show_legend: bool
@@ -94,6 +95,7 @@ class Chart:
     name: str
     chart_type: AvailableChartTypes
     x_axis: AxisConfig
+    collection_type: CollectionName
     title: str = ""
     order: int = 0
     y_axis: AxisConfig | None = None
@@ -191,6 +193,7 @@ class Chart:
             "title": self.title,
             "order": self.order,
             "chart_type": self.chart_type.value,
+            "collection_type": self.collection_type.value,
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
             "filters": {fid: fconfig.to_dict() for fid, fconfig in self.filters.items()},
@@ -215,7 +218,7 @@ class Chart:
         :rtype: Chart
         :raises ValueError: If required fields are missing from data
         """
-        required = ["chart_id", "name", "chart_type", "x_axis"]
+        required = ["chart_id", "name", "chart_type", "collection_type", "x_axis"]
         missing = [f for f in required if f not in data]
         if missing:
             raise ValueError(f"Missing required fields: {missing}")
@@ -241,12 +244,17 @@ class Chart:
         if isinstance(chart_type, str):
             chart_type = AvailableChartTypes(chart_type)
 
+        collection_type = data["collection_type"]
+        if isinstance(collection_type, str):
+            collection_type = CollectionName(collection_type)
+
         return cls(
             chart_id=chart_id,
             name=data["name"],
             title=data.get("title", ""),
             order=data.get("order", 0),
             chart_type=chart_type,
+            collection_type=collection_type,
             x_axis=x_axis,
             y_axis=y_axis,
             filters=filters,

@@ -124,6 +124,25 @@ class DataService:
             logger.exception("Error fetching FIPS data from MongoDB")
             raise e
 
+    def get_dataframe(
+        self,
+        collection_type: CollectionName,
+        filter_values: dict[str, Any] | None = None,
+    ) -> pd.DataFrame:
+        """Get dataset from MongoDB based on collection type.
+
+        :param collection_type: The collection to query (CC or FIPS)
+        :param filter_values: Optional dictionary mapping filter IDs to values
+        :return: Dataset as DataFrame
+        :raises ValueError: If collection_type is not supported
+        """
+        if collection_type == CollectionName.CommonCriteria:
+            return self.get_cc_dataframe(filter_values)
+        elif collection_type == CollectionName.FIPS140:
+            return self.get_fips_dataframe(filter_values)
+        else:
+            raise ValueError(f"Unsupported collection type: {collection_type}")
+
     def get_distinct_values(self, field: str, dataset_type) -> list[Any]:
         """Get distinct values for a field from MongoDB.
 
