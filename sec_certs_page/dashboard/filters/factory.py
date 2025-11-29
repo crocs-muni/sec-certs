@@ -1,13 +1,14 @@
-from typing import Any
+from typing import Any, cast
 
 import dash_bootstrap_components as dbc
 from dash import dcc, html
+from dash.dependencies import Input
 from dash.development.base_component import Component
 
-from .filter import FilterSpec
-from .registry import get_filter_registry
 from ..types.common import CollectionName
 from ..types.filter import FilterComponentType
+from .filter import FilterSpec
+from .registry import FilterSpecRegistry, get_filter_registry
 
 DBC_GRID_COL_MAX_WIDTH = 12
 """Maximum width for a column in Dash Bootstrap Components grid system."""
@@ -15,176 +16,122 @@ DBC_GRID_COL_MAX_WIDTH = 12
 
 class FilterFactory:
     """
-    Factory for creating Dash components from FilterSpec objects.
+    Factory for creating filter UI components.
 
-    Generates Dash UI components based on FilterSpec metadata for a specific
-    dataset type, ensuring UI always matches the filter registry configuration.
+    Responsible for generating Dash components from FilterSpec definitions,
+    including proper labels, styling, and component IDs for callback binding.
     """
 
-    def __init__(self, dataset_type: CollectionName) -> None:
-        """
-        Initialize factory for a specific dataset type.
-
-        :param dataset_type: Dataset type (CommonCriteria or FIPS140)
-        """
+    def __init__(self, dataset_type: CollectionName):
         self.dataset_type = dataset_type
-        self.registry = get_filter_registry(dataset_type)
+        self._registry = get_filter_registry(dataset_type)
 
-    def create_filter_component(self, filter_spec: FilterSpec) -> Component:
+    @property
+    def registry(self) -> type[FilterSpecRegistry]:
+        """Get the filter registry for this dataset type."""
+        return self._registry
+
+    def create_filter(self, filter_spec: FilterSpec, with_label: bool = True) -> Component:
         """
-        Create a Dash component from a FilterSpec.
-
-        :param filter_spec: Filter specification with UI metadata
-        :return: Dash component (dcc or html component)
-        :raises ValueError: If component type is not supported
-        """
-        component_type = filter_spec.component_params.component_type
-
-        if component_type in (FilterComponentType.DROPDOWN, FilterComponentType.MULTI_DROPDOWN):
-            return self._create_dropdown(filter_spec)
-        elif component_type == FilterComponentType.TEXT_SEARCH:
-            return self._create_text_search(filter_spec)
-        elif component_type == FilterComponentType.DATE_PICKER:
-            return self._create_date_picker(filter_spec)
-        elif component_type == FilterComponentType.DATE_RANGE:
-            return self._create_date_range(filter_spec)
-        elif component_type == FilterComponentType.CHECKBOX:
-            return self._create_checkbox(filter_spec)
-        else:
-            raise ValueError(f"Unsupported component type: {component_type}")
-
-    @staticmethod
-    def _create_dropdown(filter_spec: FilterSpec) -> dcc.Dropdown:
-        """Create a Dropdown component."""
-        ui = filter_spec.component_params
-        return dcc.Dropdown(
-            id=filter_spec.id,
-            options=filter_spec.data or [],
-            placeholder=ui.placeholder,
-            multi=ui.multi or (ui.component_type == FilterComponentType.MULTI_DROPDOWN),
-            clearable=ui.clearable,
-            searchable=ui.searchable,
-            value=ui.default_value,
-            persistence=True,
-            persistence_type="session",
-        )
-
-    @staticmethod
-    def _create_text_search(filter_spec: FilterSpec) -> dcc.Input:
-        """Create a text Input component for search."""
-        ui = filter_spec.component_params
-        return dcc.Input(
-            id=filter_spec.id,
-            type="text",
-            placeholder=ui.placeholder,
-            value=ui.default_value or "",
-            debounce=False,
-            persistence=True,
-            persistence_type="session",
-        )
-
-    @staticmethod
-    def _create_date_picker(filter_spec: FilterSpec) -> dcc.DatePickerSingle:
-        """Create a DatePickerSingle component."""
-        ui = filter_spec.component_params
-        return dcc.DatePickerSingle(
-            id=filter_spec.id,
-            placeholder=ui.placeholder,
-            date=ui.default_value,
-            display_format="YYYY-MM-DD",
-            min_date_allowed=str(ui.min_value) if ui.min_value else None,
-            max_date_allowed=str(ui.max_value) if ui.max_value else None,
-            persistence=True,
-            persistence_type="session",
-        )
-
-    @staticmethod
-    def _create_date_range(filter_spec: FilterSpec) -> dcc.DatePickerRange:
-        """Create a DatePickerRange component."""
-        ui = filter_spec.component_params
-        return dcc.DatePickerRange(
-            id=filter_spec.id,
-            start_date_placeholder_text=ui.placeholder or "Start date",
-            end_date_placeholder_text="End date",
-            display_format="YYYY-MM-DD",
-            min_date_allowed=str(ui.min_value) if ui.min_value else None,
-            max_date_allowed=str(ui.max_value) if ui.max_value else None,
-            persistence=True,
-            persistence_type="session",
-        )
-
-    @staticmethod
-    def _create_checkbox(filter_spec: FilterSpec) -> dcc.Checklist:
-        """Create a Checklist component."""
-        ui = filter_spec.component_params
-        return dcc.Checklist(
-            id=filter_spec.id,
-            options=filter_spec.data or [],
-            value=ui.default_value or [],
-            inline=True,
-        )
-
-    def create_filter_with_label(self, filter_spec: FilterSpec) -> html.Div:
-        """
-        Create a filter component wrapped with label and help text.
-
-        This is the recommended way to create filters for your dashboard.
+        Create a single filter component from its specification.
 
         :param filter_spec: Filter specification
-        :return: html.Div containing label, component, and help text
+        :param with_label: Whether to include a label
+        :return: Dash component for the filter
         """
-        ui = filter_spec.component_params
-        component = self.create_filter_component(filter_spec)
+        component_id = f"{self.dataset_type.value}-filter-{filter_spec.id}"
+        params = filter_spec.component_params
 
-        children = []
+        if params.component_type == FilterComponentType.DROPDOWN:
+            # Build options from filter data if available
+            options: list[dict[str, Any]] = []
+            if filter_spec.data:
+                options = [{"label": str(v), "value": v} for v in filter_spec.data]
 
-        if ui.label:
-            children.append(
-                html.Label(
-                    ui.label,
-                    htmlFor=filter_spec.id,
-                    style={"fontWeight": "bold", "marginBottom": "5px"},
-                )
+            filter_component = dcc.Dropdown(
+                id=component_id,
+                options=options,  # type: ignore[arg-type]
+                placeholder=params.placeholder or f"Select {params.label}...",
+                multi=params.multi,
+                clearable=params.clearable,
+                searchable=params.searchable,
+                value=params.default_value,
+                className="dash-bootstrap",
+            )
+        elif params.component_type == FilterComponentType.MULTI_DROPDOWN:
+            options = []
+            if filter_spec.data:
+                options = [{"label": str(v), "value": v} for v in filter_spec.data]
+
+            filter_component = dcc.Dropdown(
+                id=component_id,
+                options=options,  # type: ignore[arg-type]
+                placeholder=params.placeholder or f"Select {params.label}...",
+                multi=True,
+                clearable=params.clearable,
+                searchable=params.searchable,
+                value=params.default_value,
+                className="dash-bootstrap",
+            )
+        elif params.component_type == FilterComponentType.DATE_RANGE:
+            filter_component = dcc.DatePickerRange(
+                id=component_id,
+                min_date_allowed=cast(str | None, params.min_value),
+                max_date_allowed=cast(str | None, params.max_value),
+                className="dash-bootstrap",
+            )
+        elif params.component_type == FilterComponentType.DATE_PICKER:
+            filter_component = dcc.DatePickerSingle(
+                id=component_id,
+                min_date_allowed=cast(str | None, params.min_value),
+                max_date_allowed=cast(str | None, params.max_value),
+                date=params.default_value,
+                className="dash-bootstrap",
+            )
+        elif params.component_type == FilterComponentType.TEXT_SEARCH:
+            filter_component = dbc.Input(
+                id=component_id,
+                type="text",
+                placeholder=params.placeholder or f"Search {params.label}...",
+                value=params.default_value or "",
+            )
+        elif params.component_type == FilterComponentType.CHECKBOX:
+            filter_component = dbc.Checkbox(
+                id=component_id,
+                label=params.label,
+                value=params.default_value or False,
+            )
+        else:
+            filter_component = html.Span(f"Unknown filter type: {params.component_type}", className="text-danger")
+
+        if with_label and params.component_type != FilterComponentType.CHECKBOX:
+            return html.Div(
+                className="mb-3",
+                children=[
+                    dbc.Label(params.label, html_for=component_id, className="fw-bold"),
+                    filter_component,
+                    html.Small(params.help_text, className="text-muted") if params.help_text else None,
+                ],
             )
 
-        children.append(component)
-
-        if ui.help_text:
-            children.append(
-                html.Small(
-                    ui.help_text,
-                    style={
-                        "color": "#666",
-                        "fontStyle": "italic",
-                        "display": "block",
-                        "marginTop": "3px",
-                    },
-                )
-            )
-
-        return html.Div(children=children, style={"marginBottom": "20px"})
+        return filter_component
 
     def create_all_filters(self, with_labels: bool = True) -> list[Component]:
         """
-        Create all filter components for this dataset type.
+        Create all registered filters for this dataset type.
 
-        :param with_labels: Include labels and help text
-        :return: List of Dash components
+        :param with_labels: Whether to include labels
+        :return: List of filter components
         """
-        filter_specs = self.registry.get_all_filters()
+        return [self.create_filter(spec, with_labels) for spec in self._registry.get_all_filters().values()]
 
-        if with_labels:
-            return [self.create_filter_with_label(spec) for spec in filter_specs.values()]
-        else:
-            return [self.create_filter_component(spec) for spec in filter_specs.values()]
-
-    def create_filter_panel(self, title: str = "Filters", columns: int = 4) -> dbc.Container:
+    def create_filter_panel(self, title: str = "Filters", columns: int = 4) -> dbc.Card:
         """
-        Create a complete filter panel with all filters in a Bootstrap grid.
+        Create a complete filter panel with all filters in a Bootstrap card.
 
         :param title: Panel title
         :param columns: Maximum number of filters per row
-        :return: dbc.Container with all filters
+        :return: Card with all filters
         """
         filters = self.create_all_filters(with_labels=True)
         col_width = DBC_GRID_COL_MAX_WIDTH // columns
@@ -192,56 +139,56 @@ class FilterFactory:
         rows = []
         for i in range(0, len(filters), columns):
             row_filters = filters[i : i + columns]
-            cols = [dbc.Col(filter_comp, width=col_width) for filter_comp in row_filters]
-            rows.append(dbc.Row(cols, className="mb-3"))
+            cols = [dbc.Col(filter_comp, width=12, md=col_width) for filter_comp in row_filters]
+            rows.append(dbc.Row(cols, className="g-3"))
 
-        return dbc.Container(
-            [html.H3(title, className="mb-4"), *rows],
-            fluid=True,
-            className="p-4 bg-light rounded mb-4",
-            id=f"{self.dataset_type.value}-filter-panel",
+        return dbc.Card(
+            className="mb-4",
+            children=[
+                dbc.CardHeader(
+                    html.H4([html.I(className="fas fa-filter me-2"), title], className="mb-0"),
+                ),
+                dbc.CardBody(children=rows if rows else [html.P("No filters available.", className="text-muted")]),
+            ],
         )
 
     def get_filter_ids(self) -> list[str]:
-        """Get list of filter IDs for this dataset type."""
-        return list(self.registry.get_all_filters().keys())
+        """
+        Get all filter component IDs for callback registration.
 
-    def create_callback_inputs(self) -> list[Any]:
-        """Create list of Input() objects for all filters."""
-        from dash.dependencies import Input
+        :return: List of filter component IDs
+        """
+        return [f"{self.dataset_type.value}-filter-{spec.id}" for spec in self._registry.get_all_filters().values()]
 
-        filter_specs = self.registry.get_all_filters()
+    def create_callback_inputs(self) -> list[Input]:
+        """
+        Create Dash Input dependencies for all filters.
+
+        Used to register callbacks that respond to filter value changes.
+
+        :return: List of Dash Input dependencies
+        """
         inputs = []
-
-        for filter_spec in filter_specs.values():
-            if filter_spec.component_params.component_type == FilterComponentType.DATE_PICKER:
-                prop = "date"
-            elif filter_spec.component_params.component_type == FilterComponentType.DATE_RANGE:
-                prop = "start_date"
-            else:
-                prop = "value"
-
-            inputs.append(Input(filter_spec.id, prop))
-
+        for filter_id in self.get_filter_ids():
+            inputs.append(Input(filter_id, "value"))
         return inputs
 
-    def collect_filter_values(self, *args) -> dict[str, Any]:
+    def collect_filter_values(self, *filter_values: Any) -> dict[str, Any]:
         """
-        Collect filter values from callback inputs.
+        Collect filter values into a dictionary keyed by filter ID.
 
-        Filters out None, empty strings, and empty lists.
+        This method is designed to be called from a callback with values
+        from all filter inputs. It pairs each value with its filter ID.
 
-        :param args: Filter values in same order as callback Inputs
-        :return: Dictionary mapping filter IDs to non-empty values
-        :raises ValueError: If number of args doesn't match number of filters
+        :param filter_values: Values from filter components in order
+        :return: Dictionary mapping filter IDs to their current values
         """
-        filter_specs = list(self.registry.get_all_filters().values())
+        filter_ids = self.get_filter_ids()
+        result = {}
 
-        if len(args) != len(filter_specs):
-            raise ValueError(f"Expected {len(filter_specs)} filter values for {self.dataset_type}, " f"got {len(args)}")
+        for filter_id, value in zip(filter_ids, filter_values):
+            # Only include non-empty values
+            if value is not None and value != "" and value != []:
+                result[filter_id] = value
 
-        return {
-            filter_spec.id: value
-            for filter_spec, value in zip(filter_specs, args)
-            if value is not None and value != "" and value != []
-        }
+        return result
