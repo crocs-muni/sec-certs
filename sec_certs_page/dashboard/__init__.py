@@ -26,12 +26,12 @@ This is particularly problematic because:
 
 The Solution
 ------------
-We implement Server-Side Rendering (SSR) for the initial page load:
+System implements Server-Side Rendering (SSR) for the initial page load:
 
-1. When ``layout()`` is called, we inspect the current Flask request path
-2. We resolve which Dash page matches that path using Werkzeug's URL routing
-3. We call that page's layout function server-side
-4. We inject the result directly into ``dash.page_container.children[1]``
+1. When ``layout()`` is called, system inspects the current Flask request path
+2. System resolve which Dash page matches that path using Werkzeug's URL routing
+3. System calls that page's layout function server-side
+4. System injects the result directly into ``dash.page_container.children[1]``
    (the ``_pages_content`` div) before sending HTML to the client
 
 This ensures the initial HTML payload contains the correct page content,
@@ -40,14 +40,14 @@ for subsequent navigation.
 
 Important Notes
 ---------------
-- We skip SSR for internal Dash routes (``/_dash-layout``, ``/_dash-dependencies``)
+- System skips SSR for internal Dash routes (``/_dash-layout``, ``/_dash-dependencies``)
   as these are AJAX requests for client-side hydration
-- We mutate ``dash.page_container`` singleton, which is safe because:
+- System mutates ``dash.page_container`` singleton, which is safe because:
 
   - Flask dev server is single-threaded
   - Production workers (gunicorn/uwsgi) each have their own process
 
-- If SSR fails for any reason, we gracefully fall back to client-side routing
+- If SSR fails for any reason, system gracefully fall back to client-side routing
 
 Thread Safety Caveat
 --------------------
@@ -62,6 +62,7 @@ import logging
 from logging import Logger
 
 import dash
+import dash_bootstrap_components as dbc
 import flask
 from dash import dcc, html
 from dash.development.base_component import Component
@@ -142,7 +143,7 @@ class PageRouter:
 page_router = PageRouter()
 
 
-def layout(**kwargs) -> html.Div:
+def layout(**kwargs) -> dbc.Container:
     """
     App shell layout with safe Server-Side Injection.
 
@@ -162,39 +163,67 @@ def layout(**kwargs) -> html.Div:
     # Inject SSR content into dash.page_container
     # The page_container structure is: [Location, content_div, Store, dummy_div]
     # We inject into children[1] which is the _pages_content div
-    if initial_content is not None and dash.page_container is not None:
-        dash.page_container.children[1].children = initial_content  # type: ignore[index,union-attr]
+    if initial_content is not None and dash.page_container.children is not None:
+        dash.page_container.children[1].children = initial_content
 
-    nav_links = []
-
-    nav_links.append(
-        dcc.Link(
-            "Home",
-            href="/dashboard/",
-            style={"textDecoration": "none", "fontWeight": "bold", "marginRight": "10px"},
-        )
-    )
-
-    return html.Div(
-        style={"maxWidth": "1400px", "margin": "0 auto", "padding": "20px"},
+    return dbc.Container(
+        fluid=True,
+        className="col-12 col-sm-10 mx-auto p-3 py-md-5",
         children=[
-            html.Header(
-                style={
-                    "borderBottom": "2px solid #eee",
-                    "paddingBottom": "15px",
-                    "marginBottom": "20px",
-                },
+            # Header
+            dbc.Row(
+                className="mb-4 pb-3 border-bottom",
                 children=[
-                    html.H1(
-                        "sec-certs.org Data Dashboards",
-                        style={"margin": "0 0 10px 0"},
-                    ),
-                    html.Nav(
-                        nav_links,
-                        style={"display": "flex", "alignItems": "center"},
+                    dbc.Col(
+                        children=[
+                            html.H1(
+                                [
+                                    html.I(className="fas fa-chart-line me-3"),
+                                    "sec-certs.org Data Dashboards",
+                                ],
+                                className="mb-2",
+                            ),
+                            dbc.Nav(
+                                children=[
+                                    dbc.NavItem(
+                                        dcc.Link(
+                                            [html.I(className="fas fa-home me-1"), "Dashboard Home"],
+                                            href="/dashboard/",
+                                            className="nav-link",
+                                        ),
+                                    ),
+                                    dbc.NavItem(
+                                        dcc.Link(
+                                            [html.I(className="fas fa-shield-alt me-1"), "Common Criteria"],
+                                            href="/dashboard/cc",
+                                            className="nav-link",
+                                        ),
+                                    ),
+                                    dbc.NavItem(
+                                        dcc.Link(
+                                            [html.I(className="fas fa-lock me-1"), "FIPS 140"],
+                                            href="/dashboard/fips",
+                                            className="nav-link",
+                                        ),
+                                    ),
+                                ],
+                                pills=True,
+                            ),
+                        ],
                     ),
                 ],
             ),
+            # Alert for mobile users
+            dbc.Alert(
+                [
+                    html.I(className="fas fa-exclamation-triangle me-2"),
+                    "This dashboard was not yet optimized for use on mobile devices.",
+                ],
+                color="warning",
+                className="d-sm-none",
+                dismissable=True,
+            ),
+            # Page content
             dash.page_container,
         ],
     )

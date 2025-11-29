@@ -4,6 +4,7 @@ Dash callback registration for the dashboard system.
 
 from typing import TYPE_CHECKING
 
+import dash_bootstrap_components as dbc
 from dash import ALL, MATCH, ctx, html, no_update
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
@@ -40,7 +41,6 @@ def register_all_callbacks(
         _register_update_all_callback(dash_app, prefix)
         _register_button_state_callbacks(dash_app, prefix)
 
-        # INIT callbacks
         _register_dashboard_names_callback(dash_app, prefix, dataset_type, dashboard_manager)
         _register_initial_load_callback(dash_app, prefix, dataset_type, dashboard_manager)
         _register_dashboard_select_callback(dash_app, prefix, dashboard_manager, chart_registry)
@@ -311,6 +311,52 @@ def _register_chart_management_callbacks(dash_app: "Dash", prefix: str) -> None:
         return current_charts
 
 
+def _create_chart_wrapper(chart_id: str, title: str, chart_component: Component) -> dbc.Card:
+    """
+    Create a Bootstrap card wrapper for a chart with controls.
+
+    :param chart_id: Unique chart identifier
+    :param title: Chart title
+    :param chart_component: The chart component to wrap
+    :return: Card containing the chart with header controls
+    """
+    return dbc.Card(
+        id={"type": "chart-wrapper", "index": chart_id},
+        className="mb-4 shadow-sm",
+        children=[
+            dbc.CardHeader(
+                className="d-flex justify-content-between align-items-center",
+                children=[
+                    html.H5(title, className="mb-0"),
+                    dbc.ButtonGroup(
+                        size="sm",
+                        children=[
+                            dbc.Button(
+                                html.I(className="fas fa-sync-alt"),
+                                id={"type": "chart-refresh", "index": chart_id},
+                                color="success",
+                                outline=True,
+                                title="Refresh this chart",
+                            ),
+                            dbc.Button(
+                                html.I(className="fas fa-times"),
+                                id={"type": "remove-chart", "index": chart_id},
+                                color="danger",
+                                outline=True,
+                                title="Remove this chart",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            dbc.CardBody(
+                id={"type": "chart-content", "index": chart_id},
+                children=chart_component,
+            ),
+        ],
+    )
+
+
 def _register_chart_rendering_callback(
     dash_app: "Dash",
     prefix: str,
@@ -332,10 +378,14 @@ def _register_chart_rendering_callback(
     ) -> list[Component]:
         if not chart_ids:
             return [
-                html.P(
-                    "No charts added yet. Select a chart and click 'Add Chart'.",
-                    style={"color": "gray"},
-                )
+                dbc.Alert(
+                    [
+                        html.I(className="fas fa-info-circle me-2"),
+                        "No charts added yet. Select a chart and click 'Add Chart'.",
+                    ],
+                    color="info",
+                    className="text-center",
+                ),
             ]
 
         rendered = []
@@ -345,81 +395,31 @@ def _register_chart_rendering_callback(
 
             if not chart:
                 rendered.append(
-                    html.Div(
-                        html.P(f"Error: Chart '{chart_id}' not found.", style={"color": "red"}),
-                        style={"border": "1px solid #ddd", "padding": "10px", "marginBottom": "10px"},
+                    dbc.Alert(
+                        [
+                            html.I(className="fas fa-exclamation-triangle me-2"),
+                            f"Chart '{chart_id}' not found.",
+                        ],
+                        color="warning",
                     )
                 )
                 continue
 
             try:
-                chart_component = chart.render()
-                rendered.append(_create_chart_wrdash_apper(chart_id, chart.title, chart_component))
-
+                chart_component = chart.render(filter_values or {})
+                rendered.append(_create_chart_wrapper(chart_id, chart.title, chart_component))
             except Exception as e:
                 rendered.append(
-                    html.Div(
+                    dbc.Alert(
                         [
-                            html.H4(chart.title),
-                            html.P(f"Error rendering: {str(e)}", style={"color": "red"}),
+                            html.I(className="fas fa-exclamation-circle me-2"),
+                            f"Error rendering chart '{chart_id}': {str(e)}",
                         ],
-                        style={"border": "1px solid #ddd", "padding": "10px", "marginBottom": "10px"},
+                        color="danger",
                     )
                 )
 
         return rendered
-
-
-def _create_chart_wrdash_apper(chart_id: str, title: str, chart_component: Component) -> html.Div:
-    return html.Div(
-        id={"type": "chart-wrdash_apper", "index": chart_id},
-        children=[
-            html.Div(
-                [
-                    html.H4(title, style={"display": "inline-block", "margin": "0"}),
-                    html.Div(
-                        [
-                            html.Button(
-                                "🔄",
-                                id={"type": "chart-refresh", "index": chart_id},
-                                title="Refresh this chart",
-                                style={
-                                    "background": "#4CAF50",
-                                    "color": "white",
-                                    "border": "none",
-                                    "borderRadius": "4px",
-                                    "padding": "5px 10px",
-                                    "marginRight": "5px",
-                                    "cursor": "pointer",
-                                },
-                            ),
-                            html.Button(
-                                "×",
-                                id={"type": "remove-chart", "index": chart_id},
-                                title="Remove this chart",
-                                style={
-                                    "background": "red",
-                                    "color": "white",
-                                    "border": "none",
-                                    "borderRadius": "50%",
-                                    "width": "25px",
-                                    "height": "25px",
-                                    "cursor": "pointer",
-                                },
-                            ),
-                        ],
-                        style={"float": "right"},
-                    ),
-                ],
-                style={"marginBottom": "10px", "overflow": "hidden"},
-            ),
-            html.Div(
-                id={"type": "chart-content", "index": chart_id},
-                children=chart_component,
-            ),
-        ],
-        style={"border": "1px solid #ddd", "padding": "15px", "marginBottom": "15px", "borderRadius": "5px"},
-    )
 
 
 def _register_update_all_callback(dash_app: "Dash", prefix: str) -> None:
