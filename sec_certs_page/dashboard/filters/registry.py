@@ -31,8 +31,8 @@ class CCFilterRegistry(FilterSpecRegistry):
     """Common Criteria filter definitions."""
 
     _filters: ClassVar[dict[str, FilterSpec]] = {
-        "category-filter": FilterSpec(
-            id="category-filter",
+        "cc-category-filter": FilterSpec(
+            id="cc-category-filter",
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
@@ -46,8 +46,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter certificates by product category",
             ),
         ),
-        "scheme-filter": FilterSpec(
-            id="scheme-filter",
+        "cc-scheme-filter": FilterSpec(
+            id="cc-scheme-filter",
             database_field="scheme",
             operator=FilterOperator.IN,
             data_type="str",
@@ -61,8 +61,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by certification scheme/country",
             ),
         ),
-        "status-filter": FilterSpec(
-            id="status-filter",
+        "cc-status-filter": FilterSpec(
+            id="cc-status-filter",
             database_field="status",
             operator=FilterOperator.IN,
             data_type="str",
@@ -76,8 +76,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by certificate status (active/archived)",
             ),
         ),
-        "not-valid-before-filter": FilterSpec(
-            id="not-valid-before-filter",
+        "cc-not-valid-before-filter": FilterSpec(
+            id="cc-not-valid-before-filter",
             database_field="not_valid_before",
             operator=FilterOperator.GTE,
             data_type="str",
@@ -89,8 +89,8 @@ class CCFilterRegistry(FilterSpecRegistry):
             ),
             transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
         ),
-        "not-valid-after-filter": FilterSpec(
-            id="not-valid-after-filter",
+        "cc-not-valid-after-filter": FilterSpec(
+            id="cc-not-valid-after-filter",
             database_field="not_valid_after",
             operator=FilterOperator.LTE,
             data_type="str",
@@ -109,8 +109,8 @@ class FIPSFilterRegistry(FilterSpecRegistry):
     """FIPS 140 filter definitions."""
 
     _filters: ClassVar[dict[str, FilterSpec]] = {
-        "level-filter": FilterSpec(
-            id="level-filter",
+        "fips-level-filter": FilterSpec(
+            id="fips-level-filter",
             database_field="web_data.level",
             operator=FilterOperator.IN,
             data_type="str",
@@ -124,8 +124,8 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="FIPS 140 security level (1-4)",
             ),
         ),
-        "status-filter": FilterSpec(
-            id="status-filter",
+        "fips-status-filter": FilterSpec(
+            id="fips-status-filter",
             database_field="web_data.status",
             operator=FilterOperator.IN,
             data_type="str",
@@ -139,8 +139,8 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="Current certificate status",
             ),
         ),
-        "module-type-filter": FilterSpec(
-            id="module-type-filter",
+        "fips-module-type-filter": FilterSpec(
+            id="fips-module-type-filter",
             database_field="web_data.module_type",
             operator=FilterOperator.IN,
             data_type="str",
@@ -154,8 +154,8 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="Type of cryptographic module",
             ),
         ),
-        "standard-filter": FilterSpec(
-            id="standard-filter",
+        "fips-standard-filter": FilterSpec(
+            id="fips-standard-filter",
             database_field="web_data.standard",
             operator=FilterOperator.IN,
             data_type="str",
