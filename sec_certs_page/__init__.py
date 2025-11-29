@@ -3,6 +3,7 @@ import sys
 from contextvars import ContextVar
 from pathlib import Path
 
+import dash_bootstrap_components as dbc
 import sentry_sdk
 from dramatiq import Middleware
 from dramatiq.middleware import (
@@ -233,6 +234,7 @@ with app.app_context():
         use_pages=True,
         suppress_callback_exceptions=True,
         pages_folder=pages_folder_path,
+        external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME],
     )
     from .dashboard import init_dashboard
 

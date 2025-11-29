@@ -5,11 +5,11 @@
     {{ metas|safe }}
     {{ favicon|safe }}
     {{ css|safe }}
+    {# Dashboard-specific styles #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 {% endblock %}
 {% block content %}
-    <div class="col-10 mx-auto p-3 py-md-5">
-        {{ app_entry|safe }}
-    </div>
+    {{ app_entry|safe }}
 {% endblock %}
 {% block footer %}
     {{ super() }}

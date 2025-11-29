@@ -1,5 +1,6 @@
 """Common utilities for dashboard collection pages."""
 
+import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
@@ -21,30 +22,37 @@ def create_collection_page_layout(collection: CollectionName, title: str) -> htm
             # State stores
             *create_page_stores(prefix),
             # Page header
-            html.Div(
-                style={"marginBottom": "20px"},
+            dbc.Row(
+                className="mb-4",
                 children=[
-                    html.H2(title),
-                    dcc.Link(
-                        "← Back to Home", href=f"{DASHBOARD_URL_BASE_PATHNAME.rstrip('/')}", style={"color": "#666"}
+                    dbc.Col(
+                        children=[
+                            html.H1(title, className="mb-2"),
+                            dcc.Link(
+                                [html.I(className="fas fa-arrow-left me-2"), "Back to Dashboard Home"],
+                                href=f"{DASHBOARD_URL_BASE_PATHNAME.rstrip('/')}",
+                                className="text-muted text-decoration-none",
+                            ),
+                        ],
                     ),
                 ],
             ),
             # Dashboard management section
-            html.Div(
-                style={
-                    "backgroundColor": "#f8f9fa",
-                    "padding": "20px",
-                    "borderRadius": "8px",
-                    "marginBottom": "20px",
-                },
-                children=[create_dashboard_management_buttons(prefix)],
+            dbc.Card(
+                className="mb-4",
+                children=[
+                    dbc.CardBody(
+                        children=[
+                            create_dashboard_management_buttons(prefix),
+                        ],
+                    ),
+                ],
             ),
             # Empty state
             create_empty_state(prefix),
             # Dashboard content
             create_dashboard_content(prefix),
-        ]
+        ],
     )
 
 
@@ -65,55 +73,58 @@ def create_page_stores(collection_name: str) -> list:
     ]
 
 
-def create_dashboard_management_buttons(collection_name: str) -> html.Div:
+def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
     """
     Create the dashboard management buttons (Create New, Load Predefined).
 
-    :return: Div containing the action buttons
+    :param collection_name: The collection_name for component IDs
+    :return: Row containing the action buttons
     """
-    return html.Div(
-        style={"display": "flex", "alignItems": "center", "gap": "15px", "flexWrap": "wrap"},
+    return dbc.Row(
+        className="g-3 align-items-end",
         children=[
-            html.Div(
+            # Dashboard selector
+            dbc.Col(
+                width=12,
+                lg=4,
                 children=[
-                    html.Label("Select Dashboard:", style={"fontWeight": "bold", "marginRight": "10px"}),
+                    dbc.Label(
+                        "Select Dashboard", html_for=f"{collection_name}-dashboard-selector", className="fw-bold"
+                    ),
                     dcc.Dropdown(
                         id=f"{collection_name}-dashboard-selector",
                         options=[],
                         placeholder="Select a saved dashboard...",
-                        style={"width": "250px"},
                         clearable=True,
+                        className="dash-bootstrap",
                     ),
                 ],
-                style={"display": "flex", "alignItems": "center"},
             ),
-            html.Button(
-                "➕ Create New Dashboard",
-                id=f"{collection_name}-create-dashboard-btn",
-                n_clicks=0,
-                style={
-                    "padding": "10px 20px",
-                    "fontSize": "14px",
-                    "backgroundColor": "#28a745",
-                    "color": "white",
-                    "border": "none",
-                    "borderRadius": "5px",
-                    "cursor": "pointer",
-                },
+            # Create new button
+            dbc.Col(
+                width="auto",
+                children=[
+                    dbc.Button(
+                        [html.I(className="fas fa-plus me-2"), "Create New Dashboard"],
+                        id=f"{collection_name}-create-dashboard-btn",
+                        n_clicks=0,
+                        color="success",
+                        className="w-100",
+                    ),
+                ],
             ),
-            html.Button(
-                "📊 Load Predefined Charts",
-                id=f"{collection_name}-load-predefined-btn",
-                n_clicks=0,
-                style={
-                    "padding": "10px 20px",
-                    "fontSize": "14px",
-                    "backgroundColor": "#007bff",
-                    "color": "white",
-                    "border": "none",
-                    "borderRadius": "5px",
-                    "cursor": "pointer",
-                },
+            # Load predefined button
+            dbc.Col(
+                width="auto",
+                children=[
+                    dbc.Button(
+                        [html.I(className="fas fa-chart-bar me-2"), "Load Predefined Charts"],
+                        id=f"{collection_name}-load-predefined-btn",
+                        n_clicks=0,
+                        color="primary",
+                        className="w-100",
+                    ),
+                ],
             ),
         ],
     )
@@ -130,19 +141,19 @@ def create_empty_state(collection_name: str) -> html.Div:
         id=f"{collection_name}-empty-state",
         style={"display": "block"},
         children=[
-            html.Div(
-                style={
-                    "textAlign": "center",
-                    "padding": "60px 20px",
-                    "backgroundColor": "#fff",
-                    "borderRadius": "8px",
-                    "border": "2px dashed #ddd",
-                },
+            dbc.Card(
+                className="text-center border-2 border-dashed",
                 children=[
-                    html.H3("No Dashboard Selected", style={"color": "#666"}),
-                    html.P(
-                        "Create a new dashboard or select an existing one from the dropdown above.",
-                        style={"color": "#999"},
+                    dbc.CardBody(
+                        className="py-5",
+                        children=[
+                            html.I(className="fas fa-chart-line fa-3x text-muted mb-3"),
+                            html.H3("No Dashboard Selected", className="text-muted"),
+                            html.P(
+                                "Create a new dashboard or select an existing one from the dropdown above.",
+                                className="text-muted lead",
+                            ),
+                        ],
                     ),
                 ],
             ),
@@ -150,44 +161,54 @@ def create_empty_state(collection_name: str) -> html.Div:
     )
 
 
-def create_chart_controls(collection_name: str) -> html.Div:
+def create_chart_controls(collection_name: str) -> dbc.Card:
     """
-    Create the chart selection and control panel.
+    Create the chart selection and addition controls.
 
     :param collection_name: The collection_name for component IDs
-    :return: Div containing chart controls
+    :return: Card containing chart controls
     """
-    return html.Div(
-        style={
-            "backgroundColor": "#fff",
-            "padding": "15px",
-            "borderRadius": "8px",
-            "border": "1px solid #ddd",
-            "marginBottom": "20px",
-        },
+    return dbc.Card(
+        className="mb-4",
         children=[
-            html.H4("Add Charts", style={"marginBottom": "15px"}),
-            html.Div(
-                style={"display": "flex", "alignItems": "center", "gap": "10px"},
+            dbc.CardHeader(
+                html.H4("Add Charts", className="mb-0"),
+            ),
+            dbc.CardBody(
                 children=[
-                    dcc.Dropdown(
-                        id=f"{collection_name}-chart-selector",
-                        options=[],
-                        placeholder="Select a chart to add...",
-                        style={"width": "300px"},
-                    ),
-                    html.Button(
-                        "Add Chart",
-                        id=f"{collection_name}-add-chart-btn",
-                        n_clicks=0,
-                        style={
-                            "padding": "8px 16px",
-                            "backgroundColor": "#28a745",
-                            "color": "white",
-                            "border": "none",
-                            "borderRadius": "4px",
-                            "cursor": "pointer",
-                        },
+                    dbc.Row(
+                        className="g-3 align-items-end",
+                        children=[
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                lg=4,
+                                children=[
+                                    dbc.Label(
+                                        "Select Chart Type",
+                                        html_for=f"{collection_name}-chart-selector",
+                                        className="fw-bold",
+                                    ),
+                                    dcc.Dropdown(
+                                        id=f"{collection_name}-chart-selector",
+                                        options=[],
+                                        placeholder="Select a chart to add...",
+                                        className="dash-bootstrap",
+                                    ),
+                                ],
+                            ),
+                            dbc.Col(
+                                width="auto",
+                                children=[
+                                    dbc.Button(
+                                        [html.I(className="fas fa-plus me-2"), "Add Chart"],
+                                        id=f"{collection_name}-add-chart-btn",
+                                        n_clicks=0,
+                                        color="success",
+                                    ),
+                                ],
+                            ),
+                        ],
                     ),
                 ],
             ),
@@ -195,44 +216,40 @@ def create_chart_controls(collection_name: str) -> html.Div:
     )
 
 
-def create_dashboard_action_buttons(collection_name: str) -> html.Div:
+def create_dashboard_action_buttons(collection_name: str) -> dbc.Row:
     """
     Create the dashboard action buttons (Update All, Save).
 
     :param collection_name: The collection_name for component IDs
-    :return: Div containing action buttons
+    :return: Row containing action buttons
     """
-    return html.Div(
-        style={"marginBottom": "20px"},
+    return dbc.Row(
+        className="mb-4 g-2",
         children=[
-            html.Button(
-                "🔄 Update All Charts",
-                id=f"{collection_name}-update-all-btn",
-                n_clicks=0,
-                disabled=True,
-                style={
-                    "marginRight": "10px",
-                    "padding": "8px 16px",
-                    "backgroundColor": "#4CAF50",
-                    "color": "white",
-                    "border": "none",
-                    "borderRadius": "4px",
-                    "cursor": "pointer",
-                },
+            dbc.Col(
+                width="auto",
+                children=[
+                    dbc.Button(
+                        [html.I(className="fas fa-sync-alt me-2"), "Update All Charts"],
+                        id=f"{collection_name}-update-all-btn",
+                        n_clicks=0,
+                        disabled=True,
+                        color="success",
+                        outline=True,
+                    ),
+                ],
             ),
-            html.Button(
-                "💾 Save Dashboard",
-                id=f"{collection_name}-save-dashboard-btn",
-                n_clicks=0,
-                disabled=True,
-                style={
-                    "padding": "8px 16px",
-                    "backgroundColor": "#2196F3",
-                    "color": "white",
-                    "border": "none",
-                    "borderRadius": "4px",
-                    "cursor": "pointer",
-                },
+            dbc.Col(
+                width="auto",
+                children=[
+                    dbc.Button(
+                        [html.I(className="fas fa-save me-2"), "Save Dashboard"],
+                        id=f"{collection_name}-save-dashboard-btn",
+                        n_clicks=0,
+                        disabled=True,
+                        color="primary",
+                    ),
+                ],
             ),
         ],
     )
@@ -250,15 +267,34 @@ def create_dashboard_content(collection_name: str) -> html.Div:
         style={"display": "none"},
         children=[
             # Dashboard name input
-            html.Div(
-                style={"marginBottom": "20px"},
+            dbc.Card(
+                className="mb-4",
                 children=[
-                    html.Label("Dashboard Name:", style={"fontWeight": "bold", "marginRight": "10px"}),
-                    dcc.Input(
-                        id=f"{collection_name}-dashboard-name-input",
-                        type="text",
-                        value="New Dashboard",
-                        style={"width": "300px", "padding": "8px"},
+                    dbc.CardBody(
+                        children=[
+                            dbc.Row(
+                                className="align-items-center",
+                                children=[
+                                    dbc.Col(
+                                        width=12,
+                                        md=6,
+                                        children=[
+                                            dbc.Label(
+                                                "Dashboard Name",
+                                                html_for=f"{collection_name}-dashboard-name-input",
+                                                className="fw-bold",
+                                            ),
+                                            dbc.Input(
+                                                id=f"{collection_name}-dashboard-name-input",
+                                                type="text",
+                                                value="New Dashboard",
+                                                className="form-control",
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
                     ),
                 ],
             ),

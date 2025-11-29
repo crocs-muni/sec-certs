@@ -1,80 +1,80 @@
 """Dashboard home page - collection selection."""
 
 import dash
-from dash import dcc, html
+import dash_bootstrap_components as dbc
+from dash import html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
 from ..types.common import CollectionName
 
+# Collection metadata for cards
+_COLLECTION_INFO = {
+    CollectionName.CommonCriteria.value: {
+        "title": "Common Criteria",
+        "description": "Explore and analyze Common Criteria security certificates, including EAL levels, categories, and certification trends.",
+        "icon": "fas fa-shield-alt",
+        "color": "primary",
+    },
+    CollectionName.FIPS140.value: {
+        "title": "FIPS 140",
+        "description": "Analyze FIPS 140 cryptographic module validations, security levels, and vendor certifications.",
+        "icon": "fas fa-lock",
+        "color": "success",
+    },
+}
 
-def _build_collection_cards() -> list[html.Div]:
-    """
-    Build clickable cards for each available collection.
 
-    Each card links to the respective collection's dashboard page.
-    """
-    cards = []
+def _build_collection_card(collection_name: str) -> dbc.Col:
+    """Build a single collection card."""
+    info = _COLLECTION_INFO.get(collection_name, {})
+    if not info:
+        return dbc.Col()
 
-    collection_info = {
-        CollectionName.CommonCriteria: {
-            "title": "Common Criteria (CC)",
-            "description": "Explore Common Criteria security certificates and their analysis.",
-            "color": "#2196F3",
-        },
-        CollectionName.FIPS140: {
-            "title": "FIPS 140",
-            "description": "Analyze FIPS 140 cryptographic module validations.",
-            "color": "#4CAF50",
-        },
-    }
+    return dbc.Col(
+        width=12,
+        md=6,
+        lg=5,
+        className="mb-4",
+        children=[
+            dbc.Card(
+                className="h-100 shadow-sm",
+                children=[
+                    dbc.CardHeader(
+                        className=f"bg-{info['color']} text-white",
+                        children=[
+                            html.I(className=f"{info['icon']} fa-2x me-3"),
+                            html.H3(info["title"], className="d-inline mb-0"),
+                        ],
+                    ),
+                    dbc.CardBody(
+                        children=[
+                            html.P(info["description"], className="card-text lead"),
+                        ],
+                    ),
+                    dbc.CardFooter(
+                        className="bg-transparent border-0",
+                        children=[
+                            dbc.Button(
+                                [
+                                    "Open Dashboard ",
+                                    html.I(className="fas fa-arrow-right ms-2"),
+                                ],
+                                href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name}",
+                                color=info["color"],
+                                className="w-100",
+                                external_link=False,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
 
-    for collection_name in CollectionName:
-        info = collection_info.get(
-            collection_name,
-            {"title": collection_name.upper(), "description": "", "color": "#666"},
-        )
 
-        card = html.Div(
-            style={
-                "border": "2px solid #ddd",
-                "borderRadius": "12px",
-                "padding": "30px",
-                "margin": "15px",
-                "width": "320px",
-                "textAlign": "center",
-                "backgroundColor": "#fff",
-                "boxShadow": "0 2px 8px rgba(0,0,0,0.1)",
-                "transition": "transform 0.2s, box-shadow 0.2s",
-            },
-            children=[
-                html.H2(
-                    info["title"],
-                    style={"color": info["color"], "marginBottom": "15px"},
-                ),
-                html.P(
-                    info["description"],
-                    style={"color": "#666", "marginBottom": "20px", "minHeight": "50px"},
-                ),
-                dcc.Link(
-                    "Open Dashboard →",
-                    href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name}",
-                    refresh=False,
-                    style={
-                        "display": "inline-block",
-                        "padding": "12px 24px",
-                        "backgroundColor": info["color"],
-                        "color": "white",
-                        "textDecoration": "none",
-                        "borderRadius": "6px",
-                        "fontWeight": "bold",
-                        "fontSize": "14px",
-                    },
-                ),
-            ],
-        )
-        cards.append(card)
-
-    return cards
+def _build_collection_cards() -> list[dbc.Col]:
+    """Build all collection cards."""
+    return [_build_collection_card(name) for name in _COLLECTION_INFO]
 
 
 def layout(**kwargs) -> html.Div:
@@ -82,48 +82,68 @@ def layout(**kwargs) -> html.Div:
     return html.Div(
         children=[
             # Welcome section
-            html.Div(
-                style={"textAlign": "center", "marginBottom": "40px"},
+            dbc.Row(
+                className="mb-5",
                 children=[
-                    html.H1(
-                        "Welcome to the Dashboard",
-                        style={"marginBottom": "10px"},
-                    ),
-                    html.P(
-                        "Select a dataset to create or load dashboards for data analysis.",
-                        style={"fontSize": "18px", "color": "#666"},
+                    dbc.Col(
+                        width=12,
+                        children=[
+                            html.H1("Data Dashboards", className="mb-3"),
+                            html.P(
+                                "Select a dataset to create or load dashboards for interactive data analysis.",
+                                className="lead text-muted",
+                            ),
+                        ],
                     ),
                 ],
             ),
             # Collection cards
-            html.Div(
-                style={
-                    "display": "flex",
-                    "flexWrap": "wrap",
-                    "justifyContent": "center",
-                    "marginTop": "20px",
-                },
+            dbc.Row(
+                className="g-4",
                 children=_build_collection_cards(),
             ),
             # Getting started section
-            html.Hr(style={"marginTop": "50px"}),
-            html.Div(
-                style={"marginTop": "30px", "color": "#666", "maxWidth": "600px", "margin": "30px auto"},
+            html.Hr(className="my-5"),
+            dbc.Card(
+                className="bg-light",
                 children=[
-                    html.H3("Getting Started", style={"textAlign": "center"}),
-                    html.Ol(
+                    dbc.CardHeader(
+                        html.H4(
+                            [html.I(className="fas fa-info-circle me-2"), "Getting Started"],
+                            className="mb-0",
+                        ),
+                    ),
+                    dbc.CardBody(
                         children=[
-                            html.Li("Select a dataset (CC or FIPS) from the cards above"),
-                            html.Li("Create a new dashboard or load an existing one"),
-                            html.Li("Add charts to visualize certificate data"),
-                            html.Li("Apply filters to focus on specific data"),
-                            html.Li("Save your dashboard configuration for later use"),
+                            html.Ol(
+                                className="mb-0",
+                                children=[
+                                    html.Li(
+                                        "Select a dataset (CC or FIPS) from the cards above",
+                                        className="mb-2",
+                                    ),
+                                    html.Li(
+                                        "Create a new dashboard or load an existing one",
+                                        className="mb-2",
+                                    ),
+                                    html.Li(
+                                        "Add charts to visualize certificate data",
+                                        className="mb-2",
+                                    ),
+                                    html.Li(
+                                        "Apply filters to focus on specific data",
+                                        className="mb-2",
+                                    ),
+                                    html.Li(
+                                        "Save your dashboard configuration for later use",
+                                    ),
+                                ],
+                            ),
                         ],
-                        style={"lineHeight": "2"},
                     ),
                 ],
             ),
-        ]
+        ],
     )
 
 
