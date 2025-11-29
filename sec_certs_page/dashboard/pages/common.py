@@ -2,7 +2,8 @@
 
 from dash import dcc, html
 
-from sec_certs_page.dashboard.types.common import CollectionName
+from ... import DASHBOARD_URL_BASE_PATHNAME
+from ..types.common import CollectionName
 
 
 def create_collection_page_layout(collection: CollectionName, title: str) -> html.Div:
@@ -24,7 +25,9 @@ def create_collection_page_layout(collection: CollectionName, title: str) -> htm
                 style={"marginBottom": "20px"},
                 children=[
                     html.H2(title),
-                    dcc.Link("← Back to Home", href="/", style={"color": "#666"}),
+                    dcc.Link(
+                        "← Back to Home", href=f"{DASHBOARD_URL_BASE_PATHNAME.rstrip('/')}", style={"color": "#666"}
+                    ),
                 ],
             ),
             # Dashboard management section

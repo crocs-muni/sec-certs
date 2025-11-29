@@ -223,13 +223,13 @@ from .views import *
 with app.app_context():
     import os
 
-    url_base_pathname = "/dashboard/"
     # Use absolute path for pages_folder to avoid Windows path issues
     pages_folder_path = os.path.join(os.path.dirname(__file__), "dashboard", "pages")
+    DASHBOARD_URL_BASE_PATHNAME = "/dashboard/"
     dash_app = Dash(
         __name__,
         server=app,
-        url_base_pathname=url_base_pathname,
+        url_base_pathname=DASHBOARD_URL_BASE_PATHNAME,
         use_pages=True,
         suppress_callback_exceptions=True,
         pages_folder=pages_folder_path,
@@ -246,4 +246,4 @@ with app.app_context():
                 if view_func is not None:
                     csrf.exempt(view_func)
 
-    _exempt_all_dash_endpoints(app, csrf, url_base_pathname)
+    _exempt_all_dash_endpoints(app, csrf, DASHBOARD_URL_BASE_PATHNAME)

@@ -3,7 +3,8 @@
 import dash
 from dash import dcc, html
 
-from sec_certs_page.dashboard.types.common import CollectionName
+from ... import DASHBOARD_URL_BASE_PATHNAME
+from ..types.common import CollectionName
 
 
 def _build_collection_cards() -> list[html.Div]:
@@ -56,7 +57,8 @@ def _build_collection_cards() -> list[html.Div]:
                 ),
                 dcc.Link(
                     "Open Dashboard →",
-                    href=f"/{collection_name}",
+                    href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name}",
+                    refresh=False,
                     style={
                         "display": "inline-block",
                         "padding": "12px 24px",
