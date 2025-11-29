@@ -1,5 +1,8 @@
+from typing import Any
+
 import plotly.graph_objects as go
-from dash import dcc, html
+from dash import html
+from dash.development.base_component import Component
 
 from ...chart.chart import Chart
 from ...data import DataService
@@ -7,7 +10,7 @@ from ..base import BaseChart
 
 
 class CCCategoryDistribution(BaseChart):
-    """A chart showing the distribution of CC certificate categories."""
+    """A pie chart showing the distribution of CC certificate categories."""
 
     def __init__(self, graph_id: str, data_service: DataService, config: Chart) -> None:
         super().__init__(
@@ -21,43 +24,36 @@ class CCCategoryDistribution(BaseChart):
     def title(self) -> str:
         return self.config.title if self.config and self.config.title else "Category Distribution"
 
-    def render(self) -> html.Div:
-        """Render the chart with per-chart filter configuration."""
-        active_filters = self.config.get_active_filters() if self.config else {}
+    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+        """Render the pie chart showing category distribution."""
+        merged_filters = self._get_merged_filter_values(filter_values)
 
-        chart_filter_values = {fid: fspec.data for fid, fspec in active_filters.items() if fspec.data is not None}
-
-        df = self.data_service.get_cc_dataframe(filter_values=chart_filter_values if chart_filter_values else None)
+        df = self.data_service.get_cc_dataframe(filter_values=merged_filters if merged_filters else None)
 
         if df.empty:
-            return self._render_container(
-                [
-                    *self._render_header(),
-                    html.P("No data available", style={"color": "gray", "textAlign": "center"}),
-                ]
-            )
+            return self._render_container([self._render_empty_state()])
 
         category_counts = df["category"].value_counts()
-        fig = go.Figure()
 
-        fig.add_trace(
+        fig = go.Figure(
             go.Pie(
                 labels=category_counts.index,
                 values=category_counts.values,
                 hole=0.3,
+                textposition="inside",
+                textinfo="percent+label",
             )
         )
+
         fig.update_layout(
-            title=self.title,
-            margin={"t": 80, "l": 40, "r": 40, "b": 40},
-            height=500,
+            margin={"t": 40, "l": 40, "r": 40, "b": 40},
+            height=450,
             showlegend=self.config.show_legend if self.config else True,
         )
 
         return self._render_container(
             [
-                *self._render_header(),
                 self._create_config_store(),
-                dcc.Graph(figure=fig, config={"displayModeBar": True}),
+                self._create_graph_component(figure=fig),
             ]
         )

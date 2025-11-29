@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
+import dash_bootstrap_components as dbc
 from dash import Dash, dcc, html
 from dash.development.base_component import Component
 
@@ -17,7 +18,11 @@ class SupportsRegisterCallbacks(Protocol):
 
 @dataclass
 class BaseChart(ABC):
-    """Abstract base for runtime chart components."""
+    """Abstract base for runtime chart components.
+
+    Provides common rendering utilities and defines the interface for chart implementations.
+    Subclasses must implement `title` property and `render` method.
+    """
 
     graph_id: str
     data_service: DataService
@@ -31,59 +36,71 @@ class BaseChart(ABC):
     @property
     @abstractmethod
     def title(self) -> str:
+        """Display title for the chart."""
         raise NotImplementedError
 
     @abstractmethod
-    def render(self) -> Component:
-        """Render the Dash component."""
+    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+        """Render the Dash component.
+
+        :param filter_values: Optional dictionary of dashboard-level filter values to apply
+        :return: Rendered Dash component
+        """
         raise NotImplementedError
 
-    def _render_header(self) -> list[Component]:
-        """Common header with title and refresh button."""
-        return [
-            html.Div(
-                style={
-                    "display": "flex",
-                    "justifyContent": "space-between",
-                    "alignItems": "center",
-                    "marginBottom": "10px",
-                },
-                children=[
-                    html.H4(self.title, style={"margin": "0"}),
-                    html.Button(
-                        "🔄 Refresh",
-                        id={"type": "chart-refresh", "index": self.graph_id},
-                        n_clicks=0,
-                        style={"padding": "5px 15px"},
-                    ),
-                ],
-            )
-        ]
+    def _render_empty_state(self, message: str = "No data available") -> dbc.Alert:
+        """Render an empty state message when no data is available."""
+        return dbc.Alert(
+            [
+                html.I(className="fas fa-info-circle me-2"),
+                message,
+            ],
+            color="info",
+            className="text-center my-4",
+        )
+
+    def _render_error_state(self, message: str) -> dbc.Alert:
+        """Render an error state message."""
+        return dbc.Alert(
+            [
+                html.I(className="fas fa-exclamation-circle me-2"),
+                message,
+            ],
+            color="danger",
+            className="text-center my-4",
+        )
 
     def _render_container(self, children: list[Component]) -> html.Div:
-        """Wrap children in a styled container."""
+        """Wrap children in a styled container.
+
+        Note: The outer card wrapper with header/controls is handled by the
+        callbacks module (_create_chart_wrapper). This container is for the
+        internal chart content only.
+        """
         return html.Div(
             id={"type": "chart-container", "index": self.graph_id},
-            style={
-                "border": "1px solid #ddd",
-                "borderRadius": "8px",
-                "padding": "15px",
-                "marginBottom": "20px",
-            },
+            className="chart-content",
             children=children,
         )
 
-    def _create_graph_component(self) -> dcc.Graph:
-        """Create the graph component with pattern-matching ID."""
+    def _create_graph_component(self, figure: Any | None = None) -> dcc.Graph:
+        """Create the graph component with pattern-matching ID.
+
+        :param figure: Optional Plotly figure to display
+        :return: Dash Graph component
+        """
         return dcc.Graph(
             id={"type": "chart-graph", "index": self.graph_id},
+            figure=figure,
             config={
                 "displayModeBar": True,
+                "responsive": True,
                 "toImageButtonOptions": {
                     "format": "svg",
                     "filename": f"chart_{self.graph_id}",
                 },
             },
+            className="w-100",
         )
 
     def _create_config_store(self) -> dcc.Store:
@@ -92,3 +109,23 @@ class BaseChart(ABC):
             id={"type": "chart-config", "index": self.graph_id},
             data=self.config.to_dict(),
         )
+
+    def _get_merged_filter_values(self, dashboard_filters: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Merge chart-level filters with dashboard-level filters.
+
+        Chart-level filters take precedence over dashboard-level filters.
+
+        :param dashboard_filters: Filter values from the dashboard
+        :return: Merged filter values dictionary
+        """
+        # Start with dashboard-level filters
+        merged = dict(dashboard_filters) if dashboard_filters else {}
+
+        # Add chart-level filters (these override dashboard filters)
+        if self.config:
+            active_filters = self.config.get_active_filters()
+            for filter_id, filter_spec in active_filters.items():
+                if filter_spec.data is not None:
+                    merged[filter_id] = filter_spec.data
+
+        return merged
