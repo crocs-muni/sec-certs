@@ -25,17 +25,17 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     ProtectionProfileDatasetHandler,
 )
 from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.heuristics.common import(
- compute_cpe_heuristics,
- compute_related_cves,
- compute_transitive_vulnerabilities,
- compute_cert_labs,
- compute_eals,
- compute_normalized_cert_ids,
- compute_references,
- compute_sars,
- compute_scheme_data,
- link_to_protection_profiles,
+from sec_certs.heuristics.common import (
+    compute_cert_labs,
+    compute_cpe_heuristics,
+    compute_eals,
+    compute_normalized_cert_ids,
+    compute_references,
+    compute_related_cves,
+    compute_sars,
+    compute_scheme_data,
+    compute_transitive_vulnerabilities,
+    link_to_protection_profiles,
 )
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
