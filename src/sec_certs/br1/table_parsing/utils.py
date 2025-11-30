@@ -1,10 +1,12 @@
-from dataclasses import asdict, fields, is_dataclass
 import json
-from pathlib import Path
 import logging
-from .model.table import BR1Table
-from .model.br1_tables import BR1TablesClass
+from dataclasses import asdict, fields, is_dataclass
+from pathlib import Path
+
 from sec_certs.br1.config.constants import INDENT
+
+from .model.br1_tables import BR1TablesClass
+from .model.table import BR1Table
 
 logger = logging.getLogger(__name__)
 

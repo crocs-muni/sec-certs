@@ -659,7 +659,7 @@ class FIPSCertificate(
         """
         Extract br1 chapters and tables from the document
         """
-        with open(cert.state.policy_txt_path) as f:
+        with Path(cert.state.policy_txt_path).open() as f:
             file_text = f.read()
             chapters = extract_chapters_from_text(file_text)
 

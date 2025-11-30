@@ -1,10 +1,8 @@
-from typing import List
-
 from markdown_it import MarkdownIt
 
-Row = List[str]
-Table = List[Row]
-Tables = List[Table]
+Row = list[str]
+Table = list[Row]
+Tables = list[Table]
 
 
 def filter_table_lines(text: str) -> str:

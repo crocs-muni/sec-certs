@@ -1,21 +1,20 @@
 import re
 from dataclasses import fields
-from typing import List
 
 from fuzzysearch import find_near_matches
 
 import sec_certs.br1.config.constants as config
 from sec_certs.br1.models.chapter import Chapter
-
-from .md_tables import filter_table_lines, parse_markdown_tables
 from sec_certs.br1.table_parsing.model.br1_tables import BR1TablesClass
 
+from .md_tables import filter_table_lines, parse_markdown_tables
 
-def get_chapter(chapters: List[Chapter], chapter_num: int, subchapter_num: int):
+
+def get_chapter(chapters: list[Chapter], chapter_num: int, subchapter_num: int):
     return chapters[chapter_num - 1].subchapters[subchapter_num - 1]
 
 
-def match_sections_between_headers(text: str, headers: List[str]) -> List[str]:
+def match_sections_between_headers(text: str, headers: list[str]) -> tuple[dict[str, str], list[str]]:
     """
     Searches for each header of `headers` in the text using fuzzy matching
     (fuzzysearch.find_near_matches), then splits the parts of the `text`
@@ -38,11 +37,7 @@ def match_sections_between_headers(text: str, headers: List[str]) -> List[str]:
             # The content should start from the next \n
             match_end_index = best_match.end
             newline_match = re.search(r"\n", text[best_match.end :])
-            if newline_match:
-                content_start_index = match_end_index + newline_match.end()
-            else:
-                content_start_index = match_end_index
-
+            content_start_index = match_end_index + newline_match.end() if newline_match else match_end_index
             found_matches.append(
                 {
                     "start": best_match.start,
@@ -60,10 +55,7 @@ def match_sections_between_headers(text: str, headers: List[str]) -> List[str]:
         current_header = current_match["header_name"]
         start_index = current_match["content_start"]
 
-        if i + 1 < len(found_matches):
-            end_index = found_matches[i + 1]["start"]
-        else:
-            end_index = len(text)
+        end_index = found_matches[i + 1]["start"] if i + 1 < len(found_matches) else len(text)
 
         content = text[start_index:end_index].strip()
 
@@ -74,9 +66,7 @@ def match_sections_between_headers(text: str, headers: List[str]) -> List[str]:
 
 
 # Section is split into parts by the separator titles
-def get_splitted_section(
-    text: str, section: int, subsection: int, name: str, adv_prop: BR1TablesClass
-) -> str:
+def get_splitted_section(text: str, section: int, subsection: int, name: str, adv_prop: BR1TablesClass) -> str:
     """
     Extracts the content associated with header name (`name`) from a section.
     Multiple sections contain more tables that are separated by their names.
@@ -86,14 +76,13 @@ def get_splitted_section(
     section_names = [
         getattr(adv_prop, f.name).name
         for f in fields(adv_prop)
-        if getattr(adv_prop, f.name).section == section
-        and getattr(adv_prop, f.name).subsection == subsection
+        if getattr(adv_prop, f.name).section == section and getattr(adv_prop, f.name).subsection == subsection
     ]
     sections, matched = match_sections_between_headers(text, section_names)
     return "" if name not in matched else sections[name]
 
 
-def parse_tables(chapters: List[Chapter]) -> BR1TablesClass:
+def parse_tables(chapters: list[Chapter]) -> BR1TablesClass:
     """
     Parse all tables defined in the AdvancedProperties model from the chapters' content.
     """
@@ -109,9 +98,7 @@ def parse_tables(chapters: List[Chapter]) -> BR1TablesClass:
             content = chapter.content
         # Case when there is more tables in one section, the section is split by separators
         if table.name:
-            content = get_splitted_section(
-                chapter.content, table.section, table.subsection, table.name, res
-            )
+            content = get_splitted_section(chapter.content, table.section, table.subsection, table.name, res)
         tables = parse_markdown_tables(filter_table_lines(content))
         if not tables or len(tables[0]) <= 1:
             continue

@@ -154,7 +154,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._extract_algorithms_from_policy_tables()
         self._extract_br1_metadata()
 
-
     def _extract_policy_pdf_keywords(self) -> None:
         logger.info("Extracting keywords from policy pdfs.")
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
