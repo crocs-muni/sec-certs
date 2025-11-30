@@ -1,12 +1,11 @@
 import logging
-from typing import List, Tuple
 
 from sec_certs.br1.models.chapter import Chapter
 
 logger = logging.getLogger(__name__)
 
 
-def validate_chapters(chapters: List[Chapter]) -> Tuple[int, int]:
+def validate_chapters(chapters: list[Chapter]) -> tuple[int, int]:
     """
     The function counts warnings and errors and displays logs.
     error: The number of non-optional chapters or subchapters that

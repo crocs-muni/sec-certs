@@ -1,6 +1,5 @@
-from pathlib import Path
 import re
-from typing import List
+from pathlib import Path
 
 import regex
 
@@ -15,9 +14,7 @@ def substitute(title: str) -> str:
     return re.sub(r"[ \-–—‒]", "", title)
 
 
-def build_chapter_regex(
-    chapters: List[Chapter], chapter_num: int, subchapter_num: int
-) -> str:
+def build_chapter_regex(chapters: list[Chapter], chapter_num: int, subchapter_num: int) -> str:
     """Construct a fuzzy regex for chapter titles."""
     base_chapter = chapters[chapter_num - 1]
     title = base_chapter.title
@@ -30,7 +27,7 @@ def build_chapter_regex(
 
 
 # Core extraction logic
-def extract_chapters_from_text(text: str) -> List[Chapter]:
+def extract_chapters_from_text(text: str) -> list[Chapter]:
     """
     Extract text between chapter boundaries from the given text. Returns a list
     of chapters and fills the .found attribute and .content attribute to appropriate
