@@ -23,19 +23,13 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.heuristics.common import (
-    compute_cert_labs,
-    compute_cpe_heuristics,
-    compute_eals,
-    compute_normalized_cert_ids,
-    compute_references,
-    compute_related_cves,
-    compute_sars,
-    compute_scheme_data,
-    compute_transitive_vulnerabilities,
-    link_to_protection_profiles,
+from sec_certs.dataset.common import (
+    compute_heuristics_body,
+    extract_all_frontpages,
+    extract_all_keywords,
+    extract_all_metadata,
 )
+from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
@@ -704,123 +698,15 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self._convert_targets_to_txt(fresh)
         self._convert_certs_to_txt(fresh)
 
-    @staged(logger, "Extracting report metadata")
-    def _extract_report_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_report_pdf_metadata,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting report metadata",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting target metadata")
-    def _extract_target_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_st_pdf_metadata,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting target metadata",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting cert metadata")
-    def _extract_cert_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_cert_pdf_metadata,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting cert metadata",
-        )
-        self.update_with_certs(processed_certs)
-
-    def _extract_pdf_metadata(self) -> None:
-        self._extract_report_metadata()
-        self._extract_target_metadata()
-        self._extract_cert_metadata()
-
-    @staged(logger, "Extracting report frontpages")
-    def _extract_report_frontpage(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_report_pdf_frontpage,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting report frontpages",
-        )
-        self.update_with_certs(processed_certs)
-
-    def _extract_pdf_frontpage(self) -> None:
-        self._extract_report_frontpage()
-        # We have no frontpage extraction for targets or certificates themselves, only for the reports.
-
-    @staged(logger, "Extracting report keywords")
-    def _extract_report_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_report_pdf_keywords,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting report keywords",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting target keywords")
-    def _extract_target_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_st_pdf_keywords,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting target keywords",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting cert keywords")
-    def _extract_cert_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_cert_pdf_keywords,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting cert keywords",
-        )
-        self.update_with_certs(processed_certs)
-
-    def _extract_pdf_keywords(self) -> None:
-        self._extract_report_keywords()
-        self._extract_target_keywords()
-        self._extract_cert_keywords()
-
     @only_backed()
     def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts")
-        self._extract_pdf_metadata()
-        self._extract_pdf_frontpage()
-        self._extract_pdf_keywords()
+        extract_all_metadata(self)
+        extract_all_frontpages(self)
+        extract_all_keywords(self)
 
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
-        link_to_protection_profiles(self.certs.values(), self.aux_handlers[ProtectionProfileDatasetHandler].dset)
-        compute_cpe_heuristics(self.aux_handlers[CPEDatasetHandler].dset, self.certs.values())
-        compute_related_cves(
-            self.aux_handlers[CPEDatasetHandler].dset,
-            self.aux_handlers[CVEDatasetHandler].dset,
-            self.aux_handlers[CPEMatchDictHandler].dset,
-            self.certs.values(),
-        )
-        compute_normalized_cert_ids(self.certs.values())
-        compute_references(self.certs)
-        compute_transitive_vulnerabilities(self.certs)
-
-        if not skip_schemes:
-            compute_scheme_data(self.aux_handlers[CCSchemeDatasetHandler].dset, self.certs)
-
-        compute_cert_labs(self.certs.values())
-        compute_eals(self.certs.values(), self.aux_handlers[ProtectionProfileDatasetHandler].dset)
-        compute_sars(self.certs.values())
+        compute_heuristics_body(self, skip_schemes)
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
