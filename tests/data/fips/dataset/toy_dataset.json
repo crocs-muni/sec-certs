@@ -84,7 +84,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -168,7 +171,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -252,7 +258,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -336,7 +345,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -420,7 +432,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -504,7 +519,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -588,7 +606,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -672,7 +693,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -756,7 +780,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -840,7 +867,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -924,7 +954,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1008,7 +1041,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1092,7 +1128,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1176,7 +1215,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1260,7 +1302,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1344,7 +1389,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1428,7 +1476,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1512,7 +1563,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1596,7 +1650,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1680,7 +1737,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1764,7 +1824,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
@@ -1848,7 +1911,10 @@
                     "indirectly_referencing": null
                 },
                 "direct_transitive_cves": null,
-                "indirect_transitive_cves": null
+                "indirect_transitive_cves": null,
+                "is_br1_format": false,
+                "br1_deviations": 0,
+                "br1_tables": null
             },
             "state": {
                 "_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
