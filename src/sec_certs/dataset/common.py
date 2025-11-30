@@ -26,10 +26,7 @@ from sec_certs.utils.profiling import staged
 
 @staged(logger, "Extracting report metadata")
 def extract_report_metadata(obj):
-    certs_to_process = [
-        x for x in obj
-        if x.state.report.is_ok_to_analyze()
-    ]
+    certs_to_process = [x for x in obj if x.state.report.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
         obj.CCCertificate.extract_report_pdf_metadata,
         certs_to_process,
@@ -41,10 +38,7 @@ def extract_report_metadata(obj):
 
 @staged(logger, "Extracting target metadata")
 def extract_target_metadata(obj):
-    certs_to_process = [
-        x for x in obj
-        if x.state.st.is_ok_to_analyze()
-    ]
+    certs_to_process = [x for x in obj if x.state.st.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
         obj.CCCertificate.extract_st_pdf_metadata,
         certs_to_process,
@@ -56,10 +50,7 @@ def extract_target_metadata(obj):
 
 @staged(logger, "Extracting cert metadata")
 def extract_cert_metadata(obj):
-    certs_to_process = [
-        x for x in obj
-        if x.state.cert.is_ok_to_analyze()
-    ]
+    certs_to_process = [x for x in obj if x.state.cert.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
         obj.CCCertificate.extract_cert_pdf_metadata,
         certs_to_process,
@@ -71,10 +62,7 @@ def extract_cert_metadata(obj):
 
 @staged(logger, "Extracting report keywords")
 def extract_report_keywords(obj):
-    certs_to_process = [
-        x for x in obj
-        if x.state.report.is_ok_to_analyze()
-    ]
+    certs_to_process = [x for x in obj if x.state.report.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
         obj.CCCertificate.extract_report_pdf_keywords,
         certs_to_process,
@@ -86,10 +74,7 @@ def extract_report_keywords(obj):
 
 @staged(logger, "Extracting target keywords")
 def extract_target_keywords(obj):
-    certs_to_process = [
-        x for x in obj
-        if x.state.st.is_ok_to_analyze()
-    ]
+    certs_to_process = [x for x in obj if x.state.st.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
         obj.CCCertificate.extract_st_pdf_keywords,
         certs_to_process,
@@ -101,10 +86,7 @@ def extract_target_keywords(obj):
 
 @staged(logger, "Extracting cert keywords")
 def extract_cert_keywords(obj):
-    certs_to_process = [
-        x for x in obj
-        if x.state.cert.is_ok_to_analyze()
-    ]
+    certs_to_process = [x for x in obj if x.state.cert.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
         obj.CCCertificate.extract_cert_pdf_keywords,
         certs_to_process,
@@ -125,19 +107,23 @@ def extract_report_frontpage(obj) -> None:
     )
     obj.update_with_certs(processed_certs)
 
+
 def extract_all_metadata(obj):
     extract_report_metadata(obj)
     extract_target_metadata(obj)
     extract_cert_metadata(obj)
+
 
 def extract_all_keywords(obj):
     extract_report_keywords(obj)
     extract_target_keywords(obj)
     extract_cert_keywords(obj)
 
+
 def extract_all_frontpages(obj):
     extract_report_frontpage(obj)
     # We have no frontpage extraction for targets or certificates themselves, only for the reports.
+
 
 def compute_heuristics_body(obj, skip_schemes: bool = False) -> None:
     link_to_protection_profiles(obj.certs.values(), obj.aux_handlers[ProtectionProfileDatasetHandler].dset)
