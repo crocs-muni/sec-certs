@@ -64,6 +64,10 @@
     "psutil",
     "pytesseract",
     "selenium>=4.38.0",
+    "markdown-it-py",
+    "mdit-py-plugins",
+    "fuzzysearch",
+    "linkify-it-py"
 ]
 
   [project.optional-dependencies]
