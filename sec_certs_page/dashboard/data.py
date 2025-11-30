@@ -143,6 +143,47 @@ class DataService:
         else:
             raise ValueError(f"Unsupported collection type: {collection_type}")
 
+    def execute_aggregation_pipeline(
+        self,
+        collection_type: CollectionName,
+        pipeline: list[dict[str, Any]],
+    ) -> pd.DataFrame:
+        """Execute a MongoDB aggregation pipeline and return results as DataFrame.
+
+        This is used for charts with custom aggregation queries built from
+        user-defined axis configurations and filters.
+
+        :param collection_type: The collection to query (CC or FIPS)
+        :param pipeline: MongoDB aggregation pipeline stages
+        :return: Aggregated data as DataFrame
+        """
+        collection_map = {
+            CollectionName.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
+            CollectionName.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
+        }
+
+        collection = collection_map.get(collection_type)
+        if collection is None:
+            raise ValueError(f"Unsupported collection type: {collection_type}")
+
+        logger.info(f"Executing aggregation pipeline on {collection_type.value}: {pipeline}")
+
+        try:
+            cursor = collection.aggregate(pipeline)
+            data = list(cursor)
+
+            if not data:
+                logger.warning(f"Aggregation pipeline returned no results for {collection_type.value}")
+                return pd.DataFrame()
+
+            df = pd.DataFrame(data)
+            logger.info(f"Aggregation returned {len(df)} records")
+            return df
+
+        except Exception as e:
+            logger.exception(f"Error executing aggregation pipeline on {collection_type.value}")
+            raise e
+
     def get_distinct_values(self, field: str, dataset_type) -> list[Any]:
         """Get distinct values for a field from MongoDB.
 
@@ -164,6 +205,37 @@ class DataService:
         distinct_values = collection.distinct(field)
         values = [v for v in distinct_values if v is not None and v != ""]
         return sorted(values)
+
+    def get_unique_values(self, collection_type: CollectionName, field: str) -> list[Any]:
+        """Get unique values for a field from MongoDB.
+
+        This is used to populate filter dropdowns in the chart creation modal.
+
+        :param collection_type: The collection to query (CC or FIPS)
+        :param field: MongoDB field path (e.g., 'category', 'web_data.level')
+        :return: List of unique values (sorted, non-null)
+        """
+        collection_map = {
+            CollectionName.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
+            CollectionName.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
+        }
+
+        collection = collection_map.get(collection_type)
+        if collection is None:
+            raise ValueError(f"Unsupported collection type: {collection_type}")
+
+        try:
+            distinct_values = collection.distinct(field)
+            # Filter out None and empty values, then sort
+            values = [v for v in distinct_values if v is not None and v != ""]
+            try:
+                return sorted(values)
+            except TypeError:
+                # If sorting fails (mixed types), return as-is
+                return values
+        except Exception as e:
+            logger.warning(f"Error getting unique values for field '{field}': {e}")
+            return []
 
     def get_distinct_values_with_labels(
         self, field: str, dataset_type, label_map: dict[str, str] | None = None

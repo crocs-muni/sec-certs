@@ -66,4 +66,3 @@ class FilterSpecDict(TypedDict):
     data: NotRequired[Any]
     transform: NotRequired[Callable]
     mongodb_pipeline: NotRequired[list[dict]]
-    aggregation: NotRequired[AggregationType]

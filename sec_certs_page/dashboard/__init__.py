@@ -179,7 +179,7 @@ def layout(**kwargs) -> dbc.Container:
                             html.H1(
                                 [
                                     html.I(className="fas fa-chart-line me-3"),
-                                    "sec-certs.org Data Dashboards",
+                                    "Data Analysis",
                                 ],
                                 className="mb-2",
                             ),

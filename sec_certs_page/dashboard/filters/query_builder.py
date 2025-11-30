@@ -1,9 +1,12 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ..filters.filter import FilterSpec
 from ..filters.registry import FilterSpecRegistry, get_filter_registry
 from ..types.common import CollectionName
-from ..types.filter import FilterOperator
+from ..types.filter import AggregationType, FilterOperator
+
+if TYPE_CHECKING:
+    from ..chart.chart import Chart
 
 
 class QueryBuilder:
@@ -122,3 +125,112 @@ def build_query_from_filters(filter_values: dict[str, Any], dataset_type: Collec
     builder = QueryBuilder(dataset_type=dataset_type, filter_registry=filter_registry)
     builder.add_filters(filter_values)
     return builder.build()
+
+
+def build_chart_pipeline(
+    chart: "Chart",
+    filter_values: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Build complete MongoDB aggregation pipeline for a chart.
+
+    This function creates a pipeline with:
+    1. $match stage for filtering (from filter_values)
+    2. $group stage for aggregation (from chart.x_axis and chart.y_axis)
+    3. $sort stage for ordering results
+
+    :param chart: Chart configuration with axis and aggregation settings
+    :param filter_values: Optional dictionary mapping filter IDs to values
+    :return: MongoDB aggregation pipeline as list of stage dictionaries
+
+    Example output::
+
+        [
+            {"$match": {"category": {"$in": ["Operating Systems"]}}},
+            {"$group": {"_id": "$year_from", "count": {"$sum": 1}}},
+            {"$sort": {"_id": 1}}
+        ]
+    """
+    pipeline: list[dict[str, Any]] = []
+
+    # Stage 1: $match (filtering)
+    if filter_values:
+        match_query = build_query_from_filters(filter_values, chart.collection_type)
+        if match_query:
+            pipeline.append({"$match": match_query})
+
+    # Stage 2: $group (aggregation based on axes)
+    group_stage = _build_group_stage(chart)
+    if group_stage:
+        pipeline.append({"$group": group_stage})
+
+    # Stage 3: $sort (order by x-axis field)
+    pipeline.append({"$sort": {"_id": 1}})
+
+    # Stage 4: $project (rename _id to x-axis field name for clarity)
+    project_stage = _build_project_stage(chart)
+    if project_stage:
+        pipeline.append({"$project": project_stage})
+
+    return pipeline
+
+
+def _build_group_stage(chart: "Chart") -> dict[str, Any]:
+    """Build the $group stage for aggregation.
+
+    :param chart: Chart configuration
+    :return: $group stage dictionary
+    """
+    x_field = chart.x_axis.field
+
+    # Determine the aggregation operation
+    if chart.y_axis and chart.y_axis.aggregation:
+        agg_type = chart.y_axis.aggregation
+        y_field = chart.y_axis.field
+
+        if agg_type == AggregationType.COUNT:
+            return {
+                "_id": f"${x_field}",
+                "value": {"$sum": 1},
+            }
+        elif agg_type == AggregationType.SUM:
+            return {
+                "_id": f"${x_field}",
+                "value": {"$sum": f"${y_field}"},
+            }
+        elif agg_type == AggregationType.AVG:
+            return {
+                "_id": f"${x_field}",
+                "value": {"$avg": f"${y_field}"},
+            }
+        elif agg_type == AggregationType.MIN:
+            return {
+                "_id": f"${x_field}",
+                "value": {"$min": f"${y_field}"},
+            }
+        elif agg_type == AggregationType.MAX:
+            return {
+                "_id": f"${x_field}",
+                "value": {"$max": f"${y_field}"},
+            }
+
+    # Default: COUNT
+    return {
+        "_id": f"${x_field}",
+        "value": {"$sum": 1},
+    }
+
+
+def _build_project_stage(chart: "Chart") -> dict[str, Any]:
+    """Build the $project stage to rename fields for clarity.
+
+    :param chart: Chart configuration
+    :return: $project stage dictionary
+    """
+    x_field = chart.x_axis.field
+    y_label = chart.y_axis.label if chart.y_axis else "count"
+
+    return {
+        "_id": 0,
+        x_field: "$_id",
+        y_label: "$value",
+    }

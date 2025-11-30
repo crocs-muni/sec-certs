@@ -100,6 +100,7 @@ class Chart:
     order: int = 0
     y_axis: AxisConfig | None = None
     filters: dict[str, FilterSpec] = field(default_factory=dict)
+    filter_values: dict[str, Any] = field(default_factory=dict)
     query_pipeline: list[dict[str, Any]] | None = None
     color_scheme: str = "plotly"
     show_legend: bool = True
@@ -197,6 +198,7 @@ class Chart:
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
             "filters": {fid: fconfig.to_dict() for fid, fconfig in self.filters.items()},
+            "filter_values": self.filter_values,
             "query_pipeline": self.query_pipeline,
             "color_scheme": self.color_scheme,
             "show_legend": self.show_legend,
@@ -258,6 +260,7 @@ class Chart:
             x_axis=x_axis,
             y_axis=y_axis,
             filters=filters,
+            filter_values=data.get("filter_values", {}),
             query_pipeline=data.get("query_pipeline"),
             color_scheme=data.get("color_scheme", "plotly"),
             show_legend=data.get("show_legend", True),
