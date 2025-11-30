@@ -1,0 +1,400 @@
+[
+  {
+    "title": "General",
+    "subchapters": [
+      {
+        "title": "Overview",
+        "subchapters": []
+      },
+      {
+        "title": "Security Levels",
+        "subchapters": []
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Cryptographic Module Specification",
+    "subchapters": [
+      {
+        "title": "Description",
+        "subchapters": []
+      },
+      {
+        "title": "Tested and vendor affirmed module version and identification",
+        "subchapters": []
+      },
+      {
+        "title": "Excluded components",
+        "subchapters": []
+      },
+      {
+        "title": "Modes of operation",
+        "subchapters": []
+      },
+      {
+        "title": "Algorithms",
+        "subchapters": []
+      },
+      {
+        "title": "Security Function Implementations",
+        "subchapters": []
+      },
+      {
+        "title": "Algorithm Specific Information",
+        "subchapters": []
+      },
+      {
+        "title": "RBG and Entropy",
+        "subchapters": []
+      },
+      {
+        "title": "Key Generation",
+        "subchapters": []
+      },
+      {
+        "title": "Key Establishment",
+        "subchapters": []
+      },
+      {
+        "title": "Industry protocols",
+        "subchapters": []
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Cryptographic Module Interfaces",
+    "subchapters": [
+      {
+        "title": "Ports and interfaces",
+        "subchapters": []
+      },
+      {
+        "title": "Trusted Channel Specification",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Control Interface Not Inhibited",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Roles, Services, and Authentication",
+    "subchapters": [
+      {
+        "title": "Authentication methods",
+        "subchapters": []
+      },
+      {
+        "title": "Roles",
+        "subchapters": []
+      },
+      {
+        "title": "Approved Services",
+        "subchapters": []
+      },
+      {
+        "title": "Non-Approved Services",
+        "subchapters": []
+      },
+      {
+        "title": "External Software/Firmware Loaded",
+        "subchapters": []
+      },
+      {
+        "title": "Bypass Actions and Status",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Cryptographic Output Actions and Status",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Software/Firmware Security",
+    "subchapters": [
+      {
+        "title": "Integrity Techniques",
+        "subchapters": []
+      },
+      {
+        "title": "Initiate on Demand",
+        "subchapters": []
+      },
+      {
+        "title": "Open-Source Parameters",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Operational Environment",
+    "subchapters": [
+      {
+        "title": "Operational Environment Type and Requirements",
+        "subchapters": []
+      },
+      {
+        "title": "Configuration Settings and Restriction",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Physical Security",
+    "subchapters": [
+      {
+        "title": "Mechanisms and Actions Required",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "User Placed Tamper Seals",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Filler Panels",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Fault Induction Mitigation",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "EFP/EFT Information",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Hardness Testing Temperature Ranges",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Non-Invasive Security",
+    "subchapters": [
+      {
+        "title": "Mitigation Techniques",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Effectiveness",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Sensitive security parameters management",
+    "subchapters": [
+      {
+        "title": "Storage Areas",
+        "subchapters": []
+      },
+      {
+        "title": "SSP Input-Output Methods",
+        "subchapters": []
+      },
+      {
+        "title": "SSP Zeroization Methods",
+        "subchapters": []
+      },
+      {
+        "title": "SSPs",
+        "subchapters": []
+      },
+      {
+        "title": "Transitions",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Self-Tests",
+    "subchapters": [
+      {
+        "title": "Pre-Operational Self-Tests",
+        "subchapters": []
+      },
+      {
+        "title": "Conditional Self-Tests",
+        "subchapters": []
+      },
+      {
+        "title": "Periodic Self-Test Information",
+        "subchapters": []
+      },
+      {
+        "title": "Error States",
+        "subchapters": []
+      },
+      {
+        "title": "Operator Initiation of Self-Tests",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Life-Cycle assurance",
+    "subchapters": [
+      {
+        "title": "Installation, Initialization, and Startup Procedures",
+        "subchapters": []
+      },
+      {
+        "title": "Administrator Guidance",
+        "subchapters": []
+      },
+      {
+        "title": "Non-Administrator Guidance",
+        "subchapters": []
+      },
+      {
+        "title": "Design and Rules",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Maintenance Requirements",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "End of Life",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  },
+  {
+    "title": "Mitigation of other attacks",
+    "subchapters": [
+      {
+        "title": "Attack List",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Mitigation Effectiveness",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Guidance and Constraints",
+        "subchapters": [],
+        "optional": true
+      },
+      {
+        "title": "Additional Information",
+        "subchapters": [],
+        "optional": true
+      }
+    ],
+    "optional": false,
+    "content": "",
+    "found": false
+  }
+]
