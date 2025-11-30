@@ -6,27 +6,27 @@ import re
 from collections.abc import Iterable
 
 from sec_certs import constants
+from sec_certs.cert_rules import security_level_csv_scan
 from sec_certs.configuration import config
+from sec_certs.dataset.cc_scheme import CCSchemeDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.dataset import CertSubType
+from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.model.cpe_matching import CPEClassifier
+from sec_certs.model.reference_finder import ReferenceFinder
+from sec_certs.model.sar_transformer import SARTransformer
 from sec_certs.model.transitive_vulnerability_finder import TransitiveVulnerabilityFinder
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.cc_certificate_id import CertificateId
+from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.fips import FIPSCertificate
+from sec_certs.utils.helpers import choose_lowest_eal
 from sec_certs.utils.profiling import staged
 from sec_certs.utils.tqdm import tqdm
-from sec_certs.utils.helpers import choose_lowest_eal
-from sec_certs.sample.cc_scheme import EntryType
-from sec_certs.sample.cc_certificate_id import CertificateId
-from sec_certs.model.reference_finder import ReferenceFinder
-from sec_certs.model.sar_transformer import SARTransformer
-from sec_certs.model.cc_matching import CCSchemeMatcher
-from sec_certs.cert_rules import security_level_csv_scan
-from sec_certs.dataset.cc_scheme import CCSchemeDataset
-from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
 logger = logging.getLogger(__name__)
 
