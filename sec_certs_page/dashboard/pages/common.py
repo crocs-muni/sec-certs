@@ -4,7 +4,59 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
+from ..types.chart import AvailableChartTypes
 from ..types.common import CollectionName
+from ..types.filter import AggregationType
+
+# Data type to available aggregations mapping
+DATA_TYPE_AGGREGATIONS: dict[str, list[AggregationType]] = {
+    # Numeric types support all aggregations
+    "int": [AggregationType.COUNT, AggregationType.SUM, AggregationType.AVG, AggregationType.MIN, AggregationType.MAX],
+    "float": [
+        AggregationType.COUNT,
+        AggregationType.SUM,
+        AggregationType.AVG,
+        AggregationType.MIN,
+        AggregationType.MAX,
+    ],
+    "number": [
+        AggregationType.COUNT,
+        AggregationType.SUM,
+        AggregationType.AVG,
+        AggregationType.MIN,
+        AggregationType.MAX,
+    ],
+    "numeric": [
+        AggregationType.COUNT,
+        AggregationType.SUM,
+        AggregationType.AVG,
+        AggregationType.MIN,
+        AggregationType.MAX,
+    ],
+    # String types only support COUNT
+    "str": [AggregationType.COUNT],
+    "string": [AggregationType.COUNT],
+    # Date types support COUNT, MIN, MAX
+    "date": [AggregationType.COUNT, AggregationType.MIN, AggregationType.MAX],
+    "datetime": [AggregationType.COUNT, AggregationType.MIN, AggregationType.MAX],
+    # Boolean only supports COUNT
+    "bool": [AggregationType.COUNT],
+    "boolean": [AggregationType.COUNT],
+}
+
+# Default aggregations for unknown types
+DEFAULT_AGGREGATIONS = [AggregationType.COUNT]
+
+
+def get_aggregations_for_type(data_type: str) -> list[dict[str, str]]:
+    """
+    Get available aggregation options based on data type.
+
+    :param data_type: The data type string (e.g., "int", "str", "date")
+    :return: List of dicts with 'label' and 'value' for dropdown options
+    """
+    aggregations = DATA_TYPE_AGGREGATIONS.get(data_type.lower(), DEFAULT_AGGREGATIONS)
+    return [{"label": agg.value.upper(), "value": agg.value} for agg in aggregations]
 
 
 def create_collection_page_layout(collection: CollectionName, title: str) -> html.Div:
@@ -70,6 +122,12 @@ def create_page_stores(collection_name: str) -> list:
         dcc.Store(id=f"{collection_name}-filter-store", data={}),
         dcc.Store(id=f"{collection_name}-render-trigger", data=0),
         dcc.Store(id=f"{collection_name}-dashboard-loaded", data=False),
+        # Store for available fields metadata (populated from FilterFactory)
+        # Format: [{"label": "Category", "value": "category", "data_type": "str"}, ...]
+        dcc.Store(id=f"{collection_name}-available-fields", data=[]),
+        # Store for filter specifications metadata (for chart modal filter options)
+        # Format: [{"id": "cc-category-filter", "label": "Category", "field": "category", ...}, ...]
+        dcc.Store(id=f"{collection_name}-filter-specs", data=[]),
     ]
 
 
@@ -161,9 +219,243 @@ def create_empty_state(collection_name: str) -> html.Div:
     )
 
 
+def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
+    """
+    Create the modal for custom chart creation.
+
+    The modal allows users to:
+    - Select chart type (bar, line, pie, etc.)
+    - Choose X-axis field (group by)
+    - Choose aggregation type (count, sum, avg, min, max)
+    - Choose Y-axis field (for non-count aggregations)
+
+    :param collection_name: The collection_name for component IDs
+    :return: Modal component for chart creation
+    """
+    chart_type_options = [{"label": ct.value.title(), "value": ct.value} for ct in AvailableChartTypes]
+
+    aggregation_options = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
+
+    return dbc.Modal(
+        id=f"{collection_name}-create-chart-modal",
+        is_open=False,
+        size="lg",
+        centered=True,
+        children=[
+            dbc.ModalHeader(
+                dbc.ModalTitle([html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"]),
+                close_button=True,
+            ),
+            dbc.ModalBody(
+                children=[
+                    # Chart title
+                    dbc.Row(
+                        className="mb-3",
+                        children=[
+                            dbc.Col(
+                                width=12,
+                                children=[
+                                    dbc.Label("Chart Title", className="fw-bold"),
+                                    dbc.Input(
+                                        id=f"{collection_name}-modal-chart-title",
+                                        type="text",
+                                        placeholder="Enter chart title...",
+                                        value="",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    # Chart type selection
+                    dbc.Row(
+                        className="mb-3",
+                        children=[
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                children=[
+                                    dbc.Label("Chart Type", className="fw-bold"),
+                                    dcc.Dropdown(
+                                        id=f"{collection_name}-modal-chart-type",
+                                        options=chart_type_options,
+                                        value=AvailableChartTypes.BAR.value,
+                                        clearable=False,
+                                        className="dash-bootstrap",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Hr(),
+                    # X-Axis configuration
+                    html.H5([html.I(className="fas fa-arrows-alt-h me-2"), "X-Axis (Group By)"], className="mb-3"),
+                    dbc.Row(
+                        className="mb-3",
+                        children=[
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                children=[
+                                    dbc.Label("Field", className="fw-bold"),
+                                    dcc.Dropdown(
+                                        id=f"{collection_name}-modal-x-field",
+                                        options=[],  # Populated dynamically from FilterFactory
+                                        placeholder="Select field to group by...",
+                                        className="dash-bootstrap",
+                                    ),
+                                ],
+                            ),
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                children=[
+                                    dbc.Label("Label", className="fw-bold"),
+                                    dbc.Input(
+                                        id=f"{collection_name}-modal-x-label",
+                                        type="text",
+                                        placeholder="X-axis label (optional)",
+                                        value="",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Hr(),
+                    # Y-Axis configuration
+                    html.H5([html.I(className="fas fa-arrows-alt-v me-2"), "Y-Axis (Measure)"], className="mb-3"),
+                    dbc.Row(
+                        className="mb-3",
+                        children=[
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                children=[
+                                    dbc.Label("Aggregation", className="fw-bold"),
+                                    dcc.Dropdown(
+                                        id=f"{collection_name}-modal-aggregation",
+                                        options=aggregation_options,
+                                        value=AggregationType.COUNT.value,
+                                        clearable=False,
+                                        className="dash-bootstrap",
+                                    ),
+                                    dbc.FormText(
+                                        "COUNT counts rows. Other aggregations require a numeric field.",
+                                        className="text-muted",
+                                    ),
+                                ],
+                            ),
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                children=[
+                                    dbc.Label("Field to Aggregate", className="fw-bold"),
+                                    dcc.Dropdown(
+                                        id=f"{collection_name}-modal-y-field",
+                                        options=[],  # Populated dynamically (numeric fields only)
+                                        placeholder="Select field (for SUM/AVG/MIN/MAX)...",
+                                        disabled=True,  # Enabled when aggregation != COUNT
+                                        className="dash-bootstrap",
+                                    ),
+                                    dbc.FormText(
+                                        id=f"{collection_name}-modal-y-field-help",
+                                        children="Not required for COUNT aggregation.",
+                                        className="text-muted",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    dbc.Row(
+                        className="mb-3",
+                        children=[
+                            dbc.Col(
+                                width=12,
+                                md=6,
+                                children=[
+                                    dbc.Label("Y-Axis Label", className="fw-bold"),
+                                    dbc.Input(
+                                        id=f"{collection_name}-modal-y-label",
+                                        type="text",
+                                        placeholder="Y-axis label (optional)",
+                                        value="",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Hr(),
+                    # Chart-specific filters section
+                    html.H5([html.I(className="fas fa-filter me-2"), "Chart Filters"], className="mb-3"),
+                    html.P(
+                        "Configure filters to limit the data shown in this chart. "
+                        "Leave empty to include all data (or use dashboard-level filters).",
+                        className="text-muted small mb-3",
+                    ),
+                    # Dynamic filter container - populated by callback based on available fields
+                    html.Div(
+                        id=f"{collection_name}-modal-filters-container",
+                        children=[],  # Will be populated dynamically
+                    ),
+                    html.Hr(),
+                    # Display options
+                    html.H5([html.I(className="fas fa-cog me-2"), "Display Options"], className="mb-3"),
+                    dbc.Row(
+                        children=[
+                            dbc.Col(
+                                width="auto",
+                                children=[
+                                    dbc.Checkbox(
+                                        id=f"{collection_name}-modal-show-legend",
+                                        label="Show Legend",
+                                        value=True,
+                                    ),
+                                ],
+                            ),
+                            dbc.Col(
+                                width="auto",
+                                children=[
+                                    dbc.Checkbox(
+                                        id=f"{collection_name}-modal-show-grid",
+                                        label="Show Grid",
+                                        value=True,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    # Validation feedback
+                    dbc.Alert(
+                        id=f"{collection_name}-modal-validation-alert",
+                        is_open=False,
+                        color="danger",
+                        className="mt-3",
+                    ),
+                ],
+            ),
+            dbc.ModalFooter(
+                children=[
+                    dbc.Button(
+                        "Cancel",
+                        id=f"{collection_name}-modal-cancel-btn",
+                        color="secondary",
+                        outline=True,
+                    ),
+                    dbc.Button(
+                        [html.I(className="fas fa-plus me-2"), "Create Chart"],
+                        id=f"{collection_name}-modal-create-btn",
+                        color="success",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
 def create_chart_controls(collection_name: str) -> dbc.Card:
     """
     Create the chart selection and addition controls.
+
+    Includes both predefined chart selection and custom chart creation button.
 
     :param collection_name: The collection_name for component IDs
     :return: Card containing chart controls
@@ -176,8 +468,10 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
             ),
             dbc.CardBody(
                 children=[
+                    # Predefined charts section
+                    html.H6("Predefined Charts", className="text-muted mb-2"),
                     dbc.Row(
-                        className="g-3 align-items-end",
+                        className="g-3 align-items-end mb-4",
                         children=[
                             dbc.Col(
                                 width=12,
@@ -185,14 +479,14 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                 lg=4,
                                 children=[
                                     dbc.Label(
-                                        "Select Chart Type",
+                                        "Select Predefined Chart",
                                         html_for=f"{collection_name}-chart-selector",
                                         className="fw-bold",
                                     ),
                                     dcc.Dropdown(
                                         id=f"{collection_name}-chart-selector",
                                         options=[],
-                                        placeholder="Select a chart to add...",
+                                        placeholder="Select a predefined chart...",
                                         className="dash-bootstrap",
                                     ),
                                 ],
@@ -201,10 +495,29 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                 width="auto",
                                 children=[
                                     dbc.Button(
-                                        [html.I(className="fas fa-plus me-2"), "Add Chart"],
+                                        [html.I(className="fas fa-plus me-2"), "Add Predefined"],
                                         id=f"{collection_name}-add-chart-btn",
                                         n_clicks=0,
+                                        color="primary",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    # Custom chart section
+                    html.Hr(),
+                    html.H6("Custom Chart", className="text-muted mb-2"),
+                    dbc.Row(
+                        children=[
+                            dbc.Col(
+                                width="auto",
+                                children=[
+                                    dbc.Button(
+                                        [html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
+                                        id=f"{collection_name}-open-create-chart-modal-btn",
+                                        n_clicks=0,
                                         color="success",
+                                        outline=True,
                                     ),
                                 ],
                             ),
@@ -304,5 +617,7 @@ def create_dashboard_content(collection_name: str) -> html.Div:
             create_dashboard_action_buttons(collection_name),
             # Chart container
             html.Div(id=f"{collection_name}-chart-container"),
+            # Chart creation modal
+            create_chart_creation_modal(collection_name),
         ],
     )

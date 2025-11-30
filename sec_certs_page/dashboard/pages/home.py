@@ -88,22 +88,15 @@ def layout(**kwargs) -> html.Div:
                     dbc.Col(
                         width=12,
                         children=[
-                            html.H1("Data Dashboards", className="mb-3"),
+                            html.H1("Available Certificate Datasets", className="mb-3"),
                             html.P(
-                                "Select a dataset to create or load dashboards for interactive data analysis.",
+                                "Select a dataset for interactive data analysis.",
                                 className="lead text-muted",
                             ),
                         ],
                     ),
                 ],
             ),
-            # Collection cards
-            dbc.Row(
-                className="g-4",
-                children=_build_collection_cards(),
-            ),
-            # Getting started section
-            html.Hr(className="my-5"),
             dbc.Card(
                 className="bg-light",
                 children=[
@@ -119,7 +112,7 @@ def layout(**kwargs) -> html.Div:
                                 className="mb-0",
                                 children=[
                                     html.Li(
-                                        "Select a dataset (CC or FIPS) from the cards above",
+                                        "Choose (CC or FIPS) from the options below",
                                         className="mb-2",
                                     ),
                                     html.Li(
@@ -142,6 +135,12 @@ def layout(**kwargs) -> html.Div:
                         ],
                     ),
                 ],
+            ),
+            html.Hr(className="my-5"),
+            # Collection cards
+            dbc.Row(
+                className="g-4",
+                children=_build_collection_cards(),
             ),
         ],
     )

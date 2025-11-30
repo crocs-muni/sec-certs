@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from ..types.filter import AggregationType, DashFilterComponentParams, FilterOperator, FilterSpecDict
+from ..types.filter import DashFilterComponentParams, FilterOperator, FilterSpecDict
 
 
 @dataclass
@@ -12,14 +12,18 @@ class FilterSpec:
     that defines how a filter should work. Query building logic is handled by
     QueryBuilder, and UI generation is handled by DashFilterFactory.
 
-    :param filter_id: Unique identifier (used for both Dash component ID and query key)
+    FilterSpecs also serve as the source of available fields for chart axis selection,
+    since each FilterSpec corresponds to a database column.
+
+    :param id: Unique identifier (used for both Dash component ID and query key)
     :param database_field: MongoDB document field name
     :param operator: MongoDB operator for queries
-    :param data_type: Data type as string for validation
-    :param data: Fetched data from database for filter options or available values (min, max, etc.)
+    :param data_type: Data type as string for validation (e.g., "str", "int", "date")
     :param component_params: Metadata for generating Dash component
+    :param active: Whether this filter is currently active
+    :param data: Fetched data from database for filter options or available values
     :param transform: Optional value transformation before query
-    :param options: Whether to load options from database (for dropdowns)
+    :param mongodb_pipeline: Custom MongoDB aggregation pipeline stages
     """
 
     id: str
@@ -31,7 +35,6 @@ class FilterSpec:
     data: Any | None = None
     transform: Callable | None = None
     mongodb_pipeline: list[dict] | None = None
-    aggregation: AggregationType | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize filter configuration to dictionary."""
@@ -40,7 +43,6 @@ class FilterSpec:
             "type": self.component_params.component_type.value,
             "value": None,
             "active": self.active,
-            "aggregation": self.aggregation.value if self.aggregation else None,
         }
 
     @classmethod
@@ -53,5 +55,4 @@ class FilterSpec:
             data_type=data["data_type"],
             component_params=data["component_params"],
             data=None,
-            aggregation=data.get("aggregation"),
         )

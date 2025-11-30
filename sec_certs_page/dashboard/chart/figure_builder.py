@@ -19,10 +19,14 @@ class FigureBuilder:
 
     @classmethod
     def create_figure(cls, config: Chart, df: pd.DataFrame) -> go.Figure:
-        """Create Plotly figure from config and data.
+        """Create Plotly figure from config and raw data.
+
+        This method aggregates raw data using pandas before creating the chart.
+        Use create_figure_from_aggregated() when data is already aggregated
+        (e.g., from MongoDB aggregation pipeline).
 
         :param config: Chart configuration with axes and type info
-        :param df: DataFrame with data to plot
+        :param df: DataFrame with raw data to aggregate and plot
         :return: Plotly Figure object
         """
         if df.empty:
@@ -35,6 +39,46 @@ class FigureBuilder:
         try:
             agg_df = cls._aggregate_data(df, x_field, y_field, aggregation)
             fig = cls._create_chart_by_type(config, agg_df, x_field, y_field or "count")
+            fig.update_layout(
+                showlegend=config.show_legend,
+                template="plotly_white",
+                margin=dict(l=40, r=40, t=40, b=40),
+                height=450,
+            )
+            return fig
+        except Exception as e:
+            return cls._empty_figure(f"Error: {str(e)}")
+
+    @classmethod
+    def create_figure_from_aggregated(cls, config: Chart, df: pd.DataFrame) -> go.Figure:
+        """Create Plotly figure from pre-aggregated data.
+
+        This method is used when data has already been aggregated by MongoDB
+        aggregation pipeline. It expects the DataFrame to have columns matching
+        the x_axis.field and y_axis.label (or 'value' as fallback).
+
+        :param config: Chart configuration with axes and type info
+        :param df: DataFrame with pre-aggregated data
+        :return: Plotly Figure object
+        """
+        if df.empty:
+            return cls._empty_figure("No data available")
+
+        x_field = config.x_axis.field
+        # The pipeline uses y_axis.label as the value column name
+        y_field = config.y_axis.label if config.y_axis else "value"
+
+        # Fallback to 'value' if the label column doesn't exist
+        if y_field not in df.columns and "value" in df.columns:
+            y_field = "value"
+
+        if x_field not in df.columns:
+            return cls._empty_figure(f"Missing column: {x_field}")
+        if y_field not in df.columns:
+            return cls._empty_figure(f"Missing column: {y_field}")
+
+        try:
+            fig = cls._create_chart_by_type(config, df, x_field, y_field)
             fig.update_layout(
                 showlegend=config.show_legend,
                 template="plotly_white",

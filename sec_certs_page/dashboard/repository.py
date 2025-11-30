@@ -1,3 +1,5 @@
+import os
+
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.errors import PyMongoError
@@ -11,7 +13,9 @@ class DashboardRepository:
 
     def __init__(self, db: Database, collection_name: str = "dashboards"):
         self.collection: Collection = db[collection_name]
-        self._ensure_indexes()
+        # Skip index creation during testing (MongoDB not available yet)
+        if not os.environ.get("TESTING"):
+            self._ensure_indexes()
 
     def _ensure_indexes(self) -> None:
         self.collection.create_index("user_id")
