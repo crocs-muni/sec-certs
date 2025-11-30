@@ -7,8 +7,10 @@ from the chart configuration.
 
 from typing import Any
 
+import pandas as pd
 from dash.development.base_component import Component
 
+from ..filters.query_builder import build_chart_pipeline
 from .base import BaseChart
 from .figure_builder import FigureBuilder
 
@@ -19,23 +21,31 @@ class GenericChartComponent(BaseChart):
     Unlike predefined charts (CCCertsPerYear, etc.) that have hardcoded
     data transformations, generic charts use the Chart configuration's
     x_axis/y_axis/aggregation settings to dynamically create visualizations.
+
+    If a query_pipeline is stored in the chart config, it uses MongoDB
+    aggregation for better performance. Otherwise, it fetches raw data
+    and uses FigureBuilder to aggregate in pandas.
     """
 
     def render(self, filter_values: dict[str, Any] | None = None) -> Component:
-        """Render the chart using FigureBuilder."""
+        """Render the chart using aggregation pipeline or FigureBuilder."""
         merged_filters = self._get_merged_filter_values(filter_values)
 
-        # Get data for the collection type specified in the chart config
-        df = self.data_service.get_dataframe(
-            collection_type=self.config.collection_type,
-            filter_values=merged_filters if merged_filters else None,
-        )
-
-        if df.empty:
-            return self._render_container([self._render_empty_state()])
-
         try:
-            fig = FigureBuilder.create_figure(self.config, df)
+            # Try to use aggregation pipeline for better performance
+            df = self._get_aggregated_data(merged_filters)
+
+            if df.empty:
+                return self._render_container([self._render_empty_state()])
+
+            # If we used aggregation pipeline, data is already aggregated
+            # Create figure directly from the aggregated data
+            if self.config.query_pipeline:
+                fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
+            else:
+                # Fallback to FigureBuilder with raw data
+                fig = FigureBuilder.create_figure(self.config, df)
+
             return self._render_container(
                 [
                     self._create_config_store(),
@@ -44,6 +54,28 @@ class GenericChartComponent(BaseChart):
             )
         except Exception as e:
             return self._render_container([self._render_error_state(f"Error creating chart: {str(e)}")])
+
+    def _get_aggregated_data(self, filter_values: dict[str, Any] | None) -> pd.DataFrame:
+        """Get data using aggregation pipeline if available, otherwise raw data.
+
+        :param filter_values: Optional filter values to apply
+        :return: DataFrame with data (aggregated or raw depending on pipeline)
+        """
+        # If chart has a stored pipeline, rebuild it with current filters
+        # This ensures filter changes are applied
+        if self.config.query_pipeline is not None:
+            # Rebuild pipeline with current filter values
+            pipeline = build_chart_pipeline(self.config, filter_values)
+            return self.data_service.execute_aggregation_pipeline(
+                collection_type=self.config.collection_type,
+                pipeline=pipeline,
+            )
+
+        # Fallback to raw data (FigureBuilder will handle aggregation)
+        return self.data_service.get_dataframe(
+            collection_type=self.config.collection_type,
+            filter_values=filter_values,
+        )
 
 
 class BarChartComponent(GenericChartComponent):

@@ -192,3 +192,64 @@ class FilterFactory:
                 result[filter_id] = value
 
         return result
+
+    def get_available_fields(self) -> list[dict[str, str]]:
+        """
+        Get available fields for chart axis selection.
+
+        Returns a list of field options derived from registered FilterSpecs.
+        Each FilterSpec corresponds to a database column that can be used
+        for grouping (X-axis) or aggregation (Y-axis).
+
+        :return: List of dicts with 'label', 'value', and 'data_type' keys
+        """
+        fields = []
+        for filter_spec in self._registry.get_all_filters().values():
+            fields.append(
+                {
+                    "label": filter_spec.component_params.label,
+                    "value": filter_spec.database_field,
+                    "data_type": filter_spec.data_type,
+                }
+            )
+        return fields
+
+    def get_numeric_fields(self) -> list[dict[str, str]]:
+        """
+        Get numeric fields for Y-axis aggregation (SUM, AVG, MIN, MAX).
+
+        Only numeric fields can be aggregated with mathematical operations.
+        COUNT aggregation doesn't require a specific field.
+
+        :return: List of dicts with 'label' and 'value' keys for numeric fields
+        """
+        numeric_types = {"int", "float", "number", "numeric"}
+        return [
+            {"label": f["label"], "value": f["value"]}
+            for f in self.get_available_fields()
+            if f["data_type"].lower() in numeric_types
+        ]
+
+    def get_filter_specs_for_modal(self) -> list[dict[str, Any]]:
+        """
+        Get filter specifications for the chart creation modal.
+
+        Returns serializable filter metadata that can be used to create
+        filter UI components dynamically in the modal.
+
+        :return: List of dicts with filter metadata for modal population
+        """
+        specs = []
+        for filter_id, filter_spec in self._registry.get_all_filters().items():
+            specs.append(
+                {
+                    "id": filter_id,
+                    "label": filter_spec.component_params.label,
+                    "field": filter_spec.database_field,
+                    "data_type": filter_spec.data_type,
+                    "component_type": filter_spec.component_params.component_type.value,
+                    "placeholder": filter_spec.component_params.placeholder,
+                    "help_text": filter_spec.component_params.help_text,
+                }
+            )
+        return specs
