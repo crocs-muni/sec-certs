@@ -135,6 +135,17 @@ class QueryBuilder:
                     ]
                 }
             }
+        elif filter_spec.operator in (FilterOperator.IN, FilterOperator.NIN):
+            # $in and $nin require an array value
+            if isinstance(transformed_value, (list, tuple)):
+                array_value = list(transformed_value)
+            else:
+                array_value = [transformed_value]
+            return {filter_spec.database_field: {filter_spec.operator.value: array_value}}
+        elif filter_spec.operator == FilterOperator.EXISTS:
+            # $exists requires a boolean value
+            bool_value = bool(transformed_value) if not isinstance(transformed_value, bool) else transformed_value
+            return {filter_spec.database_field: {filter_spec.operator.value: bool_value}}
         else:
             return {filter_spec.database_field: {filter_spec.operator.value: transformed_value}}
 
