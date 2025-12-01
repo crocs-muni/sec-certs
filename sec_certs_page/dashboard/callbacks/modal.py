@@ -30,6 +30,7 @@ def register_modal_callbacks(
     filter_factory: FilterFactory,
 ) -> None:
     _register_modal_toggle(dash_app, prefix)
+    _register_modal_filter_reset(dash_app, prefix)
     _register_modal_mode(dash_app, prefix)
     _register_edit_handler(dash_app, prefix, chart_registry)
     _register_modal_filter_ui(dash_app, prefix)
@@ -45,25 +46,106 @@ def register_modal_callbacks(
 
 
 def _register_modal_toggle(dash_app: "Dash", prefix: str) -> None:
+    """Handle modal open/close and reset form when opening in create mode.
+
+    This is the single source of truth for create mode - it resets all form fields.
+    Edit mode is handled separately by _register_edit_handler.
+
+    Note: Modal filter values are NOT reset here because that would require ALL pattern
+    which conflicts with MATCH pattern used in filter action callbacks (clear/select all).
+    Filters are reset via _register_modal_filter_reset which uses a compatible approach.
+    """
+
     @dash_app.callback(
         output=dict(
             is_open=Output(f"{prefix}-create-chart-modal", "is_open"),
             edit_id=Output(f"{prefix}-edit-chart-id", "data"),
+            # Form fields - reset on create, no_update on close
+            title=Output(f"{prefix}-modal-chart-title", "value"),
+            chart_type=Output(f"{prefix}-modal-chart-type", "value"),
+            x_field=Output(f"{prefix}-modal-x-field", "value"),
+            x_label=Output(f"{prefix}-modal-x-label", "value"),
+            color_field=Output(f"{prefix}-modal-color-field", "value"),
+            aggregation=Output(f"{prefix}-modal-aggregation", "value"),
+            y_field=Output(f"{prefix}-modal-y-field", "value"),
+            y_label=Output(f"{prefix}-modal-y-label", "value"),
+            show_legend=Output(f"{prefix}-modal-show-legend", "value"),
+            show_grid=Output(f"{prefix}-modal-show-grid", "value"),
+            color_by_open=Output(f"{prefix}-color-by-collapse", "is_open"),
         ),
         inputs=dict(
             open_clicks=Input(f"{prefix}-open-create-chart-modal-btn", "n_clicks"),
             cancel_clicks=Input(f"{prefix}-modal-cancel-btn", "n_clicks"),
         ),
-        state=dict(is_open=State(f"{prefix}-create-chart-modal", "is_open")),
+        state=dict(
+            is_open=State(f"{prefix}-create-chart-modal", "is_open"),
+        ),
         prevent_initial_call=True,
     )
     def toggle_modal(open_clicks, cancel_clicks, is_open):
         triggered = ctx.triggered_id
+
+        no_change_form = dict(
+            title=no_update,
+            chart_type=no_update,
+            x_field=no_update,
+            x_label=no_update,
+            color_field=no_update,
+            aggregation=no_update,
+            y_field=no_update,
+            y_label=no_update,
+            show_legend=no_update,
+            show_grid=no_update,
+            color_by_open=no_update,
+        )
+
         if triggered == f"{prefix}-open-create-chart-modal-btn":
-            return dict(is_open=True, edit_id=None)
+            # Opening in CREATE mode - reset all form fields
+            return dict(
+                is_open=True,
+                edit_id=None,
+                title="",
+                chart_type="bar",
+                x_field=None,
+                x_label="",
+                color_field=None,
+                aggregation="count",
+                y_field=None,
+                y_label="",
+                show_legend=True,
+                show_grid=True,
+                color_by_open=False,
+            )
+
         if triggered == f"{prefix}-modal-cancel-btn":
-            return dict(is_open=False, edit_id=None)
-        return dict(is_open=is_open, edit_id=no_update)
+            # Closing modal - don't change form values
+            return dict(is_open=False, edit_id=None, **no_change_form)
+
+        return dict(is_open=is_open, edit_id=no_update, **no_change_form)
+
+
+def _register_modal_filter_reset(dash_app: "Dash", prefix: str) -> None:
+    """Reset modal filter values when opening in create mode.
+
+    This is separate from _register_modal_toggle to avoid mixing ALL and MATCH
+    wildcard patterns on the same output (which Dash doesn't allow).
+    """
+
+    @dash_app.callback(
+        output=dict(filter_values=Output({"type": f"{prefix}-modal-filter", "field": ALL}, "value")),
+        inputs=dict(
+            open_clicks=Input(f"{prefix}-open-create-chart-modal-btn", "n_clicks"),
+        ),
+        state=dict(
+            current_filter_values=State({"type": f"{prefix}-modal-filter", "field": ALL}, "value"),
+        ),
+        prevent_initial_call=True,
+    )
+    def reset_modal_filters(open_clicks, current_filter_values):
+        """Reset all modal filter values when Add Chart button is clicked."""
+        if open_clicks:
+            return dict(filter_values=[None] * len(current_filter_values))
+        return dict(filter_values=[no_update] * len(current_filter_values))
 
 
 def _register_modal_mode(dash_app: "Dash", prefix: str) -> None:
@@ -73,8 +155,10 @@ def _register_modal_mode(dash_app: "Dash", prefix: str) -> None:
             btn_text=Output(f"{prefix}-modal-create-btn", "children"),
         ),
         inputs=dict(edit_chart_id=Input(f"{prefix}-edit-chart-id", "data")),
+        prevent_initial_call=True,
     )
     def update_modal_mode(edit_chart_id):
+        """Update modal title/button based on edit mode - only when edit_id changes."""
         if edit_chart_id:
             return dict(
                 title=[html.I(className="fas fa-edit me-2"), "Edit Chart"],
@@ -172,12 +256,21 @@ def _register_edit_handler(
 
 def _register_modal_filter_ui(dash_app: "Dash", prefix: str) -> None:
     @dash_app.callback(
-        output=dict(children=Output(f"{prefix}-modal-filters-container", "children")),
+        output=dict(
+            children=Output(f"{prefix}-modal-filters-container", "children"),
+            filters_ready=Output(f"{prefix}-modal-filters-ready", "data"),
+        ),
         inputs=dict(filter_specs=Input(f"{prefix}-filter-specs", "data")),
+        state=dict(current_ready=State(f"{prefix}-modal-filters-ready", "data")),
+        prevent_initial_call=True,
     )
-    def generate_modal_filter_ui(filter_specs):
+    def generate_modal_filter_ui(filter_specs, current_ready):
+        """Generate modal filter UI - only when filter_specs are loaded (modal open)."""
         if not filter_specs:
-            return dict(children=html.P("No filters available.", className="text-muted"))
+            return dict(
+                children=html.P("No filters available.", className="text-muted"),
+                filters_ready=no_update,
+            )
 
         filter_rows = []
         for i in range(0, len(filter_specs), 2):
@@ -197,7 +290,8 @@ def _register_modal_filter_ui(dash_app: "Dash", prefix: str) -> None:
 
             filter_rows.append(dbc.Row(cols, className="g-2"))
 
-        return dict(children=filter_rows)
+        # Increment filters_ready to signal that UI is ready for options population
+        return dict(children=filter_rows, filters_ready=(current_ready or 0) + 1)
 
 
 def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Component:
@@ -339,10 +433,13 @@ def _register_modal_filter_options(
 ) -> None:
     @dash_app.callback(
         output=dict(options=Output({"type": f"{prefix}-modal-filter", "field": ALL}, "options")),
-        inputs=dict(filter_specs=Input(f"{prefix}-filter-specs", "data")),
+        inputs=dict(filters_ready=Input(f"{prefix}-modal-filters-ready", "data")),
+        state=dict(filter_specs=State(f"{prefix}-filter-specs", "data")),
+        prevent_initial_call=True,
     )
-    def populate_modal_filter_options(filter_specs):
-        if not filter_specs:
+    def populate_modal_filter_options(filters_ready, filter_specs):
+        """Populate modal filter options - only after filter UI components are rendered."""
+        if not filters_ready or not filter_specs:
             return dict(options=[])
 
         options_list = []
@@ -375,7 +472,7 @@ def _register_modal_filter_options(
 
 def _register_filter_actions(dash_app: "Dash", prefix: str) -> None:
     @dash_app.callback(
-        output=dict(value=Output({"type": f"{prefix}-modal-filter", "field": MATCH}, "value")),
+        output=dict(value=Output({"type": f"{prefix}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)),
         inputs=dict(n_clicks=Input({"type": f"{prefix}-clear-filter", "field": MATCH}, "n_clicks")),
         prevent_initial_call=True,
     )
@@ -403,8 +500,10 @@ def _register_axis_options(dash_app: "Dash", prefix: str) -> None:
             color_options=Output(f"{prefix}-modal-color-field", "options"),
         ),
         inputs=dict(available_fields=Input(f"{prefix}-available-fields", "data")),
+        prevent_initial_call=True,
     )
     def populate_axis_field_options(available_fields):
+        """Populate axis field options - only when available_fields are loaded (modal open)."""
         if not available_fields:
             return dict(x_options=[], color_options=[])
         options = [{"label": f["label"], "value": f["value"]} for f in available_fields]
@@ -439,8 +538,10 @@ def _register_y_field_state(dash_app: "Dash", prefix: str) -> None:
         ),
         inputs=dict(aggregation_value=Input(f"{prefix}-modal-aggregation", "value")),
         state=dict(available_fields=State(f"{prefix}-available-fields", "data")),
+        prevent_initial_call=True,
     )
     def update_y_field_state(aggregation_value, available_fields):
+        """Update Y-field state based on aggregation - only when aggregation changes."""
         if aggregation_value == AggregationType.COUNT.value:
             return dict(disabled=True, options=[], help_text="Not required for COUNT aggregation.")
 
@@ -486,8 +587,10 @@ def _register_chart_type_help(dash_app: "Dash", prefix: str) -> None:
     @dash_app.callback(
         output=dict(children=Output(f"{prefix}-chart-type-help", "children")),
         inputs=dict(chart_type=Input(f"{prefix}-modal-chart-type", "value")),
+        prevent_initial_call=True,
     )
     def show_chart_type_help(chart_type):
+        """Show chart type specific help - only when chart type changes."""
         if chart_type == "stacked_bar":
             return dict(
                 children=dbc.Alert(
@@ -507,7 +610,7 @@ def _register_chart_type_help(dash_app: "Dash", prefix: str) -> None:
 def _register_color_by_toggle(dash_app: "Dash", prefix: str) -> None:
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{prefix}-color-by-collapse", "is_open"),
+            is_open=Output(f"{prefix}-color-by-collapse", "is_open", allow_duplicate=True),
             icon_class=Output(f"{prefix}-color-by-icon", "className"),
         ),
         inputs=dict(n_clicks=Input(f"{prefix}-color-by-toggle", "n_clicks")),
