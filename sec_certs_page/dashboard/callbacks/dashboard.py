@@ -16,6 +16,15 @@ if TYPE_CHECKING:
     from ..manager import DashboardManager
 
 
+def _get_new_dashboard_name(existing_dashboard_options: list | None) -> str:
+    """Generate a new dashboard name with incrementing number based on existing dashboards."""
+    count = len(existing_dashboard_options) + 1 if existing_dashboard_options else 1
+
+    if count == 1:
+        return "New Dashboard"
+    return f"New Dashboard ({count})"
+
+
 def register_dashboard_callbacks(
     dash_app: "Dash",
     prefix: str,
@@ -37,9 +46,14 @@ def _register_dashboard_names(
 ) -> None:
     @dash_app.callback(
         output=dict(options=Output(f"{prefix}-dashboard-selector", "options")),
-        inputs=dict(trigger=Input(f"{prefix}-dashboard-selector", "id")),
+        inputs=dict(loaded=Input(f"{prefix}-dashboard-loaded", "data")),
+        prevent_initial_call=True,
     )
-    def load_dashboard_names(trigger):
+    def load_dashboard_names(loaded):
+        """Load dashboard names only after initial load is complete."""
+        if not loaded:
+            return dict(options=[])
+
         user_id = get_current_user_id()
         if not user_id:
             return dict(options=[])
@@ -112,21 +126,23 @@ def _register_dashboard_selection(
         ),
         state=dict(
             current_dashboard_id=State(f"{prefix}-current-dashboard-id", "data"),
+            selector_options=State(f"{prefix}-dashboard-selector", "options"),
         ),
         prevent_initial_call=True,
     )
-    def handle_dashboard_selection(dashboard_id, create_clicks, current_dashboard_id):
+    def handle_dashboard_selection(dashboard_id, create_clicks, current_dashboard_id, selector_options):
         triggered = ctx.triggered_id
         print(
             f"[DASHBOARD_SELECT] triggered_id: {triggered}, dashboard_id: {dashboard_id}, current: {current_dashboard_id}"
         )
 
         if triggered == f"{prefix}-create-dashboard-btn":
+            new_name = _get_new_dashboard_name(selector_options)
             return dict(
                 empty_state_style={"display": "none"},
                 content_style={"display": "block"},
                 dashboard_id=None,
-                name_input="New dashboard",
+                name_input=new_name,
                 chart_configs={},
                 toast_open=False,
                 toast_children="",
@@ -138,7 +154,7 @@ def _register_dashboard_selection(
                 empty_state_style={"display": "block"},
                 content_style={"display": "none"},
                 dashboard_id=None,
-                name_input="New dashboard",
+                name_input="",
                 chart_configs={},
                 toast_open=False,
                 toast_children="",
@@ -167,7 +183,7 @@ def _register_dashboard_selection(
                 empty_state_style={"display": "block"},
                 content_style={"display": "none"},
                 dashboard_id=None,
-                name_input="New dashboard",
+                name_input="",
                 chart_configs={},
                 toast_open=True,
                 toast_children="Failed to load the selected dashboard.",
