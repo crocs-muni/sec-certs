@@ -64,7 +64,7 @@ from logging import Logger
 import dash
 import dash_bootstrap_components as dbc
 import flask
-from dash import dcc, html
+from dash import html
 from dash.development.base_component import Component
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.routing import Map, RequestRedirect, Rule
@@ -151,7 +151,7 @@ def layout(**kwargs) -> dbc.Container:
     client-side routing event often fails to trigger.
 
     **The Fix (Server-Side Injection):**
-    We implement a manual Server-Side Rendering (SSR) step. We inspect the path, resolve the
+    The system implements a manual Server-Side Rendering (SSR) step - inspecting the path, resolving the
     Dash page manually, and inject the resulting component tree directly into dash.page_container.
     """
 
