@@ -14,6 +14,27 @@
     border-radius: 0.375rem;
     border: 1px solid var(--bs-border-color);
     background-color: var(--bs-body-bg);
+    min-height: 38px;
+}
+
+/* Vertically center single-select values */
+.dash-bootstrap .Select-control .Select-value,
+.dash-dropdown .Select-control .Select-value {
+    display: flex !important;
+    align-items: center;
+    height: 100%;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.dash-bootstrap .Select-control .Select-value-label,
+.dash-dropdown .Select-control .Select-value-label {
+    line-height: 36px;
+}
+
+.dash-bootstrap .Select-placeholder,
+.dash-dropdown .Select-placeholder {
+    line-height: 36px;
 }
 
 .dash-bootstrap .Select-control:hover {
@@ -25,11 +46,17 @@
     border: 1px solid var(--bs-border-color);
     border-radius: 0.375rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    max-height: 300px;
 }
 
 .dash-bootstrap .Select-option {
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
+    /* Truncate long options */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .dash-bootstrap .Select-option:hover,
@@ -51,16 +78,59 @@
 
 .dash-dropdown .Select-menu {
     background-color: var(--bs-body-bg) !important;
+    max-height: 300px !important;
 }
 
 .dash-dropdown .VirtualizedSelectOption {
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
+    /* Truncate long options */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 .dash-dropdown .VirtualizedSelectFocusedOption {
     background-color: var(--bs-primary) !important;
     color: white !important;
+}
+
+/* Truncate selected values in dropdown */
+.dash-bootstrap .Select-value-label,
+.dash-dropdown .Select-value-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+    line-height: 1.4;
+}
+
+/* Multi-select tags - consistent height and truncation */
+.dash-bootstrap .Select-value,
+.dash-dropdown .Select-value {
+    max-width: 180px;
+    height: 24px !important;
+    line-height: 22px !important;
+    display: inline-flex !important;
+    align-items: center;
+    overflow: hidden;
+}
+
+.dash-bootstrap .Select-value-label,
+.dash-dropdown .Select-value-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 22px;
+    height: 22px;
+}
+
+/* Ensure multi-value container has consistent row height */
+.dash-bootstrap .Select--multi .Select-value,
+.dash-dropdown .Select--multi .Select-value {
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 /* ============================================
