@@ -28,7 +28,7 @@ class CCCertsPerYear(BaseChart):
             return self._render_container([self._render_empty_state()])
 
         # Aggregate by year and category
-        category_per_year = df.groupby(["year_from", "category"]).size().reset_index(name="count")
+        category_per_year = df.groupby(["year_from", "category"], observed=True).size().reset_index(name="count")
 
         x_label = self.config.x_axis.label if self.config and self.config.x_axis else "Year"
         y_label = self.config.y_axis.label if self.config and self.config.y_axis else "Number of Certificates"
@@ -50,7 +50,7 @@ class CCCertsPerYear(BaseChart):
             margin=dict(t=40, l=60, r=40, b=60),
             height=600,
             showlegend=self.config.show_legend if self.config else True,
-            colorway=self.config.color_scheme if self.config and self.config.color_scheme else None,
+            template=self.config.color_scheme if self.config and self.config.color_scheme else None,
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         )
 
