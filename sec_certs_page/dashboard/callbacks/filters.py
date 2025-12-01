@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from ..filters.factory import FilterFactory
 from ..types.filter import FilterComponentType
@@ -16,15 +16,15 @@ def register_filter_callbacks(
     filter_factory: FilterFactory,
     data_service: "DataService",
 ) -> None:
-    _register_filter_options(dash_app, filter_factory, data_service)
+    _register_filter_options(dash_app, prefix, filter_factory, data_service)
     _register_filter_store(dash_app, prefix, filter_factory)
     _register_button_states(dash_app, prefix)
-    _register_available_fields(dash_app, prefix, filter_factory)
-    _register_filter_specs(dash_app, prefix, filter_factory)
+    _register_metadata(dash_app, prefix, filter_factory)
 
 
 def _register_filter_options(
     dash_app: "Dash",
+    prefix: str,
     filter_factory: FilterFactory,
     data_service: "DataService",
 ) -> None:
@@ -37,14 +37,17 @@ def _register_filter_options(
 
         @dash_app.callback(
             output=dict(options=Output(filter_id, "options")),
-            inputs=dict(trigger=Input(filter_id, "id")),
+            inputs=dict(dashboard_loaded=Input(f"{prefix}-dashboard-loaded", "data")),
+            prevent_initial_call=True,
         )
         def load_options(
-            trigger,
+            dashboard_loaded,
             spec=filter_spec,
             factory=filter_factory,
             ds=data_service,
         ):
+            if not dashboard_loaded:
+                return dict(options=[])
             try:
                 return dict(
                     options=ds.get_distinct_values_with_labels(
@@ -93,27 +96,37 @@ def _register_button_states(dash_app: "Dash", prefix: str) -> None:
         return dict(update_disabled=not has_charts, save_disabled=not has_charts)
 
 
-def _register_available_fields(
+def _register_metadata(
     dash_app: "Dash",
     prefix: str,
     filter_factory: FilterFactory,
 ) -> None:
-    @dash_app.callback(
-        output=dict(data=Output(f"{prefix}-available-fields", "data")),
-        inputs=dict(collection_name=Input(f"{prefix}-collection-name", "data")),
-    )
-    def load_available_fields(collection_name):
-        return dict(data=filter_factory.get_available_fields())
+    """Combined callback for available fields and filter specs - reduces initial calls."""
 
-
-def _register_filter_specs(
-    dash_app: "Dash",
-    prefix: str,
-    filter_factory: FilterFactory,
-) -> None:
     @dash_app.callback(
-        output=dict(data=Output(f"{prefix}-filter-specs", "data")),
-        inputs=dict(collection_name=Input(f"{prefix}-collection-name", "data")),
+        output=dict(
+            available_fields=Output(f"{prefix}-available-fields", "data"),
+            filter_specs=Output(f"{prefix}-filter-specs", "data"),
+            metadata_loaded=Output(f"{prefix}-metadata-loaded", "data"),
+        ),
+        inputs=dict(modal_open=Input(f"{prefix}-create-chart-modal", "is_open")),
+        state=dict(already_loaded=State(f"{prefix}-metadata-loaded", "data")),
+        prevent_initial_call=True,
     )
-    def load_filter_specs(collection_name):
-        return dict(data=filter_factory.get_filter_specs_for_modal())
+    def load_metadata(modal_open, already_loaded):
+        """Load metadata only when modal opens for the first time - lazy loading optimization."""
+        from dash import no_update
+
+        # Don't do anything when modal closes
+        if not modal_open:
+            return dict(available_fields=no_update, filter_specs=no_update, metadata_loaded=no_update)
+
+        # If already loaded, don't reload
+        if already_loaded:
+            return dict(available_fields=no_update, filter_specs=no_update, metadata_loaded=no_update)
+
+        return dict(
+            available_fields=filter_factory.get_available_fields(),
+            filter_specs=filter_factory.get_filter_specs_for_modal(),
+            metadata_loaded=True,
+        )
