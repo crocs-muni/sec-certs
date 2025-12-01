@@ -67,10 +67,9 @@ class CCFilterRegistry(FilterSpecRegistry):
             operator=FilterOperator.IN,
             data_type="str",
             component_params=DashFilterComponentParams(
-                component_type=FilterComponentType.MULTI_DROPDOWN,
+                component_type=FilterComponentType.DROPDOWN,
                 label="Certificate Status",
                 placeholder="Select status...",
-                multi=True,
                 clearable=True,
                 searchable=True,
                 help_text="Filter by certificate status (active/archived)",
@@ -176,10 +175,9 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             operator=FilterOperator.IN,
             data_type="str",
             component_params=DashFilterComponentParams(
-                component_type=FilterComponentType.MULTI_DROPDOWN,
+                component_type=FilterComponentType.DROPDOWN,
                 label="Certificate Status",
                 placeholder="Select status...",
-                multi=True,
                 clearable=True,
                 searchable=True,
                 help_text="Current certificate status",
