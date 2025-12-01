@@ -176,19 +176,6 @@ def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
                     ),
                 ],
             ),
-            # Load predefined button
-            dbc.Col(
-                width="auto",
-                children=[
-                    dbc.Button(
-                        [html.I(className="fas fa-chart-bar me-2"), "Load Predefined Charts"],
-                        id=f"{collection_name}-load-predefined-btn",
-                        n_clicks=0,
-                        color="primary",
-                        className="w-100",
-                    ),
-                ],
-            ),
         ],
     )
 

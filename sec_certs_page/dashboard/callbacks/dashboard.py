@@ -22,7 +22,6 @@ def register_dashboard_callbacks(
     _register_dashboard_names(dash_app, prefix, dataset_type, dashboard_manager)
     _register_initial_load(dash_app, prefix, dataset_type, dashboard_manager)
     _register_dashboard_selection(dash_app, prefix, dashboard_manager, chart_registry)
-    _register_load_predefined(dash_app, prefix, chart_registry)
 
 
 def _register_dashboard_names(
@@ -99,14 +98,13 @@ def _register_dashboard_selection(
         inputs=dict(
             dashboard_id=Input(f"{prefix}-dashboard-selector", "value"),
             create_clicks=Input(f"{prefix}-create-dashboard-btn", "n_clicks"),
-            load_clicks=Input(f"{prefix}-load-predefined-btn", "n_clicks"),
         ),
         prevent_initial_call=True,
     )
-    def handle_dashboard_selection(dashboard_id, create_clicks, load_clicks):
+    def handle_dashboard_selection(dashboard_id, create_clicks):
         triggered = ctx.triggered_id
 
-        if triggered in (f"{prefix}-create-dashboard-btn", f"{prefix}-load-predefined-btn"):
+        if triggered == f"{prefix}-create-dashboard-btn":
             return dict(
                 empty_state_style={"display": "none"},
                 content_style={"display": "block"},
@@ -159,21 +157,3 @@ def _register_dashboard_selection(
             active_charts=active_chart_ids,
             chart_configs=chart_configs,
         )
-
-
-def _register_load_predefined(
-    dash_app: "Dash",
-    prefix: str,
-    chart_registry: "ChartRegistry",
-) -> None:
-    @dash_app.callback(
-        output=dict(active_charts=Output(f"{prefix}-active-charts-store", "data", allow_duplicate=True)),
-        inputs=dict(n_clicks=Input(f"{prefix}-load-predefined-btn", "n_clicks")),
-        state=dict(current_charts=State(f"{prefix}-active-charts-store", "data")),
-        prevent_initial_call=True,
-    )
-    def load_predefined_charts(n_clicks, current_charts):
-        if not n_clicks:
-            return dict(active_charts=no_update)
-
-        return dict(active_charts=[chart.id for chart in chart_registry])
