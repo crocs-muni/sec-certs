@@ -124,9 +124,13 @@ def _register_predefined_chart_options(
 ) -> None:
     @dash_app.callback(
         output=dict(options=Output(f"{prefix}-chart-selector", "options")),
-        inputs=dict(style=Input(f"{prefix}-dashboard-content", "style")),
+        inputs=dict(dashboard_loaded=Input(f"{prefix}-dashboard-loaded", "data")),
+        prevent_initial_call=True,
     )
-    def populate_predefined_charts(style):
+    def populate_predefined_charts(dashboard_loaded):
+        """Populate chart selector options - only after dashboard is loaded."""
+        if not dashboard_loaded:
+            return dict(options=[])
         return dict(options=[{"label": chart.title, "value": chart.id} for chart in chart_registry])
 
 
