@@ -1,7 +1,6 @@
 from typing import Any
 
-import plotly.graph_objects as go
-from dash import html
+import plotly.express as px
 from dash.development.base_component import Component
 
 from ...chart.chart import Chart
@@ -33,21 +32,22 @@ class CCCategoryDistribution(BaseChart):
         if df.empty:
             return self._render_container([self._render_empty_state()])
 
-        category_counts = df["category"].value_counts()
+        category_counts = df["category"].value_counts().reset_index()
+        category_counts.columns = ["category", "count"]
 
-        fig = go.Figure(
-            go.Pie(
-                labels=category_counts.index,
-                values=category_counts.values,
-                hole=0.3,
-                textposition="inside",
-                textinfo="percent+label",
-            )
+        fig = px.pie(
+            category_counts,
+            names="category",
+            values="count",
+            hole=0.3,
+            labels={"category": "Category", "count": "Count"},
         )
+
+        fig.update_traces(textposition="inside", textinfo="percent+label")
 
         fig.update_layout(
             margin={"t": 40, "l": 40, "r": 40, "b": 40},
-            height=450,
+            height=600,
             showlegend=self.config.show_legend if self.config else True,
         )
 

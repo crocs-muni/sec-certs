@@ -1,6 +1,6 @@
 from typing import Any
 
-import plotly.graph_objects as go
+import plotly.express as px
 from dash.development.base_component import Component
 
 from ...chart.chart import Chart
@@ -27,27 +27,28 @@ class CCCertsPerYear(BaseChart):
         if df.empty:
             return self._render_container([self._render_empty_state()])
 
-        category_per_year = df.groupby(["year_from", "category"]).size().unstack(fill_value=0)
-        fig = go.Figure()
-
-        for category in category_per_year.columns:
-            fig.add_trace(
-                go.Bar(
-                    name=category,
-                    x=category_per_year.index,
-                    y=category_per_year[category],
-                )
-            )
+        # Aggregate by year and category
+        category_per_year = df.groupby(["year_from", "category"]).size().reset_index(name="count")
 
         x_label = self.config.x_axis.label if self.config and self.config.x_axis else "Year"
         y_label = self.config.y_axis.label if self.config and self.config.y_axis else "Number of Certificates"
 
-        fig.update_layout(
+        fig = px.bar(
+            category_per_year,
+            x="year_from",
+            y="count",
+            color="category",
             barmode="stack",
-            xaxis=dict(title=x_label),
-            yaxis=dict(title=y_label),
+            labels={
+                "year_from": x_label,
+                "count": y_label,
+                "category": "Category",
+            },
+        )
+
+        fig.update_layout(
             margin=dict(t=40, l=60, r=40, b=60),
-            height=450,
+            height=600,
             showlegend=self.config.show_legend if self.config else True,
             colorway=self.config.color_scheme if self.config and self.config.color_scheme else None,
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
