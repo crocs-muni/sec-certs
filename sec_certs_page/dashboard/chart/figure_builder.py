@@ -44,7 +44,7 @@ class FigureBuilder:
                 showlegend=config.show_legend,
                 template="plotly_white",
                 margin=dict(l=40, r=40, t=40, b=40),
-                height=450,
+                height=600,
             )
             return fig
         except Exception as e:
@@ -68,7 +68,8 @@ class FigureBuilder:
         if df.empty:
             return cls._empty_figure("No data available")
 
-        x_field = config.x_axis.field
+        # Get field names, flattening dots for nested fields (matches query_builder output)
+        x_field = config.x_axis.field.replace(".", "_")
         # The pipeline uses y_axis.label as the value column name
         y_field = config.y_axis.label if config.y_axis else "value"
 
@@ -76,8 +77,8 @@ class FigureBuilder:
         if y_field not in df.columns and "value" in df.columns:
             y_field = "value"
 
-        # Get color field if secondary grouping is used
-        color_field = config.color_axis.field if config.color_axis else None
+        # Get color field if secondary grouping is used (also flatten dots)
+        color_field = config.color_axis.field.replace(".", "_") if config.color_axis else None
 
         if x_field not in df.columns:
             return cls._empty_figure(f"Missing column: {x_field}")
@@ -92,7 +93,7 @@ class FigureBuilder:
                 showlegend=config.show_legend,
                 template="plotly_white",
                 margin=dict(l=40, r=40, t=40, b=40),
-                height=450,
+                height=600,
             )
             return fig
         except Exception as e:
@@ -156,21 +157,29 @@ class FigureBuilder:
         :param color_field: Optional column name for color dimension (secondary grouping)
         :return: Plotly Figure object
         """
+        # Build labels dict to map field names to user-friendly labels
+        labels = {
+            x_field: config.x_axis.label,
+            y_field: config.y_axis.label if config.y_axis else "Count",
+        }
+        if color_field and config.color_axis:
+            labels[color_field] = config.color_axis.label
+
         if config.chart_type == AvailableChartTypes.BAR:
-            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="group")
+            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="group", labels=labels)
         elif config.chart_type == AvailableChartTypes.STACKED_BAR:
-            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="stack")
+            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="stack", labels=labels)
         elif config.chart_type == AvailableChartTypes.LINE:
-            return px.line(df, x=x_field, y=y_field, color=color_field, markers=True)
+            return px.line(df, x=x_field, y=y_field, color=color_field, markers=True, labels=labels)
         elif config.chart_type == AvailableChartTypes.PIE:
             # Pie charts don't support color dimension in the same way
-            return px.pie(df, names=x_field, values=y_field)
+            return px.pie(df, names=x_field, values=y_field, labels=labels)
         elif config.chart_type == AvailableChartTypes.SCATTER:
-            return px.scatter(df, x=x_field, y=y_field, color=color_field)
+            return px.scatter(df, x=x_field, y=y_field, color=color_field, labels=labels)
         elif config.chart_type == AvailableChartTypes.BOX:
-            return px.box(df, x=x_field, y=y_field, color=color_field)
+            return px.box(df, x=x_field, y=y_field, color=color_field, labels=labels)
         elif config.chart_type == AvailableChartTypes.HISTOGRAM:
-            return px.histogram(df, x=x_field, color=color_field)
+            return px.histogram(df, x=x_field, color=color_field, labels=labels)
         else:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")
 
