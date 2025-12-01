@@ -94,12 +94,14 @@ class BaseChart(ABC):
             figure=figure,
             config={
                 "displayModeBar": True,
+                "displaylogo": False,
                 "responsive": True,
                 "toImageButtonOptions": {
                     "format": "svg",
                     "filename": f"chart_{self.graph_id}",
                 },
             },
+            style={"height": "100%"},
             className="w-100",
         )
 
