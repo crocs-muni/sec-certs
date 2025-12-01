@@ -137,6 +137,10 @@ def create_page_stores(collection_name: str) -> list:
         # Store for filter specifications metadata (for chart modal filter options)
         # Format: [{"id": "cc-category-filter", "label": "Category", "field": "category", ...}, ...]
         dcc.Store(id=f"{collection_name}-filter-specs", data=[]),
+        # Store to track if modal metadata has been loaded (avoids reloading on every modal open)
+        dcc.Store(id=f"{collection_name}-metadata-loaded", data=False),
+        # Store to signal when modal filter UI components are ready (triggers options population)
+        dcc.Store(id=f"{collection_name}-modal-filters-ready", data=0),
         # Store for tracking which chart is being edited (None = create mode, chart_id = edit mode)
         dcc.Store(id=f"{collection_name}-edit-chart-id", data=None),
         # Store for chart configurations (chart_id -> serialized Chart config)
