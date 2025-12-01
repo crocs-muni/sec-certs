@@ -150,7 +150,6 @@ class DashboardFactory:
         return html.Div(
             [
                 dcc.Store(id=f"{self.collection_name}-filter-store", data={}),
-                dcc.Store(id=f"{self.collection_name}-active-charts-store", data=[]),
                 dcc.Store(id=f"{self.collection_name}-render-trigger", data=0),
                 dcc.Store(id=f"{self.collection_name}-current-dashboard-id", data=str(dashboard.dashboard_id)),
                 dcc.Store(id=f"{self.collection_name}-collection-name", data=self.collection_name),

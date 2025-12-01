@@ -531,7 +531,6 @@ def _register_chart_creation(
 ) -> None:
     @dash_app.callback(
         output=dict(
-            active_charts=Output(f"{prefix}-active-charts-store", "data", allow_duplicate=True),
             modal_open=Output(f"{prefix}-create-chart-modal", "is_open", allow_duplicate=True),
             alert_open=Output(f"{prefix}-modal-validation-alert", "is_open"),
             alert_children=Output(f"{prefix}-modal-validation-alert", "children"),
@@ -551,7 +550,6 @@ def _register_chart_creation(
             y_label=State(f"{prefix}-modal-y-label", "value"),
             show_legend=State(f"{prefix}-modal-show-legend", "value"),
             show_grid=State(f"{prefix}-modal-show-grid", "value"),
-            active_charts=State(f"{prefix}-active-charts-store", "data"),
             current_filter_values=State(f"{prefix}-filter-store", "data"),
             modal_filter_values=State({"type": f"{prefix}-modal-filter", "field": ALL}, "value"),
             filter_specs=State(f"{prefix}-filter-specs", "data"),
@@ -573,7 +571,6 @@ def _register_chart_creation(
         y_label,
         show_legend,
         show_grid,
-        active_charts,
         current_filter_values,
         modal_filter_values,
         filter_specs,
@@ -581,8 +578,10 @@ def _register_chart_creation(
         render_trigger,
         chart_configs,
     ):
+        print(f"[MODAL] create_or_update_chart called, n_clicks={n_clicks}")
+        print(f"[MODAL] chart_configs before: {list((chart_configs or {}).keys())}")
+
         no_change = dict(
-            active_charts=no_update,
             modal_open=no_update,
             alert_open=False,
             alert_children="",
@@ -599,7 +598,6 @@ def _register_chart_creation(
         errors = _validate_chart_form(title, x_field, aggregation, y_field, chart_type, color_field)
         if errors:
             return dict(
-                active_charts=no_update,
                 modal_open=no_update,
                 alert_open=True,
                 alert_children=html.Ul([html.Li(e) for e in errors]),
@@ -637,36 +635,20 @@ def _register_chart_creation(
         updated_chart_configs = dict(chart_configs or {})
         updated_chart_configs[chart_instance.id] = chart_config.to_dict()
 
-        if is_edit_mode:
-            chart_registry.register_active(chart_instance)
-            # Replace the chart in the active list to force a re-render
-            updated_active_charts = list(active_charts or [])
-            if edit_chart_id in updated_active_charts:
-                idx = updated_active_charts.index(edit_chart_id)
-                updated_active_charts[idx] = chart_instance.id
-            else:
-                # Chart not in list (shouldn't happen, but add it to be safe)
-                updated_active_charts.append(chart_instance.id)
-            return dict(
-                active_charts=updated_active_charts,
-                modal_open=False,
-                alert_open=False,
-                alert_children="",
-                edit_id=None,
-                render_trigger=no_update,
-                chart_configs=updated_chart_configs,
-            )
-        else:
-            chart_registry.register_active(chart_instance)
-            return dict(
-                active_charts=(active_charts or []) + [chart_instance.id],
-                modal_open=False,
-                alert_open=False,
-                alert_children="",
-                edit_id=None,
-                render_trigger=no_update,
-                chart_configs=updated_chart_configs,
-            )
+        # Register in the chart registry for rendering
+        chart_registry.register_active(chart_instance)
+
+        print(
+            f"[MODAL] {'Updated' if is_edit_mode else 'Created'} chart {chart_instance.id}, chart_configs after: {list(updated_chart_configs.keys())}"
+        )
+        return dict(
+            modal_open=False,
+            alert_open=False,
+            alert_children="",
+            edit_id=None,
+            render_trigger=no_update,
+            chart_configs=updated_chart_configs,
+        )
 
 
 def _validate_chart_form(

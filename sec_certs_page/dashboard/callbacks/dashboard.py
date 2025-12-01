@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from dash import ctx, no_update
@@ -6,6 +7,8 @@ from dash.dependencies import Input, Output, State
 from ..chart.chart import Chart
 from ..types.common import CollectionName
 from .utils import get_current_user_id
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from ...common.dash.base import Dash
@@ -68,17 +71,21 @@ def _register_initial_load(
         state=dict(already_loaded=State(f"{prefix}-dashboard-loaded", "data")),
     )
     def load_default_on_init(collection_name, already_loaded):
+        print(f"[INIT_LOAD] collection_name: {collection_name}, already_loaded: {already_loaded}")
         if already_loaded:
             return dict(selector_value=no_update, loaded=no_update)
 
         user_id = get_current_user_id()
+        print(f"[INIT_LOAD] user_id: {user_id}")
         if not user_id:
             return dict(selector_value=None, loaded=True)
 
         dashboard, _ = dashboard_manager.load_default_dashboard(user_id, dataset_type)
         if dashboard:
+            print(f"[INIT_LOAD] Found default dashboard: {dashboard.dashboard_id}")
             return dict(selector_value=str(dashboard.dashboard_id), loaded=True)
 
+        print("[INIT_LOAD] No default dashboard found")
         return dict(selector_value=None, loaded=True)
 
 
@@ -94,17 +101,25 @@ def _register_dashboard_selection(
             content_style=Output(f"{prefix}-dashboard-content", "style"),
             dashboard_id=Output(f"{prefix}-current-dashboard-id", "data"),
             name_input=Output(f"{prefix}-dashboard-name-input", "value"),
-            active_charts=Output(f"{prefix}-active-charts-store", "data"),
             chart_configs=Output(f"{prefix}-chart-configs-store", "data"),
+            toast_open=Output(f"{prefix}-dashboard-toast", "is_open"),
+            toast_children=Output(f"{prefix}-dashboard-toast", "children"),
+            toast_icon=Output(f"{prefix}-dashboard-toast", "icon"),
         ),
         inputs=dict(
             dashboard_id=Input(f"{prefix}-dashboard-selector", "value"),
             create_clicks=Input(f"{prefix}-create-dashboard-btn", "n_clicks"),
         ),
+        state=dict(
+            current_dashboard_id=State(f"{prefix}-current-dashboard-id", "data"),
+        ),
         prevent_initial_call=True,
     )
-    def handle_dashboard_selection(dashboard_id, create_clicks):
+    def handle_dashboard_selection(dashboard_id, create_clicks, current_dashboard_id):
         triggered = ctx.triggered_id
+        print(
+            f"[DASHBOARD_SELECT] triggered_id: {triggered}, dashboard_id: {dashboard_id}, current: {current_dashboard_id}"
+        )
 
         if triggered == f"{prefix}-create-dashboard-btn":
             return dict(
@@ -112,8 +127,10 @@ def _register_dashboard_selection(
                 content_style={"display": "block"},
                 dashboard_id=None,
                 name_input="New dashboard",
-                active_charts=[],
                 chart_configs={},
+                toast_open=False,
+                toast_children="",
+                toast_icon="info",
             )
 
         if not dashboard_id:
@@ -122,10 +139,27 @@ def _register_dashboard_selection(
                 content_style={"display": "none"},
                 dashboard_id=None,
                 name_input="New dashboard",
-                active_charts=[],
                 chart_configs={},
+                toast_open=False,
+                toast_children="",
+                toast_icon="info",
             )
 
+        # Check if the selected dashboard is already open
+        if current_dashboard_id and str(dashboard_id) == str(current_dashboard_id):
+            print(f"[DASHBOARD_SELECT] Dashboard {dashboard_id} is already open")
+            return dict(
+                empty_state_style=no_update,
+                content_style=no_update,
+                dashboard_id=no_update,
+                name_input=no_update,
+                chart_configs=no_update,
+                toast_open=True,
+                toast_children="This dashboard is already open.",
+                toast_icon="info",
+            )
+
+        print(f"[DASHBOARD_SELECT] Loading dashboard {dashboard_id}")
         dashboard, chart_instances = dashboard_manager.load_dashboard_with_charts(dashboard_id)
 
         if not dashboard:
@@ -134,30 +168,32 @@ def _register_dashboard_selection(
                 content_style={"display": "none"},
                 dashboard_id=None,
                 name_input="New dashboard",
-                active_charts=[],
                 chart_configs={},
+                toast_open=True,
+                toast_children="Failed to load the selected dashboard.",
+                toast_icon="danger",
             )
 
-        active_chart_ids = []
         chart_configs = {}
 
         for chart_config in dashboard.charts:
             predefined = chart_registry.get(chart_config.name)
             if predefined:
-                active_chart_ids.append(predefined.id)
                 chart_configs[predefined.id] = predefined.config.to_dict()
             else:
                 chart_id = str(chart_config.chart_id)
-                active_chart_ids.append(chart_id)
                 chart_configs[chart_id] = chart_config.to_dict()
 
+        print(f"[DASHBOARD_SELECT] Loaded dashboard with {len(chart_configs)} charts: {list(chart_configs.keys())}")
         return dict(
             empty_state_style={"display": "none"},
             content_style={"display": "block"},
             dashboard_id=str(dashboard.dashboard_id),
             name_input=dashboard.name,
-            active_charts=active_chart_ids,
             chart_configs=chart_configs,
+            toast_open=False,
+            toast_children="",
+            toast_icon="info",
         )
 
 
@@ -180,12 +216,14 @@ def _register_save_dashboard(
         state=dict(
             dashboard_id=State(f"{prefix}-current-dashboard-id", "data"),
             dashboard_name=State(f"{prefix}-dashboard-name-input", "value"),
-            active_charts=State(f"{prefix}-active-charts-store", "data"),
             chart_configs=State(f"{prefix}-chart-configs-store", "data"),
         ),
         prevent_initial_call=True,
     )
-    def save_dashboard(save_clicks, dashboard_id, dashboard_name, active_charts, chart_configs):
+    def save_dashboard(save_clicks, dashboard_id, dashboard_name, chart_configs):
+        print(f"[SAVE] Callback triggered - save_clicks: {save_clicks}")
+        print(f"[SAVE] chart_configs keys: {list((chart_configs or {}).keys())}")
+
         if not save_clicks:
             return dict(
                 selector_options=no_update,
@@ -201,18 +239,35 @@ def _register_save_dashboard(
                 current_dashboard_id=no_update,
             )
 
-        # Build Chart objects from chart_configs
+        # Use chart_configs as the sole source of truth
+        chart_ids = list((chart_configs or {}).keys())
+        print(f"[SAVE] Using chart_ids: {chart_ids}")
+
         charts = []
-        for i, chart_id in enumerate(active_charts or []):
+        for i, chart_id in enumerate(chart_ids):
+            # First try to get from chart_configs
             config = (chart_configs or {}).get(chart_id)
             if config:
                 try:
                     chart = Chart.from_dict(config)
                     chart.order = i
                     charts.append(chart)
-                except (KeyError, ValueError):
-                    # Skip invalid chart configs
+                    print(f"[SAVE] Chart {chart_id}: loaded from chart_configs")
+                except (KeyError, ValueError) as e:
+                    print(f"[SAVE] Chart {chart_id}: failed to parse from configs - {e}")
                     continue
+            else:
+                # Try to get from predefined chart registry
+                predefined = chart_registry.get_predefined(chart_id)
+                if predefined and predefined.config:
+                    chart = predefined.config
+                    chart.order = i
+                    charts.append(chart)
+                    print(f"[SAVE] Chart {chart_id}: loaded from predefined registry")
+                else:
+                    print(f"[SAVE] Chart {chart_id}: not found in configs or registry")
+
+        print(f"[SAVE] Total charts to save: {len(charts)}")
 
         # Load existing dashboard or create new one
         if dashboard_id:
@@ -239,6 +294,7 @@ def _register_save_dashboard(
 
         # Save to database
         saved_id = dashboard_manager.save_dashboard(dashboard)
+        is_new_dashboard = dashboard_id is None
 
         # Refresh dashboard list
         names = dashboard_manager.get_dashboard_names(user_id, dataset_type)
@@ -250,8 +306,11 @@ def _register_save_dashboard(
             for d in names
         ]
 
+        # Only update selector_value if this is a new dashboard
+        # For existing dashboards, keep the current selection to avoid triggering
+        # the "already open" toast
         return dict(
             selector_options=options,
-            selector_value=saved_id,
+            selector_value=saved_id if is_new_dashboard else no_update,
             current_dashboard_id=saved_id,
         )

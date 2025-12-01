@@ -22,7 +22,7 @@ def register_chart_callbacks(
     chart_registry: "ChartRegistry",
     data_service: "DataService",
 ) -> None:
-    _register_chart_management(dash_app, prefix)
+    _register_chart_management(dash_app, prefix, chart_registry)
     _register_predefined_chart_options(dash_app, prefix, chart_registry)
     _register_chart_rendering(dash_app, prefix, chart_registry, data_service)
     _register_update_all(dash_app, prefix)
@@ -59,35 +59,62 @@ def register_pattern_matching_callbacks(
         return dict(content=html.P(f"Chart '{chart_id}' not found.", style={"color": "red"}))
 
 
-def _register_chart_management(dash_app: "Dash", prefix: str) -> None:
+def _register_chart_management(dash_app: "Dash", prefix: str, chart_registry: "ChartRegistry") -> None:
     @dash_app.callback(
-        output=dict(active_charts=Output(f"{prefix}-active-charts-store", "data", allow_duplicate=True)),
+        output=dict(
+            chart_configs=Output(f"{prefix}-chart-configs-store", "data", allow_duplicate=True),
+        ),
         inputs=dict(
             add_clicks=Input(f"{prefix}-add-chart-btn", "n_clicks"),
             remove_clicks=Input({"type": "remove-chart", "index": ALL}, "n_clicks"),
         ),
         state=dict(
             selected_chart_id=State(f"{prefix}-chart-selector", "value"),
-            current_charts=State(f"{prefix}-active-charts-store", "data"),
+            current_configs=State(f"{prefix}-chart-configs-store", "data"),
         ),
         prevent_initial_call=True,
     )
-    def manage_charts(add_clicks, remove_clicks, selected_chart_id, current_charts):
-        if current_charts is None:
-            current_charts = []
+    def manage_charts(add_clicks, remove_clicks, selected_chart_id, current_configs):
+        print(f"[CHART_MGMT] triggered_id: {ctx.triggered_id}")
+        print(f"[CHART_MGMT] selected_chart_id: {selected_chart_id}")
+        print(f"[CHART_MGMT] remove_clicks: {remove_clicks}")
+
+        if current_configs is None:
+            current_configs = {}
 
         triggered_id = ctx.triggered_id
 
         if triggered_id == f"{prefix}-add-chart-btn":
-            if selected_chart_id and selected_chart_id not in current_charts:
-                current_charts.append(selected_chart_id)
+            if selected_chart_id and selected_chart_id not in current_configs:
+                # Add the chart config (for predefined charts, get from registry)
+                predefined = chart_registry.get_predefined(selected_chart_id)
+                if predefined and predefined.config:
+                    current_configs[selected_chart_id] = predefined.config.to_dict()
+                    print(f"[CHART_MGMT] Added predefined chart {selected_chart_id} with config")
+                else:
+                    print(f"[CHART_MGMT] Chart {selected_chart_id} not found in predefined registry")
 
         elif isinstance(triggered_id, dict) and triggered_id.get("type") == "remove-chart":
+            # Check if this was an actual click (n_clicks > 0) vs just a new component appearing
+            # When a new chart is rendered, the pattern-matching callback fires with n_clicks=0
             chart_to_remove = triggered_id.get("index")
-            if chart_to_remove in current_charts:
-                current_charts.remove(chart_to_remove)
 
-        return dict(active_charts=current_charts)
+            # Find which button was actually clicked by checking ctx.triggered
+            actual_click = False
+            for trigger in ctx.triggered:
+                if trigger.get("value") and trigger.get("value") > 0:
+                    actual_click = True
+                    break
+
+            if actual_click and chart_to_remove in current_configs:
+                del current_configs[chart_to_remove]
+                print(f"[CHART_MGMT] Removed chart {chart_to_remove}")
+            else:
+                print("[CHART_MGMT] Ignoring remove trigger (n_clicks=0 or chart not found)")
+
+        print(f"[CHART_MGMT] current_configs keys after: {list(current_configs.keys())}")
+
+        return dict(chart_configs=current_configs)
 
 
 def _register_predefined_chart_options(
@@ -112,13 +139,14 @@ def _register_chart_rendering(
     @dash_app.callback(
         output=dict(children=Output(f"{prefix}-chart-container", "children")),
         inputs=dict(
-            chart_ids=Input(f"{prefix}-active-charts-store", "data"),
             render_trigger=Input(f"{prefix}-render-trigger", "data"),
             chart_configs=Input(f"{prefix}-chart-configs-store", "data"),
         ),
         state=dict(filter_values=State(f"{prefix}-filter-store", "data")),
     )
-    def render_charts(chart_ids, render_trigger, chart_configs, filter_values):
+    def render_charts(render_trigger, chart_configs, filter_values):
+        # Derive chart IDs from chart_configs keys
+        chart_ids = list((chart_configs or {}).keys())
         if not chart_ids:
             return dict(
                 children=[
