@@ -204,7 +204,20 @@ class FilterFactory:
         :return: List of dicts with 'label', 'value', and 'data_type' keys
         """
         fields = []
+        # Track fields we've already added to avoid duplicates
+        seen_fields = set()
+
         for filter_spec in self._registry.get_all_filters().values():
+            # Skip date fields that are better represented as derived year fields
+            # (e.g., prefer year_from over not_valid_before for grouping)
+            if filter_spec.database_field in ("not_valid_before", "not_valid_after"):
+                continue
+
+            # Skip if we've already added this database field
+            if filter_spec.database_field in seen_fields:
+                continue
+
+            seen_fields.add(filter_spec.database_field)
             fields.append(
                 {
                     "label": filter_spec.component_params.label,
@@ -233,7 +246,7 @@ class FilterFactory:
         if self.dataset_type == CollectionName.CommonCriteria:
             return [
                 {
-                    "label": "Certification Year",
+                    "label": "Certificate Year",
                     "value": "year_from",
                     "data_type": "int",
                     "derived_from": "not_valid_before",  # Source field

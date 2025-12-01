@@ -97,7 +97,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             data_type="int",
             component_params=DashFilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
-                label="Certification Year",
+                label="Certificate Year",
                 placeholder="Select years...",
                 multi=True,
                 clearable=True,
