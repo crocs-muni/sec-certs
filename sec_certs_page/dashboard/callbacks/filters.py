@@ -82,16 +82,14 @@ def _register_button_states(dash_app: "Dash", prefix: str) -> None:
             save_disabled=Output(f"{prefix}-save-dashboard-btn", "disabled"),
         ),
         inputs=dict(
-            filter_values=Input(f"{prefix}-filter-store", "data"),
             active_charts=Input(f"{prefix}-active-charts-store", "data"),
         ),
     )
-    def update_button_states(filter_values, active_charts):
-        has_active_filters = bool(filter_values and len(filter_values) > 0)
+    def update_button_states(active_charts):
         has_charts = bool(active_charts and len(active_charts) > 0)
 
         update_disabled = not has_charts
-        save_disabled = not (has_charts and has_active_filters)
+        save_disabled = not has_charts
 
         return dict(update_disabled=update_disabled, save_disabled=save_disabled)
 
