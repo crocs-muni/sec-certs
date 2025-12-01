@@ -22,7 +22,7 @@ class ChartDict(TypedDict):
     chart_type: AvailableChartTypes
     x_axis: dict[str, Any]
     y_axis: dict[str, Any] | None
-    color_axis: dict[str, Any] | None  # Secondary grouping field (Color By)
+    color_axis: dict[str, Any] | None
     filters: dict[str, Any]
     color_scheme: str
     show_legend: bool

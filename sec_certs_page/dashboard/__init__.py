@@ -113,10 +113,8 @@ class PageRouter:
             if "/_dash-" in raw_path or "/_reload-hash" in raw_path:
                 return None
 
-            # Strip the url_base_pathname prefix
             clean_path = dash.strip_relative_path(raw_path)
 
-            # Normalize: empty string becomes "/", otherwise prepend "/"
             if clean_path is not None and not clean_path.startswith("/"):
                 clean_path = "/" + clean_path
 
@@ -139,7 +137,6 @@ class PageRouter:
         return None
 
 
-# Global router instance
 page_router = PageRouter()
 
 
@@ -187,7 +184,6 @@ def layout(**kwargs) -> dbc.Container:
                     ),
                 ],
             ),
-            # Alert for mobile users
             dbc.Alert(
                 [
                     html.I(className="fas fa-exclamation-triangle me-2"),
