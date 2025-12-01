@@ -6,6 +6,7 @@ from uuid import UUID
 
 class AvailableChartTypes(str, Enum):
     BAR = "bar"
+    STACKED_BAR = "stacked_bar"
     LINE = "line"
     PIE = "pie"
     SCATTER = "scatter"
@@ -21,6 +22,7 @@ class ChartDict(TypedDict):
     chart_type: AvailableChartTypes
     x_axis: dict[str, Any]
     y_axis: dict[str, Any] | None
+    color_axis: dict[str, Any] | None  # Secondary grouping field (Color By)
     filters: dict[str, Any]
     color_scheme: str
     show_legend: bool
