@@ -5,22 +5,26 @@ from dash import ALL, MATCH, ctx, html, no_update
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
+from ..chart.chart import Chart
+from ..chart.factory import ChartFactory
 from ..types.common import CollectionName
 from .utils import create_chart_wrapper
 
 if TYPE_CHECKING:
     from ...common.dash.base import Dash
     from ..chart.registry import ChartRegistry
+    from ..data import DataService
 
 
 def register_chart_callbacks(
     dash_app: "Dash",
     prefix: str,
     chart_registry: "ChartRegistry",
+    data_service: "DataService",
 ) -> None:
     _register_chart_management(dash_app, prefix)
     _register_predefined_chart_options(dash_app, prefix, chart_registry)
-    _register_chart_rendering(dash_app, prefix, chart_registry)
+    _register_chart_rendering(dash_app, prefix, chart_registry, data_service)
     _register_update_all(dash_app, prefix)
 
 
@@ -103,6 +107,7 @@ def _register_chart_rendering(
     dash_app: "Dash",
     prefix: str,
     chart_registry: "ChartRegistry",
+    data_service: "DataService",
 ) -> None:
     @dash_app.callback(
         output=dict(children=Output(f"{prefix}-chart-container", "children")),
@@ -110,9 +115,12 @@ def _register_chart_rendering(
             chart_ids=Input(f"{prefix}-active-charts-store", "data"),
             render_trigger=Input(f"{prefix}-render-trigger", "data"),
         ),
-        state=dict(filter_values=State(f"{prefix}-filter-store", "data")),
+        state=dict(
+            filter_values=State(f"{prefix}-filter-store", "data"),
+            chart_configs=State(f"{prefix}-chart-configs-store", "data"),
+        ),
     )
-    def render_charts(chart_ids, render_trigger, filter_values):
+    def render_charts(chart_ids, render_trigger, filter_values, chart_configs):
         if not chart_ids:
             return dict(
                 children=[
@@ -131,6 +139,25 @@ def _register_chart_rendering(
 
         for chart_id in chart_ids:
             chart = chart_registry.get(chart_id)
+
+            # If not in registry, try to create from chart_configs store
+            if not chart and chart_configs and chart_id in chart_configs:
+                try:
+                    config_dict = chart_configs[chart_id]
+                    chart_config = Chart.from_dict(config_dict)
+                    chart = ChartFactory.create_chart(chart_config, data_service)
+                    chart_registry.update(chart)
+                except Exception as e:
+                    rendered.append(
+                        dbc.Alert(
+                            [
+                                html.I(className="fas fa-exclamation-circle me-2"),
+                                f"Error loading chart '{chart_id}': {str(e)}",
+                            ],
+                            color="danger",
+                        )
+                    )
+                    continue
 
             if not chart:
                 rendered.append(
