@@ -20,7 +20,15 @@ from sec_certs.heuristics.common import (
     compute_transitive_vulnerabilities,
     link_to_protection_profiles,
 )
-from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.common import (
+    extract_cert_pdf_keywords,
+    extract_cert_pdf_metadata,
+    extract_report_pdf_frontpage,
+    extract_report_pdf_keywords,
+    extract_report_pdf_metadata,
+    extract_st_pdf_keywords,
+    extract_st_pdf_metadata,
+)
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
 
@@ -29,7 +37,7 @@ from sec_certs.utils.profiling import staged
 def extract_report_metadata(obj):
     certs_to_process = [x for x in obj if x.state.report.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
-        CCCertificate.extract_report_pdf_metadata,
+        extract_report_pdf_metadata,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting report metadata",
@@ -41,7 +49,7 @@ def extract_report_metadata(obj):
 def extract_target_metadata(obj):
     certs_to_process = [x for x in obj if x.state.st.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
-        CCCertificate.extract_st_pdf_metadata,
+        extract_st_pdf_metadata,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting target metadata",
@@ -53,7 +61,7 @@ def extract_target_metadata(obj):
 def extract_cert_metadata(obj):
     certs_to_process = [x for x in obj if x.state.cert.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
-        CCCertificate.extract_cert_pdf_metadata,
+        extract_cert_pdf_metadata,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting cert metadata",
@@ -65,7 +73,7 @@ def extract_cert_metadata(obj):
 def extract_report_keywords(obj):
     certs_to_process = [x for x in obj if x.state.report.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
-        CCCertificate.extract_report_pdf_keywords,
+        extract_report_pdf_keywords,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting report keywords",
@@ -77,7 +85,7 @@ def extract_report_keywords(obj):
 def extract_target_keywords(obj):
     certs_to_process = [x for x in obj if x.state.st.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
-        CCCertificate.extract_st_pdf_keywords,
+        extract_st_pdf_keywords,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting target keywords",
@@ -89,7 +97,7 @@ def extract_target_keywords(obj):
 def extract_cert_keywords(obj):
     certs_to_process = [x for x in obj if x.state.cert.is_ok_to_analyze()]
     processed = cert_processing.process_parallel(
-        CCCertificate.extract_cert_pdf_keywords,
+        extract_cert_pdf_keywords,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting cert keywords",
@@ -101,7 +109,7 @@ def extract_cert_keywords(obj):
 def extract_report_frontpage(obj) -> None:
     certs_to_process = [x for x in obj if x.state.report.is_ok_to_analyze()]
     processed_certs = cert_processing.process_parallel(
-        CCCertificate.extract_report_pdf_frontpage,
+        extract_report_pdf_frontpage,
         certs_to_process,
         use_threading=False,
         progress_bar_desc="Extracting report frontpages",
