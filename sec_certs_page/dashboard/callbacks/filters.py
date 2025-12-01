@@ -82,18 +82,15 @@ def _register_button_states(dash_app: "Dash", prefix: str) -> None:
             save_disabled=Output(f"{prefix}-save-dashboard-btn", "disabled"),
         ),
         inputs=dict(
-            active_charts=Input(f"{prefix}-active-charts-store", "data"),
             chart_configs=Input(f"{prefix}-chart-configs-store", "data"),
         ),
     )
-    def update_button_states(active_charts, chart_configs):
-        # Enable buttons if there are charts in either the active list or configs
-        has_charts = bool(active_charts and len(active_charts) > 0) or bool(chart_configs and len(chart_configs) > 0)
+    def update_button_states(chart_configs):
+        # Enable buttons if there are charts in configs
+        has_charts = bool(chart_configs and len(chart_configs) > 0)
+        print(f"[BUTTON_STATES] chart_configs keys: {list((chart_configs or {}).keys())}, has_charts: {has_charts}")
 
-        update_disabled = not has_charts
-        save_disabled = not has_charts
-
-        return dict(update_disabled=update_disabled, save_disabled=save_disabled)
+        return dict(update_disabled=not has_charts, save_disabled=not has_charts)
 
 
 def _register_available_fields(

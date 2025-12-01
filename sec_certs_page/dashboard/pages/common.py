@@ -73,6 +73,16 @@ def create_collection_page_layout(collection: CollectionName, title: str) -> htm
         children=[
             # State stores
             *create_page_stores(prefix),
+            # Toast for notifications
+            dbc.Toast(
+                id=f"{prefix}-dashboard-toast",
+                header="Dashboard",
+                is_open=False,
+                dismissable=True,
+                duration=4000,
+                icon="info",
+                style={"position": "fixed", "top": 66, "right": 10, "width": 350, "zIndex": 1050},
+            ),
             # Page header
             dbc.Row(
                 className="mb-4",
@@ -118,7 +128,6 @@ def create_page_stores(collection_name: str) -> list:
     return [
         dcc.Store(id=f"{collection_name}-collection-name", data=collection_name),
         dcc.Store(id=f"{collection_name}-current-dashboard-id", data=None),
-        dcc.Store(id=f"{collection_name}-active-charts-store", data=[]),
         dcc.Store(id=f"{collection_name}-filter-store", data={}),
         dcc.Store(id=f"{collection_name}-render-trigger", data=0),
         dcc.Store(id=f"{collection_name}-dashboard-loaded", data=False),
