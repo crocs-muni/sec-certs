@@ -99,7 +99,7 @@ class Chart:
     title: str = ""
     order: int = 0
     y_axis: AxisConfig | None = None
-    color_axis: AxisConfig | None = None  # Secondary grouping field (Color By)
+    color_axis: AxisConfig | None = None
     filters: dict[str, FilterSpec] = field(default_factory=dict)
     filter_values: dict[str, Any] = field(default_factory=dict)
     query_pipeline: list[dict[str, Any]] | None = None
@@ -151,21 +151,6 @@ class Chart:
 
         :param pipeline: MongoDB aggregation pipeline stages
         :type pipeline: list[dict[str, Any]]
-
-        .. note::
-           The pipeline should be regenerated whenever:
-
-           - Filters are modified, set to active/not active
-           - Axis configurations change
-           - Data source changes
-
-        Example pipeline::
-
-            [
-                {"$match": {"category": "Operating System"}},
-                {"$group": {"_id": "$year_from", "count": {"$sum": 1}}},
-                {"$sort": {"_id": 1}}
-            ]
         """
         self.query_pipeline = pipeline
         self.updated_at = datetime.now(timezone.utc)

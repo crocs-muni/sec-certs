@@ -183,32 +183,6 @@ def layout(**kwargs) -> dbc.Container:
                                 ],
                                 className="mb-2",
                             ),
-                            dbc.Nav(
-                                children=[
-                                    dbc.NavItem(
-                                        dcc.Link(
-                                            [html.I(className="fas fa-home me-1"), "Dashboard Home"],
-                                            href="/dashboard/",
-                                            className="nav-link",
-                                        ),
-                                    ),
-                                    dbc.NavItem(
-                                        dcc.Link(
-                                            [html.I(className="fas fa-shield-alt me-1"), "Common Criteria"],
-                                            href="/dashboard/cc",
-                                            className="nav-link",
-                                        ),
-                                    ),
-                                    dbc.NavItem(
-                                        dcc.Link(
-                                            [html.I(className="fas fa-lock me-1"), "FIPS 140"],
-                                            href="/dashboard/fips",
-                                            className="nav-link",
-                                        ),
-                                    ),
-                                ],
-                                pills=True,
-                            ),
                         ],
                     ),
                 ],
