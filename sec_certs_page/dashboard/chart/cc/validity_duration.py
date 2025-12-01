@@ -60,7 +60,7 @@ class CCValidityDuration(BaseChart):
             height=600,
             margin=dict(t=40, l=60, r=40, b=60),
             showlegend=self.config.show_legend if self.config else False,
-            colorway=self.config.color_scheme if self.config and self.config.color_scheme else None,
+            template=self.config.color_scheme if self.config and self.config.color_scheme else None,
         )
 
         return self._render_container(
