@@ -139,13 +139,14 @@ def _register_chart_rendering(
             chart = chart_registry.get(chart_id)
 
             # If not in registry, try to create from chart_configs store
+            # Register in active charts for caching during this session
             if not chart and chart_configs and chart_id in chart_configs:
                 try:
                     config_dict = chart_configs[chart_id]
                     chart_config = Chart.from_dict(config_dict)
                     chart = ChartFactory.create_chart(chart_config, data_service)
                     chart.graph_id = chart_id
-                    chart_registry.update(chart)
+                    chart_registry.register_active(chart)
                 except Exception as e:
                     rendered.append(
                         dbc.Alert(

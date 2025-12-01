@@ -638,7 +638,7 @@ def _register_chart_creation(
         updated_chart_configs[chart_instance.id] = chart_config.to_dict()
 
         if is_edit_mode:
-            chart_registry.update(chart_instance)
+            chart_registry.register_active(chart_instance)
             # Replace the chart in the active list to force a re-render
             updated_active_charts = list(active_charts or [])
             if edit_chart_id in updated_active_charts:
@@ -657,7 +657,7 @@ def _register_chart_creation(
                 chart_configs=updated_chart_configs,
             )
         else:
-            chart_registry.register(chart_instance)
+            chart_registry.register_active(chart_instance)
             return dict(
                 active_charts=(active_charts or []) + [chart_instance.id],
                 modal_open=False,
