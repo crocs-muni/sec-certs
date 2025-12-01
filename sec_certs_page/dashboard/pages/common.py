@@ -238,8 +238,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     :return: Modal component for chart creation
     """
     chart_type_options = [
-        {"label": ct.value.title(), "value": ct.value.replace("_", " ") if "_" in ct.value else ct.value}
-        for ct in AvailableChartTypes
+        {"label": ct.value.replace("_", " ").title(), "value": ct.value} for ct in AvailableChartTypes
     ]
 
     aggregation_options = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
