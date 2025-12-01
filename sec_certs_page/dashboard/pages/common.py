@@ -128,6 +128,11 @@ def create_page_stores(collection_name: str) -> list:
         # Store for filter specifications metadata (for chart modal filter options)
         # Format: [{"id": "cc-category-filter", "label": "Category", "field": "category", ...}, ...]
         dcc.Store(id=f"{collection_name}-filter-specs", data=[]),
+        # Store for tracking which chart is being edited (None = create mode, chart_id = edit mode)
+        dcc.Store(id=f"{collection_name}-edit-chart-id", data=None),
+        # Store for chart configurations (chart_id -> serialized Chart config)
+        # Used to populate edit modal without database queries
+        dcc.Store(id=f"{collection_name}-chart-configs-store", data={}),
     ]
 
 
@@ -232,7 +237,10 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     :param collection_name: The collection_name for component IDs
     :return: Modal component for chart creation
     """
-    chart_type_options = [{"label": ct.value.title(), "value": ct.value} for ct in AvailableChartTypes]
+    chart_type_options = [
+        {"label": ct.value.title(), "value": ct.value if "_" not in ct.value else ct.value.replace("_", " ")}
+        for ct in AvailableChartTypes
+    ]
 
     aggregation_options = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
 
@@ -243,7 +251,10 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
         centered=True,
         children=[
             dbc.ModalHeader(
-                dbc.ModalTitle([html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"]),
+                dbc.ModalTitle(
+                    id=f"{collection_name}-modal-title",
+                    children=[html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
+                ),
                 close_button=True,
             ),
             dbc.ModalBody(
@@ -255,7 +266,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                             dbc.Col(
                                 width=12,
                                 children=[
-                                    dbc.Label("Chart Title", className="fw-bold"),
+                                    dbc.Label(
+                                        "Chart Title",
+                                        html_for=f"{collection_name}-modal-chart-title",
+                                        className="fw-bold",
+                                    ),
                                     dbc.Input(
                                         id=f"{collection_name}-modal-chart-title",
                                         type="text",
@@ -274,7 +289,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Chart Type", className="fw-bold"),
+                                    dbc.Label(
+                                        "Chart Type",
+                                        html_for=f"{collection_name}-modal-chart-type",
+                                        className="fw-bold",
+                                    ),
                                     dcc.Dropdown(
                                         id=f"{collection_name}-modal-chart-type",
                                         options=chart_type_options,
@@ -300,7 +319,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Primary Field", className="fw-bold"),
+                                    dbc.Label(
+                                        "Primary Field",
+                                        html_for=f"{collection_name}-modal-x-field",
+                                        className="fw-bold",
+                                    ),
                                     dcc.Dropdown(
                                         id=f"{collection_name}-modal-x-field",
                                         options=[],  # Populated dynamically from FilterFactory
@@ -313,7 +336,9 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Label", className="fw-bold"),
+                                    dbc.Label(
+                                        "X-Axis Label", html_for=f"{collection_name}-modal-x-label", className="fw-bold"
+                                    ),
                                     dbc.Input(
                                         id=f"{collection_name}-modal-x-label",
                                         type="text",
@@ -345,7 +370,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                         width=12,
                                         md=6,
                                         children=[
-                                            dbc.Label("Secondary Field (Color By)", className="fw-bold"),
+                                            dbc.Label(
+                                                "Secondary Field (Color By)",
+                                                html_for=f"{collection_name}-modal-color-field",
+                                                className="fw-bold",
+                                            ),
                                             dcc.Dropdown(
                                                 id=f"{collection_name}-modal-color-field",
                                                 options=[],  # Populated dynamically
@@ -373,7 +402,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Aggregation", className="fw-bold"),
+                                    dbc.Label(
+                                        "Aggregation",
+                                        html_for=f"{collection_name}-modal-aggregation",
+                                        className="fw-bold",
+                                    ),
                                     dcc.Dropdown(
                                         id=f"{collection_name}-modal-aggregation",
                                         options=aggregation_options,
@@ -391,7 +424,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Field to Aggregate", className="fw-bold"),
+                                    dbc.Label(
+                                        "Field to Aggregate",
+                                        html_for=f"{collection_name}-modal-y-field",
+                                        className="fw-bold",
+                                    ),
                                     dcc.Dropdown(
                                         id=f"{collection_name}-modal-y-field",
                                         options=[],  # Populated dynamically (numeric fields only)
@@ -415,7 +452,9 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Y-Axis Label", className="fw-bold"),
+                                    dbc.Label(
+                                        "Y-Axis Label", html_for=f"{collection_name}-modal-y-label", className="fw-bold"
+                                    ),
                                     dbc.Input(
                                         id=f"{collection_name}-modal-y-label",
                                         type="text",
@@ -484,9 +523,9 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                         outline=True,
                     ),
                     dbc.Button(
-                        [html.I(className="fas fa-plus me-2"), "Create Chart"],
                         id=f"{collection_name}-modal-create-btn",
                         color="success",
+                        children=[html.I(className="fas fa-plus me-2"), "Create Chart"],
                     ),
                 ],
             ),
@@ -519,7 +558,7 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                 width=12,
                                 lg=6,
                                 children=[
-                                    html.H6("Predefined Charts", className="text-muted mb-2"),
+                                    html.H5("Predefined Charts", className="text-muted mb-2"),
                                     dbc.Row(
                                         className="g-3 align-items-end",
                                         children=[
@@ -560,7 +599,7 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                 width=12,
                                 lg=6,
                                 children=[
-                                    html.H6("Custom Chart", className="text-muted mb-2"),
+                                    html.H5("Custom Chart", className="text-muted mb-2"),
                                     dbc.Button(
                                         html.I(className="fas fa-plus"),
                                         id=f"{collection_name}-open-create-chart-modal-btn",

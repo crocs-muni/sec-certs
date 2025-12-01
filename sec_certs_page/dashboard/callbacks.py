@@ -144,6 +144,7 @@ def _register_dashboard_select_callback(
         Output(f"{prefix}-current-dashboard-id", "data"),
         Output(f"{prefix}-dashboard-name-input", "value"),
         Output(f"{prefix}-active-charts-store", "data"),
+        Output(f"{prefix}-chart-configs-store", "data"),
         Input(f"{prefix}-dashboard-selector", "value"),
         Input(f"{prefix}-create-dashboard-btn", "n_clicks"),
         Input(f"{prefix}-load-predefined-btn", "n_clicks"),
@@ -160,6 +161,7 @@ def _register_dashboard_select_callback(
                 None,
                 "New dashboard",
                 [],
+                {},  # Empty chart configs
             )
 
         # Handle dropdown selection
@@ -170,6 +172,7 @@ def _register_dashboard_select_callback(
                 None,
                 "New dashboard",
                 [],
+                {},  # Empty chart configs
             )
 
         dashboard, chart_instances = dashboard_manager.load_dashboard_with_charts(dashboard_id)
@@ -181,17 +184,23 @@ def _register_dashboard_select_callback(
                 None,
                 "New dashboard",
                 [],
+                {},  # Empty chart configs
             )
 
-        # Get chart IDs for active charts store
-        # First check if charts are from predefined registry
+        # Get chart IDs for active charts store and build chart configs
         active_chart_ids = []
+        chart_configs = {}
         for chart_config in dashboard.charts:
             predefined = chart_registry.get(chart_config.name)
             if predefined:
                 active_chart_ids.append(predefined.id)
+                # Store predefined chart config too for consistency
+                chart_configs[predefined.id] = predefined.config.to_dict()
             else:
-                active_chart_ids.append(str(chart_config.chart_id))
+                chart_id = str(chart_config.chart_id)
+                active_chart_ids.append(chart_id)
+                # Store serialized chart config for later editing
+                chart_configs[chart_id] = chart_config.to_dict()
 
         return (
             {"display": "none"},
@@ -199,6 +208,7 @@ def _register_dashboard_select_callback(
             str(dashboard.dashboard_id),
             dashboard.name,
             active_chart_ids,
+            chart_configs,
         )
 
 
@@ -346,15 +356,51 @@ def _register_predefined_chart_options_callback(
         ]
 
 
-def _create_chart_wrapper(chart_id: str, title: str, chart_component: Component) -> dbc.Card:
+def _create_chart_wrapper(
+    chart_id: str, title: str, chart_component: Component, is_editable: bool = False
+) -> dbc.Card:
     """
     Create a Bootstrap card wrapper for a chart with controls.
 
     :param chart_id: Unique chart identifier
     :param title: Chart title
     :param chart_component: The chart component to wrap
+    :param is_editable: Whether to show the edit button (True for custom charts)
     :return: Card containing the chart with header controls
     """
+    # Build the button list - edit button only shown for custom charts
+    buttons = []
+
+    if is_editable:
+        buttons.append(
+            dbc.Button(
+                html.I(className="fas fa-edit"),
+                id={"type": "chart-edit", "index": chart_id},
+                color="primary",
+                outline=True,
+                title="Edit this chart",
+            )
+        )
+
+    buttons.extend(
+        [
+            dbc.Button(
+                html.I(className="fas fa-sync-alt"),
+                id={"type": "chart-refresh", "index": chart_id},
+                color="success",
+                outline=True,
+                title="Refresh this chart",
+            ),
+            dbc.Button(
+                html.I(className="fas fa-times"),
+                id={"type": "remove-chart", "index": chart_id},
+                color="danger",
+                outline=True,
+                title="Remove this chart",
+            ),
+        ]
+    )
+
     return dbc.Card(
         id={"type": "chart-wrapper", "index": chart_id},
         className="mb-4 shadow-sm",
@@ -363,25 +409,7 @@ def _create_chart_wrapper(chart_id: str, title: str, chart_component: Component)
                 className="d-flex justify-content-between align-items-center",
                 children=[
                     html.H5(title, className="mb-0"),
-                    dbc.ButtonGroup(
-                        size="sm",
-                        children=[
-                            dbc.Button(
-                                html.I(className="fas fa-sync-alt"),
-                                id={"type": "chart-refresh", "index": chart_id},
-                                color="success",
-                                outline=True,
-                                title="Refresh this chart",
-                            ),
-                            dbc.Button(
-                                html.I(className="fas fa-times"),
-                                id={"type": "remove-chart", "index": chart_id},
-                                color="danger",
-                                outline=True,
-                                title="Remove this chart",
-                            ),
-                        ],
-                    ),
+                    dbc.ButtonGroup(size="sm", children=buttons),
                 ],
             ),
             dbc.CardBody(
@@ -416,7 +444,7 @@ def _register_chart_rendering_callback(
                 dbc.Alert(
                     [
                         html.I(className="fas fa-info-circle me-2"),
-                        "No charts added yet. Select a chart and click 'Add Chart'.",
+                        "No charts added yet. Select a predefined chart or create a custom chart.",
                     ],
                     color="info",
                     className="text-center",
@@ -442,7 +470,9 @@ def _register_chart_rendering_callback(
 
             try:
                 chart_component = chart.render(filter_values or {})
-                rendered.append(_create_chart_wrapper(chart_id, chart.title, chart_component))
+                # Custom charts (created via modal) are editable
+                is_editable = chart.config.name.startswith("custom-") if chart.config else False
+                rendered.append(_create_chart_wrapper(chart_id, chart.title, chart_component, is_editable))
             except Exception as e:
                 rendered.append(
                     dbc.Alert(
@@ -496,14 +526,14 @@ def _register_pattern_matching_callbacks(
     @dash_app.callback(
         Output({"type": "chart-content", "index": MATCH}, "children"),
         Input({"type": "chart-refresh", "index": MATCH}, "n_clicks"),
-        State({"type": "chart-wrdash_apper", "index": MATCH}, "id"),
+        State({"type": "chart-wrapper", "index": MATCH}, "id"),
         prevent_initial_call=True,
     )
-    def refresh_single_chart(n_clicks: int, wrdash_apper_id: dict | None):
+    def refresh_single_chart(n_clicks: int, wrapper_id: dict | None):
         if not n_clicks:
             return no_update
 
-        chart_id = wrdash_apper_id.get("index") if wrdash_apper_id else None
+        chart_id = wrapper_id.get("index") if wrapper_id else None
         if not chart_id:
             return no_update
 
@@ -560,9 +590,10 @@ def _register_chart_modal_callbacks(
 ) -> None:
     """Register callbacks for the chart creation modal."""
 
-    # Open/close modal
+    # Open/close modal (for create button only)
     @dash_app.callback(
         Output(f"{prefix}-create-chart-modal", "is_open"),
+        Output(f"{prefix}-edit-chart-id", "data"),
         Input(f"{prefix}-open-create-chart-modal-btn", "n_clicks"),
         Input(f"{prefix}-modal-cancel-btn", "n_clicks"),
         Input(f"{prefix}-modal-create-btn", "n_clicks"),
@@ -572,11 +603,112 @@ def _register_chart_modal_callbacks(
     def toggle_modal(open_clicks, cancel_clicks, create_clicks, is_open):
         triggered = ctx.triggered_id
         if triggered == f"{prefix}-open-create-chart-modal-btn":
-            return True
+            # Opening for new chart creation - clear edit mode
+            return True, None
         if triggered == f"{prefix}-modal-cancel-btn":
-            return False
+            return False, None
         # Modal will be closed by create callback if successful
-        return is_open
+        return is_open, no_update
+
+    # Update modal title and button based on edit mode
+    @dash_app.callback(
+        Output(f"{prefix}-modal-title", "children"),
+        Output(f"{prefix}-modal-create-btn", "children"),
+        Input(f"{prefix}-edit-chart-id", "data"),
+        prevent_initial_call=False,
+    )
+    def update_modal_mode(edit_chart_id):
+        if edit_chart_id:
+            return (
+                [html.I(className="fas fa-edit me-2"), "Edit Chart"],
+                [html.I(className="fas fa-save me-2"), "Save Changes"],
+            )
+        return (
+            [html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
+            [html.I(className="fas fa-plus me-2"), "Create Chart"],
+        )
+
+    # Handle edit button click - open modal and populate with chart config from store
+    @dash_app.callback(
+        Output(f"{prefix}-create-chart-modal", "is_open", allow_duplicate=True),
+        Output(f"{prefix}-edit-chart-id", "data", allow_duplicate=True),
+        Output(f"{prefix}-modal-chart-title", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-chart-type", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-x-field", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-x-label", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-color-field", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-aggregation", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-y-field", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-y-label", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-show-legend", "value", allow_duplicate=True),
+        Output(f"{prefix}-modal-show-grid", "value", allow_duplicate=True),
+        Output(f"{prefix}-color-by-collapse", "is_open", allow_duplicate=True),
+        Input({"type": "chart-edit", "index": ALL}, "n_clicks"),
+        State({"type": "chart-edit", "index": ALL}, "id"),
+        State(f"{prefix}-chart-configs-store", "data"),
+        prevent_initial_call=True,
+    )
+    def handle_edit_button(n_clicks_list, id_list, chart_configs):
+        """Handle edit button clicks - loads chart config from the store."""
+        # Find which button was clicked
+        if not n_clicks_list or not any(n_clicks_list):
+            return (no_update,) * 13
+
+        # Find the clicked button
+        for i, n_clicks in enumerate(n_clicks_list):
+            if n_clicks:
+                chart_id = id_list[i]["index"]
+
+                # Get chart config from the store (populated on dashboard load or chart create/update)
+                config_dict = (chart_configs or {}).get(chart_id)
+
+                if not config_dict:
+                    # Fall back to in-memory registry if not in store
+                    chart_instance = chart_registry.get(chart_id)
+                    if chart_instance:
+                        config_dict = chart_instance.config.to_dict()
+
+                if not config_dict:
+                    return (no_update,) * 13
+
+                # Extract values from config dict
+                chart_title = config_dict.get("title", "")
+                chart_type = config_dict.get("chart_type")
+                x_axis = config_dict.get("x_axis", {})
+                x_field = x_axis.get("field") if x_axis else None
+                x_label = x_axis.get("label", "") if x_axis else ""
+                color_axis = config_dict.get("color_axis")
+                color_field = color_axis.get("field") if color_axis else None
+
+                # Get aggregation value from y_axis
+                y_axis = config_dict.get("y_axis", {})
+                aggregation = y_axis.get("aggregation", "count") if y_axis else "count"
+                y_field = y_axis.get("field") if y_axis and y_axis.get("field") != "count" else None
+                y_label = y_axis.get("label", "") if y_axis else ""
+
+                show_legend = config_dict.get("show_legend", True)
+                show_grid = config_dict.get("show_grid", True)
+
+                # Determine if color_by section should be open
+                color_by_open = color_field is not None
+
+                return (
+                    True,  # Open modal
+                    chart_id,  # Set edit chart ID
+                    chart_title,
+                    chart_type,
+                    x_field,
+                    x_label,
+                    color_field,
+                    aggregation,
+                    y_field,
+                    y_label,
+                    show_legend,
+                    show_grid,
+                    color_by_open,
+                )
+
+        return (no_update,) * 13
 
     # Generate filter UI components dynamically based on filter specs
     @dash_app.callback(
@@ -742,7 +874,9 @@ def _register_chart_modal_callbacks(
 
                 children = [filter_component]
                 if component_type != "checkbox":
-                    children.insert(0, dbc.Label(spec["label"], className="fw-bold small"))
+                    # Use html.Div with styling instead of dbc.Label to avoid html_for warning
+                    # (pattern-matching IDs can't be used with html_for)
+                    children.insert(0, html.Div(spec["label"], className="fw-bold small mb-1"))
                 if spec.get("help_text"):
                     children.append(html.Small(spec["help_text"], className="text-muted"))
 
@@ -889,7 +1023,7 @@ def _register_chart_modal_callbacks(
 
     # Auto-fill X-axis label when field is selected
     @dash_app.callback(
-        Output(f"{prefix}-modal-x-label", "value"),
+        Output(f"{prefix}-modal-x-label", "value", allow_duplicate=True),
         Input(f"{prefix}-modal-x-field", "value"),
         State(f"{prefix}-available-fields", "data"),
         State(f"{prefix}-modal-x-label", "value"),
@@ -942,12 +1076,15 @@ def _register_chart_modal_callbacks(
             return new_state, icon_class
         return is_open, "fas fa-chevron-right me-2"
 
-    # Create chart from modal
+    # Create or update chart from modal
     @dash_app.callback(
         Output(f"{prefix}-active-charts-store", "data", allow_duplicate=True),
         Output(f"{prefix}-create-chart-modal", "is_open", allow_duplicate=True),
         Output(f"{prefix}-modal-validation-alert", "is_open"),
         Output(f"{prefix}-modal-validation-alert", "children"),
+        Output(f"{prefix}-edit-chart-id", "data", allow_duplicate=True),
+        Output(f"{prefix}-render-trigger", "data", allow_duplicate=True),
+        Output(f"{prefix}-chart-configs-store", "data", allow_duplicate=True),
         Input(f"{prefix}-modal-create-btn", "n_clicks"),
         State(f"{prefix}-modal-chart-title", "value"),
         State(f"{prefix}-modal-chart-type", "value"),
@@ -963,9 +1100,12 @@ def _register_chart_modal_callbacks(
         State(f"{prefix}-filter-store", "data"),
         State({"type": f"{prefix}-modal-filter", "field": ALL}, "value"),
         State(f"{prefix}-filter-specs", "data"),
+        State(f"{prefix}-edit-chart-id", "data"),
+        State(f"{prefix}-render-trigger", "data"),
+        State(f"{prefix}-chart-configs-store", "data"),
         prevent_initial_call=True,
     )
-    def create_custom_chart(
+    def create_or_update_chart(
         n_clicks,
         title,
         chart_type,
@@ -981,9 +1121,14 @@ def _register_chart_modal_callbacks(
         current_filter_values,
         modal_filter_values,
         filter_specs,
+        edit_chart_id,
+        render_trigger,
+        chart_configs,
     ):
         if not n_clicks:
-            return no_update, no_update, False, ""
+            return no_update, no_update, False, "", no_update, no_update, no_update
+
+        is_edit_mode = edit_chart_id is not None
 
         # Validation
         errors = []
@@ -997,10 +1142,16 @@ def _register_chart_modal_callbacks(
             errors.append("Stacked Bar chart requires a 'Color By' field for stacking.")
 
         if errors:
-            return no_update, no_update, True, html.Ul([html.Li(e) for e in errors])
+            return no_update, no_update, True, html.Ul([html.Li(e) for e in errors]), no_update, no_update, no_update
 
         # Create the chart configuration
-        chart_id = uuid4()
+        # Use existing ID if editing, otherwise generate new
+        if is_edit_mode:
+            from uuid import UUID as UUIDType
+
+            chart_id = UUIDType(edit_chart_id) if isinstance(edit_chart_id, str) else edit_chart_id
+        else:
+            chart_id = uuid4()
 
         x_axis = AxisConfig(
             field=x_field,
@@ -1069,10 +1220,19 @@ def _register_chart_modal_callbacks(
 
         chart_instance = ChartFactory.create_chart(chart_config, data_service)
 
-        # Register the chart
-        chart_registry.register(chart_instance)
+        # Update chart configs store with the new/updated chart config
+        updated_chart_configs = dict(chart_configs or {})
+        updated_chart_configs[chart_instance.id] = chart_config.to_dict()
 
-        # Add to active charts
-        new_active_charts = (active_charts or []) + [chart_instance.id]
-
-        return new_active_charts, False, False, ""
+        if is_edit_mode:
+            # Update existing chart
+            chart_registry.update(chart_instance)
+            # Trigger re-render by incrementing render_trigger
+            new_render_trigger = (render_trigger or 0) + 1
+            return active_charts, False, False, "", None, new_render_trigger, updated_chart_configs
+        else:
+            # Register new chart
+            chart_registry.register(chart_instance)
+            # Add to active charts
+            new_active_charts = (active_charts or []) + [chart_instance.id]
+            return new_active_charts, False, False, "", None, no_update, updated_chart_configs
