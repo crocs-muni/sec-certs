@@ -46,7 +46,7 @@ class UserExistsError(Exception):
 
 
 class User(UserMixin):
-    ROLES = ["admin", "chat"]
+    ROLES = ["admin", "chat", "dashboard"]
 
     def __init__(
         self,
