@@ -210,6 +210,8 @@ class DataService:
         """Get unique values for a field from MongoDB.
 
         This is used to populate filter dropdowns in the chart creation modal.
+        For special derived fields like 'year_from', it extracts years from the
+        source date field.
 
         :param collection_type: The collection to query (CC or FIPS)
         :param field: MongoDB field path (e.g., 'category', 'web_data.level')
@@ -225,6 +227,10 @@ class DataService:
             raise ValueError(f"Unsupported collection type: {collection_type}")
 
         try:
+            # Handle derived year field
+            if field == "year_from":
+                return self._get_unique_years(collection, collection_type)
+
             distinct_values = collection.distinct(field)
             # Filter out None and empty values, then sort
             values = [v for v in distinct_values if v is not None and v != ""]
@@ -235,6 +241,37 @@ class DataService:
                 return values
         except Exception as e:
             logger.warning(f"Error getting unique values for field '{field}': {e}")
+            return []
+
+    def _get_unique_years(self, collection: Any, collection_type: CollectionName) -> list[int]:
+        """Extract unique years from the appropriate date field.
+
+        Handles dates stored as serialized dictionaries with format:
+        {"_type": "date", "_value": "YYYY-MM-DD"}
+
+        :param collection: MongoDB collection
+        :param collection_type: Type of collection (CC or FIPS)
+        :return: Sorted list of unique years
+        """
+        # Determine the source date field based on collection type
+        if collection_type == CollectionName.CommonCriteria:
+            date_field = "not_valid_before"
+        else:  # FIPS
+            date_field = "web_data.date_validation"
+
+        try:
+            # Dates are stored as {"_type": "date", "_value": "YYYY-MM-DD"}
+            # Extract year from the _value string (first 4 characters)
+            pipeline = [
+                {"$match": {f"{date_field}._value": {"$exists": True, "$ne": None}}},
+                {"$group": {"_id": {"$toInt": {"$substr": [f"${date_field}._value", 0, 4]}}}},
+                {"$sort": {"_id": 1}},
+            ]
+            result = list(collection.aggregate(pipeline))
+            years = [doc["_id"] for doc in result if doc["_id"] is not None]
+            return years
+        except Exception as e:
+            logger.warning(f"Error extracting unique years: {e}")
             return []
 
     def get_distinct_values_with_labels(
