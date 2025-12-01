@@ -52,13 +52,12 @@ def _register_modal_toggle(dash_app: "Dash", prefix: str) -> None:
         ),
         inputs=dict(
             open_clicks=Input(f"{prefix}-open-create-chart-modal-btn", "n_clicks"),
-            create_clicks=Input(f"{prefix}-modal-create-btn", "n_clicks"),
             cancel_clicks=Input(f"{prefix}-modal-cancel-btn", "n_clicks"),
         ),
         state=dict(is_open=State(f"{prefix}-create-chart-modal", "is_open")),
         prevent_initial_call=True,
     )
-    def toggle_modal(open_clicks, create_clicks, cancel_clicks, is_open):
+    def toggle_modal(open_clicks, cancel_clicks, is_open):
         triggered = ctx.triggered_id
         if triggered == f"{prefix}-open-create-chart-modal-btn":
             return dict(is_open=True, edit_id=None)

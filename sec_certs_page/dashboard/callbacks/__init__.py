@@ -38,6 +38,7 @@ def register_all_callbacks(
             dash_app=dash_app,
             prefix=prefix,
             chart_registry=chart_registry,
+            data_service=data_service,
         )
 
         register_filter_callbacks(
