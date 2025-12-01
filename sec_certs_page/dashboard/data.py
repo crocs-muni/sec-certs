@@ -305,9 +305,16 @@ class DataService:
         if "dgst" in df.columns:
             df = df.set_index("dgst")
 
+        # Handle date fields stored as {'_type': 'date', '_value': '...'} dicts
         if "not_valid_before" in df.columns:
+            df["not_valid_before"] = df["not_valid_before"].apply(
+                lambda x: x.get("_value") if isinstance(x, dict) and "_value" in x else x
+            )
             df["not_valid_before"] = pd.to_datetime(df["not_valid_before"], errors="coerce")
         if "not_valid_after" in df.columns:
+            df["not_valid_after"] = df["not_valid_after"].apply(
+                lambda x: x.get("_value") if isinstance(x, dict) and "_value" in x else x
+            )
             df["not_valid_after"] = pd.to_datetime(df["not_valid_after"], errors="coerce")
 
         if "heuristics" in df.columns:

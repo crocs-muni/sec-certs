@@ -211,16 +211,30 @@ def build_chart_pipeline(
 
 
 # Mapping of derived fields to their source fields and extraction expressions
-# Dates are stored as {"_type": "date", "_value": "YYYY-MM-DD"}
+# Handles both:
+# 1. Serialized dates stored as {"_type": "date", "_value": "YYYY-MM-DD"}
+# 2. Native MongoDB ISODate objects
 DERIVED_FIELD_EXPRESSIONS: dict[str, dict[str, Any]] = {
     "year_from": {
         "source": "not_valid_before",
-        # Extract year (first 4 chars) from the _value field and convert to int
-        "expression": {"$toInt": {"$substr": ["$not_valid_before._value", 0, 4]}},
+        # Use $year for ISODate, fallback to $substr for serialized format
+        "expression": {
+            "$cond": {
+                "if": {"$eq": [{"$type": "$not_valid_before"}, "date"]},
+                "then": {"$year": "$not_valid_before"},
+                "else": {"$toInt": {"$substr": ["$not_valid_before._value", 0, 4]}},
+            }
+        },
     },
     "year_to": {
         "source": "not_valid_after",
-        "expression": {"$toInt": {"$substr": ["$not_valid_after._value", 0, 4]}},
+        "expression": {
+            "$cond": {
+                "if": {"$eq": [{"$type": "$not_valid_after"}, "date"]},
+                "then": {"$year": "$not_valid_after"},
+                "else": {"$toInt": {"$substr": ["$not_valid_after._value", 0, 4]}},
+            }
+        },
     },
 }
 
