@@ -2,11 +2,12 @@
 Dash callback registration for the dashboard system.
 """
 
+from datetime import date, datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import dash_bootstrap_components as dbc
-from dash import ALL, MATCH, ctx, html, no_update
+from dash import ALL, MATCH, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 from flask_login import current_user
@@ -584,84 +585,259 @@ def _register_chart_modal_callbacks(
         prevent_initial_call=False,
     )
     def generate_modal_filter_ui(filter_specs):
-        """Generate filter dropdowns for the chart creation modal."""
-        import dash_bootstrap_components as dbc
-        from dash import dcc, html
-
+        """Generate filter components for the chart creation modal based on component type."""
         if not filter_specs:
             return html.P("No filters available.", className="text-muted")
 
-        filter_rows = []
-        # Create 2 filters per row
-        for i in range(0, len(filter_specs), 2):
-            row_specs = filter_specs[i : i + 2]
-            cols = []
-            for spec in row_specs:
-                # Create a dropdown for each filter
-                cols.append(
-                    dbc.Col(
-                        width=12,
-                        md=6,
-                        children=[
-                            dbc.Label(spec["label"], className="fw-bold small"),
-                            dcc.Dropdown(
-                                id={"type": "modal-filter", "field": spec["field"]},
-                                options=[],  # Will be populated by another callback
-                                placeholder=spec.get("placeholder") or f"Select {spec['label']}...",
-                                multi=True,
-                                clearable=True,
-                                className="dash-bootstrap",
-                            ),
-                            (
-                                html.Small(
-                                    spec.get("help_text") or "",
-                                    className="text-muted",
-                                )
-                                if spec.get("help_text")
-                                else None
-                            ),
-                        ],
-                        className="mb-2",
-                    )
+        def create_filter_component(spec: dict, field_id: dict) -> Component:
+            """Create appropriate filter component based on type."""
+            component_type = spec.get("component_type", "dropdown")
+            placeholder = spec.get("placeholder") or f"Select {spec['label']}..."
+
+            if component_type == "text_search":
+                return html.Div(
+                    className="d-flex gap-2 align-items-center",
+                    children=[
+                        dbc.Input(
+                            id=field_id,
+                            type="text",
+                            placeholder=spec.get("placeholder") or f"Search {spec['label']}...",
+                            className="flex-grow-1",
+                        ),
+                        dbc.Button(
+                            html.I(className="fas fa-times"),
+                            id={"type": f"{prefix}-clear-filter", "field": spec["id"]},
+                            color="secondary",
+                            outline=True,
+                            size="sm",
+                            className="px-2",
+                            title="Clear",
+                        ),
+                    ],
                 )
+            if component_type == "date_picker":
+                return html.Div(
+                    className="d-flex gap-2 align-items-center",
+                    children=[
+                        html.Div(
+                            className="date-picker-wrapper flex-grow-1",
+                            children=[
+                                html.I(className="fas fa-calendar-alt date-picker-icon"),
+                                dcc.DatePickerSingle(
+                                    id=field_id,
+                                    placeholder=spec.get("placeholder") or "DD-MM-YYYY",
+                                    display_format="DD-MM-YYYY",
+                                    className="dash-bootstrap",
+                                    show_outside_days=True,
+                                    stay_open_on_select=True,
+                                    number_of_months_shown=2,
+                                    with_portal=False,
+                                    first_day_of_week=1,
+                                    min_date_allowed="1990-01-01",
+                                    max_date_allowed="2030-12-31",
+                                    initial_visible_month=date.today().isoformat(),
+                                ),
+                            ],
+                        ),
+                        dbc.Button(
+                            html.I(className="fas fa-times"),
+                            id={"type": f"{prefix}-clear-filter", "field": spec["id"]},
+                            color="secondary",
+                            outline=True,
+                            size="sm",
+                            className="px-2",
+                            title="Clear",
+                        ),
+                    ],
+                )
+            if component_type == "date_range":
+                return html.Div(
+                    className="d-flex gap-2 align-items-center",
+                    children=[
+                        html.Div(
+                            className="date-picker-wrapper date-range-wrapper flex-grow-1",
+                            children=[
+                                html.I(className="fas fa-calendar-alt date-picker-icon"),
+                                dcc.DatePickerRange(
+                                    id=field_id,
+                                    display_format="DD-MM-YYYY",
+                                    className="dash-bootstrap",
+                                    show_outside_days=True,
+                                    number_of_months_shown=1,
+                                    with_portal=False,
+                                    first_day_of_week=1,
+                                    min_date_allowed="1990-01-01",
+                                    max_date_allowed="2030-12-31",
+                                    initial_visible_month=date.today().isoformat(),
+                                ),
+                            ],
+                        ),
+                        dbc.Button(
+                            html.I(className="fas fa-times"),
+                            id={"type": f"{prefix}-clear-filter", "field": spec["field"]},
+                            color="secondary",
+                            outline=True,
+                            size="sm",
+                            className="px-2",
+                            title="Clear",
+                        ),
+                    ],
+                )
+            if component_type == "checkbox":
+                return dbc.Checkbox(id=field_id, label=spec["label"])
+
+            # Default: dropdown or multi_dropdown
+            if component_type == "multi_dropdown":
+                # Multi-select with Select All / Clear buttons
+                return html.Div(
+                    children=[
+                        dcc.Dropdown(
+                            id=field_id,
+                            options=[],
+                            placeholder=placeholder,
+                            multi=True,
+                            clearable=True,
+                            className="dash-bootstrap",
+                        ),
+                        html.Div(
+                            className="mt-1 d-flex gap-1",
+                            children=[
+                                dbc.Button(
+                                    "Select All",
+                                    id={"type": f"{prefix}-select-all-filter", "field": spec["id"]},
+                                    color="link",
+                                    size="sm",
+                                    className="p-0 text-decoration-none",
+                                ),
+                                html.Span("·", className="text-muted"),
+                                dbc.Button(
+                                    "Clear",
+                                    id={"type": f"{prefix}-clear-filter", "field": spec["id"]},
+                                    color="link",
+                                    size="sm",
+                                    className="p-0 text-decoration-none",
+                                ),
+                            ],
+                        ),
+                    ],
+                )
+
+            # Single-select dropdown
+            return dcc.Dropdown(
+                id=field_id,
+                options=[],
+                placeholder=placeholder,
+                multi=False,
+                clearable=True,
+                className="dash-bootstrap",
+            )
+
+        filter_rows = []
+        for i in range(0, len(filter_specs), 2):
+            cols = []
+            for spec in filter_specs[i : i + 2]:
+                component_type = spec.get("component_type", "dropdown")
+                field_id = {"type": f"{prefix}-modal-filter", "field": spec["id"]}
+                filter_component = create_filter_component(spec, field_id)
+
+                children = [filter_component]
+                if component_type != "checkbox":
+                    children.insert(0, dbc.Label(spec["label"], className="fw-bold small"))
+                if spec.get("help_text"):
+                    children.append(html.Small(spec["help_text"], className="text-muted"))
+
+                cols.append(dbc.Col(width=12, md=6, children=children, className="mb-2"))
+
             filter_rows.append(dbc.Row(cols, className="g-2"))
 
         return filter_rows
 
     # Populate modal filter options (for each dynamic filter dropdown)
     @dash_app.callback(
-        Output({"type": "modal-filter", "field": ALL}, "options"),
+        Output({"type": f"{prefix}-modal-filter", "field": ALL}, "options"),
         Input(f"{prefix}-filter-specs", "data"),
         prevent_initial_call=False,
     )
     def populate_modal_filter_options(filter_specs):
-        """Populate options for all modal filter dropdowns."""
+        """Populate options for all modal filter dropdowns.
+
+        Adds an "All" option at the top for categorical dropdowns to make
+        it easy to clear the filter selection.
+        """
         if not filter_specs:
             return []
 
         options_list = []
         for spec in filter_specs:
             field = spec["field"]
+            operator = spec.get("operator", "")
+            component_type = spec.get("component_type", "dropdown")
+
+            # Only populate options for dropdown types
+            if component_type not in ("dropdown", "multi_dropdown"):
+                options_list.append([])
+                continue
+
             # Get unique values for this field from the data service
             try:
-                unique_values = data_service.get_unique_values(dataset_type, field)
+                # Special handling for YEAR_IN operator - get years, not raw field values
+                if operator == "$year_in":
+                    unique_values = data_service.get_unique_values(dataset_type, "year_from")
+                else:
+                    unique_values = data_service.get_unique_values(dataset_type, field)
+
                 options = [{"label": str(v), "value": v} for v in unique_values if v is not None]
+
+                # Add "All" option at the top for single-select dropdowns
+                # For multi-select, clearing is done via the clearable X button
+                if component_type == "dropdown" and options:
+                    options.insert(0, {"label": "── Not selected ──", "value": "__all__"})
+
                 options_list.append(options)
             except Exception:
                 options_list.append([])
 
         return options_list
 
+    # Clear filter button callback - clears the corresponding filter value
+    @dash_app.callback(
+        Output({"type": f"{prefix}-modal-filter", "field": MATCH}, "value"),
+        Input({"type": f"{prefix}-clear-filter", "field": MATCH}, "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def clear_filter_value(n_clicks):
+        """Clear filter value when clear button is clicked."""
+        if n_clicks:
+            return None
+        return no_update
+
+    # Select All button callback - selects all available options for multi-select
+    @dash_app.callback(
+        Output({"type": f"{prefix}-modal-filter", "field": MATCH}, "value", allow_duplicate=True),
+        Input({"type": f"{prefix}-select-all-filter", "field": MATCH}, "n_clicks"),
+        State({"type": f"{prefix}-modal-filter", "field": MATCH}, "options"),
+        prevent_initial_call=True,
+    )
+    def select_all_filter_values(n_clicks, options):
+        """Select all available options when Select All button is clicked."""
+        if n_clicks and options:
+            # Extract all values from options (skip any special values like __all__)
+            all_values = [opt["value"] for opt in options if opt.get("value") != "__all__"]
+            return all_values
+        return no_update
+
     # Populate X-axis field dropdown from available fields
     @dash_app.callback(
         Output(f"{prefix}-modal-x-field", "options"),
+        Output(f"{prefix}-modal-color-field", "options"),
         Input(f"{prefix}-available-fields", "data"),
         prevent_initial_call=False,
     )
-    def populate_x_field_options(available_fields):
+    def populate_axis_field_options(available_fields):
         if not available_fields:
-            return []
-        return [{"label": f["label"], "value": f["value"]} for f in available_fields]
+            return [], []
+        options = [{"label": f["label"], "value": f["value"]} for f in available_fields]
+        return options, options
 
     # Update aggregation options based on selected X-field data type
     @dash_app.callback(
@@ -730,6 +906,42 @@ def _register_chart_modal_callbacks(
 
         return ""
 
+    # Show help text for chart type selection
+    @dash_app.callback(
+        Output(f"{prefix}-chart-type-help", "children"),
+        Input(f"{prefix}-modal-chart-type", "value"),
+        prevent_initial_call=False,
+    )
+    def show_chart_type_help(chart_type):
+        """Show contextual help for selected chart type."""
+        if chart_type == "stacked_bar":
+            return dbc.Alert(
+                [
+                    html.I(className="fas fa-info-circle me-2"),
+                    "Stacked Bar requires a ",
+                    html.Strong("Color By"),
+                    " field to stack values. Expand 'Secondary Grouping' below.",
+                ],
+                color="info",
+                className="mb-0 py-2 small",
+            )
+        return None
+
+    # Toggle Color By collapse section
+    @dash_app.callback(
+        Output(f"{prefix}-color-by-collapse", "is_open"),
+        Output(f"{prefix}-color-by-icon", "className"),
+        Input(f"{prefix}-color-by-toggle", "n_clicks"),
+        State(f"{prefix}-color-by-collapse", "is_open"),
+        prevent_initial_call=True,
+    )
+    def toggle_color_by_section(n_clicks, is_open):
+        if n_clicks:
+            new_state = not is_open
+            icon_class = "fas fa-chevron-down me-2" if new_state else "fas fa-chevron-right me-2"
+            return new_state, icon_class
+        return is_open, "fas fa-chevron-right me-2"
+
     # Create chart from modal
     @dash_app.callback(
         Output(f"{prefix}-active-charts-store", "data", allow_duplicate=True),
@@ -741,6 +953,7 @@ def _register_chart_modal_callbacks(
         State(f"{prefix}-modal-chart-type", "value"),
         State(f"{prefix}-modal-x-field", "value"),
         State(f"{prefix}-modal-x-label", "value"),
+        State(f"{prefix}-modal-color-field", "value"),
         State(f"{prefix}-modal-aggregation", "value"),
         State(f"{prefix}-modal-y-field", "value"),
         State(f"{prefix}-modal-y-label", "value"),
@@ -748,7 +961,7 @@ def _register_chart_modal_callbacks(
         State(f"{prefix}-modal-show-grid", "value"),
         State(f"{prefix}-active-charts-store", "data"),
         State(f"{prefix}-filter-store", "data"),
-        State({"type": "modal-filter", "field": ALL}, "value"),
+        State({"type": f"{prefix}-modal-filter", "field": ALL}, "value"),
         State(f"{prefix}-filter-specs", "data"),
         prevent_initial_call=True,
     )
@@ -758,6 +971,7 @@ def _register_chart_modal_callbacks(
         chart_type,
         x_field,
         x_label,
+        color_field,
         aggregation,
         y_field,
         y_label,
@@ -779,6 +993,8 @@ def _register_chart_modal_callbacks(
             errors.append("X-axis field is required.")
         if aggregation != AggregationType.COUNT.value and not y_field:
             errors.append("Y-axis field is required for non-COUNT aggregations.")
+        if chart_type == "stacked_bar" and not color_field:
+            errors.append("Stacked Bar chart requires a 'Color By' field for stacking.")
 
         if errors:
             return no_update, no_update, True, html.Ul([html.Li(e) for e in errors])
@@ -806,13 +1022,25 @@ def _register_chart_modal_callbacks(
                 aggregation=AggregationType.COUNT,
             )
 
+        # Create color axis for secondary grouping (Color By)
+        color_axis_config = None
+        if color_field:
+            color_axis_config = AxisConfig(
+                field=color_field,
+                label=color_field,
+            )
+
         # Collect chart-specific filter values from the modal
         chart_filter_values = {}
         if filter_specs and modal_filter_values:
             for i, spec in enumerate(filter_specs):
                 if i < len(modal_filter_values) and modal_filter_values[i]:
+                    value = modal_filter_values[i]
+                    # Skip "__all__" values (means no filter)
+                    if value == "__all__":
+                        continue
                     # Use filter ID as key (matches what build_query_from_filters expects)
-                    chart_filter_values[spec["id"]] = modal_filter_values[i]
+                    chart_filter_values[spec["id"]] = value
 
         # Combine dashboard-level filters with chart-specific filters
         # Chart filters take precedence if there's overlap
@@ -826,6 +1054,7 @@ def _register_chart_modal_callbacks(
             collection_type=dataset_type,
             x_axis=x_axis,
             y_axis=y_axis,
+            color_axis=color_axis_config,
             show_legend=show_legend if show_legend is not None else True,
             show_grid=show_grid if show_grid is not None else True,
             filter_values=chart_filter_values,  # Store chart-specific filters
