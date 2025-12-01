@@ -1,4 +1,5 @@
 /* Dashboard-specific styles to match site theme */
+/* System uses Bootstrap 5 so if it would use Tailwind CSS, styles would collide */
 
 /* ============================================
    Dashed border for empty state cards
@@ -107,8 +108,8 @@
 }
 
 /* Multi-select tags - consistent height and truncation */
-.dash-bootstrap .Select-value,
-.dash-dropdown .Select-value {
+.dash-bootstrap .Select--multi .Select-value,
+.dash-dropdown .Select--multi .Select-value {
     max-width: 180px;
     height: 24px !important;
     line-height: 22px !important;
@@ -117,8 +118,8 @@
     overflow: hidden;
 }
 
-.dash-bootstrap .Select-value-label,
-.dash-dropdown .Select-value-label {
+.dash-bootstrap .Select--multi .Select-value-label,
+.dash-dropdown .Select--multi .Select-value-label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -478,34 +479,8 @@
 /* ============================================
    Chart container styling
    ============================================ */
-.chart-wrapper {
-    min-height: 300px;
-}
-
 .chart-wrapper .card-body {
     padding: 1rem;
-}
-
-/* Plotly chart responsive sizing */
-.js-plotly-plot,
-.plotly {
-    width: 100% !important;
-}
-
-/* ============================================
-   Button group styling for chart controls
-   ============================================ */
-.btn-group-sm > .btn {
-    padding: 0.25rem 0.5rem;
-}
-
-/* ============================================
-   Alert styling within dashboard
-   ============================================ */
-.dash-alert {
-    border-radius: 0.375rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
 }
 
 /* ============================================
