@@ -628,20 +628,32 @@ def _register_chart_creation(
 
         from ..chart.factory import ChartFactory
 
+        # When editing, we need to ensure the chart ID matches exactly
+        # Override the graph_id in the created instance to use edit_chart_id
         chart_instance = ChartFactory.create_chart(chart_config, data_service)
+        if is_edit_mode and edit_chart_id:
+            chart_instance.graph_id = edit_chart_id
 
         updated_chart_configs = dict(chart_configs or {})
         updated_chart_configs[chart_instance.id] = chart_config.to_dict()
 
         if is_edit_mode:
             chart_registry.update(chart_instance)
+            # Replace the chart in the active list to force a re-render
+            updated_active_charts = list(active_charts or [])
+            if edit_chart_id in updated_active_charts:
+                idx = updated_active_charts.index(edit_chart_id)
+                updated_active_charts[idx] = chart_instance.id
+            else:
+                # Chart not in list (shouldn't happen, but add it to be safe)
+                updated_active_charts.append(chart_instance.id)
             return dict(
-                active_charts=active_charts,
+                active_charts=updated_active_charts,
                 modal_open=False,
                 alert_open=False,
                 alert_children="",
                 edit_id=None,
-                render_trigger=(render_trigger or 0) + 1,
+                render_trigger=no_update,
                 chart_configs=updated_chart_configs,
             )
         else:

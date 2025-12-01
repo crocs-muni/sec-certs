@@ -114,13 +114,11 @@ def _register_chart_rendering(
         inputs=dict(
             chart_ids=Input(f"{prefix}-active-charts-store", "data"),
             render_trigger=Input(f"{prefix}-render-trigger", "data"),
+            chart_configs=Input(f"{prefix}-chart-configs-store", "data"),
         ),
-        state=dict(
-            filter_values=State(f"{prefix}-filter-store", "data"),
-            chart_configs=State(f"{prefix}-chart-configs-store", "data"),
-        ),
+        state=dict(filter_values=State(f"{prefix}-filter-store", "data")),
     )
-    def render_charts(chart_ids, render_trigger, filter_values, chart_configs):
+    def render_charts(chart_ids, render_trigger, chart_configs, filter_values):
         if not chart_ids:
             return dict(
                 children=[
@@ -146,6 +144,7 @@ def _register_chart_rendering(
                     config_dict = chart_configs[chart_id]
                     chart_config = Chart.from_dict(config_dict)
                     chart = ChartFactory.create_chart(chart_config, data_service)
+                    chart.graph_id = chart_id
                     chart_registry.update(chart)
                 except Exception as e:
                     rendered.append(

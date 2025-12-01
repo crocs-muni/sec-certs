@@ -238,7 +238,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     :return: Modal component for chart creation
     """
     chart_type_options = [
-        {"label": ct.value.title(), "value": ct.value if "_" not in ct.value else ct.value.replace("_", " ")}
+        {"label": ct.value.title(), "value": ct.value.replace("_", " ") if "_" in ct.value else ct.value}
         for ct in AvailableChartTypes
     ]
 
