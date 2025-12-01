@@ -35,10 +35,11 @@ class FigureBuilder:
         x_field = config.x_axis.field
         y_field = config.y_axis.field if config.y_axis else None
         aggregation = config.y_axis.aggregation if config.y_axis else None
+        color_field = config.color_axis.field if config.color_axis else None
 
         try:
-            agg_df = cls._aggregate_data(df, x_field, y_field, aggregation)
-            fig = cls._create_chart_by_type(config, agg_df, x_field, y_field or "count")
+            agg_df = cls._aggregate_data(df, x_field, y_field, aggregation, color_field)
+            fig = cls._create_chart_by_type(config, agg_df, x_field, y_field or "count", color_field)
             fig.update_layout(
                 showlegend=config.show_legend,
                 template="plotly_white",
@@ -57,6 +58,9 @@ class FigureBuilder:
         aggregation pipeline. It expects the DataFrame to have columns matching
         the x_axis.field and y_axis.label (or 'value' as fallback).
 
+        For charts with color_axis (secondary grouping), the DataFrame should
+        have an additional column for the color dimension.
+
         :param config: Chart configuration with axes and type info
         :param df: DataFrame with pre-aggregated data
         :return: Plotly Figure object
@@ -72,13 +76,18 @@ class FigureBuilder:
         if y_field not in df.columns and "value" in df.columns:
             y_field = "value"
 
+        # Get color field if secondary grouping is used
+        color_field = config.color_axis.field if config.color_axis else None
+
         if x_field not in df.columns:
             return cls._empty_figure(f"Missing column: {x_field}")
         if y_field not in df.columns:
             return cls._empty_figure(f"Missing column: {y_field}")
+        if color_field and color_field not in df.columns:
+            return cls._empty_figure(f"Missing color column: {color_field}")
 
         try:
-            fig = cls._create_chart_by_type(config, df, x_field, y_field)
+            fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field)
             fig.update_layout(
                 showlegend=config.show_legend,
                 template="plotly_white",
@@ -96,24 +105,38 @@ class FigureBuilder:
         x_field: str,
         y_field: str | None,
         aggregation: AggregationType | None,
+        color_field: str | None = None,
     ) -> pd.DataFrame:
-        """Apply aggregation to data."""
+        """Apply aggregation to data.
+
+        :param df: DataFrame with raw data
+        :param x_field: Field to group by (X-axis)
+        :param y_field: Field to aggregate (Y-axis)
+        :param aggregation: Aggregation function to apply
+        :param color_field: Optional secondary grouping field (for multi-series)
+        :return: Aggregated DataFrame
+        """
         if x_field not in df.columns:
             raise ValueError(f"Field '{x_field}' not found in data")
 
+        # Determine grouping columns
+        group_cols = [x_field]
+        if color_field and color_field in df.columns:
+            group_cols.append(color_field)
+
         if y_field and y_field in df.columns:
             if aggregation == AggregationType.SUM:
-                return df.groupby(x_field)[y_field].sum().reset_index()
+                return df.groupby(group_cols)[y_field].sum().reset_index()
             elif aggregation == AggregationType.AVG:
-                return df.groupby(x_field)[y_field].mean().reset_index()
+                return df.groupby(group_cols)[y_field].mean().reset_index()
             elif aggregation == AggregationType.MIN:
-                return df.groupby(x_field)[y_field].min().reset_index()
+                return df.groupby(group_cols)[y_field].min().reset_index()
             elif aggregation == AggregationType.MAX:
-                return df.groupby(x_field)[y_field].max().reset_index()
+                return df.groupby(group_cols)[y_field].max().reset_index()
             else:
-                return df.groupby(x_field).size().reset_index(name="count")
+                return df.groupby(group_cols).size().reset_index(name="count")
         else:
-            return df.groupby(x_field).size().reset_index(name="count")
+            return df.groupby(group_cols).size().reset_index(name="count")
 
     @classmethod
     def _create_chart_by_type(
@@ -122,20 +145,32 @@ class FigureBuilder:
         df: pd.DataFrame,
         x_field: str,
         y_field: str,
+        color_field: str | None = None,
     ) -> go.Figure:
-        """Create chart based on chart type."""
+        """Create chart based on chart type.
+
+        :param config: Chart configuration
+        :param df: DataFrame with data to plot
+        :param x_field: Column name for X-axis
+        :param y_field: Column name for Y-axis
+        :param color_field: Optional column name for color dimension (secondary grouping)
+        :return: Plotly Figure object
+        """
         if config.chart_type == AvailableChartTypes.BAR:
-            return px.bar(df, x=x_field, y=y_field)
+            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="group")
+        elif config.chart_type == AvailableChartTypes.STACKED_BAR:
+            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="stack")
         elif config.chart_type == AvailableChartTypes.LINE:
-            return px.line(df, x=x_field, y=y_field, markers=True)
+            return px.line(df, x=x_field, y=y_field, color=color_field, markers=True)
         elif config.chart_type == AvailableChartTypes.PIE:
+            # Pie charts don't support color dimension in the same way
             return px.pie(df, names=x_field, values=y_field)
         elif config.chart_type == AvailableChartTypes.SCATTER:
-            return px.scatter(df, x=x_field, y=y_field)
+            return px.scatter(df, x=x_field, y=y_field, color=color_field)
         elif config.chart_type == AvailableChartTypes.BOX:
-            return px.box(df, x=x_field, y=y_field)
+            return px.box(df, x=x_field, y=y_field, color=color_field)
         elif config.chart_type == AvailableChartTypes.HISTOGRAM:
-            return px.histogram(df, x=x_field)
+            return px.histogram(df, x=x_field, color=color_field)
         else:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")
 

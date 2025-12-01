@@ -92,11 +92,20 @@ class QueryBuilder:
     def _build_query_fragment(filter_spec: FilterSpec, value: Any) -> dict[str, Any] | None:
         """Build MongoDB query fragment from filter spec and value.
 
+        Only builds a fragment if the value is meaningful (not None, empty string,
+        empty list, or special "__all__" value). This ensures only "active" filters
+        (where user has made a selection) contribute to the query.
+
         :param filter_spec: Filter specification with configuration
         :param value: Filter value to apply
-        :return: MongoDB query fragment or None if value is invalid
+        :return: MongoDB query fragment or None if value is empty/invalid
         """
-        if value is None or (isinstance(value, (list, tuple)) and not value):
+        # Skip empty/null values - only active filters should be included
+        if value is None:
+            return None
+        if isinstance(value, str) and (not value.strip() or value == "__all__"):
+            return None
+        if isinstance(value, (list, tuple)) and not value:
             return None
 
         transformed_value = filter_spec.transform(value) if filter_spec.transform else value
@@ -108,6 +117,22 @@ class QueryBuilder:
                 filter_spec.database_field: {
                     FilterOperator.REGEX.value: transformed_value,
                     "$options": "i",
+                }
+            }
+        elif filter_spec.operator == FilterOperator.YEAR_IN:
+            # Special handling for year extraction from serialized date fields
+            # Dates are stored as {"_type": "date", "_value": "YYYY-MM-DD"}
+            # Extract year from the _value string (first 4 characters) and match
+            if isinstance(transformed_value, (list, tuple)):
+                years = [int(y) for y in transformed_value]
+            else:
+                years = [int(transformed_value)]
+            return {
+                "$expr": {
+                    "$in": [
+                        {"$toInt": {"$substr": [f"${filter_spec.database_field}._value", 0, 4]}},
+                        years,
+                    ]
                 }
             }
         else:
@@ -177,10 +202,22 @@ def build_chart_pipeline(
 def _build_group_stage(chart: "Chart") -> dict[str, Any]:
     """Build the $group stage for aggregation.
 
+    Handles both single-level grouping (just x_axis) and two-level grouping
+    (x_axis + color_axis for stacked/grouped bar charts).
+
     :param chart: Chart configuration
     :return: $group stage dictionary
     """
     x_field = chart.x_axis.field
+
+    # Determine the group _id (single field or compound)
+    if chart.color_axis:
+        # Two-level grouping: group by both x_field and color_field
+        color_field = chart.color_axis.field
+        group_id = {"x": f"${x_field}", "color": f"${color_field}"}
+    else:
+        # Single-level grouping: just x_field
+        group_id = f"${x_field}"
 
     # Determine the aggregation operation
     if chart.y_axis and chart.y_axis.aggregation:
@@ -189,33 +226,33 @@ def _build_group_stage(chart: "Chart") -> dict[str, Any]:
 
         if agg_type == AggregationType.COUNT:
             return {
-                "_id": f"${x_field}",
+                "_id": group_id,
                 "value": {"$sum": 1},
             }
         elif agg_type == AggregationType.SUM:
             return {
-                "_id": f"${x_field}",
+                "_id": group_id,
                 "value": {"$sum": f"${y_field}"},
             }
         elif agg_type == AggregationType.AVG:
             return {
-                "_id": f"${x_field}",
+                "_id": group_id,
                 "value": {"$avg": f"${y_field}"},
             }
         elif agg_type == AggregationType.MIN:
             return {
-                "_id": f"${x_field}",
+                "_id": group_id,
                 "value": {"$min": f"${y_field}"},
             }
         elif agg_type == AggregationType.MAX:
             return {
-                "_id": f"${x_field}",
+                "_id": group_id,
                 "value": {"$max": f"${y_field}"},
             }
 
     # Default: COUNT
     return {
-        "_id": f"${x_field}",
+        "_id": group_id,
         "value": {"$sum": 1},
     }
 
@@ -223,14 +260,28 @@ def _build_group_stage(chart: "Chart") -> dict[str, Any]:
 def _build_project_stage(chart: "Chart") -> dict[str, Any]:
     """Build the $project stage to rename fields for clarity.
 
+    Handles both single-level grouping (just x_axis) and two-level grouping
+    (x_axis + color_axis for stacked/grouped bar charts).
+
     :param chart: Chart configuration
     :return: $project stage dictionary
     """
     x_field = chart.x_axis.field
     y_label = chart.y_axis.label if chart.y_axis else "count"
 
-    return {
-        "_id": 0,
-        x_field: "$_id",
-        y_label: "$value",
-    }
+    if chart.color_axis:
+        # Two-level grouping: extract x and color from compound _id
+        color_field = chart.color_axis.field
+        return {
+            "_id": 0,
+            x_field: "$_id.x",
+            color_field: "$_id.color",
+            y_label: "$value",
+        }
+    else:
+        # Single-level grouping
+        return {
+            "_id": 0,
+            x_field: "$_id",
+            y_label: "$value",
+        }

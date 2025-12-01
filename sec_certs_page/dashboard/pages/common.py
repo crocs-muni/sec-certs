@@ -82,7 +82,7 @@ def create_collection_page_layout(collection: CollectionName, title: str) -> htm
                             html.H1(title, className="mb-2"),
                             dcc.Link(
                                 [html.I(className="fas fa-arrow-left me-2"), "Back to Dashboard Home"],
-                                href=f"{DASHBOARD_URL_BASE_PATHNAME.rstrip('/')}",
+                                href=DASHBOARD_URL_BASE_PATHNAME,
                                 className="text-muted text-decoration-none",
                             ),
                         ],
@@ -282,6 +282,10 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                         clearable=False,
                                         className="dash-bootstrap",
                                     ),
+                                    html.Div(
+                                        id=f"{collection_name}-chart-type-help",
+                                        className="mt-1",
+                                    ),
                                 ],
                             ),
                         ],
@@ -296,7 +300,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width=12,
                                 md=6,
                                 children=[
-                                    dbc.Label("Field", className="fw-bold"),
+                                    dbc.Label("Primary Field", className="fw-bold"),
                                     dcc.Dropdown(
                                         id=f"{collection_name}-modal-x-field",
                                         options=[],  # Populated dynamically from FilterFactory
@@ -315,6 +319,45 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                         type="text",
                                         placeholder="X-axis label (optional)",
                                         value="",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    # Secondary grouping (Color By) - Collapsible
+                    dbc.Button(
+                        [
+                            html.I(className="fas fa-chevron-right me-2", id=f"{collection_name}-color-by-icon"),
+                            "Secondary Grouping (Color By)",
+                        ],
+                        id=f"{collection_name}-color-by-toggle",
+                        color="link",
+                        className="p-0 mb-2 text-decoration-none",
+                    ),
+                    dbc.Collapse(
+                        id=f"{collection_name}-color-by-collapse",
+                        is_open=False,
+                        children=[
+                            dbc.Row(
+                                className="mb-3",
+                                children=[
+                                    dbc.Col(
+                                        width=12,
+                                        md=6,
+                                        children=[
+                                            dbc.Label("Secondary Field (Color By)", className="fw-bold"),
+                                            dcc.Dropdown(
+                                                id=f"{collection_name}-modal-color-field",
+                                                options=[],  # Populated dynamically
+                                                placeholder="Optional: Select field for color grouping...",
+                                                className="dash-bootstrap",
+                                                clearable=True,
+                                            ),
+                                            dbc.FormText(
+                                                "Creates grouped/stacked bars or colored segments.",
+                                                className="text-muted",
+                                            ),
+                                        ],
                                     ),
                                 ],
                             ),
@@ -468,56 +511,64 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
             ),
             dbc.CardBody(
                 children=[
-                    # Predefined charts section
-                    html.H6("Predefined Charts", className="text-muted mb-2"),
                     dbc.Row(
-                        className="g-3 align-items-end mb-4",
+                        className="g-4",
                         children=[
+                            # Left column: Predefined charts
                             dbc.Col(
                                 width=12,
-                                md=6,
-                                lg=4,
+                                lg=6,
                                 children=[
-                                    dbc.Label(
-                                        "Select Predefined Chart",
-                                        html_for=f"{collection_name}-chart-selector",
-                                        className="fw-bold",
-                                    ),
-                                    dcc.Dropdown(
-                                        id=f"{collection_name}-chart-selector",
-                                        options=[],
-                                        placeholder="Select a predefined chart...",
-                                        className="dash-bootstrap",
+                                    html.H6("Predefined Charts", className="text-muted mb-2"),
+                                    dbc.Row(
+                                        className="g-3 align-items-end",
+                                        children=[
+                                            dbc.Col(
+                                                width=12,
+                                                xl=8,
+                                                children=[
+                                                    dbc.Label(
+                                                        "Select Predefined Chart",
+                                                        html_for=f"{collection_name}-chart-selector",
+                                                        className="fw-bold",
+                                                    ),
+                                                    dcc.Dropdown(
+                                                        id=f"{collection_name}-chart-selector",
+                                                        options=[],
+                                                        placeholder="Select a predefined chart...",
+                                                        className="dash-bootstrap",
+                                                    ),
+                                                ],
+                                            ),
+                                            dbc.Col(
+                                                width="auto",
+                                                children=[
+                                                    dbc.Button(
+                                                        [html.I(className="fas fa-plus me-2"), "Add Predefined"],
+                                                        id=f"{collection_name}-add-chart-btn",
+                                                        n_clicks=0,
+                                                        color="primary",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
                                     ),
                                 ],
                             ),
+                            # Right column: Custom chart
                             dbc.Col(
-                                width="auto",
+                                width=12,
+                                lg=6,
                                 children=[
+                                    html.H6("Custom Chart", className="text-muted mb-2"),
                                     dbc.Button(
-                                        [html.I(className="fas fa-plus me-2"), "Add Predefined"],
-                                        id=f"{collection_name}-add-chart-btn",
-                                        n_clicks=0,
-                                        color="primary",
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    # Custom chart section
-                    html.Hr(),
-                    html.H6("Custom Chart", className="text-muted mb-2"),
-                    dbc.Row(
-                        children=[
-                            dbc.Col(
-                                width="auto",
-                                children=[
-                                    dbc.Button(
-                                        [html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
+                                        html.I(className="fas fa-plus"),
                                         id=f"{collection_name}-open-create-chart-modal-btn",
                                         n_clicks=0,
                                         color="success",
                                         outline=True,
+                                        title="Add Chart",
+                                        style={"width": "42px", "height": "42px"},
                                     ),
                                 ],
                             ),

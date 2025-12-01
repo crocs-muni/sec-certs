@@ -99,6 +99,7 @@ class Chart:
     title: str = ""
     order: int = 0
     y_axis: AxisConfig | None = None
+    color_axis: AxisConfig | None = None  # Secondary grouping field (Color By)
     filters: dict[str, FilterSpec] = field(default_factory=dict)
     filter_values: dict[str, Any] = field(default_factory=dict)
     query_pipeline: list[dict[str, Any]] | None = None
@@ -197,6 +198,7 @@ class Chart:
             "collection_type": self.collection_type.value,
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
+            "color_axis": self.color_axis.to_dict() if self.color_axis else None,
             "filters": {fid: fconfig.to_dict() for fid, fconfig in self.filters.items()},
             "filter_values": self.filter_values,
             "query_pipeline": self.query_pipeline,
@@ -227,6 +229,7 @@ class Chart:
 
         x_axis = AxisConfig.from_dict(data["x_axis"])
         y_axis = AxisConfig.from_dict(data["y_axis"]) if data.get("y_axis") else None
+        color_axis = AxisConfig.from_dict(data["color_axis"]) if data.get("color_axis") else None
 
         filters = {fid: FilterSpec.from_dict(fdata) for fid, fdata in data.get("filters", {}).items()}
 
@@ -259,6 +262,7 @@ class Chart:
             collection_type=collection_type,
             x_axis=x_axis,
             y_axis=y_axis,
+            color_axis=color_axis,
             filters=filters,
             filter_values=data.get("filter_values", {}),
             query_pipeline=data.get("query_pipeline"),
