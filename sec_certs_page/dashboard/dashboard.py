@@ -28,6 +28,29 @@ def _generate_dashboard_id(user_id: str, collection_name: str, created_at: datet
     return uuid.uuid5(DASHBOARD_NAMESPACE, identifier)
 
 
+def _parse_datetime(dt_string: str) -> datetime:
+    """
+    Parse a datetime string handling various timezone formats.
+
+    Handles:
+    - 'Z' suffix (UTC)
+    - '+00:00' timezone offset
+    - Corrupted double timezone like '+00:00+00:00'
+
+    :param dt_string: ISO format datetime string
+    :return: Parsed datetime object with UTC timezone
+    """
+    # Handle corrupted double timezone (from previous bug)
+    while "+00:00+00:00" in dt_string:
+        dt_string = dt_string.replace("+00:00+00:00", "+00:00")
+
+    # Remove 'Z' suffix if present and replace with +00:00
+    if dt_string.endswith("Z"):
+        dt_string = dt_string[:-1] + "+00:00"
+
+    return datetime.fromisoformat(dt_string)
+
+
 @dataclass
 class Dashboard:
     """
@@ -129,14 +152,16 @@ class Dashboard:
         :rtype: dict[str, Any]
         """
         return {
-            "dashboard_id": self.dashboard_id,
+            "dashboard_id": str(self.dashboard_id),
             "user_id": self.user_id,
-            "collection_name": self.collection_name,
+            "collection_name": (
+                self.collection_name.value if hasattr(self.collection_name, "value") else self.collection_name
+            ),
             "name": self.name,
             "description": self.description,
             "charts": [chart.to_dict() for chart in self.charts],
             "is_default": self.is_default,
-            "created_at": self.created_at.isoformat() + "Z",
+            "created_at": self.created_at.isoformat(),
         }
 
     @classmethod
@@ -162,16 +187,8 @@ class Dashboard:
         created_at_str = data.get("created_at", "")
         updated_at_str = data.get("updated_at", "")
 
-        created_at = (
-            datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
-            if created_at_str
-            else datetime.now(timezone.utc)
-        )
-        updated_at = (
-            datetime.fromisoformat(updated_at_str.replace("Z", "+00:00"))
-            if updated_at_str
-            else datetime.now(timezone.utc)
-        )
+        created_at = _parse_datetime(created_at_str) if created_at_str else datetime.now(timezone.utc)
+        updated_at = _parse_datetime(updated_at_str) if updated_at_str else datetime.now(timezone.utc)
 
         collection_name = data["collection_name"]
         if isinstance(collection_name, str):

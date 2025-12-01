@@ -173,7 +173,20 @@ class Chart:
         :return: Complete chart configuration as dictionary
         :rtype: dict[str, Any]
         """
-        # Handling Z in isoformat because python3.10 can't handle it
+
+        def format_datetime(dt: datetime | None) -> str | None:
+            """Format datetime to ISO string, ensuring UTC timezone indicator."""
+            if dt is None:
+                return None
+            iso_str = dt.isoformat()
+            # If already has timezone info (+00:00), replace with Z for consistency
+            if iso_str.endswith("+00:00"):
+                return iso_str[:-6] + "Z"
+            # If no timezone, assume UTC and add Z
+            if "+" not in iso_str and "-" not in iso_str[-6:]:
+                return iso_str + "Z"
+            return iso_str
+
         return {
             "chart_id": str(self.chart_id),
             "name": self.name,
@@ -190,8 +203,8 @@ class Chart:
             "color_scheme": self.color_scheme,
             "show_legend": self.show_legend,
             "show_grid": self.show_grid,
-            "created_at": self.created_at.isoformat() + "Z" if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() + "Z" if self.updated_at else None,
+            "created_at": format_datetime(self.created_at),
+            "updated_at": format_datetime(self.updated_at),
         }
 
     @classmethod
