@@ -17,6 +17,22 @@ class ChartRegistry:
             raise ValueError(f"Chart with ID '{chart.id}' is already registered.")
         self._charts[chart.id] = chart
 
+    def unregister(self, chart_id: str) -> None:
+        """Unregister a chart by ID.
+
+        :param chart_id: The ID of the chart to unregister
+        :raises KeyError: If the chart ID is not found
+        """
+        if chart_id in self._charts:
+            del self._charts[chart_id]
+
+    def update(self, chart: BaseChart) -> None:
+        """Update an existing chart or register if not exists.
+
+        :param chart: The chart instance to update/register
+        """
+        self._charts[chart.id] = chart
+
     def get(self, chart_id: str) -> BaseChart | None:
         """Get a chart by ID, or None if not found."""
         return self._charts.get(chart_id)
