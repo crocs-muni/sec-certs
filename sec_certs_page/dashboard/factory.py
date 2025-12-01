@@ -44,7 +44,6 @@ class DashboardFactory:
 
         return html.Div(
             children=[
-                # Dashboard info header
                 html.Div(
                     style={"marginBottom": "20px"},
                     children=[
@@ -55,7 +54,6 @@ class DashboardFactory:
                         ),
                     ],
                 ),
-                # Chart selection controls
                 html.Div(
                     style={
                         "backgroundColor": "#fff",
@@ -92,7 +90,6 @@ class DashboardFactory:
                         ),
                     ],
                 ),
-                # Dashboard action buttons
                 html.Div(
                     style={"marginBottom": "20px"},
                     children=[
@@ -152,20 +149,17 @@ class DashboardFactory:
 
         return html.Div(
             [
-                # Stores for state management
                 dcc.Store(id=f"{self.collection_name}-filter-store", data={}),
                 dcc.Store(id=f"{self.collection_name}-active-charts-store", data=[]),
                 dcc.Store(id=f"{self.collection_name}-render-trigger", data=0),
                 dcc.Store(id=f"{self.collection_name}-current-dashboard-id", data=str(dashboard.dashboard_id)),
                 dcc.Store(id=f"{self.collection_name}-collection-name", data=self.collection_name),
-                # Header
                 html.H1(f"Dashboard: {dashboard.name}"),
                 html.P(
                     f"{self.collection_name.upper()} data analysis",
                     style={"color": "#666", "marginBottom": "20px"},
                 ),
                 html.Hr(),
-                # Chart Controls
                 html.Div(
                     [
                         html.H3("Chart Controls"),
@@ -222,7 +216,6 @@ class DashboardFactory:
                     ],
                     style={"marginBottom": "20px"},
                 ),
-                # Chart Container
                 html.Div(id=f"{self.collection_name}-chart-container"),
             ]
         )
