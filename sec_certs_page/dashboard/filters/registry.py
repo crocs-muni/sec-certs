@@ -91,10 +91,10 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by EAL level (EAL1-EAL7)",
             ),
         ),
-        "cc-year-from-filter": FilterSpec(
-            id="cc-year-from-filter",
-            database_field="year_from",
-            operator=FilterOperator.IN,
+        "cc-year-filter": FilterSpec(
+            id="cc-year-filter",
+            database_field="not_valid_before",  # Source date field
+            operator=FilterOperator.YEAR_IN,  # Special operator for year extraction
             data_type="int",
             component_params=DashFilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
@@ -103,7 +103,7 @@ class CCFilterRegistry(FilterSpecRegistry):
                 multi=True,
                 clearable=True,
                 searchable=True,
-                help_text="Year when certificate was issued",
+                help_text="Year when certificate was issued (extracted from certification date)",
             ),
         ),
         "cc-not-valid-before-filter": FilterSpec(
@@ -217,8 +217,8 @@ class FIPSFilterRegistry(FilterSpecRegistry):
         ),
         "fips-year-filter": FilterSpec(
             id="fips-year-filter",
-            database_field="year_from",
-            operator=FilterOperator.IN,
+            database_field="web_data.date_validation",
+            operator=FilterOperator.YEAR_IN,
             data_type="int",
             component_params=DashFilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,

@@ -197,9 +197,9 @@ class FilterFactory:
         """
         Get available fields for chart axis selection.
 
-        Returns a list of field options derived from registered FilterSpecs.
-        Each FilterSpec corresponds to a database column that can be used
-        for grouping (X-axis) or aggregation (Y-axis).
+        Returns a list of field options derived from registered FilterSpecs,
+        plus commonly used derived fields (like year_from).
+        Each field can be used for grouping (X-axis) or aggregation (Y-axis).
 
         :return: List of dicts with 'label', 'value', and 'data_type' keys
         """
@@ -212,7 +212,43 @@ class FilterFactory:
                     "data_type": filter_spec.data_type,
                 }
             )
+
+        # Add derived fields that are computed in the DataFrame
+        # These are available for charting but require special handling for filtering
+        derived_fields = self._get_derived_fields()
+        fields.extend(derived_fields)
+
         return fields
+
+    def _get_derived_fields(self) -> list[dict[str, str]]:
+        """
+        Get derived fields that are computed from other fields.
+
+        These fields are computed in the DataFrame (e.g., year extracted from date)
+        and can be used for chart grouping. For filtering, they may require
+        special MongoDB aggregation expressions.
+
+        :return: List of derived field definitions
+        """
+        if self.dataset_type == CollectionName.CommonCriteria:
+            return [
+                {
+                    "label": "Certification Year",
+                    "value": "year_from",
+                    "data_type": "int",
+                    "derived_from": "not_valid_before",  # Source field
+                },
+            ]
+        elif self.dataset_type == CollectionName.FIPS140:
+            return [
+                {
+                    "label": "Validation Year",
+                    "value": "year_from",
+                    "data_type": "int",
+                    "derived_from": "date_validation",  # Source field
+                },
+            ]
+        return []
 
     def get_numeric_fields(self) -> list[dict[str, str]]:
         """
@@ -246,6 +282,7 @@ class FilterFactory:
                     "id": filter_id,
                     "label": filter_spec.component_params.label,
                     "field": filter_spec.database_field,
+                    "operator": filter_spec.operator.value,
                     "data_type": filter_spec.data_type,
                     "component_type": filter_spec.component_params.component_type.value,
                     "placeholder": filter_spec.component_params.placeholder,

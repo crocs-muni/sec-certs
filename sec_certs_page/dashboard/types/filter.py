@@ -26,6 +26,7 @@ class FilterOperator(str, Enum):
     NIN = "$nin"
     REGEX = "$regex"
     EXISTS = "$exists"
+    YEAR_IN = "$year_in"
 
 
 class FilterComponentType(str, Enum):
