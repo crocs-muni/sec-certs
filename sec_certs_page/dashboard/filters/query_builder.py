@@ -199,6 +199,35 @@ def build_chart_pipeline(
     return pipeline
 
 
+# Mapping of derived fields to their source fields and extraction expressions
+# Dates are stored as {"_type": "date", "_value": "YYYY-MM-DD"}
+DERIVED_FIELD_EXPRESSIONS: dict[str, dict[str, Any]] = {
+    "year_from": {
+        "source": "not_valid_before",
+        # Extract year (first 4 chars) from the _value field and convert to int
+        "expression": {"$toInt": {"$substr": ["$not_valid_before._value", 0, 4]}},
+    },
+    "year_to": {
+        "source": "not_valid_after",
+        "expression": {"$toInt": {"$substr": ["$not_valid_after._value", 0, 4]}},
+    },
+}
+
+
+def _get_field_expression(field: str) -> str | dict[str, Any]:
+    """Get the MongoDB expression for a field.
+
+    For derived fields (like year_from), returns the extraction expression.
+    For regular fields, returns the simple field reference.
+
+    :param field: Field name
+    :return: MongoDB field reference or expression
+    """
+    if field in DERIVED_FIELD_EXPRESSIONS:
+        return DERIVED_FIELD_EXPRESSIONS[field]["expression"]
+    return f"${field}"
+
+
 def _build_group_stage(chart: "Chart") -> dict[str, Any]:
     """Build the $group stage for aggregation.
 
@@ -209,15 +238,17 @@ def _build_group_stage(chart: "Chart") -> dict[str, Any]:
     :return: $group stage dictionary
     """
     x_field = chart.x_axis.field
+    x_expr = _get_field_expression(x_field)
 
     # Determine the group _id (single field or compound)
     if chart.color_axis:
         # Two-level grouping: group by both x_field and color_field
         color_field = chart.color_axis.field
-        group_id = {"x": f"${x_field}", "color": f"${color_field}"}
+        color_expr = _get_field_expression(color_field)
+        group_id = {"x": x_expr, "color": color_expr}
     else:
         # Single-level grouping: just x_field
-        group_id = f"${x_field}"
+        group_id = x_expr
 
     # Determine the aggregation operation
     if chart.y_axis and chart.y_axis.aggregation:
@@ -263,25 +294,31 @@ def _build_project_stage(chart: "Chart") -> dict[str, Any]:
     Handles both single-level grouping (just x_axis) and two-level grouping
     (x_axis + color_axis for stacked/grouped bar charts).
 
+    Note: For nested fields like "heuristics.eal", we use a flattened name
+    (e.g., "heuristics_eal") to avoid MongoDB creating nested documents.
+
     :param chart: Chart configuration
     :return: $project stage dictionary
     """
     x_field = chart.x_axis.field
+    # Flatten dotted field names for use as column names (avoid nested documents)
+    x_field_flat = x_field.replace(".", "_")
     y_label = chart.y_axis.label if chart.y_axis else "count"
 
     if chart.color_axis:
         # Two-level grouping: extract x and color from compound _id
         color_field = chart.color_axis.field
+        color_field_flat = color_field.replace(".", "_")
         return {
             "_id": 0,
-            x_field: "$_id.x",
-            color_field: "$_id.color",
+            x_field_flat: "$_id.x",
+            color_field_flat: "$_id.color",
             y_label: "$value",
         }
     else:
         # Single-level grouping
         return {
             "_id": 0,
-            x_field: "$_id",
+            x_field_flat: "$_id",
             y_label: "$value",
         }
