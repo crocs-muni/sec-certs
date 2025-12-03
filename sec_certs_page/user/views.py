@@ -226,18 +226,18 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
             github_id = str(github_info["id"])
             github_username = github_info["login"]
             github_email = github_info.get("email")
+            verified_emails = [github_email] if github_email else []
+
+            # Try to get email from user's public emails
+            email_resp = github.get("/user/emails")
+            if email_resp.ok:
+                emails = email_resp.json()
+                verified_emails.extend([e["email"] for e in emails if e.get("verified")])
+                if github_email is None:
+                    github_email = next((e["email"] for e in emails if e.get("primary") and e.get("verified")), None)
 
             if not github_email:
-                # Try to get email from user's public emails
-                email_resp = github.get("/user/email")
-                if email_resp.ok:
-                    emails = email_resp.json()
-                    primary_email = next((e for e in emails if e["primary"]), None)
-                    if primary_email:
-                        github_email = primary_email["email"]
-
-            if not github_email:
-                flash("GitHub account must have a public email address.", "error")
+                flash("GitHub account must have at least one verified email address.", "error")
                 return redirect(url_for("user.login"))
 
             # Check if user already exists with this GitHub ID
@@ -248,16 +248,17 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
                 flash(f"Welcome back, {user_obj.username}!", "success")
                 return redirect(url_for("index"))
 
-            # Check if user exists with this email
-            user_obj = User.get_by_email(github_email)
-            if user_obj:
-                # Link the GitHub account to existing user
-                user_obj.link_github(github_id)
-                user_obj.confirm_email()  # Auto-confirm email for OAuth users
-                login_user(user_obj, remember=True)
-                identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
-                flash(f"GitHub account linked successfully! Welcome back, {user_obj.username}!", "success")
-                return redirect(url_for("index"))
+            # Check if user exists with some email
+            for email in verified_emails:
+                user_obj = User.get_by_email(email)
+                if user_obj:
+                    # Link the GitHub account to existing user
+                    user_obj.link_github(github_id)
+                    user_obj.confirm_email()  # Auto-confirm email for OAuth users
+                    login_user(user_obj, remember=True)
+                    identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
+                    flash(f"GitHub account linked successfully! Welcome back, {user_obj.username}!", "success")
+                    return redirect(url_for("index"))
 
             # Create new user account
             # Make sure username is unique
