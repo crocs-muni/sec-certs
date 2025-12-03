@@ -193,12 +193,15 @@ def test_usa():
     certified = CCSchemes.get_usa_certified()
     assert len(certified) != 0
     assert absolute_urls(certified)
+    assert all(c["category"] is None or isinstance(c["category"], str) for c in certified)
     archived = CCSchemes.get_usa_archived()
     assert len(archived) != 0
     assert absolute_urls(archived)
+    assert all(c["category"] is None or isinstance(c["category"], str) for c in archived)
     ineval = CCSchemes.get_usa_in_evaluation()
     assert len(ineval) != 0
     assert absolute_urls(ineval)
+    assert all(c["category"] is None or isinstance(c["category"], str) for c in ineval)
 
 
 def test_single_match(cert_one: CCCertificate):

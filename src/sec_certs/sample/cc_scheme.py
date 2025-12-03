@@ -1799,14 +1799,16 @@ def get_turkey_certified() -> list[dict[str, Any]]:
 
 def _get_usa(status, enhanced: bool, artifacts: bool):  # noqa: C901
     # TODO: There is more information in the API (like about PPs, etc.)
-    def map_cert(cert, url, files=None):  # noqa: C901
+    def map_cert(cert, url, api_url, files=None):  # noqa: C901
         result = {
             "product": cert["product_name"],
             "id": f"CCEVS-VR-VID{cert['product_id']}",
             "url": url,
+            "api_url": api_url,
             "certification_date": parse_date(cert["certification_date"], "%m/%d/%Y"),
             "expiration_date": parse_date(cert["sunset_date"], "%m/%d/%Y"),
-            "category": cert["tech_types"],
+            "category": cert["tech_types"][0] if isinstance(cert["tech_types"], list) and cert["tech_types"] else None,
+            "categories": cert["tech_types"],
             "vendor": cert["vendor_id_name"],
             "evaluation_facility": cert["assigned_lab_name"],
             "scheme": cert["submitting_country_id_code"],
@@ -1816,23 +1818,23 @@ def _get_usa(status, enhanced: bool, artifacts: bool):  # noqa: C901
                 if file["file_label"] == "Validation Report":
                     dt = isoparse(file["uploaded_on"])
                     result["id"] += f"-{dt.year}"
-                    result["report_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    result["report_link"] = constants.CC_USA_API_GETFILE_URL + f"?file_id={file['file_id']}"
                     if artifacts:
                         result["report_hash"] = _get_hash(result["report_link"])
                 elif file["file_label"] == "CC Certificate":
-                    result["cert_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    result["cert_link"] = constants.CC_USA_API_GETFILE_URL + f"?file_id={file['file_id']}"
                     if artifacts:
                         result["cert_hash"] = _get_hash(result["cert_link"])
                 elif file["file_label"] == "Security Target":
-                    result["target_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    result["target_link"] = constants.CC_USA_API_GETFILE_URL + f"?file_id={file['file_id']}"
                     if artifacts:
                         result["target_hash"] = _get_hash(result["target_link"])
                 elif file["file_label"] == "Assurance Activity Report (AAR)":
-                    result["aar_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    result["aar_link"] = constants.CC_USA_API_GETFILE_URL + f"?file_id={file['file_id']}"
                     if artifacts:
                         result["aar_hash"] = _get_hash(result["aar_link"])
                 elif file["file_label"] == "Administrative Guide (AGD)":
-                    result["agd_link"] = constants.CC_USA_GETFILE_URL + f"?file_id={file['file_id']}"
+                    result["agd_link"] = constants.CC_USA_API_GETFILE_URL + f"?file_id={file['file_id']}"
                     if artifacts:
                         result["agd_hash"] = _get_hash(result["agd_link"])
 
@@ -1840,7 +1842,7 @@ def _get_usa(status, enhanced: bool, artifacts: bool):  # noqa: C901
 
     session = requests.Session()
     results = []
-    resp = _getq(constants.CC_USA_PRODUCTS_URL, None, session=session)
+    resp = _getq(constants.CC_USA_API_PRODUCTS_URL, None, session=session)
     json = resp.json()
     for cert in tqdm(json, desc=f"Get US scheme {status}."):
         if cert.get("from_cc_portal", False):
@@ -1848,15 +1850,16 @@ def _get_usa(status, enhanced: bool, artifacts: bool):  # noqa: C901
         if cert["status_sort"] != status:
             continue
         url = constants.CC_USA_PRODUCT_URL.format(cert["product_id"])
+        api_url = constants.CC_USA_API_PRODUCT_URL.format(cert["product_id"])
         files = None
         if enhanced:
             resp = _getq(
-                constants.CC_USA_FILES_URL,
+                constants.CC_USA_API_FILES_URL,
                 {"product_id": cert["product_id"]},
                 session,
             )
             files = resp.json()
-        results.append(map_cert(cert, url, files))
+        results.append(map_cert(cert, url, api_url, files))
     return results
 
 
