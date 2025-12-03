@@ -272,7 +272,7 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
                     username=username,
                     email=github_email,
                     password=None,  # No password for OAuth users
-                    roles=[],
+                    roles=User.DEFAULT_ROLES,
                     github_id=github_id,
                 )
 
