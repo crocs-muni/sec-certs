@@ -322,8 +322,8 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                         html.I(className="fas fa-calendar-alt date-picker-icon"),
                         dcc.DatePickerSingle(
                             id=field_id,
-                            placeholder=spec.get("placeholder") or "DD-MM-YYYY",
-                            display_format="DD-MM-YYYY",
+                            placeholder=spec.get("placeholder") or "YYYY-MM-DD",
+                            display_format="YYYY-MM-DD",
                             className="dash-bootstrap",
                             show_outside_days=True,
                             stay_open_on_select=True,
@@ -350,7 +350,7 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                         html.I(className="fas fa-calendar-alt date-picker-icon"),
                         dcc.DatePickerRange(
                             id=field_id,
-                            display_format="DD-MM-YYYY",
+                            display_format="YYYY-MM-DD",
                             className="dash-bootstrap",
                             show_outside_days=True,
                             number_of_months_shown=1,
