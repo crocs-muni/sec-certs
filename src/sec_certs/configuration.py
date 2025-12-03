@@ -8,8 +8,6 @@ import yaml
 from pydantic import AnyHttpUrl, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from sec_certs.converter import PDFConverter, PdftotextConverter
-
 
 class Configuration(BaseSettings):
     """
@@ -150,14 +148,16 @@ class Configuration(BaseSettings):
         + " If set to `origin`, will fetch these resources from their origin URL. It is advised to set an"
         + " `nvd_api_key` when setting this to `origin`.",
     )
-    pdf_converter: type[PDFConverter] = Field(
-        PdftotextConverter, description="PDF converter used for all PDF conversions"
+    pdf_converter: Literal["pdftotext", "docling"] = Field(
+        "pdftotext", description="PDF converter used for all PDF conversions"
     )
     pdf_conversion_workers: int = Field(
         2, description="Number of workers for parallel PDF processing. PDFs are divided into across workers."
     )
-    # Recommended when using DoclingConverter.
-    # Docling instances accumulate memory during long-running processing. Restarting workers periodically helps prevent memory issues.
+
+    # Recommended when using Docling.
+    # Docling instances crashes with weird memory issues during long-running processing. Restarting workers periodically helps prevent it.
+    # Recommended value is 80 * pdf_conversion_workers.
     pdf_conversion_max_chunk_size: int | None = Field(
         None,
         description="Maximum number of PDFs to process before restarting the worker pool. Helps control memory usage in converters that gradually accumulate memory during long runs.",

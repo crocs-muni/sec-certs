@@ -17,8 +17,8 @@ from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
-from sec_certs.configuration import config
 from sec_certs.converter import PDFConverter
+from sec_certs.converter.utils import get_converter_cls
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
@@ -413,7 +413,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             return
 
         logger.info("Converting all PDFs.")
-        converter_cls = converter_cls or config.pdf_converter
+        converter_cls = converter_cls or get_converter_cls()
         self._convert_all_pdfs_body(converter_cls, fresh)
 
         self.state.pdfs_converted = True
