@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime
 from typing import ClassVar
 
@@ -6,10 +7,16 @@ from ..types.common import CollectionName
 from ..types.filter import DashFilterComponentParams, FilterComponentType, FilterOperator
 
 
-class FilterSpecRegistry:
-    """Immutable registry of filter specifications for a dataset type."""
+class FilterSpecRegistry(ABC):
+    """Abstract registry of filter specifications for a dataset type.
+
+    Subclasses must define:
+    - _filters: ClassVar[dict[str, FilterSpec]] - filter specifications
+    - collection_type: ClassVar[CollectionName] - the collection this registry handles
+    """
 
     _filters: ClassVar[dict[str, FilterSpec]] = {}
+    collection_type: ClassVar[CollectionName]
 
     @classmethod
     def get_all_filters(cls) -> dict[str, FilterSpec]:
@@ -30,6 +37,7 @@ class FilterSpecRegistry:
 class CCFilterRegistry(FilterSpecRegistry):
     """Common Criteria filter definitions."""
 
+    collection_type: ClassVar[CollectionName] = CollectionName.CommonCriteria
     _filters: ClassVar[dict[str, FilterSpec]] = {
         "cc-category-filter": FilterSpec(
             id="cc-category-filter",
@@ -153,6 +161,7 @@ class CCFilterRegistry(FilterSpecRegistry):
 class FIPSFilterRegistry(FilterSpecRegistry):
     """FIPS 140 filter definitions."""
 
+    collection_type: ClassVar[CollectionName] = CollectionName.FIPS140
     _filters: ClassVar[dict[str, FilterSpec]] = {
         "fips-level-filter": FilterSpec(
             id="fips-level-filter",
@@ -246,15 +255,18 @@ class FIPSFilterRegistry(FilterSpecRegistry):
     }
 
 
-_REGISTRY_MAP: dict[CollectionName, type[FilterSpecRegistry]] = {
-    CollectionName.CommonCriteria: CCFilterRegistry,
-    CollectionName.FIPS140: FIPSFilterRegistry,
-}
+def get_all_registries() -> list[type[FilterSpecRegistry]]:
+    """Get all registered FilterSpecRegistry subclasses.
+
+    Automatically discovers all concrete subclasses of FilterSpecRegistry.
+    """
+    return list(FilterSpecRegistry.__subclasses__())
 
 
 def get_filter_registry(dataset_type: CollectionName) -> type[FilterSpecRegistry]:
     """Get the filter registry class for a dataset type."""
-    if dataset_type not in _REGISTRY_MAP:
-        supported = ", ".join(str(t) for t in _REGISTRY_MAP.keys())
-        raise ValueError(f"Unknown dataset type: {dataset_type}. Supported: {supported}")
-    return _REGISTRY_MAP[dataset_type]
+    for registry in get_all_registries():
+        if registry.collection_type == dataset_type:
+            return registry
+    supported = ", ".join(str(r.collection_type) for r in get_all_registries())
+    raise ValueError(f"Unknown dataset type: {dataset_type}. Supported: {supported}")
