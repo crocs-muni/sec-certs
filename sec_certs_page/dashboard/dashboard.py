@@ -97,8 +97,9 @@ class Dashboard:
 
         :raises ValueError: If chart_id not found
         """
+        target_id = uuid.UUID(chart_id)
         for i, chart in enumerate(self.charts):
-            if chart.chart_id == chart_id:
+            if chart.chart_id == target_id:
                 removed = self.charts.pop(i)
                 self.updated_at = datetime.now(timezone.utc)
                 return removed
@@ -115,8 +116,9 @@ class Dashboard:
         :return: Chart if found, None otherwise
         :rtype: Chart or None
         """
+        target_id = uuid.UUID(chart_id)
         for chart in self.charts:
-            if chart.chart_id == chart_id:
+            if chart.chart_id == target_id:
                 return chart
         return None
 
