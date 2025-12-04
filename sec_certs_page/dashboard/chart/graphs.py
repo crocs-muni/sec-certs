@@ -61,17 +61,12 @@ class GenericChartComponent(BaseChart):
         :param filter_values: Optional filter values to apply
         :return: DataFrame with data (aggregated or raw depending on pipeline)
         """
-        # If chart has a stored pipeline, rebuild it with current filters
-        # This ensures filter changes are applied
         if self.config.query_pipeline is not None:
-            # Rebuild pipeline with current filter values
             pipeline = build_chart_pipeline(self.config, filter_values)
             return self.data_service.execute_aggregation_pipeline(
                 collection_type=self.config.collection_type,
                 pipeline=pipeline,
             )
-
-        # Fallback to raw data (FigureBuilder will handle aggregation)
         return self.data_service.get_dataframe(
             collection_type=self.config.collection_type,
             filter_values=filter_values,

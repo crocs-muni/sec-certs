@@ -26,7 +26,7 @@ class BaseChart(ABC):
 
     graph_id: str
     data_service: DataService
-    chart_type: Literal["pie", "bar", "box", "line", "scatter", "histogram"]
+    chart_type: Literal["pie", "bar", "stacked_bar", "box", "line", "scatter", "histogram"]
     config: Chart
 
     @property
