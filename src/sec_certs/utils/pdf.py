@@ -8,7 +8,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-import pdftotext
 import pikepdf
 import pytesseract
 from PIL import Image
@@ -71,42 +70,6 @@ def ocr_pdf_file(pdf_path: Path) -> str:
             with txt_path.open("r", encoding="utf-8") as f:
                 contents += f.read()
     return contents
-
-
-def convert_pdf_file(pdf_path: Path, txt_path: Path) -> tuple[bool, bool]:
-    """
-    Convert a PDF tile to text and save it on the `txt_path`.
-
-    :param pdf_path: Path to the to-be-converted PDF file.
-    :param txt_path: Path to the resulting text file.
-    :return: A tuple of two results, whether OCR was done and what the complete result
-             was (OK/NOK).
-    """
-    txt = None
-    ok = False
-    ocr = False
-    try:
-        with pdf_path.open("rb") as pdf_handle:
-            pdf = pdftotext.PDF(pdf_handle, "", True)  # No password, Raw=True
-            txt = "".join(pdf)
-    except Exception as e:
-        logger.error(f"Error when converting pdf->txt: {e}")
-
-    if txt is None or text_is_garbage(txt):
-        logger.warning(f"Detected garbage during conversion of {pdf_path}")
-        ocr = True
-        try:
-            txt = ocr_pdf_file(pdf_path)
-            logger.info(f"OCR OK for {pdf_path}")
-        except Exception as e:
-            logger.error(f"Error during OCR of {pdf_path}, using garbage: {e}")
-
-    if txt is not None:
-        ok = True
-        with txt_path.open("w", encoding="utf-8") as txt_handle:
-            txt_handle.write(txt)
-
-    return ocr, ok
 
 
 def parse_pdf_date(dateval: bytes | None) -> datetime | None:

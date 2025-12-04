@@ -17,6 +17,8 @@ from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
+from sec_certs.converter import PDFConverter
+from sec_certs.converter.utils import get_converter_cls
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
@@ -355,7 +357,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def get_certs_from_web(self) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    @staged(logger, "Processing auxiliary datasets")
+    @staged(logger, "Processing auxiliary datasets.")
     @serialize
     @only_backed()
     def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
@@ -402,21 +404,22 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @serialize
     @only_backed()
-    def convert_all_pdfs(self, fresh: bool = True) -> None:
+    def convert_all_pdfs(self, converter_cls: type[PDFConverter] | None = None, fresh: bool = True) -> None:
         """
-        Converts all pdf artifacts to txt, given the certification scheme.
+        Converts all pdf artifacts to txt and json, given the certification scheme.
         """
         if not self.state.artifacts_downloaded:
             logger.error("Attempting to convert pdfs while not having the artifacts downloaded. Returning.")
             return
 
-        logger.info("Converting all PDFs to txt")
-        self._convert_all_pdfs_body(fresh)
+        logger.info("Converting all PDFs.")
+        converter_cls = converter_cls or get_converter_cls()
+        self._convert_all_pdfs_body(converter_cls, fresh)
 
         self.state.pdfs_converted = True
 
     @abstractmethod
-    def _convert_all_pdfs_body(self, fresh: bool = True) -> None:
+    def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
@@ -442,7 +445,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self.state.certs_analyzed = True
 
     def _analyze_certificates_body(self) -> None:
-        logger.info("Extracting data and heuristics")
+        logger.info("Extracting data and heuristics.")
         self.extract_data()
         self.compute_heuristics()
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from collections.abc import Generator
-from importlib import resources
+from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -31,7 +31,7 @@ from sec_certs.serialization.schemas import validator
 
 @pytest.fixture(scope="module")
 def analysis_data_dir() -> Generator[Path, None, None]:
-    with resources.path(tests.data.cc.analysis, "") as path:
+    with as_file(files(tests.data.cc.analysis)) as path:
         yield path
 
 

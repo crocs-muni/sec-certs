@@ -55,20 +55,20 @@
                 "pp": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 },
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 }
             }
         },
@@ -112,20 +112,20 @@
                 "pp": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 },
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 }
             }
         },
@@ -170,20 +170,20 @@
                 "pp": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 },
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
-                    "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
                     "pdf_hash": null,
-                    "txt_hash": null
+                    "txt_hash": null,
+                    "json_hash": null
                 }
             }
         }

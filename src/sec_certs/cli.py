@@ -12,6 +12,7 @@ import click
 from pydantic import ValidationError
 
 from sec_certs.configuration import config
+from sec_certs.converter import has_docling
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.dataset.fips import FIPSDataset
@@ -55,9 +56,18 @@ class ProcessingStep:
         getattr(dset, self.processing_function_name)()
 
 
-def warn_missing_libs():
-    warn_if_missing_poppler()
-    warn_if_missing_tesseract()
+def check_converter():
+    if config.pdf_converter == "pdftotext":
+        warn_if_missing_poppler()
+        warn_if_missing_tesseract()
+
+    if config.pdf_converter == "docling" and not has_docling:
+        click.echo(
+            "Error: Attempting to use Docling converter, but docling is not installed. "
+            "Install it using 'uv sync --extra docling' or 'pip install -e .[docling]'",
+            err=True,
+        )
+        sys.exit(EXIT_CODE_NOK)
 
 
 FRAMEWORK_TO_CONSTRUCTOR: dict[str, type[Dataset]] = {
@@ -129,7 +139,7 @@ steps = [
         "convert_all_pdfs",
         preconditions=["artifacts_downloaded"],
         precondition_error_msg="Error: You want to convert pdfs -> txt, but the pdfs were not downloaded. You must use 'download' action first.",
-        pre_callback_func=warn_missing_libs,
+        pre_callback_func=check_converter,
     ),
     ProcessingStep(
         "analyze",

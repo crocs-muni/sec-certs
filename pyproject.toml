@@ -80,6 +80,10 @@
       "openai",
       "pyarrow"
     ]
+    docling = [
+     "docling",
+     "easyocr"
+    ]
 
   [project.urls]
     Homepage = "https://sec-certs.org"
@@ -154,7 +158,11 @@
 
 [tool.pytest.ini_options]
   markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')",
-             "remote: marks tests that require remote resources"]
+             "remote: marks tests that require remote resources",
+             "docling: marks tests that require docling"]
 
 [tool.coverage.run]
   source = ["src"]
+  concurrency = ["multiprocessing"]
+  parallel = true
+

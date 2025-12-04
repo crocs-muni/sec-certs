@@ -17,6 +17,7 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -27,7 +28,7 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.extract import extract_keywords, normalize_match_string, scheme_frontpage_functions
-from sec_certs.utils.pdf import convert_pdf_file, extract_pdf_metadata
+from sec_certs.utils.pdf import extract_pdf_metadata
 
 
 class CCCertificate(
@@ -652,6 +653,9 @@ class CCCertificate(
         report_txt_dir: str | Path | None,
         st_txt_dir: str | Path | None,
         cert_txt_dir: str | Path | None,
+        report_json_dir: str | Path | None,
+        st_json_dir: str | Path | None,
+        cert_json_dir: str | Path | None,
     ) -> None:
         """
         Sets paths to files given the requested directories
@@ -662,6 +666,9 @@ class CCCertificate(
         :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
         :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
         :param Optional[Union[str, Path]] cert_txt_dir: Directory where txt certificates shall be stored
+        :param Optional[Union[str, Path]] report_json_dir: Directory where json reports shall be stored
+        :param Optional[Union[str, Path]] st_json_dir: Directory where json security targets shall be stored
+        :param Optional[Union[str, Path]] cert_json_dir: Directory where json certificates shall be stored
         """
         if report_pdf_dir:
             self.state.report.pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
@@ -669,12 +676,20 @@ class CCCertificate(
             self.state.st.pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
         if cert_pdf_dir:
             self.state.cert.pdf_path = Path(cert_pdf_dir) / (self.dgst + ".pdf")
+
         if report_txt_dir:
             self.state.report.txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
         if st_txt_dir:
             self.state.st.txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
         if cert_txt_dir:
             self.state.cert.txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
+
+        if report_json_dir:
+            self.state.report.json_path = Path(report_json_dir) / (self.dgst + ".json")
+        if st_json_dir:
+            self.state.st.json_path = Path(st_json_dir) / (self.dgst + ".json")
+        if cert_json_dir:
+            self.state.cert.json_path = Path(cert_json_dir) / (self.dgst + ".json")
 
     @staticmethod
     def _download_pdf(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]):
@@ -723,49 +738,52 @@ class CCCertificate(
         return CCCertificate._download_pdf(cert, "cert")
 
     @staticmethod
-    def _convert_pdf(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
+    def _convert_pdf(
+        cert: CCCertificate, doc_type: Literal["report", "st", "cert"], converter: PDFConverter
+    ) -> CCCertificate:
         doc_state = getattr(cert.state, doc_type)
-        ocr_done, ok_result = convert_pdf_file(doc_state.pdf_path, doc_state.txt_path)
-        # If OCR was done the result was garbage
-        doc_state.convert_garbage = ocr_done
-        # And put the whole result into convert_ok
+        ok_result = converter.convert(doc_state.pdf_path, doc_state.txt_path, doc_state.json_path)
         doc_state.convert_ok = ok_result
         if not ok_result:
             error_msg = f"failed to convert {doc_type} pdf->txt"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
         else:
             doc_state.txt_hash = helpers.get_sha256_filepath(doc_state.txt_path)
+            if doc_state.json_path.exists():
+                doc_state.json_hash = helpers.get_sha256_filepath(doc_state.json_path)
+            else:
+                doc_state.json_hash = None
         return cert
 
     @staticmethod
-    def convert_report_pdf(cert: CCCertificate) -> CCCertificate:
+    def convert_report_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
         """
         Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
 
         :param CCCertificate cert: cert to convert the pdf report for
         :return CCCertificate: the modified certificate with updated state
         """
-        return CCCertificate._convert_pdf(cert, "report")
+        return CCCertificate._convert_pdf(cert, "report", converter)
 
     @staticmethod
-    def convert_st_pdf(cert: CCCertificate) -> CCCertificate:
+    def convert_st_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
         """
         Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
 
         :param CCCertificate cert: cert to convert the pdf security target for
         :return CCCertificate: the modified certificate with updated state
         """
-        return CCCertificate._convert_pdf(cert, "st")
+        return CCCertificate._convert_pdf(cert, "st", converter)
 
     @staticmethod
-    def convert_cert_pdf(cert: CCCertificate) -> CCCertificate:
+    def convert_cert_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
         """
         Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
 
         :param CCCertificate cert: cert to convert the certificate for
         :return CCCertificate: the modified certificate with updated state
         """
-        return CCCertificate._convert_pdf(cert, "cert")
+        return CCCertificate._convert_pdf(cert, "cert", converter)
 
     @staticmethod
     def _extract_pdf_metadata(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:

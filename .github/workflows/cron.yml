@@ -24,10 +24,10 @@ jobs:
           enable-cache: true
       - name: Install sec-certs
         run: |
-          uv sync --locked --dev
+          uv sync --locked --dev --extra docling
           uv run spacy download en_core_web_sm
       - name: Run tests
-        run: uv run pytest --cov=sec_certs -m "remote" --cov-report=xml --cov-report=term --junitxml=junit.xml -o junit_family=legacy tests
+        run: uv run pytest --cov=sec_certs -m "remote or docling" --cov-report=xml --cov-report=term --junitxml=junit.xml -o junit_family=legacy tests
         continue-on-error: true
       - name: Test summary
         if: always()
