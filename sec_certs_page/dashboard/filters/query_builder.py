@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..chart.chart import Chart
 
 
-_DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to"})
+_DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count"})
 
 
 def get_allowed_database_fields() -> frozenset[str]:
@@ -306,7 +306,9 @@ def build_chart_pipeline(
     """
     _validate_field_name(chart.x_axis.field)
     if chart.y_axis:
-        _validate_field_name(chart.y_axis.field)
+        aggregation_placeholders = {agg.value for agg in AggregationType}
+        if chart.y_axis.field not in aggregation_placeholders:
+            _validate_field_name(chart.y_axis.field)
     if chart.color_axis:
         _validate_field_name(chart.color_axis.field)
 
