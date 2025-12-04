@@ -22,6 +22,7 @@ class ChartFactory:
 
     _chart_classes: dict[AvailableChartTypes, type[BaseChart]] = {
         AvailableChartTypes.BAR: BarChartComponent,
+        AvailableChartTypes.STACKED_BAR: BarChartComponent,  # Stacked bar uses same component
         AvailableChartTypes.LINE: LineChartComponent,
         AvailableChartTypes.PIE: PieChartComponent,
         AvailableChartTypes.SCATTER: ScatterChartComponent,
@@ -102,6 +103,9 @@ class ChartFactory:
         """Create chart based on chart type."""
         if config.chart_type == AvailableChartTypes.BAR:
             return px.bar(df, x=x_field, y=y_field, title=config.title)
+        elif config.chart_type == AvailableChartTypes.STACKED_BAR:
+            color_field = config.color_axis.field if config.color_axis else None
+            return px.bar(df, x=x_field, y=y_field, color=color_field, title=config.title, barmode="stack")
         elif config.chart_type == AvailableChartTypes.LINE:
             return px.line(df, x=x_field, y=y_field, title=config.title, markers=True)
         elif config.chart_type == AvailableChartTypes.PIE:
