@@ -11,7 +11,7 @@ from .utils import get_current_user_id
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from ...common.dash.base import Dash
+    from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..manager import DashboardManager
 

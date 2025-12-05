@@ -8,7 +8,7 @@ from .filters import register_filter_callbacks
 from .modal import register_modal_callbacks
 
 if TYPE_CHECKING:
-    from ...common.dash.base import Dash
+    from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..data import DataService
     from ..manager import DashboardManager

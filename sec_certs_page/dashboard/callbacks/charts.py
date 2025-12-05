@@ -11,7 +11,7 @@ from ..types.common import CollectionName
 from .utils import create_chart_wrapper
 
 if TYPE_CHECKING:
-    from ...common.dash.base import Dash
+    from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..data import DataService
 

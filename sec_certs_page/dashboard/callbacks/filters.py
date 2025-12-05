@@ -6,7 +6,7 @@ from ..filters.factory import FilterFactory
 from ..types.filter import FilterComponentType
 
 if TYPE_CHECKING:
-    from ...common.dash.base import Dash
+    from ..base import Dash
     from ..data import DataService
 
 

@@ -73,7 +73,7 @@ from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.routing import Map, RequestRedirect, Rule
 
 from .. import mongo
-from ..common.dash.base import Dash
+from .base import Dash
 from ..common.permissions import dashboard_permission
 from .callbacks import register_all_callbacks
 from .data import DataService

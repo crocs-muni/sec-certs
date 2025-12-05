@@ -16,7 +16,7 @@ from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
 if TYPE_CHECKING:
-    from ...common.dash.base import Dash
+    from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..data import DataService
 

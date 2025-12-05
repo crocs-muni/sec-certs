@@ -41,7 +41,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
-from .common.dash.base import Dash
+from .dashboard.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send
 
