@@ -66,11 +66,15 @@ import dash_bootstrap_components as dbc
 import flask
 from dash import html
 from dash.development.base_component import Component
+from flask import Flask, abort, redirect, request, url_for
+from flask_login import current_user
+from flask_wtf import CSRFProtect
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.routing import Map, RequestRedirect, Rule
 
 from .. import mongo
 from ..common.dash.base import Dash
+from ..common.permissions import dashboard_permission
 from .callbacks import register_all_callbacks
 from .data import DataService
 from .manager import DashboardManager
@@ -199,7 +203,7 @@ def layout(**kwargs) -> dbc.Container:
     )
 
 
-def init_dashboard(dash_app: Dash):
+def init_dashboard(dash_app: Dash, flask_app: Flask, csrf: CSRFProtect):
     """
     Initializes and configures the Dash dashboard application with dynamic filters.
 
@@ -222,5 +226,37 @@ def init_dashboard(dash_app: Dash):
         chart_registries=dashboard_manager.chart_registries,
     )
 
-    logger.debug("=== DASHBOARD INITIALIZATION COMPLETE ===")
-    logger.debug(f"Registered pages: {list(dash.page_registry.keys())}")
+    url_base_pathname = dash_app.config.url_base_pathname
+    _register_dashboard_protection(dash_app, url_base_pathname)
+
+    _exempt_all_dash_endpoints(flask_app, csrf, url_base_pathname)
+
+
+def _register_dashboard_protection(dash_app: Dash, url_base_pathname: str) -> None:
+    """
+    Protect dashboard routes with role-based authentication.
+
+    This registers a before_request handler scoped to dashboard URLs only.
+    Uses the Dash app's url_base_pathname to determine which routes to protect.
+    """
+    server = dash_app.server
+
+    @server.before_request
+    def check_dashboard_access():
+        if not request.path.startswith(url_base_pathname):
+            return None
+
+        if not current_user.is_authenticated:
+            return redirect(url_for("user.login", next=request.url))
+
+        if not dashboard_permission.can():
+            abort(403)
+
+
+def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:
+    """Dash is not using CSRF protection, so we need to exempt its routes."""
+    for rule in app.url_map.iter_rules():
+        if rule.rule.startswith(url_base_pathname):
+            view_func = app.view_functions.get(rule.endpoint)
+            if view_func is not None:
+                csrf.exempt(view_func)
