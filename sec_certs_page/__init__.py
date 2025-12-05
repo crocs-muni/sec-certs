@@ -238,33 +238,5 @@ with app.app_context():
     )
     from .dashboard import init_dashboard
 
-    init_dashboard(dash_app)
-
-    def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:
-        """Dash is not using CSRF protection, so we need to exempt its routes."""
-        for rule in app.url_map.iter_rules():
-            if rule.rule.startswith(url_base_pathname):
-                view_func = app.view_functions.get(rule.endpoint)
-                if view_func is not None:
-                    csrf.exempt(view_func)
-
-    _exempt_all_dash_endpoints(app, csrf, DASHBOARD_URL_BASE_PATHNAME)
-
-    def _protect_dashboard_routes(app: Flask, url_base_pathname: str) -> None:
-        """Protect dashboard routes with role-based authentication."""
-        from flask import redirect, request, url_for
-        from flask_login import current_user
-
-        from .common.permissions import dashboard_permission
-
-        @app.before_request
-        def check_dashboard_access():
-            if request.path.startswith(url_base_pathname):
-                if not current_user.is_authenticated:
-                    return redirect(url_for("user.login", next=request.url))
-                if not dashboard_permission.can():
-                    from flask import abort
-
-                    abort(403)
-
-    _protect_dashboard_routes(app, DASHBOARD_URL_BASE_PATHNAME)
+    dash_app.config.get("url_base_pathname")
+    init_dashboard(dash_app, app, csrf)
