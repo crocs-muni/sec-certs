@@ -63,85 +63,18 @@ from logging import Logger
 
 import dash
 import dash_bootstrap_components as dbc
-import flask
 from dash import html
-from dash.development.base_component import Component
 from flask import Flask, abort, redirect, request, url_for
 from flask_login import current_user
 from flask_wtf import CSRFProtect
-from werkzeug.exceptions import HTTPException, NotFound
-from werkzeug.routing import Map, RequestRedirect, Rule
 
-from .. import mongo
-from .base import Dash
 from ..common.permissions import dashboard_permission
+from .base import Dash
 from .callbacks import register_all_callbacks
 from .data import DataService
 from .manager import DashboardManager
 
 logger: Logger = logging.getLogger(__name__)
-
-
-class PageRouter:
-    """
-    Handles Server-Side Rendering (SSR) routing for Dash Pages.
-    Fixes the 'blank page' issue by resolving the URL and pre-rendering the
-    correct page layout on the server before the client-side router takes over.
-    """
-
-    def __init__(self):
-        self._url_map = None
-
-    @property
-    def url_map(self) -> Map:
-        """Lazy-load the route map to ensure dash.page_registry is populated."""
-        if self._url_map is None:
-            rules = []
-            for page in dash.page_registry.values():
-                # Use the template (e.g., /report/<id>) if available, otherwise the static path
-                path = page.get("path_template") or page.get("path")
-                if path:
-                    # Map the path to the page module name
-                    rules.append(Rule(path, endpoint=page["module"]))
-            self._url_map = Map(rules)
-        return self._url_map
-
-    def get_initial_content(self) -> Component | None:
-        """
-        Resolve the current request path to a Dash page layout server-side.
-        """
-        try:
-            raw_path = flask.request.path
-
-            # Skip SSR for internal Dash routes (AJAX requests for layout/dependencies)
-            if "/_dash-" in raw_path or "/_reload-hash" in raw_path:
-                return None
-
-            clean_path = dash.strip_relative_path(raw_path)
-
-            if clean_path is not None and not clean_path.startswith("/"):
-                clean_path = "/" + clean_path
-
-            # Match path against registered pages
-            urls = self.url_map.bind_to_environ(flask.request.environ)
-            try:
-                module_name, path_variables = urls.match(clean_path)
-                page = dash.page_registry.get(module_name)
-                if page:
-                    layout_func = page["layout"]
-                    if callable(layout_func):
-                        return layout_func(**(path_variables or {}))
-                    return layout_func
-            except (NotFound, RequestRedirect, HTTPException):
-                pass  # No matching page, client-side router will handle
-
-        except Exception as e:
-            logger.warning(f"SSR failed for {flask.request.path}: {e}")
-
-        return None
-
-
-page_router = PageRouter()
 
 
 def layout(**kwargs) -> dbc.Container:
@@ -158,14 +91,6 @@ def layout(**kwargs) -> dbc.Container:
     The system implements a manual Server-Side Rendering (SSR) step - inspecting the path, resolving the
     Dash page manually, and inject the resulting component tree directly into dash.page_container.
     """
-
-    initial_content = page_router.get_initial_content()
-
-    # Inject SSR content into dash.page_container
-    # The page_container structure is: [Location, content_div, Store, dummy_div]
-    # We inject into children[1] which is the _pages_content div
-    if initial_content is not None and dash.page_container.children is not None:
-        dash.page_container.children[1].children = initial_content
 
     return dbc.Container(
         fluid=True,
@@ -210,6 +135,8 @@ def init_dashboard(dash_app: Dash, flask_app: Flask, csrf: CSRFProtect):
     :param dash_app: The Dash application instance.
     :type dash_app: Dash
     """
+    from .. import mongo
+
     logger.debug("=== INITIALIZING DASHBOARD ===")
     dash_app.layout = layout
 

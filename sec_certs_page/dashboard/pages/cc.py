@@ -3,8 +3,8 @@
 import dash
 from dash import html
 
-from sec_certs_page.dashboard.pages.common import create_collection_page_layout
-from sec_certs_page.dashboard.types.common import CollectionName
+from ..pages.common import create_collection_page_layout
+from ..types.common import CollectionName
 
 COLLECTION = CollectionName.CommonCriteria
 

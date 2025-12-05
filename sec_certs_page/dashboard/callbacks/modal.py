@@ -10,7 +10,7 @@ from dash.development.base_component import Component
 from ..chart.chart import AxisConfig, Chart
 from ..filters.factory import FilterFactory
 from ..filters.query_builder import build_chart_pipeline
-from ..pages.common import get_aggregations_for_type
+from ..types.aggregations import get_aggregations_for_type
 from ..types.chart import AvailableChartTypes
 from ..types.common import CollectionName
 from ..types.filter import AggregationType

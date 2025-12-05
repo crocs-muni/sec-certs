@@ -41,7 +41,6 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
-from .dashboard.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send
 
@@ -227,6 +226,9 @@ with app.app_context():
     # Use absolute path for pages_folder to avoid Windows path issues
     pages_folder_path = os.path.join(os.path.dirname(__file__), "dashboard", "pages")
     DASHBOARD_URL_BASE_PATHNAME = "/dashboard/"
+
+    from .dashboard.base import Dash
+
     dash_app = Dash(
         __name__,
         server=app,
