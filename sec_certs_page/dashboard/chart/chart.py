@@ -196,7 +196,7 @@ class Chart:
             "title": self.title,
             "order": self.order,
             "chart_type": self.chart_type.value,
-            "collection_name": self.collection_name.value,
+            "collection_name": self.collection_name,
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
             "color_axis": self.color_axis.to_dict() if self.color_axis else None,

@@ -154,9 +154,7 @@ class Dashboard:
         return {
             "dashboard_id": str(self.dashboard_id),
             "user_id": self.user_id,
-            "collection_name": (
-                self.collection_name.value if hasattr(self.collection_name, "value") else self.collection_name
-            ),
+            "collection_name": (self.collection_name),
             "name": self.name,
             "description": self.description,
             "charts": [chart.to_dict() for chart in self.charts],

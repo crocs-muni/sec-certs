@@ -40,7 +40,7 @@ class DashboardRepository:
         """
         query: dict = {"user_id": user_id}
         if collection_name:
-            query["collection_name"] = collection_name.value
+            query["collection_name"] = collection_name
 
         cursor = self.collection.find(
             query,
@@ -71,7 +71,7 @@ class DashboardRepository:
                 self.collection.update_many(
                     {
                         "user_id": dashboard.user_id,
-                        "collection_name": dashboard.collection_name.value,
+                        "collection_name": dashboard.collection_name,
                         "is_default": True,
                         "dashboard_id": {"$ne": dashboard_id},
                     },
@@ -103,7 +103,7 @@ class DashboardRepository:
     def get_by_user(self, user_id: str, collection_name: CollectionName | None = None) -> list[Dashboard]:
         query: dict = {"user_id": user_id}
         if collection_name:
-            query["collection_name"] = collection_name.value
+            query["collection_name"] = collection_name
 
         cursor = self.collection.find(query).sort([("is_default", -1), ("created_at", -1)])
 
@@ -122,7 +122,7 @@ class DashboardRepository:
         doc = self.collection.find_one(
             {
                 "user_id": user_id,
-                "collection_name": collection_name.value,
+                "collection_name": collection_name,
                 "is_default": True,
             }
         )
@@ -148,7 +148,7 @@ class DashboardRepository:
             )
 
         self.collection.update_many(
-            {"user_id": user_id, "collection_name": collection_name.value, "is_default": True},
+            {"user_id": user_id, "collection_name": collection_name, "is_default": True},
             {"$set": {"is_default": False}},
         )
         self.collection.update_one({"dashboard_id": dashboard_id}, {"$set": {"is_default": True}})
@@ -167,6 +167,6 @@ class DashboardRepository:
     def count_by_user(self, user_id: str, collection_name: CollectionName | None = None) -> int:
         query: dict = {"user_id": user_id}
         if collection_name:
-            query["collection_name"] = collection_name.value
+            query["collection_name"] = collection_name
 
         return self.collection.count_documents(query)

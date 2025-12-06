@@ -74,7 +74,9 @@ class DataService:
         :return: CC dataset as DataFrame (filtered or complete)
         """
         query = (
-            build_query_from_filters(filter_values, collection_name=CollectionName.CommonCriteria) if filter_values else {}
+            build_query_from_filters(filter_values, collection_name=CollectionName.CommonCriteria)
+            if filter_values
+            else {}
         )
 
         logger.info(f"Fetching CC dataset from MongoDB with query: {query}")
@@ -166,14 +168,14 @@ class DataService:
         if collection is None:
             raise ValueError(f"Unsupported collection type: {collection_name}")
 
-        logger.info(f"Executing aggregation pipeline on {collection_name.value}: {pipeline}")
+        logger.info(f"Executing aggregation pipeline on {collection_name}: {pipeline}")
 
         try:
             cursor = collection.aggregate(pipeline)
             data = list(cursor)
 
             if not data:
-                logger.warning(f"Aggregation pipeline returned no results for {collection_name.value}")
+                logger.warning(f"Aggregation pipeline returned no results for {collection_name}")
                 return pd.DataFrame()
 
             df = pd.DataFrame(data)
@@ -181,7 +183,7 @@ class DataService:
             return df
 
         except Exception as e:
-            logger.exception(f"Error executing aggregation pipeline on {collection_name.value}")
+            logger.exception(f"Error executing aggregation pipeline on {collection_name}")
             raise e
 
     def get_distinct_values(self, field: str, collection_name) -> list[Any]:

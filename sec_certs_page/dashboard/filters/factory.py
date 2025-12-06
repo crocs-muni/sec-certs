@@ -39,7 +39,7 @@ class FilterFactory:
         :param with_label: Whether to include a label
         :return: Dash component for the filter
         """
-        component_id = f"{self.collection_name.value}-filter-{filter_spec.id}"
+        component_id = f"{self.collection_name}-filter-{filter_spec.id}"
         params = filter_spec.component_params
 
         if params.component_type == FilterComponentType.DROPDOWN:
@@ -158,7 +158,7 @@ class FilterFactory:
 
         :return: List of filter component IDs
         """
-        return [f"{self.collection_name.value}-filter-{spec.id}" for spec in self._registry.get_all_filters().values()]
+        return [f"{self.collection_name}-filter-{spec.id}" for spec in self._registry.get_all_filters().values()]
 
     def create_callback_inputs(self) -> list[Input]:
         """
