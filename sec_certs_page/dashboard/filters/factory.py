@@ -5,7 +5,7 @@ from dash import dcc, html
 from dash.dependencies import Input
 from dash.development.base_component import Component
 
-from ..types.common import CollectionType
+from ..types.common import CollectionName
 from ..types.filter import FilterComponentType
 from .filter import FilterSpec
 from .registry import FilterSpecRegistry, get_filter_registry
@@ -22,9 +22,9 @@ class FilterFactory:
     including proper labels, styling, and component IDs for callback binding.
     """
 
-    def __init__(self, collection_type: CollectionType):
-        self.collection_type = collection_type
-        self._registry = get_filter_registry(collection_type)
+    def __init__(self, collection_name: CollectionName):
+        self.collection_name = collection_name
+        self._registry = get_filter_registry(collection_name)
 
     @property
     def registry(self) -> type[FilterSpecRegistry]:
@@ -39,7 +39,7 @@ class FilterFactory:
         :param with_label: Whether to include a label
         :return: Dash component for the filter
         """
-        component_id = f"{self.collection_type.value}-filter-{filter_spec.id}"
+        component_id = f"{self.collection_name.value}-filter-{filter_spec.id}"
         params = filter_spec.component_params
 
         if params.component_type == FilterComponentType.DROPDOWN:
@@ -158,7 +158,7 @@ class FilterFactory:
 
         :return: List of filter component IDs
         """
-        return [f"{self.collection_type.value}-filter-{spec.id}" for spec in self._registry.get_all_filters().values()]
+        return [f"{self.collection_name.value}-filter-{spec.id}" for spec in self._registry.get_all_filters().values()]
 
     def create_callback_inputs(self) -> list[Input]:
         """
@@ -243,7 +243,7 @@ class FilterFactory:
 
         :return: List of derived field definitions
         """
-        if self.collection_type == CollectionType.CommonCriteria:
+        if self.collection_name == CollectionName.CommonCriteria:
             return [
                 {
                     "label": "Certificate Year",
@@ -252,7 +252,7 @@ class FilterFactory:
                     "derived_from": "not_valid_before",  # Source field
                 },
             ]
-        elif self.collection_type == CollectionType.FIPS140:
+        elif self.collection_name == CollectionName.FIPS140:
             return [
                 {
                     "label": "Validation Year",

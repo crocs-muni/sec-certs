@@ -5,7 +5,7 @@ from dash import dcc, html
 from sec_certs_page.dashboard.dashboard import Dashboard
 
 from .chart.registry import ChartRegistry
-from .types.common import CollectionType
+from .types.common import CollectionName
 
 
 class DashboardFactory:
@@ -17,7 +17,7 @@ class DashboardFactory:
     to render the active dashboard content.
     """
 
-    def __init__(self, collection_name: CollectionType):
+    def __init__(self, collection_name: CollectionName):
         """
         Initialize the factory for a specific collection.
 

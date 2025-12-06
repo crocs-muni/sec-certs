@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .chart.chart import Chart
-from .types.common import CollectionType
+from .types.common import CollectionName
 
 # Namespace UUID for dashboard IDs - ensures deterministic UUID5 generation
 # Generated once using uuid.uuid4() to serve as a consistent namespace
@@ -19,7 +19,7 @@ def _generate_dashboard_id(user_id: str, collection_name: str, created_at: datet
     while allowing users to have multiple dashboards with the same name.
 
     :param user_id: The user who owns the dashboard
-    :param collection_name: The dataset type (cc, fips, pp)
+    :param collection_name: The collection name (cc, fips)
     :param created_at: The creation timestamp
     :return: A UUID5 generated from the namespace and dashboard identifiers
     """
@@ -60,7 +60,7 @@ class Dashboard:
 
     dashboard_id: uuid.UUID = field(init=False)
     user_id: str
-    collection_type: CollectionType
+    collection_name: CollectionName
     name: str = "New dashboard"
     description: str | None = None
     charts: list[Chart] = field(default_factory=list)
@@ -70,7 +70,7 @@ class Dashboard:
 
     def __post_init__(self):
         """Generate deterministic UUID5 after initialization."""
-        self.dashboard_id = _generate_dashboard_id(self.user_id, str(self.collection_type), self.created_at)
+        self.dashboard_id = _generate_dashboard_id(self.user_id, str(self.collection_name), self.created_at)
 
     def to_json(self) -> dict:
         """Serializes the Dashboard instance to a JSON-compatible dictionary."""
@@ -154,8 +154,8 @@ class Dashboard:
         return {
             "dashboard_id": str(self.dashboard_id),
             "user_id": self.user_id,
-            "collection_type": (
-                self.collection_type.value if hasattr(self.collection_type, "value") else self.collection_type
+            "collection_name": (
+                self.collection_name.value if hasattr(self.collection_name, "value") else self.collection_name
             ),
             "name": self.name,
             "description": self.description,
@@ -177,7 +177,7 @@ class Dashboard:
 
         :raises ValueError: If data is invalid or incomplete
         """
-        required = ["dashboard_id", "user_id", "collection_type", "name"]
+        required = ["dashboard_id", "user_id", "collection_name", "name"]
         missing = [f for f in required if f not in data]
         if missing:
             raise ValueError(f"Missing required fields: {missing}")
@@ -190,13 +190,13 @@ class Dashboard:
         created_at = _parse_datetime(created_at_str) if created_at_str else datetime.now(timezone.utc)
         updated_at = _parse_datetime(updated_at_str) if updated_at_str else datetime.now(timezone.utc)
 
-        collection_type = data["collection_type"]
-        if isinstance(collection_type, str):
-            collection_type = CollectionType(collection_type)
+        collection_name = data["collection_name"]
+        if isinstance(collection_name, str):
+            collection_name = CollectionName(collection_name)
 
         dashboard = cls(
             user_id=data["user_id"],
-            collection_type=collection_type,
+            collection_name=collection_name,
             name=data["name"],
             description=data.get("description", ""),
             charts=charts,
@@ -216,5 +216,5 @@ class Dashboard:
         """
         return (
             f"Dashboard(id={str(self.dashboard_id)[:8]}..., name='{self.name}', "
-            f"collection={self.collection_type}, charts={len(self.charts)})"
+            f"collection={self.collection_name}, charts={len(self.charts)})"
         )

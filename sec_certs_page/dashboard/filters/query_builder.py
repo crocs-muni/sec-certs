@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 
 from ..filters.filter import FilterSpec
 from ..filters.registry import FilterSpecRegistry, get_all_registries, get_filter_registry
-from ..types.common import CollectionType
+from ..types.common import CollectionName
 from ..types.filter import AggregationType, FilterOperator
 
 if TYPE_CHECKING:
@@ -127,13 +127,13 @@ class QueryBuilder:
     Each filter added creates a query fragment that's combined into the final query.
     """
 
-    def __init__(self, collection_type: CollectionType, filter_registry: FilterSpecRegistry):
+    def __init__(self, collection_name: CollectionName, filter_registry: FilterSpecRegistry):
         """Initialize query builder.
 
-        :param collection_type: Dataset type ('cc' or 'fips')
+        :param collection_name: Dataset type ('cc' or 'fips')
         :param filter_registry: Registry to look up filter specifications
         """
-        self.collection_type = collection_type
+        self.collection_name = collection_name
         self.filter_registry = filter_registry
         self._query_fragments: list[dict[str, Any]] = []
         self._errors: list[str] = []
@@ -265,15 +265,15 @@ class QueryBuilder:
             return {filter_spec.database_field: {filter_spec.operator.value: transformed_value}}
 
 
-def build_query_from_filters(filter_values: dict[str, Any], collection_type: CollectionType) -> dict[str, Any]:
+def build_query_from_filters(filter_values: dict[str, Any], collection_name: CollectionName) -> dict[str, Any]:
     """Convenience function to build query from filter values.
 
     :param filter_values: Dictionary mapping filter IDs to their values
-    :param collection_type: Dataset type ('cc' or 'fips'), defaults to 'cc'
+    :param collection_name: Dataset type ('cc' or 'fips')
     :return: MongoDB query dictionary
     """
-    filter_registry = get_filter_registry(collection_type)()
-    builder = QueryBuilder(collection_type=collection_type, filter_registry=filter_registry)
+    filter_registry = get_filter_registry(collection_name)()
+    builder = QueryBuilder(collection_name=collection_name, filter_registry=filter_registry)
     builder.add_filters(filter_values)
     return builder.build()
 
@@ -315,7 +315,7 @@ def build_chart_pipeline(
     pipeline: list[dict[str, Any]] = []
 
     if filter_values:
-        match_query = build_query_from_filters(filter_values, chart.collection_type)
+        match_query = build_query_from_filters(filter_values, chart.collection_name)
         if match_query:
             pipeline.append({"$match": match_query})
 

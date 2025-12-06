@@ -5,7 +5,7 @@ from pymongo.database import Database
 from pymongo.errors import PyMongoError
 
 from .dashboard import Dashboard
-from .types.common import CollectionType
+from .types.common import CollectionName
 
 
 class DashboardRepository:
@@ -29,14 +29,14 @@ class DashboardRepository:
     def get_names_by_user(
         self,
         user_id: str,
-        collection_name: CollectionType | None = None,
+        collection_name: CollectionName | None = None,
     ) -> list[dict[str, str]]:
         """
         Get dashboard names and IDs for dropdown population (minimal query).
 
         :param user_id: User ID
         :param collection_name: Filter by collection (None = all)
-        :return: List of {dashboard_id, name, is_default} dicts
+        :return: List {dashboard_id, name, is_default} dicts
         """
         query: dict = {"user_id": user_id}
         if collection_name:
@@ -71,7 +71,7 @@ class DashboardRepository:
                 self.collection.update_many(
                     {
                         "user_id": dashboard.user_id,
-                        "collection_name": dashboard.collection_type.value,
+                        "collection_name": dashboard.collection_name.value,
                         "is_default": True,
                         "dashboard_id": {"$ne": dashboard_id},
                     },
@@ -100,7 +100,7 @@ class DashboardRepository:
         except (KeyError, ValueError) as e:
             raise ValueError(f"Invalid dashboard data for ID {dashboard_id}: {e}") from e
 
-    def get_by_user(self, user_id: str, collection_name: CollectionType | None = None) -> list[Dashboard]:
+    def get_by_user(self, user_id: str, collection_name: CollectionName | None = None) -> list[Dashboard]:
         query: dict = {"user_id": user_id}
         if collection_name:
             query["collection_name"] = collection_name.value
@@ -118,7 +118,7 @@ class DashboardRepository:
 
         return dashboards
 
-    def get_default(self, user_id: str, collection_name: CollectionType) -> Dashboard | None:
+    def get_default(self, user_id: str, collection_name: CollectionName) -> Dashboard | None:
         doc = self.collection.find_one(
             {
                 "user_id": user_id,
@@ -134,7 +134,7 @@ class DashboardRepository:
         doc["dashboard_id"] = doc.get("dashboard_id")
         return Dashboard.from_dict(doc)
 
-    def set_default(self, dashboard_id: str, user_id: str, collection_name: CollectionType) -> None:
+    def set_default(self, dashboard_id: str, user_id: str, collection_name: CollectionName) -> None:
         dashboard = self.get_by_id(dashboard_id)
         if dashboard is None:
             raise ValueError(f"Dashboard {dashboard_id} not found")
@@ -142,9 +142,9 @@ class DashboardRepository:
         if dashboard.user_id != user_id:
             raise ValueError(f"Dashboard {dashboard_id} does not belong to user {user_id}")
 
-        if dashboard.collection_type != collection_name:
+        if dashboard.collection_name != collection_name:
             raise ValueError(
-                f"Dashboard {dashboard_id} is for collection " f"{dashboard.collection_type}, not {collection_name}"
+                f"Dashboard {dashboard_id} is for collection " f"{dashboard.collection_name}, not {collection_name}"
             )
 
         self.collection.update_many(
@@ -164,7 +164,7 @@ class DashboardRepository:
         result = self.collection.delete_one({"dashboard_id": dashboard_id, "user_id": user_id})
         return result.deleted_count > 0
 
-    def count_by_user(self, user_id: str, collection_name: CollectionType | None = None) -> int:
+    def count_by_user(self, user_id: str, collection_name: CollectionName | None = None) -> int:
         query: dict = {"user_id": user_id}
         if collection_name:
             query["collection_name"] = collection_name.value

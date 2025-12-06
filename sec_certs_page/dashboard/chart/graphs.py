@@ -64,11 +64,11 @@ class GenericChartComponent(BaseChart):
         if self.config.query_pipeline is not None:
             pipeline = build_chart_pipeline(self.config, filter_values)
             return self.data_service.execute_aggregation_pipeline(
-                collection_type=self.config.collection_type,
+                collection_name=self.config.collection_name,
                 pipeline=pipeline,
             )
         return self.data_service.get_dataframe(
-            collection_type=self.config.collection_type,
+            collection_name=self.config.collection_name,
             filter_values=filter_values,
         )
 

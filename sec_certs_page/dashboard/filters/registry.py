@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import ClassVar
 
 from ..filters.filter import FilterSpec
-from ..types.common import CollectionType
+from ..types.common import CollectionName
 from ..types.filter import DashFilterComponentParams, FilterComponentType, FilterOperator
 
 
@@ -12,11 +12,11 @@ class FilterSpecRegistry(ABC):
 
     Subclasses must define:
     - _filters: ClassVar[dict[str, FilterSpec]] - filter specifications
-    - collection_type: ClassVar[CollectionType] - the collection this registry handles
+    - collection_name: ClassVar[CollectionType] - the collection this registry handles
     """
 
     _filters: ClassVar[dict[str, FilterSpec]] = {}
-    collection_type: ClassVar[CollectionType]
+    collection_name: ClassVar[CollectionName]
 
     @classmethod
     def get_all_filters(cls) -> dict[str, FilterSpec]:
@@ -37,7 +37,7 @@ class FilterSpecRegistry(ABC):
 class CCFilterRegistry(FilterSpecRegistry):
     """Common Criteria filter definitions."""
 
-    collection_type: ClassVar[CollectionType] = CollectionType.CommonCriteria
+    collection_name: ClassVar[CollectionName] = CollectionName.CommonCriteria
     _filters: ClassVar[dict[str, FilterSpec]] = {
         "cc-category-filter": FilterSpec(
             id="cc-category-filter",
@@ -161,7 +161,7 @@ class CCFilterRegistry(FilterSpecRegistry):
 class FIPSFilterRegistry(FilterSpecRegistry):
     """FIPS 140 filter definitions."""
 
-    collection_type: ClassVar[CollectionType] = CollectionType.FIPS140
+    collection_name: ClassVar[CollectionName] = CollectionName.FIPS140
     _filters: ClassVar[dict[str, FilterSpec]] = {
         "fips-level-filter": FilterSpec(
             id="fips-level-filter",
@@ -263,10 +263,10 @@ def get_all_registries() -> list[type[FilterSpecRegistry]]:
     return list(FilterSpecRegistry.__subclasses__())
 
 
-def get_filter_registry(collection_type: CollectionType) -> type[FilterSpecRegistry]:
+def get_filter_registry(collection_name: CollectionName) -> type[FilterSpecRegistry]:
     """Get the filter registry class for a dataset type."""
     for registry in get_all_registries():
-        if registry.collection_type == collection_type:
+        if registry.collection_name == collection_name:
             return registry
-    supported = ", ".join(str(r.collection_type) for r in get_all_registries())
-    raise ValueError(f"Unknown dataset type: {collection_type}. Supported: {supported}")
+    supported = ", ".join(str(r.collection_name) for r in get_all_registries())
+    raise ValueError(f"Unknown dataset type: {collection_name}. Supported: {supported}")

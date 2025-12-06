@@ -5,7 +5,7 @@ from uuid import UUID
 
 from ..filters.filter import FilterSpec
 from ..types.chart import AvailableChartTypes
-from ..types.common import CollectionType
+from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
 
@@ -97,7 +97,7 @@ class Chart:
     name: str
     chart_type: AvailableChartTypes
     x_axis: AxisConfig
-    collection_type: CollectionType
+    collection_name: CollectionName
     title: str = ""
     order: int = 0
     y_axis: AxisConfig | None = None
@@ -196,7 +196,7 @@ class Chart:
             "title": self.title,
             "order": self.order,
             "chart_type": self.chart_type.value,
-            "collection_type": self.collection_type.value,
+            "collection_name": self.collection_name.value,
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
             "color_axis": self.color_axis.to_dict() if self.color_axis else None,
@@ -224,7 +224,7 @@ class Chart:
         :rtype: Chart
         :raises ValueError: If required fields are missing from data
         """
-        required = ["chart_id", "name", "chart_type", "collection_type", "x_axis"]
+        required = ["chart_id", "name", "chart_type", "collection_name", "x_axis"]
         missing = [f for f in required if f not in data]
         if missing:
             raise ValueError(f"Missing required fields: {missing}")
@@ -251,9 +251,9 @@ class Chart:
         if isinstance(chart_type, str):
             chart_type = AvailableChartTypes(chart_type)
 
-        collection_type = data["collection_type"]
-        if isinstance(collection_type, str):
-            collection_type = CollectionType(collection_type)
+        collection_name = data["collection_name"]
+        if isinstance(collection_name, str):
+            collection_name = CollectionName(collection_name)
 
         return cls(
             chart_id=chart_id,
@@ -261,7 +261,7 @@ class Chart:
             title=data.get("title", ""),
             order=data.get("order", 0),
             chart_type=chart_type,
-            collection_type=collection_type,
+            collection_name=collection_name,
             x_axis=x_axis,
             y_axis=y_axis,
             color_axis=color_axis,
