@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 import dash_bootstrap_components as dbc
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
     from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..data import DataService
+
+
+logger = logging.getLogger(__name__)
 
 
 def register_chart_callbacks(
@@ -41,6 +45,7 @@ def register_pattern_matching_callbacks(
         prevent_initial_call=True,
     )
     def refresh_single_chart(n_clicks, wrapper_id):
+        """When user clicks the chart-refresh button we re-render it."""
         if not n_clicks:
             return dict(content=no_update)
 
@@ -77,9 +82,7 @@ def _register_chart_management(
         prevent_initial_call=True,
     )
     def manage_charts(add_clicks, remove_clicks, selected_chart_id, current_configs):
-        print(f"[CHART_MGMT] triggered_id: {ctx.triggered_id}")
-        print(f"[CHART_MGMT] selected_chart_id: {selected_chart_id}")
-        print(f"[CHART_MGMT] remove_clicks: {remove_clicks}")
+        """When user clicks the remove-chart button or the add-chart-btn we handle those."""
 
         if current_configs is None:
             current_configs = {}
@@ -92,9 +95,8 @@ def _register_chart_management(
                 predefined = chart_registry.get_predefined(selected_chart_id)
                 if predefined and predefined.config:
                     current_configs[selected_chart_id] = predefined.config.to_dict()
-                    print(f"[CHART_MGMT] Added predefined chart {selected_chart_id} with config")
                 else:
-                    print(f"[CHART_MGMT] Chart {selected_chart_id} not found in predefined registry")
+                    logger.debug(f"[CHART_MGMT] Chart {selected_chart_id} not found in predefined registry")
 
         elif isinstance(triggered_id, dict) and triggered_id.get("type") == "remove-chart":
             # Check if this was an actual click (n_clicks > 0) vs just a new component appearing
@@ -110,11 +112,17 @@ def _register_chart_management(
 
             if actual_click and chart_to_remove in current_configs:
                 del current_configs[chart_to_remove]
-                print(f"[CHART_MGMT] Removed chart {chart_to_remove}")
+                logger.info("Removed chart", extra={"chart_id": chart_to_remove})
             else:
-                print("[CHART_MGMT] Ignoring remove trigger (n_clicks=0 or chart not found)")
+                logger.debug(
+                    "Ignored remove trigger",
+                    extra={"chart_id": chart_to_remove, "reason": "n_clicks=0 or chart missing"},
+                )
 
-        print(f"[CHART_MGMT] current_configs keys after: {list(current_configs.keys())}")
+        logger.debug(
+            "Chart configs after update",
+            extra={"chart_ids": list(current_configs.keys())},
+        )
 
         return dict(chart_configs=current_configs)
 
@@ -151,7 +159,7 @@ def _register_chart_rendering(
         state=dict(filter_values=State(f"{collection_type}-filter-store", "data")),
     )
     def render_charts(render_trigger, chart_configs, filter_values):
-        # Derive chart IDs from chart_configs keys
+        """When the user clicks the update-all-btn or we load first we render the charts."""
         chart_ids = list((chart_configs or {}).keys())
         if not chart_ids:
             return dict(
@@ -174,7 +182,7 @@ def _register_chart_rendering(
 
             # If not in registry, try to create from chart_configs store
             # Register in active charts for caching during this session
-            if not chart and chart_configs and chart_id in chart_configs:
+            if not chart:
                 try:
                     config_dict = chart_configs[chart_id]
                     chart_config = Chart.from_dict(config_dict)
@@ -192,18 +200,6 @@ def _register_chart_rendering(
                         )
                     )
                     continue
-
-            if not chart:
-                rendered.append(
-                    dbc.Alert(
-                        [
-                            html.I(className="fas fa-exclamation-triangle me-2"),
-                            f"Chart '{chart_id}' not found.",
-                        ],
-                        color="warning",
-                    )
-                )
-                continue
 
             try:
                 chart_component = chart.render(filter_values or {})
@@ -231,4 +227,9 @@ def _register_update_all(dash_app: "Dash", collection_type: CollectionType) -> N
         prevent_initial_call=True,
     )
     def trigger_update_all(n_clicks, current_trigger):
+        """
+        When user clicks the update-all-btn we update all charts.
+
+        The `{collection_type}-render-trigger` triggers the render_charts function above.
+        """
         return dict(trigger=(current_trigger or 0) + 1)
