@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 
 from ..filters.filter import FilterSpec
 from ..filters.registry import FilterSpecRegistry, get_all_registries, get_filter_registry
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 from ..types.filter import AggregationType, FilterOperator
 
 if TYPE_CHECKING:
@@ -127,13 +127,13 @@ class QueryBuilder:
     Each filter added creates a query fragment that's combined into the final query.
     """
 
-    def __init__(self, dataset_type: CollectionName, filter_registry: FilterSpecRegistry):
+    def __init__(self, collection_type: CollectionType, filter_registry: FilterSpecRegistry):
         """Initialize query builder.
 
-        :param dataset_type: Dataset type ('cc' or 'fips')
+        :param collection_type: Dataset type ('cc' or 'fips')
         :param filter_registry: Registry to look up filter specifications
         """
-        self.dataset_type = dataset_type
+        self.collection_type = collection_type
         self.filter_registry = filter_registry
         self._query_fragments: list[dict[str, Any]] = []
         self._errors: list[str] = []
@@ -265,15 +265,15 @@ class QueryBuilder:
             return {filter_spec.database_field: {filter_spec.operator.value: transformed_value}}
 
 
-def build_query_from_filters(filter_values: dict[str, Any], dataset_type: CollectionName) -> dict[str, Any]:
+def build_query_from_filters(filter_values: dict[str, Any], collection_type: CollectionType) -> dict[str, Any]:
     """Convenience function to build query from filter values.
 
     :param filter_values: Dictionary mapping filter IDs to their values
-    :param dataset_type: Dataset type ('cc' or 'fips'), defaults to 'cc'
+    :param collection_type: Dataset type ('cc' or 'fips'), defaults to 'cc'
     :return: MongoDB query dictionary
     """
-    filter_registry = get_filter_registry(dataset_type)()
-    builder = QueryBuilder(dataset_type=dataset_type, filter_registry=filter_registry)
+    filter_registry = get_filter_registry(collection_type)()
+    builder = QueryBuilder(collection_type=collection_type, filter_registry=filter_registry)
     builder.add_filters(filter_values)
     return builder.build()
 

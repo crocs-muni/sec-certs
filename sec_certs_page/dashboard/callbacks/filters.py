@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from dash.dependencies import Input, Output, State
 
 from ..filters.factory import FilterFactory
+from ..types.common import CollectionType
 from ..types.filter import FilterComponentType
 
 if TYPE_CHECKING:
@@ -12,19 +13,19 @@ if TYPE_CHECKING:
 
 def register_filter_callbacks(
     dash_app: "Dash",
-    prefix: str,
+    collection_type: CollectionType,
     filter_factory: FilterFactory,
     data_service: "DataService",
 ) -> None:
-    _register_filter_options(dash_app, prefix, filter_factory, data_service)
-    _register_filter_store(dash_app, prefix, filter_factory)
-    _register_button_states(dash_app, prefix)
-    _register_metadata(dash_app, prefix, filter_factory)
+    _register_filter_options(dash_app, collection_type, filter_factory, data_service)
+    _register_filter_store(dash_app, collection_type, filter_factory)
+    _register_button_states(dash_app, collection_type)
+    _register_metadata(dash_app, collection_type, filter_factory)
 
 
 def _register_filter_options(
     dash_app: "Dash",
-    prefix: str,
+    collection_type: CollectionType,
     filter_factory: FilterFactory,
     data_service: "DataService",
 ) -> None:
@@ -37,7 +38,7 @@ def _register_filter_options(
 
         @dash_app.callback(
             output=dict(options=Output(filter_id, "options")),
-            inputs=dict(dashboard_loaded=Input(f"{prefix}-dashboard-loaded", "data")),
+            inputs=dict(dashboard_loaded=Input(f"{collection_type}-dashboard-loaded", "data")),
             prevent_initial_call=True,
         )
         def load_options(
@@ -52,7 +53,7 @@ def _register_filter_options(
                 return dict(
                     options=ds.get_distinct_values_with_labels(
                         field=spec.database_field,
-                        dataset_type=factory.dataset_type,
+                        collection_type=factory.collection_type,
                     )
                 )
             except Exception as e:
@@ -62,7 +63,7 @@ def _register_filter_options(
 
 def _register_filter_store(
     dash_app: "Dash",
-    prefix: str,
+    collection_type: CollectionType,
     filter_factory: FilterFactory,
 ) -> None:
     filter_inputs = filter_factory.create_callback_inputs()
@@ -71,21 +72,21 @@ def _register_filter_store(
         return
 
     @dash_app.callback(
-        output=dict(data=Output(f"{prefix}-filter-store", "data")),
+        output=dict(data=Output(f"{collection_type}-filter-store", "data")),
         inputs=filter_inputs,
     )
     def update_filter_store(*filter_values):
         return dict(data=filter_factory.collect_filter_values(*filter_values))
 
 
-def _register_button_states(dash_app: "Dash", prefix: str) -> None:
+def _register_button_states(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
         output=dict(
-            update_disabled=Output(f"{prefix}-update-all-btn", "disabled"),
-            save_disabled=Output(f"{prefix}-save-dashboard-btn", "disabled"),
+            update_disabled=Output(f"{collection_type}-update-all-btn", "disabled"),
+            save_disabled=Output(f"{collection_type}-save-dashboard-btn", "disabled"),
         ),
         inputs=dict(
-            chart_configs=Input(f"{prefix}-chart-configs-store", "data"),
+            chart_configs=Input(f"{collection_type}-chart-configs-store", "data"),
         ),
     )
     def update_button_states(chart_configs):
@@ -98,19 +99,19 @@ def _register_button_states(dash_app: "Dash", prefix: str) -> None:
 
 def _register_metadata(
     dash_app: "Dash",
-    prefix: str,
+    collection_type: CollectionType,
     filter_factory: FilterFactory,
 ) -> None:
     """Combined callback for available fields and filter specs - reduces initial calls."""
 
     @dash_app.callback(
         output=dict(
-            available_fields=Output(f"{prefix}-available-fields", "data"),
-            filter_specs=Output(f"{prefix}-filter-specs", "data"),
-            metadata_loaded=Output(f"{prefix}-metadata-loaded", "data"),
+            available_fields=Output(f"{collection_type}-available-fields", "data"),
+            filter_specs=Output(f"{collection_type}-filter-specs", "data"),
+            metadata_loaded=Output(f"{collection_type}-metadata-loaded", "data"),
         ),
-        inputs=dict(modal_open=Input(f"{prefix}-create-chart-modal", "is_open")),
-        state=dict(already_loaded=State(f"{prefix}-metadata-loaded", "data")),
+        inputs=dict(modal_open=Input(f"{collection_type}-create-chart-modal", "is_open")),
+        state=dict(already_loaded=State(f"{collection_type}-metadata-loaded", "data")),
         prevent_initial_call=True,
     )
     def load_metadata(modal_open, already_loaded):

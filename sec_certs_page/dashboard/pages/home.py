@@ -5,17 +5,17 @@ import dash_bootstrap_components as dbc
 from dash import html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 
 # Collection metadata for cards
 _COLLECTION_INFO = {
-    CollectionName.CommonCriteria.value: {
+    CollectionType.CommonCriteria.value: {
         "title": "Common Criteria",
         "description": "Explore and analyze Common Criteria security certificates, including EAL levels, categories, and certification trends.",
         "icon": "fas fa-shield-alt",
         "color": "primary",
     },
-    CollectionName.FIPS140.value: {
+    CollectionType.FIPS140.value: {
         "title": "FIPS 140",
         "description": "Analyze FIPS 140 cryptographic module validations, security levels, and vendor certifications.",
         "icon": "fas fa-lock",

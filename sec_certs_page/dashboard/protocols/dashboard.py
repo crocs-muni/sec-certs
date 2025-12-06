@@ -2,7 +2,7 @@ import uuid
 
 from dash.development.base_component import Component
 
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 
 
 class DashboardProtocol:
@@ -10,7 +10,7 @@ class DashboardProtocol:
 
     dashboard_id: uuid.UUID
     user_id: str
-    collection_name: CollectionName
+    collection_name: CollectionType
     name: str
     description: str | None
     charts: list[dict] | None

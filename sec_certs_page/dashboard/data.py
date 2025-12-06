@@ -19,7 +19,7 @@ import pandas as pd
 from flask_pymongo import PyMongo
 
 from .filters.query_builder import build_query_from_filters
-from .types.common import CollectionName
+from .types.common import CollectionType
 
 logger: Logger = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ class DataService:
         :return: CC dataset as DataFrame (filtered or complete)
         """
         query = (
-            build_query_from_filters(filter_values, dataset_type=CollectionName.CommonCriteria) if filter_values else {}
+            build_query_from_filters(filter_values, collection_type=CollectionType.CommonCriteria) if filter_values else {}
         )
 
         logger.info(f"Fetching CC dataset from MongoDB with query: {query}")
@@ -104,7 +104,7 @@ class DataService:
         :param filter_values: Optional dictionary mapping filter IDs to values
         :return: FIPS dataset as DataFrame (filtered or complete)
         """
-        query = build_query_from_filters(filter_values, dataset_type=CollectionName.FIPS140) if filter_values else {}
+        query = build_query_from_filters(filter_values, collection_type=CollectionType.FIPS140) if filter_values else {}
 
         logger.info(f"Fetching FIPS dataset from MongoDB with query: {query}")
 
@@ -126,7 +126,7 @@ class DataService:
 
     def get_dataframe(
         self,
-        collection_type: CollectionName,
+        collection_type: CollectionType,
         filter_values: dict[str, Any] | None = None,
     ) -> pd.DataFrame:
         """Get dataset from MongoDB based on collection type.
@@ -136,16 +136,16 @@ class DataService:
         :return: Dataset as DataFrame
         :raises ValueError: If collection_type is not supported
         """
-        if collection_type == CollectionName.CommonCriteria:
+        if collection_type == CollectionType.CommonCriteria:
             return self.get_cc_dataframe(filter_values)
-        elif collection_type == CollectionName.FIPS140:
+        elif collection_type == CollectionType.FIPS140:
             return self.get_fips_dataframe(filter_values)
         else:
             raise ValueError(f"Unsupported collection type: {collection_type}")
 
     def execute_aggregation_pipeline(
         self,
-        collection_type: CollectionName,
+        collection_type: CollectionType,
         pipeline: list[dict[str, Any]],
     ) -> pd.DataFrame:
         """Execute a MongoDB aggregation pipeline and return results as DataFrame.
@@ -158,8 +158,8 @@ class DataService:
         :return: Aggregated data as DataFrame
         """
         collection_map = {
-            CollectionName.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
-            CollectionName.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
+            CollectionType.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
+            CollectionType.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
         }
 
         collection = collection_map.get(collection_type)
@@ -184,13 +184,13 @@ class DataService:
             logger.exception(f"Error executing aggregation pipeline on {collection_type.value}")
             raise e
 
-    def get_distinct_values(self, field: str, dataset_type) -> list[Any]:
+    def get_distinct_values(self, field: str, collection_type) -> list[Any]:
         """Get distinct values for a field from MongoDB.
 
         This is used to populate filter dropdowns dynamically.
 
         :param field: MongoDB field name
-        :param dataset_type: Type of dataset ('cc' or 'fips')
+        :param collection_type: Type of dataset ('cc' or 'fips')
         :return: List of distinct values (sorted)
         """
         collections = {
@@ -198,15 +198,15 @@ class DataService:
             "fips": self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
         }
 
-        collection = collections.get(dataset_type.lower())
+        collection = collections.get(collection_type.lower())
         if collection is None:
-            raise ValueError(f"Unknown dataset type: {dataset_type}")
+            raise ValueError(f"Unknown dataset type: {collection_type}")
 
         distinct_values = collection.distinct(field)
         values = [v for v in distinct_values if v is not None and v != ""]
         return sorted(values)
 
-    def get_unique_values(self, collection_type: CollectionName, field: str) -> list[Any]:
+    def get_unique_values(self, collection_type: CollectionType, field: str) -> list[Any]:
         """Get unique values for a field from MongoDB.
 
         This is used to populate filter dropdowns in the chart creation modal.
@@ -218,8 +218,8 @@ class DataService:
         :return: List of unique values (sorted, non-null)
         """
         collection_map = {
-            CollectionName.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
-            CollectionName.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
+            CollectionType.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
+            CollectionType.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
         }
 
         collection = collection_map.get(collection_type)
@@ -243,7 +243,7 @@ class DataService:
             logger.warning(f"Error getting unique values for field '{field}': {e}")
             return []
 
-    def _get_unique_years(self, collection: Any, collection_type: CollectionName) -> list[int]:
+    def _get_unique_years(self, collection: Any, collection_type: CollectionType) -> list[int]:
         """Extract unique years from the appropriate date field.
 
         Handles dates stored as serialized dictionaries with format:
@@ -254,7 +254,7 @@ class DataService:
         :return: Sorted list of unique years
         """
         # Determine the source date field based on collection type
-        if collection_type == CollectionName.CommonCriteria:
+        if collection_type == CollectionType.CommonCriteria:
             date_field = "not_valid_before"
         else:  # FIPS
             date_field = "web_data.date_validation"
@@ -275,16 +275,16 @@ class DataService:
             return []
 
     def get_distinct_values_with_labels(
-        self, field: str, dataset_type, label_map: dict[str, str] | None = None
+        self, field: str, collection_type: CollectionType, label_map: dict[str, str] | None = None
     ) -> list[dict[str, str]]:
         """Get distinct values formatted for Dash dropdown options.
 
         :param field: MongoDB field name
-        :param dataset_type: Type of dataset ('cc' or 'fips')
+        :param collection_type: Type of dataset ('cc' or 'fips')
         :param label_map: Optional mapping of values to custom labels
         :return: List of {label, value} dicts for Dash dropdowns
         """
-        values = self.get_distinct_values(field, dataset_type)
+        values = self.get_distinct_values(field, collection_type)
 
         if label_map:
             return [{"label": label_map.get(v, str(v)), "value": v} for v in values]
@@ -350,19 +350,19 @@ class DataService:
 
         return df
 
-    def get_dataset_metadata(self, dataset_type: str) -> tuple[dict[str, ColumnStats], int, int]:
+    def get_dataset_metadata(self, collection_type: str) -> tuple[dict[str, ColumnStats], int, int]:
         """Get metadata about a dataset including column information.
 
-        :param dataset_type: Type of dataset ('cc' or 'fips')
+        :param collection_type: Type of dataset ('cc' or 'fips')
         :return: Tuple of (column_stats, total_records, total_columns) where
                  column_stats maps column names to their statistics
         """
-        if dataset_type.lower() == "cc":
+        if collection_type.lower() == "cc":
             df = self.get_cc_dataframe()
-        elif dataset_type.lower() == "fips":
+        elif collection_type.lower() == "fips":
             df = self.get_fips_dataframe()
         else:
-            raise ValueError(f"Unknown dataset type: {dataset_type}")
+            raise ValueError(f"Unknown dataset type: {collection_type}")
 
         if df.empty:
             return {}, 0, 0

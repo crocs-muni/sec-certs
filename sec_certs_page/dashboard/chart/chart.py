@@ -5,7 +5,7 @@ from uuid import UUID
 
 from ..filters.filter import FilterSpec
 from ..types.chart import AvailableChartTypes
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 from ..types.filter import AggregationType
 
 
@@ -95,7 +95,7 @@ class Chart:
     name: str
     chart_type: AvailableChartTypes
     x_axis: AxisConfig
-    collection_type: CollectionName
+    collection_type: CollectionType
     title: str = ""
     order: int = 0
     y_axis: AxisConfig | None = None
@@ -249,7 +249,7 @@ class Chart:
 
         collection_type = data["collection_type"]
         if isinstance(collection_type, str):
-            collection_type = CollectionName(collection_type)
+            collection_type = CollectionType(collection_type)
 
         return cls(
             chart_id=chart_id,

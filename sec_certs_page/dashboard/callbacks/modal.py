@@ -8,11 +8,10 @@ from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
 from ..chart.chart import AxisConfig, Chart
-from ..filters.factory import FilterFactory
 from ..filters.query_builder import build_chart_pipeline
 from ..types.aggregations import get_aggregations_for_type
 from ..types.chart import AvailableChartTypes
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 from ..types.filter import AggregationType
 
 if TYPE_CHECKING:
@@ -23,29 +22,27 @@ if TYPE_CHECKING:
 
 def register_modal_callbacks(
     dash_app: "Dash",
-    prefix: str,
-    dataset_type: CollectionName,
+    collection_type: CollectionType,
     data_service: "DataService",
     chart_registry: "ChartRegistry",
-    filter_factory: FilterFactory,
 ) -> None:
-    _register_modal_toggle(dash_app, prefix)
-    _register_modal_filter_reset(dash_app, prefix)
-    _register_modal_mode(dash_app, prefix)
-    _register_edit_handler(dash_app, prefix, chart_registry)
-    _register_modal_filter_ui(dash_app, prefix)
-    _register_modal_filter_options(dash_app, prefix, dataset_type, data_service)
-    _register_filter_actions(dash_app, prefix)
-    _register_axis_options(dash_app, prefix)
-    _register_aggregation_options(dash_app, prefix)
-    _register_y_field_state(dash_app, prefix)
-    _register_x_label_autofill(dash_app, prefix)
-    _register_chart_type_help(dash_app, prefix)
-    _register_color_by_toggle(dash_app, prefix)
-    _register_chart_creation(dash_app, prefix, dataset_type, data_service, chart_registry)
+    _register_modal_toggle(dash_app, collection_type)
+    _register_modal_filter_reset(dash_app, collection_type)
+    _register_modal_mode(dash_app, collection_type)
+    _register_edit_handler(dash_app, collection_type, chart_registry)
+    _register_modal_filter_ui(dash_app, collection_type)
+    _register_modal_filter_options(dash_app, collection_type, data_service)
+    _register_filter_actions(dash_app, collection_type)
+    _register_axis_options(dash_app, collection_type)
+    _register_aggregation_options(dash_app, collection_type)
+    _register_y_field_state(dash_app, collection_type)
+    _register_x_label_autofill(dash_app, collection_type)
+    _register_chart_type_help(dash_app, collection_type)
+    _register_color_by_toggle(dash_app, collection_type)
+    _register_chart_creation(dash_app, collection_type, data_service, chart_registry)
 
 
-def _register_modal_toggle(dash_app: "Dash", prefix: str) -> None:
+def _register_modal_toggle(dash_app: "Dash", collection_type: CollectionType) -> None:
     """Handle modal open/close and reset form when opening in create mode.
 
     This is the single source of truth for create mode - it resets all form fields.
@@ -58,27 +55,27 @@ def _register_modal_toggle(dash_app: "Dash", prefix: str) -> None:
 
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{prefix}-create-chart-modal", "is_open"),
-            edit_id=Output(f"{prefix}-edit-chart-id", "data"),
+            is_open=Output(f"{collection_type}-create-chart-modal", "is_open"),
+            edit_id=Output(f"{collection_type}-edit-chart-id", "data"),
             # Form fields - reset on create, no_update on close
-            title=Output(f"{prefix}-modal-chart-title", "value"),
-            chart_type=Output(f"{prefix}-modal-chart-type", "value"),
-            x_field=Output(f"{prefix}-modal-x-field", "value"),
-            x_label=Output(f"{prefix}-modal-x-label", "value"),
-            color_field=Output(f"{prefix}-modal-color-field", "value"),
-            aggregation=Output(f"{prefix}-modal-aggregation", "value"),
-            y_field=Output(f"{prefix}-modal-y-field", "value"),
-            y_label=Output(f"{prefix}-modal-y-label", "value"),
-            show_legend=Output(f"{prefix}-modal-show-legend", "value"),
-            show_grid=Output(f"{prefix}-modal-show-grid", "value"),
-            color_by_open=Output(f"{prefix}-color-by-collapse", "is_open"),
+            title=Output(f"{collection_type}-modal-chart-title", "value"),
+            chart_type=Output(f"{collection_type}-modal-chart-type", "value"),
+            x_field=Output(f"{collection_type}-modal-x-field", "value"),
+            x_label=Output(f"{collection_type}-modal-x-label", "value"),
+            color_field=Output(f"{collection_type}-modal-color-field", "value"),
+            aggregation=Output(f"{collection_type}-modal-aggregation", "value"),
+            y_field=Output(f"{collection_type}-modal-y-field", "value"),
+            y_label=Output(f"{collection_type}-modal-y-label", "value"),
+            show_legend=Output(f"{collection_type}-modal-show-legend", "value"),
+            show_grid=Output(f"{collection_type}-modal-show-grid", "value"),
+            color_by_open=Output(f"{collection_type}-color-by-collapse", "is_open"),
         ),
         inputs=dict(
-            open_clicks=Input(f"{prefix}-open-create-chart-modal-btn", "n_clicks"),
-            cancel_clicks=Input(f"{prefix}-modal-cancel-btn", "n_clicks"),
+            open_clicks=Input(f"{collection_type}-open-create-chart-modal-btn", "n_clicks"),
+            cancel_clicks=Input(f"{collection_type}-modal-cancel-btn", "n_clicks"),
         ),
         state=dict(
-            is_open=State(f"{prefix}-create-chart-modal", "is_open"),
+            is_open=State(f"{collection_type}-create-chart-modal", "is_open"),
         ),
         prevent_initial_call=True,
     )
@@ -99,7 +96,7 @@ def _register_modal_toggle(dash_app: "Dash", prefix: str) -> None:
             color_by_open=no_update,
         )
 
-        if triggered == f"{prefix}-open-create-chart-modal-btn":
+        if triggered == f"{collection_type}-open-create-chart-modal-btn":
             # Opening in CREATE mode - reset all form fields
             return dict(
                 is_open=True,
@@ -117,14 +114,14 @@ def _register_modal_toggle(dash_app: "Dash", prefix: str) -> None:
                 color_by_open=False,
             )
 
-        if triggered == f"{prefix}-modal-cancel-btn":
+        if triggered == f"{collection_type}-modal-cancel-btn":
             # Closing modal - don't change form values
             return dict(is_open=False, edit_id=None, **no_change_form)
 
         return dict(is_open=is_open, edit_id=no_update, **no_change_form)
 
 
-def _register_modal_filter_reset(dash_app: "Dash", prefix: str) -> None:
+def _register_modal_filter_reset(dash_app: "Dash", collection_type: CollectionType) -> None:
     """Reset modal filter values when opening in create mode.
 
     This is separate from _register_modal_toggle to avoid mixing ALL and MATCH
@@ -132,12 +129,12 @@ def _register_modal_filter_reset(dash_app: "Dash", prefix: str) -> None:
     """
 
     @dash_app.callback(
-        output=dict(filter_values=Output({"type": f"{prefix}-modal-filter", "field": ALL}, "value")),
+        output=dict(filter_values=Output({"type": f"{collection_type}-modal-filter", "field": ALL}, "value")),
         inputs=dict(
-            open_clicks=Input(f"{prefix}-open-create-chart-modal-btn", "n_clicks"),
+            open_clicks=Input(f"{collection_type}-open-create-chart-modal-btn", "n_clicks"),
         ),
         state=dict(
-            current_filter_values=State({"type": f"{prefix}-modal-filter", "field": ALL}, "value"),
+            current_filter_values=State({"type": f"{collection_type}-modal-filter", "field": ALL}, "value"),
         ),
         prevent_initial_call=True,
     )
@@ -148,13 +145,13 @@ def _register_modal_filter_reset(dash_app: "Dash", prefix: str) -> None:
         return dict(filter_values=[no_update] * len(current_filter_values))
 
 
-def _register_modal_mode(dash_app: "Dash", prefix: str) -> None:
+def _register_modal_mode(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
         output=dict(
-            title=Output(f"{prefix}-modal-title", "children"),
-            btn_text=Output(f"{prefix}-modal-create-btn", "children"),
+            title=Output(f"{collection_type}-modal-title", "children"),
+            btn_text=Output(f"{collection_type}-modal-create-btn", "children"),
         ),
-        inputs=dict(edit_chart_id=Input(f"{prefix}-edit-chart-id", "data")),
+        inputs=dict(edit_chart_id=Input(f"{collection_type}-edit-chart-id", "data")),
         prevent_initial_call=True,
     )
     def update_modal_mode(edit_chart_id):
@@ -172,29 +169,29 @@ def _register_modal_mode(dash_app: "Dash", prefix: str) -> None:
 
 def _register_edit_handler(
     dash_app: "Dash",
-    prefix: str,
+    collection_type: CollectionType,
     chart_registry: "ChartRegistry",
 ) -> None:
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{prefix}-create-chart-modal", "is_open", allow_duplicate=True),
-            edit_id=Output(f"{prefix}-edit-chart-id", "data", allow_duplicate=True),
-            title=Output(f"{prefix}-modal-chart-title", "value", allow_duplicate=True),
-            chart_type=Output(f"{prefix}-modal-chart-type", "value", allow_duplicate=True),
-            x_field=Output(f"{prefix}-modal-x-field", "value", allow_duplicate=True),
-            x_label=Output(f"{prefix}-modal-x-label", "value", allow_duplicate=True),
-            color_field=Output(f"{prefix}-modal-color-field", "value", allow_duplicate=True),
-            aggregation=Output(f"{prefix}-modal-aggregation", "value", allow_duplicate=True),
-            y_field=Output(f"{prefix}-modal-y-field", "value", allow_duplicate=True),
-            y_label=Output(f"{prefix}-modal-y-label", "value", allow_duplicate=True),
-            show_legend=Output(f"{prefix}-modal-show-legend", "value", allow_duplicate=True),
-            show_grid=Output(f"{prefix}-modal-show-grid", "value", allow_duplicate=True),
-            color_by_open=Output(f"{prefix}-color-by-collapse", "is_open", allow_duplicate=True),
+            is_open=Output(f"{collection_type}-create-chart-modal", "is_open", allow_duplicate=True),
+            edit_id=Output(f"{collection_type}-edit-chart-id", "data", allow_duplicate=True),
+            title=Output(f"{collection_type}-modal-chart-title", "value", allow_duplicate=True),
+            chart_type=Output(f"{collection_type}-modal-chart-type", "value", allow_duplicate=True),
+            x_field=Output(f"{collection_type}-modal-x-field", "value", allow_duplicate=True),
+            x_label=Output(f"{collection_type}-modal-x-label", "value", allow_duplicate=True),
+            color_field=Output(f"{collection_type}-modal-color-field", "value", allow_duplicate=True),
+            aggregation=Output(f"{collection_type}-modal-aggregation", "value", allow_duplicate=True),
+            y_field=Output(f"{collection_type}-modal-y-field", "value", allow_duplicate=True),
+            y_label=Output(f"{collection_type}-modal-y-label", "value", allow_duplicate=True),
+            show_legend=Output(f"{collection_type}-modal-show-legend", "value", allow_duplicate=True),
+            show_grid=Output(f"{collection_type}-modal-show-grid", "value", allow_duplicate=True),
+            color_by_open=Output(f"{collection_type}-color-by-collapse", "is_open", allow_duplicate=True),
         ),
         inputs=dict(n_clicks_list=Input({"type": "chart-edit", "index": ALL}, "n_clicks")),
         state=dict(
             id_list=State({"type": "chart-edit", "index": ALL}, "id"),
-            chart_configs=State(f"{prefix}-chart-configs-store", "data"),
+            chart_configs=State(f"{collection_type}-chart-configs-store", "data"),
         ),
         prevent_initial_call=True,
     )
@@ -254,14 +251,14 @@ def _register_edit_handler(
         return no_change
 
 
-def _register_modal_filter_ui(dash_app: "Dash", prefix: str) -> None:
+def _register_modal_filter_ui(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
         output=dict(
-            children=Output(f"{prefix}-modal-filters-container", "children"),
-            filters_ready=Output(f"{prefix}-modal-filters-ready", "data"),
+            children=Output(f"{collection_type}-modal-filters-container", "children"),
+            filters_ready=Output(f"{collection_type}-modal-filters-ready", "data"),
         ),
-        inputs=dict(filter_specs=Input(f"{prefix}-filter-specs", "data")),
-        state=dict(current_ready=State(f"{prefix}-modal-filters-ready", "data")),
+        inputs=dict(filter_specs=Input(f"{collection_type}-filter-specs", "data")),
+        state=dict(current_ready=State(f"{collection_type}-modal-filters-ready", "data")),
         prevent_initial_call=True,
     )
     def generate_modal_filter_ui(filter_specs, current_ready):
@@ -277,8 +274,8 @@ def _register_modal_filter_ui(dash_app: "Dash", prefix: str) -> None:
             cols = []
             for spec in filter_specs[i : i + 2]:
                 component_type = spec.get("component_type", "dropdown")
-                field_id = {"type": f"{prefix}-modal-filter", "field": spec["id"]}
-                filter_component = _create_filter_component(prefix, spec, field_id)
+                field_id = {"type": f"{collection_type}-modal-filter", "field": spec["id"]}
+                filter_component = _create_filter_component(collection_type, spec, field_id)
 
                 children = [filter_component]
                 if component_type != "checkbox":
@@ -294,7 +291,7 @@ def _register_modal_filter_ui(dash_app: "Dash", prefix: str) -> None:
         return dict(children=filter_rows, filters_ready=(current_ready or 0) + 1)
 
 
-def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Component:
+def _create_filter_component(collection_type: CollectionType, spec: dict, field_id: dict) -> Component:
     component_type = spec.get("component_type", "dropdown")
     placeholder = spec.get("placeholder") or f"Select {spec['label']}..."
 
@@ -308,7 +305,7 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                     placeholder=spec.get("placeholder") or f"Search {spec['label']}...",
                     className="flex-grow-1",
                 ),
-                _create_clear_button(prefix, spec["id"]),
+                _create_clear_button(collection_type, spec["id"]),
             ],
         )
 
@@ -336,7 +333,7 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                         ),
                     ],
                 ),
-                _create_clear_button(prefix, spec["id"]),
+                _create_clear_button(collection_type, spec["id"]),
             ],
         )
 
@@ -362,7 +359,7 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                         ),
                     ],
                 ),
-                _create_clear_button(prefix, spec["field"]),
+                _create_clear_button(collection_type, spec["field"]),
             ],
         )
 
@@ -385,7 +382,7 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                     children=[
                         dbc.Button(
                             "Select All",
-                            id={"type": f"{prefix}-select-all-filter", "field": spec["id"]},
+                            id={"type": f"{collection_type}-select-all-filter", "field": spec["id"]},
                             color="link",
                             size="sm",
                             className="p-0 text-decoration-none",
@@ -393,7 +390,7 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
                         html.Span("·", className="text-muted"),
                         dbc.Button(
                             "Clear",
-                            id={"type": f"{prefix}-clear-filter", "field": spec["id"]},
+                            id={"type": f"{collection_type}-clear-filter", "field": spec["id"]},
                             color="link",
                             size="sm",
                             className="p-0 text-decoration-none",
@@ -413,10 +410,10 @@ def _create_filter_component(prefix: str, spec: dict, field_id: dict) -> Compone
     )
 
 
-def _create_clear_button(prefix: str, field_id: str) -> dbc.Button:
+def _create_clear_button(collection_type: CollectionType, field_id: str) -> dbc.Button:
     return dbc.Button(
         html.I(className="fas fa-times"),
-        id={"type": f"{prefix}-clear-filter", "field": field_id},
+        id={"type": f"{collection_type}-clear-filter", "field": field_id},
         color="secondary",
         outline=True,
         size="sm",
@@ -427,14 +424,13 @@ def _create_clear_button(prefix: str, field_id: str) -> dbc.Button:
 
 def _register_modal_filter_options(
     dash_app: "Dash",
-    prefix: str,
-    dataset_type: CollectionName,
+    collection_type: CollectionType,
     data_service: "DataService",
 ) -> None:
     @dash_app.callback(
-        output=dict(options=Output({"type": f"{prefix}-modal-filter", "field": ALL}, "options")),
-        inputs=dict(filters_ready=Input(f"{prefix}-modal-filters-ready", "data")),
-        state=dict(filter_specs=State(f"{prefix}-filter-specs", "data")),
+        output=dict(options=Output({"type": f"{collection_type}-modal-filter", "field": ALL}, "options")),
+        inputs=dict(filters_ready=Input(f"{collection_type}-modal-filters-ready", "data")),
+        state=dict(filter_specs=State(f"{collection_type}-filter-specs", "data")),
         prevent_initial_call=True,
     )
     def populate_modal_filter_options(filters_ready, filter_specs):
@@ -454,9 +450,9 @@ def _register_modal_filter_options(
 
             try:
                 if operator == "$year_in":
-                    unique_values = data_service.get_unique_values(dataset_type, "year_from")
+                    unique_values = data_service.get_unique_values(collection_type, "year_from")
                 else:
-                    unique_values = data_service.get_unique_values(dataset_type, field)
+                    unique_values = data_service.get_unique_values(collection_type, field)
 
                 options = [{"label": str(v), "value": v} for v in unique_values if v is not None]
 
@@ -470,10 +466,12 @@ def _register_modal_filter_options(
         return dict(options=options_list)
 
 
-def _register_filter_actions(dash_app: "Dash", prefix: str) -> None:
+def _register_filter_actions(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
-        output=dict(value=Output({"type": f"{prefix}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)),
-        inputs=dict(n_clicks=Input({"type": f"{prefix}-clear-filter", "field": MATCH}, "n_clicks")),
+        output=dict(
+            value=Output({"type": f"{collection_type}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)
+        ),
+        inputs=dict(n_clicks=Input({"type": f"{collection_type}-clear-filter", "field": MATCH}, "n_clicks")),
         prevent_initial_call=True,
     )
     def clear_filter_value(n_clicks):
@@ -482,9 +480,11 @@ def _register_filter_actions(dash_app: "Dash", prefix: str) -> None:
         return dict(value=no_update)
 
     @dash_app.callback(
-        output=dict(value=Output({"type": f"{prefix}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)),
-        inputs=dict(n_clicks=Input({"type": f"{prefix}-select-all-filter", "field": MATCH}, "n_clicks")),
-        state=dict(options=State({"type": f"{prefix}-modal-filter", "field": MATCH}, "options")),
+        output=dict(
+            value=Output({"type": f"{collection_type}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)
+        ),
+        inputs=dict(n_clicks=Input({"type": f"{collection_type}-select-all-filter", "field": MATCH}, "n_clicks")),
+        state=dict(options=State({"type": f"{collection_type}-modal-filter", "field": MATCH}, "options")),
         prevent_initial_call=True,
     )
     def select_all_filter_values(n_clicks, options):
@@ -493,13 +493,13 @@ def _register_filter_actions(dash_app: "Dash", prefix: str) -> None:
         return dict(value=no_update)
 
 
-def _register_axis_options(dash_app: "Dash", prefix: str) -> None:
+def _register_axis_options(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
         output=dict(
-            x_options=Output(f"{prefix}-modal-x-field", "options"),
-            color_options=Output(f"{prefix}-modal-color-field", "options"),
+            x_options=Output(f"{collection_type}-modal-x-field", "options"),
+            color_options=Output(f"{collection_type}-modal-color-field", "options"),
         ),
-        inputs=dict(available_fields=Input(f"{prefix}-available-fields", "data")),
+        inputs=dict(available_fields=Input(f"{collection_type}-available-fields", "data")),
         prevent_initial_call=True,
     )
     def populate_axis_field_options(available_fields):
@@ -510,11 +510,11 @@ def _register_axis_options(dash_app: "Dash", prefix: str) -> None:
         return dict(x_options=options, color_options=options)
 
 
-def _register_aggregation_options(dash_app: "Dash", prefix: str) -> None:
+def _register_aggregation_options(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
-        output=dict(options=Output(f"{prefix}-modal-aggregation", "options")),
-        inputs=dict(x_field_value=Input(f"{prefix}-modal-x-field", "value")),
-        state=dict(available_fields=State(f"{prefix}-available-fields", "data")),
+        output=dict(options=Output(f"{collection_type}-modal-aggregation", "options")),
+        inputs=dict(x_field_value=Input(f"{collection_type}-modal-x-field", "value")),
+        state=dict(available_fields=State(f"{collection_type}-available-fields", "data")),
         prevent_initial_call=True,
     )
     def update_aggregation_options(x_field_value, available_fields):
@@ -529,15 +529,15 @@ def _register_aggregation_options(dash_app: "Dash", prefix: str) -> None:
         return dict(options=default)
 
 
-def _register_y_field_state(dash_app: "Dash", prefix: str) -> None:
+def _register_y_field_state(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
         output=dict(
-            disabled=Output(f"{prefix}-modal-y-field", "disabled"),
-            options=Output(f"{prefix}-modal-y-field", "options"),
-            help_text=Output(f"{prefix}-modal-y-field-help", "children"),
+            disabled=Output(f"{collection_type}-modal-y-field", "disabled"),
+            options=Output(f"{collection_type}-modal-y-field", "options"),
+            help_text=Output(f"{collection_type}-modal-y-field-help", "children"),
         ),
-        inputs=dict(aggregation_value=Input(f"{prefix}-modal-aggregation", "value")),
-        state=dict(available_fields=State(f"{prefix}-available-fields", "data")),
+        inputs=dict(aggregation_value=Input(f"{collection_type}-modal-aggregation", "value")),
+        state=dict(available_fields=State(f"{collection_type}-available-fields", "data")),
         prevent_initial_call=True,
     )
     def update_y_field_state(aggregation_value, available_fields):
@@ -561,13 +561,13 @@ def _register_y_field_state(dash_app: "Dash", prefix: str) -> None:
         return dict(disabled=False, options=numeric_fields, help_text=help_text)
 
 
-def _register_x_label_autofill(dash_app: "Dash", prefix: str) -> None:
+def _register_x_label_autofill(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
-        output=dict(value=Output(f"{prefix}-modal-x-label", "value", allow_duplicate=True)),
-        inputs=dict(x_field_value=Input(f"{prefix}-modal-x-field", "value")),
+        output=dict(value=Output(f"{collection_type}-modal-x-label", "value", allow_duplicate=True)),
+        inputs=dict(x_field_value=Input(f"{collection_type}-modal-x-field", "value")),
         state=dict(
-            available_fields=State(f"{prefix}-available-fields", "data"),
-            current_label=State(f"{prefix}-modal-x-label", "value"),
+            available_fields=State(f"{collection_type}-available-fields", "data"),
+            current_label=State(f"{collection_type}-modal-x-label", "value"),
         ),
         prevent_initial_call=True,
     )
@@ -583,10 +583,10 @@ def _register_x_label_autofill(dash_app: "Dash", prefix: str) -> None:
         return dict(value="")
 
 
-def _register_chart_type_help(dash_app: "Dash", prefix: str) -> None:
+def _register_chart_type_help(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
-        output=dict(children=Output(f"{prefix}-chart-type-help", "children")),
-        inputs=dict(chart_type=Input(f"{prefix}-modal-chart-type", "value")),
+        output=dict(children=Output(f"{collection_type}-chart-type-help", "children")),
+        inputs=dict(chart_type=Input(f"{collection_type}-modal-chart-type", "value")),
         prevent_initial_call=True,
     )
     def show_chart_type_help(chart_type):
@@ -607,14 +607,14 @@ def _register_chart_type_help(dash_app: "Dash", prefix: str) -> None:
         return dict(children=None)
 
 
-def _register_color_by_toggle(dash_app: "Dash", prefix: str) -> None:
+def _register_color_by_toggle(dash_app: "Dash", collection_type: CollectionType) -> None:
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{prefix}-color-by-collapse", "is_open", allow_duplicate=True),
-            icon_class=Output(f"{prefix}-color-by-icon", "className"),
+            is_open=Output(f"{collection_type}-color-by-collapse", "is_open", allow_duplicate=True),
+            icon_class=Output(f"{collection_type}-color-by-icon", "className"),
         ),
-        inputs=dict(n_clicks=Input(f"{prefix}-color-by-toggle", "n_clicks")),
-        state=dict(is_open=State(f"{prefix}-color-by-collapse", "is_open")),
+        inputs=dict(n_clicks=Input(f"{collection_type}-color-by-toggle", "n_clicks")),
+        state=dict(is_open=State(f"{collection_type}-color-by-collapse", "is_open")),
         prevent_initial_call=True,
     )
     def toggle_color_by_section(n_clicks, is_open):
@@ -627,38 +627,37 @@ def _register_color_by_toggle(dash_app: "Dash", prefix: str) -> None:
 
 def _register_chart_creation(
     dash_app: "Dash",
-    prefix: str,
-    dataset_type: CollectionName,
+    collection_type: CollectionType,
     data_service: "DataService",
     chart_registry: "ChartRegistry",
 ) -> None:
     @dash_app.callback(
         output=dict(
-            modal_open=Output(f"{prefix}-create-chart-modal", "is_open", allow_duplicate=True),
-            alert_open=Output(f"{prefix}-modal-validation-alert", "is_open"),
-            alert_children=Output(f"{prefix}-modal-validation-alert", "children"),
-            edit_id=Output(f"{prefix}-edit-chart-id", "data", allow_duplicate=True),
-            render_trigger=Output(f"{prefix}-render-trigger", "data", allow_duplicate=True),
-            chart_configs=Output(f"{prefix}-chart-configs-store", "data", allow_duplicate=True),
+            modal_open=Output(f"{collection_type}-create-chart-modal", "is_open", allow_duplicate=True),
+            alert_open=Output(f"{collection_type}-modal-validation-alert", "is_open"),
+            alert_children=Output(f"{collection_type}-modal-validation-alert", "children"),
+            edit_id=Output(f"{collection_type}-edit-chart-id", "data", allow_duplicate=True),
+            render_trigger=Output(f"{collection_type}-render-trigger", "data", allow_duplicate=True),
+            chart_configs=Output(f"{collection_type}-chart-configs-store", "data", allow_duplicate=True),
         ),
-        inputs=dict(n_clicks=Input(f"{prefix}-modal-create-btn", "n_clicks")),
+        inputs=dict(n_clicks=Input(f"{collection_type}-modal-create-btn", "n_clicks")),
         state=dict(
-            title=State(f"{prefix}-modal-chart-title", "value"),
-            chart_type=State(f"{prefix}-modal-chart-type", "value"),
-            x_field=State(f"{prefix}-modal-x-field", "value"),
-            x_label=State(f"{prefix}-modal-x-label", "value"),
-            color_field=State(f"{prefix}-modal-color-field", "value"),
-            aggregation=State(f"{prefix}-modal-aggregation", "value"),
-            y_field=State(f"{prefix}-modal-y-field", "value"),
-            y_label=State(f"{prefix}-modal-y-label", "value"),
-            show_legend=State(f"{prefix}-modal-show-legend", "value"),
-            show_grid=State(f"{prefix}-modal-show-grid", "value"),
-            current_filter_values=State(f"{prefix}-filter-store", "data"),
-            modal_filter_values=State({"type": f"{prefix}-modal-filter", "field": ALL}, "value"),
-            filter_specs=State(f"{prefix}-filter-specs", "data"),
-            edit_chart_id=State(f"{prefix}-edit-chart-id", "data"),
-            render_trigger=State(f"{prefix}-render-trigger", "data"),
-            chart_configs=State(f"{prefix}-chart-configs-store", "data"),
+            title=State(f"{collection_type}-modal-chart-title", "value"),
+            chart_type=State(f"{collection_type}-modal-chart-type", "value"),
+            x_field=State(f"{collection_type}-modal-x-field", "value"),
+            x_label=State(f"{collection_type}-modal-x-label", "value"),
+            color_field=State(f"{collection_type}-modal-color-field", "value"),
+            aggregation=State(f"{collection_type}-modal-aggregation", "value"),
+            y_field=State(f"{collection_type}-modal-y-field", "value"),
+            y_label=State(f"{collection_type}-modal-y-label", "value"),
+            show_legend=State(f"{collection_type}-modal-show-legend", "value"),
+            show_grid=State(f"{collection_type}-modal-show-grid", "value"),
+            current_filter_values=State(f"{collection_type}-filter-store", "data"),
+            modal_filter_values=State({"type": f"{collection_type}-modal-filter", "field": ALL}, "value"),
+            filter_specs=State(f"{collection_type}-filter-specs", "data"),
+            edit_chart_id=State(f"{collection_type}-edit-chart-id", "data"),
+            render_trigger=State(f"{collection_type}-render-trigger", "data"),
+            chart_configs=State(f"{collection_type}-chart-configs-store", "data"),
         ),
         prevent_initial_call=True,
     )
@@ -721,7 +720,7 @@ def _register_chart_creation(
             y_label=y_label,
             show_legend=show_legend,
             show_grid=show_grid,
-            dataset_type=dataset_type,
+            collection_type=collection_type,
             filter_specs=filter_specs,
             modal_filter_values=modal_filter_values,
             current_filter_values=current_filter_values,
@@ -786,7 +785,7 @@ def _build_chart_config(
     y_label: str | None,
     show_legend: bool | None,
     show_grid: bool | None,
-    dataset_type: CollectionName,
+    collection_type: CollectionType,
     filter_specs: list[dict] | None,
     modal_filter_values: list | None,
     current_filter_values: dict | None,
@@ -837,7 +836,7 @@ def _build_chart_config(
         name=f"custom-{chart_id}",
         title=title,
         chart_type=AvailableChartTypes(chart_type),
-        collection_type=dataset_type,
+        collection_type=collection_type,
         x_axis=x_axis,
         y_axis=y_axis,
         color_axis=color_axis_config,

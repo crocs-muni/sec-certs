@@ -5,27 +5,25 @@ from dash import dcc, html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
 from ..types.chart import AvailableChartTypes
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 from ..types.filter import AggregationType
 
 
-def create_collection_page_layout(collection: CollectionName, title: str) -> html.Div:
+def create_collection_page_layout(collection_type: CollectionType, title: str) -> html.Div:
     """
     Create the complete layout for a collection dashboard page.
 
-    :param collection: The collection enum value
+    :param collection_type: The collection enum value
     :param title: The page title to display
     :return: Complete page layout
     """
-    prefix = collection.value
-
     return html.Div(
         children=[
             # State stores
-            *create_page_stores(prefix),
+            *create_page_stores(collection_type),
             # Toast for notifications
             dbc.Toast(
-                id=f"{prefix}-dashboard-toast",
+                id=f"{collection_type}-dashboard-toast",
                 header="Dashboard",
                 is_open=False,
                 dismissable=True,
@@ -55,15 +53,15 @@ def create_collection_page_layout(collection: CollectionName, title: str) -> htm
                 children=[
                     dbc.CardBody(
                         children=[
-                            create_dashboard_management_buttons(prefix),
+                            create_dashboard_management_buttons(collection_type),
                         ],
                     ),
                 ],
             ),
             # Empty state
-            create_empty_state(prefix),
+            create_empty_state(collection_type),
             # Dashboard content
-            create_dashboard_content(prefix),
+            create_dashboard_content(collection_type),
         ],
     )
 

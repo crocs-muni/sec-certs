@@ -1,6 +1,6 @@
 from typing import Dict, Iterator
 
-from ..types.common import CollectionName
+from ..types.common import CollectionType
 from .base import BaseChart
 
 
@@ -12,8 +12,8 @@ class ChartRegistry:
     - Active charts: All charts currently being rendered (predefined + custom)
     """
 
-    def __init__(self, dataset_type: CollectionName) -> None:
-        self.dataset_type = dataset_type
+    def __init__(self, collection_type: CollectionType) -> None:
+        self.collection_type = collection_type
         self._predefined_charts: Dict[str, BaseChart] = {}
         self._active_charts: Dict[str, BaseChart] = {}
 
