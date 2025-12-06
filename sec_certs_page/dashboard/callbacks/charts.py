@@ -207,7 +207,7 @@ def _register_chart_rendering(
 
             try:
                 chart_component = chart.render(filter_values or {})
-                is_editable = chart.config.name.startswith("custom-") if chart.config else False
+                is_editable = chart.config.is_editable if chart.config else False
                 rendered.append(create_chart_wrapper(chart_id, chart.title, chart_component, is_editable))
             except Exception as e:
                 rendered.append(

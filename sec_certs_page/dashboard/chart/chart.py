@@ -85,6 +85,8 @@ class Chart:
     :type show_legend: bool
     :param show_grid: Whether to display grid lines
     :type show_grid: bool
+    :param is_editable: Whether chart can be edited/removed by user (typically custom charts)
+    :type is_editable: bool
     :param created_at: Timestamp when chart was created (UTC)
     :type created_at: datetime | None
     :param updated_at: Timestamp of last modification (UTC)
@@ -106,6 +108,7 @@ class Chart:
     color_scheme: str = "plotly"
     show_legend: bool = True
     show_grid: bool = True
+    is_editable: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
@@ -203,6 +206,7 @@ class Chart:
             "color_scheme": self.color_scheme,
             "show_legend": self.show_legend,
             "show_grid": self.show_grid,
+            "is_editable": self.is_editable,
             "created_at": format_datetime(self.created_at),
             "updated_at": format_datetime(self.updated_at),
         }
@@ -267,6 +271,7 @@ class Chart:
             color_scheme=data.get("color_scheme", "plotly"),
             show_legend=data.get("show_legend", True),
             show_grid=data.get("show_grid", True),
+            is_editable=data.get("is_editable", False),
             created_at=created_at,
             updated_at=updated_at,
         )

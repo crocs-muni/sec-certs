@@ -842,6 +842,7 @@ def _build_chart_config(
         color_axis=color_axis_config,
         show_legend=show_legend if show_legend is not None else True,
         show_grid=show_grid if show_grid is not None else True,
+        is_editable=True,  # Custom charts created by users are editable
         filter_values=chart_filter_values,
     )
 
