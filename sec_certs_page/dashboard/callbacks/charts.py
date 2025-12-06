@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output, State
 
 from ..chart.chart import Chart
 from ..chart.factory import ChartFactory
+from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..types.common import CollectionName
 from .utils import create_chart_wrapper
 
@@ -36,11 +37,12 @@ def register_pattern_matching_callbacks(
     chart_registries: dict[CollectionName, "ChartRegistry"],
 ) -> None:
     """Must be registered once globally since pattern-matching callbacks match across all collections."""
+    pattern_id = PatternMatchingComponentID(None)
 
     @dash_app.callback(
-        output=dict(content=Output({"type": "chart-content", "index": MATCH}, "children")),
-        inputs=dict(n_clicks=Input({"type": "chart-refresh", "index": MATCH}, "n_clicks")),
-        state=dict(wrapper_id=State({"type": "chart-wrapper", "index": MATCH}, "id")),
+        output=dict(content=Output(pattern_id(ComponentID.CHART_CONTENT, MATCH), "children")),
+        inputs=dict(n_clicks=Input(pattern_id(ComponentID.CHART_REFRESH, MATCH), "n_clicks")),
+        state=dict(wrapper_id=State(pattern_id(ComponentID.CHART_WRAPPER, MATCH), "id")),
         prevent_initial_call=True,
     )
     def refresh_single_chart(n_clicks, wrapper_id):
@@ -66,17 +68,20 @@ def register_pattern_matching_callbacks(
 def _register_chart_management(
     dash_app: "Dash", collection_name: CollectionName, chart_registry: "ChartRegistry"
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+    pattern_id = PatternMatchingComponentID(None)
+
     @dash_app.callback(
         output=dict(
-            chart_configs=Output(f"{collection_name}-chart-configs-store", "data", allow_duplicate=True),
+            chart_configs=Output(component_id(ComponentID.CHART_CONFIGS_STORE), "data", allow_duplicate=True),
         ),
         inputs=dict(
-            add_clicks=Input(f"{collection_name}-add-chart-btn", "n_clicks"),
-            remove_clicks=Input({"type": "remove-chart", "index": ALL}, "n_clicks"),
+            add_clicks=Input(component_id(ComponentID.ADD_CHART_BTN), "n_clicks"),
+            remove_clicks=Input(pattern_id(ComponentID.REMOVE_CHART, ALL), "n_clicks"),
         ),
         state=dict(
-            selected_chart_id=State(f"{collection_name}-chart-selector", "value"),
-            current_configs=State(f"{collection_name}-chart-configs-store", "data"),
+            selected_chart_id=State(component_id(ComponentID.CHART_SELECTOR), "value"),
+            current_configs=State(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
         ),
         prevent_initial_call=True,
     )
@@ -88,7 +93,7 @@ def _register_chart_management(
 
         triggered_id = ctx.triggered_id
 
-        if triggered_id == f"{collection_name}-add-chart-btn":
+        if triggered_id == component_id(ComponentID.ADD_CHART_BTN):
             if selected_chart_id and selected_chart_id not in current_configs:
                 # Add the chart config (for predefined charts, get from registry)
                 predefined = chart_registry.get_predefined(selected_chart_id)
@@ -131,9 +136,11 @@ def _register_predefined_chart_options(
     collection_name: CollectionName,
     chart_registry: "ChartRegistry",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(options=Output(f"{collection_name}-chart-selector", "options")),
-        inputs=dict(dashboard_loaded=Input(f"{collection_name}-dashboard-loaded", "data")),
+        output=dict(options=Output(component_id(ComponentID.CHART_SELECTOR), "options")),
+        inputs=dict(dashboard_loaded=Input(component_id(ComponentID.DASHBOARD_LOADED), "data")),
         prevent_initial_call=True,
     )
     def populate_predefined_charts(dashboard_loaded):
@@ -149,13 +156,15 @@ def _register_chart_rendering(
     chart_registry: "ChartRegistry",
     data_service: "DataService",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(children=Output(f"{collection_name}-chart-container", "children")),
+        output=dict(children=Output(component_id(ComponentID.CHART_CONTAINER), "children")),
         inputs=dict(
-            render_trigger=Input(f"{collection_name}-render-trigger", "data"),
-            chart_configs=Input(f"{collection_name}-chart-configs-store", "data"),
+            render_trigger=Input(component_id(ComponentID.RENDER_TRIGGER), "data"),
+            chart_configs=Input(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
         ),
-        state=dict(filter_values=State(f"{collection_name}-filter-store", "data")),
+        state=dict(filter_values=State(component_id(ComponentID.FILTER_STORE), "data")),
     )
     def render_charts(render_trigger, chart_configs, filter_values):
         """When the user clicks the update-all-btn or we load first we render the charts."""
@@ -219,16 +228,14 @@ def _register_chart_rendering(
 
 
 def _register_update_all(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(trigger=Output(f"{collection_name}-render-trigger", "data")),
-        inputs=dict(n_clicks=Input(f"{collection_name}-update-all-btn", "n_clicks")),
-        state=dict(current_trigger=State(f"{collection_name}-render-trigger", "data")),
+        output=dict(trigger=Output(component_id(ComponentID.RENDER_TRIGGER), "data")),
+        inputs=dict(n_clicks=Input(component_id(ComponentID.UPDATE_ALL_BTN), "n_clicks")),
+        state=dict(current_trigger=State(component_id(ComponentID.RENDER_TRIGGER), "data")),
         prevent_initial_call=True,
     )
     def trigger_update_all(n_clicks, current_trigger):
-        """
-        When user clicks the update-all-btn we update all charts.
-
-        The `{collection_name}-render-trigger` triggers the render_charts function above.
-        """
+        """When user clicks the update-all-btn we update all charts."""
         return dict(trigger=(current_trigger or 0) + 1)

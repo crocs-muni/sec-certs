@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
 from ..chart.chart import AxisConfig, Chart
+from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..filters.query_builder import build_chart_pipeline
 from ..types.aggregations import get_aggregations_for_type
 from ..types.chart import AvailableChartTypes
@@ -52,35 +53,38 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
     which conflicts with MATCH pattern used in filter action callbacks (clear/select all).
     Filters are reset via _register_modal_filter_reset which uses a compatible approach.
     """
+    component_id = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{collection_name}-create-chart-modal", "is_open"),
-            edit_id=Output(f"{collection_name}-edit-chart-id", "data"),
+            is_open=Output(component_id(ComponentID.CREATE_CHART_MODAL), "is_open"),
+            edit_id=Output(component_id(ComponentID.EDIT_CHART_ID), "data"),
             # Form fields - reset on create, no_update on close
-            title=Output(f"{collection_name}-modal-chart-title", "value"),
-            chart_type=Output(f"{collection_name}-modal-chart-type", "value"),
-            x_field=Output(f"{collection_name}-modal-x-field", "value"),
-            x_label=Output(f"{collection_name}-modal-x-label", "value"),
-            color_field=Output(f"{collection_name}-modal-color-field", "value"),
-            aggregation=Output(f"{collection_name}-modal-aggregation", "value"),
-            y_field=Output(f"{collection_name}-modal-y-field", "value"),
-            y_label=Output(f"{collection_name}-modal-y-label", "value"),
-            show_legend=Output(f"{collection_name}-modal-show-legend", "value"),
-            show_grid=Output(f"{collection_name}-modal-show-grid", "value"),
-            color_by_open=Output(f"{collection_name}-color-by-collapse", "is_open"),
+            title=Output(component_id(ComponentID.MODAL_CHART_TITLE), "value"),
+            chart_type=Output(component_id(ComponentID.MODAL_CHART_TYPE), "value"),
+            x_field=Output(component_id(ComponentID.MODAL_X_FIELD), "value"),
+            x_label=Output(component_id(ComponentID.MODAL_X_LABEL), "value"),
+            color_field=Output(component_id(ComponentID.MODAL_COLOR_FIELD), "value"),
+            aggregation=Output(component_id(ComponentID.MODAL_AGGREGATION), "value"),
+            y_field=Output(component_id(ComponentID.MODAL_Y_FIELD), "value"),
+            y_label=Output(component_id(ComponentID.MODAL_Y_LABEL), "value"),
+            show_legend=Output(component_id(ComponentID.MODAL_SHOW_LEGEND), "value"),
+            show_grid=Output(component_id(ComponentID.MODAL_SHOW_GRID), "value"),
+            color_by_open=Output(component_id(ComponentID.COLOR_BY_COLLAPSE), "is_open"),
         ),
         inputs=dict(
-            open_clicks=Input(f"{collection_name}-open-create-chart-modal-btn", "n_clicks"),
-            cancel_clicks=Input(f"{collection_name}-modal-cancel-btn", "n_clicks"),
+            open_clicks=Input(component_id(ComponentID.OPEN_CREATE_CHART_MODAL_BTN), "n_clicks"),
+            cancel_clicks=Input(component_id(ComponentID.MODAL_CANCEL_BTN), "n_clicks"),
         ),
         state=dict(
-            is_open=State(f"{collection_name}-create-chart-modal", "is_open"),
+            is_open=State(component_id(ComponentID.CREATE_CHART_MODAL), "is_open"),
         ),
         prevent_initial_call=True,
     )
     def toggle_modal(open_clicks, cancel_clicks, is_open):
         triggered = ctx.triggered_id
+        open_btn_id = component_id(ComponentID.OPEN_CREATE_CHART_MODAL_BTN)
+        cancel_btn_id = component_id(ComponentID.MODAL_CANCEL_BTN)
 
         no_change_form = dict(
             title=no_update,
@@ -96,7 +100,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             color_by_open=no_update,
         )
 
-        if triggered == f"{collection_name}-open-create-chart-modal-btn":
+        if triggered == open_btn_id:
             # Opening in CREATE mode - reset all form fields
             return dict(
                 is_open=True,
@@ -114,7 +118,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
                 color_by_open=False,
             )
 
-        if triggered == f"{collection_name}-modal-cancel-btn":
+        if triggered == cancel_btn_id:
             # Closing modal - don't change form values
             return dict(is_open=False, edit_id=None, **no_change_form)
 
@@ -127,14 +131,20 @@ def _register_modal_filter_reset(dash_app: "Dash", collection_name: CollectionNa
     This is separate from _register_modal_toggle to avoid mixing ALL and MATCH
     wildcard patterns on the same output (which Dash doesn't allow).
     """
+    component_id = ComponentIDBuilder(collection_name)
+    pattern_id = PatternMatchingComponentID(collection_name)
 
     @dash_app.callback(
-        output=dict(filter_values=Output({"type": f"{collection_name}-modal-filter", "field": ALL}, "value")),
+        output=dict(
+            filter_values=Output(pattern_id(ComponentID.MODAL_FILTER, ALL, use_prefix=True, index_key="field"), "value")
+        ),
         inputs=dict(
-            open_clicks=Input(f"{collection_name}-open-create-chart-modal-btn", "n_clicks"),
+            open_clicks=Input(component_id(ComponentID.OPEN_CREATE_CHART_MODAL_BTN), "n_clicks"),
         ),
         state=dict(
-            current_filter_values=State({"type": f"{collection_name}-modal-filter", "field": ALL}, "value"),
+            current_filter_values=State(
+                pattern_id(ComponentID.MODAL_FILTER, ALL, use_prefix=True, index_key="field"), "value"
+            ),
         ),
         prevent_initial_call=True,
     )
@@ -146,12 +156,14 @@ def _register_modal_filter_reset(dash_app: "Dash", collection_name: CollectionNa
 
 
 def _register_modal_mode(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            title=Output(f"{collection_name}-modal-title", "children"),
-            btn_text=Output(f"{collection_name}-modal-create-btn", "children"),
+            title=Output(component_id(ComponentID.MODAL_TITLE), "children"),
+            btn_text=Output(component_id(ComponentID.MODAL_CREATE_BTN), "children"),
         ),
-        inputs=dict(edit_chart_id=Input(f"{collection_name}-edit-chart-id", "data")),
+        inputs=dict(edit_chart_id=Input(component_id(ComponentID.EDIT_CHART_ID), "data")),
         prevent_initial_call=True,
     )
     def update_modal_mode(edit_chart_id):
@@ -172,26 +184,29 @@ def _register_edit_handler(
     collection_name: CollectionName,
     chart_registry: "ChartRegistry",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+    pattern_id = PatternMatchingComponentID(collection_name=None)
+
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{collection_name}-create-chart-modal", "is_open", allow_duplicate=True),
-            edit_id=Output(f"{collection_name}-edit-chart-id", "data", allow_duplicate=True),
-            title=Output(f"{collection_name}-modal-chart-title", "value", allow_duplicate=True),
-            chart_type=Output(f"{collection_name}-modal-chart-type", "value", allow_duplicate=True),
-            x_field=Output(f"{collection_name}-modal-x-field", "value", allow_duplicate=True),
-            x_label=Output(f"{collection_name}-modal-x-label", "value", allow_duplicate=True),
-            color_field=Output(f"{collection_name}-modal-color-field", "value", allow_duplicate=True),
-            aggregation=Output(f"{collection_name}-modal-aggregation", "value", allow_duplicate=True),
-            y_field=Output(f"{collection_name}-modal-y-field", "value", allow_duplicate=True),
-            y_label=Output(f"{collection_name}-modal-y-label", "value", allow_duplicate=True),
-            show_legend=Output(f"{collection_name}-modal-show-legend", "value", allow_duplicate=True),
-            show_grid=Output(f"{collection_name}-modal-show-grid", "value", allow_duplicate=True),
-            color_by_open=Output(f"{collection_name}-color-by-collapse", "is_open", allow_duplicate=True),
+            is_open=Output(component_id(ComponentID.CREATE_CHART_MODAL), "is_open", allow_duplicate=True),
+            edit_id=Output(component_id(ComponentID.EDIT_CHART_ID), "data", allow_duplicate=True),
+            title=Output(component_id(ComponentID.MODAL_CHART_TITLE), "value", allow_duplicate=True),
+            chart_type=Output(component_id(ComponentID.MODAL_CHART_TYPE), "value", allow_duplicate=True),
+            x_field=Output(component_id(ComponentID.MODAL_X_FIELD), "value", allow_duplicate=True),
+            x_label=Output(component_id(ComponentID.MODAL_X_LABEL), "value", allow_duplicate=True),
+            color_field=Output(component_id(ComponentID.MODAL_COLOR_FIELD), "value", allow_duplicate=True),
+            aggregation=Output(component_id(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
+            y_field=Output(component_id(ComponentID.MODAL_Y_FIELD), "value", allow_duplicate=True),
+            y_label=Output(component_id(ComponentID.MODAL_Y_LABEL), "value", allow_duplicate=True),
+            show_legend=Output(component_id(ComponentID.MODAL_SHOW_LEGEND), "value", allow_duplicate=True),
+            show_grid=Output(component_id(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
+            color_by_open=Output(component_id(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
         ),
-        inputs=dict(n_clicks_list=Input({"type": "chart-edit", "index": ALL}, "n_clicks")),
+        inputs=dict(n_clicks_list=Input(pattern_id(ComponentID.CHART_EDIT, ALL), "n_clicks")),
         state=dict(
-            id_list=State({"type": "chart-edit", "index": ALL}, "id"),
-            chart_configs=State(f"{collection_name}-chart-configs-store", "data"),
+            id_list=State(pattern_id(ComponentID.CHART_EDIT, ALL), "id"),
+            chart_configs=State(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
         ),
         prevent_initial_call=True,
     )
@@ -252,13 +267,15 @@ def _register_edit_handler(
 
 
 def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            children=Output(f"{collection_name}-modal-filters-container", "children"),
-            filters_ready=Output(f"{collection_name}-modal-filters-ready", "data"),
+            children=Output(component_id(ComponentID.MODAL_FILTERS_CONTAINER), "children"),
+            filters_ready=Output(component_id(ComponentID.MODAL_FILTERS_READY), "data"),
         ),
-        inputs=dict(filter_specs=Input(f"{collection_name}-filter-specs", "data")),
-        state=dict(current_ready=State(f"{collection_name}-modal-filters-ready", "data")),
+        inputs=dict(filter_specs=Input(component_id(ComponentID.FILTER_SPECS), "data")),
+        state=dict(current_ready=State(component_id(ComponentID.MODAL_FILTERS_READY), "data")),
         prevent_initial_call=True,
     )
     def generate_modal_filter_ui(filter_specs, current_ready):
@@ -270,11 +287,12 @@ def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName)
             )
 
         filter_rows = []
+        pattern_id = PatternMatchingComponentID(collection_name)
         for i in range(0, len(filter_specs), 2):
             cols = []
             for spec in filter_specs[i : i + 2]:
                 component_type = spec.get("component_type", "dropdown")
-                field_id = {"type": f"{collection_name}-modal-filter", "field": spec["id"]}
+                field_id = pattern_id(ComponentID.MODAL_FILTER, spec["id"], use_prefix=True, index_key="field")
                 filter_component = _create_filter_component(collection_name, spec, field_id)
 
                 children = [filter_component]
@@ -291,7 +309,7 @@ def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName)
         return dict(children=filter_rows, filters_ready=(current_ready or 0) + 1)
 
 
-def _create_filter_component(collection_name: CollectionName, spec: dict, field_id: dict) -> Component:
+def _create_filter_component(collection_name: CollectionName, spec: dict, field_id: dict | str) -> Component:
     component_type = spec.get("component_type", "dropdown")
     placeholder = spec.get("placeholder") or f"Select {spec['label']}..."
 
@@ -367,6 +385,7 @@ def _create_filter_component(collection_name: CollectionName, spec: dict, field_
         return dbc.Checkbox(id=field_id, label=spec["label"])
 
     if component_type == "multi_dropdown":
+        pattern_id = PatternMatchingComponentID(collection_name)
         return html.Div(
             children=[
                 dcc.Dropdown(
@@ -382,7 +401,9 @@ def _create_filter_component(collection_name: CollectionName, spec: dict, field_
                     children=[
                         dbc.Button(
                             "Select All",
-                            id={"type": f"{collection_name}-select-all-filter", "field": spec["id"]},
+                            id=pattern_id(
+                                ComponentID.SELECT_ALL_FILTER, spec["id"], use_prefix=True, index_key="field"
+                            ),
                             color="link",
                             size="sm",
                             className="p-0 text-decoration-none",
@@ -390,7 +411,7 @@ def _create_filter_component(collection_name: CollectionName, spec: dict, field_
                         html.Span("·", className="text-muted"),
                         dbc.Button(
                             "Clear",
-                            id={"type": f"{collection_name}-clear-filter", "field": spec["id"]},
+                            id=pattern_id(ComponentID.CLEAR_FILTER, spec["id"], use_prefix=True, index_key="field"),
                             color="link",
                             size="sm",
                             className="p-0 text-decoration-none",
@@ -411,9 +432,10 @@ def _create_filter_component(collection_name: CollectionName, spec: dict, field_
 
 
 def _create_clear_button(collection_name: CollectionName, field_id: str) -> dbc.Button:
+    pattern_id = PatternMatchingComponentID(collection_name)
     return dbc.Button(
         html.I(className="fas fa-times"),
-        id={"type": f"{collection_name}-clear-filter", "field": field_id},
+        id=pattern_id(ComponentID.CLEAR_FILTER, field_id, use_prefix=True, index_key="field"),
         color="secondary",
         outline=True,
         size="sm",
@@ -427,10 +449,15 @@ def _register_modal_filter_options(
     collection_name: CollectionName,
     data_service: "DataService",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+    pattern_id = PatternMatchingComponentID(collection_name)
+
     @dash_app.callback(
-        output=dict(options=Output({"type": f"{collection_name}-modal-filter", "field": ALL}, "options")),
-        inputs=dict(filters_ready=Input(f"{collection_name}-modal-filters-ready", "data")),
-        state=dict(filter_specs=State(f"{collection_name}-filter-specs", "data")),
+        output=dict(
+            options=Output(pattern_id(ComponentID.MODAL_FILTER, ALL, use_prefix=True, index_key="field"), "options")
+        ),
+        inputs=dict(filters_ready=Input(component_id(ComponentID.MODAL_FILTERS_READY), "data")),
+        state=dict(filter_specs=State(component_id(ComponentID.FILTER_SPECS), "data")),
         prevent_initial_call=True,
     )
     def populate_modal_filter_options(filters_ready, filter_specs):
@@ -467,11 +494,19 @@ def _register_modal_filter_options(
 
 
 def _register_filter_actions(dash_app: "Dash", collection_name: CollectionName) -> None:
+    pattern_id = PatternMatchingComponentID(collection_name)
+
     @dash_app.callback(
         output=dict(
-            value=Output({"type": f"{collection_name}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)
+            value=Output(
+                pattern_id(ComponentID.MODAL_FILTER, MATCH, use_prefix=True, index_key="field"),
+                "value",
+                allow_duplicate=True,
+            )
         ),
-        inputs=dict(n_clicks=Input({"type": f"{collection_name}-clear-filter", "field": MATCH}, "n_clicks")),
+        inputs=dict(
+            n_clicks=Input(pattern_id(ComponentID.CLEAR_FILTER, MATCH, use_prefix=True, index_key="field"), "n_clicks")
+        ),
         prevent_initial_call=True,
     )
     def clear_filter_value(n_clicks):
@@ -481,10 +516,20 @@ def _register_filter_actions(dash_app: "Dash", collection_name: CollectionName) 
 
     @dash_app.callback(
         output=dict(
-            value=Output({"type": f"{collection_name}-modal-filter", "field": MATCH}, "value", allow_duplicate=True)
+            value=Output(
+                pattern_id(ComponentID.MODAL_FILTER, MATCH, use_prefix=True, index_key="field"),
+                "value",
+                allow_duplicate=True,
+            )
         ),
-        inputs=dict(n_clicks=Input({"type": f"{collection_name}-select-all-filter", "field": MATCH}, "n_clicks")),
-        state=dict(options=State({"type": f"{collection_name}-modal-filter", "field": MATCH}, "options")),
+        inputs=dict(
+            n_clicks=Input(
+                pattern_id(ComponentID.SELECT_ALL_FILTER, MATCH, use_prefix=True, index_key="field"), "n_clicks"
+            )
+        ),
+        state=dict(
+            options=State(pattern_id(ComponentID.MODAL_FILTER, MATCH, use_prefix=True, index_key="field"), "options")
+        ),
         prevent_initial_call=True,
     )
     def select_all_filter_values(n_clicks, options):
@@ -494,12 +539,14 @@ def _register_filter_actions(dash_app: "Dash", collection_name: CollectionName) 
 
 
 def _register_axis_options(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            x_options=Output(f"{collection_name}-modal-x-field", "options"),
-            color_options=Output(f"{collection_name}-modal-color-field", "options"),
+            x_options=Output(component_id(ComponentID.MODAL_X_FIELD), "options"),
+            color_options=Output(component_id(ComponentID.MODAL_COLOR_FIELD), "options"),
         ),
-        inputs=dict(available_fields=Input(f"{collection_name}-available-fields", "data")),
+        inputs=dict(available_fields=Input(component_id(ComponentID.AVAILABLE_FIELDS), "data")),
         prevent_initial_call=True,
     )
     def populate_axis_field_options(available_fields):
@@ -511,10 +558,12 @@ def _register_axis_options(dash_app: "Dash", collection_name: CollectionName) ->
 
 
 def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(options=Output(f"{collection_name}-modal-aggregation", "options")),
-        inputs=dict(x_field_value=Input(f"{collection_name}-modal-x-field", "value")),
-        state=dict(available_fields=State(f"{collection_name}-available-fields", "data")),
+        output=dict(options=Output(component_id(ComponentID.MODAL_AGGREGATION), "options")),
+        inputs=dict(x_field_value=Input(component_id(ComponentID.MODAL_X_FIELD), "value")),
+        state=dict(available_fields=State(component_id(ComponentID.AVAILABLE_FIELDS), "data")),
         prevent_initial_call=True,
     )
     def update_aggregation_options(x_field_value, available_fields):
@@ -530,14 +579,16 @@ def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionN
 
 
 def _register_y_field_state(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            disabled=Output(f"{collection_name}-modal-y-field", "disabled"),
-            options=Output(f"{collection_name}-modal-y-field", "options"),
-            help_text=Output(f"{collection_name}-modal-y-field-help", "children"),
+            disabled=Output(component_id(ComponentID.MODAL_Y_FIELD), "disabled"),
+            options=Output(component_id(ComponentID.MODAL_Y_FIELD), "options"),
+            help_text=Output(component_id(ComponentID.MODAL_Y_FIELD_HELP), "children"),
         ),
-        inputs=dict(aggregation_value=Input(f"{collection_name}-modal-aggregation", "value")),
-        state=dict(available_fields=State(f"{collection_name}-available-fields", "data")),
+        inputs=dict(aggregation_value=Input(component_id(ComponentID.MODAL_AGGREGATION), "value")),
+        state=dict(available_fields=State(component_id(ComponentID.AVAILABLE_FIELDS), "data")),
         prevent_initial_call=True,
     )
     def update_y_field_state(aggregation_value, available_fields):
@@ -562,12 +613,14 @@ def _register_y_field_state(dash_app: "Dash", collection_name: CollectionName) -
 
 
 def _register_x_label_autofill(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(value=Output(f"{collection_name}-modal-x-label", "value", allow_duplicate=True)),
-        inputs=dict(x_field_value=Input(f"{collection_name}-modal-x-field", "value")),
+        output=dict(value=Output(component_id(ComponentID.MODAL_X_LABEL), "value", allow_duplicate=True)),
+        inputs=dict(x_field_value=Input(component_id(ComponentID.MODAL_X_FIELD), "value")),
         state=dict(
-            available_fields=State(f"{collection_name}-available-fields", "data"),
-            current_label=State(f"{collection_name}-modal-x-label", "value"),
+            available_fields=State(component_id(ComponentID.AVAILABLE_FIELDS), "data"),
+            current_label=State(component_id(ComponentID.MODAL_X_LABEL), "value"),
         ),
         prevent_initial_call=True,
     )
@@ -584,9 +637,11 @@ def _register_x_label_autofill(dash_app: "Dash", collection_name: CollectionName
 
 
 def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(children=Output(f"{collection_name}-chart-type-help", "children")),
-        inputs=dict(chart_type=Input(f"{collection_name}-modal-chart-type", "value")),
+        output=dict(children=Output(component_id(ComponentID.CHART_TYPE_HELP), "children")),
+        inputs=dict(chart_type=Input(component_id(ComponentID.MODAL_CHART_TYPE), "value")),
         prevent_initial_call=True,
     )
     def show_chart_type_help(chart_type):
@@ -608,13 +663,15 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
 
 
 def _register_color_by_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            is_open=Output(f"{collection_name}-color-by-collapse", "is_open", allow_duplicate=True),
-            icon_class=Output(f"{collection_name}-color-by-icon", "className"),
+            is_open=Output(component_id(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
+            icon_class=Output(component_id(ComponentID.COLOR_BY_ICON), "className"),
         ),
-        inputs=dict(n_clicks=Input(f"{collection_name}-color-by-toggle", "n_clicks")),
-        state=dict(is_open=State(f"{collection_name}-color-by-collapse", "is_open")),
+        inputs=dict(n_clicks=Input(component_id(ComponentID.COLOR_BY_TOGGLE), "n_clicks")),
+        state=dict(is_open=State(component_id(ComponentID.COLOR_BY_COLLAPSE), "is_open")),
         prevent_initial_call=True,
     )
     def toggle_color_by_section(n_clicks, is_open):
@@ -631,33 +688,38 @@ def _register_chart_creation(
     data_service: "DataService",
     chart_registry: "ChartRegistry",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+    pattern_id = PatternMatchingComponentID(collection_name)
+
     @dash_app.callback(
         output=dict(
-            modal_open=Output(f"{collection_name}-create-chart-modal", "is_open", allow_duplicate=True),
-            alert_open=Output(f"{collection_name}-modal-validation-alert", "is_open"),
-            alert_children=Output(f"{collection_name}-modal-validation-alert", "children"),
-            edit_id=Output(f"{collection_name}-edit-chart-id", "data", allow_duplicate=True),
-            render_trigger=Output(f"{collection_name}-render-trigger", "data", allow_duplicate=True),
-            chart_configs=Output(f"{collection_name}-chart-configs-store", "data", allow_duplicate=True),
+            modal_open=Output(component_id(ComponentID.CREATE_CHART_MODAL), "is_open", allow_duplicate=True),
+            alert_open=Output(component_id(ComponentID.MODAL_VALIDATION_ALERT), "is_open"),
+            alert_children=Output(component_id(ComponentID.MODAL_VALIDATION_ALERT), "children"),
+            edit_id=Output(component_id(ComponentID.EDIT_CHART_ID), "data", allow_duplicate=True),
+            render_trigger=Output(component_id(ComponentID.RENDER_TRIGGER), "data", allow_duplicate=True),
+            chart_configs=Output(component_id(ComponentID.CHART_CONFIGS_STORE), "data", allow_duplicate=True),
         ),
-        inputs=dict(n_clicks=Input(f"{collection_name}-modal-create-btn", "n_clicks")),
+        inputs=dict(n_clicks=Input(component_id(ComponentID.MODAL_CREATE_BTN), "n_clicks")),
         state=dict(
-            title=State(f"{collection_name}-modal-chart-title", "value"),
-            chart_type=State(f"{collection_name}-modal-chart-type", "value"),
-            x_field=State(f"{collection_name}-modal-x-field", "value"),
-            x_label=State(f"{collection_name}-modal-x-label", "value"),
-            color_field=State(f"{collection_name}-modal-color-field", "value"),
-            aggregation=State(f"{collection_name}-modal-aggregation", "value"),
-            y_field=State(f"{collection_name}-modal-y-field", "value"),
-            y_label=State(f"{collection_name}-modal-y-label", "value"),
-            show_legend=State(f"{collection_name}-modal-show-legend", "value"),
-            show_grid=State(f"{collection_name}-modal-show-grid", "value"),
-            current_filter_values=State(f"{collection_name}-filter-store", "data"),
-            modal_filter_values=State({"type": f"{collection_name}-modal-filter", "field": ALL}, "value"),
-            filter_specs=State(f"{collection_name}-filter-specs", "data"),
-            edit_chart_id=State(f"{collection_name}-edit-chart-id", "data"),
-            render_trigger=State(f"{collection_name}-render-trigger", "data"),
-            chart_configs=State(f"{collection_name}-chart-configs-store", "data"),
+            title=State(component_id(ComponentID.MODAL_CHART_TITLE), "value"),
+            chart_type=State(component_id(ComponentID.MODAL_CHART_TYPE), "value"),
+            x_field=State(component_id(ComponentID.MODAL_X_FIELD), "value"),
+            x_label=State(component_id(ComponentID.MODAL_X_LABEL), "value"),
+            color_field=State(component_id(ComponentID.MODAL_COLOR_FIELD), "value"),
+            aggregation=State(component_id(ComponentID.MODAL_AGGREGATION), "value"),
+            y_field=State(component_id(ComponentID.MODAL_Y_FIELD), "value"),
+            y_label=State(component_id(ComponentID.MODAL_Y_LABEL), "value"),
+            show_legend=State(component_id(ComponentID.MODAL_SHOW_LEGEND), "value"),
+            show_grid=State(component_id(ComponentID.MODAL_SHOW_GRID), "value"),
+            current_filter_values=State(component_id(ComponentID.FILTER_STORE), "data"),
+            modal_filter_values=State(
+                pattern_id(ComponentID.MODAL_FILTER, ALL, use_prefix=True, index_key="field"), "value"
+            ),
+            filter_specs=State(component_id(ComponentID.FILTER_SPECS), "data"),
+            edit_chart_id=State(component_id(ComponentID.EDIT_CHART_ID), "data"),
+            render_trigger=State(component_id(ComponentID.RENDER_TRIGGER), "data"),
+            chart_configs=State(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
         ),
         prevent_initial_call=True,
     )

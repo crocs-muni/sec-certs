@@ -5,6 +5,7 @@ from dash import ctx, no_update
 from dash.dependencies import Input, Output, State
 
 from ..chart.chart import Chart
+from ..dependencies import ComponentID, ComponentIDBuilder
 from ..types.common import CollectionName
 from .utils import get_current_user_id
 
@@ -42,9 +43,11 @@ def _register_dashboard_names(
     collection_name: CollectionName,
     dashboard_manager: "DashboardManager",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
-        output=dict(options=Output(f"{collection_name}-dashboard-selector", "options")),
-        inputs=dict(loaded=Input(f"{collection_name}-dashboard-loaded", "data")),
+        output=dict(options=Output(component_id(ComponentID.SELECTOR), "options")),
+        inputs=dict(loaded=Input(component_id(ComponentID.DASHBOARD_LOADED), "data")),
         prevent_initial_call=True,
     )
     def load_dashboard_names(loaded):
@@ -73,13 +76,15 @@ def _register_initial_load(
     collection_name: CollectionName,
     dashboard_manager: "DashboardManager",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            selector_value=Output(f"{collection_name}-dashboard-selector", "value"),
-            loaded=Output(f"{collection_name}-dashboard-loaded", "data"),
+            selector_value=Output(component_id(ComponentID.SELECTOR), "value"),
+            loaded=Output(component_id(ComponentID.DASHBOARD_LOADED), "data"),
         ),
-        inputs=dict(collection_name=Input(f"{collection_name}-collection-name", "data")),
-        state=dict(already_loaded=State(f"{collection_name}-dashboard-loaded", "data")),
+        inputs=dict(collection_name=Input(component_id(ComponentID.COLLECTION_NAME), "data")),
+        state=dict(already_loaded=State(component_id(ComponentID.DASHBOARD_LOADED), "data")),
     )
     def load_default_on_init(collection_name, already_loaded):
         """On initial load of the dashboard page, load the user's default dashboard if any."""
@@ -107,25 +112,27 @@ def _register_dashboard_selection(
     dashboard_manager: "DashboardManager",
     chart_registry: "ChartRegistry",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            empty_state_style=Output(f"{collection_name}-empty-state", "style"),
-            content_style=Output(f"{collection_name}-dashboard-content", "style"),
-            dashboard_id=Output(f"{collection_name}-current-dashboard-id", "data"),
-            name_input=Output(f"{collection_name}-dashboard-name-input", "value"),
-            chart_configs=Output(f"{collection_name}-chart-configs-store", "data"),
-            selector_value=Output(f"{collection_name}-dashboard-selector", "value", allow_duplicate=True),
-            toast_open=Output(f"{collection_name}-dashboard-toast", "is_open"),
-            toast_children=Output(f"{collection_name}-dashboard-toast", "children"),
-            toast_icon=Output(f"{collection_name}-dashboard-toast", "icon"),
+            empty_state_style=Output(component_id(ComponentID.EMPTY_STATE), "style"),
+            content_style=Output(component_id(ComponentID.DASHBOARD_CONTENT), "style"),
+            dashboard_id=Output(component_id(ComponentID.CURRENT_DASHBOARD_ID), "data"),
+            name_input=Output(component_id(ComponentID.DASHBOARD_NAME_INPUT), "value"),
+            chart_configs=Output(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
+            selector_value=Output(component_id(ComponentID.SELECTOR), "value", allow_duplicate=True),
+            toast_open=Output(component_id(ComponentID.DASHBOARD_TOAST), "is_open"),
+            toast_children=Output(component_id(ComponentID.DASHBOARD_TOAST), "children"),
+            toast_icon=Output(component_id(ComponentID.DASHBOARD_TOAST), "icon"),
         ),
         inputs=dict(
-            dashboard_id=Input(f"{collection_name}-dashboard-selector", "value"),
-            create_clicks=Input(f"{collection_name}-create-dashboard-btn", "n_clicks"),
+            dashboard_id=Input(component_id(ComponentID.SELECTOR), "value"),
+            create_clicks=Input(component_id(ComponentID.CREATE_BTN), "n_clicks"),
         ),
         state=dict(
-            current_dashboard_id=State(f"{collection_name}-current-dashboard-id", "data"),
-            selector_options=State(f"{collection_name}-dashboard-selector", "options"),
+            current_dashboard_id=State(component_id(ComponentID.CURRENT_DASHBOARD_ID), "data"),
+            selector_options=State(component_id(ComponentID.SELECTOR), "options"),
         ),
         prevent_initial_call=True,
     )
@@ -143,7 +150,10 @@ def _register_dashboard_selection(
         )
         logger.debug(f"[DASHBOARD_SELECT] create_clicks: {create_clicks}, selector_options: {selector_options}")
 
-        if triggered == f"{collection_name}-create-dashboard-btn":
+        create_btn_id = component_id(ComponentID.CREATE_BTN)
+        selector_id = component_id(ComponentID.SELECTOR)
+
+        if triggered == create_btn_id:
             # Create new dashboard: start fresh with no charts
             new_name = _get_new_dashboard_name(selector_options)
             logger.debug(f"[DASHBOARD_SELECT] Creating new dashboard with name: {new_name}")
@@ -160,7 +170,7 @@ def _register_dashboard_selection(
             )
 
         # Only process selector changes if triggered by the selector itself
-        if triggered != f"{collection_name}-dashboard-selector":
+        if triggered != selector_id:
             return dict(
                 empty_state_style=no_update,
                 content_style=no_update,
@@ -249,19 +259,21 @@ def _register_save_dashboard(
     dashboard_manager: "DashboardManager",
     chart_registry: "ChartRegistry",
 ) -> None:
+    component_id = ComponentIDBuilder(collection_name)
+
     @dash_app.callback(
         output=dict(
-            selector_options=Output(f"{collection_name}-dashboard-selector", "options", allow_duplicate=True),
-            selector_value=Output(f"{collection_name}-dashboard-selector", "value", allow_duplicate=True),
-            current_dashboard_id=Output(f"{collection_name}-current-dashboard-id", "data", allow_duplicate=True),
+            selector_options=Output(component_id(ComponentID.SELECTOR), "options", allow_duplicate=True),
+            selector_value=Output(component_id(ComponentID.SELECTOR), "value", allow_duplicate=True),
+            current_dashboard_id=Output(component_id(ComponentID.CURRENT_DASHBOARD_ID), "data", allow_duplicate=True),
         ),
         inputs=dict(
-            save_clicks=Input(f"{collection_name}-save-dashboard-btn", "n_clicks"),
+            save_clicks=Input(component_id(ComponentID.SAVE_BTN), "n_clicks"),
         ),
         state=dict(
-            dashboard_id=State(f"{collection_name}-current-dashboard-id", "data"),
-            dashboard_name=State(f"{collection_name}-dashboard-name-input", "value"),
-            chart_configs=State(f"{collection_name}-chart-configs-store", "data"),
+            dashboard_id=State(component_id(ComponentID.CURRENT_DASHBOARD_ID), "data"),
+            dashboard_name=State(component_id(ComponentID.DASHBOARD_NAME_INPUT), "value"),
+            chart_configs=State(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
         ),
         prevent_initial_call=True,
     )
