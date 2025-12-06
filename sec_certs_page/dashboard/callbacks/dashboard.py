@@ -82,21 +82,22 @@ def _register_initial_load(
         state=dict(already_loaded=State(f"{collection_name}-dashboard-loaded", "data")),
     )
     def load_default_on_init(collection_name, already_loaded):
-        print(f"[INIT_LOAD] collection_name: {collection_name}, already_loaded: {already_loaded}")
+        """On initial load of the dashboard page, load the user's default dashboard if any."""
+        logger.debug(f"Collection_type: {collection_name}, already_loaded: {already_loaded}")
         if already_loaded:
             return dict(selector_value=no_update, loaded=no_update)
 
         user_id = get_current_user_id()
-        print(f"[INIT_LOAD] user_id: {user_id}")
+        logger.debug(f"user_id: {user_id}")
         if not user_id:
             return dict(selector_value=None, loaded=True)
 
         dashboard, _ = dashboard_manager.load_default_dashboard(user_id, collection_name)
         if dashboard:
-            print(f"[INIT_LOAD] Found default dashboard: {dashboard.dashboard_id}")
+            logger.debug(f"Found default dashboard: {dashboard.dashboard_id}")
             return dict(selector_value=str(dashboard.dashboard_id), loaded=True)
 
-        print("[INIT_LOAD] No default dashboard found")
+        logger.info("No default dashboard found")
         return dict(selector_value=None, loaded=True)
 
 
@@ -113,6 +114,7 @@ def _register_dashboard_selection(
             dashboard_id=Output(f"{collection_name}-current-dashboard-id", "data"),
             name_input=Output(f"{collection_name}-dashboard-name-input", "value"),
             chart_configs=Output(f"{collection_name}-chart-configs-store", "data"),
+            selector_value=Output(f"{collection_name}-dashboard-selector", "value", allow_duplicate=True),
             toast_open=Output(f"{collection_name}-dashboard-toast", "is_open"),
             toast_children=Output(f"{collection_name}-dashboard-toast", "children"),
             toast_icon=Output(f"{collection_name}-dashboard-toast", "icon"),
@@ -128,23 +130,47 @@ def _register_dashboard_selection(
         prevent_initial_call=True,
     )
     def handle_dashboard_selection(dashboard_id, create_clicks, current_dashboard_id, selector_options):
+        """Handle dashboard selection and creation.
+
+        This callback manages three scenarios:
+        1. Creating a new dashboard - keeps current charts, generates new name
+        2. Deselecting a dashboard (dashboard_id is None) - shows empty state
+        3. Loading an existing dashboard - loads its charts from database
+        """
         triggered = ctx.triggered_id
-        print(
+        logger.debug(
             f"[DASHBOARD_SELECT] triggered_id: {triggered}, dashboard_id: {dashboard_id}, current: {current_dashboard_id}"
         )
+        logger.debug(f"[DASHBOARD_SELECT] create_clicks: {create_clicks}, selector_options: {selector_options}")
 
         if triggered == f"{collection_name}-create-dashboard-btn":
-        if triggered == f"{collection_type}-create-dashboard-btn":
+            # Create new dashboard: start fresh with no charts
             new_name = _get_new_dashboard_name(selector_options)
+            logger.debug(f"[DASHBOARD_SELECT] Creating new dashboard with name: {new_name}")
             return dict(
                 empty_state_style={"display": "none"},
                 content_style={"display": "block"},
-                dashboard_id=None,
+                dashboard_id=None,  # Mark as new/unsaved
                 name_input=new_name,
-                chart_configs={},
+                chart_configs={},  # Start fresh with no charts
+                selector_value=None,  # Clear the dropdown
                 toast_open=False,
                 toast_children="",
                 toast_icon="info",
+            )
+
+        # Only process selector changes if triggered by the selector itself
+        if triggered != f"{collection_name}-dashboard-selector":
+            return dict(
+                empty_state_style=no_update,
+                content_style=no_update,
+                dashboard_id=no_update,
+                name_input=no_update,
+                chart_configs=no_update,
+                selector_value=no_update,
+                toast_open=no_update,
+                toast_children=no_update,
+                toast_icon=no_update,
             )
 
         if not dashboard_id:
@@ -154,6 +180,7 @@ def _register_dashboard_selection(
                 dashboard_id=None,
                 name_input="",
                 chart_configs={},
+                selector_value=None,
                 toast_open=False,
                 toast_children="",
                 toast_icon="info",
@@ -161,19 +188,20 @@ def _register_dashboard_selection(
 
         # Check if the selected dashboard is already open
         if current_dashboard_id and str(dashboard_id) == str(current_dashboard_id):
-            print(f"[DASHBOARD_SELECT] Dashboard {dashboard_id} is already open")
+            logger.debug(f"[DASHBOARD_SELECT] Dashboard {dashboard_id} is already open")
             return dict(
                 empty_state_style=no_update,
                 content_style=no_update,
                 dashboard_id=no_update,
                 name_input=no_update,
                 chart_configs=no_update,
+                selector_value=no_update,
                 toast_open=True,
                 toast_children="This dashboard is already open.",
                 toast_icon="info",
             )
 
-        print(f"[DASHBOARD_SELECT] Loading dashboard {dashboard_id}")
+        logger.debug(f"[DASHBOARD_SELECT] Loading dashboard {dashboard_id}")
         dashboard, chart_instances = dashboard_manager.load_dashboard_with_charts(dashboard_id)
 
         if not dashboard:
@@ -183,6 +211,7 @@ def _register_dashboard_selection(
                 dashboard_id=None,
                 name_input="",
                 chart_configs={},
+                selector_value=None,
                 toast_open=True,
                 toast_children="Failed to load the selected dashboard.",
                 toast_icon="danger",
@@ -198,13 +227,16 @@ def _register_dashboard_selection(
                 chart_id = str(chart_config.chart_id)
                 chart_configs[chart_id] = chart_config.to_dict()
 
-        print(f"[DASHBOARD_SELECT] Loaded dashboard with {len(chart_configs)} charts: {list(chart_configs.keys())}")
+        logger.debug(
+            f"[DASHBOARD_SELECT] Loaded dashboard with {len(chart_configs)} charts: {list(chart_configs.keys())}"
+        )
         return dict(
             empty_state_style={"display": "none"},
             content_style={"display": "block"},
             dashboard_id=str(dashboard.dashboard_id),
             name_input=dashboard.name,
             chart_configs=chart_configs,
+            selector_value=no_update,  # Selector already triggered with this value
             toast_open=False,
             toast_children="",
             toast_icon="info",
@@ -234,8 +266,42 @@ def _register_save_dashboard(
         prevent_initial_call=True,
     )
     def save_dashboard(save_clicks, dashboard_id, dashboard_name, chart_configs):
-        print(f"[SAVE] Callback triggered - save_clicks: {save_clicks}")
-        print(f"[SAVE] chart_configs keys: {list((chart_configs or {}).keys())}")
+        """Save or update a dashboard to the database.
+
+        This callback handles two distinct scenarios:
+
+        1. **Creating a new dashboard** (dashboard_id is None):
+           - Occurs when user clicks "Create Dashboard" and then "Save"
+           - Creates a new Dashboard instance with a new ID
+           - Adds it to the database
+           - Updates the selector dropdown with the new dashboard
+
+        2. **Updating an existing dashboard** (dashboard_id is not None):
+           - Loads the dashboard from database
+           - Validates ownership (user_id must match)
+           - Updates name and charts
+           - Saves changes back to database
+
+        **Error conditions:**
+        - If dashboard_id exists but dashboard not found in database → Error (inconsistent state)
+        - If dashboard_id exists but belongs to different user → Security error (rejected)
+
+        The dashboard_id is None when:
+        - User clicked "Create Dashboard" button (new unsaved dashboard)
+        - User is saving for the first time
+
+        The dashboard_id is not None when:
+        - User is editing an existing dashboard loaded from the selector
+        - User previously saved this dashboard in the current session
+
+        :param save_clicks: Number of times save button was clicked
+        :param dashboard_id: Current dashboard ID from client state (None for new dashboards)
+        :param dashboard_name: Dashboard name from the name input field
+        :param chart_configs: Dictionary of chart configurations keyed by chart ID
+        :return: Updated selector options, selector value, and current dashboard ID
+        """
+        logger.debug(f"[SAVE_DASHBOARD] Callback triggered - save_clicks: {save_clicks}")
+        logger.debug(f"[SAVE_DASHBOARD] chart_configs keys: {list((chart_configs or {}).keys())}")
 
         if not save_clicks:
             return dict(
@@ -254,7 +320,7 @@ def _register_save_dashboard(
 
         # Use chart_configs as the sole source of truth
         chart_ids = list((chart_configs or {}).keys())
-        print(f"[SAVE] Using chart_ids: {chart_ids}")
+        logger.debug(f"[SAVE_DASHBOARD] Using chart_ids: {chart_ids}")
 
         charts = []
         for i, chart_id in enumerate(chart_ids):
@@ -265,9 +331,9 @@ def _register_save_dashboard(
                     chart = Chart.from_dict(config)
                     chart.order = i
                     charts.append(chart)
-                    print(f"[SAVE] Chart {chart_id}: loaded from chart_configs")
+                    logger.debug(f"[SAVE_DASHBOARD] Chart {chart_id}: loaded from chart_configs")
                 except (KeyError, ValueError) as e:
-                    print(f"[SAVE] Chart {chart_id}: failed to parse from configs - {e}")
+                    logger.debug(f"[SAVE_DASHBOARD] Chart {chart_id}: failed to parse from configs - {e}")
                     continue
             else:
                 # Try to get from predefined chart registry
@@ -276,26 +342,41 @@ def _register_save_dashboard(
                     chart = predefined.config
                     chart.order = i
                     charts.append(chart)
-                    print(f"[SAVE] Chart {chart_id}: loaded from predefined registry")
+                    logger.debug(f"[SAVE_DASHBOARD] Chart {chart_id}: loaded from predefined registry")
                 else:
-                    print(f"[SAVE] Chart {chart_id}: not found in configs or registry")
+                    logger.debug(f"[SAVE_DASHBOARD] Chart {chart_id}: not found in configs or registry")
 
-        print(f"[SAVE] Total charts to save: {len(charts)}")
+        logger.debug(f"[SAVE_DASHBOARD] Total charts to save: {len(charts)}")
 
         # Load existing dashboard or create new one
+        is_new_dashboard = dashboard_id is None
+
         if dashboard_id:
             dashboard = dashboard_manager.get_dashboard(dashboard_id)
             if dashboard and dashboard.user_id == user_id:
+                # Update existing dashboard
                 dashboard.name = dashboard_name or "Untitled Dashboard"
                 dashboard.charts = charts
-            else:
-                # Dashboard not found or doesn't belong to user, create new
-                dashboard = dashboard_manager.create_dashboard(
-                    collection_type=collection_type,
-                    user_id=user_id,
-                    name=dashboard_name or "Untitled Dashboard",
+            elif dashboard and dashboard.user_id != user_id:
+                # Security error: trying to modify someone else's dashboard
+                logger.error(
+                    f"[SAVE_DASHBOARD] User {user_id} attempted to modify dashboard {dashboard_id} owned by {dashboard.user_id}"
                 )
-                dashboard.charts = charts
+                return dict(
+                    selector_options=no_update,
+                    selector_value=no_update,
+                    current_dashboard_id=no_update,
+                )
+            else:
+                # Dashboard ID exists in client state but not in database - inconsistent state
+                logger.error(
+                    f"[SAVE_DASHBOARD] Dashboard {dashboard_id} not found in database but present in client state"
+                )
+                return dict(
+                    selector_options=no_update,
+                    selector_value=no_update,
+                    current_dashboard_id=no_update,
+                )
         else:
             # Create new dashboard
             dashboard = dashboard_manager.create_dashboard(
@@ -307,7 +388,6 @@ def _register_save_dashboard(
 
         # Save to database
         saved_id = dashboard_manager.save_dashboard(dashboard)
-        is_new_dashboard = dashboard_id is None
 
         # Refresh dashboard list
         names = dashboard_manager.get_dashboard_names(user_id, collection_name)

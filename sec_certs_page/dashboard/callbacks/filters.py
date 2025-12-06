@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from dash.dependencies import Input, Output, State
@@ -9,6 +10,8 @@ from ..types.filter import FilterComponentType
 if TYPE_CHECKING:
     from ..base import Dash
     from ..data import DataService
+
+logger = logging.getLogger(__name__)
 
 
 def register_filter_callbacks(
@@ -92,7 +95,10 @@ def _register_button_states(dash_app: "Dash", collection_name: CollectionName) -
     def update_button_states(chart_configs):
         # Enable buttons if there are charts in configs
         has_charts = bool(chart_configs and len(chart_configs) > 0)
-        print(f"[BUTTON_STATES] chart_configs keys: {list((chart_configs or {}).keys())}, has_charts: {has_charts}")
+        logger.debug(
+            f"[BUTTON_STATES] chart_configs keys: {list((chart_configs or {}).keys())}, has_charts: {has_charts}"
+        )
+        logger.debug(f"[BUTTON_STATES] update_disabled: {not has_charts}, save_disabled: {not has_charts}")
 
         return dict(update_disabled=not has_charts, save_disabled=not has_charts)
 
