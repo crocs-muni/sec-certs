@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -19,6 +20,8 @@ if TYPE_CHECKING:
     from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..data import DataService
+
+logger = logging.getLogger(__name__)
 
 
 def register_modal_callbacks(
@@ -742,8 +745,8 @@ def _register_chart_creation(
         render_trigger,
         chart_configs,
     ):
-        print(f"[MODAL] create_or_update_chart called, n_clicks={n_clicks}")
-        print(f"[MODAL] chart_configs before: {list((chart_configs or {}).keys())}")
+        logger.debug(f"[MODAL] create_or_update_chart called, n_clicks={n_clicks}")
+        logger.debug(f"[MODAL] chart_configs before: {list((chart_configs or {}).keys())}")
 
         no_change = dict(
             modal_open=no_update,
@@ -802,7 +805,7 @@ def _register_chart_creation(
         # Register in the chart registry for rendering
         chart_registry.register_active(chart_instance)
 
-        print(
+        logger.debug(
             f"[MODAL] {'Updated' if is_edit_mode else 'Created'} chart {chart_instance.id}, chart_configs after: {list(updated_chart_configs.keys())}"
         )
         return dict(

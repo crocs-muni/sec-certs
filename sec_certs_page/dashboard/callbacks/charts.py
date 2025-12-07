@@ -124,17 +124,13 @@ def _register_chart_management(
 
             if actual_click and chart_to_remove in current_configs:
                 del current_configs[chart_to_remove]
-                logger.info("Removed chart", extra={"chart_id": chart_to_remove})
+                logger.info(f"Removed chart {chart_to_remove}")
             else:
                 logger.debug(
-                    "Ignored remove trigger",
-                    extra={"chart_id": chart_to_remove, "reason": "n_clicks=0 or chart missing"},
+                    f"Ignored remove trigger for chart_id={chart_to_remove}, reason=n_clicks=0 or chart missing"
                 )
 
-        logger.debug(
-            "Chart configs after update",
-            extra={"chart_ids": list(current_configs.keys())},
-        )
+        logger.debug(f"Chart configs after update: {list(current_configs.keys())}")
 
         return dict(chart_configs=current_configs)
 

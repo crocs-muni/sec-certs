@@ -61,7 +61,7 @@ def _register_filter_options(
                     )
                 )
             except Exception as e:
-                print(f"Error loading options for {spec.id}: {e}")
+                logger.error(f"[LOAD_OPTIONS] Error loading options for {spec.id}: {e}")
                 return dict(options=[])
 
 
