@@ -6,6 +6,7 @@ from dash import ALL, MATCH, ctx, html, no_update
 from dash.dependencies import Input, Output, State
 
 from ..chart.chart import Chart
+from ..chart.error import ErrorChart
 from ..chart.factory import ChartFactory
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..types.common import CollectionName
@@ -35,6 +36,7 @@ def register_chart_callbacks(
 def register_pattern_matching_callbacks(
     dash_app: "Dash",
     chart_registries: dict[CollectionName, "ChartRegistry"],
+    data_service: "DataService",
 ) -> None:
     """Must be registered once globally since pattern-matching callbacks match across all collections."""
     pattern_id = PatternMatchingComponentID(None)
@@ -58,9 +60,15 @@ def register_pattern_matching_callbacks(
             chart = registry.get(chart_id)
             if chart:
                 try:
-                    return dict(content=chart.render())
+                    return dict(content=chart.render(data_service=data_service))
                 except Exception as e:
-                    return dict(content=html.P(f"Error refreshing chart: {str(e)}", style={"color": "red"}))
+
+                    error_chart = ErrorChart(
+                        graph_id=chart_id,
+                        config=chart.config,
+                        error_message=str(e),
+                    )
+                    return dict(content=error_chart.render())
 
         return dict(content=html.P(f"Chart '{chart_id}' not found.", style={"color": "red"}))
 
@@ -194,7 +202,7 @@ def _register_chart_rendering(
                 try:
                     config_dict = chart_configs[chart_id]
                     chart_config = Chart.from_dict(config_dict)
-                    chart = ChartFactory.create_chart(chart_config, data_service)
+                    chart = ChartFactory.create_chart(chart_config)
                     chart.graph_id = chart_id
                     chart_registry.register_active(chart)
                 except Exception as e:
@@ -210,7 +218,7 @@ def _register_chart_rendering(
                     continue
 
             try:
-                chart_component = chart.render(filter_values or {})
+                chart_component = chart.render(data_service=data_service, filter_values=filter_values or {})
                 is_editable = chart.config.is_editable if chart.config else False
                 rendered.append(create_chart_wrapper(chart_id, chart.title, chart_component, is_editable))
             except Exception as e:

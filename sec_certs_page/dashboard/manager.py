@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from .chart.cc import CCCategoryDistribution, CCCertsPerYear, CCValidityDuration
 from .chart.chart import AxisConfig, Chart
+from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry
 from .dashboard import Dashboard
@@ -84,17 +85,14 @@ class DashboardManager:
         charts = [
             CCCategoryDistribution(
                 graph_id="cc-category-distribution",
-                data_service=self.data_service,
                 config=category_distribution_config,
             ),
             CCCertsPerYear(
                 graph_id="cc-certs-per-year",
-                data_service=self.data_service,
                 config=certs_per_year_config,
             ),
             CCValidityDuration(
                 graph_id="cc-validity-duration",
-                data_service=self.data_service,
                 config=validity_duration_config,
             ),
         ]
@@ -136,11 +134,15 @@ class DashboardManager:
         chart_instances = []
         for chart_config in dashboard.charts:
             try:
-                chart_instance = ChartFactory.create_chart(chart_config, self.data_service)
+                chart_instance = ChartFactory.create_chart(chart_config)
                 chart_instances.append(chart_instance)
-            except ValueError as e:
-                print(f"Warning: Could not instantiate chart {chart_config.name}: {e}")
-                continue
+            except (ValueError, Exception) as e:
+                error_chart = ErrorChart(
+                    graph_id=str(chart_config.chart_id),
+                    error_message=str(e),
+                    title=chart_config.title,
+                )
+                chart_instances.append(error_chart)
 
         return dashboard, chart_instances
 
@@ -161,10 +163,15 @@ class DashboardManager:
         chart_instances = []
         for chart_config in dashboard.charts:
             try:
-                chart_instance = ChartFactory.create_chart(chart_config, self.data_service)
+                chart_instance = ChartFactory.create_chart(chart_config)
                 chart_instances.append(chart_instance)
-            except ValueError:
-                continue
+            except (ValueError, Exception) as e:
+                error_chart = ErrorChart(
+                    graph_id=str(chart_config.chart_id),
+                    error_message=str(e),
+                    title=chart_config.title,
+                )
+                chart_instances.append(error_chart)
 
         return dashboard, chart_instances
 

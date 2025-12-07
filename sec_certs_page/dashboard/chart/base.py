@@ -22,10 +22,11 @@ class BaseChart(ABC):
 
     Provides common rendering utilities and defines the interface for chart implementations.
     Subclasses must implement `title` property and `render` method.
+
+    This base class doesn't include data_service as a field - pass it to render() when needed.
     """
 
     graph_id: str
-    data_service: DataService
     chart_type: Literal["pie", "bar", "stacked_bar", "box", "line", "scatter", "histogram"]
     config: Chart
 
@@ -40,9 +41,10 @@ class BaseChart(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+    def render(self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None) -> Component:
         """Render the Dash component.
 
+        :param data_service: Optional data service for charts that need data access (not needed for error charts)
         :param filter_values: Optional dictionary of dashboard-level filter values to apply
         :return: Rendered Dash component
         """

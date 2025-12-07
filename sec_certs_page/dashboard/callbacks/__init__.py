@@ -59,7 +59,7 @@ def register_all_callbacks(
             chart_registry=chart_registry,
         )
 
-    register_pattern_matching_callbacks(dash_app, chart_registries)
+    register_pattern_matching_callbacks(dash_app, chart_registries, data_service)
 
 
 __all__ = [

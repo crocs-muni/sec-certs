@@ -11,23 +11,21 @@ from ..base import BaseChart
 class CCCategoryDistribution(BaseChart):
     """A pie chart showing the distribution of CC certificate categories."""
 
-    def __init__(self, graph_id: str, data_service: DataService, config: Chart) -> None:
-        super().__init__(
-            graph_id=graph_id,
-            data_service=data_service,
-            chart_type="pie",
-            config=config,
-        )
+    def __init__(self, graph_id: str, config: Chart) -> None:
+        super().__init__(graph_id, chart_type="pie", config=config)
 
     @property
     def title(self) -> str:
         return self.config.title if self.config and self.config.title else "Category Distribution"
 
-    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+    def render(self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None) -> Component:
         """Render the pie chart showing category distribution."""
+        if not data_service:
+            return self._render_container([self._render_error_state("Data service not provided")])
+
         merged_filters = self._get_merged_filter_values(filter_values)
 
-        df = self.data_service.get_cc_dataframe(filter_values=merged_filters if merged_filters else None)
+        df = data_service.get_cc_dataframe(filter_values=merged_filters if merged_filters else None)
 
         if df.empty:
             return self._render_container([self._render_empty_state()])

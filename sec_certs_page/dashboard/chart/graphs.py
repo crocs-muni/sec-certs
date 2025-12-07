@@ -10,6 +10,7 @@ from typing import Any
 import pandas as pd
 from dash.development.base_component import Component
 
+from ..data import DataService
 from ..filters.query_builder import build_chart_pipeline
 from .base import BaseChart
 from .figure_builder import FigureBuilder
@@ -27,13 +28,16 @@ class GenericChartComponent(BaseChart):
     and uses FigureBuilder to aggregate in pandas.
     """
 
-    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+    def render(self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None) -> Component:
         """Render the chart using aggregation pipeline or FigureBuilder."""
+        if not data_service:
+            return self._render_container([self._render_error_state("Data service not provided")])
+
         merged_filters = self._get_merged_filter_values(filter_values)
 
         try:
             # Try to use aggregation pipeline for better performance
-            df = self._get_aggregated_data(merged_filters)
+            df = self._get_aggregated_data(data_service, merged_filters)
 
             if df.empty:
                 return self._render_container([self._render_empty_state()])
@@ -55,19 +59,20 @@ class GenericChartComponent(BaseChart):
         except Exception as e:
             return self._render_container([self._render_error_state(f"Error creating chart: {str(e)}")])
 
-    def _get_aggregated_data(self, filter_values: dict[str, Any] | None) -> pd.DataFrame:
+    def _get_aggregated_data(self, data_service: DataService, filter_values: dict[str, Any] | None) -> pd.DataFrame:
         """Get data using aggregation pipeline if available, otherwise raw data.
 
+        :param data_service: Data service to fetch data from
         :param filter_values: Optional filter values to apply
         :return: DataFrame with data (aggregated or raw depending on pipeline)
         """
         if self.config.query_pipeline is not None:
             pipeline = build_chart_pipeline(self.config, filter_values)
-            return self.data_service.execute_aggregation_pipeline(
+            return data_service.execute_aggregation_pipeline(
                 collection_name=self.config.collection_name,
                 pipeline=pipeline,
             )
-        return self.data_service.get_dataframe(
+        return data_service.get_dataframe(
             collection_name=self.config.collection_name,
             filter_values=filter_values,
         )

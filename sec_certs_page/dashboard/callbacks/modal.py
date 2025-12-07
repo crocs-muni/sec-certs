@@ -792,7 +792,7 @@ def _register_chart_creation(
 
         # When editing, we need to ensure the chart ID matches exactly
         # Override the graph_id in the created instance to use edit_chart_id
-        chart_instance = ChartFactory.create_chart(chart_config, data_service)
+        chart_instance = ChartFactory.create_chart(chart_config)
         if is_edit_mode and edit_chart_id:
             chart_instance.graph_id = edit_chart_id
 

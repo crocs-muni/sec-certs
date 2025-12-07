@@ -9,7 +9,9 @@ class ChartRegistry:
 
     This registry has two layers:
     - Predefined charts: Immutable, built-in charts that populate dropdowns
-    - Active charts: All charts currently being rendered (predefined + custom)
+    - Active charts: All charts currently being rendered (predefined + custom + errors)
+
+    Accepts all BaseChart subclasses.
     """
 
     def __init__(self, collection_name: CollectionName) -> None:
