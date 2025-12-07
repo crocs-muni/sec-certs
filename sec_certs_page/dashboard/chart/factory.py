@@ -1,6 +1,6 @@
 from ..chart.base import BaseChart
 from .config import ChartConfig
-from ..chart.graphs import (
+from .chart import (
     BarChartComponent,
     BoxChartComponent,
     HistogramChartComponent,

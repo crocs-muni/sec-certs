@@ -120,11 +120,9 @@ class BaseChart(ABC):
 
         # Add chart-level filters (these override dashboard filters)
         if self.config:
-            # First check filter_values (simple key-value pairs from custom charts)
             if self.config.filter_values:
                 merged.update(self.config.filter_values)
 
-            # Then check active FilterSpec filters (from predefined charts)
             active_filters = self.config.get_active_filters()
             for filter_id, filter_spec in active_filters.items():
                 if filter_spec.data is not None:

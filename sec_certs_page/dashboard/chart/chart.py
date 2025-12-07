@@ -19,7 +19,7 @@ from .figure_builder import FigureBuilder
 logger = logging.getLogger(__name__)
 
 
-class GenericChartComponent(BaseChart):
+class ConfigurableChart(BaseChart):
     """Base for generic chart components that render from configuration.
 
     Generic charts use the Chart configuration's x_axis/y_axis/aggregation
@@ -59,7 +59,7 @@ class GenericChartComponent(BaseChart):
                 ]
             )
         except Exception as e:
-            error_message = f"GenericChartComponent [{self.config.name}] error creating chart"
+            error_message = f"[RENDER] {self.config.title} error creating chart"
             logger.exception(error_message)
             return self._render_container([self._render_error_state(f"Error creating chart: {str(e)}")])
 
@@ -82,7 +82,7 @@ class GenericChartComponent(BaseChart):
         )
 
 
-class BarChartComponent(GenericChartComponent):
+class BarChartComponent(ConfigurableChart):
     """Bar chart implementation."""
 
     @property
@@ -90,7 +90,7 @@ class BarChartComponent(GenericChartComponent):
         return self.config.title if self.config else "Bar Chart"
 
 
-class LineChartComponent(GenericChartComponent):
+class LineChartComponent(ConfigurableChart):
     """Line chart implementation."""
 
     @property
@@ -98,7 +98,7 @@ class LineChartComponent(GenericChartComponent):
         return self.config.title if self.config else "Line Chart"
 
 
-class PieChartComponent(GenericChartComponent):
+class PieChartComponent(ConfigurableChart):
     """Pie chart implementation."""
 
     @property
@@ -106,7 +106,7 @@ class PieChartComponent(GenericChartComponent):
         return self.config.title if self.config else "Pie Chart"
 
 
-class ScatterChartComponent(GenericChartComponent):
+class ScatterChartComponent(ConfigurableChart):
     """Scatter chart implementation."""
 
     @property
@@ -114,7 +114,7 @@ class ScatterChartComponent(GenericChartComponent):
         return self.config.title if self.config else "Scatter Chart"
 
 
-class BoxChartComponent(GenericChartComponent):
+class BoxChartComponent(ConfigurableChart):
     """Box chart implementation."""
 
     @property
@@ -122,7 +122,7 @@ class BoxChartComponent(GenericChartComponent):
         return self.config.title if self.config else "Box Chart"
 
 
-class HistogramChartComponent(GenericChartComponent):
+class HistogramChartComponent(ConfigurableChart):
     """Histogram chart implementation."""
 
     @property
