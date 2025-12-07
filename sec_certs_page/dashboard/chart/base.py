@@ -1,19 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import Any
 
 import dash_bootstrap_components as dbc
-from dash import Dash, dcc, html
+from dash import dcc, html
 from dash.development.base_component import Component
 
-from ..chart.chart import Chart
+from ..chart.chart import ChartConfig
 from ..data import DataService
-
-
-class SupportsRegisterCallbacks(Protocol):
-    """Protocol for defining the register_callbacks method signature."""
-
-    def register_callbacks(self, app: Dash) -> None: ...
 
 
 @dataclass
@@ -26,13 +20,12 @@ class BaseChart(ABC):
     This base class doesn't include data_service as a field - pass it to render() when needed.
     """
 
-    graph_id: str
-    chart_type: Literal["pie", "bar", "stacked_bar", "box", "line", "scatter", "histogram"]
-    config: Chart
+    config: ChartConfig
 
     @property
     def id(self) -> str:
-        return self.graph_id
+        """Runtime string ID for Dash components (derived from config.chart_id)."""
+        return str(self.config.chart_id)
 
     @property
     @abstractmethod
@@ -80,7 +73,7 @@ class BaseChart(ABC):
         internal chart content only.
         """
         return html.Div(
-            id={"type": "chart-container", "index": self.graph_id},
+            id={"type": "chart-container", "index": self.id},
             className="chart-content",
             children=children,
         )
@@ -92,7 +85,7 @@ class BaseChart(ABC):
         :return: Dash Graph component
         """
         return dcc.Graph(
-            id={"type": "chart-graph", "index": self.graph_id},
+            id={"type": "chart-graph", "index": self.id},
             figure=figure,
             config={
                 "displayModeBar": True,
@@ -100,7 +93,7 @@ class BaseChart(ABC):
                 "responsive": True,
                 "toImageButtonOptions": {
                     "format": "svg",
-                    "filename": f"chart_{self.graph_id}",
+                    "filename": f"chart_{self.id}",
                 },
             },
             style={"height": "100%"},
@@ -110,7 +103,7 @@ class BaseChart(ABC):
     def _create_config_store(self) -> dcc.Store:
         """Create store for chart configuration."""
         return dcc.Store(
-            id={"type": "chart-config", "index": self.graph_id},
+            id={"type": "chart-config", "index": self.id},
             data=self.config.to_dict(),
         )
 

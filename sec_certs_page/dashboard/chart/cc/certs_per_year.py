@@ -3,7 +3,7 @@ from typing import Any
 import plotly.express as px
 from dash.development.base_component import Component
 
-from ...chart.chart import Chart
+from ...chart.chart import ChartConfig
 from ...data import DataService
 from ..base import BaseChart
 
@@ -11,8 +11,8 @@ from ..base import BaseChart
 class CCCertsPerYear(BaseChart):
     """A stacked bar chart showing certificates by category and year."""
 
-    def __init__(self, graph_id: str, config: Chart) -> None:
-        super().__init__(graph_id, chart_type="bar", config=config)
+    def __init__(self, config: ChartConfig) -> None:
+        super().__init__(config=config)
 
     @property
     def title(self) -> str:
@@ -31,19 +31,20 @@ class CCCertsPerYear(BaseChart):
             return self._render_container([self._render_empty_state()])
 
         # Aggregate by year and category
-        category_per_year = df.groupby(["year_from", "category"], observed=True).size().reset_index(name="count")
+        x_field = self.config.x_axis.field
+        category_per_year = df.groupby([x_field, "category"], observed=True).size().reset_index(name="count")
 
-        x_label = self.config.x_axis.label if self.config and self.config.x_axis else "Year"
-        y_label = self.config.y_axis.label if self.config and self.config.y_axis else "Number of Certificates"
+        x_label = self.config.x_axis.label
+        y_label = self.config.y_axis.label if self.config.y_axis else "Count"
 
         fig = px.bar(
             category_per_year,
-            x="year_from",
+            x=x_field,
             y="count",
             color="category",
             barmode="stack",
             labels={
-                "year_from": x_label,
+                x_field: x_label,
                 "count": y_label,
                 "category": "Category",
             },
@@ -52,9 +53,11 @@ class CCCertsPerYear(BaseChart):
         fig.update_layout(
             margin=dict(t=40, l=60, r=40, b=60),
             height=600,
-            showlegend=self.config.show_legend if self.config else True,
-            template=self.config.color_scheme if self.config and self.config.color_scheme else None,
+            showlegend=self.config.show_legend,
+            template=self.config.color_scheme if self.config.color_scheme else None,
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            xaxis={"showgrid": self.config.show_grid},
+            yaxis={"showgrid": self.config.show_grid},
         )
 
         return self._render_container(

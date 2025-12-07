@@ -3,7 +3,7 @@ from typing import Any
 import plotly.express as px
 from dash.development.base_component import Component
 
-from ...chart.chart import Chart
+from ...chart.chart import ChartConfig
 from ...data import DataService
 from ..base import BaseChart
 
@@ -11,8 +11,8 @@ from ..base import BaseChart
 class CCCategoryDistribution(BaseChart):
     """A pie chart showing the distribution of CC certificate categories."""
 
-    def __init__(self, graph_id: str, config: Chart) -> None:
-        super().__init__(graph_id, chart_type="pie", config=config)
+    def __init__(self, config: ChartConfig) -> None:
+        super().__init__(config=config)
 
     @property
     def title(self) -> str:
@@ -33,12 +33,15 @@ class CCCategoryDistribution(BaseChart):
         category_counts = df["category"].value_counts().reset_index()
         category_counts.columns = ["category", "count"]
 
+        x_label = self.config.x_axis.label if self.config.x_axis else "Category"
+        y_label = self.config.y_axis.label if self.config.y_axis else "Count"
+
         fig = px.pie(
             category_counts,
             names="category",
             values="count",
             hole=0.3,
-            labels={"category": "Category", "count": "Count"},
+            labels={"category": x_label, "count": y_label},
         )
 
         fig.update_traces(textposition="inside", textinfo="percent+label")
@@ -46,7 +49,8 @@ class CCCategoryDistribution(BaseChart):
         fig.update_layout(
             margin={"t": 40, "l": 40, "r": 40, "b": 40},
             height=600,
-            showlegend=self.config.show_legend if self.config else True,
+            showlegend=self.config.show_legend,
+            template=self.config.color_scheme if self.config.color_scheme else None,
         )
 
         return self._render_container(

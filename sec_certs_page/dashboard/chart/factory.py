@@ -1,11 +1,5 @@
-from typing import Any
-
-import dash_bootstrap_components as dbc
-from dash import html
-from dash.development.base_component import Component
-
 from ..chart.base import BaseChart
-from ..chart.chart import Chart
+from ..chart.chart import ChartConfig
 from ..chart.graphs import (
     BarChartComponent,
     BoxChartComponent,
@@ -14,7 +8,6 @@ from ..chart.graphs import (
     PieChartComponent,
     ScatterChartComponent,
 )
-from ..data import DataService
 from ..types.chart import AvailableChartTypes
 
 
@@ -32,14 +25,12 @@ class ChartFactory:
     }
 
     @classmethod
-    def create_chart(cls, config: Chart) -> BaseChart:
+    def create_chart(cls, config: ChartConfig) -> BaseChart:
         """Create a BaseChart instance from a Chart configuration."""
         chart_class = cls._chart_classes.get(config.chart_type)
         if not chart_class:
             raise ValueError(f"Unknown chart type: {config.chart_type}")
 
         return chart_class(
-            graph_id=str(config.chart_id),
-            chart_type=config.chart_type.value,
             config=config,
         )
