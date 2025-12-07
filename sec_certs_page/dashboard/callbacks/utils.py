@@ -5,11 +5,8 @@ from flask_login import current_user
 
 
 def get_current_user_id() -> str | None:
-    try:
-        if current_user and current_user.is_authenticated:
-            return current_user.id
-    except RuntimeError:
-        pass
+    if current_user and current_user.is_authenticated:
+        return current_user.id
     return None
 
 
