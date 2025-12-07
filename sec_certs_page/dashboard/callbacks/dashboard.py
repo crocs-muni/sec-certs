@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from dash import ctx, no_update
 from dash.dependencies import Input, Output, State
 
-from ..chart.chart import ChartConfig
+from ..chart.config import ChartConfig
 from ..dependencies import ComponentID, ComponentIDBuilder
 from ..types.common import CollectionName
 from .utils import get_current_user_id

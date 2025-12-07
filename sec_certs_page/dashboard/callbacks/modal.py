@@ -8,7 +8,7 @@ from dash import ALL, MATCH, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
-from ..chart.chart import AxisConfig, ChartConfig, generate_custom_chart_name
+from ..chart.config import AxisConfig, ChartConfig, generate_custom_chart_name
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..filters.query_builder import build_chart_pipeline
 from ..types.aggregations import get_aggregations_for_type

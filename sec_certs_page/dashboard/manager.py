@@ -3,7 +3,7 @@ from logging import Logger
 from typing import Optional
 from uuid import uuid4
 
-from .chart.chart import AxisConfig, ChartConfig
+from .chart.config import AxisConfig, ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry

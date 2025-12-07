@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 from dash.development.base_component import Component
 
-from ..chart.chart import ChartConfig
+from .config import ChartConfig
 from ..data import DataService
 
 

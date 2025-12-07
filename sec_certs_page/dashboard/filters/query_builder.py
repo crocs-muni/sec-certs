@@ -7,7 +7,7 @@ from ..types.common import CollectionName
 from ..types.filter import AggregationType, DerivedFieldDefinition, FilterOperator
 
 if TYPE_CHECKING:
-    from ..chart.chart import ChartConfig
+    from ..chart.config import ChartConfig
 
 
 _DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count", "validity_days"})

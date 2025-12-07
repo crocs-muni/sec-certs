@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from .chart.chart import ChartConfig
+from .chart.config import ChartConfig
 from .types.common import CollectionName
 
 # Namespace UUID for dashboard IDs - ensures deterministic UUID5 generation

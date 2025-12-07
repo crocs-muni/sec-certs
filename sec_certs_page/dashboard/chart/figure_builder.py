@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 
 from ..types.chart import AvailableChartTypes
 from ..types.filter import AggregationType
-from .chart import ChartConfig
+from .config import ChartConfig
 
 logger = logging.getLogger(__name__)
 

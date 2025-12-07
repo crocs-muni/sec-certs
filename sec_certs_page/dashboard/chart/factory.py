@@ -1,5 +1,5 @@
 from ..chart.base import BaseChart
-from ..chart.chart import ChartConfig
+from .config import ChartConfig
 from ..chart.graphs import (
     BarChartComponent,
     BoxChartComponent,
@@ -31,6 +31,4 @@ class ChartFactory:
         if not chart_class:
             raise ValueError(f"Unknown chart type: {config.chart_type}")
 
-        return chart_class(
-            config=config,
-        )
+        return chart_class(config=config)

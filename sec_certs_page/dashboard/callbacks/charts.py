@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 from dash import ALL, MATCH, ctx, html, no_update
 from dash.dependencies import Input, Output, State
 
-from ..chart.chart import ChartConfig
+from ..chart.config import ChartConfig
 from ..chart.error import ErrorChart
 from ..chart.factory import ChartFactory
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID

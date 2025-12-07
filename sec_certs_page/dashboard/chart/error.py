@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from dash.development.base_component import Component
 
-from ..chart.chart import ChartConfig
+from .config import ChartConfig
 from .base import BaseChart
 
 if TYPE_CHECKING:
