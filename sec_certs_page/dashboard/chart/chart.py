@@ -9,6 +9,15 @@ from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
 
+def generate_custom_chart_name(chart_id: UUID | str) -> str:
+    """Generate a consistent name for user-created custom charts.
+
+    :param chart_id: UUID of the chart
+    :return: Formatted chart name
+    """
+    return f"custom-{chart_id}"
+
+
 @dataclass
 class AxisConfig:
     """Configuration for a single axis (X or Y).

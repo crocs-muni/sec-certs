@@ -7,7 +7,7 @@ from dash import ALL, MATCH, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
-from ..chart.chart import AxisConfig, Chart
+from ..chart.chart import AxisConfig, Chart, generate_custom_chart_name
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..filters.query_builder import build_chart_pipeline
 from ..types.aggregations import get_aggregations_for_type
@@ -895,7 +895,7 @@ def _build_chart_config(
 
     chart_config = Chart(
         chart_id=chart_id,
-        name=f"custom-{chart_id}",
+        name=generate_custom_chart_name(chart_id),
         title=title,
         chart_type=AvailableChartTypes(chart_type),
         collection_name=collection_name,
