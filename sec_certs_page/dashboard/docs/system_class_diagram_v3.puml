@@ -1,4 +1,4 @@
-@startuml DashboardArchitectureV4
+@startuml DashboardArchitectureV3
 skinparam backgroundColor white
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
@@ -20,7 +20,7 @@ skinparam classFontColor black
 skinparam packageFontColor #2C3E50
 skinparam titleFontColor #2C3E50
 
-title sec-certs.org Dashboard Architecture v4
+title sec-certs.org Dashboard Architecture v3
 
 package "Application Core" #FFE4B5 {
     class "Flask App" as FlaskApp {
