@@ -4,7 +4,7 @@ from typing import Any
 from uuid import UUID
 
 from ..filters.filter import FilterSpec
-from ..types.chart import AvailableChartTypes
+from ..types.chart import ChartType
 from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
@@ -104,7 +104,7 @@ class ChartConfig:
 
     chart_id: UUID
     name: str
-    chart_type: AvailableChartTypes
+    chart_type: ChartType
     x_axis: AxisConfig
     collection_name: CollectionName
     title: str = ""
@@ -293,7 +293,7 @@ class ChartConfig:
 
         chart_type = data["chart_type"]
         if isinstance(chart_type, str):
-            chart_type = AvailableChartTypes(chart_type)
+            chart_type = ChartType(chart_type)
 
         collection_name = data["collection_name"]
         if isinstance(collection_name, str):

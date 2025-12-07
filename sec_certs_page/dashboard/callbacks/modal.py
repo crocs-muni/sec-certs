@@ -12,7 +12,7 @@ from ..chart.config import AxisConfig, ChartConfig, generate_custom_chart_name
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..filters.query_builder import build_chart_pipeline
 from ..types.aggregations import get_aggregations_for_type
-from ..types.chart import AvailableChartTypes
+from ..types.chart import ChartType
 from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
@@ -896,7 +896,7 @@ def _build_chart_config(
         chart_id=chart_id,
         name=generate_custom_chart_name(chart_id),
         title=title,
-        chart_type=AvailableChartTypes(chart_type),
+        chart_type=ChartType(chart_type),
         collection_name=collection_name,
         x_axis=x_axis,
         y_axis=y_axis,

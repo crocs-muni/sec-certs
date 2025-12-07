@@ -8,20 +8,20 @@ from .chart import (
     PieChartComponent,
     ScatterChartComponent,
 )
-from ..types.chart import AvailableChartTypes
+from ..types.chart import ChartType
 
 
 class ChartFactory:
     """Factory that creates BaseChart instances from Chart configurations."""
 
-    _chart_classes: dict[AvailableChartTypes, type[BaseChart]] = {
-        AvailableChartTypes.BAR: BarChartComponent,
-        AvailableChartTypes.STACKED_BAR: BarChartComponent,  # Stacked bar uses same component
-        AvailableChartTypes.LINE: LineChartComponent,
-        AvailableChartTypes.PIE: PieChartComponent,
-        AvailableChartTypes.SCATTER: ScatterChartComponent,
-        AvailableChartTypes.BOX: BoxChartComponent,
-        AvailableChartTypes.HISTOGRAM: HistogramChartComponent,
+    _chart_classes: dict[ChartType, type[BaseChart]] = {
+        ChartType.BAR: BarChartComponent,
+        ChartType.STACKED_BAR: BarChartComponent,  # Stacked bar uses same component
+        ChartType.LINE: LineChartComponent,
+        ChartType.PIE: PieChartComponent,
+        ChartType.SCATTER: ScatterChartComponent,
+        ChartType.BOX: BoxChartComponent,
+        ChartType.HISTOGRAM: HistogramChartComponent,
     }
 
     @classmethod

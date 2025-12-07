@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
-from ..types.chart import AvailableChartTypes
+from ..types.chart import ChartType
 from ..types.common import CollectionName
 from ..types.filter import AggregationType
 
@@ -186,7 +186,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     :return: Modal component for chart creation
     """
     chart_type_options = [
-        {"label": ct.value.replace("_", " ").title(), "value": ct.value} for ct in AvailableChartTypes
+        {"label": ct.value.replace("_", " ").title(), "value": ct.value} for ct in ChartType
     ]
 
     aggregation_options = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
@@ -244,7 +244,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                     dcc.Dropdown(
                                         id=f"{collection_name}-modal-chart-type",
                                         options=chart_type_options,
-                                        value=AvailableChartTypes.BAR.value,
+                                        value=ChartType.BAR.value,
                                         clearable=False,
                                         className="dash-bootstrap",
                                     ),

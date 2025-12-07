@@ -11,7 +11,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from ..types.chart import AvailableChartTypes
+from ..types.chart import ChartType
 from ..types.filter import AggregationType
 from .config import ChartConfig
 
@@ -43,7 +43,7 @@ class FigureBuilder:
 
         try:
             # Box plots and histograms need raw data distributions, not aggregated summaries
-            if config.chart_type in (AvailableChartTypes.BOX, AvailableChartTypes.HISTOGRAM):
+            if config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
                 columns = [x_field]
                 if y_field:
                     if y_field not in df.columns:
@@ -191,20 +191,20 @@ class FigureBuilder:
         if color_field and config.color_axis:
             labels[color_field] = config.color_axis.label
 
-        if config.chart_type == AvailableChartTypes.BAR:
+        if config.chart_type == ChartType.BAR:
             return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="group", labels=labels)
-        elif config.chart_type == AvailableChartTypes.STACKED_BAR:
+        elif config.chart_type == ChartType.STACKED_BAR:
             return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="stack", labels=labels)
-        elif config.chart_type == AvailableChartTypes.LINE:
+        elif config.chart_type == ChartType.LINE:
             return px.line(df, x=x_field, y=y_field, color=color_field, markers=True, labels=labels)
-        elif config.chart_type == AvailableChartTypes.PIE:
+        elif config.chart_type == ChartType.PIE:
             # Pie charts don't support color dimension in the same way
             return px.pie(df, names=x_field, values=y_field, labels=labels)
-        elif config.chart_type == AvailableChartTypes.SCATTER:
+        elif config.chart_type == ChartType.SCATTER:
             return px.scatter(df, x=x_field, y=y_field, color=color_field, labels=labels)
-        elif config.chart_type == AvailableChartTypes.BOX:
+        elif config.chart_type == ChartType.BOX:
             return px.box(df, x=x_field, y=y_field, color=color_field, labels=labels)
-        elif config.chart_type == AvailableChartTypes.HISTOGRAM:
+        elif config.chart_type == ChartType.HISTOGRAM:
             return px.histogram(df, x=x_field, color=color_field, labels=labels)
         else:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")

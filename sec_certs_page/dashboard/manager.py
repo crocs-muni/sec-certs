@@ -11,7 +11,7 @@ from .dashboard import Dashboard
 from .data import DataService
 from .filters.factory import FilterFactory
 from .repository import DashboardRepository
-from .types.chart import AvailableChartTypes
+from .types.chart import ChartType
 from .types.common import CollectionName
 
 logger: Logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class DashboardManager:
             chart_id=uuid4(),
             name="cc-category-distribution",
             title="Category Distribution",
-            chart_type=AvailableChartTypes.PIE,
+            chart_type=ChartType.PIE,
             collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=None,
@@ -68,7 +68,7 @@ class DashboardManager:
             chart_id=uuid4(),
             name="cc-certs-per-year",
             title="Certificates by Category and Year",
-            chart_type=AvailableChartTypes.BAR,
+            chart_type=ChartType.BAR,
             collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="year_from", label="Year"),
             y_axis=AxisConfig(field="count", label="Number of Certificates"),
@@ -80,7 +80,7 @@ class DashboardManager:
             chart_id=uuid4(),
             name="cc-validity-duration",
             title="Certificate Validity Duration",
-            chart_type=AvailableChartTypes.BOX,
+            chart_type=ChartType.BOX,
             collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="year_from", label="Year of Certification"),
             y_axis=AxisConfig(field="validity_days", label="Lifetime of certificates (in days)"),
