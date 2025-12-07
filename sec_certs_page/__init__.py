@@ -1,6 +1,7 @@
 import os
 import sys
 from contextvars import ContextVar
+from logging import config
 from pathlib import Path
 
 import dash_bootstrap_components as dbc
@@ -57,6 +58,9 @@ app.jinja_env.cache = {}
 app.jinja_env.autoescape = True
 app.jinja_env.globals.update(zip=zip)
 public(app=app)
+
+if "LOGGING_CONFIG" in app.config:
+    config.dictConfig(app.config["LOGGING_CONFIG"])
 
 if os.environ.get("TESTING", False):
     app.testing = True
