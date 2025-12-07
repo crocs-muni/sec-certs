@@ -89,18 +89,9 @@ class DashboardManager:
         )
 
         charts = [
-            CCCategoryDistribution(
-                graph_id="cc-category-distribution",
-                config=category_distribution_config,
-            ),
-            CCCertsPerYear(
-                graph_id="cc-certs-per-year",
-                config=certs_per_year_config,
-            ),
-            CCValidityDuration(
-                graph_id="cc-validity-duration",
-                config=validity_duration_config,
-            ),
+            ChartFactory.create_chart(category_distribution_config),
+            ChartFactory.create_chart(certs_per_year_config),
+            ChartFactory.create_chart(validity_duration_config),
         ]
 
         for chart in charts:

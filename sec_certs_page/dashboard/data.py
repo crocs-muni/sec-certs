@@ -1,13 +1,6 @@
 """Data management layer with MongoDB query filtering.
 
 This module provides DataService for querying MongoDB with optional filters.
-Data is not cached in memory - caching is handled by a separate layer (e.g., Redis).
-
-Design decisions:
-- No in-memory caching (delegated to external caching layer)
-- Always queries MongoDB for fresh data
-- Supports filtered and unfiltered queries
-- QueryBuilder integration for type-safe query construction
 """
 
 import logging
@@ -324,6 +317,14 @@ class DataService:
             )
             df["not_valid_after"] = pd.to_datetime(df["not_valid_after"], errors="coerce")
 
+        # Calculate derived date fields
+        if "not_valid_before" in df.columns:
+            df["year_from"] = pd.DatetimeIndex(df["not_valid_before"]).year
+
+        # Calculate validity duration (certificate lifetime in days)
+        if "not_valid_before" in df.columns and "not_valid_after" in df.columns:
+            df["validity_days"] = (df["not_valid_after"] - df["not_valid_before"]).dt.days
+
         if "heuristics" in df.columns:
             df["cert_lab"] = df["heuristics"].apply(
                 lambda x: (x.get("cert_lab", [None])[0] if isinstance(x, dict) and x.get("cert_lab") else None)
@@ -351,9 +352,6 @@ class DataService:
                     categories=sorted(unique_eals),
                     ordered=True,
                 )
-
-        if "not_valid_before" in df.columns:
-            df["year_from"] = pd.DatetimeIndex(df["not_valid_before"]).year
 
         return df
 

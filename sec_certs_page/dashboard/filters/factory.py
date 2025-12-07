@@ -8,6 +8,7 @@ from dash.development.base_component import Component
 from ..types.common import CollectionName
 from ..types.filter import FilterComponentType
 from .filter import FilterSpec
+from .query_builder import DERIVED_FIELD_EXPRESSIONS
 from .registry import FilterSpecRegistry, get_filter_registry
 
 DBC_GRID_COL_MAX_WIDTH = 12
@@ -226,42 +227,32 @@ class FilterFactory:
                 }
             )
 
-        # Add derived fields that are computed in the DataFrame
-        # These are available for charting but require special handling for filtering
-        derived_fields = self._get_derived_fields()
-        fields.extend(derived_fields)
+        # These are computed fields available for custom charts
+        fields.extend(self._build_derived_field_options())
 
         return fields
 
-    def _get_derived_fields(self) -> list[dict[str, str]]:
-        """
-        Get derived fields that are computed from other fields.
+    @staticmethod
+    def _build_derived_field_options() -> list[dict[str, Any]]:
+        """Build UI options for derived fields from DERIVED_FIELD_EXPRESSIONS.
 
-        These fields are computed in the DataFrame (e.g., year extracted from date)
-        and can be used for chart grouping. For filtering, they may require
-        special MongoDB aggregation expressions.
+        This creates a single source of truth - derived fields are defined
+        in DERIVED_FIELD_EXPRESSIONS with all their metadata (label, data_type, expression).
+        This method simply extracts the UI-relevant fields.
 
-        :return: List of derived field definitions
+        Adding a new derived field only requires updating DERIVED_FIELD_EXPRESSIONS.
+
+        :return: List of derived field options for UI dropdowns
         """
-        if self.collection_name == CollectionName.CommonCriteria:
-            return [
-                {
-                    "label": "Certificate Year",
-                    "value": "year_from",
-                    "data_type": "int",
-                    "derived_from": "not_valid_before",  # Source field
-                },
-            ]
-        elif self.collection_name == CollectionName.FIPS140:
-            return [
-                {
-                    "label": "Validation Year",
-                    "value": "year_from",
-                    "data_type": "int",
-                    "derived_from": "date_validation",  # Source field
-                },
-            ]
-        return []
+        return [
+            {
+                "label": field_def.label,
+                "value": field_name,
+                "data_type": field_def.data_type,
+                "derived_from": field_def.source,
+            }
+            for field_name, field_def in DERIVED_FIELD_EXPRESSIONS.items()
+        ]
 
     def get_numeric_fields(self) -> list[dict[str, str]]:
         """

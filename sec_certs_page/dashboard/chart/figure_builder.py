@@ -42,7 +42,22 @@ class FigureBuilder:
         color_field = config.color_axis.field if config.color_axis else None
 
         try:
-            agg_df = cls._aggregate_data(df, x_field, y_field, aggregation, color_field)
+            # Box plots and histograms need raw data distributions, not aggregated summaries
+            if config.chart_type in (AvailableChartTypes.BOX, AvailableChartTypes.HISTOGRAM):
+                columns = [x_field]
+                if y_field:
+                    if y_field not in df.columns:
+                        error_message = f"Box plot requires y-field '{y_field}' but it's not in the DataFrame columns: {list(df.columns)}"
+                        logger.error(error_message)
+                        return cls._empty_figure(f"Missing field: {y_field}", is_error=True)
+                    columns.append(y_field)
+                if color_field and color_field in df.columns:
+                    columns.append(color_field)
+                agg_df = df[columns]
+            else:
+                # For other chart types, aggregate the data
+                agg_df = cls._aggregate_data(df, x_field, y_field, aggregation, color_field)
+
             fig = cls._create_chart_by_type(config, agg_df, x_field, y_field or "count", color_field)
             fig.update_layout(
                 showlegend=config.show_legend,

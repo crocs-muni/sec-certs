@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Any
 from ..filters.filter import FilterSpec
 from ..filters.registry import FilterSpecRegistry, get_all_registries, get_filter_registry
 from ..types.common import CollectionName
-from ..types.filter import AggregationType, FilterOperator
+from ..types.filter import AggregationType, DerivedFieldDefinition, FilterOperator
 
 if TYPE_CHECKING:
     from ..chart.chart import ChartConfig
 
 
-_DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count"})
+_DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count", "validity_days"})
 
 
 def get_allowed_database_fields() -> frozenset[str]:
@@ -332,29 +332,61 @@ def build_chart_pipeline(
     return pipeline
 
 
-# 2. Native MongoDB ISODate objects
-DERIVED_FIELD_EXPRESSIONS: dict[str, dict[str, Any]] = {
-    "year_from": {
-        "source": "not_valid_before",
-        "expression": {
+DERIVED_FIELD_EXPRESSIONS: dict[str, DerivedFieldDefinition] = {
+    "year_from": DerivedFieldDefinition(
+        source="not_valid_before",
+        label="Certificate Year",
+        data_type="int",
+        expression={
             "$cond": {
                 "if": {"$eq": [{"$type": "$not_valid_before"}, "date"]},
                 "then": {"$year": "$not_valid_before"},
                 "else": {"$toInt": {"$substr": ["$not_valid_before._value", 0, 4]}},
             }
         },
-    },
-    "year_to": {
-        "source": "not_valid_after",
+    ),
+    "year_to": DerivedFieldDefinition(
+        source="not_valid_after",
+        label="Expiration Year",
+        data_type="int",
         # Use $year for ISODate, fallback to $substr for serialized format (year at positions 0-3)
-        "expression": {
+        expression={
             "$cond": {
                 "if": {"$eq": [{"$type": "$not_valid_after"}, "date"]},
                 "then": {"$year": "$not_valid_after"},
                 "else": {"$toInt": {"$substr": ["$not_valid_after._value", 0, 4]}},
             }
         },
-    },
+    ),
+    "validity_days": DerivedFieldDefinition(
+        source=["not_valid_before", "not_valid_after"],
+        label="Validity Duration (days)",
+        data_type="int",
+        # Calculate difference in milliseconds, convert to days
+        expression={
+            "$divide": [
+                {
+                    "$subtract": [
+                        {
+                            "$cond": {
+                                "if": {"$eq": [{"$type": "$not_valid_after"}, "date"]},
+                                "then": "$not_valid_after",
+                                "else": {"$dateFromString": {"dateString": "$not_valid_after._value"}},
+                            }
+                        },
+                        {
+                            "$cond": {
+                                "if": {"$eq": [{"$type": "$not_valid_before"}, "date"]},
+                                "then": "$not_valid_before",
+                                "else": {"$dateFromString": {"dateString": "$not_valid_before._value"}},
+                            }
+                        },
+                    ]
+                },
+                86400000,  # Milliseconds in a day
+            ]
+        },
+    ),
 }
 
 
@@ -373,7 +405,7 @@ def _get_field_expression(field: str) -> str | dict[str, Any]:
     _validate_field_name(field)
 
     if field in DERIVED_FIELD_EXPRESSIONS:
-        return DERIVED_FIELD_EXPRESSIONS[field]["expression"]
+        return DERIVED_FIELD_EXPRESSIONS[field].expression
     return f"${field}"
 
 

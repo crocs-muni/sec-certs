@@ -67,3 +67,23 @@ class FilterSpecDict(TypedDict):
     data: NotRequired[Any]
     transform: NotRequired[Callable]
     mongodb_pipeline: NotRequired[list[dict]]
+
+
+@dataclass(frozen=True)
+class DerivedFieldDefinition:
+    """Definition of a derived field for use in charts and aggregations.
+
+    A derived field is computed from one or more source database fields using
+    a MongoDB aggregation expression. It can be used in chart axes and filters.
+
+    Attributes:
+        source: Single source field name, or list of source fields for multi-field derivations
+        label: Human-friendly label for UI display
+        data_type: Data type for the derived field ('int', 'float', 'str', etc.)
+        expression: MongoDB aggregation expression to compute the field value
+    """
+
+    source: str | list[str]
+    label: str
+    data_type: str
+    expression: dict[str, Any]
