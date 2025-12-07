@@ -831,6 +831,11 @@ def _validate_chart_form(
         errors.append("Y-axis field is required for non-COUNT aggregations.")
     if chart_type == "stacked_bar" and not color_field:
         errors.append("Stacked Bar chart requires a 'Color By' field for stacking.")
+    if x_field and y_field and x_field == y_field:
+        errors.append(
+            "X-axis and Y-axis cannot use the same field."
+            " The X-axis groups data, while the Y-axis aggregates values."
+        )
     return errors
 
 
