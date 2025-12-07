@@ -105,7 +105,8 @@ def _register_chart_management(
                 # Add the chart config (for predefined charts, get from registry)
                 predefined = chart_registry.get_predefined(selected_chart_id)
                 if predefined and predefined.config:
-                    current_configs[selected_chart_id] = predefined.config.to_dict()
+                    # Use to_client_dict() to exclude query_pipeline (security)
+                    current_configs[selected_chart_id] = predefined.config.to_client_dict()
                 else:
                     logger.debug(f"[CHART_MGMT] Chart {selected_chart_id} not found in predefined registry")
 
@@ -196,7 +197,8 @@ def _register_chart_rendering(
             if not chart:
                 try:
                     config_dict = chart_configs[chart_id]
-                    chart_config = ChartConfig.from_dict(config_dict)
+                    # forces server-side pipeline rebuild to remove pipeline
+                    chart_config = ChartConfig.from_dict(config_dict, trust_pipeline=False)
                     chart = ChartFactory.create_chart(chart_config)
                     chart_registry.register_active(chart)
                 except Exception as e:
@@ -243,5 +245,9 @@ def _register_update_all(dash_app: "Dash", collection_name: CollectionName) -> N
         prevent_initial_call=True,
     )
     def trigger_update_all(n_clicks, current_trigger):
-        """When user clicks the update-all-btn we update all charts."""
+        """
+        When user clicks the update-all-btn we update all charts.
+
+        The `{collection_name}-render-trigger` triggers the render_charts function above.
+        """
         return dict(trigger=(current_trigger or 0) + 1)

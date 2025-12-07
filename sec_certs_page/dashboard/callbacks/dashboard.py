@@ -232,10 +232,10 @@ def _register_dashboard_selection(
         for chart_config in dashboard.charts:
             predefined = chart_registry.get(chart_config.name)
             if predefined:
-                chart_configs[predefined.id] = predefined.config.to_dict()
+                chart_configs[predefined.id] = predefined.config.to_client_dict()
             else:
                 chart_id = str(chart_config.chart_id)
-                chart_configs[chart_id] = chart_config.to_dict()
+                chart_configs[chart_id] = chart_config.to_client_dict()
 
         logger.debug(
             f"[DASHBOARD_SELECT] Loaded dashboard with {len(chart_configs)} charts: {list(chart_configs.keys())}"
@@ -340,7 +340,8 @@ def _register_save_dashboard(
             config = (chart_configs or {}).get(chart_id)
             if config:
                 try:
-                    chart = ChartConfig.from_dict(config)
+                    # chart_configs comes from client (dcc.Store)
+                    chart = ChartConfig.from_dict(config, trust_pipeline=False)
                     chart.order = i
                     charts.append(chart)
                     logger.debug(f"[SAVE_DASHBOARD] Chart {chart_id}: loaded from chart_configs")

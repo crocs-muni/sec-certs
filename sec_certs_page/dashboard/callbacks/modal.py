@@ -796,7 +796,7 @@ def _register_chart_creation(
         chart_instance = ChartFactory.create_chart(chart_config)
 
         updated_chart_configs = dict(chart_configs or {})
-        updated_chart_configs[chart_instance.id] = chart_config.to_dict()
+        updated_chart_configs[chart_instance.id] = chart_config.to_client_dict()
 
         # Register in the chart registry for rendering
         chart_registry.register_active(chart_instance)

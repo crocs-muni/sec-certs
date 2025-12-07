@@ -167,7 +167,10 @@ class Dashboard:
         """
         Deserialize dashboard from dictionary representation.
 
-        :param data: Serialized dashboard data
+        This method is only called from DashboardRepository when loading
+        from MongoDB, so we can trust the query_pipeline in the stored chart configs.
+
+        :param data: Serialized dashboard data (from MongoDB)
         :type data: dict[str, Any]
 
         :return: Reconstructed dashboard instance with all charts
@@ -180,7 +183,8 @@ class Dashboard:
         if missing:
             raise ValueError(f"Missing required fields: {missing}")
 
-        charts = [ChartConfig.from_dict(chart_data) for chart_data in data.get("charts", [])]
+        # this is only called from database reads
+        charts = [ChartConfig.from_dict(chart_data, trust_pipeline=True) for chart_data in data.get("charts", [])]
 
         created_at_str = data.get("created_at", "")
         updated_at_str = data.get("updated_at", "")

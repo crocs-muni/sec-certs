@@ -6,8 +6,8 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 from dash.development.base_component import Component
 
-from .config import ChartConfig
 from ..data import DataService
+from .config import ChartConfig
 
 
 @dataclass
@@ -104,7 +104,7 @@ class BaseChart(ABC):
         """Create store for chart configuration."""
         return dcc.Store(
             id={"type": "chart-config", "index": self.id},
-            data=self.config.to_dict(),
+            data=self.config.to_client_dict(),
         )
 
     def _get_merged_filter_values(self, dashboard_filters: dict[str, Any] | None = None) -> dict[str, Any]:

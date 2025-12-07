@@ -176,13 +176,16 @@ class ChartConfig:
         return self.query_pipeline
 
     def to_dict(self) -> dict[str, Any]:
-        """Serialize chart to JSON-compatible dictionary.
+        """Serialize chart to JSON-compatible dictionary for DATABASE storage.
+
+        ⚠️ SECURITY WARNING: This method includes query_pipeline which should NOT
+        be sent to the client. Use to_client_dict() for client communication.
 
         This method produces the complete chart configuration for MongoDB persistence.
         The returned dictionary must be JSON-serializable and contain everything
         needed to recreate the chart on deserialization.
 
-        :return: Complete chart configuration as dictionary
+        :return: Complete chart configuration as dictionary (for database storage)
         :rtype: dict[str, Any]
         """
 
@@ -211,7 +214,7 @@ class ChartConfig:
             "color_axis": self.color_axis.to_dict() if self.color_axis else None,
             "filters": {fid: fconfig.to_dict() for fid, fconfig in self.filters.items()},
             "filter_values": self.filter_values,
-            "query_pipeline": self.query_pipeline,
+            "query_pipeline": self.query_pipeline,  # ⚠️ Included for database storage only
             "color_scheme": self.color_scheme,
             "show_legend": self.show_legend,
             "show_grid": self.show_grid,
@@ -220,18 +223,50 @@ class ChartConfig:
             "updated_at": format_datetime(self.updated_at),
         }
 
+    def to_client_dict(self) -> dict[str, Any]:
+        """Serialize chart to JSON-compatible dictionary for CLIENT communication.
+
+        🔒 SECURITY: This method excludes query_pipeline to prevent NoSQL injection.
+        The client should never be able to send arbitrary MongoDB pipelines.
+
+        Use this method when:
+        - Sending chart configs to browser (dcc.Store)
+        - Receiving chart configs from callbacks
+        - Any client-facing serialization
+
+        The query_pipeline will be regenerated server-side from validated inputs.
+
+        :return: Safe chart configuration for client (excludes query_pipeline)
+        :rtype: dict[str, Any]
+        """
+        data = self.to_dict()
+        # Remove query_pipeline - will be rebuilt server-side from validated inputs
+        data.pop("query_pipeline", None)
+        return data
+
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ChartConfig":
+    def from_dict(cls, data: dict[str, Any], *, trust_pipeline: bool = False) -> "ChartConfig":
         """Deserialize chart from dictionary representation.
 
-        Reconstructs a Chart instance from MongoDB document or serialized state.
-        Validates required fields and handles optional fields gracefully.
+        🔒 SECURITY: By default, this method IGNORES query_pipeline from input data
+        to prevent NoSQL injection attacks. The pipeline must be rebuilt server-side
+        using build_chart_pipeline() from validated inputs.
 
-        :param data: Serialized chart data (typically from MongoDB)
+        :param data: Serialized chart data (from client or database)
         :type data: dict[str, Any]
+        :param trust_pipeline: If True, trust the query_pipeline in data (database only!).
+                               If False (default), ignore pipeline - must rebuild server-side.
+        :type trust_pipeline: bool
         :return: Reconstructed chart instance with all nested objects
-        :rtype: Chart
+        :rtype: ChartConfig
         :raises ValueError: If required fields are missing from data
+
+        Usage:
+            # From client (callback) - pipeline will be None and must be rebuilt
+            config = ChartConfig.from_dict(client_data, trust_pipeline=False)
+
+            # From database - pipeline can be trusted
+            config = ChartConfig.from_dict(db_document, trust_pipeline=True)
         """
         required = ["chart_id", "name", "chart_type", "collection_name", "x_axis"]
         missing = [f for f in required if f not in data]
@@ -264,6 +299,8 @@ class ChartConfig:
         if isinstance(collection_name, str):
             collection_name = CollectionName(collection_name)
 
+        query_pipeline = data.get("query_pipeline") if trust_pipeline else None
+
         return cls(
             chart_id=chart_id,
             name=data["name"],
@@ -276,7 +313,7 @@ class ChartConfig:
             color_axis=color_axis,
             filters=filters,
             filter_values=data.get("filter_values", {}),
-            query_pipeline=data.get("query_pipeline"),
+            query_pipeline=query_pipeline,  # None unless trust_pipeline=True
             color_scheme=data.get("color_scheme", "plotly"),
             show_legend=data.get("show_legend", True),
             show_grid=data.get("show_grid", True),
