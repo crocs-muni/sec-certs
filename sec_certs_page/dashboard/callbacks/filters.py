@@ -1,6 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
+from dash import no_update
 from dash.dependencies import Input, Output, State
 
 from ..filters.factory import FilterFactory
@@ -122,7 +123,6 @@ def _register_metadata(
     )
     def load_metadata(modal_open, already_loaded):
         """Load metadata only when modal opens for the first time - lazy loading optimization."""
-        from dash import no_update
 
         # Don't do anything when modal closes
         if not modal_open:
