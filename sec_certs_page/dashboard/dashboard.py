@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from .chart.chart import Chart
+from .chart.chart import ChartConfig
 from .types.common import CollectionName
 
 # Namespace UUID for dashboard IDs - ensures deterministic UUID5 generation
@@ -63,7 +63,7 @@ class Dashboard:
     collection_name: CollectionName
     name: str = "New dashboard"
     description: str | None = None
-    charts: list[Chart] = field(default_factory=list)
+    charts: list[ChartConfig] = field(default_factory=list)
     is_default: bool = False
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -76,7 +76,7 @@ class Dashboard:
         """Serializes the Dashboard instance to a JSON-compatible dictionary."""
         return {}
 
-    def add_chart(self, chart: Chart) -> None:
+    def add_chart(self, chart: ChartConfig) -> None:
         """
         Add a chart to the dashboard.
 
@@ -85,7 +85,7 @@ class Dashboard:
         self.charts.append(chart)
         self.updated_at = datetime.now(timezone.utc)
 
-    def remove_chart(self, chart_id: str) -> Chart:
+    def remove_chart(self, chart_id: str) -> ChartConfig:
         """
         Remove a chart from the dashboard.
 
@@ -105,7 +105,7 @@ class Dashboard:
 
         raise ValueError(f"Chart with id {chart_id} not found")
 
-    def get_chart(self, chart_id: str) -> Chart | None:
+    def get_chart(self, chart_id: str) -> ChartConfig | None:
         """
         Get a chart by ID.
 
@@ -120,7 +120,7 @@ class Dashboard:
                 return chart
         return None
 
-    def update_chart(self, chart: Chart) -> None:
+    def update_chart(self, chart: ChartConfig) -> None:
         """
         Update an existing chart.
 
@@ -180,7 +180,7 @@ class Dashboard:
         if missing:
             raise ValueError(f"Missing required fields: {missing}")
 
-        charts = [Chart.from_dict(chart_data) for chart_data in data.get("charts", [])]
+        charts = [ChartConfig.from_dict(chart_data) for chart_data in data.get("charts", [])]
 
         created_at_str = data.get("created_at", "")
         updated_at_str = data.get("updated_at", "")

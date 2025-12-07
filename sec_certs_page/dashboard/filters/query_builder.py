@@ -7,7 +7,7 @@ from ..types.common import CollectionName
 from ..types.filter import AggregationType, FilterOperator
 
 if TYPE_CHECKING:
-    from ..chart.chart import Chart
+    from ..chart.chart import ChartConfig
 
 
 _DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count"})
@@ -279,7 +279,7 @@ def build_query_from_filters(filter_values: dict[str, Any], collection_name: Col
 
 
 def build_chart_pipeline(
-    chart: "Chart",
+    chart: "ChartConfig",
     filter_values: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Build complete MongoDB aggregation pipeline for a chart.
@@ -377,7 +377,7 @@ def _get_field_expression(field: str) -> str | dict[str, Any]:
     return f"${field}"
 
 
-def _build_group_stage(chart: "Chart") -> dict[str, Any]:
+def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
     """Build the $group stage for aggregation.
 
     Handles both single-level grouping (just x_axis) and two-level grouping
@@ -432,7 +432,7 @@ def _build_group_stage(chart: "Chart") -> dict[str, Any]:
     }
 
 
-def _build_project_stage(chart: "Chart") -> dict[str, Any]:
+def _build_project_stage(chart: "ChartConfig") -> dict[str, Any]:
     """Build the $project stage to rename fields for clarity.
 
     Handles both single-level grouping (just x_axis) and two-level grouping

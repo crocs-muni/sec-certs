@@ -64,7 +64,7 @@ class AxisConfig:
 
 
 @dataclass
-class Chart:
+class ChartConfig:
     """Represents a single chart configuration within a dashboard.
 
     A Chart defines what data to display, how to filter it, and how to visualize it.
@@ -204,7 +204,7 @@ class Chart:
             "name": self.name,
             "title": self.title,
             "order": self.order,
-            "chart_type": self.chart_type.value,
+            "chart_type": self.chart_type,
             "collection_name": self.collection_name,
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
@@ -221,7 +221,7 @@ class Chart:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Chart":
+    def from_dict(cls, data: dict[str, Any]) -> "ChartConfig":
         """Deserialize chart from dictionary representation.
 
         Reconstructs a Chart instance from MongoDB document or serialized state.

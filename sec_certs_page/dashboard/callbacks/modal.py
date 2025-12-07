@@ -8,7 +8,7 @@ from dash import ALL, MATCH, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 
-from ..chart.chart import AxisConfig, Chart, generate_custom_chart_name
+from ..chart.chart import AxisConfig, ChartConfig, generate_custom_chart_name
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..filters.query_builder import build_chart_pipeline
 from ..types.aggregations import get_aggregations_for_type
@@ -793,11 +793,7 @@ def _register_chart_creation(
 
         from ..chart.factory import ChartFactory
 
-        # When editing, we need to ensure the chart ID matches exactly
-        # Override the graph_id in the created instance to use edit_chart_id
         chart_instance = ChartFactory.create_chart(chart_config)
-        if is_edit_mode and edit_chart_id:
-            chart_instance.graph_id = edit_chart_id
 
         updated_chart_configs = dict(chart_configs or {})
         updated_chart_configs[chart_instance.id] = chart_config.to_dict()
@@ -854,7 +850,7 @@ def _build_chart_config(
     filter_specs: list[dict] | None,
     modal_filter_values: list | None,
     current_filter_values: dict | None,
-) -> Chart:
+) -> ChartConfig:
     """
     Build Chart config from modal form values.
 
@@ -896,7 +892,7 @@ def _build_chart_config(
 
     combined_filters = {**(current_filter_values or {}), **chart_filter_values}
 
-    chart_config = Chart(
+    chart_config = ChartConfig(
         chart_id=chart_id,
         name=generate_custom_chart_name(chart_id),
         title=title,

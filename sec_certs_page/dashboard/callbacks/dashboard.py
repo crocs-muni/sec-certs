@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from dash import ctx, no_update
 from dash.dependencies import Input, Output, State
 
-from ..chart.chart import Chart
+from ..chart.chart import ChartConfig
 from ..dependencies import ComponentID, ComponentIDBuilder
 from ..types.common import CollectionName
 from .utils import get_current_user_id
@@ -340,7 +340,7 @@ def _register_save_dashboard(
             config = (chart_configs or {}).get(chart_id)
             if config:
                 try:
-                    chart = Chart.from_dict(config)
+                    chart = ChartConfig.from_dict(config)
                     chart.order = i
                     charts.append(chart)
                     logger.debug(f"[SAVE_DASHBOARD] Chart {chart_id}: loaded from chart_configs")

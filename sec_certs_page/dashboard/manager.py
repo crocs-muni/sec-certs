@@ -1,8 +1,7 @@
 from typing import Optional
 from uuid import uuid4
 
-from .chart.cc import CCCategoryDistribution, CCCertsPerYear, CCValidityDuration
-from .chart.chart import AxisConfig, Chart
+from .chart.chart import AxisConfig, ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry
@@ -46,7 +45,7 @@ class DashboardManager:
     def _register_cc_charts(self) -> None:
         cc_chart_registry = self.chart_registries[CollectionName.CommonCriteria]
 
-        category_distribution_config = Chart(
+        category_distribution_config = ChartConfig(
             chart_id=uuid4(),
             name="cc-category-distribution",
             title="Category Distribution",
@@ -58,7 +57,7 @@ class DashboardManager:
             show_grid=False,
         )
 
-        certs_per_year_config = Chart(
+        certs_per_year_config = ChartConfig(
             chart_id=uuid4(),
             name="cc-certs-per-year",
             title="Certificates by Category and Year",
@@ -70,7 +69,7 @@ class DashboardManager:
             show_grid=True,
         )
 
-        validity_duration_config = Chart(
+        validity_duration_config = ChartConfig(
             chart_id=uuid4(),
             name="cc-validity-duration",
             title="Certificate Validity Duration",
@@ -138,9 +137,8 @@ class DashboardManager:
                 chart_instances.append(chart_instance)
             except (ValueError, Exception) as e:
                 error_chart = ErrorChart(
-                    graph_id=str(chart_config.chart_id),
+                    config=chart_config,
                     error_message=str(e),
-                    title=chart_config.title,
                 )
                 chart_instances.append(error_chart)
 
@@ -167,15 +165,14 @@ class DashboardManager:
                 chart_instances.append(chart_instance)
             except (ValueError, Exception) as e:
                 error_chart = ErrorChart(
-                    graph_id=str(chart_config.chart_id),
+                    config=chart_config,
                     error_message=str(e),
-                    title=chart_config.title,
                 )
                 chart_instances.append(error_chart)
 
         return dashboard, chart_instances
 
-    def get_predefined_chart_configs(self, collection_name: CollectionName) -> list[Chart]:
+    def get_predefined_chart_configs(self, collection_name: CollectionName) -> list[ChartConfig]:
         """
         Get predefined chart configurations for 'Load Predefined' option.
 
