@@ -79,22 +79,21 @@ class DataService:
             else {}
         )
 
-        logger.info(f"Fetching CC dataset from MongoDB with query: {query}")
-
         try:
             cursor = self.mongo.db.cc.find(query)  # pyright: ignore[reportOptionalMemberAccess]
             data = list(cursor)
 
             if not data:
-                logger.warning("CC query returned no results")
+                warning_message = "[GET_CC_DF] CC query returned no results"
+                logger.warning(warning_message)
                 return pd.DataFrame()
 
             df = self._prepare_cc_dataframe(data)
-            logger.info(f"Returned {len(df)} CC records")
             return df
 
         except Exception as e:
-            logger.exception("Error fetching CC data from MongoDB")
+            error_message = "[GET_CC_DF] Error fetching CC data from MongoDB"
+            logger.exception(error_message)
             raise e
 
     def get_fips_dataframe(self, filter_values: dict[str, Any] | None = None) -> pd.DataFrame:
@@ -108,14 +107,15 @@ class DataService:
         """
         query = build_query_from_filters(filter_values, collection_name=CollectionName.FIPS140) if filter_values else {}
 
-        logger.info(f"Fetching FIPS dataset from MongoDB with query: {query}")
+        logger.info(f"[GET_FIPS_DF] Fetching FIPS dataset from MongoDB with query: {query}")
 
         try:
             cursor = self.mongo.db.fips.find(query)  # pyright: ignore[reportOptionalMemberAccess]
             data = list(cursor)
 
             if not data:
-                logger.warning("FIPS query returned no results")
+                warning_message = "FIPS query returned no results"
+                logger.warning(warning_message)
                 return pd.DataFrame()
 
             df = pd.DataFrame(data)
@@ -123,7 +123,8 @@ class DataService:
             return df
 
         except Exception as e:
-            logger.exception("Error fetching FIPS data from MongoDB")
+            error_message = "Error fetching FIPS data from MongoDB"
+            logger.exception(error_message)
             raise e
 
     def get_dataframe(
@@ -175,15 +176,17 @@ class DataService:
             data = list(cursor)
 
             if not data:
-                logger.warning(f"Aggregation pipeline returned no results for {collection_name}")
+                warning_message = f"[EXEC_AGG_PIPELINE] Aggregation pipeline returned no results for {collection_name}"
+                logger.warning(warning_message)
                 return pd.DataFrame()
 
             df = pd.DataFrame(data)
-            logger.info(f"Aggregation returned {len(df)} records")
+            logger.info(f"[EXEC_AGG_PIPELINE] Aggregation returned {len(df)} records")
             return df
 
         except Exception as e:
-            logger.exception(f"Error executing aggregation pipeline on {collection_name}")
+            error_message = f"Error executing aggregation pipeline on {collection_name}"
+            logger.exception(error_message)
             raise e
 
     def get_distinct_values(self, field: str, collection_name) -> list[Any]:
@@ -241,9 +244,10 @@ class DataService:
             except TypeError:
                 # If sorting fails (mixed types), return as-is
                 return values
-        except Exception as e:
-            logger.warning(f"Error getting unique values for field '{field}': {e}")
-            return []
+        except Exception:
+            error_message = f"[GET_UNIQUE_VALUES] Error getting unique values for field '{field}'"
+            logger.exception(error_message)
+            raise
 
     def _get_unique_years(self, collection: Any, collection_name: CollectionName) -> list[int]:
         """Extract unique years from the appropriate date field.
@@ -272,8 +276,9 @@ class DataService:
             result = list(collection.aggregate(pipeline))
             years = [doc["_id"] for doc in result if doc["_id"] is not None]
             return years
-        except Exception as e:
-            logger.warning(f"Error extracting unique years: {e}")
+        except Exception:
+            error_message = f"[GET_UNIQUE_YEARS] Error extracting unique years from date field: {date_field}"
+            logger.exception(error_message)
             return []
 
     def get_distinct_values_with_labels(
@@ -389,7 +394,8 @@ class DataService:
 
                 column_stats[col] = col_info
             except Exception as e:
-                logger.warning(f"Error analyzing column {col}: {e}")
+                error_message = f"[GET_DATASET_METADATA] Error analyzing column {col}"
+                logger.exception(error_message)
                 column_stats[col] = {
                     "dtype": str(df[col].dtype),
                     "unique_count": 0,

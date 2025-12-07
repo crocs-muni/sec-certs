@@ -60,8 +60,9 @@ def _register_filter_options(
                         collection_name=factory.collection_name,
                     )
                 )
-            except Exception as e:
-                logger.error(f"[LOAD_OPTIONS] Error loading options for {spec.id}: {e}")
+            except Exception:
+                error_message = f"[LOAD_OPTIONS] Error loading options for {spec.id}"
+                logger.exception(error_message)
                 return dict(options=[])
 
 

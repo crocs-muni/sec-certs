@@ -5,20 +5,24 @@ Chart configurations and DataFrames. It's separated from ChartFactory
 to avoid circular imports with graph components.
 """
 
+import logging
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
 from ..types.chart import AvailableChartTypes
 from ..types.filter import AggregationType
-from .chart import Chart
+from .chart import ChartConfig
+
+logger = logging.getLogger(__name__)
 
 
 class FigureBuilder:
     """Builder for creating Plotly figures from chart configurations."""
 
     @classmethod
-    def create_figure(cls, config: Chart, df: pd.DataFrame) -> go.Figure:
+    def create_figure(cls, config: ChartConfig, df: pd.DataFrame) -> go.Figure:
         """Create Plotly figure from config and raw data.
 
         This method aggregates raw data using pandas before creating the chart.
@@ -48,10 +52,12 @@ class FigureBuilder:
             )
             return fig
         except Exception as e:
-            return cls._empty_figure(f"Error: {str(e)}")
+            error_message = f"Error creating figure for chart '{config.name}' (type: {config.chart_type})"
+            logger.exception(error_message)
+            return cls._empty_figure(f"Error: {str(e)}", is_error=True)
 
     @classmethod
-    def create_figure_from_aggregated(cls, config: Chart, df: pd.DataFrame) -> go.Figure:
+    def create_figure_from_aggregated(cls, config: ChartConfig, df: pd.DataFrame) -> go.Figure:
         """Create Plotly figure from pre-aggregated data.
 
         This method is used when data has already been aggregated by MongoDB
@@ -81,11 +87,11 @@ class FigureBuilder:
         color_field = config.color_axis.field.replace(".", "_") if config.color_axis else None
 
         if x_field not in df.columns:
-            return cls._empty_figure(f"Missing column: {x_field}")
+            return cls._empty_figure(f"Missing column: {x_field}", is_error=True)
         if y_field not in df.columns:
-            return cls._empty_figure(f"Missing column: {y_field}")
+            return cls._empty_figure(f"Missing column: {y_field}", is_error=True)
         if color_field and color_field not in df.columns:
-            return cls._empty_figure(f"Missing color column: {color_field}")
+            return cls._empty_figure(f"Missing color column: {color_field}", is_error=True)
 
         try:
             fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field)
@@ -97,7 +103,12 @@ class FigureBuilder:
             )
             return fig
         except Exception as e:
-            return cls._empty_figure(f"Error: {str(e)}")
+            error_message = (
+                f"Error creating figure from aggregated data for chart '{config.name}' "
+                f"(type: {config.chart_type}, x={x_field}, y={y_field})"
+            )
+            logger.exception(error_message)
+            return cls._empty_figure(f"Error: {str(e)}", is_error=True)
 
     @classmethod
     def _aggregate_data(
@@ -142,7 +153,7 @@ class FigureBuilder:
     @classmethod
     def _create_chart_by_type(
         cls,
-        config: Chart,
+        config: ChartConfig,
         df: pd.DataFrame,
         x_field: str,
         y_field: str,
@@ -184,20 +195,34 @@ class FigureBuilder:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")
 
     @staticmethod
-    def _empty_figure(message: str = "No data") -> go.Figure:
-        """Create an empty figure with a message."""
+    def _empty_figure(message: str = "No data", is_error: bool = False) -> go.Figure:
+        """Create an empty figure with a message.
+
+        :param message: Message to display in the figure
+        :param is_error: If True, style the message as an error (red color, icon)
+        :return: Empty Plotly figure with the message
+        """
         fig = go.Figure()
+
+        # Add error icon if this is an error message
+        display_message = f"⚠️ {message}" if is_error else message
+        color = "#d9534f" if is_error else "gray"
+
         fig.add_annotation(
-            text=message,
+            text=display_message,
             xref="paper",
             yref="paper",
             x=0.5,
             y=0.5,
             showarrow=False,
-            font=dict(size=16, color="gray"),
+            font=dict(size=16, color=color),
+            align="center",
         )
         fig.update_layout(
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
+            template="plotly_white",
+            margin=dict(l=40, r=40, t=40, b=40),
+            height=400,
         )
         return fig

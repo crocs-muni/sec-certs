@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 from dash import ALL, MATCH, ctx, html, no_update
 from dash.dependencies import Input, Output, State
 
-from ..chart.chart import Chart
+from ..chart.chart import ChartConfig
 from ..chart.error import ErrorChart
 from ..chart.factory import ChartFactory
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from ..base import Dash
     from ..chart.registry import ChartRegistry
     from ..data import DataService
-
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +61,9 @@ def register_pattern_matching_callbacks(
                 try:
                     return dict(content=chart.render(data_service=data_service))
                 except Exception as e:
-
+                    error_message = f"Error rendering chart {chart_id}"
+                    logger.exception(error_message)
                     error_chart = ErrorChart(
-                        graph_id=chart_id,
                         config=chart.config,
                         error_message=str(e),
                     )
@@ -130,7 +129,7 @@ def _register_chart_management(
                     f"Ignored remove trigger for chart_id={chart_to_remove}, reason=n_clicks=0 or chart missing"
                 )
 
-        logger.debug(f"Chart configs after update: {list(current_configs.keys())}")
+        logger.debug(f"[MANAGE_CHARTS] Chart configs after update: {list(current_configs.keys())}")
 
         return dict(chart_configs=current_configs)
 
@@ -197,11 +196,12 @@ def _register_chart_rendering(
             if not chart:
                 try:
                     config_dict = chart_configs[chart_id]
-                    chart_config = Chart.from_dict(config_dict)
+                    chart_config = ChartConfig.from_dict(config_dict)
                     chart = ChartFactory.create_chart(chart_config)
-                    chart.graph_id = chart_id
                     chart_registry.register_active(chart)
                 except Exception as e:
+                    error_message = f"Error loading chart config '{chart_id}'"
+                    logger.exception(error_message)
                     rendered.append(
                         dbc.Alert(
                             [
@@ -218,6 +218,8 @@ def _register_chart_rendering(
                 is_editable = chart.config.is_editable if chart.config else False
                 rendered.append(create_chart_wrapper(chart_id, chart.title, chart_component, is_editable))
             except Exception as e:
+                error_message = f"Error rendering chart '{chart_id}'"
+                logger.exception(error_message)
                 rendered.append(
                     dbc.Alert(
                         [

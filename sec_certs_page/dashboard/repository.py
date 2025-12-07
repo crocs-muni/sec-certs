@@ -1,4 +1,6 @@
+import logging
 import os
+from logging import Logger
 
 from pymongo.collection import Collection
 from pymongo.database import Database
@@ -6,6 +8,8 @@ from pymongo.errors import PyMongoError
 
 from .dashboard import Dashboard
 from .types.common import CollectionName
+
+logger: Logger = logging.getLogger(__name__)
 
 
 class DashboardRepository:
@@ -83,10 +87,13 @@ class DashboardRepository:
                 {"$set": serialized_dashboard},
                 upsert=True,
             )
+            logger.info(f"Dashboard '{dashboard.name}' (ID: {dashboard_id}) saved successfully")
             return dashboard_id
 
-        except PyMongoError as e:
-            raise PyMongoError(f"Failed to save dashboard.\n{serialized_dashboard}") from e
+        except PyMongoError:
+            error_messages = f"Failed to save dashboard '{dashboard.name}' (ID: {dashboard_id})"
+            logger.exception(error_messages)
+            raise
 
     def get_by_id(self, dashboard_id: str) -> Dashboard | None:
         doc = self.collection.find_one({"dashboard_id": dashboard_id})
@@ -97,8 +104,10 @@ class DashboardRepository:
 
         try:
             return Dashboard.from_dict(doc)
-        except (KeyError, ValueError) as e:
-            raise ValueError(f"Invalid dashboard data for ID {dashboard_id}: {e}") from e
+        except (KeyError, ValueError):
+            error_messages = f"Invalid dashboard data for ID {dashboard_id}"
+            logger.exception(error_messages)
+            raise
 
     def get_by_user(self, user_id: str, collection_name: CollectionName | None = None) -> list[Dashboard]:
         query: dict = {"user_id": user_id}
@@ -114,7 +123,9 @@ class DashboardRepository:
                 dashboard = Dashboard.from_dict(doc)
                 dashboards.append(dashboard)
             except (KeyError, ValueError):
-                continue
+                error_messages = f"Skipping invalid dashboard data for user {user_id}"
+                logger.exception(error_messages)
+                raise
 
         return dashboards
 
@@ -156,12 +167,19 @@ class DashboardRepository:
     def delete(self, dashboard_id: str, user_id: str) -> bool:
         dashboard = self.get_by_id(dashboard_id)
         if dashboard is None:
+            warning_message = f"Attempted to delete non-existent dashboard {dashboard_id}"
+            logger.warning(warning_message)
             return False
 
         if dashboard.user_id != user_id:
-            raise ValueError(f"Dashboard {dashboard_id} belongs to user {dashboard.user_id}, not {user_id}")
+            error_message = f"Dashboard {dashboard_id} belongs to user {dashboard.user_id}, not {user_id}"
+            logger.error(error_message)
+            raise ValueError(error_message)
 
         result = self.collection.delete_one({"dashboard_id": dashboard_id, "user_id": user_id})
+        if result.deleted_count > 0:
+            info_message = f"Dashboard '{dashboard.name}' (ID: {dashboard_id}) deleted by user {user_id}"
+            logger.info(info_message)
         return result.deleted_count > 0
 
     def count_by_user(self, user_id: str, collection_name: CollectionName | None = None) -> int:

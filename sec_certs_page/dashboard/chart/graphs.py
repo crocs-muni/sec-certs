@@ -5,6 +5,7 @@ by selecting axes and chart types. They use FigureBuilder to create figures
 from the chart configuration.
 """
 
+import logging
 from typing import Any
 
 import pandas as pd
@@ -15,13 +16,14 @@ from ..filters.query_builder import build_chart_pipeline
 from .base import BaseChart
 from .figure_builder import FigureBuilder
 
+logger = logging.getLogger(__name__)
+
 
 class GenericChartComponent(BaseChart):
     """Base for generic chart components that render from configuration.
 
-    Unlike predefined charts (CCCertsPerYear, etc.) that have hardcoded
-    data transformations, generic charts use the Chart configuration's
-    x_axis/y_axis/aggregation settings to dynamically create visualizations.
+    Generic charts use the Chart configuration's x_axis/y_axis/aggregation
+    settings to dynamically create visualizations.
 
     If a query_pipeline is stored in the chart config, it uses MongoDB
     aggregation for better performance. Otherwise, it fetches raw data
@@ -57,6 +59,8 @@ class GenericChartComponent(BaseChart):
                 ]
             )
         except Exception as e:
+            error_message = f"GenericChartComponent [{self.config.name}] error creating chart"
+            logger.exception(error_message)
             return self._render_container([self._render_error_state(f"Error creating chart: {str(e)}")])
 
     def _get_aggregated_data(self, data_service: DataService, filter_values: dict[str, Any] | None) -> pd.DataFrame:

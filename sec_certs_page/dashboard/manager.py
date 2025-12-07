@@ -1,3 +1,5 @@
+import logging
+from logging import Logger
 from typing import Optional
 from uuid import uuid4
 
@@ -12,6 +14,8 @@ from .repository import DashboardRepository
 from .types.chart import AvailableChartTypes
 from .types.common import CollectionName
 
+logger: Logger = logging.getLogger(__name__)
+
 
 class DashboardManager:
     """Central manager for dashboards, charts, and filters."""
@@ -21,8 +25,11 @@ class DashboardManager:
 
         db = data_service.mongo.db
         if db is None:
-            raise RuntimeError("MongoDB database is not initialized")
+            error_msg = "MongoDB database is not initialized"
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
         self.repository = DashboardRepository(db)
+        logger.debug("[DashboardManager initialized successfully")
 
         self.chart_registries: dict[CollectionName, ChartRegistry] = {
             collection_name: ChartRegistry(collection_name=collection_name) for collection_name in CollectionName
