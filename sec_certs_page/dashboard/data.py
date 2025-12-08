@@ -73,7 +73,9 @@ class DataService:
         )
 
         try:
-            cursor = self.mongo.db.cc.find(query)  # pyright: ignore[reportOptionalMemberAccess]
+            cursor = self.mongo.db[CollectionName.CommonCriteria.value].find(
+                query
+            )  # pyright: ignore[reportOptionalMemberAccess]
             data = list(cursor)
 
             if not data:
@@ -103,7 +105,7 @@ class DataService:
         logger.info(f"[GET_FIPS_DF] Fetching FIPS dataset from MongoDB with query: {query}")
 
         try:
-            cursor = self.mongo.db.fips.find(query)  # pyright: ignore[reportOptionalMemberAccess]
+            cursor = self.mongo.db[CollectionName.FIPS140.value].find(query)
             data = list(cursor)
 
             if not data:
@@ -153,14 +155,7 @@ class DataService:
         :param pipeline: MongoDB aggregation pipeline stages
         :return: Aggregated data as DataFrame
         """
-        collection_map = {
-            CollectionName.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
-            CollectionName.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
-        }
-
-        collection = collection_map.get(collection_name)
-        if collection is None:
-            raise ValueError(f"Unsupported collection type: {collection_name}")
+        collection = self.mongo.db[collection_name.value]
 
         logger.info(f"Executing aggregation pipeline on {collection_name}: {pipeline}")
 
@@ -182,7 +177,7 @@ class DataService:
             logger.exception(error_message)
             raise e
 
-    def get_distinct_values(self, field: str, collection_name) -> list[Any]:
+    def get_distinct_values(self, field: str, collection_name: CollectionName) -> list[Any]:
         """Get distinct values for a field from MongoDB.
 
         This is used to populate filter dropdowns dynamically.
@@ -191,14 +186,7 @@ class DataService:
         :param collection_name: Type of dataset ('cc' or 'fips')
         :return: List of distinct values (sorted)
         """
-        collections = {
-            "cc": self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
-            "fips": self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
-        }
-
-        collection = collections.get(collection_name.lower())
-        if collection is None:
-            raise ValueError(f"Unknown dataset type: {collection_name}")
+        collection = self.mongo.db[collection_name.value]
 
         distinct_values = collection.distinct(field)
         values = [v for v in distinct_values if v is not None and v != ""]
@@ -215,14 +203,7 @@ class DataService:
         :param field: MongoDB field path (e.g., 'category', 'web_data.level')
         :return: List of unique values (sorted, non-null)
         """
-        collection_map = {
-            CollectionName.CommonCriteria: self.mongo.db.cc,  # pyright: ignore[reportOptionalMemberAccess]
-            CollectionName.FIPS140: self.mongo.db.fips,  # pyright: ignore[reportOptionalMemberAccess]
-        }
-
-        collection = collection_map.get(collection_name)
-        if collection is None:
-            raise ValueError(f"Unsupported collection type: {collection_name}")
+        collection = self.mongo.db[collection_name.value]
 
         try:
             # Handle derived year field
