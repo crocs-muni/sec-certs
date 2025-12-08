@@ -92,11 +92,7 @@ class FigureBuilder:
         # Get field names, flattening dots for nested fields (matches query_builder output)
         x_field = config.x_axis.field.replace(".", "_")
         # The pipeline uses y_axis.label as the value column name
-        y_field = config.y_axis.label if config.y_axis else "value"
-
-        # Fallback to 'value' if the label column doesn't exist
-        if y_field not in df.columns and "value" in df.columns:
-            y_field = "value"
+        y_field = config.y_axis.label if config.y_axis else "count"
 
         # Get color field if secondary grouping is used (also flatten dots)
         color_field = config.color_axis.field.replace(".", "_") if config.color_axis else None

@@ -38,18 +38,21 @@ class ConfigurableChart(BaseChart):
         merged_filters = self._get_merged_filter_values(filter_values)
 
         try:
-            # Try to use aggregation pipeline for better performance
+            # Get data - will use aggregation pipeline when possible
             df = self._get_aggregated_data(data_service, merged_filters)
 
             if df.empty:
                 return self._render_container([self._render_empty_state()])
 
-            # If we used aggregation pipeline, data is already aggregated
-            # Create figure directly from the aggregated data
-            if self.config.query_pipeline:
+            # Check if data is already aggregated by examining columns
+            # Aggregated data has flattened field names (dots replaced with underscores)
+            x_field_flat = self.config.x_axis.field.replace(".", "_")
+            is_aggregated = x_field_flat in df.columns
+
+            if is_aggregated:
                 fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
             else:
-                # Fallback to FigureBuilder with raw data
+                # Raw data - FigureBuilder will aggregate it
                 fig = FigureBuilder.create_figure(self.config, df)
 
             return self._render_container(
@@ -68,18 +71,24 @@ class ConfigurableChart(BaseChart):
 
         :param data_service: Data service to fetch data from
         :param filter_values: Optional filter values to apply
-        :return: DataFrame with data (aggregated or raw depending on pipeline)
+        :return: DataFrame with data (aggregated or raw depending on what succeeded)
         """
-        if self.config.query_pipeline is not None:
+        # Always try to use aggregation pipeline for performance
+        # The pipeline is rebuilt from config even if query_pipeline is None (security)
+        try:
             pipeline = build_chart_pipeline(self.config, filter_values)
             return data_service.execute_aggregation_pipeline(
                 collection_name=self.config.collection_name,
                 pipeline=pipeline,
             )
-        return data_service.get_dataframe(
-            collection_name=self.config.collection_name,
-            filter_values=filter_values,
-        )
+        except Exception:
+            logger.exception(
+                f"[DATA] Failed to use aggregation pipeline for {self.config.title}, falling back to raw data"
+            )
+            return data_service.get_dataframe(
+                collection_name=self.config.collection_name,
+                filter_values=filter_values,
+            )
 
 
 class BarChartComponent(ConfigurableChart):

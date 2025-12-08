@@ -13,6 +13,7 @@ from .filters.factory import FilterFactory
 from .repository import DashboardRepository
 from .types.chart import ChartType
 from .types.common import CollectionName
+from .types.filter import AggregationType
 
 logger: Logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class DashboardManager:
             chart_type=ChartType.PIE,
             collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
-            y_axis=None,
+            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
             show_legend=True,
             show_grid=False,
         )
