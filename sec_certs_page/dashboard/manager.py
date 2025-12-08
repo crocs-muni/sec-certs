@@ -183,22 +183,6 @@ class DashboardManager:
 
         return [chart.config for chart in registry]
 
-    def create_dashboard(
-        self,
-        collection_name: CollectionName,
-        user_id: str,
-        name: str = "New dashboard",
-        description: Optional[str] = None,
-        is_default: bool = False,
-    ) -> Dashboard:
-        return Dashboard(
-            user_id=user_id,
-            collection_name=collection_name,
-            name=name,
-            description=description,
-            is_default=is_default,
-        )
-
     def save_dashboard(self, dashboard: Dashboard) -> str:
         return self.repository.save(dashboard)
 

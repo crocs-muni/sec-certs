@@ -5,6 +5,7 @@ from dash import ctx, no_update
 from dash.dependencies import Input, Output, State
 
 from ..chart.config import ChartConfig
+from ..dashboard import Dashboard
 from ..dependencies import ComponentID, ComponentIDBuilder
 from ..types.common import CollectionName
 from .utils import get_current_user_id
@@ -392,7 +393,7 @@ def _register_save_dashboard(
                 )
         else:
             # Create new dashboard
-            dashboard = dashboard_manager.create_dashboard(
+            dashboard = Dashboard(
                 collection_name=collection_name,
                 user_id=user_id,
                 name=dashboard_name or "Untitled Dashboard",
