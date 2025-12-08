@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from ..types.filter import FilterComponentParams, FilterOperator, FilterSpecDict
+from ..types.filter import FilterComponentParams, FilterOperator
 
 
 @dataclass
@@ -46,7 +46,7 @@ class FilterSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: FilterSpecDict) -> "FilterSpec":
+    def from_dict(cls, data: dict[str, Any]) -> "FilterSpec":
         """Create FilterSpec instance from dictionary."""
         return cls(
             id=data["id"],

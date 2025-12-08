@@ -56,19 +56,6 @@ class FilterComponentParams:
     searchable: bool = False
 
 
-class FilterSpecDict(TypedDict):
-    """Filter specification dictionary for serialization."""
-
-    id: str
-    database_field: str
-    operator: FilterOperator
-    data_type: str
-    component_params: FilterComponentParams
-    data: NotRequired[Any]
-    transform: NotRequired[Callable]
-    mongodb_pipeline: NotRequired[list[dict]]
-
-
 @dataclass(frozen=True)
 class DerivedFieldDefinition:
     """Definition of a derived field for use in charts and aggregations.

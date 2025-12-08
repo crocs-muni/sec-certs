@@ -2,7 +2,7 @@
 
 from .chart import ChartType
 from .common import CollectionName
-from .filter import AggregationType, FilterComponentParams, FilterComponentType, FilterOperator, FilterSpecDict
+from .filter import AggregationType, FilterComponentParams, FilterComponentType, FilterOperator
 
 __all__ = [
     "AggregationType",
@@ -11,5 +11,4 @@ __all__ = [
     "FilterComponentParams",
     "FilterComponentType",
     "FilterOperator",
-    "FilterSpecDict",
 ]

@@ -192,9 +192,7 @@ class Dashboard:
         created_at = _parse_datetime(created_at_str) if created_at_str else datetime.now(timezone.utc)
         updated_at = _parse_datetime(updated_at_str) if updated_at_str else datetime.now(timezone.utc)
 
-        collection_name = data["collection_name"]
-        if isinstance(collection_name, str):
-            collection_name = CollectionName(collection_name)
+        collection_name = CollectionName(data["collection_name"])
 
         dashboard = cls(
             user_id=data["user_id"],
