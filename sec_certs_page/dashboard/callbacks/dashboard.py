@@ -230,7 +230,7 @@ def _register_dashboard_selection(
         chart_configs = {}
 
         for chart_config in dashboard.charts:
-            predefined = chart_registry.get(chart_config.name)
+            predefined = chart_registry.get_predefined(chart_config.name)
             if predefined:
                 chart_configs[predefined.id] = predefined.config.to_client_dict()
             else:

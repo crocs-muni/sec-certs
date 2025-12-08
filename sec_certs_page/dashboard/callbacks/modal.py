@@ -43,7 +43,7 @@ def register_modal_callbacks(
     _register_x_label_autofill(dash_app, collection_name)
     _register_chart_type_help(dash_app, collection_name)
     _register_color_by_toggle(dash_app, collection_name)
-    _register_chart_creation(dash_app, collection_name, data_service, chart_registry)
+    _register_chart_creation(dash_app, collection_name, data_service)
 
 
 def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -239,7 +239,8 @@ def _register_edit_handler(
                 config_dict = (chart_configs or {}).get(chart_id)
 
                 if not config_dict:
-                    chart_instance = chart_registry.get(chart_id)
+                    # Try predefined charts (custom charts are always in chart_configs)
+                    chart_instance = chart_registry.get_predefined(chart_id)
                     if chart_instance:
                         config_dict = chart_instance.config.to_dict()
 
@@ -689,7 +690,6 @@ def _register_chart_creation(
     dash_app: "Dash",
     collection_name: CollectionName,
     data_service: "DataService",
-    chart_registry: "ChartRegistry",
 ) -> None:
     component_id = ComponentIDBuilder(collection_name)
     pattern_id = PatternMatchingComponentID(collection_name)
@@ -791,18 +791,13 @@ def _register_chart_creation(
             current_filter_values=current_filter_values,
         )
 
-        from ..chart.factory import ChartFactory
-
-        chart_instance = ChartFactory.create_chart(chart_config)
-
+        # Store config in client-side store; chart will be created on-demand during rendering
         updated_chart_configs = dict(chart_configs or {})
-        updated_chart_configs[chart_instance.id] = chart_config.to_client_dict()
-
-        # Register in the chart registry for rendering
-        chart_registry.register_active(chart_instance)
+        chart_id = str(chart_config.chart_id)
+        updated_chart_configs[chart_id] = chart_config.to_client_dict()
 
         logger.debug(
-            f"[MODAL] {'Updated' if is_edit_mode else 'Created'} chart {chart_instance.id}, chart_configs after: {list(updated_chart_configs.keys())}"
+            f"[MODAL] {'Updated' if is_edit_mode else 'Created'} chart {chart_id}, chart_configs after: {list(updated_chart_configs.keys())}"
         )
         return dict(
             modal_open=False,

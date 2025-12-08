@@ -195,14 +195,17 @@ package "Component Registries & Factory" #E6F3FF {
     class ChartRegistry {
         + collection_name : CollectionName
         - _predefined_charts : dict[str, BaseChart]
-        - _active_charts : dict[str, BaseChart]
         + register(chart: BaseChart)
-        + register_active(chart: BaseChart)
-        + unregister_active(chart_id: str)
-        + get(chart_id: str) : BaseChart | None
+        + get_predefined(chart_id: str) : BaseChart | None
         + __getitem__(chart_id: str) : BaseChart
         + __iter__() : Iterator[BaseChart]
     }
+    note right of ChartRegistry
+        Only stores predefined (built-in) charts.
+        Custom charts are created on-demand from
+        chart_configs (dcc.Store) to support
+        multi-worker deployments.
+    end note
 
     class ChartFactory {
         - {static} _chart_classes : dict[AvailableChartTypes, type]

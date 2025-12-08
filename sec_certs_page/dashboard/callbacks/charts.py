@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 from dash import ALL, MATCH, ctx, html, no_update
 from dash.dependencies import Input, Output, State
 
+from ..chart.base import BaseChart
 from ..chart.config import ChartConfig
 from ..chart.error import ErrorChart
 from ..chart.factory import ChartFactory
@@ -18,6 +19,41 @@ if TYPE_CHECKING:
     from ..data import DataService
 
 logger = logging.getLogger(__name__)
+
+
+def _get_or_create_chart(
+    chart_id: str,
+    chart_registries: dict[CollectionName, "ChartRegistry"],
+    chart_configs_by_collection: dict[str, dict],
+) -> "BaseChart | None":
+    """Get a chart from predefined registry or create from config.
+
+    First checks predefined charts in all registries. If not found,
+    creates a new chart instance from the chart_configs store.
+
+    :param chart_id: The ID of the chart to get or create
+    :param chart_registries: Dict of collection_name -> ChartRegistry
+    :param chart_configs_by_collection: Dict of "chart_configs_{coll}" -> config dict
+    :return: BaseChart instance or None if not found
+    """
+    # First, check predefined charts
+    for registry in chart_registries.values():
+        chart = registry.get_predefined(chart_id)
+        if chart:
+            return chart
+
+    # Not predefined - try to create from chart_configs store
+    for key, configs in chart_configs_by_collection.items():
+        if configs and chart_id in configs:
+            try:
+                config_dict = configs[chart_id]
+                chart_config = ChartConfig.from_dict(config_dict, trust_pipeline=False)
+                return ChartFactory.create_chart(chart_config)
+            except Exception as e:
+                logger.exception(f"Error creating chart '{chart_id}' from config: {e}")
+                return None
+
+    return None
 
 
 def register_chart_callbacks(
@@ -40,13 +76,18 @@ def register_pattern_matching_callbacks(
     """Must be registered once globally since pattern-matching callbacks match across all collections."""
     pattern_id = PatternMatchingComponentID(None)
 
+    # Build state inputs for chart_configs from all collections
+    chart_configs_states = {
+        f"chart_configs_{coll}": State(f"{coll}-chart-configs-store", "data") for coll in chart_registries.keys()
+    }
+
     @dash_app.callback(
         output=dict(content=Output(pattern_id(ComponentID.CHART_CONTENT, MATCH), "children")),
         inputs=dict(n_clicks=Input(pattern_id(ComponentID.CHART_REFRESH, MATCH), "n_clicks")),
-        state=dict(wrapper_id=State(pattern_id(ComponentID.CHART_WRAPPER, MATCH), "id")),
+        state=dict(wrapper_id=State(pattern_id(ComponentID.CHART_WRAPPER, MATCH), "id"), **chart_configs_states),
         prevent_initial_call=True,
     )
-    def refresh_single_chart(n_clicks, wrapper_id):
+    def refresh_single_chart(n_clicks, wrapper_id, **chart_configs_by_collection):
         """When user clicks the chart-refresh button we re-render it."""
         if not n_clicks:
             return dict(content=no_update)
@@ -55,19 +96,18 @@ def register_pattern_matching_callbacks(
         if not chart_id:
             return dict(content=no_update)
 
-        for registry in chart_registries.values():
-            chart = registry.get(chart_id)
-            if chart:
-                try:
-                    return dict(content=chart.render(data_service=data_service))
-                except Exception as e:
-                    error_message = f"Error rendering chart {chart_id}"
-                    logger.exception(error_message)
-                    error_chart = ErrorChart(
-                        config=chart.config,
-                        error_message=str(e),
-                    )
-                    return dict(content=error_chart.render())
+        chart = _get_or_create_chart(chart_id, chart_registries, chart_configs_by_collection)
+        if chart:
+            try:
+                return dict(content=chart.render(data_service=data_service))
+            except Exception as e:
+                error_message = f"Error rendering chart {chart_id}"
+                logger.exception(error_message)
+                error_chart = ErrorChart(
+                    config=chart.config,
+                    error_message=str(e),
+                )
+                return dict(content=error_chart.render())
 
         return dict(content=html.P(f"Chart '{chart_id}' not found.", style={"color": "red"}))
 
@@ -190,17 +230,14 @@ def _register_chart_rendering(
         rendered = []
 
         for chart_id in chart_ids:
-            chart = chart_registry.get(chart_id)
-
-            # If not in registry, try to create from chart_configs store
-            # Register in active charts for caching during this session
+            # Try predefined chart first, otherwise create from config
+            chart = chart_registry.get_predefined(chart_id)
             if not chart:
                 try:
                     config_dict = chart_configs[chart_id]
-                    # forces server-side pipeline rebuild to remove pipeline
+                    # trust_pipeline=False forces server-side pipeline rebuild for security
                     chart_config = ChartConfig.from_dict(config_dict, trust_pipeline=False)
                     chart = ChartFactory.create_chart(chart_config)
-                    chart_registry.register_active(chart)
                 except Exception as e:
                     error_message = f"Error loading chart config '{chart_id}'"
                     logger.exception(error_message)
