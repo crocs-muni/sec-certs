@@ -6,13 +6,11 @@ from dash import html
 from ..pages.common import create_collection_page_layout
 from ..types.common import CollectionName
 
-COLLECTION = CollectionName.CommonCriteria
-
 
 def layout(**kwargs) -> html.Div:
     """Layout for the CC collection dashboard page."""
     return create_collection_page_layout(
-        collection_name=COLLECTION,
+        collection_name=CollectionName.CommonCriteria,
         title="Common Criteria Dashboard",
     )
 

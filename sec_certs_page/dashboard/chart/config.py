@@ -178,7 +178,7 @@ class ChartConfig:
     def to_dict(self) -> dict[str, Any]:
         """Serialize chart to JSON-compatible dictionary for DATABASE storage.
 
-        ⚠️ SECURITY WARNING: This method includes query_pipeline which should NOT
+        SECURITY WARNING: This method includes query_pipeline which should NOT
         be sent to the client. Use to_client_dict() for client communication.
 
         This method produces the complete chart configuration for MongoDB persistence.
@@ -208,13 +208,13 @@ class ChartConfig:
             "title": self.title,
             "order": self.order,
             "chart_type": self.chart_type,
-            "collection_name": self.collection_name,
+            "collection_name": (self.collection_name.value),
             "x_axis": self.x_axis.to_dict(),
             "y_axis": self.y_axis.to_dict() if self.y_axis else None,
             "color_axis": self.color_axis.to_dict() if self.color_axis else None,
             "filters": {fid: fconfig.to_dict() for fid, fconfig in self.filters.items()},
             "filter_values": self.filter_values,
-            "query_pipeline": self.query_pipeline,  # ⚠️ Included for database storage only
+            "query_pipeline": self.query_pipeline,  # Included for database storage only
             "color_scheme": self.color_scheme,
             "show_legend": self.show_legend,
             "show_grid": self.show_grid,
@@ -226,7 +226,7 @@ class ChartConfig:
     def to_client_dict(self) -> dict[str, Any]:
         """Serialize chart to JSON-compatible dictionary for CLIENT communication.
 
-        🔒 SECURITY: This method excludes query_pipeline to prevent NoSQL injection.
+        SECURITY: This method excludes query_pipeline to prevent NoSQL injection.
         The client should never be able to send arbitrary MongoDB pipelines.
 
         Use this method when:
@@ -248,7 +248,7 @@ class ChartConfig:
     def from_dict(cls, data: dict[str, Any], *, trust_pipeline: bool = False) -> "ChartConfig":
         """Deserialize chart from dictionary representation.
 
-        🔒 SECURITY: By default, this method IGNORES query_pipeline from input data
+        SECURITY: By default, this method IGNORES query_pipeline from input data
         to prevent NoSQL injection attacks. The pipeline must be rebuilt server-side
         using build_chart_pipeline() from validated inputs.
 

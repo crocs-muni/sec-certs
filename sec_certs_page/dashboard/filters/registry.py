@@ -2,6 +2,7 @@ from abc import ABC
 from datetime import datetime
 from typing import ClassVar
 
+from ..dependencies import ComponentIDBuilder, FilterID
 from ..filters.filter import FilterSpec
 from ..types.common import CollectionName
 from ..types.filter import FilterComponentParams, FilterComponentType, FilterOperator
@@ -37,10 +38,11 @@ class FilterSpecRegistry(ABC):
 class CCFilterRegistry(FilterSpecRegistry):
     """Common Criteria filter definitions."""
 
+    filter_id = ComponentIDBuilder(CollectionName.CommonCriteria)
     collection_name: ClassVar[CollectionName] = CollectionName.CommonCriteria
     _filters: ClassVar[dict[str, FilterSpec]] = {
-        "cc-category-filter": FilterSpec(
-            id="cc-category-filter",
+        filter_id(FilterID.CATEGORY_FILTER): FilterSpec(
+            id=filter_id(FilterID.CATEGORY_FILTER),
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
@@ -54,8 +56,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter certificates by product category",
             ),
         ),
-        "cc-scheme-filter": FilterSpec(
-            id="cc-scheme-filter",
+        filter_id(FilterID.SCHEME_FILTER): FilterSpec(
+            id=filter_id(FilterID.SCHEME_FILTER),
             database_field="scheme",
             operator=FilterOperator.IN,
             data_type="str",
@@ -69,8 +71,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by certification scheme/country",
             ),
         ),
-        "cc-status-filter": FilterSpec(
-            id="cc-status-filter",
+        filter_id(FilterID.STATUS_FILTER): FilterSpec(
+            id=filter_id(FilterID.STATUS_FILTER),
             database_field="status",
             operator=FilterOperator.IN,
             data_type="str",
@@ -83,8 +85,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by certificate status (active/archived)",
             ),
         ),
-        "cc-eal-filter": FilterSpec(
-            id="cc-eal-filter",
+        filter_id(FilterID.EAL_FILTER): FilterSpec(
+            id=filter_id(FilterID.EAL_FILTER),
             database_field="heuristics.eal",
             operator=FilterOperator.IN,
             data_type="str",
@@ -98,8 +100,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by EAL level (EAL1-EAL7)",
             ),
         ),
-        "cc-year-filter": FilterSpec(
-            id="cc-year-filter",
+        filter_id(FilterID.YEAR_FILTER): FilterSpec(
+            id=filter_id(FilterID.YEAR_FILTER),
             database_field="not_valid_before",  # Source date field
             operator=FilterOperator.YEAR_IN,  # Special operator for year extraction
             data_type="int",
@@ -113,8 +115,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Year when certificate was issued (extracted from certification date)",
             ),
         ),
-        "cc-not-valid-before-filter": FilterSpec(
-            id="cc-not-valid-before-filter",
+        filter_id(FilterID.NOT_VALID_BEFORE_FILTER): FilterSpec(
+            id=filter_id(FilterID.NOT_VALID_BEFORE_FILTER),
             database_field="not_valid_before",
             operator=FilterOperator.GTE,
             data_type="date",
@@ -126,8 +128,8 @@ class CCFilterRegistry(FilterSpecRegistry):
             ),
             transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
         ),
-        "cc-not-valid-after-filter": FilterSpec(
-            id="cc-not-valid-after-filter",
+        filter_id(FilterID.NOT_VALID_AFTER_FILTER): FilterSpec(
+            id=filter_id(FilterID.NOT_VALID_AFTER_FILTER),
             database_field="not_valid_after",
             operator=FilterOperator.LTE,
             data_type="date",
@@ -140,8 +142,8 @@ class CCFilterRegistry(FilterSpecRegistry):
             transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
         ),
         # Additional fields for chart grouping (not typically used as filters)
-        "cc-vendor-filter": FilterSpec(
-            id="cc-vendor-filter",
+        filter_id(FilterID.VENDOR_FILTER): FilterSpec(
+            id=filter_id(FilterID.VENDOR_FILTER),
             database_field="manufacturer",
             operator=FilterOperator.IN,
             data_type="str",
@@ -161,9 +163,10 @@ class CCFilterRegistry(FilterSpecRegistry):
 class FIPSFilterRegistry(FilterSpecRegistry):
     """FIPS 140 filter definitions."""
 
+    filter_id = ComponentIDBuilder(CollectionName.FIPS140)
     collection_name: ClassVar[CollectionName] = CollectionName.FIPS140
     _filters: ClassVar[dict[str, FilterSpec]] = {
-        "fips-level-filter": FilterSpec(
+        filter_id(FilterID.LEVEL_FILTER): FilterSpec(
             id="fips-level-filter",
             database_field="web_data.level",
             operator=FilterOperator.IN,
@@ -178,7 +181,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="FIPS 140 security level (1-4)",
             ),
         ),
-        "fips-status-filter": FilterSpec(
+        filter_id(FilterID.STATUS_FILTER): FilterSpec(
             id="fips-status-filter",
             database_field="web_data.status",
             operator=FilterOperator.IN,
@@ -192,7 +195,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="Current certificate status",
             ),
         ),
-        "fips-module-type-filter": FilterSpec(
+        filter_id(FilterID.MODULE_TYPE_FILTER): FilterSpec(
             id="fips-module-type-filter",
             database_field="web_data.module_type",
             operator=FilterOperator.IN,
@@ -207,7 +210,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="Type of cryptographic module",
             ),
         ),
-        "fips-standard-filter": FilterSpec(
+        filter_id(FilterID.STANDARD_FILTER): FilterSpec(
             id="fips-standard-filter",
             database_field="web_data.standard",
             operator=FilterOperator.IN,
@@ -222,7 +225,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="FIPS 140-1, 140-2, or 140-3",
             ),
         ),
-        "fips-year-filter": FilterSpec(
+        filter_id(FilterID.YEAR_FILTER): FilterSpec(
             id="fips-year-filter",
             database_field="web_data.date_validation",
             operator=FilterOperator.YEAR_IN,
@@ -237,7 +240,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 help_text="Year when module was validated",
             ),
         ),
-        "fips-vendor-filter": FilterSpec(
+        filter_id(FilterID.VENDOR_FILTER): FilterSpec(
             id="fips-vendor-filter",
             database_field="web_data.vendor",
             operator=FilterOperator.IN,

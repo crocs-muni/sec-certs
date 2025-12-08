@@ -18,13 +18,14 @@ def create_collection_page_layout(collection_name: CollectionName, title: str) -
     :param title: The page title to display
     :return: Complete page layout
     """
+    cid = ComponentIDBuilder(collection_name)
     return html.Div(
         children=[
             # State stores
             *create_page_stores(collection_name),
             # Toast for notifications
             dbc.Toast(
-                id=f"{collection_name}-dashboard-toast",
+                id=cid(ComponentID.DASHBOARD_TOAST),
                 header="Dashboard",
                 is_open=False,
                 dismissable=True,
@@ -67,7 +68,7 @@ def create_collection_page_layout(collection_name: CollectionName, title: str) -
     )
 
 
-def create_page_stores(collection_name: str) -> list:
+def create_page_stores(collection_name: CollectionName) -> list:
     """
     Create the common dcc.Store components used by collection pages.
 
@@ -76,7 +77,7 @@ def create_page_stores(collection_name: str) -> list:
     """
     store_id = ComponentIDBuilder(collection_name)
     return [
-        dcc.Store(id=store_id(ComponentID.COLLECTION_NAME), data=collection_name),
+        dcc.Store(id=store_id(ComponentID.COLLECTION_NAME), data=collection_name.value),
         dcc.Store(id=store_id(ComponentID.CURRENT_DASHBOARD_ID), data=None),
         dcc.Store(id=store_id(ComponentID.FILTER_STORE), data={}),
         dcc.Store(id=store_id(ComponentID.RENDER_TRIGGER), data=0),
@@ -106,6 +107,7 @@ def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
     :param collection_name: The collection_name for component IDs
     :return: Row containing the action buttons
     """
+    cid = ComponentIDBuilder(collection_name)
     return dbc.Row(
         className="g-3 align-items-end",
         children=[
@@ -114,11 +116,9 @@ def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
                 width=12,
                 lg=4,
                 children=[
-                    dbc.Label(
-                        "Select Dashboard", html_for=f"{collection_name}-dashboard-selector", className="fw-bold"
-                    ),
+                    dbc.Label("Select Dashboard", html_for=cid(ComponentID.SELECTOR), className="fw-bold"),
                     dcc.Dropdown(
-                        id=f"{collection_name}-dashboard-selector",
+                        id=cid(ComponentID.SELECTOR),
                         options=[],
                         placeholder="Select a saved dashboard...",
                         clearable=True,
@@ -132,7 +132,7 @@ def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
                 children=[
                     dbc.Button(
                         [html.I(className="fas fa-plus me-2"), "Create New Dashboard"],
-                        id=f"{collection_name}-create-dashboard-btn",
+                        id=cid(ComponentID.CREATE_BTN),
                         n_clicks=0,
                         color="success",
                         className="w-100",
@@ -150,8 +150,9 @@ def create_empty_state(collection_name: str) -> html.Div:
     :param collection_name: The collection_name for component IDs
     :return: Div with empty state content
     """
+    cid = ComponentIDBuilder(collection_name)
     return html.Div(
-        id=f"{collection_name}-empty-state",
+        id=cid(ComponentID.EMPTY_STATE),
         style={"display": "block"},
         children=[
             dbc.Card(
@@ -187,19 +188,20 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     :param collection_name: The collection_name for component IDs
     :return: Modal component for chart creation
     """
+    cid = ComponentIDBuilder(collection_name)
     chart_type_options = [{"label": ct.value.replace("_", " ").title(), "value": ct.value} for ct in ChartType]
 
     aggregation_options = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
 
     return dbc.Modal(
-        id=f"{collection_name}-create-chart-modal",
+        id=cid(ComponentID.CREATE_CHART_MODAL),
         is_open=False,
         size="lg",
         centered=True,
         children=[
             dbc.ModalHeader(
                 dbc.ModalTitle(
-                    id=f"{collection_name}-modal-title",
+                    id=cid(ComponentID.MODAL_TITLE),
                     children=[html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
                 ),
                 close_button=True,
@@ -215,11 +217,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 children=[
                                     dbc.Label(
                                         "Chart Title",
-                                        html_for=f"{collection_name}-modal-chart-title",
+                                        html_for=cid(ComponentID.MODAL_CHART_TITLE),
                                         className="fw-bold",
                                     ),
                                     dbc.Input(
-                                        id=f"{collection_name}-modal-chart-title",
+                                        id=cid(ComponentID.MODAL_CHART_TITLE),
                                         type="text",
                                         placeholder="Enter chart title...",
                                         value="",
@@ -238,18 +240,18 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 children=[
                                     dbc.Label(
                                         "Chart Type",
-                                        html_for=f"{collection_name}-modal-chart-type",
+                                        html_for=cid(ComponentID.MODAL_CHART_TYPE),
                                         className="fw-bold",
                                     ),
                                     dcc.Dropdown(
-                                        id=f"{collection_name}-modal-chart-type",
+                                        id=cid(ComponentID.MODAL_CHART_TYPE),
                                         options=chart_type_options,
                                         value=ChartType.BAR.value,
                                         clearable=False,
                                         className="dash-bootstrap",
                                     ),
                                     html.Div(
-                                        id=f"{collection_name}-chart-type-help",
+                                        id=cid(ComponentID.CHART_TYPE_HELP),
                                         className="mt-1",
                                     ),
                                 ],
@@ -268,11 +270,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 children=[
                                     dbc.Label(
                                         "Primary Field",
-                                        html_for=f"{collection_name}-modal-x-field",
+                                        html_for=cid(ComponentID.MODAL_X_FIELD),
                                         className="fw-bold",
                                     ),
                                     dcc.Dropdown(
-                                        id=f"{collection_name}-modal-x-field",
+                                        id=cid(ComponentID.MODAL_X_FIELD),
                                         options=[],  # Populated dynamically from FilterFactory
                                         placeholder="Select field to group by...",
                                         className="dash-bootstrap",
@@ -284,10 +286,10 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 md=6,
                                 children=[
                                     dbc.Label(
-                                        "X-Axis Label", html_for=f"{collection_name}-modal-x-label", className="fw-bold"
+                                        "X-Axis Label", html_for=cid(ComponentID.MODAL_X_LABEL), className="fw-bold"
                                     ),
                                     dbc.Input(
-                                        id=f"{collection_name}-modal-x-label",
+                                        id=cid(ComponentID.MODAL_X_LABEL),
                                         type="text",
                                         placeholder="X-axis label (optional)",
                                         value="",
@@ -299,15 +301,15 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                     # Secondary grouping (Color By) - Collapsible
                     dbc.Button(
                         [
-                            html.I(className="fas fa-chevron-right me-2", id=f"{collection_name}-color-by-icon"),
+                            html.I(className="fas fa-chevron-right me-2", id=cid(ComponentID.COLOR_BY_ICON)),
                             "Secondary Grouping (Color By)",
                         ],
-                        id=f"{collection_name}-color-by-toggle",
+                        id=cid(ComponentID.COLOR_BY_TOGGLE),
                         color="link",
                         className="p-0 mb-2 text-decoration-none",
                     ),
                     dbc.Collapse(
-                        id=f"{collection_name}-color-by-collapse",
+                        id=cid(ComponentID.COLOR_BY_COLLAPSE),
                         is_open=False,
                         children=[
                             dbc.Row(
@@ -319,11 +321,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                         children=[
                                             dbc.Label(
                                                 "Secondary Field (Color By)",
-                                                html_for=f"{collection_name}-modal-color-field",
+                                                html_for=cid(ComponentID.MODAL_COLOR_FIELD),
                                                 className="fw-bold",
                                             ),
                                             dcc.Dropdown(
-                                                id=f"{collection_name}-modal-color-field",
+                                                id=cid(ComponentID.MODAL_COLOR_FIELD),
                                                 options=[],  # Populated dynamically
                                                 placeholder="Optional: Select field for color grouping...",
                                                 className="dash-bootstrap",
@@ -351,11 +353,11 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 children=[
                                     dbc.Label(
                                         "Aggregation",
-                                        html_for=f"{collection_name}-modal-aggregation",
+                                        html_for=cid(ComponentID.MODAL_AGGREGATION),
                                         className="fw-bold",
                                     ),
                                     dcc.Dropdown(
-                                        id=f"{collection_name}-modal-aggregation",
+                                        id=cid(ComponentID.MODAL_AGGREGATION),
                                         options=aggregation_options,
                                         value=AggregationType.COUNT.value,
                                         clearable=False,
@@ -373,18 +375,18 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 children=[
                                     dbc.Label(
                                         "Field to Aggregate",
-                                        html_for=f"{collection_name}-modal-y-field",
+                                        html_for=cid(ComponentID.MODAL_Y_FIELD),
                                         className="fw-bold",
                                     ),
                                     dcc.Dropdown(
-                                        id=f"{collection_name}-modal-y-field",
+                                        id=cid(ComponentID.MODAL_Y_FIELD),
                                         options=[],  # Populated dynamically (numeric fields only)
                                         placeholder="Select field (for SUM/AVG/MIN/MAX)...",
                                         disabled=True,  # Enabled when aggregation != COUNT
                                         className="dash-bootstrap",
                                     ),
                                     dbc.FormText(
-                                        id=f"{collection_name}-modal-y-field-help",
+                                        id=cid(ComponentID.MODAL_Y_FIELD_HELP),
                                         children="Not required for COUNT aggregation.",
                                         className="text-muted",
                                     ),
@@ -400,10 +402,10 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 md=6,
                                 children=[
                                     dbc.Label(
-                                        "Y-Axis Label", html_for=f"{collection_name}-modal-y-label", className="fw-bold"
+                                        "Y-Axis Label", html_for=cid(ComponentID.MODAL_Y_LABEL), className="fw-bold"
                                     ),
                                     dbc.Input(
-                                        id=f"{collection_name}-modal-y-label",
+                                        id=cid(ComponentID.MODAL_Y_LABEL),
                                         type="text",
                                         placeholder="Y-axis label (optional)",
                                         value="",
@@ -422,7 +424,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                     ),
                     # Dynamic filter container - populated by callback based on available fields
                     html.Div(
-                        id=f"{collection_name}-modal-filters-container",
+                        id=cid(ComponentID.MODAL_FILTERS_CONTAINER),
                         children=[],  # Will be populated dynamically
                     ),
                     html.Hr(),
@@ -434,7 +436,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width="auto",
                                 children=[
                                     dbc.Checkbox(
-                                        id=f"{collection_name}-modal-show-legend",
+                                        id=cid(ComponentID.MODAL_SHOW_LEGEND),
                                         label="Show Legend",
                                         value=True,
                                     ),
@@ -444,7 +446,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                                 width="auto",
                                 children=[
                                     dbc.Checkbox(
-                                        id=f"{collection_name}-modal-show-grid",
+                                        id=cid(ComponentID.MODAL_SHOW_GRID),
                                         label="Show Grid",
                                         value=True,
                                     ),
@@ -454,7 +456,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                     ),
                     # Validation feedback
                     dbc.Alert(
-                        id=f"{collection_name}-modal-validation-alert",
+                        id=cid(ComponentID.MODAL_VALIDATION_ALERT),
                         is_open=False,
                         color="danger",
                         className="mt-3",
@@ -465,12 +467,12 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
                 children=[
                     dbc.Button(
                         "Cancel",
-                        id=f"{collection_name}-modal-cancel-btn",
+                        id=cid(ComponentID.MODAL_CANCEL_BTN),
                         color="secondary",
                         outline=True,
                     ),
                     dbc.Button(
-                        id=f"{collection_name}-modal-create-btn",
+                        id=cid(ComponentID.MODAL_CREATE_BTN),
                         color="success",
                         children=[html.I(className="fas fa-plus me-2"), "Create Chart"],
                     ),
@@ -489,6 +491,7 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
     :param collection_name: The collection_name for component IDs
     :return: Card containing chart controls
     """
+    cid = ComponentIDBuilder(collection_name)
     return dbc.Card(
         className="mb-4",
         children=[
@@ -515,11 +518,11 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                                 children=[
                                                     dbc.Label(
                                                         "Select Predefined Chart",
-                                                        html_for=f"{collection_name}-chart-selector",
+                                                        html_for=cid(ComponentID.CHART_SELECTOR),
                                                         className="fw-bold",
                                                     ),
                                                     dcc.Dropdown(
-                                                        id=f"{collection_name}-chart-selector",
+                                                        id=cid(ComponentID.CHART_SELECTOR),
                                                         options=[],
                                                         placeholder="Select a predefined chart...",
                                                         className="dash-bootstrap",
@@ -531,7 +534,7 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                                 children=[
                                                     dbc.Button(
                                                         [html.I(className="fas fa-plus me-2"), "Add Predefined"],
-                                                        id=f"{collection_name}-add-chart-btn",
+                                                        id=cid(ComponentID.ADD_CHART_BTN),
                                                         n_clicks=0,
                                                         color="primary",
                                                     ),
@@ -549,7 +552,7 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
                                     html.H5("Custom Chart", className="text-muted mb-2"),
                                     dbc.Button(
                                         html.I(className="fas fa-plus"),
-                                        id=f"{collection_name}-open-create-chart-modal-btn",
+                                        id=cid(ComponentID.OPEN_CREATE_CHART_MODAL_BTN),
                                         n_clicks=0,
                                         color="success",
                                         outline=True,
@@ -573,6 +576,7 @@ def create_dashboard_action_buttons(collection_name: str) -> dbc.Row:
     :param collection_name: The collection_name for component IDs
     :return: Row containing action buttons
     """
+    cid = ComponentIDBuilder(collection_name)
     return dbc.Row(
         className="mb-4 g-2",
         children=[
@@ -581,7 +585,7 @@ def create_dashboard_action_buttons(collection_name: str) -> dbc.Row:
                 children=[
                     dbc.Button(
                         [html.I(className="fas fa-sync-alt me-2"), "Update All Charts"],
-                        id=f"{collection_name}-update-all-btn",
+                        id=cid(ComponentID.UPDATE_ALL_BTN),
                         n_clicks=0,
                         disabled=True,
                         color="success",
@@ -594,7 +598,7 @@ def create_dashboard_action_buttons(collection_name: str) -> dbc.Row:
                 children=[
                     dbc.Button(
                         [html.I(className="fas fa-save me-2"), "Save Dashboard"],
-                        id=f"{collection_name}-save-dashboard-btn",
+                        id=cid(ComponentID.SAVE_DASHBOARD_BTN),
                         n_clicks=0,
                         disabled=True,
                         color="primary",
@@ -612,8 +616,9 @@ def create_dashboard_content(collection_name: str) -> html.Div:
     :param collection_name: The collection_name for component IDs
     :return: Div containing dashboard content
     """
+    cid = ComponentIDBuilder(collection_name)
     return html.Div(
-        id=f"{collection_name}-dashboard-content",
+        id=cid(ComponentID.DASHBOARD_CONTENT),
         style={"display": "none"},
         children=[
             # Dashboard name input
@@ -631,11 +636,11 @@ def create_dashboard_content(collection_name: str) -> html.Div:
                                         children=[
                                             dbc.Label(
                                                 "Dashboard Name",
-                                                html_for=f"{collection_name}-dashboard-name-input",
+                                                html_for=cid(ComponentID.DASHBOARD_NAME_INPUT),
                                                 className="fw-bold",
                                             ),
                                             dbc.Input(
-                                                id=f"{collection_name}-dashboard-name-input",
+                                                id=cid(ComponentID.DASHBOARD_NAME_INPUT),
                                                 type="text",
                                                 value="New Dashboard",
                                                 className="form-control",
@@ -653,7 +658,7 @@ def create_dashboard_content(collection_name: str) -> html.Div:
             # Dashboard action buttons
             create_dashboard_action_buttons(collection_name),
             # Chart container
-            html.Div(id=f"{collection_name}-chart-container"),
+            html.Div(id=cid(ComponentID.CHART_CONTAINER)),
             # Chart creation modal
             create_chart_creation_modal(collection_name),
         ],

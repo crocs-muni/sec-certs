@@ -50,10 +50,10 @@ class DashboardFactory:
                 dcc.Store(id=store_id(ComponentID.FILTER_STORE), data={}),
                 dcc.Store(id=store_id(ComponentID.RENDER_TRIGGER), data=0),
                 dcc.Store(id=store_id(ComponentID.CURRENT_DASHBOARD_ID), data=str(dashboard.dashboard_id)),
-                dcc.Store(id=store_id(ComponentID.COLLECTION_NAME), data=self.collection_name),
+                dcc.Store(id=store_id(ComponentID.COLLECTION_NAME), data=self.collection_name.value),
                 html.H1(f"Dashboard: {dashboard.name}"),
                 html.P(
-                    f"{self.collection_name.upper()} data analysis",
+                    f"{self.collection_name.value.upper()} data analysis",
                     style={"color": "#666", "marginBottom": "20px"},
                 ),
                 html.Hr(),
@@ -63,14 +63,14 @@ class DashboardFactory:
                         html.Div(
                             [
                                 dcc.Dropdown(
-                                    id=f"{self.collection_name}-chart-selector",
+                                    id=store_id(ComponentID.CHART_SELECTOR),
                                     options=chart_options,
                                     placeholder="Select a chart to add...",
                                     style={"width": "300px", "display": "inline-block"},
                                 ),
                                 html.Button(
                                     "Add Chart",
-                                    id=f"{self.collection_name}-add-chart-btn",
+                                    id=store_id(ComponentID.ADD_CHART_BTN),
                                     n_clicks=0,
                                     style={"display": "inline-block", "marginLeft": "10px"},
                                 ),
@@ -81,7 +81,7 @@ class DashboardFactory:
                             [
                                 html.Button(
                                     "🔄 Update All Charts",
-                                    id=f"{self.collection_name}-update-all-btn",
+                                    id=store_id(ComponentID.UPDATE_ALL_BTN),
                                     n_clicks=0,
                                     disabled=True,
                                     style={
@@ -96,7 +96,7 @@ class DashboardFactory:
                                 ),
                                 html.Button(
                                     "💾 Save Dashboard",
-                                    id=f"{self.collection_name}-save-dashboard-btn",
+                                    id=store_id(ComponentID.SAVE_DASHBOARD_BTN),
                                     n_clicks=0,
                                     disabled=True,
                                     style={
@@ -113,6 +113,6 @@ class DashboardFactory:
                     ],
                     style={"marginBottom": "20px"},
                 ),
-                html.Div(id=f"{self.collection_name}-chart-container"),
+                html.Div(id=store_id(ComponentID.CHART_CONTAINER)),
             ]
         )

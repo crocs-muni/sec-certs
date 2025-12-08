@@ -35,7 +35,7 @@ def _register_filter_options(
     filter_factory: FilterFactory,
     data_service: "DataService",
 ) -> None:
-    component_id = ComponentIDBuilder(collection_name)
+    component_builder = ComponentIDBuilder(collection_name)
     for filter_id, filter_spec in filter_factory.registry.get_all_filters().items():
         if filter_spec.component_params.component_type not in (
             FilterComponentType.DROPDOWN,
@@ -45,7 +45,7 @@ def _register_filter_options(
 
         @dash_app.callback(
             output=dict(options=Output(filter_id, "options")),
-            inputs=dict(dashboard_loaded=Input(component_id(ComponentID.DASHBOARD_LOADED), "data")),
+            inputs=dict(dashboard_loaded=Input(component_builder(ComponentID.DASHBOARD_LOADED), "data")),
             prevent_initial_call=True,
         )
         def load_options(
@@ -79,10 +79,10 @@ def _register_filter_store(
     if not filter_inputs:
         return
 
-    component_id = ComponentIDBuilder(collection_name)
+    component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(data=Output(component_id(ComponentID.FILTER_STORE), "data")),
+        output=dict(data=Output(component_builder(ComponentID.FILTER_STORE), "data")),
         inputs=filter_inputs,
     )
     def update_filter_store(*filter_values):
@@ -90,15 +90,15 @@ def _register_filter_store(
 
 
 def _register_button_states(dash_app: "Dash", collection_name: CollectionName) -> None:
-    component_id = ComponentIDBuilder(collection_name)
+    component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
         output=dict(
-            update_disabled=Output(component_id(ComponentID.UPDATE_ALL_BTN), "disabled"),
-            save_disabled=Output(component_id(ComponentID.SAVE_DASHBOARD_BTN), "disabled"),
+            update_disabled=Output(component_builder(ComponentID.UPDATE_ALL_BTN), "disabled"),
+            save_disabled=Output(component_builder(ComponentID.SAVE_DASHBOARD_BTN), "disabled"),
         ),
         inputs=dict(
-            chart_configs=Input(component_id(ComponentID.CHART_CONFIGS_STORE), "data"),
+            chart_configs=Input(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
         ),
     )
     def update_button_states(chart_configs):
@@ -118,16 +118,16 @@ def _register_metadata(
     filter_factory: FilterFactory,
 ) -> None:
     """Combined callback for available fields and filter specs - reduces initial calls."""
-    component_id = ComponentIDBuilder(collection_name)
+    component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
         output=dict(
-            available_fields=Output(component_id(ComponentID.AVAILABLE_FIELDS), "data"),
-            filter_specs=Output(component_id(ComponentID.FILTER_SPECS), "data"),
-            metadata_loaded=Output(component_id(ComponentID.METADATA_LOADED), "data"),
+            available_fields=Output(component_builder(ComponentID.AVAILABLE_FIELDS), "data"),
+            filter_specs=Output(component_builder(ComponentID.FILTER_SPECS), "data"),
+            metadata_loaded=Output(component_builder(ComponentID.METADATA_LOADED), "data"),
         ),
-        inputs=dict(modal_open=Input(component_id(ComponentID.CREATE_CHART_MODAL), "is_open")),
-        state=dict(already_loaded=State(component_id(ComponentID.METADATA_LOADED), "data")),
+        inputs=dict(modal_open=Input(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open")),
+        state=dict(already_loaded=State(component_builder(ComponentID.METADATA_LOADED), "data")),
         prevent_initial_call=True,
     )
     def load_metadata(modal_open, already_loaded):

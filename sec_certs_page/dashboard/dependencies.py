@@ -8,6 +8,8 @@ across dashboard callbacks, eliminating string formatting boilerplate.
 from enum import Enum
 from typing import Any
 
+from .types.common import CollectionName
+
 
 class ComponentID(str, Enum):
     """Enumeration of dashboard component ID suffixes.
@@ -86,6 +88,25 @@ class ComponentID(str, Enum):
     SELECT_ALL_FILTER = "select-all-filter"
 
 
+class FilterID(str, Enum):
+    # CC Filters
+    CATEGORY_FILTER = "category-filter"
+    SCHEME_FILTER = "scheme-filter"
+    EAL_FILTER = "eal-filter"
+    NOT_VALID_BEFORE_FILTER = "not-valid-before-filter"
+    NOT_VALID_AFTER_FILTER = "not-valid-after-filter"
+
+    # FIPS Filters
+    LEVEL_FILTER = "level-filter"
+    MODULE_TYPE_FILTER = "module-type-filter"
+    STANDARD_FILTER = "standard-filter"
+
+    # Common Filters
+    STATUS_FILTER = "status-filter"
+    YEAR_FILTER = "year-filter"
+    VENDOR_FILTER = "vendor-filter"
+
+
 class ComponentIDBuilder:
     """Helper for creating component IDs with collection_name prefixes.
 
@@ -93,16 +114,16 @@ class ComponentIDBuilder:
     It only creates ID strings - use them directly with Dash Input/Output/State.
     """
 
-    def __init__(self, collection_name: str | None) -> None:
+    def __init__(self, collection_name: CollectionName | None) -> None:
         """Initialize the ID builder.
 
-        :param collection_name: The collection name prefix (e.g., "cc", "fips").
+        :param collection_name: CollectionName enum.
                                If empty, component IDs will be used without prefix.
-        :type collection_name: str
+        :type collection_name: CollectionName | None
         """
-        self.collection_name = collection_name
+        self.collection_name = collection_name.value if collection_name else None
 
-    def __call__(self, component: ComponentID) -> str | dict[str, Any]:
+    def __call__(self, component: ComponentID | FilterID) -> str:
         """Create a component ID with collection_name prefix.
 
         :param component: The component ID suffix from ComponentID enum.
@@ -111,8 +132,22 @@ class ComponentIDBuilder:
         :rtype: str
         """
         if self.collection_name:
-            return f"{self.collection_name}-{component}"
+            return f"{self.collection_name}-{component.value}"
         return component.value
+
+    def filter(self, filter_id: str) -> str:
+        """Create a filter component ID with collection_name and 'filter' prefix.
+
+        Used by FilterFactory to create filter component IDs like "cc-filter-category-filter".
+
+        :param filter_id: The filter specification ID (e.g., "cc-category-filter").
+        :type filter_id: str
+        :return: Full filter component ID string like "cc-filter-cc-category-filter".
+        :rtype: str
+        """
+        if self.collection_name:
+            return f"{self.collection_name}-filter-{filter_id}"
+        return f"filter-{filter_id}"
 
 
 class PatternMatchingComponentID(ComponentIDBuilder):
@@ -122,38 +157,38 @@ class PatternMatchingComponentID(ComponentIDBuilder):
     callbacks using wildcards like MATCH, ALL, ALLSMALLER.
     """
 
-    def __call__(
+    def __call__(self, component: ComponentID | FilterID) -> str:
+        """Create a simple string ID.
+
+        :param component: The component ID suffix from ComponentID enum.
+        :type component: ComponentID | FilterID
+        :return: Full component ID string like "cc-dashboard-selector".
+        :rtype: str
+        """
+        return super().__call__(component)
+
+    def pattern(
         self,
-        component: ComponentID,
-        index: Any = None,
-        use_prefix: bool = False,
+        component: ComponentID | FilterID,
+        index: Any,
         index_key: str = "index",
-    ) -> dict[str, Any] | str:
-        """Create a pattern-matching component ID dictionary or string ID.
+    ) -> dict[str, Any]:
+        """Create a pattern-matching component ID dictionary.
 
         :param component: The component type from ComponentID enum.
-        :type component: ComponentID
+        :type component: ComponentID | FilterID
         :param index: The index value (MATCH, ALL, ALLSMALLER, or specific value).
-                     If None, returns a simple string ID (calls parent).
-        :type index: Any, optional
+        :type index: Any
         :param use_prefix: If True, prepends collection_name to the component type.
-                          Only used when index is not None.
         :type use_prefix: bool
         :param index_key: The key name for the index in the dict (default: "index").
                          Can be "field" for filters, etc.
         :type index_key: str
-        :return: If index is None: string ID (e.g., "cc-dashboard-selector").
-                If index is not None: dict ID (e.g., {"type": "chart-content", "index": MATCH}).
-        :rtype: dict[str, Any] | str
-
+        :return: Dict ID like {"type": "chart-content", "index": MATCH}.
+        :rtype: dict[str, Any]
         """
-        if index is None:
-            # No pattern matching - return simple string ID
-            return super().__call__(component)
-
-        # Pattern matching - return dict ID
         type_value = component.value
-        if use_prefix and self.collection_name:
-            type_value = f"{self.collection_name}-{component}" if self.collection_name else component.value
+        if self.collection_name:
+            type_value = f"{self.collection_name}-{component.value}"
 
         return {"type": type_value, index_key: index}

@@ -5,6 +5,7 @@ from dash import dcc, html
 from dash.dependencies import Input
 from dash.development.base_component import Component
 
+from ..dependencies import ComponentIDBuilder
 from ..types.common import CollectionName
 from ..types.filter import FilterComponentType
 from .filter import FilterSpec
@@ -26,6 +27,7 @@ class FilterFactory:
     def __init__(self, collection_name: CollectionName):
         self.collection_name = collection_name
         self._registry = get_filter_registry(collection_name)
+        self._id_builder = ComponentIDBuilder(collection_name)
 
     @property
     def registry(self) -> type[FilterSpecRegistry]:
@@ -40,7 +42,7 @@ class FilterFactory:
         :param with_label: Whether to include a label
         :return: Dash component for the filter
         """
-        component_id = f"{self.collection_name}-filter-{filter_spec.id}"
+        component_id = self._id_builder.filter(filter_spec.id)
         params = filter_spec.component_params
 
         if params.component_type == FilterComponentType.DROPDOWN:
@@ -159,7 +161,7 @@ class FilterFactory:
 
         :return: List of filter component IDs
         """
-        return [f"{self.collection_name}-filter-{spec.id}" for spec in self._registry.get_all_filters().values()]
+        return [self._id_builder.filter(spec.id) for spec in self._registry.get_all_filters().values()]
 
     def create_callback_inputs(self) -> list[Input]:
         """
