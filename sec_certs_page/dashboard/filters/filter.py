@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from ..types.filter import DashFilterComponentParams, FilterOperator, FilterSpecDict
+from ..types.filter import FilterComponentParams, FilterOperator, FilterSpecDict
 
 
 @dataclass
@@ -30,7 +30,7 @@ class FilterSpec:
     database_field: str
     operator: FilterOperator
     data_type: str
-    component_params: DashFilterComponentParams
+    component_params: FilterComponentParams
     active: bool = False
     data: Any | None = None
     transform: Callable | None = None

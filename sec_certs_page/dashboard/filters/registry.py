@@ -4,7 +4,7 @@ from typing import ClassVar
 
 from ..filters.filter import FilterSpec
 from ..types.common import CollectionName
-from ..types.filter import DashFilterComponentParams, FilterComponentType, FilterOperator
+from ..types.filter import FilterComponentParams, FilterComponentType, FilterOperator
 
 
 class FilterSpecRegistry(ABC):
@@ -44,7 +44,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Certificate Category",
                 placeholder="Select categories...",
@@ -59,7 +59,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="scheme",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Certification Scheme",
                 placeholder="Select schemes...",
@@ -74,7 +74,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="status",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.DROPDOWN,
                 label="Certificate Status",
                 placeholder="Select status...",
@@ -88,7 +88,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="heuristics.eal",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Evaluation Assurance Level (EAL)",
                 placeholder="Select EAL levels...",
@@ -103,7 +103,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="not_valid_before",  # Source date field
             operator=FilterOperator.YEAR_IN,  # Special operator for year extraction
             data_type="int",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Certificate Year",
                 placeholder="Select years...",
@@ -118,7 +118,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="not_valid_before",
             operator=FilterOperator.GTE,
             data_type="date",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.DATE_PICKER,
                 label="Certification Date From",
                 placeholder="Select start date...",
@@ -131,7 +131,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="not_valid_after",
             operator=FilterOperator.LTE,
             data_type="date",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.DATE_PICKER,
                 label="Certification Date To",
                 placeholder="Select end date...",
@@ -145,7 +145,7 @@ class CCFilterRegistry(FilterSpecRegistry):
             database_field="manufacturer",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Vendor/Manufacturer",
                 placeholder="Select vendors...",
@@ -168,7 +168,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             database_field="web_data.level",
             operator=FilterOperator.IN,
             data_type="int",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Security Level",
                 placeholder="Select security levels...",
@@ -183,7 +183,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             database_field="web_data.status",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.DROPDOWN,
                 label="Certificate Status",
                 placeholder="Select status...",
@@ -197,7 +197,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             database_field="web_data.module_type",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Module Type",
                 placeholder="Select module types...",
@@ -212,7 +212,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             database_field="web_data.standard",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="FIPS Standard",
                 placeholder="Select standards...",
@@ -227,7 +227,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             database_field="web_data.date_validation",
             operator=FilterOperator.YEAR_IN,
             data_type="int",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Validation Year",
                 placeholder="Select years...",
@@ -242,7 +242,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
             database_field="web_data.vendor",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,
                 label="Vendor",
                 placeholder="Select vendors...",

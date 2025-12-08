@@ -41,7 +41,7 @@ class FilterComponentType(str, Enum):
 
 
 @dataclass
-class DashFilterComponentParams:
+class FilterComponentParams:
     """Metadata for generating Dash UI components."""
 
     component_type: FilterComponentType
@@ -63,7 +63,7 @@ class FilterSpecDict(TypedDict):
     database_field: str
     operator: FilterOperator
     data_type: str
-    component_params: DashFilterComponentParams
+    component_params: FilterComponentParams
     data: NotRequired[Any]
     transform: NotRequired[Callable]
     mongodb_pipeline: NotRequired[list[dict]]
