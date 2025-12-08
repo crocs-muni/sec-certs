@@ -2,7 +2,6 @@
 
 from .chart import ChartType
 from .common import CollectionName
-from .dashboard import LayoutConfig
 from .filter import AggregationType, FilterComponentParams, FilterComponentType, FilterOperator, FilterSpecDict
 
 __all__ = [
@@ -13,5 +12,4 @@ __all__ = [
     "FilterComponentType",
     "FilterOperator",
     "FilterSpecDict",
-    "LayoutConfig",
 ]
