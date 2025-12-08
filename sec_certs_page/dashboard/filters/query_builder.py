@@ -83,15 +83,6 @@ def _sanitize_string_value(value: str) -> str:
     return value
 
 
-def _sanitize_regex_value(value: str) -> str:
-    """Escape special regex characters to prevent ReDoS attacks.
-
-    :param value: Regex pattern from user input
-    :return: Escaped regex pattern safe for MongoDB $regex
-    """
-    return re.escape(value)
-
-
 def _validate_filter_value(value: Any, data_type: str) -> Any:
     """Validate and sanitize a filter value based on expected data type.
 
@@ -231,11 +222,9 @@ class QueryBuilder:
         if filter_spec.operator == FilterOperator.EQ:
             return {filter_spec.database_field: transformed_value}
         elif filter_spec.operator == FilterOperator.REGEX:
-            # Escape regex metacharacters to prevent ReDoS
-            safe_regex = _sanitize_regex_value(str(transformed_value))
             return {
                 filter_spec.database_field: {
-                    FilterOperator.REGEX.value: safe_regex,
+                    FilterOperator.REGEX.value: transformed_value,
                     "$options": "i",
                 }
             }
