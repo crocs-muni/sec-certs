@@ -11,7 +11,6 @@ from dash.development.base_component import Component
 from ..chart.config import AxisConfig, ChartConfig, generate_custom_chart_name
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..filters.query_builder import build_chart_pipeline
-from ..types.aggregations import get_aggregations_for_type
 from ..types.chart import ChartType
 from ..types.common import CollectionName
 from ..types.filter import AggregationType
@@ -571,15 +570,28 @@ def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionN
         prevent_initial_call=True,
     )
     def update_aggregation_options(x_field_value, available_fields):
-        default = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
-        if not x_field_value or not available_fields:
-            return dict(options=default)
+        """Update aggregation options based on availability of numeric fields.
 
-        field_info = next((f for f in available_fields if f["value"] == x_field_value), None)
-        if field_info:
-            return dict(options=get_aggregations_for_type(field_info["data_type"]))
+        COUNT is always available (doesn't need a Y-field).
+        SUM/AVG/MIN/MAX are available only if there are numeric fields that could be
+        used as Y-axis targets.
+        """
+        # COUNT is always available
+        count_option = {"label": AggregationType.COUNT.value.upper(), "value": AggregationType.COUNT.value}
 
-        return dict(options=default)
+        if not available_fields:
+            return dict(options=[count_option])
+
+        # Check if there are any numeric fields available for aggregation
+        numeric_types = {"int", "float", "number", "numeric"}
+        has_numeric_fields = any(f["data_type"].lower() in numeric_types for f in available_fields)
+
+        if has_numeric_fields:
+            # Offer all aggregation types since numeric Y-fields are available
+            return dict(options=[{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType])
+        else:
+            # Only COUNT is meaningful without numeric fields
+            return dict(options=[count_option])
 
 
 def _register_y_field_state(dash_app: "Dash", collection_name: CollectionName) -> None:
