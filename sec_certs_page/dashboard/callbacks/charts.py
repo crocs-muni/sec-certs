@@ -75,11 +75,16 @@ def register_pattern_matching_callbacks(
 ) -> None:
     """Must be registered once globally since pattern-matching callbacks match across all collections."""
     pattern_id = PatternMatchingComponentID(None)
+    collection_names = list(chart_registries.keys())
 
     # Build state inputs for chart_configs from all collections
-    chart_configs_states = {
-        f"chart_configs_{coll}": State(f"{coll}-chart-configs-store", "data") for coll in chart_registries.keys()
-    }
+    chart_configs_states = {}
+    for collection_name in collection_names:
+        store_id = ComponentIDBuilder(collection_name)
+        chart_config_state = {
+            f"chart_configs_{collection_name}": State(store_id(ComponentID.CHART_CONFIGS_STORE), "data")
+        }
+        chart_configs_states.update(chart_config_state)
 
     @dash_app.callback(
         output=dict(content=Output(pattern_id(ComponentID.CHART_CONTENT, MATCH), "children")),

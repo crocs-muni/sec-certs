@@ -7,6 +7,7 @@ from dash import dcc, html
 from dash.development.base_component import Component
 
 from ..data import DataService
+from ..dependencies import ComponentID, ComponentIDBuilder
 from .config import ChartConfig
 
 
@@ -102,8 +103,9 @@ class BaseChart(ABC):
 
     def _create_config_store(self) -> dcc.Store:
         """Create store for chart configuration."""
+        store_id = ComponentIDBuilder(None)
         return dcc.Store(
-            id={"type": "chart-config", "index": self.id},
+            id={"type": store_id(ComponentID.CHART_CONFIGS_STORE), "index": self.id},
             data=self.config.to_client_dict(),
         )
 

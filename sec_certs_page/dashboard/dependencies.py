@@ -20,7 +20,7 @@ class ComponentID(str, Enum):
     SELECTOR = "dashboard-selector"
     CREATE_BTN = "create-dashboard-btn"
     DELETE_BTN = "delete-dashboard-btn"
-    SAVE_BTN = "save-dashboard-btn"
+    SAVE_DASHBOARD_BTN = "save-dashboard-btn"
 
     # Dashboard state and UI
     EMPTY_STATE = "empty-state"
@@ -73,6 +73,7 @@ class ComponentID(str, Enum):
     COLOR_BY_ICON = "color-by-icon"
     COLOR_BY_TOGGLE = "color-by-toggle"
     MODAL_VALIDATION_ALERT = "modal-validation-alert"
+    METADATA_LOADED = "metadata-loaded"
 
     # Pattern-matching component types (used in dicts)
     CHART_CONTENT = "chart-content"

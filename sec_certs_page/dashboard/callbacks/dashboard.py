@@ -269,7 +269,7 @@ def _register_save_dashboard(
             current_dashboard_id=Output(component_id(ComponentID.CURRENT_DASHBOARD_ID), "data", allow_duplicate=True),
         ),
         inputs=dict(
-            save_clicks=Input(component_id(ComponentID.SAVE_BTN), "n_clicks"),
+            save_clicks=Input(component_id(ComponentID.SAVE_DASHBOARD_BTN), "n_clicks"),
         ),
         state=dict(
             dashboard_id=State(component_id(ComponentID.CURRENT_DASHBOARD_ID), "data"),

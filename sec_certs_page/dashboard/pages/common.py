@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
+from ..dependencies import ComponentID, ComponentIDBuilder
 from ..types.chart import ChartType
 from ..types.common import CollectionName
 from ..types.filter import AggregationType
@@ -73,27 +74,28 @@ def create_page_stores(collection_name: str) -> list:
     :param collection_name: The collection name (e.g., "cc", "fips")
     :return: List of dcc.Store components
     """
+    store_id = ComponentIDBuilder(collection_name)
     return [
-        dcc.Store(id=f"{collection_name}-collection-name", data=collection_name),
-        dcc.Store(id=f"{collection_name}-current-dashboard-id", data=None),
-        dcc.Store(id=f"{collection_name}-filter-store", data={}),
-        dcc.Store(id=f"{collection_name}-render-trigger", data=0),
-        dcc.Store(id=f"{collection_name}-dashboard-loaded", data=False),
+        dcc.Store(id=store_id(ComponentID.COLLECTION_NAME), data=collection_name),
+        dcc.Store(id=store_id(ComponentID.CURRENT_DASHBOARD_ID), data=None),
+        dcc.Store(id=store_id(ComponentID.FILTER_STORE), data={}),
+        dcc.Store(id=store_id(ComponentID.RENDER_TRIGGER), data=0),
+        dcc.Store(id=store_id(ComponentID.DASHBOARD_LOADED), data=False),
         # Store for available fields metadata (populated from FilterFactory)
         # Format: [{"label": "Category", "value": "category", "data_type": "str"}, ...]
-        dcc.Store(id=f"{collection_name}-available-fields", data=[]),
+        dcc.Store(id=store_id(ComponentID.AVAILABLE_FIELDS), data=[]),
         # Store for filter specifications metadata (for chart modal filter options)
         # Format: [{"id": "cc-category-filter", "label": "Category", "field": "category", ...}, ...]
-        dcc.Store(id=f"{collection_name}-filter-specs", data=[]),
+        dcc.Store(id=store_id(ComponentID.FILTER_SPECS), data=[]),
         # Store to track if modal metadata has been loaded (avoids reloading on every modal open)
-        dcc.Store(id=f"{collection_name}-metadata-loaded", data=False),
+        dcc.Store(id=store_id(ComponentID.METADATA_LOADED), data=False),
         # Store to signal when modal filter UI components are ready (triggers options population)
-        dcc.Store(id=f"{collection_name}-modal-filters-ready", data=0),
+        dcc.Store(id=store_id(ComponentID.MODAL_FILTERS_READY), data=0),
         # Store for tracking which chart is being edited (None = create mode, chart_id = edit mode)
-        dcc.Store(id=f"{collection_name}-edit-chart-id", data=None),
+        dcc.Store(id=store_id(ComponentID.EDIT_CHART_ID), data=None),
         # Store for chart configurations (chart_id -> serialized Chart config)
         # Used to populate edit modal without database queries
-        dcc.Store(id=f"{collection_name}-chart-configs-store", data={}),
+        dcc.Store(id=store_id(ComponentID.CHART_CONFIGS_STORE), data={}),
     ]
 
 
@@ -185,9 +187,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     :param collection_name: The collection_name for component IDs
     :return: Modal component for chart creation
     """
-    chart_type_options = [
-        {"label": ct.value.replace("_", " ").title(), "value": ct.value} for ct in ChartType
-    ]
+    chart_type_options = [{"label": ct.value.replace("_", " ").title(), "value": ct.value} for ct in ChartType]
 
     aggregation_options = [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
 

@@ -3,6 +3,7 @@
 from dash import dcc, html
 
 from sec_certs_page.dashboard.dashboard import Dashboard
+from sec_certs_page.dashboard.dependencies import ComponentID, ComponentIDBuilder
 
 from .chart.registry import ChartRegistry
 from .types.common import CollectionName
@@ -24,6 +25,7 @@ class DashboardFactory:
         :param collection_name: The collection this factory renders dashboards for
         """
         self.collection_name = collection_name
+
     def render(
         self,
         dashboard: Dashboard,
@@ -42,12 +44,13 @@ class DashboardFactory:
         """
         chart_options = [{"label": chart.title, "value": chart.id} for chart in chart_registry]
 
+        store_id = ComponentIDBuilder(self.collection_name)
         return html.Div(
             [
-                dcc.Store(id=f"{self.collection_name}-filter-store", data={}),
-                dcc.Store(id=f"{self.collection_name}-render-trigger", data=0),
-                dcc.Store(id=f"{self.collection_name}-current-dashboard-id", data=str(dashboard.dashboard_id)),
-                dcc.Store(id=f"{self.collection_name}-collection-name", data=self.collection_name),
+                dcc.Store(id=store_id(ComponentID.FILTER_STORE), data={}),
+                dcc.Store(id=store_id(ComponentID.RENDER_TRIGGER), data=0),
+                dcc.Store(id=store_id(ComponentID.CURRENT_DASHBOARD_ID), data=str(dashboard.dashboard_id)),
+                dcc.Store(id=store_id(ComponentID.COLLECTION_NAME), data=self.collection_name),
                 html.H1(f"Dashboard: {dashboard.name}"),
                 html.P(
                     f"{self.collection_name.upper()} data analysis",
