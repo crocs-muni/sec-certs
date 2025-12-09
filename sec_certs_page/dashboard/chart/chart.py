@@ -13,6 +13,7 @@ from dash.development.base_component import Component
 
 from ..data import DataService
 from ..filters.query_builder import build_chart_pipeline
+from ..types.chart import ChartType
 from .base import BaseChart
 from .figure_builder import FigureBuilder
 
@@ -44,16 +45,19 @@ class ConfigurableChart(BaseChart):
             if df.empty:
                 return self._render_container([self._render_empty_state()])
 
-            # Check if data is already aggregated by examining columns
-            # Aggregated data has flattened field names (dots replaced with underscores)
-            x_field_flat = self.config.x_axis.field.replace(".", "_")
-            is_aggregated = x_field_flat in df.columns
-
-            if is_aggregated:
-                fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
-            else:
-                # Raw data - FigureBuilder will aggregate it
+            if self.config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
                 fig = FigureBuilder.create_figure(self.config, df)
+            else:
+                # Check if data is already aggregated by examining columns
+                # Aggregated data has flattened field names (dots replaced with underscores)
+                x_field_flat = self.config.x_axis.field.replace(".", "_")
+                is_aggregated = x_field_flat in df.columns
+
+                if is_aggregated:
+                    fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
+                else:
+                    # Raw data - FigureBuilder will aggregate it
+                    fig = FigureBuilder.create_figure(self.config, df)
 
             return self._render_container(
                 [
