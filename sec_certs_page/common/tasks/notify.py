@@ -130,6 +130,8 @@ class Notifier(DiffRenderer):
                         else:
                             # no related_cves found in heuristics -> skip
                             continue
+                    else:
+                        continue
                 cards.append(render)
                 urls.append(url_for(f"{self.collection}.entry", hashid=dgst, _external=True))
                 some_changes = True
