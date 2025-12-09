@@ -100,7 +100,7 @@ def create_page_stores(collection_name: CollectionName) -> list:
     ]
 
 
-def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
+def create_dashboard_management_buttons(collection_name: CollectionName) -> dbc.Row:
     """
     Create the dashboard management buttons (Create New, Load Predefined).
 
@@ -143,7 +143,7 @@ def create_dashboard_management_buttons(collection_name: str) -> dbc.Row:
     )
 
 
-def create_empty_state(collection_name: str) -> html.Div:
+def create_empty_state(collection_name: CollectionName) -> html.Div:
     """
     Create the empty state display when no dashboard is selected.
 
@@ -175,7 +175,7 @@ def create_empty_state(collection_name: str) -> html.Div:
     )
 
 
-def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
+def create_chart_creation_modal(collection_name: CollectionName) -> dbc.Modal:
     """
     Create the modal for custom chart creation.
 
@@ -482,7 +482,7 @@ def create_chart_creation_modal(collection_name: str) -> dbc.Modal:
     )
 
 
-def create_chart_controls(collection_name: str) -> dbc.Card:
+def create_chart_controls(collection_name: CollectionName) -> dbc.Card:
     """
     Create the chart selection and addition controls.
 
@@ -569,7 +569,7 @@ def create_chart_controls(collection_name: str) -> dbc.Card:
     )
 
 
-def create_dashboard_action_buttons(collection_name: str) -> dbc.Row:
+def create_dashboard_action_buttons(collection_name: CollectionName) -> dbc.Row:
     """
     Create the dashboard action buttons (Update All, Save).
 
@@ -609,7 +609,7 @@ def create_dashboard_action_buttons(collection_name: str) -> dbc.Row:
     )
 
 
-def create_dashboard_content(collection_name: str) -> html.Div:
+def create_dashboard_content(collection_name: CollectionName) -> html.Div:
     """
     Create the dashboard content area shown when a dashboard is active.
 

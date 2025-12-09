@@ -336,16 +336,16 @@ class DataService:
 
         return df
 
-    def get_dataset_metadata(self, collection_name: str) -> tuple[dict[str, ColumnStats], int, int]:
+    def get_dataset_metadata(self, collection_name: CollectionName) -> tuple[dict[str, ColumnStats], int, int]:
         """Get metadata about a dataset including column information.
 
         :param collection_name: Type of dataset ('cc' or 'fips')
         :return: Tuple of (column_stats, total_records, total_columns) where
                  column_stats maps column names to their statistics
         """
-        if collection_name.lower() == "cc":
+        if collection_name.value.lower() == "cc":
             df = self.get_cc_dataframe()
-        elif collection_name.lower() == "fips":
+        elif collection_name.value.lower() == "fips":
             df = self.get_fips_dataframe()
         else:
             raise ValueError(f"Unknown dataset type: {collection_name}")
