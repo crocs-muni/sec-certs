@@ -68,3 +68,34 @@ def test_cve_notification(user, mocker, subscription):
         else:
             assert m.call_count == 0
         m.reset_mock()
+
+
+@pytest.fixture()
+def subscription_new(user):
+    sub = {
+        "username": user[0].username,
+        "timestamp": datetime.now(timezone.utc),
+        "type": "new",
+        "which": "cc",
+    }
+    res = mongo.db.subs.insert_one(sub)
+    sub["_id"] = res.inserted_id
+    yield sub
+    mongo.db.subs.delete_one({"_id": res.inserted_id})
+
+
+def test_new_certificate_notification(user, mocker, certificate, subscription_new):
+    user, password = user
+
+    dgst = certificate["_id"]
+    diffs = list(mongo.db.cc_diff.find({"type": "new", "dgst": dgst}))
+    m = mocker.patch.object(mail, "send")
+
+    for diff in diffs:
+        notify(str(diff["run_id"]))
+        for call_args in m.call_args_list:
+            message = call_args.args[0]
+            if user.email in message.recipients:
+                break
+        else:
+            assert False

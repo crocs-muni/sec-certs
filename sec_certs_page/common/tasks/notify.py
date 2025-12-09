@@ -84,9 +84,9 @@ class Notifier(DiffRenderer):
 
     def _collect_usernames(self, change_dgsts, new_dgsts):
         change_sub_emails = mongo.db.subs.find(
-            {"certificate.hashid": {"$in": change_dgsts}, "certificate.type": self.collection},
+            {"type": "changes", "certificate.hashid": {"$in": change_dgsts}, "certificate.type": self.collection},
         )
-        new_sub_emails = mongo.db.subs.find({"updates": "new", "which": self.collection})
+        new_sub_emails = mongo.db.subs.find({"type": "new", "which": self.collection})
         return {sub["username"] for sub in change_sub_emails} | {sub["username"] for sub in new_sub_emails}
 
     def _load_bootstrap_parsed(self):
