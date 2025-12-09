@@ -42,6 +42,9 @@ def register_modal_callbacks(
     _register_x_label_autofill(dash_app, collection_name)
     _register_chart_type_help(dash_app, collection_name)
     _register_color_by_toggle(dash_app, collection_name)
+    _register_selection_toggle(dash_app, collection_name)
+    _register_value_text_toggle(dash_app, collection_name)
+    _register_chart_type_selection(dash_app, collection_name)
     _register_chart_creation(dash_app, collection_name)
 
 
@@ -692,6 +695,92 @@ def _register_color_by_toggle(dash_app: "Dash", collection_name: CollectionName)
             icon_class = "fas fa-chevron-down me-2" if new_state else "fas fa-chevron-right me-2"
             return dict(is_open=new_state, icon_class=icon_class)
         return dict(is_open=is_open, icon_class="fas fa-chevron-right me-2")
+
+
+def _register_selection_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Toggle the Selection (X-axis) section in the modal."""
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            is_open=Output(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open"),
+            icon_class=Output(component_builder(ComponentID.SELECTION_ICON), "className"),
+        ),
+        inputs=dict(n_clicks=Input(component_builder(ComponentID.SELECTION_TOGGLE), "n_clicks")),
+        state=dict(is_open=State(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open")),
+        prevent_initial_call=True,
+    )
+    def toggle_selection_section(n_clicks, is_open):
+        if n_clicks:
+            new_state = not is_open
+            icon_class = "fas fa-chevron-down" if new_state else "fas fa-chevron-right"
+            return dict(is_open=new_state, icon_class=icon_class)
+        return dict(is_open=is_open, icon_class="fas fa-chevron-down")
+
+
+def _register_value_text_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Toggle the Value & text (Y-axis) section in the modal."""
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            is_open=Output(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open"),
+            icon_class=Output(component_builder(ComponentID.VALUE_TEXT_ICON), "className"),
+        ),
+        inputs=dict(n_clicks=Input(component_builder(ComponentID.VALUE_TEXT_TOGGLE), "n_clicks")),
+        state=dict(is_open=State(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open")),
+        prevent_initial_call=True,
+    )
+    def toggle_value_text_section(n_clicks, is_open):
+        if n_clicks:
+            new_state = not is_open
+            icon_class = "fas fa-chevron-down" if new_state else "fas fa-chevron-right"
+            return dict(is_open=new_state, icon_class=icon_class)
+        return dict(is_open=is_open, icon_class="fas fa-chevron-right")
+
+
+def _register_chart_type_selection(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Handle chart type card selection."""
+    component_builder = ComponentIDBuilder(collection_name)
+    pattern_builder = PatternMatchingComponentID(collection_name)
+
+    @dash_app.callback(
+        output=Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value", allow_duplicate=True),
+        inputs=dict(
+            n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "n_clicks"),
+        ),
+        state=dict(
+            id_list=State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
+        ),
+        prevent_initial_call=True,
+    )
+    def handle_chart_type_card_click(n_clicks_list, id_list):
+        """Update chart type dropdown when a card is clicked."""
+        if not ctx.triggered_id or not n_clicks_list:
+            return no_update
+
+        triggered_value = ctx.triggered_id.get("index")
+        return triggered_value or no_update
+
+    @dash_app.callback(
+        output=Output(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "className"),
+        inputs=dict(
+            chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
+        ),
+        state=dict(
+            id_list=State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
+        ),
+    )
+    def sync_chart_type_highlight(chart_type, id_list):
+        """Keep visual selection in sync with the current chart type value."""
+        if not id_list:
+            return no_update
+
+        base_class = "chart-type-option text-center p-3 rounded"
+        card_classes = [
+            f"{base_class} selected" if card_id.get("index") == chart_type else base_class for card_id in id_list
+        ]
+        return card_classes
 
 
 def _register_chart_creation(

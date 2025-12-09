@@ -9,13 +9,13 @@ from ..types.common import CollectionName
 
 # Collection metadata for cards
 _COLLECTION_INFO = {
-    CollectionName.CommonCriteria.value: {
+    CollectionName.CommonCriteria: {
         "title": "Common Criteria",
         "description": "Explore and analyze Common Criteria security certificates, including EAL levels, categories, and certification trends.",
         "icon": "fas fa-shield-alt",
         "color": "primary",
     },
-    CollectionName.FIPS140.value: {
+    CollectionName.FIPS140: {
         "title": "FIPS 140",
         "description": "Analyze FIPS 140 cryptographic module validations, security levels, and vendor certifications.",
         "icon": "fas fa-lock",
@@ -24,7 +24,7 @@ _COLLECTION_INFO = {
 }
 
 
-def _build_collection_card(collection_name: str) -> dbc.Col:
+def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
     """Build a single collection card."""
     info = _COLLECTION_INFO.get(collection_name, {})
     if not info:
@@ -32,35 +32,50 @@ def _build_collection_card(collection_name: str) -> dbc.Col:
 
     return dbc.Col(
         width=12,
-        md=6,
-        lg=5,
+        lg=6,
         className="mb-4",
         children=[
             dbc.Card(
-                className="h-100 shadow-sm",
+                className="h-100 shadow-sm collection-card",
                 children=[
                     dbc.CardHeader(
-                        className=f"bg-{info['color']} text-white",
+                        className=f"bg-{info['color']} text-white py-4",
                         children=[
-                            html.I(className=f"{info['icon']} fa-2x me-3"),
-                            html.H3(info["title"], className="d-inline mb-0"),
+                            html.Div(
+                                className="d-flex align-items-center",
+                                children=[
+                                    html.Div(
+                                        className="me-3",
+                                        children=[
+                                            html.I(className=f"{info['icon']} fa-3x"),
+                                        ],
+                                    ),
+                                    html.Div(
+                                        children=[
+                                            html.H3(info["title"], className="mb-0 fw-bold"),
+                                        ],
+                                    ),
+                                ],
+                            ),
                         ],
                     ),
                     dbc.CardBody(
+                        className="py-4",
                         children=[
-                            html.P(info["description"], className="card-text lead"),
+                            html.P(info["description"], className="card-text lead mb-0"),
                         ],
                     ),
                     dbc.CardFooter(
-                        className="bg-transparent border-0",
+                        className="bg-transparent border-0 pt-0 pb-4 px-4",
                         children=[
                             dbc.Button(
                                 [
-                                    "Open Dashboard ",
+                                    "Open Dashboard",
                                     html.I(className="fas fa-arrow-right ms-2"),
                                 ],
                                 href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name}",
                                 color=info["color"],
+                                size="lg",
                                 className="w-100",
                                 external_link=False,
                             ),
@@ -80,67 +95,133 @@ def _build_collection_cards() -> list[dbc.Col]:
 def layout(**kwargs) -> html.Div:
     """Home page layout - shows available collections to choose from."""
     return html.Div(
+        className="py-4",
         children=[
             # Welcome section
             dbc.Row(
-                className="mb-5",
+                className="mb-4",
                 children=[
                     dbc.Col(
                         width=12,
                         children=[
-                            html.H1("Available Certificate Datasets", className="mb-3"),
+                            html.H1("Certificate Analysis Dashboard", className="mb-2 fw-bold"),
                             html.P(
-                                "Select a dataset for interactive data analysis.",
-                                className="lead text-muted",
+                                "Select a certificate dataset below to create interactive visualizations and explore certification trends.",
+                                className="lead text-muted mb-0",
                             ),
                         ],
                     ),
                 ],
             ),
+            # Collection cards
+            dbc.Row(
+                className="g-4 mb-5",
+                children=_build_collection_cards(),
+            ),
+            # Getting started section
             dbc.Card(
-                className="bg-light",
+                className="border-0 bg-light",
                 children=[
                     dbc.CardHeader(
-                        html.H4(
-                            [html.I(className="fas fa-info-circle me-2"), "Getting Started"],
-                            className="mb-0",
-                        ),
+                        className="bg-transparent border-0 pb-0",
+                        children=[
+                            html.H5(
+                                [html.I(className="fas fa-lightbulb me-2 text-warning"), "Getting Started"],
+                                className="mb-0 text-muted",
+                            ),
+                        ],
                     ),
                     dbc.CardBody(
+                        className="pt-3",
                         children=[
-                            html.Ol(
-                                className="mb-0",
+                            dbc.Row(
+                                className="g-4",
                                 children=[
-                                    html.Li(
-                                        "Choose (CC or FIPS) from the options below",
-                                        className="mb-2",
+                                    dbc.Col(
+                                        width=12,
+                                        md=6,
+                                        lg=True,
+                                        children=[
+                                            html.Div(
+                                                className="d-flex align-items-start",
+                                                children=[
+                                                    html.Span(
+                                                        "1",
+                                                        className="badge bg-primary rounded-circle me-3 fs-6",
+                                                    ),
+                                                    html.Span(
+                                                        "Choose a certificate collection (CC or FIPS)",
+                                                        className="text-muted",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
                                     ),
-                                    html.Li(
-                                        "Create a new dashboard or load an existing one",
-                                        className="mb-2",
+                                    dbc.Col(
+                                        width=12,
+                                        md=6,
+                                        lg=True,
+                                        children=[
+                                            html.Div(
+                                                className="d-flex align-items-start",
+                                                children=[
+                                                    html.Span(
+                                                        "2",
+                                                        className="badge bg-primary rounded-circle me-3 fs-6",
+                                                    ),
+                                                    html.Span(
+                                                        "Create a new dashboard or load an existing one",
+                                                        className="text-muted",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
                                     ),
-                                    html.Li(
-                                        "Add charts to visualize certificate data",
-                                        className="mb-2",
+                                    dbc.Col(
+                                        width=12,
+                                        md=6,
+                                        lg=True,
+                                        children=[
+                                            html.Div(
+                                                className="d-flex align-items-start",
+                                                children=[
+                                                    html.Span(
+                                                        "3",
+                                                        className="badge bg-primary rounded-circle me-3 fs-6",
+                                                    ),
+                                                    html.Span(
+                                                        "Add predefined or custom charts",
+                                                        className="text-muted",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
                                     ),
-                                    html.Li(
-                                        "Apply filters to focus on specific data",
-                                        className="mb-2",
-                                    ),
-                                    html.Li(
-                                        "Save your dashboard configuration for later use",
+                                    dbc.Col(
+                                        width=12,
+                                        md=6,
+                                        lg=True,
+                                        children=[
+                                            html.Div(
+                                                className="d-flex align-items-start",
+                                                children=[
+                                                    html.Span(
+                                                        "4",
+                                                        className="badge bg-primary rounded-circle me-3 fs-6",
+                                                    ),
+                                                    html.Span(
+                                                        "Save your dashboard for later use",
+                                                        className="text-muted",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
                                     ),
                                 ],
                             ),
                         ],
                     ),
                 ],
-            ),
-            html.Hr(className="my-5"),
-            # Collection cards
-            dbc.Row(
-                className="g-4",
-                children=_build_collection_cards(),
             ),
         ],
     )
