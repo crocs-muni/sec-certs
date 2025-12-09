@@ -454,6 +454,11 @@ h6 {
    Dashboard Styles
    ============================================ */
 
+/* Dashed border utility for empty state cards */
+.border-dashed {
+    border-style: dashed !important;
+}
+
 /* Collection card hover effect */
 .collection-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -752,6 +757,7 @@ h6 {
 [data-bs-theme="dark"] .dash-dropdown .Select-input,
 [data-bs-theme="dark"] .dash-bootstrap .Select-input {
     background-color: transparent !important;
+    color: var(--bs-gray-900) !important;
 }
 
 [data-bs-theme="dark"] .dash-dropdown .Select-input > input,
@@ -981,3 +987,43 @@ h6 {
 [data-bs-theme="dark"] ._dash-loading-callback::after {
     background-color: rgba(0, 0, 0, 0.5);
 }
+
+.mb-4.border-0 > .card-body {
+    background-color: var(--bs-gray-100);
+    border-radius: var(--bs-border-radius);
+}
+
+[data-bs-theme="dark"] .mb-4.border-0 > .card-body {
+    background-color: var(--bs-gray-800);
+}
+
+/* ============================================
+   Button Visibility Improvements
+   ============================================ */
+/* Make Refresh All button more visible when clickable */
+.refresh-all-btn:not(:disabled):not(.disabled) {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    border-width: 2px;
+    font-weight: 500;
+    color: white;
+}
+
+.refresh-all-btn:not(:disabled):not(.disabled):hover {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-dark);
+}
+
+/* Dark theme: use darker, more visible colors */
+[data-bs-theme="dark"] .refresh-all-btn:not(:disabled):not(.disabled) {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+[data-bs-theme="dark"] .refresh-all-btn:not(:disabled):not(.disabled):hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+    color: white;
+}
+
