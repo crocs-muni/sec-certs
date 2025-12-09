@@ -27,6 +27,7 @@ class ComponentID(str, Enum):
     # Dashboard state and UI
     EMPTY_STATE = "empty-state"
     DASHBOARD_CONTENT = "dashboard-content"
+    DASHBOARD_HEADER = "dashboard-header"
     CURRENT_DASHBOARD_ID = "current-dashboard-id"
     DASHBOARD_NAME_INPUT = "dashboard-name-input"
     DASHBOARD_LOADED = "dashboard-loaded"
@@ -43,6 +44,14 @@ class ComponentID(str, Enum):
     RENDER_TRIGGER = "render-trigger"
     UPDATE_ALL_BTN = "update-all-btn"
     FILTER_STORE = "filter-store"
+
+    # Modal collapsible sections
+    SELECTION_TOGGLE = "selection-toggle"
+    SELECTION_COLLAPSE = "selection-collapse"
+    SELECTION_ICON = "selection-icon"
+    VALUE_TEXT_TOGGLE = "value-text-toggle"
+    VALUE_TEXT_COLLAPSE = "value-text-collapse"
+    VALUE_TEXT_ICON = "value-text-icon"
 
     # Modal components
     MODAL = "modal"
@@ -76,6 +85,7 @@ class ComponentID(str, Enum):
     COLOR_BY_TOGGLE = "color-by-toggle"
     MODAL_VALIDATION_ALERT = "modal-validation-alert"
     METADATA_LOADED = "metadata-loaded"
+    CHART_TYPE_CARD = "chart-type-card"
 
     # Pattern-matching component types (used in dicts)
     CHART_CONTENT = "chart-content"
