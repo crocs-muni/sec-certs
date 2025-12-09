@@ -107,7 +107,7 @@ def create_dashboard_control_panel(collection_name: CollectionName) -> dbc.Card:
     """
     cid = ComponentIDBuilder(collection_name)
     return dbc.Card(
-        className="mb-4 border-0 bg-dark",
+        className="mb-4 border-0",
         children=[
             dbc.CardBody(
                 children=[

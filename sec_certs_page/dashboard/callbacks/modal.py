@@ -39,6 +39,7 @@ def register_modal_callbacks(
     _register_axis_options(dash_app, collection_name)
     _register_aggregation_options(dash_app, collection_name)
     _register_y_field_state(dash_app, collection_name)
+    _register_y_axis_visibility(dash_app, collection_name)
     _register_x_label_autofill(dash_app, collection_name)
     _register_chart_type_help(dash_app, collection_name)
     _register_color_by_toggle(dash_app, collection_name)
@@ -668,13 +669,65 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
                         html.I(className="fas fa-info-circle me-2"),
                         "Stacked Bar requires a ",
                         html.Strong("Color By"),
-                        " field to stack values. Expand 'Secondary Grouping' below.",
+                        " field to stack values.",
+                    ],
+                    color="info",
+                    className="mb-0 py-2 small",
+                )
+            )
+        elif chart_type == "histogram":
+            return dict(
+                children=dbc.Alert(
+                    [
+                        html.I(className="fas fa-info-circle me-2"),
+                        "Histograms show frequency distributions. Select a ",
+                        html.Strong("numeric field"),
+                        " for the X-axis. Bins and frequencies are computed automatically.",
+                    ],
+                    color="info",
+                    className="mb-0 py-2 small",
+                )
+            )
+        elif chart_type == "box":
+            return dict(
+                children=dbc.Alert(
+                    [
+                        html.I(className="fas fa-info-circle me-2"),
+                        "Box plots show data distribution with quartiles. Select the grouping field for X-axis and a ",
+                        html.Strong("numeric field"),
+                        " for Y-axis to see its distribution across groups.",
                     ],
                     color="info",
                     className="mb-0 py-2 small",
                 )
             )
         return dict(children=None)
+
+
+def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Hide/disable Y-axis aggregation fields for histograms."""
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            aggregation_disabled=Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
+            y_field_disabled=Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
+            y_label_disabled=Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
+            aggregation_value=Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
+        ),
+        inputs=dict(chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")),
+        prevent_initial_call=True,
+    )
+    def update_y_axis_visibility(chart_type):
+        """Disable Y-axis aggregation controls for histograms since they compute frequency automatically."""
+        is_histogram = chart_type == "histogram"
+
+        return dict(
+            aggregation_disabled=is_histogram,
+            y_field_disabled=is_histogram,
+            y_label_disabled=False,  # Keep label editable for all chart types
+            aggregation_value="count" if is_histogram else no_update,  # Set to count for histograms
+        )
 
 
 def _register_color_by_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -918,15 +971,20 @@ def _validate_chart_form(
         errors.append("Chart title is required.")
     if not x_field:
         errors.append("X-axis field is required.")
-    if aggregation != AggregationType.COUNT.value and not y_field:
-        errors.append("Y-axis field is required for non-COUNT aggregations.")
+
+    # Histograms don't need Y-axis field validation
+    if chart_type != "histogram":
+        if aggregation != AggregationType.COUNT.value and not y_field:
+            errors.append("Y-axis field is required for non-COUNT aggregations.")
+        if x_field and y_field and x_field == y_field:
+            errors.append(
+                "X-axis and Y-axis cannot use the same field."
+                " The X-axis groups data, while the Y-axis aggregates values."
+            )
+
     if chart_type == "stacked_bar" and not color_field:
         errors.append("Stacked Bar chart requires a 'Color By' field for stacking.")
-    if x_field and y_field and x_field == y_field:
-        errors.append(
-            "X-axis and Y-axis cannot use the same field."
-            " The X-axis groups data, while the Y-axis aggregates values."
-        )
+
     return errors
 
 

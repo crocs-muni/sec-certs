@@ -45,20 +45,34 @@ class FigureBuilder:
             # Box plots and histograms need raw data distributions, not aggregated summaries
             if config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
                 columns = [x_field]
-                if y_field:
-                    if y_field not in df.columns:
-                        error_message = f"Box plot requires y-field '{y_field}' but it's not in the DataFrame columns: {list(df.columns)}"
-                        logger.error(error_message)
-                        return cls._empty_figure(f"Missing field: {y_field}", is_error=True)
-                    columns.append(y_field)
+
+                # Histograms don't use y_field, only box plots do
+                if config.chart_type == ChartType.BOX and y_field:
+                    # Only add y_field for box plots if it's actually in the data
+                    aggregation_placeholders = {agg.value for agg in AggregationType}
+                    if y_field not in aggregation_placeholders:
+                        if y_field not in df.columns:
+                            error_message = f"Box plot requires y-field '{y_field}' but it's not in the DataFrame columns: {list(df.columns)}"
+                            logger.error(error_message)
+                            return cls._empty_figure(f"Missing field: {y_field}", is_error=True)
+                        columns.append(y_field)
+
                 if color_field and color_field in df.columns:
                     columns.append(color_field)
                 agg_df = df[columns]
+
+                # For histograms, we only need x_field (y is computed by plotly)
+                # For box plots, use the actual y_field
+                if config.chart_type == ChartType.HISTOGRAM:
+                    actual_y_field = None  # Histogram doesn't need y_field
+                else:
+                    actual_y_field = y_field
             else:
                 # For other chart types, aggregate the data
                 agg_df = cls._aggregate_data(df, x_field, y_field, aggregation, color_field)
+                actual_y_field = y_field or "count"
 
-            fig = cls._create_chart_by_type(config, agg_df, x_field, y_field or "count", color_field)
+            fig = cls._create_chart_by_type(config, agg_df, x_field, actual_y_field, color_field)
             fig.update_layout(
                 showlegend=config.show_legend,
                 template="plotly_white",
@@ -167,7 +181,7 @@ class FigureBuilder:
         config: ChartConfig,
         df: pd.DataFrame,
         x_field: str,
-        y_field: str,
+        y_field: str | None,
         color_field: str | None = None,
     ) -> go.Figure:
         """Create chart based on chart type.
@@ -175,15 +189,14 @@ class FigureBuilder:
         :param config: Chart configuration
         :param df: DataFrame with data to plot
         :param x_field: Column name for X-axis
-        :param y_field: Column name for Y-axis
+        :param y_field: Column name for Y-axis (None for histograms)
         :param color_field: Optional column name for color dimension (secondary grouping)
         :return: Plotly Figure object
         """
         # Build labels dict to map field names to user-friendly labels
-        labels = {
-            x_field: config.x_axis.label,
-            y_field: config.y_axis.label if config.y_axis else "Count",
-        }
+        labels = {x_field: config.x_axis.label}
+        if y_field:
+            labels[y_field] = config.y_axis.label if config.y_axis else "Count"
         if color_field and config.color_axis:
             labels[color_field] = config.color_axis.label
 
