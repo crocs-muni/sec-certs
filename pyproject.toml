@@ -27,7 +27,6 @@
   dependencies = [
     # Base tool
     "sec-certs @ git+https://github.com/crocs-muni/sec-certs.git#main",
-
     # Flask
     "Flask",
     "Flask-Assets",
@@ -57,12 +56,11 @@
     "markdown2",
     "nh3",
     "dash",
-
+    "dash-bootstrap-components",
     # Tasks
     "dramatiq[redis]",
     "periodiq",
     "redis",
-
     # Misc
     "sentry-sdk[flask] >= 2.13.0",
     "sentry-dramatiq",
@@ -76,7 +74,7 @@
     "requests",
     "feedgen",
     "pendulum",
-  ]
+]
 
 [project.optional-dependencies]
 dev = [
@@ -132,8 +130,8 @@ namespaces = false
         "F403",
         "F401",
         "C901",
+        "E704"
     ]
-
 
 [tool.isort]
     multi_line_output=3

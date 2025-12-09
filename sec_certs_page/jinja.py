@@ -88,6 +88,13 @@ def is_admin():
     return Permission(RoleNeed("admin")).can()
 
 
+@app.template_global("can_access_dashboard")
+def can_access_dashboard():
+    from .common.permissions import dashboard_permission
+
+    return dashboard_permission.can()
+
+
 @app.template_global("sentry_traceparent")
 def sentry_traceparent():
     if sentry_sdk.is_initialized():
@@ -119,13 +126,13 @@ def include_static(filename: str):
     bp = current_app.blueprints.get(request.blueprint)
     if bp is not None and bp.static_folder is not None:
         try:
-            with open(join(bp.static_folder, filename), "r") as f:
+            with open(join(bp.static_folder, filename), "r", encoding="utf-8") as f:
                 return Markup(f.read())
         except FileNotFoundError:
             return None
     elif current_app.static_folder is not None:
         try:
-            with open(join(current_app.static_folder, filename), "r") as f:
+            with open(join(current_app.static_folder, filename), "r", encoding="utf-8") as f:
                 return Markup(f.read())
         except FileNotFoundError:
             return None
@@ -165,9 +172,9 @@ def static_hash(filename: str):
 def is_github_oauth_enabled():
     """Check if GitHub OAuth is enabled"""
     return bool(
-        current_app.config.get('GITHUB_OAUTH_ENABLED', False) and
-        current_app.config.get('GITHUB_OAUTH_CLIENT_ID') and 
-        current_app.config.get('GITHUB_OAUTH_CLIENT_SECRET')
+        current_app.config.get("GITHUB_OAUTH_ENABLED", False)
+        and current_app.config.get("GITHUB_OAUTH_CLIENT_ID")
+        and current_app.config.get("GITHUB_OAUTH_CLIENT_SECRET")
     )
 
 

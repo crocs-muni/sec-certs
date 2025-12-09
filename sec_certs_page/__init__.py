@@ -1,8 +1,10 @@
 import os
 import sys
 from contextvars import ContextVar
+from logging import config
 from pathlib import Path
 
+import dash_bootstrap_components as dbc
 import sentry_sdk
 from dramatiq import Middleware
 from dramatiq.middleware import (
@@ -15,7 +17,8 @@ from dramatiq.middleware import (
     TimeLimit,
 )
 from dramatiq.results import Results
-from dramatiq.results.backends import RedisBackend, StubBackend
+from dramatiq.results.backends import StubBackend
+from dramatiq.results.backends.redis import RedisBackend
 from fakeredis import FakeRedis
 from flask import Flask, abort
 from flask_assets import Environment as Assets
@@ -39,7 +42,6 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
 
 from .common.config import RuntimeConfig
-from .common.dash.base import Dash
 from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send
 
@@ -56,6 +58,9 @@ app.jinja_env.cache = {}
 app.jinja_env.autoescape = True
 app.jinja_env.globals.update(zip=zip)
 public(app=app)
+
+if "LOGGING_CONFIG" in app.config:
+    config.dictConfig(app.config["LOGGING_CONFIG"])
 
 if os.environ.get("TESTING", False):
     app.testing = True
@@ -140,11 +145,6 @@ public(csrf=csrf)
 mail: Mail = Mail(app)
 public(mail=mail)
 
-dash: Dash = Dash(server=app, routes_pathname_prefix="/dash/", use_pages=True, pages_folder="")
-public(dash=dash)
-# This Dash view uses a POST and CSRFProtect is messing it up otherwise.
-csrf.exempt("dash.dash.dispatch")
-
 
 class Sitemap(FlaskSitemap):
     @cache.memoize(args_to_ignore=("self",), timeout=3600 * 24 * 7)
@@ -220,7 +220,29 @@ with app.app_context():
             )
             app.register_blueprint(github_bp, url_prefix="/auth")
 
-from .dashboard import *
 from .jinja import *
 from .tasks import *
 from .views import *
+
+with app.app_context():
+    import os
+
+    # Use absolute path for pages_folder to avoid Windows path issues
+    pages_folder_path = os.path.join(os.path.dirname(__file__), "dashboard", "pages")
+    DASHBOARD_URL_BASE_PATHNAME = "/dashboard/"
+
+    from .dashboard.base import Dash
+
+    dash_app = Dash(
+        __name__,
+        server=app,
+        url_base_pathname=DASHBOARD_URL_BASE_PATHNAME,
+        use_pages=True,
+        suppress_callback_exceptions=True,
+        pages_folder=pages_folder_path,
+        external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME],
+    )
+    from .dashboard import init_dashboard
+
+    dash_app.config.get("url_base_pathname")
+    init_dashboard(dash_app, app, csrf)

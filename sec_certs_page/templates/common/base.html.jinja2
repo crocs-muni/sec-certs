@@ -288,6 +288,19 @@
                             <li><a class="dropdown-item" href="{{ url_for('about.privacy_policy') }}">Privacy policy</a></li>
                         </ul>
                     </li>
+                    {% if can_access_dashboard() %}
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle {% if request.path.startswith('/dashboard') %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-chart-line me-1"></i> Analysis
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="/dashboard/">Dashboard Home</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/dashboard/cc">Common Criteria</a></li>
+                            <li><a class="dropdown-item" href="/dashboard/fips">FIPS 140</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                 </ul>
 
                 {% if current_user.is_authenticated %}

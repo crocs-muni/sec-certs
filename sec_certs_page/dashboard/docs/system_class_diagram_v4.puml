@@ -1,0 +1,443 @@
+@startuml DashboardArchitectureV4
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+skinparam packageBorderColor #333333
+skinparam packageBackgroundColor #F8F9FA
+skinparam classBorderColor #666666
+skinparam classBackgroundColor white
+skinparam arrowColor #4A90E2
+skinparam noteBackgroundColor #FFF3CD
+skinparam noteBorderColor #FFEAA7
+
+skinparam defaultFontSize 11
+skinparam classFontSize 11
+skinparam packageFontSize 12
+skinparam titleFontSize 16
+
+title sec-certs.org Dashboard Architecture v4 - Corrected
+
+package "Application Core" #FFE4B5 {
+    class "Flask App" as FlaskApp {
+        + run()
+    }
+
+    class Dash {
+        + server : Flask
+        + layout : html.Div
+        + url_base_pathname : str
+    }
+
+    class "init_dashboard()" as Init <<function>> {
+        + app : Flask
+        + csrf : CSRFProtect
+        + returns : Dash
+    }
+}
+
+package "Dashboard Management" #E6FFE6 {
+    class DashboardManager {
+        + data_service : DataService
+        + repository : DashboardRepository
+        + chart_registries : dict[CollectionName, ChartRegistry]
+        + filter_factories : dict[CollectionName, FilterFactory]
+        + get_chart_registry(collection_name) : ChartRegistry
+        + get_filter_factory(collection_name) : FilterFactory
+        + create_dashboard(...) : Dashboard
+        + save_dashboard(dashboard) : str
+        + load_dashboard(dashboard_id) : Dashboard
+        + load_dashboard_with_charts(dashboard_id) : tuple[Dashboard, list[BaseChart]]
+        + get_predefined_chart_configs(collection_name) : list[ChartConfig]
+        + delete_dashboard(dashboard_id, user_id) : bool
+    }
+
+    class DashboardRepository {
+        + collection : Collection
+        + save(dashboard: Dashboard) : str
+        + get_by_id(dashboard_id: str) : Dashboard | None
+        + get_by_user(user_id: str, collection_name: str) : list[Dashboard]
+        + get_default(user_id: str, collection_name: str) : Dashboard | None
+        + delete(dashboard_id: str) : bool
+        + count_by_user(user_id: str, collection_name: str) : int
+    }
+
+    DashboardManager o--> DashboardRepository
+}
+
+package "Domain Models" #E8F5E8 {
+    class Dashboard <<dataclass>> {
+        + dashboard_id : str
+        + user_id : str
+        + collection_name : CollectionName
+        + name : str
+        + charts : list[ChartConfig]
+        + is_default : bool
+        + created_at : datetime
+        + updated_at : datetime
+        + add_chart(chart: ChartConfig)
+        + remove_chart(chart_id: str)
+        + get_chart(chart_id: str) : ChartConfig | None
+        + to_dict() : dict
+        + {static} from_dict(data: dict) : Dashboard
+    }
+
+    class ChartConfig <<dataclass>> {
+        + chart_id : UUID
+        + collection_name : CollectionName
+        + name : str
+        + chart_type : AvailableChartTypes
+        + x_axis : AxisConfig
+        + y_axis : AxisConfig | None
+        + color_axis : AxisConfig | None
+        + title : str
+        + order : int
+        + filters : dict[str, FilterSpec]
+        + filter_values : dict[str, Any]
+        + query_pipeline : list[dict[str, Any]] | None
+        + color_scheme : str
+        + show_legend : bool
+        + show_grid : bool
+        + created_at : datetime | None
+        + updated_at : datetime | None
+        + to_dict() : dict
+        + {static} from_dict(data: dict) : ChartConfig
+    }
+
+    class AxisConfig <<dataclass>> {
+        + field : str
+        + label : str
+        + aggregation : AggregationType | None
+    }
+
+    Dashboard *--> "0..*" ChartConfig
+    ChartConfig *--> "1..3" AxisConfig
+    ChartConfig o--> "0..*" FilterSpec
+}
+
+package "Type Definitions" #F5F5F5 {
+    enum CollectionName <<StrEnum>> {
+        CommonCriteria = "cc"
+        FIPS140 = "fips"
+    }
+
+    enum AvailableChartTypes <<StrEnum>> {
+        BAR = "bar"
+        LINE = "line"
+        PIE = "pie"
+        SCATTER = "scatter"
+        BOX = "box"
+        HISTOGRAM = "histogram"
+        STACKED_BAR = "stacked_bar"
+    }
+
+    enum AggregationType <<StrEnum>> {
+        COUNT = "count"
+        SUM = "sum"
+        AVG = "avg"
+        MIN = "min"
+        MAX = "max"
+    }
+}
+
+package "Chart Components" #E8F5E8 {
+    abstract class BaseChart <<dataclass>> {
+        + config : ChartConfig
+        + id : str <<property>>
+        + {abstract} render(data_service: DataService) : Component
+    }
+
+    class GenericChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class BarChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class LineChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class PieChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class BoxChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class ScatterChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class HistogramChartComponent {
+        + render(data_service: DataService) : Component
+    }
+
+    class ErrorChart {
+        + error_message : str
+        + render(data_service: DataService) : Component
+    }
+
+    GenericChartComponent --|> BaseChart
+    BarChartComponent --|> GenericChartComponent
+    LineChartComponent --|> GenericChartComponent
+    PieChartComponent --|> GenericChartComponent
+    BoxChartComponent --|> GenericChartComponent
+    ScatterChartComponent --|> GenericChartComponent
+    HistogramChartComponent --|> GenericChartComponent
+    ErrorChart --|> BaseChart
+}
+
+package "Component Registries & Factory" #E6F3FF {
+    class ChartRegistry {
+        + collection_name : CollectionName
+        - _predefined_charts : dict[str, BaseChart]
+        + register(chart: BaseChart)
+        + get_predefined(chart_id: str) : BaseChart | None
+        + __getitem__(chart_id: str) : BaseChart
+        + __iter__() : Iterator[BaseChart]
+    }
+    note right of ChartRegistry
+        Only stores predefined (built-in) charts.
+        Custom charts are created on-demand from
+        chart_configs (dcc.Store) to support
+        multi-worker deployments.
+    end note
+
+    class ChartFactory {
+        - {static} _chart_classes : dict[AvailableChartTypes, type]
+        + {static} create_chart(config: ChartConfig) : BaseChart
+    }
+
+    class FigureBuilder {
+        + {static} create_figure(config: ChartConfig, df: DataFrame) : go.Figure
+        - {static} _create_bar_chart(config: ChartConfig, df: DataFrame) : go.Figure
+        - {static} _create_line_chart(config: ChartConfig, df: DataFrame) : go.Figure
+        - {static} _create_pie_chart(config: ChartConfig, df: DataFrame) : go.Figure
+        - {static} _create_scatter_chart(config: ChartConfig, df: DataFrame) : go.Figure
+        - {static} _create_box_chart(config: ChartConfig, df: DataFrame) : go.Figure
+        - {static} _create_histogram(config: ChartConfig, df: DataFrame) : go.Figure
+    }
+
+    ChartRegistry o--> "0..*" BaseChart
+    ChartFactory ..> BaseChart : creates
+    ChartFactory ..> ChartConfig : reads
+    FigureBuilder ..> ChartConfig : reads
+}
+
+package "Filter System" #F0E6FF {
+    enum FilterOperator <<StrEnum>> {
+        EQ = "$eq"
+        NE = "$ne"
+        GT = "$gt"
+        GTE = "$gte"
+        LT = "$lt"
+        LTE = "$lte"
+        IN = "$in"
+        NIN = "$nin"
+        REGEX = "$regex"
+        EXISTS = "$exists"
+        YEAR_IN = "year_in"
+    }
+
+    enum FilterComponentType <<StrEnum>> {
+        DROPDOWN
+        MULTI_DROPDOWN
+        TEXT_SEARCH
+        DATE_RANGE
+        DATE_PICKER
+        CHECKBOX
+    }
+
+    class DashFilterComponentParams <<dataclass>> {
+        + component_type : FilterComponentType
+        + label : str
+        + placeholder : str
+        + multi : bool
+        + clearable : bool
+        + searchable : bool
+        + min_value : int | float | str | None
+        + max_value : int | float | str | None
+        + default_value : Any | None
+        + help_text : str | None
+    }
+
+    class FilterSpec <<dataclass>> {
+        + id : str
+        + database_field : str
+        + operator : FilterOperator
+        + data_type : str
+        + component_params : DashFilterComponentParams
+        + active : bool
+        + data : Any | None
+        + transform : Callable | None
+        + mongodb_pipeline : list[dict] | None
+    }
+
+    FilterSpec o--> FilterOperator
+    FilterSpec *--> DashFilterComponentParams
+    DashFilterComponentParams o--> FilterComponentType
+}
+
+package "Filter Registries" #F0E6FF {
+    abstract class FilterSpecRegistry {
+        + {static} collection_name : CollectionName
+        - {static} _filters : dict[str, FilterSpec]
+        + {static} get_filter(id: str) : FilterSpec
+        + {static} get_all_filters() : dict[str, FilterSpec]
+    }
+
+    class CCFilterRegistry {
+        + {static} collection_name : CollectionName
+        - {static} _filters : dict[str, FilterSpec]
+    }
+
+    class FIPSFilterRegistry {
+        + {static} collection_name : CollectionName
+        - {static} _filters : dict[str, FilterSpec]
+    }
+
+    CCFilterRegistry --|> FilterSpecRegistry
+    FIPSFilterRegistry --|> FilterSpecRegistry
+    FilterSpecRegistry o--> "0..*" FilterSpec
+}
+
+package "Filter Component Factory" #F0E6FF {
+    class FilterFactory {
+        + collection_name : CollectionName
+        + registry : FilterSpecRegistry
+        + create_filter(filter_spec: FilterSpec) : Component
+        + create_all_filters(with_labels: bool) : list[Component]
+        + create_filter_panel(title: str, columns: int) : Component
+        + get_filter_ids() : list[str]
+        + collect_filter_values(*filter_values) : dict[str, Any]
+    }
+
+    FilterFactory ..> FilterSpec
+    FilterFactory ..> FilterSpecRegistry
+}
+
+package "Query Builder" #FFE6E6 {
+    class QueryBuilder {
+        + collection_name : CollectionName
+        + registry : FilterSpecRegistry
+        - _query_fragments : list[dict]
+        + add_filter(filter_id: str, value: Any) : QueryBuilder
+        + add_filters(filters: dict[str, Any]) : QueryBuilder
+        + build() : dict[str, Any]
+        + reset() : QueryBuilder
+        + get_errors() : list[str]
+    }
+
+    class "build_query_from_filters()" as QueryFunc <<function>> {
+        + collection_name : CollectionName
+        + filter_values : dict[str, Any]
+        + returns : dict[str, Any]
+    }
+
+    class "build_chart_pipeline()" as ChartPipelineFunc <<function>> {
+        + chart : ChartConfig
+        + filter_values : dict[str, Any]
+        + returns : list[dict[str, Any]]
+    }
+
+    QueryBuilder ..> FilterSpecRegistry
+    QueryFunc ..> QueryBuilder
+    ChartPipelineFunc ..> ChartConfig
+}
+
+package "Data Layer" #FFFACD {
+    class DataService {
+        + mongo : PyMongo
+        + get_dataframe(collection_name: CollectionName, filter_values: dict | None) : DataFrame
+        + get_cc_dataframe(filter_values: dict | None) : DataFrame
+        + get_fips_dataframe(filter_values: dict | None) : DataFrame
+        + execute_aggregation_pipeline(collection_name: CollectionName, pipeline: list[dict]) : DataFrame
+        + get_distinct_values(field: str, collection_name: CollectionName) : list
+        + get_unique_values(collection_name: CollectionName, field: str) : list
+        + get_dataset_metadata(collection_name: CollectionName) : dict
+    }
+
+    class PyMongo <<Flask Extension>> {
+        + db : Database
+    }
+
+    DataService o--> PyMongo
+    DataService ..> QueryFunc
+    DataService ..> ChartPipelineFunc
+}
+
+package "Page Registration" #E6F3FF {
+    class "pages" <<module>> {
+        + register_pages(app, data_service, manager)
+    }
+
+    class "cc_route" <<module>> {
+        + layout(**kwargs) : html.Div
+    }
+
+    class "fips_route" <<module>> {
+        + layout(**kwargs) : html.Div
+    }
+
+    "pages" ..> "cc_route"
+    "pages" ..> "fips_route"
+}
+
+' Main relationships
+FlaskApp --> Init
+Init ..> DashboardManager : creates
+Init ..> Dash : creates
+Dash *-- "pages"
+
+DashboardManager o--> ChartRegistry : per collection
+DashboardManager o--> FilterFactory : per collection
+DashboardManager ..> Dashboard : creates/loads
+
+BaseChart ..> ChartConfig : configured by
+GenericChartComponent ..> FigureBuilder : uses
+
+"pages" o--> DashboardManager
+"pages" o--> DataService
+
+note bottom of Init
+    Initialization:
+    1. Create DataService
+    2. Create DashboardRepository
+    3. Create DashboardManager
+       - ChartRegistry per CollectionName
+       - FilterFactory per CollectionName
+    4. Create Dash app
+    5. Register pages (CC, FIPS)
+end note
+
+note right of Dashboard
+    Persistence:
+    - to_dict() → MongoDB
+    - from_dict() → reconstruct
+    - Charts stored as ChartConfig
+    - Filter state preserved
+    - Axis configurations included
+end note
+
+note top of ChartConfig
+    Key changes from v3:
+    - Renamed from Chart to ChartConfig
+    - Added collection_name field
+    - Added color_axis for grouping
+    - Added query_pipeline caching
+    - Enhanced filter management
+end note
+
+note top of FigureBuilder
+    New in v4:
+    Centralizes all Plotly
+    figure creation logic.
+    Used by chart components
+    to render visualizations.
+end note
+
+@enduml
