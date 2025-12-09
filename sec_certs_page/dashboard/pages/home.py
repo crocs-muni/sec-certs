@@ -6,8 +6,8 @@ from dash import html
 
 from ... import DASHBOARD_URL_BASE_PATHNAME
 from ..types.common import CollectionName
+from .components import steps_row
 
-# Collection metadata for cards
 _COLLECTION_INFO = {
     CollectionName.CommonCriteria: {
         "title": "Common Criteria",
@@ -23,10 +23,21 @@ _COLLECTION_INFO = {
     },
 }
 
+_GETTING_STARTED_STEPS = [
+    "Choose a certificate collection (CC or FIPS)",
+    "Create a new dashboard or load an existing one",
+    "Add predefined or custom charts",
+    "Save your dashboard for later use",
+]
+
 
 def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
-    """Build a single collection card."""
-    info = _COLLECTION_INFO.get(collection_name, {})
+    """Build a single collection card.
+
+    :param collection_name: The collection enum value
+    :return: Column containing the card
+    """
+    info = _COLLECTION_INFO.get(collection_name)
     if not info:
         return dbc.Col()
 
@@ -46,14 +57,10 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
                                 children=[
                                     html.Div(
                                         className="me-3",
-                                        children=[
-                                            html.I(className=f"{info['icon']} fa-3x"),
-                                        ],
+                                        children=[html.I(className=f"{info['icon']} fa-3x")],
                                     ),
                                     html.Div(
-                                        children=[
-                                            html.H3(info["title"], className="mb-0 fw-bold"),
-                                        ],
+                                        children=[html.H3(info["title"], className="mb-0 fw-bold")],
                                     ),
                                 ],
                             ),
@@ -69,11 +76,8 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
                         className="bg-transparent border-0 pt-0 pb-4 px-4",
                         children=[
                             dbc.Button(
-                                [
-                                    "Open Dashboard",
-                                    html.I(className="fas fa-arrow-right ms-2"),
-                                ],
-                                href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name}",
+                                ["Open Dashboard", html.I(className="fas fa-arrow-right ms-2")],
+                                href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name.value}",
                                 color=info["color"],
                                 size="lg",
                                 className="w-100",
@@ -88,12 +92,43 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
 
 
 def _build_collection_cards() -> list[dbc.Col]:
-    """Build all collection cards."""
+    """Build all collection cards.
+
+    :return: List of column components containing cards
+    """
     return [_build_collection_card(name) for name in _COLLECTION_INFO]
 
 
+def _build_getting_started() -> dbc.Card:
+    """Build the getting started section.
+
+    :return: Card containing getting started steps
+    """
+    return dbc.Card(
+        className="border-0 bg-light",
+        children=[
+            dbc.CardHeader(
+                className="bg-transparent border-0 pb-0",
+                children=[
+                    html.H5(
+                        [html.I(className="fas fa-lightbulb me-2 text-warning"), "Getting Started"],
+                        className="mb-0 text-muted",
+                    ),
+                ],
+            ),
+            dbc.CardBody(
+                className="pt-3",
+                children=[steps_row(_GETTING_STARTED_STEPS)],
+            ),
+        ],
+    )
+
+
 def layout(**kwargs) -> html.Div:
-    """Home page layout - shows available collections to choose from."""
+    """Home page layout - shows available collections to choose from.
+
+    :return: Page layout component
+    """
     return html.Div(
         className="py-4",
         children=[
@@ -119,110 +154,7 @@ def layout(**kwargs) -> html.Div:
                 children=_build_collection_cards(),
             ),
             # Getting started section
-            dbc.Card(
-                className="border-0 bg-light",
-                children=[
-                    dbc.CardHeader(
-                        className="bg-transparent border-0 pb-0",
-                        children=[
-                            html.H5(
-                                [html.I(className="fas fa-lightbulb me-2 text-warning"), "Getting Started"],
-                                className="mb-0 text-muted",
-                            ),
-                        ],
-                    ),
-                    dbc.CardBody(
-                        className="pt-3",
-                        children=[
-                            dbc.Row(
-                                className="g-4",
-                                children=[
-                                    dbc.Col(
-                                        width=12,
-                                        md=6,
-                                        lg=True,
-                                        children=[
-                                            html.Div(
-                                                className="d-flex align-items-start",
-                                                children=[
-                                                    html.Span(
-                                                        "1",
-                                                        className="badge bg-primary rounded-circle me-3 fs-6",
-                                                    ),
-                                                    html.Span(
-                                                        "Choose a certificate collection (CC or FIPS)",
-                                                        className="text-muted",
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
-                                    dbc.Col(
-                                        width=12,
-                                        md=6,
-                                        lg=True,
-                                        children=[
-                                            html.Div(
-                                                className="d-flex align-items-start",
-                                                children=[
-                                                    html.Span(
-                                                        "2",
-                                                        className="badge bg-primary rounded-circle me-3 fs-6",
-                                                    ),
-                                                    html.Span(
-                                                        "Create a new dashboard or load an existing one",
-                                                        className="text-muted",
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
-                                    dbc.Col(
-                                        width=12,
-                                        md=6,
-                                        lg=True,
-                                        children=[
-                                            html.Div(
-                                                className="d-flex align-items-start",
-                                                children=[
-                                                    html.Span(
-                                                        "3",
-                                                        className="badge bg-primary rounded-circle me-3 fs-6",
-                                                    ),
-                                                    html.Span(
-                                                        "Add predefined or custom charts",
-                                                        className="text-muted",
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
-                                    dbc.Col(
-                                        width=12,
-                                        md=6,
-                                        lg=True,
-                                        children=[
-                                            html.Div(
-                                                className="d-flex align-items-start",
-                                                children=[
-                                                    html.Span(
-                                                        "4",
-                                                        className="badge bg-primary rounded-circle me-3 fs-6",
-                                                    ),
-                                                    html.Span(
-                                                        "Save your dashboard for later use",
-                                                        className="text-muted",
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
+            _build_getting_started(),
         ],
     )
 
