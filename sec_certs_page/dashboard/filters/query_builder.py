@@ -10,7 +10,17 @@ if TYPE_CHECKING:
     from ..chart.config import ChartConfig
 
 
-_DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count", "validity_days"})
+_DERIVED_FIELDS: frozenset[str] = frozenset({
+    "year_from",
+    "year_to",
+    "count",
+    "validity_days",
+    # CVE-related derived fields
+    "cve_count",
+    "direct_transitive_cve_count",
+    "indirect_transitive_cve_count",
+    "total_transitive_cve_count",
+})
 
 
 def get_allowed_database_fields() -> frozenset[str]:
@@ -403,6 +413,36 @@ DERIVED_FIELD_EXPRESSIONS: dict[str, DerivedFieldDefinition] = {
             ]
         },
     ),
+    # CVE-related derived fields for vulnerability analysis
+    "cve_count": DerivedFieldDefinition(
+        source="heuristics.related_cves._value",
+        label="CVE Count",
+        data_type="int",
+        expression={"$size": {"$ifNull": ["$heuristics.related_cves._value", []]}},
+    ),
+    "direct_transitive_cve_count": DerivedFieldDefinition(
+        source="heuristics.direct_transitive_cves._value",
+        label="Direct Transitive CVE Count",
+        data_type="int",
+        expression={"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
+    ),
+    "indirect_transitive_cve_count": DerivedFieldDefinition(
+        source="heuristics.indirect_transitive_cves._value",
+        label="Indirect Transitive CVE Count",
+        data_type="int",
+        expression={"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
+    ),
+    "total_transitive_cve_count": DerivedFieldDefinition(
+        source=["heuristics.direct_transitive_cves._value", "heuristics.indirect_transitive_cves._value"],
+        label="Total Transitive CVE Count",
+        data_type="int",
+        expression={
+            "$add": [
+                {"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
+                {"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
+            ]
+        },
+    ),
 }
 
 
@@ -450,11 +490,30 @@ def _get_field_expression(field: str) -> str | dict[str, Any]:
     return f"${field}"
 
 
+def _get_aggregation_field_expr(field: str) -> str | dict[str, Any]:
+    """Get the MongoDB expression for a field to be used in aggregation.
+
+    For derived fields (like cve_count), returns the computation expression.
+    For regular fields, returns the simple field reference.
+
+    Unlike _get_field_expression, this doesn't validate against whitelist
+    since aggregation fields might be derived fields not in the filter registry.
+
+    :param field: Field name
+    :return: MongoDB field reference or expression
+    """
+    if field in DERIVED_FIELD_EXPRESSIONS:
+        return DERIVED_FIELD_EXPRESSIONS[field].expression
+    return f"${field}"
+
+
 def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
     """Build the $group stage for aggregation.
 
     Handles both single-level grouping (just x_axis) and two-level grouping
     (x_axis + color_axis for stacked/grouped bar charts).
+
+    For derived fields like cve_count, uses their expressions for aggregation.
 
     :param chart: Chart configuration
     :return: $group stage dictionary
@@ -479,24 +538,29 @@ def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
                 "value": {"$sum": 1},
             }
         elif agg_type == AggregationType.SUM:
+            # Use derived field expression if available
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$sum": f"${y_field}"},
+                "value": {"$sum": y_expr},
             }
         elif agg_type == AggregationType.AVG:
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$avg": f"${y_field}"},
+                "value": {"$avg": y_expr},
             }
         elif agg_type == AggregationType.MIN:
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$min": f"${y_field}"},
+                "value": {"$min": y_expr},
             }
         elif agg_type == AggregationType.MAX:
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$max": f"${y_field}"},
+                "value": {"$max": y_expr},
             }
 
     return {

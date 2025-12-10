@@ -157,6 +157,41 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Filter by certificate vendor/manufacturer",
             ),
         ),
+        # CVE/Vulnerability filters
+        filter_id(FilterID.HAS_CVES_FILTER): FilterSpec(
+            id=filter_id(FilterID.HAS_CVES_FILTER),
+            database_field="heuristics.related_cves._value.0",
+            operator=FilterOperator.EXISTS,
+            data_type="bool",
+            component_params=FilterComponentParams(
+                component_type=FilterComponentType.DROPDOWN,
+                label="Has CVEs",
+                placeholder="Any",
+                clearable=True,
+                help_text="Filter certificates with/without associated CVEs",
+                options=[
+                    {"label": "Yes - Has CVEs", "value": True},
+                    {"label": "No - No CVEs", "value": False},
+                ],
+            ),
+        ),
+        filter_id(FilterID.HAS_TRANSITIVE_CVES_FILTER): FilterSpec(
+            id=filter_id(FilterID.HAS_TRANSITIVE_CVES_FILTER),
+            database_field="heuristics.direct_transitive_cves._value.0",
+            operator=FilterOperator.EXISTS,
+            data_type="bool",
+            component_params=FilterComponentParams(
+                component_type=FilterComponentType.DROPDOWN,
+                label="Has Transitive CVEs",
+                placeholder="Any",
+                clearable=True,
+                help_text="Filter certificates with/without transitive CVE exposure (through dependencies)",
+                options=[
+                    {"label": "Yes - Has Transitive CVEs", "value": True},
+                    {"label": "No - No Transitive CVEs", "value": False},
+                ],
+            ),
+        ),
     }
 
 
@@ -253,6 +288,24 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 clearable=True,
                 searchable=True,
                 help_text="Filter by module vendor",
+            ),
+        ),
+        # CVE/Vulnerability filters
+        filter_id(FilterID.HAS_CVES_FILTER): FilterSpec(
+            id="fips-has-cves-filter",
+            database_field="heuristics.related_cves._value.0",
+            operator=FilterOperator.EXISTS,
+            data_type="bool",
+            component_params=FilterComponentParams(
+                component_type=FilterComponentType.DROPDOWN,
+                label="Has CVEs",
+                placeholder="Any",
+                clearable=True,
+                help_text="Filter modules with/without associated CVEs",
+                options=[
+                    {"label": "Yes - Has CVEs", "value": True},
+                    {"label": "No - No CVEs", "value": False},
+                ],
             ),
         ),
     }
