@@ -79,6 +79,10 @@ class FigureBuilder:
                 margin=dict(l=40, r=40, t=40, b=40),
                 height=600,
             )
+
+            # Apply logarithmic scale if configured
+            cls._apply_axis_scale(fig, config)
+
             return fig
         except Exception as e:
             error_message = f"Error creating figure for chart '{config.name}' (type: {config.chart_type})"
@@ -126,6 +130,10 @@ class FigureBuilder:
                 margin=dict(l=40, r=40, t=40, b=40),
                 height=600,
             )
+
+            # Apply logarithmic scale if configured
+            cls._apply_axis_scale(fig, config)
+
             return fig
         except Exception as e:
             error_message = (
@@ -217,6 +225,21 @@ class FigureBuilder:
             return px.histogram(df, x=x_field, color=color_field, labels=labels)
         else:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")
+
+    @classmethod
+    def _apply_axis_scale(cls, fig: go.Figure, config: ChartConfig) -> None:
+        """Apply logarithmic scale to axes if configured.
+
+        :param fig: Plotly figure to modify
+        :param config: Chart configuration with axis settings
+        """
+        # Apply log scale to X-axis if configured
+        if config.x_axis and config.x_axis.log_scale:
+            fig.update_xaxes(type="log")
+
+        # Apply log scale to Y-axis if configured
+        if config.y_axis and config.y_axis.log_scale:
+            fig.update_yaxes(type="log")
 
     @staticmethod
     def _empty_figure(message: str = "No data", is_error: bool = False) -> go.Figure:

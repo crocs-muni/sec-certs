@@ -29,11 +29,15 @@ class AxisConfig:
     :param aggregation: Aggregation function for Y-axis (COUNT, SUM, AVG, MIN, MAX).
                         Only applicable for Y-axis; X-axis should leave as None.
     :type aggregation: AggregationType | None
+    :param log_scale: Whether to use logarithmic scale for this axis.
+                      Useful for data with large value ranges.
+    :type log_scale: bool
     """
 
     field: str
     label: str
     aggregation: AggregationType | None = None
+    log_scale: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize axis configuration to dictionary.
@@ -45,6 +49,7 @@ class AxisConfig:
             "field": self.field,
             "label": self.label,
             "aggregation": self.aggregation,
+            "log_scale": self.log_scale,
         }
 
     @classmethod
@@ -60,6 +65,7 @@ class AxisConfig:
             field=data["field"],
             label=data["label"],
             aggregation=data.get("aggregation"),
+            log_scale=data.get("log_scale", False),
         )
 
 
