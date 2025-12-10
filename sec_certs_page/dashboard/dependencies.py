@@ -116,6 +116,10 @@ class FilterID(str, Enum):
     YEAR_FILTER = "year-filter"
     VENDOR_FILTER = "vendor-filter"
 
+    # CVE/Vulnerability Filters
+    HAS_CVES_FILTER = "has-cves-filter"
+    HAS_TRANSITIVE_CVES_FILTER = "has-transitive-cves-filter"
+
 
 class ComponentIDBuilder:
     """Helper for creating component IDs with collection_name prefixes.
