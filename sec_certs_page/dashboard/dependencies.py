@@ -58,6 +58,7 @@ class ComponentID(str, Enum):
     MODAL_CLOSE = "modal-close"
     MODAL_OPEN = "modal-open"
     MODAL_CONFIRM = "modal-confirm"
+    MODAL_SHOW_NON_ZERO = "modal-show-non-zero"
     CREATE_CHART_MODAL = "create-chart-modal"
     OPEN_CREATE_CHART_MODAL_BTN = "open-create-chart-modal-btn"
     MODAL_CANCEL_BTN = "modal-cancel-btn"

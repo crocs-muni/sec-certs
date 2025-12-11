@@ -76,6 +76,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             y_label=Output(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
             show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
             show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
+            show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
             color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open"),
         ),
         inputs=dict(
@@ -104,6 +105,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             show_legend=no_update,
             show_grid=no_update,
             color_by_open=no_update,
+            show_zero_values=no_update,
         )
 
         if triggered == open_btn_id:
@@ -122,6 +124,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
                 show_legend=True,
                 show_grid=True,
                 color_by_open=False,
+                show_zero_values=True,
             )
 
         if triggered == cancel_btn_id:
@@ -208,6 +211,7 @@ def _register_edit_handler(
             show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value", allow_duplicate=True),
             show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
             color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
+            show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True),
         ),
         inputs=dict(n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")),
         state=dict(
@@ -231,6 +235,7 @@ def _register_edit_handler(
             show_legend=no_update,
             show_grid=no_update,
             color_by_open=no_update,
+            show_zero_values=no_update,
         )
 
         if not n_clicks_list or not any(n_clicks_list):
@@ -268,6 +273,7 @@ def _register_edit_handler(
                     show_legend=config_dict.get("show_legend", True),
                     show_grid=config_dict.get("show_grid", True),
                     color_by_open=color_axis is not None,
+                    show_zero_values=config_dict.get("show_zero_values", True),
                 )
 
         return no_change
@@ -872,6 +878,7 @@ def _register_chart_creation(
             edit_chart_id=State(component_builder(ComponentID.EDIT_CHART_ID), "data"),
             render_trigger=State(component_builder(ComponentID.RENDER_TRIGGER), "data"),
             chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+            show_zero_values=State(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
         ),
         prevent_initial_call=True,
     )
@@ -893,6 +900,7 @@ def _register_chart_creation(
         edit_chart_id,
         render_trigger,
         chart_configs,
+        show_zero_values,
     ):
         logger.debug(f"[MODAL] create_or_update_chart called, n_clicks={n_clicks}")
         logger.debug(f"[MODAL] chart_configs before: {list((chart_configs or {}).keys())}")
@@ -938,6 +946,7 @@ def _register_chart_creation(
             filter_specs=filter_specs,
             modal_filter_values=modal_filter_values,
             current_filter_values=current_filter_values,
+            show_zero_values=show_zero_values,
         )
 
         # Store config in client-side store; chart will be created on-demand during rendering
@@ -1004,6 +1013,7 @@ def _build_chart_config(
     filter_specs: list[dict] | None,
     modal_filter_values: list | None,
     current_filter_values: dict | None,
+    show_zero_values: bool | None,
 ) -> ChartConfig:
     """
     Build Chart config from modal form values.
@@ -1057,6 +1067,7 @@ def _build_chart_config(
         color_axis=color_axis_config,
         show_legend=show_legend if show_legend is not None else True,
         show_grid=show_grid if show_grid is not None else True,
+        show_zero_values=show_zero_values if show_zero_values is not None else True,
         is_editable=True,  # Custom charts created by users are editable
         filter_values=chart_filter_values,
     )
