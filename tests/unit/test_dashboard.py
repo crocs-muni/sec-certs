@@ -9,9 +9,10 @@ from typing import Any
 
 import pytest
 
-from sec_certs_page.dashboard.chart.chart import AxisConfig, Chart
+from sec_certs_page.dashboard.chart.config import AxisConfig
+from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.dashboard import Dashboard
-from sec_certs_page.dashboard.types.chart import AvailableChartTypes
+from sec_certs_page.dashboard.types.chart import ChartType
 from sec_certs_page.dashboard.types.common import CollectionName
 
 
@@ -245,7 +246,7 @@ class TestDashboardSerialization:
             "name": "test-chart",
             "title": "Test Chart",
             "chart_type": "bar",
-            "collection_type": "cc",
+            "collection_name": "cc",
             "x_axis": {"field": "category", "label": "Category"},
             "created_at": "2024-01-15T10:30:00Z",
             "updated_at": "2024-01-15T10:30:00Z",
@@ -368,8 +369,8 @@ class TestDashboardChartManagement:
             chart_id=uuid.UUID("12345678-1234-5678-1234-567812345678"),
             name="test-chart",
             title="Test Chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
 
@@ -446,8 +447,8 @@ class TestDashboardChartManagement:
             chart_id=sample_chart.chart_id,
             name="updated-chart",
             title="Updated Title",
-            chart_type=AvailableChartTypes.LINE,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.LINE,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="year", label="Year"),
         )
 
@@ -456,7 +457,7 @@ class TestDashboardChartManagement:
 
         # Assert
         assert dashboard.charts[0].title == "Updated Title"
-        assert dashboard.charts[0].chart_type == AvailableChartTypes.LINE
+        assert dashboard.charts[0].chart_type == ChartType.LINE
 
     def test_update_chart_with_nonexistent_id_raises_value_error(
         self, dashboard: Dashboard, sample_chart: Chart
@@ -477,8 +478,8 @@ class TestDashboardChartManagement:
                 chart_id=uuid.uuid4(),
                 name="another-chart",
                 title="Another Chart",
-                chart_type=AvailableChartTypes.PIE,
-                collection_type=CollectionName.CommonCriteria,
+                chart_type=ChartType.PIE,
+                collection_name=CollectionName.CommonCriteria,
                 x_axis=AxisConfig(field="scheme", label="Scheme"),
             )
         )

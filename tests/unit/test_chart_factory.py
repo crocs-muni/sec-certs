@@ -4,15 +4,16 @@ import pandas as pd
 import plotly.graph_objects as go
 import pytest
 
-from sec_certs_page.dashboard.chart.chart import AxisConfig, Chart
-from sec_certs_page.dashboard.chart.factory import ChartFactory
-from sec_certs_page.dashboard.types.chart import AvailableChartTypes
+from sec_certs_page.dashboard.chart.config import AxisConfig
+from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
+from sec_certs_page.dashboard.chart.figure_builder import FigureBuilder
+from sec_certs_page.dashboard.types.chart import ChartType
 from sec_certs_page.dashboard.types.common import CollectionName
 from sec_certs_page.dashboard.types.filter import AggregationType
 
 
-class TestChartFactoryCreateFigure:
-    """Tests for ChartFactory.create_figure public API."""
+class TestFigureBuilderCreateFigure:
+    """Tests for FigureBuilder.create_figure public API."""
 
     @pytest.fixture
     def sample_data(self) -> pd.DataFrame:
@@ -32,13 +33,13 @@ class TestChartFactoryCreateFigure:
             chart_id=uuid4(),
             name="test-bar-chart",
             title="Certificates by Category",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
 
-        fig = ChartFactory.create_figure(config, sample_data)
+        fig = FigureBuilder.create_figure(config, sample_data)
 
         assert isinstance(fig, go.Figure)
         assert fig.layout.title.text == "Certificates by Category"
@@ -49,13 +50,13 @@ class TestChartFactoryCreateFigure:
             chart_id=uuid4(),
             name="test-line-chart",
             title="Certificates Over Time",
-            chart_type=AvailableChartTypes.LINE,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.LINE,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="year_from", label="Year"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
 
-        fig = ChartFactory.create_figure(config, sample_data)
+        fig = FigureBuilder.create_figure(config, sample_data)
 
         assert isinstance(fig, go.Figure)
         assert fig.layout.title.text == "Certificates Over Time"
@@ -66,43 +67,90 @@ class TestChartFactoryCreateFigure:
             chart_id=uuid4(),
             name="test-pie-chart",
             title="Distribution by Scheme",
-            chart_type=AvailableChartTypes.PIE,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.PIE,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="scheme", label="Scheme"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
 
-        fig = ChartFactory.create_figure(config, sample_data)
+        fig = FigureBuilder.create_figure(config, sample_data)
 
         assert isinstance(fig, go.Figure)
         assert fig.layout.title.text == "Distribution by Scheme"
 
+    def test_create_figure_applies_log_scale(self, sample_data: pd.DataFrame) -> None:
+        """create_figure applies log scale to axes when configured."""
+        config = Chart(
+            chart_id=uuid4(),
+            name="test-log-scale-chart",
+            title="Log Scale Chart",
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
+            x_axis=AxisConfig(field="category", label="Category"),
+            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT, log_scale=True),
+        )
+
+        fig = FigureBuilder.create_figure(config, sample_data)
+
+        assert fig.layout.yaxis.type == "log"
+
+    def test_create_figure_filters_zero_values(self, sample_data: pd.DataFrame) -> None:
+        """create_figure filters out zero values when show_zero_values is False."""
+        # Create data with zero values
+        df = pd.DataFrame(
+            {
+                "category": ["A", "B", "C"],
+                "Count": [10, 0, 5],
+            }
+        )
+
+        config = Chart(
+            chart_id=uuid4(),
+            name="test-zero-values-chart",
+            title="Zero Values Chart",
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
+            x_axis=AxisConfig(field="category", label="Category"),
+            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
+            show_zero_values=False,
+        )
+        fig = FigureBuilder.create_figure_from_aggregated(config, df)
+
+        assert "B" not in fig.data[0].x
+
     @pytest.mark.parametrize(
         "chart_type",
         [
-            AvailableChartTypes.BAR,
-            AvailableChartTypes.LINE,
-            AvailableChartTypes.PIE,
-            AvailableChartTypes.SCATTER,
-            AvailableChartTypes.BOX,
-            AvailableChartTypes.HISTOGRAM,
+            ChartType.BAR,
+            ChartType.LINE,
+            ChartType.PIE,
+            ChartType.SCATTER,
+            ChartType.BOX,
+            ChartType.HISTOGRAM,
         ],
     )
     def test_create_figure_all_chart_types_return_figures(
-        self, chart_type: AvailableChartTypes, sample_data: pd.DataFrame
+        self, chart_type: ChartType, sample_data: pd.DataFrame
     ) -> None:
         """create_figure produces valid Figure for all supported chart types."""
+        y_field = "count"
+        y_agg = AggregationType.COUNT
+
+        if chart_type == ChartType.BOX:
+            y_field = "eal_level"
+            y_agg = None
+
         config = Chart(
             chart_id=uuid4(),
             name=f"test-{chart_type.value}-chart",
             title=f"Test {chart_type.value} Chart",
             chart_type=chart_type,
-            collection_type=CollectionName.CommonCriteria,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
-            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
+            y_axis=AxisConfig(field=y_field, label="Y", aggregation=y_agg),
         )
 
-        fig = ChartFactory.create_figure(config, sample_data)
+        fig = FigureBuilder.create_figure(config, sample_data)
 
         assert isinstance(fig, go.Figure)
         assert fig.layout.title.text == f"Test {chart_type.value} Chart"
@@ -113,14 +161,14 @@ class TestChartFactoryCreateFigure:
             chart_id=uuid4(),
             name="no-legend-chart",
             title="No Legend",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
             show_legend=False,
         )
 
-        fig = ChartFactory.create_figure(config, sample_data)
+        fig = FigureBuilder.create_figure(config, sample_data)
 
         assert fig.layout.showlegend is False
 
@@ -131,12 +179,12 @@ class TestChartFactoryCreateFigure:
             chart_id=uuid4(),
             name="no-y-axis-chart",
             title="Status Distribution",
-            chart_type=AvailableChartTypes.PIE,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.PIE,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="status", label="Status"),
         )
 
-        fig = ChartFactory.create_figure(config, df)
+        fig = FigureBuilder.create_figure(config, df)
 
         assert isinstance(fig, go.Figure)
 
@@ -150,14 +198,14 @@ class TestChartFactoryEmptyAndErrorStates:
             chart_id=uuid4(),
             name="empty-data-chart",
             title="Empty",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
         empty_df = pd.DataFrame()
 
-        fig = ChartFactory.create_figure(config, empty_df)
+        fig = FigureBuilder.create_figure(config, empty_df)
 
         assert isinstance(fig, go.Figure)
         assert len(fig.layout.annotations) > 0
@@ -170,13 +218,13 @@ class TestChartFactoryEmptyAndErrorStates:
             chart_id=uuid4(),
             name="missing-field-chart",
             title="Missing Field",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="nonexistent_field", label="Missing"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
 
-        fig = ChartFactory.create_figure(config, df)
+        fig = FigureBuilder.create_figure(config, df)
 
         assert isinstance(fig, go.Figure)
         assert len(fig.layout.annotations) > 0
@@ -202,13 +250,13 @@ class TestChartFactoryAggregation:
             chart_id=uuid4(),
             name="count-chart",
             title="Count",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
 
-        fig = ChartFactory.create_figure(config, numeric_data)
+        fig = FigureBuilder.create_figure(config, numeric_data)
 
         assert isinstance(fig, go.Figure)
         # Figure should be created successfully with aggregated data
@@ -219,13 +267,13 @@ class TestChartFactoryAggregation:
             chart_id=uuid4(),
             name="sum-chart",
             title="Sum",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="value", label="Value", aggregation=AggregationType.SUM),
         )
 
-        fig = ChartFactory.create_figure(config, numeric_data)
+        fig = FigureBuilder.create_figure(config, numeric_data)
 
         assert isinstance(fig, go.Figure)
 
@@ -248,13 +296,13 @@ class TestChartFactoryAggregation:
             chart_id=uuid4(),
             name=f"agg-{aggregation.value}-chart",
             title=f"Aggregation {aggregation.value}",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field=y_field, label="Value", aggregation=aggregation),
         )
 
-        fig = ChartFactory.create_figure(config, numeric_data)
+        fig = FigureBuilder.create_figure(config, numeric_data)
 
         assert isinstance(fig, go.Figure)
 
@@ -274,12 +322,12 @@ class TestChartFactoryNaNHandling:
             chart_id=uuid4(),
             name="nan-chart",
             title="NaN Values",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="value", label="Value", aggregation=AggregationType.SUM),
         )
 
-        fig = ChartFactory.create_figure(config, df)
+        fig = FigureBuilder.create_figure(config, df)
 
         assert isinstance(fig, go.Figure)

@@ -4,13 +4,14 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from sec_certs_page.dashboard.chart.chart import AxisConfig, Chart
+from sec_certs_page.dashboard.chart.config import AxisConfig
+from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.filters.filter import FilterSpec
-from sec_certs_page.dashboard.types.chart import AvailableChartTypes
+from sec_certs_page.dashboard.types.chart import ChartType
 from sec_certs_page.dashboard.types.common import CollectionName
 from sec_certs_page.dashboard.types.filter import (
     AggregationType,
-    DashFilterComponentParams,
+    FilterComponentParams,
     FilterComponentType,
     FilterOperator,
 )
@@ -25,6 +26,7 @@ class TestAxisConfigSerialization:
             field="year_from",
             label="Year",
             aggregation=AggregationType.SUM,
+            log_scale=True,
         )
 
         result = axis.to_dict()
@@ -33,6 +35,7 @@ class TestAxisConfigSerialization:
             "field": "year_from",
             "label": "Year",
             "aggregation": AggregationType.SUM,
+            "log_scale": True,
         }
 
     def test_from_dict_with_aggregation_restores_all_fields(self) -> None:
@@ -41,6 +44,7 @@ class TestAxisConfigSerialization:
             "field": "scheme",
             "label": "Certification Scheme",
             "aggregation": AggregationType.COUNT,
+            "log_scale": True,
         }
 
         axis = AxisConfig.from_dict(data)
@@ -48,6 +52,7 @@ class TestAxisConfigSerialization:
         assert axis.field == "scheme"
         assert axis.label == "Certification Scheme"
         assert axis.aggregation == AggregationType.COUNT
+        assert axis.log_scale is True
 
     def test_from_dict_without_aggregation_sets_none(self) -> None:
         """from_dict sets aggregation to None when not provided."""
@@ -56,6 +61,7 @@ class TestAxisConfigSerialization:
         axis = AxisConfig.from_dict(data)
 
         assert axis.aggregation is None
+        assert axis.log_scale is False
 
     def test_roundtrip_preserves_all_fields(self) -> None:
         """Serialization roundtrip preserves all field values."""
@@ -63,6 +69,7 @@ class TestAxisConfigSerialization:
             field="heuristics.eal",
             label="EAL Level",
             aggregation=AggregationType.AVG,
+            log_scale=True,
         )
 
         serialized = original.to_dict()
@@ -71,6 +78,7 @@ class TestAxisConfigSerialization:
         assert restored.field == original.field
         assert restored.label == original.label
         assert restored.aggregation == original.aggregation
+        assert restored.log_scale == original.log_scale
 
     def test_from_dict_with_nested_field_path_succeeds(self) -> None:
         """from_dict handles dotted field paths for nested documents."""
@@ -90,8 +98,8 @@ class TestChartSerialization:
             chart_id=uuid4(),
             name="test-chart",
             title="Test Chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
@@ -101,9 +109,10 @@ class TestChartSerialization:
         assert result["name"] == "test-chart"
         assert result["title"] == "Test Chart"
         assert result["chart_type"] == "bar"
-        assert result["collection_type"] == "cc"
+        assert result["collection_name"] == "cc"
         assert result["x_axis"]["field"] == "category"
         assert result["y_axis"]["field"] == "count"
+        assert result["show_zero_values"] is True
 
     def test_from_dict_with_minimal_fields_succeeds(self) -> None:
         """from_dict creates Chart with only required fields."""
@@ -111,17 +120,18 @@ class TestChartSerialization:
             "chart_id": str(uuid4()),
             "name": "from-dict-chart",
             "chart_type": "line",
-            "collection_type": "fips",
+            "collection_name": "fips",
             "x_axis": {"field": "web_data.level", "label": "Security Level"},
         }
 
         chart = Chart.from_dict(data)
 
         assert chart.name == "from-dict-chart"
-        assert chart.chart_type == AvailableChartTypes.LINE
-        assert chart.collection_type == CollectionName.FIPS140
+        assert chart.chart_type == ChartType.LINE
+        assert chart.collection_name == CollectionName.FIPS140
         assert chart.x_axis.field == "web_data.level"
         assert chart.y_axis is None
+        assert chart.show_zero_values is True
 
     def test_from_dict_with_all_fields_restores_complete_chart(self) -> None:
         """from_dict correctly restores Chart with all optional fields."""
@@ -132,7 +142,7 @@ class TestChartSerialization:
             "title": "Complete Chart",
             "order": 5,
             "chart_type": "stacked_bar",
-            "collection_type": "cc",
+            "collection_name": "cc",
             "x_axis": {"field": "year_from", "label": "Year"},
             "y_axis": {"field": "count", "label": "Count", "aggregation": AggregationType.COUNT},
             "color_axis": {"field": "scheme", "label": "Scheme"},
@@ -141,6 +151,7 @@ class TestChartSerialization:
             "color_scheme": "viridis",
             "show_legend": False,
             "show_grid": False,
+            "show_zero_values": False,
             "created_at": "2024-01-15T10:30:00Z",
             "updated_at": "2024-06-20T14:45:00Z",
         }
@@ -150,12 +161,13 @@ class TestChartSerialization:
         assert chart.chart_id == UUID(chart_id)
         assert chart.title == "Complete Chart"
         assert chart.order == 5
-        assert chart.chart_type == AvailableChartTypes.STACKED_BAR
+        assert chart.chart_type == ChartType.STACKED_BAR
         assert chart.color_axis is not None
         assert chart.color_axis.field == "scheme"
         assert chart.filter_values == {"cc-category-filter": ["ICs"]}
         assert chart.show_legend is False
         assert chart.show_grid is False
+        assert chart.show_zero_values is False
         assert chart.created_at is not None
         assert chart.updated_at is not None
 
@@ -175,20 +187,20 @@ class TestChartSerialization:
             chart_id=uuid4(),
             name="test-chart",
             title="Test Chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
         )
         original.set_query_pipeline([{"$match": {"status": "active"}}])
 
         serialized = original.to_dict()
-        restored = Chart.from_dict(serialized)
+        restored = Chart.from_dict(serialized, trust_pipeline=True)
 
         assert restored.chart_id == original.chart_id
         assert restored.name == original.name
         assert restored.chart_type == original.chart_type
-        assert restored.collection_type == original.collection_type
+        assert restored.collection_name == original.collection_name
         assert restored.x_axis.field == original.x_axis.field
         assert restored.query_pipeline == original.query_pipeline
 
@@ -203,7 +215,7 @@ class TestChartFromDictEdgeCases:
             "chart_id": chart_id,
             "name": "uuid-object-chart",
             "chart_type": "bar",
-            "collection_type": "cc",
+            "collection_name": "cc",
             "x_axis": {"field": "category", "label": "Category"},
         }
 
@@ -216,15 +228,15 @@ class TestChartFromDictEdgeCases:
         data: dict[str, Any] = {
             "chart_id": str(uuid4()),
             "name": "enum-object-chart",
-            "chart_type": AvailableChartTypes.LINE,
-            "collection_type": CollectionName.FIPS140,
+            "chart_type": ChartType.LINE,
+            "collection_name": CollectionName.FIPS140,
             "x_axis": {"field": "level", "label": "Level"},
         }
 
         chart = Chart.from_dict(data)
 
-        assert chart.chart_type == AvailableChartTypes.LINE
-        assert chart.collection_type == CollectionName.FIPS140
+        assert chart.chart_type == ChartType.LINE
+        assert chart.collection_name == CollectionName.FIPS140
 
     def test_from_dict_invalid_chart_type_raises_value_error(self) -> None:
         """from_dict raises ValueError for unrecognized chart type."""
@@ -232,20 +244,20 @@ class TestChartFromDictEdgeCases:
             "chart_id": str(uuid4()),
             "name": "invalid-type-chart",
             "chart_type": "invalid_type",
-            "collection_type": "cc",
+            "collection_name": "cc",
             "x_axis": {"field": "category", "label": "Category"},
         }
 
         with pytest.raises(ValueError):
             Chart.from_dict(data)
 
-    def test_from_dict_invalid_collection_type_raises_value_error(self) -> None:
+    def test_from_dict_invalid_collection_name_raises_value_error(self) -> None:
         """from_dict raises ValueError for unrecognized collection type."""
         data: dict[str, Any] = {
             "chart_id": str(uuid4()),
             "name": "invalid-collection-chart",
             "chart_type": "bar",
-            "collection_type": "invalid_collection",
+            "collection_name": "invalid_collection",
             "x_axis": {"field": "category", "label": "Category"},
         }
 
@@ -261,8 +273,8 @@ class TestChartDatetimeSerialization:
         chart = Chart(
             chart_id=uuid4(),
             name="naive-datetime-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             created_at=datetime(2024, 6, 20, 14, 45, 0),
         )
@@ -276,8 +288,8 @@ class TestChartDatetimeSerialization:
         chart = Chart(
             chart_id=uuid4(),
             name="utc-datetime-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             created_at=datetime(2024, 6, 20, 14, 45, 0, tzinfo=timezone.utc),
         )
@@ -292,7 +304,7 @@ class TestChartDatetimeSerialization:
             "chart_id": str(uuid4()),
             "name": "z-suffix-chart",
             "chart_type": "bar",
-            "collection_type": "cc",
+            "collection_name": "cc",
             "x_axis": {"field": "category", "label": "Category"},
             "created_at": "2024-06-20T14:45:00Z",
         }
@@ -308,7 +320,7 @@ class TestChartDatetimeSerialization:
             "chart_id": str(uuid4()),
             "name": "plus-zero-chart",
             "chart_type": "bar",
-            "collection_type": "cc",
+            "collection_name": "cc",
             "x_axis": {"field": "category", "label": "Category"},
             "created_at": "2024-06-20T14:45:00+00:00",
         }
@@ -324,8 +336,8 @@ class TestChartDatetimeSerialization:
         chart = Chart(
             chart_id=uuid4(),
             name="timestamp-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
             created_at=created,
         )
@@ -344,8 +356,8 @@ class TestChartQueryPipeline:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         pipeline = [
@@ -362,8 +374,8 @@ class TestChartQueryPipeline:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         assert chart.updated_at is None
@@ -378,8 +390,8 @@ class TestChartQueryPipeline:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         pipeline = [{"$match": {}}]
@@ -401,7 +413,7 @@ class TestChartFilterManagement:
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Category",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -413,8 +425,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
 
@@ -428,8 +440,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
 
@@ -442,8 +454,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         chart.add_filter(sample_filter)
@@ -452,7 +464,7 @@ class TestChartFilterManagement:
             database_field="category",
             operator=FilterOperator.EQ,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Updated Category",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -470,8 +482,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         chart.add_filter(sample_filter)
@@ -485,8 +497,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         chart.add_filter(sample_filter)
@@ -500,8 +512,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="test-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
 
@@ -513,8 +525,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="multi-filter-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         active_filter = FilterSpec(
@@ -522,7 +534,7 @@ class TestChartFilterManagement:
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Active",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -533,7 +545,7 @@ class TestChartFilterManagement:
             database_field="scheme",
             operator=FilterOperator.EQ,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Inactive",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -553,8 +565,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="no-filters-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
 
@@ -567,8 +579,8 @@ class TestChartFilterManagement:
         chart = Chart(
             chart_id=uuid4(),
             name="all-inactive-chart",
-            chart_type=AvailableChartTypes.BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
         filter1 = FilterSpec(
@@ -576,7 +588,7 @@ class TestChartFilterManagement:
             database_field="f1",
             operator=FilterOperator.EQ,
             data_type="str",
-            component_params=DashFilterComponentParams(label="F1", component_type=FilterComponentType.DROPDOWN),
+            component_params=FilterComponentParams(label="F1", component_type=FilterComponentType.DROPDOWN),
             active=False,
         )
         filter2 = FilterSpec(
@@ -584,7 +596,7 @@ class TestChartFilterManagement:
             database_field="f2",
             operator=FilterOperator.EQ,
             data_type="str",
-            component_params=DashFilterComponentParams(label="F2", component_type=FilterComponentType.DROPDOWN),
+            component_params=FilterComponentParams(label="F2", component_type=FilterComponentType.DROPDOWN),
             active=False,
         )
         chart.add_filter(filter1)
@@ -603,8 +615,8 @@ class TestChartWithColorAxis:
         chart = Chart(
             chart_id=uuid4(),
             name="stacked-test",
-            chart_type=AvailableChartTypes.STACKED_BAR,
-            collection_type=CollectionName.CommonCriteria,
+            chart_type=ChartType.STACKED_BAR,
+            collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="year_from", label="Year"),
             y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
             color_axis=AxisConfig(field="scheme", label="Scheme"),
