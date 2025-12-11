@@ -7,7 +7,7 @@ from .chart.config import AxisConfig, ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry
-from .chart.vulnerability_charts import create_cc_vulnerability_charts, create_fips_vulnerability_charts
+from .chart.predefined_charts.vulnerability_charts import create_cc_vulnerability_charts, create_fips_vulnerability_charts
 from .dashboard import Dashboard
 from .data import DataService
 from .filters.factory import FilterFactory
