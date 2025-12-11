@@ -42,6 +42,7 @@ class FigureBuilder:
         color_field = config.color_axis.field if config.color_axis else None
 
         try:
+            df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
             # Box plots and histograms need raw data distributions, not aggregated summaries
             if config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
                 columns = [x_field]
@@ -75,7 +76,7 @@ class FigureBuilder:
             if not config.show_zero_values and actual_y_field and actual_y_field in agg_df.columns:
                 agg_df = agg_df[agg_df[actual_y_field] != 0]
 
-            fig = cls._create_chart_by_type(config, agg_df, x_field, actual_y_field, color_field)
+            fig = cls._create_chart_by_type(config, agg_df, x_field, actual_y_field, color_field, hover_data=hover_data)
             fig.update_layout(
                 showlegend=config.show_legend,
                 template="plotly_white",
@@ -127,7 +128,8 @@ class FigureBuilder:
             df = df[df[y_field] != 0]
 
         try:
-            fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field)
+            df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
+            fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field, hover_data=hover_data)
             fig.update_layout(
                 showlegend=config.show_legend,
                 template="plotly_white",
@@ -194,6 +196,7 @@ class FigureBuilder:
         x_field: str,
         y_field: str | None,
         color_field: str | None = None,
+        hover_data: list[str] | None = None,
     ) -> go.Figure:
         """Create chart based on chart type.
 
@@ -211,21 +214,29 @@ class FigureBuilder:
         if color_field and config.color_axis:
             labels[color_field] = config.color_axis.label
 
+        # Add labels for hover data
+        if hover_data:
+            for col in hover_data:
+                labels[col] = config.x_axis.label + " (Original label)"
+
+        # Common kwargs for all charts
+        kwargs = {"data_frame": df, "x": x_field, "y": y_field, "labels": labels, "hover_data": hover_data}
+
         if config.chart_type == ChartType.BAR:
-            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="group", labels=labels)
+            return px.bar(**kwargs, color=color_field, barmode="group")
         elif config.chart_type == ChartType.STACKED_BAR:
-            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="stack", labels=labels)
+            return px.bar(**kwargs, color=color_field, barmode="stack")
         elif config.chart_type == ChartType.LINE:
-            return px.line(df, x=x_field, y=y_field, color=color_field, markers=True, labels=labels)
+            return px.line(**kwargs, color=color_field, markers=True)
         elif config.chart_type == ChartType.PIE:
             # Pie charts don't support color dimension in the same way
-            return px.pie(df, names=x_field, values=y_field, labels=labels)
+            return px.pie(df, names=x_field, values=y_field, labels=labels, hover_data=hover_data)
         elif config.chart_type == ChartType.SCATTER:
-            return px.scatter(df, x=x_field, y=y_field, color=color_field, labels=labels)
+            return px.scatter(**kwargs, color=color_field)
         elif config.chart_type == ChartType.BOX:
-            return px.box(df, x=x_field, y=y_field, color=color_field, labels=labels)
+            return px.box(**kwargs, color=color_field)
         elif config.chart_type == ChartType.HISTOGRAM:
-            return px.histogram(df, x=x_field, color=color_field, labels=labels)
+            return px.histogram(**kwargs, color=color_field)
         else:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")
 
@@ -243,6 +254,31 @@ class FigureBuilder:
         # Apply log scale to Y-axis if configured
         if config.y_axis and config.y_axis.log_scale:
             fig.update_yaxes(type="log")
+
+    @staticmethod
+    def _truncate_xaxis_ticks_label(df: pd.DataFrame, x_field, max_length: int = 20) -> tuple[pd.DataFrame, list[str]]:
+        """Shorten x_field label names for display purposes.
+
+        :param max_length: Maximum length before truncation
+        :return: Shortened label with ellipsis if truncated
+        """
+        hover_data = []
+        if x_field in df.columns:
+            has_long_values = df[x_field].apply(lambda x: len(str(x)) > max_length).any()
+
+            if has_long_values:
+                full_label_col = f"full_{x_field}"
+                # Create assignment dict with actual column names (x_field value, not literal "x_field")
+                assignment = {
+                    full_label_col: df[x_field],
+                    x_field: df[x_field].apply(
+                        lambda x: str(x)[:max_length] + "..." if len(str(x)) > max_length else x
+                    ),
+                }
+                df = df.assign(**assignment)
+                hover_data.append(full_label_col)
+
+        return df, hover_data
 
     @staticmethod
     def _empty_figure(message: str = "No data", is_error: bool = False) -> go.Figure:
