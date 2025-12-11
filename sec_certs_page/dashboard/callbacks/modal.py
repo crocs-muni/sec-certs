@@ -77,6 +77,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
             show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
             show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
+            y_log_scale=Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
             color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open"),
         ),
         inputs=dict(
@@ -106,6 +107,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             show_grid=no_update,
             color_by_open=no_update,
             show_zero_values=no_update,
+            y_log_scale=no_update,
         )
 
         if triggered == open_btn_id:
@@ -125,6 +127,7 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
                 show_grid=True,
                 color_by_open=False,
                 show_zero_values=True,
+                y_log_scale=False,
             )
 
         if triggered == cancel_btn_id:
@@ -212,6 +215,7 @@ def _register_edit_handler(
             show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
             color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
             show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True),
+            y_log_scale=Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
         ),
         inputs=dict(n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")),
         state=dict(
@@ -236,6 +240,7 @@ def _register_edit_handler(
             show_grid=no_update,
             color_by_open=no_update,
             show_zero_values=no_update,
+            y_log_scale=no_update,
         )
 
         if not n_clicks_list or not any(n_clicks_list):
@@ -274,6 +279,7 @@ def _register_edit_handler(
                     show_grid=config_dict.get("show_grid", True),
                     color_by_open=color_axis is not None,
                     show_zero_values=config_dict.get("show_zero_values", True),
+                    y_log_scale=y_axis.get("log_scale", False) if y_axis else False,
                 )
 
         return no_change
@@ -870,6 +876,7 @@ def _register_chart_creation(
             y_label=State(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
             show_legend=State(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
             show_grid=State(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
+            y_log_scale=State(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
             current_filter_values=State(component_builder(ComponentID.FILTER_STORE), "data"),
             modal_filter_values=State(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "value"
@@ -894,6 +901,7 @@ def _register_chart_creation(
         y_label,
         show_legend,
         show_grid,
+        y_log_scale,
         current_filter_values,
         modal_filter_values,
         filter_specs,
@@ -942,6 +950,7 @@ def _register_chart_creation(
             y_label=y_label,
             show_legend=show_legend,
             show_grid=show_grid,
+            y_log_scale=y_log_scale,
             collection_name=collection_name,
             filter_specs=filter_specs,
             modal_filter_values=modal_filter_values,
@@ -1009,6 +1018,7 @@ def _build_chart_config(
     y_label: str | None,
     show_legend: bool | None,
     show_grid: bool | None,
+    y_log_scale: bool | None,
     collection_name: CollectionName,
     filter_specs: list[dict] | None,
     modal_filter_values: list | None,
@@ -1036,12 +1046,14 @@ def _build_chart_config(
             field=y_field,
             label=y_label or y_field,
             aggregation=AggregationType(aggregation),
+            log_scale=y_log_scale or False,
         )
     else:
         y_axis = AxisConfig(
             field="count",
             label=y_label or "Count",
             aggregation=AggregationType.COUNT,
+            log_scale=y_log_scale or False,
         )
 
     color_axis_config = AxisConfig(field=color_field, label=color_field) if color_field else None
