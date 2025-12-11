@@ -596,10 +596,18 @@ def _create_y_axis_settings(cid: ComponentIDBuilder) -> html.Div:
                 label="Label",
                 placeholder="Optional label...",
             ),
+            # Y Values options
             dbc.Checkbox(
                 id=cid(ComponentID.MODAL_SHOW_NON_ZERO),
                 label="Show only non-zero values",
                 value=False,
+                className="mb-2",
+            ),
+            dbc.Checkbox(
+                id=cid(ComponentID.MODAL_Y_LOG_SCALE),
+                label="Y-axis Logarithmic Scale",
+                value=False,
+                className="mb-2",
             ),
             # Display options
             html.Hr(className="my-3"),
@@ -613,6 +621,7 @@ def _create_y_axis_settings(cid: ComponentIDBuilder) -> html.Div:
                 id=cid(ComponentID.MODAL_SHOW_GRID),
                 label="Show Grid",
                 value=True,
+                className="mb-2",
             ),
         ],
     )

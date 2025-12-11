@@ -75,6 +75,7 @@ class ComponentID(str, Enum):
     MODAL_Y_LABEL = "modal-y-label"
     MODAL_SHOW_LEGEND = "modal-show-legend"
     MODAL_SHOW_GRID = "modal-show-grid"
+    MODAL_Y_LOG_SCALE = "modal-y-log-scale"
     COLOR_BY_COLLAPSE = "color-by-collapse"
     MODAL_FILTERS_CONTAINER = "modal-filters-container"
     MODAL_FILTERS_READY = "modal-filters-ready"
@@ -194,8 +195,6 @@ class PatternMatchingComponentID(ComponentIDBuilder):
         :type component: ComponentID | FilterID
         :param index: The index value (MATCH, ALL, ALLSMALLER, or specific value).
         :type index: Any
-        :param use_prefix: If True, prepends collection_name to the component type.
-        :type use_prefix: bool
         :param index_key: The key name for the index in the dict (default: "index").
                          Can be "field" for filters, etc.
         :type index_key: str
