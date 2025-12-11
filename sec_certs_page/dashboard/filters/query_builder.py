@@ -10,17 +10,18 @@ if TYPE_CHECKING:
     from ..chart.config import ChartConfig
 
 
-_DERIVED_FIELDS: frozenset[str] = frozenset({
-    "year_from",
-    "year_to",
-    "count",
-    "validity_days",
-    # CVE-related derived fields
-    "cve_count",
-    "direct_transitive_cve_count",
-    "indirect_transitive_cve_count",
-    "total_transitive_cve_count",
-})
+_DERIVED_FIELDS: frozenset[str] = frozenset(
+    {
+        "year_from",
+        "year_to",
+        "count",
+        "validity_days",
+        "cve_count",
+        "direct_transitive_cve_count",
+        "indirect_transitive_cve_count",
+        "total_transitive_cve_count",
+    }
+)
 
 
 def get_allowed_database_fields() -> frozenset[str]:

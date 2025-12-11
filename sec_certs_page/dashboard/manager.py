@@ -7,12 +7,7 @@ from .chart.config import AxisConfig, ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry
-from .chart.vulnerability_charts import (
-    create_cc_standard_vulnerability_charts,
-    create_cc_vulnerability_charts,
-    create_fips_standard_vulnerability_charts,
-    create_fips_vulnerability_charts,
-)
+from .chart.vulnerability_charts import create_cc_vulnerability_charts, create_fips_vulnerability_charts
 from .dashboard import Dashboard
 from .data import DataService
 from .filters.factory import FilterFactory
@@ -101,13 +96,8 @@ class DashboardManager:
             ChartFactory.create_chart(validity_duration_config),
         ]
 
-        # Add vulnerability analysis charts (custom pipeline-based)
         vulnerability_charts = create_cc_vulnerability_charts()
         charts.extend(vulnerability_charts)
-
-        # Add standard vulnerability charts (using derived fields)
-        standard_vuln_charts = create_cc_standard_vulnerability_charts()
-        charts.extend(standard_vuln_charts)
 
         for chart in charts:
             cc_chart_registry.register(chart)
@@ -115,12 +105,7 @@ class DashboardManager:
     def _register_fips_charts(self) -> None:
         fips_chart_registry = self.chart_registries[CollectionName.FIPS140]
 
-        # Add vulnerability analysis charts for FIPS (custom pipeline-based)
         vulnerability_charts = create_fips_vulnerability_charts()
-
-        # Add standard vulnerability charts (using derived fields)
-        standard_vuln_charts = create_fips_standard_vulnerability_charts()
-        vulnerability_charts.extend(standard_vuln_charts)
 
         for chart in vulnerability_charts:
             fips_chart_registry.register(chart)
