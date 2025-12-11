@@ -596,6 +596,11 @@ def _create_y_axis_settings(cid: ComponentIDBuilder) -> html.Div:
                 label="Label",
                 placeholder="Optional label...",
             ),
+            dbc.Checkbox(
+                id=cid(ComponentID.MODAL_SHOW_NON_ZERO),
+                label="Show only non-zero values",
+                value=False,
+            ),
             # Display options
             html.Hr(className="my-3"),
             dbc.Checkbox(

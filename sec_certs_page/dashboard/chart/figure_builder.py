@@ -72,6 +72,9 @@ class FigureBuilder:
                 agg_df = cls._aggregate_data(df, x_field, y_field, aggregation, color_field)
                 actual_y_field = y_field or "count"
 
+            if not config.show_zero_values and actual_y_field and actual_y_field in agg_df.columns:
+                agg_df = agg_df[agg_df[actual_y_field] != 0]
+
             fig = cls._create_chart_by_type(config, agg_df, x_field, actual_y_field, color_field)
             fig.update_layout(
                 showlegend=config.show_legend,
@@ -79,8 +82,6 @@ class FigureBuilder:
                 margin=dict(l=40, r=40, t=40, b=40),
                 height=600,
             )
-
-            # Apply logarithmic scale if configured
             cls._apply_axis_scale(fig, config)
 
             return fig
@@ -122,6 +123,9 @@ class FigureBuilder:
         if color_field and color_field not in df.columns:
             return cls._empty_figure(f"Missing color column: {color_field}", is_error=True)
 
+        if not config.show_zero_values and y_field in df.columns:
+            df = df[df[y_field] != 0]
+
         try:
             fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field)
             fig.update_layout(
@@ -130,7 +134,6 @@ class FigureBuilder:
                 margin=dict(l=40, r=40, t=40, b=40),
                 height=600,
             )
-
             # Apply logarithmic scale if configured
             cls._apply_axis_scale(fig, config)
 
