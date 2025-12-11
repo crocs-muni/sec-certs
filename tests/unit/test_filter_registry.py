@@ -79,12 +79,12 @@ class TestCCFilterRegistry:
     """Tests for CCFilterRegistry specific filters."""
 
     def test_collection_type_is_common_criteria(self) -> None:
-        """CCFilterRegistry has CommonCriteria as collection_type."""
+        """CCFilterRegistry has CommonCriteria as collection_name."""
         # Arrange & Act
-        collection_type = CCFilterRegistry.collection_type
+        collection_name = CCFilterRegistry.collection_name
 
         # Assert
-        assert collection_type == CollectionName.CommonCriteria
+        assert collection_name == CollectionName.CommonCriteria
 
     def test_has_category_filter_with_correct_field(self) -> None:
         """CCFilterRegistry includes category filter mapping to 'category' field."""
@@ -138,12 +138,12 @@ class TestFIPSFilterRegistry:
     """Tests for FIPSFilterRegistry specific filters."""
 
     def test_collection_type_is_fips140(self) -> None:
-        """FIPSFilterRegistry has FIPS140 as collection_type."""
+        """FIPSFilterRegistry has FIPS140 as collection_name."""
         # Arrange & Act
-        collection_type = FIPSFilterRegistry.collection_type
+        collection_name = FIPSFilterRegistry.collection_name
 
         # Assert
-        assert collection_type == CollectionName.FIPS140
+        assert collection_name == CollectionName.FIPS140
 
     def test_has_level_filter_with_correct_field(self) -> None:
         """FIPSFilterRegistry includes security level filter."""

@@ -7,7 +7,7 @@ from dash import dcc, html
 from sec_certs_page.dashboard.filters.factory import FilterFactory
 from sec_certs_page.dashboard.filters.filter import FilterSpec
 from sec_certs_page.dashboard.types.common import CollectionName
-from sec_certs_page.dashboard.types.filter import DashFilterComponentParams, FilterComponentType, FilterOperator
+from sec_certs_page.dashboard.types.filter import FilterComponentParams, FilterComponentType, FilterOperator
 
 
 class TestFilterFactoryCreateFilter:
@@ -25,7 +25,7 @@ class TestFilterFactoryCreateFilter:
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Category",
                 component_type=FilterComponentType.DROPDOWN,
                 placeholder="Select category...",
@@ -44,7 +44,7 @@ class TestFilterFactoryCreateFilter:
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Category",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -64,7 +64,7 @@ class TestFilterFactoryCreateFilter:
             database_field="scheme",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Scheme",
                 component_type=FilterComponentType.MULTI_DROPDOWN,
             ),
@@ -83,7 +83,7 @@ class TestFilterFactoryCreateFilter:
             database_field="not_valid_before",
             operator=FilterOperator.GTE,
             data_type="date",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Valid From",
                 component_type=FilterComponentType.DATE_RANGE,
                 min_value="2000-01-01",
@@ -102,7 +102,7 @@ class TestFilterFactoryCreateFilter:
             database_field="certification_date",
             operator=FilterOperator.EQ,
             data_type="date",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Certification Date",
                 component_type=FilterComponentType.DATE_PICKER,
             ),
@@ -119,7 +119,7 @@ class TestFilterFactoryCreateFilter:
             database_field="name",
             operator=FilterOperator.REGEX,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Certificate Name",
                 component_type=FilterComponentType.TEXT_SEARCH,
                 placeholder="Search by name...",
@@ -138,7 +138,7 @@ class TestFilterFactoryCreateFilter:
             database_field="is_active",
             operator=FilterOperator.EQ,
             data_type="bool",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Active Only",
                 component_type=FilterComponentType.CHECKBOX,
                 default_value=False,
@@ -156,7 +156,7 @@ class TestFilterFactoryCreateFilter:
             database_field="field",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Options",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -175,7 +175,7 @@ class TestFilterFactoryCreateFilter:
             database_field="category",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Category",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -183,7 +183,7 @@ class TestFilterFactoryCreateFilter:
 
         component = cc_factory.create_filter(spec, with_label=False)
 
-        expected_id = f"{cc_factory.dataset_type.value}-filter-category-filter"
+        expected_id = f"{cc_factory.collection_name.value}-filter-category-filter"
         assert component.id == expected_id
 
 
@@ -202,7 +202,7 @@ class TestFilterFactoryCreateFilterEdgeCases:
             database_field="field",
             operator=FilterOperator.EQ,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Unknown",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -224,7 +224,7 @@ class TestFilterFactoryCreateFilterEdgeCases:
             database_field="field",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Empty",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -243,7 +243,7 @@ class TestFilterFactoryCreateFilterEdgeCases:
             database_field="field",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="Mixed",
                 component_type=FilterComponentType.DROPDOWN,
             ),
@@ -265,7 +265,7 @@ class TestFilterFactoryCreateFilterEdgeCases:
             database_field="field",
             operator=FilterOperator.IN,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="With Help",
                 component_type=FilterComponentType.DROPDOWN,
                 help_text="This is helpful information",
@@ -294,7 +294,7 @@ class TestFilterFactoryCreateFilterEdgeCases:
             database_field="field",
             operator=FilterOperator.IN if component_type == FilterComponentType.DROPDOWN else FilterOperator.REGEX,
             data_type="str",
-            component_params=DashFilterComponentParams(
+            component_params=FilterComponentParams(
                 label="MyLabel",
                 component_type=component_type,
                 placeholder=None,
@@ -302,7 +302,7 @@ class TestFilterFactoryCreateFilterEdgeCases:
         )
 
         component = cc_factory.create_filter(spec, with_label=False)
-        
+
         assert component.placeholder == f"{expected_prefix} MyLabel..."
 
 

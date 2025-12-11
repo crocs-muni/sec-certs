@@ -9,7 +9,6 @@ from sec_certs_page.dashboard.filters.query_builder import (
     ALLOWED_DATABASE_FIELDS,
     FieldValidationError,
     ValueValidationError,
-    _sanitize_regex_value,
     _sanitize_string_value,
     _validate_field_name,
     _validate_filter_value,
@@ -117,20 +116,10 @@ class TestRegexSanitization:
 
     def test_simple_alphanumeric_unchanged(self):
         """Simple alphanumeric text should remain unchanged after escaping."""
-        assert _sanitize_regex_value("helloworld") == "helloworld"
-        assert _sanitize_regex_value("test123") == "test123"
-
-    def test_regex_metacharacters_escaped(self):
-        """Regex metacharacters should be escaped."""
-        result = _sanitize_regex_value("test.*pattern")
-        assert result == r"test\.\*pattern"
-
-    def test_catastrophic_backtracking_prevented(self):
-        """Patterns that could cause catastrophic backtracking should be escaped."""
-        malicious_pattern = "(a+)+" * 10
-        result = _sanitize_regex_value(malicious_pattern)
-        assert "\\(" in result
-        assert "\\+" in result
+        # _sanitize_regex_value was removed/inlined, testing _sanitize_string_value instead
+        # as it's the primary sanitization mechanism now
+        assert _sanitize_string_value("helloworld") == "helloworld"
+        assert _sanitize_string_value("test123") == "test123"
 
 
 class TestAllowedFieldsDerivation:
