@@ -7,6 +7,7 @@ from .chart.config import AxisConfig, ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.registry import ChartRegistry
+from .chart.predefined_charts.analysis_charts import create_cc_analysis_charts, create_fips_analysis_charts
 from .chart.predefined_charts.vulnerability_charts import create_cc_vulnerability_charts, create_fips_vulnerability_charts
 from .dashboard import Dashboard
 from .data import DataService
@@ -99,6 +100,9 @@ class DashboardManager:
         vulnerability_charts = create_cc_vulnerability_charts()
         charts.extend(vulnerability_charts)
 
+        analysis_charts = create_cc_analysis_charts()
+        charts.extend(analysis_charts)
+
         for chart in charts:
             cc_chart_registry.register(chart)
 
@@ -106,8 +110,10 @@ class DashboardManager:
         fips_chart_registry = self.chart_registries[CollectionName.FIPS140]
 
         vulnerability_charts = create_fips_vulnerability_charts()
+        analysis_charts = create_fips_analysis_charts()
 
-        for chart in vulnerability_charts:
+        all_charts = vulnerability_charts + analysis_charts
+        for chart in all_charts:
             fips_chart_registry.register(chart)
 
     def get_dashboard_names(
