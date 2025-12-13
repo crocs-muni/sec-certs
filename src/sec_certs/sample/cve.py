@@ -203,6 +203,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     def parse_single_configuration(
         configuration: dict[str, Any],
     ) -> tuple[list[CPEMatchCriteria], CPEMatchCriteriaConfiguration | None]:
+        if not configuration:
+            return [], None
         if CVE.configuration_is_simple(configuration):
             return CVE.get_simple_criteria_from_cpe_matches(configuration["nodes"][0]["cpeMatch"]), None
         else:
@@ -211,7 +213,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     @staticmethod
     def configuration_is_simple(configuration: dict) -> bool:
         return (
-            len(configuration["nodes"]) == 1
+            "nodes" in configuration
+            and len(configuration["nodes"]) == 1
             and "cpeMatch" in configuration["nodes"][0]
             and (configuration.get("operator", "OR") == "OR" or len(configuration["nodes"][0]["cpeMatch"]) == 1)
         )
@@ -222,7 +225,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     ) -> CPEMatchCriteriaConfiguration | None:
         """
         Retrieves complex configuration criteria from a dictionary of configuration nodes.
-        It is aasserted that the dictionary has two layers at most, that the top-level children are in AND relationship,
+        It is asserted that the dictionary has two layers at most, that the top-level children are in AND relationship,
         and that the individual elements are in OR relationship (otherwise, they would be parsed by different method.)
 
         We cannot process configuration when elements of a single component are in AND relationship.
@@ -232,7 +235,8 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         :param dict configuration_nodes: _description_
         :return CPEMatchCriteriaConfiguration | None: _description_
         """
-        assert all("cpeMatch" in x for x in configuration_nodes)  # the next layer are matches
+        if not all("cpeMatch" in x for x in configuration_nodes):  # the next layer are matches
+            raise ValueError("Cannot parse configuration with AND relationship in single component.")
         nodes = [x for x in configuration_nodes if "operator" not in x or x["operator"] == "OR"]
         if nodes:
             return CPEMatchCriteriaConfiguration(
