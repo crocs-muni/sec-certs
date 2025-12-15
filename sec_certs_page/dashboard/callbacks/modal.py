@@ -33,6 +33,7 @@ def register_modal_callbacks(
     _register_modal_filter_reset(dash_app, collection_name)
     _register_modal_mode(dash_app, collection_name)
     _register_edit_handler(dash_app, collection_name, chart_registry)
+    _register_edit_filter_loader(dash_app, collection_name, chart_registry)
     _register_modal_filter_ui(dash_app, collection_name)
     _register_modal_filter_options(dash_app, collection_name, data_service)
     _register_filter_actions(dash_app, collection_name)
@@ -283,6 +284,60 @@ def _register_edit_handler(
                 )
 
         return no_change
+
+
+def _register_edit_filter_loader(
+    dash_app: "Dash",
+    collection_name: CollectionName,
+    chart_registry: "ChartRegistry",
+) -> None:
+    """Load filter values when editing a chart."""
+    component_builder = ComponentIDBuilder(collection_name)
+    pattern_builder = PatternMatchingComponentID(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            filter_values=Output(
+                pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"),
+                "value",
+                allow_duplicate=True,
+            )
+        ),
+        inputs=dict(
+            edit_chart_id=Input(component_builder(ComponentID.EDIT_CHART_ID), "data"),
+            filters_ready=Input(component_builder(ComponentID.MODAL_FILTERS_READY), "data"),
+        ),
+        state=dict(
+            filter_specs=State(component_builder(ComponentID.FILTER_SPECS), "data"),
+            chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+        ),
+        prevent_initial_call=True,
+    )
+    def load_edit_filter_values(edit_chart_id, filters_ready, filter_specs, chart_configs):
+        """Load filter values when editing a chart after filters UI is ready."""
+        if not edit_chart_id or not filters_ready or not filter_specs:
+            return dict(filter_values=[no_update] * len(filter_specs or []))
+
+        config_dict = (chart_configs or {}).get(edit_chart_id)
+        if not config_dict:
+            chart_instance = chart_registry.get_predefined(edit_chart_id)
+            if chart_instance:
+                config_dict = chart_instance.config.to_dict()
+
+        if not config_dict:
+            return dict(filter_values=[no_update] * len(filter_specs))
+
+        stored_filter_values = config_dict.get("filter_values", {})
+
+        # Build list of values matching the order of filter_specs
+        filter_values = []
+        for spec in filter_specs:
+            filter_id = spec["id"]
+            value = stored_filter_values.get(filter_id)
+            filter_values.append(value)
+
+        logger.debug(f"Loading filter values for chart {edit_chart_id}: {filter_values}")
+        return dict(filter_values=filter_values)
 
 
 def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName) -> None:
