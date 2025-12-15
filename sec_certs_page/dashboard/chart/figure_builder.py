@@ -224,12 +224,10 @@ class FigureBuilder:
         if color_field and config.color_axis:
             labels[color_field] = config.color_axis.label
 
-        # Add labels for hover data
         if hover_data:
             for col in hover_data:
                 labels[col] = config.x_axis.label + " (Original label)"
 
-        # Common kwargs for all charts
         kwargs = {"data_frame": df, "x": x_field, "y": y_field, "labels": labels, "hover_data": hover_data}
 
         if config.chart_type == ChartType.BAR:
@@ -239,7 +237,6 @@ class FigureBuilder:
         elif config.chart_type == ChartType.LINE:
             return px.line(**kwargs, color=color_field, markers=True)
         elif config.chart_type == ChartType.PIE:
-            # Pie charts don't support color dimension in the same way
             return px.pie(df, names=x_field, values=y_field, labels=labels, hover_data=hover_data)
         elif config.chart_type == ChartType.SCATTER:
             return px.scatter(**kwargs, color=color_field)
@@ -257,11 +254,9 @@ class FigureBuilder:
         :param fig: Plotly figure to modify
         :param config: Chart configuration with axis settings
         """
-        # Apply log scale to X-axis if configured
         if config.x_axis and config.x_axis.log_scale:
             fig.update_xaxes(type="log")
 
-        # Apply log scale to Y-axis if configured
         if config.y_axis and config.y_axis.log_scale:
             fig.update_yaxes(type="log")
 
@@ -300,7 +295,6 @@ class FigureBuilder:
         """
         fig = go.Figure()
 
-        # Add error icon if this is an error message
         display_message = f"⚠️ {message}" if is_error else message
         color = "#d9534f" if is_error else "gray"
 

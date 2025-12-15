@@ -163,9 +163,9 @@ def _register_dashboard_selection(
                 empty_state_style={"display": "none"},
                 content_style={"display": "block"},
                 header_style={"display": "block"},
-                dashboard_id=None,  # Mark as new/unsaved
+                dashboard_id=None,
                 name_input=new_name,
-                chart_configs={},  # Start fresh with no charts
+                chart_configs={},
                 selector_value=None,  # Clear the dropdown
                 toast_open=False,
                 toast_children="",
@@ -377,7 +377,6 @@ def _register_save_dashboard(
         if dashboard_id:
             dashboard = dashboard_manager.get_dashboard(dashboard_id)
             if dashboard and dashboard.user_id == user_id:
-                # Update existing dashboard
                 dashboard.name = dashboard_name or "Untitled Dashboard"
                 dashboard.charts = charts
             elif dashboard and dashboard.user_id != user_id:
@@ -401,7 +400,6 @@ def _register_save_dashboard(
                     current_dashboard_id=no_update,
                 )
         else:
-            # Create new dashboard
             dashboard = Dashboard(
                 collection_name=collection_name,
                 user_id=user_id,
@@ -409,7 +407,6 @@ def _register_save_dashboard(
             )
             dashboard.charts = charts
 
-        # Save to database
         saved_id = dashboard_manager.save_dashboard(dashboard)
 
         # Refresh dashboard list

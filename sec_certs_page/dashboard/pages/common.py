@@ -34,17 +34,11 @@ def create_collection_page_layout(collection_name: CollectionName, title: str) -
     return html.Div(
         className="py-3",
         children=[
-            # State stores
             *_create_page_stores(collection_name),
-            # Toast for notifications
             _create_toast(cid),
-            # Page header
             _create_page_header(title),
-            # Unified dashboard control panel
             _create_dashboard_control_panel(collection_name),
-            # Empty state
             _create_empty_state(collection_name),
-            # Dashboard content (charts area only)
             _create_dashboard_content(collection_name),
         ],
     )
@@ -195,10 +189,8 @@ def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> html.Div:
         style={"display": "none"},
         children=[
             html.Hr(className="my-3"),
-            # Dashboard name and action buttons
             _create_dashboard_name_row(cid),
             html.Hr(className="my-3"),
-            # Chart controls
             _create_chart_controls_row(cid),
         ],
     )
@@ -460,11 +452,9 @@ def _create_modal_body(cid: ComponentIDBuilder, pattern_builder: PatternMatching
     return dbc.ModalBody(
         className="pt-4",
         children=[
-            # Chart Type Selection
             _create_chart_type_section(cid, pattern_builder),
             # Data Selection (X-axis and Y-axis)
             _create_data_selection_section(cid),
-            # Filters
             _create_filters_section(cid),
         ],
     )

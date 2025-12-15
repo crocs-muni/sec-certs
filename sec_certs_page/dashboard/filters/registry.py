@@ -102,8 +102,8 @@ class CCFilterRegistry(FilterSpecRegistry):
         ),
         filter_id(FilterID.YEAR_FILTER): FilterSpec(
             id=filter_id(FilterID.YEAR_FILTER),
-            database_field="not_valid_before",  # Source date field
-            operator=FilterOperator.YEAR_IN,  # Special operator for year extraction
+            database_field="not_valid_before",
+            operator=FilterOperator.YEAR_IN,
             data_type="int",
             component_params=FilterComponentParams(
                 component_type=FilterComponentType.MULTI_DROPDOWN,

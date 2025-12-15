@@ -298,11 +298,9 @@ class DataService:
             )
             df["not_valid_after"] = pd.to_datetime(df["not_valid_after"], errors="coerce")
 
-        # Calculate derived date fields
         if "not_valid_before" in df.columns:
             df["year_from"] = pd.DatetimeIndex(df["not_valid_before"]).year
 
-        # Calculate validity duration (certificate lifetime in days)
         if "not_valid_before" in df.columns and "not_valid_after" in df.columns:
             df["validity_days"] = (df["not_valid_after"] - df["not_valid_before"]).dt.days
 
