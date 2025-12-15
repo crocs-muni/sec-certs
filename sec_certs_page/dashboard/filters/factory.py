@@ -49,7 +49,6 @@ class FilterFactory:
         params = filter_spec.component_params
 
         if params.component_type == FilterComponentType.DROPDOWN:
-            # Build options from filter data if available
             options: list[dict[str, Any]] = []
             if filter_spec.data:
                 options = [{"label": str(v), "value": v} for v in filter_spec.data]
@@ -218,7 +217,6 @@ class FilterFactory:
             if filter_spec.database_field in ("not_valid_before", "not_valid_after"):
                 continue
 
-            # Skip if we've already added this database field
             if filter_spec.database_field in seen_fields:
                 continue
 
@@ -230,8 +228,6 @@ class FilterFactory:
                     "data_type": filter_spec.data_type,
                 }
             )
-
-        # These are computed fields available for custom charts
         fields.extend(self._build_derived_field_options())
 
         return fields
