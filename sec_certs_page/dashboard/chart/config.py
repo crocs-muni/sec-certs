@@ -29,11 +29,15 @@ class AxisConfig:
     :param aggregation: Aggregation function for Y-axis (COUNT, SUM, AVG, MIN, MAX).
                         Only applicable for Y-axis; X-axis should leave as None.
     :type aggregation: AggregationType | None
+    :param log_scale: Whether to use logarithmic scale for this axis.
+                      Useful for data with large value ranges.
+    :type log_scale: bool
     """
 
     field: str
     label: str
     aggregation: AggregationType | None = None
+    log_scale: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize axis configuration to dictionary.
@@ -45,6 +49,7 @@ class AxisConfig:
             "field": self.field,
             "label": self.label,
             "aggregation": self.aggregation,
+            "log_scale": self.log_scale,
         }
 
     @classmethod
@@ -60,6 +65,7 @@ class AxisConfig:
             field=data["field"],
             label=data["label"],
             aggregation=data.get("aggregation"),
+            log_scale=data.get("log_scale", False),
         )
 
 
@@ -96,6 +102,8 @@ class ChartConfig:
     :type show_grid: bool
     :param is_editable: Whether chart can be edited/removed by user (typically custom charts)
     :type is_editable: bool
+    :param show_zero_values: Whether to show only non-zero values in the chart
+    :type show_zero_values: bool
     :param created_at: Timestamp when chart was created (UTC)
     :type created_at: datetime | None
     :param updated_at: Timestamp of last modification (UTC)
@@ -118,6 +126,7 @@ class ChartConfig:
     show_legend: bool = True
     show_grid: bool = True
     is_editable: bool = False
+    show_zero_values: bool = True
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
@@ -219,6 +228,7 @@ class ChartConfig:
             "show_legend": self.show_legend,
             "show_grid": self.show_grid,
             "is_editable": self.is_editable,
+            "show_zero_values": self.show_zero_values,
             "created_at": format_datetime(self.created_at),
             "updated_at": format_datetime(self.updated_at),
         }
@@ -318,6 +328,7 @@ class ChartConfig:
             show_legend=data.get("show_legend", True),
             show_grid=data.get("show_grid", True),
             is_editable=data.get("is_editable", False),
+            show_zero_values=data.get("show_zero_values", True),
             created_at=created_at,
             updated_at=updated_at,
         )

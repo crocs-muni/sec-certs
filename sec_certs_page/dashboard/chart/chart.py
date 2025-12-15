@@ -6,17 +6,23 @@ from the chart configuration.
 """
 
 import logging
-from typing import Any
+from typing import Any, Callable
 
 import pandas as pd
 from dash.development.base_component import Component
 
 from ..data import DataService
 from ..filters.query_builder import build_chart_pipeline
+from ..types.chart import ChartType
 from .base import BaseChart
+from .config import ChartConfig
 from .figure_builder import FigureBuilder
 
 logger = logging.getLogger(__name__)
+
+
+# Type alias for pipeline builder functions
+PipelineBuilder = Callable[[dict[str, Any] | None], list[dict[str, Any]]]
 
 
 class ConfigurableChart(BaseChart):
@@ -44,16 +50,19 @@ class ConfigurableChart(BaseChart):
             if df.empty:
                 return self._render_container([self._render_empty_state()])
 
-            # Check if data is already aggregated by examining columns
-            # Aggregated data has flattened field names (dots replaced with underscores)
-            x_field_flat = self.config.x_axis.field.replace(".", "_")
-            is_aggregated = x_field_flat in df.columns
-
-            if is_aggregated:
-                fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
-            else:
-                # Raw data - FigureBuilder will aggregate it
+            if self.config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
                 fig = FigureBuilder.create_figure(self.config, df)
+            else:
+                # Check if data is already aggregated by examining columns
+                # Aggregated data has flattened field names (dots replaced with underscores)
+                x_field_flat = self.config.x_axis.field.replace(".", "_")
+                is_aggregated = x_field_flat in df.columns
+
+                if is_aggregated:
+                    fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
+                else:
+                    # Raw data - FigureBuilder will aggregate it
+                    fig = FigureBuilder.create_figure(self.config, df)
 
             return self._render_container(
                 [
@@ -137,3 +146,63 @@ class HistogramChartComponent(ConfigurableChart):
     @property
     def title(self) -> str:
         return self.config.title if self.config else "Histogram"
+
+
+class PipelineChart(BaseChart):
+    """Chart component that uses a custom MongoDB aggregation pipeline.
+
+    Unlike ConfigurableChart which builds pipelines from axis configuration,
+    this component uses a pre-defined pipeline builder function. This is useful
+    for complex aggregations (like vulnerability analysis) that can't be expressed
+    through the standard axis configuration.
+
+    SECURITY: Only use this for predefined charts registered at startup.
+    The pipeline builder is provided by trusted server-side code, not user input.
+    """
+
+    def __init__(self, config: ChartConfig, pipeline_builder: PipelineBuilder):
+        """Initialize pipeline chart.
+
+        :param config: Chart configuration (axes used for labels, not query building)
+        :param pipeline_builder: Function that builds the MongoDB aggregation pipeline.
+                                 Takes optional filter_values dict and returns pipeline list.
+        """
+        super().__init__(config=config)
+        self._pipeline_builder = pipeline_builder
+
+    @property
+    def title(self) -> str:
+        return self.config.title if self.config else "Pipeline Chart"
+
+    def render(
+        self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None
+    ) -> Component:
+        """Render the chart using the custom pipeline."""
+        if not data_service:
+            return self._render_container([self._render_error_state("Data service not provided")])
+
+        merged_filters = self._get_merged_filter_values(filter_values)
+
+        try:
+            pipeline = self._pipeline_builder(merged_filters)
+            df = data_service.execute_aggregation_pipeline(
+                collection_name=self.config.collection_name,
+                pipeline=pipeline,
+            )
+
+            if df.empty:
+                return self._render_container([self._render_empty_state()])
+
+            # Use aggregated figure builder since pipeline returns aggregated data
+            fig = FigureBuilder.create_figure_from_aggregated(self.config, df)
+
+            return self._render_container(
+                [
+                    self._create_config_store(),
+                    self._create_graph_component(figure=fig),
+                ]
+            )
+        except Exception as e:
+            error_message = f"[RENDER] {self.config.title} error creating chart"
+            logger.exception(error_message)
+            return self._render_container([self._render_error_state(f"Error creating chart: {str(e)}")])
