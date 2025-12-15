@@ -33,15 +33,20 @@ def register_modal_callbacks(
     _register_modal_filter_reset(dash_app, collection_name)
     _register_modal_mode(dash_app, collection_name)
     _register_edit_handler(dash_app, collection_name, chart_registry)
+    _register_edit_filter_loader(dash_app, collection_name, chart_registry)
     _register_modal_filter_ui(dash_app, collection_name)
     _register_modal_filter_options(dash_app, collection_name, data_service)
     _register_filter_actions(dash_app, collection_name)
     _register_axis_options(dash_app, collection_name)
     _register_aggregation_options(dash_app, collection_name)
     _register_y_field_state(dash_app, collection_name)
+    _register_y_axis_visibility(dash_app, collection_name)
     _register_x_label_autofill(dash_app, collection_name)
     _register_chart_type_help(dash_app, collection_name)
     _register_color_by_toggle(dash_app, collection_name)
+    _register_selection_toggle(dash_app, collection_name)
+    _register_value_text_toggle(dash_app, collection_name)
+    _register_chart_type_selection(dash_app, collection_name)
     _register_chart_creation(dash_app, collection_name)
 
 
@@ -72,6 +77,8 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             y_label=Output(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
             show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
             show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
+            show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
+            y_log_scale=Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
             color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open"),
         ),
         inputs=dict(
@@ -100,6 +107,8 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
             show_legend=no_update,
             show_grid=no_update,
             color_by_open=no_update,
+            show_zero_values=no_update,
+            y_log_scale=no_update,
         )
 
         if triggered == open_btn_id:
@@ -118,6 +127,8 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
                 show_legend=True,
                 show_grid=True,
                 color_by_open=False,
+                show_zero_values=True,
+                y_log_scale=False,
             )
 
         if triggered == cancel_btn_id:
@@ -204,6 +215,8 @@ def _register_edit_handler(
             show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value", allow_duplicate=True),
             show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
             color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
+            show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True),
+            y_log_scale=Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
         ),
         inputs=dict(n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")),
         state=dict(
@@ -227,6 +240,8 @@ def _register_edit_handler(
             show_legend=no_update,
             show_grid=no_update,
             color_by_open=no_update,
+            show_zero_values=no_update,
+            y_log_scale=no_update,
         )
 
         if not n_clicks_list or not any(n_clicks_list):
@@ -264,9 +279,65 @@ def _register_edit_handler(
                     show_legend=config_dict.get("show_legend", True),
                     show_grid=config_dict.get("show_grid", True),
                     color_by_open=color_axis is not None,
+                    show_zero_values=config_dict.get("show_zero_values", True),
+                    y_log_scale=y_axis.get("log_scale", False) if y_axis else False,
                 )
 
         return no_change
+
+
+def _register_edit_filter_loader(
+    dash_app: "Dash",
+    collection_name: CollectionName,
+    chart_registry: "ChartRegistry",
+) -> None:
+    """Load filter values when editing a chart."""
+    component_builder = ComponentIDBuilder(collection_name)
+    pattern_builder = PatternMatchingComponentID(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            filter_values=Output(
+                pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"),
+                "value",
+                allow_duplicate=True,
+            )
+        ),
+        inputs=dict(
+            edit_chart_id=Input(component_builder(ComponentID.EDIT_CHART_ID), "data"),
+            filters_ready=Input(component_builder(ComponentID.MODAL_FILTERS_READY), "data"),
+        ),
+        state=dict(
+            filter_specs=State(component_builder(ComponentID.FILTER_SPECS), "data"),
+            chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+        ),
+        prevent_initial_call=True,
+    )
+    def load_edit_filter_values(edit_chart_id, filters_ready, filter_specs, chart_configs):
+        """Load filter values when editing a chart after filters UI is ready."""
+        if not edit_chart_id or not filters_ready or not filter_specs:
+            return dict(filter_values=[no_update] * len(filter_specs or []))
+
+        config_dict = (chart_configs or {}).get(edit_chart_id)
+        if not config_dict:
+            chart_instance = chart_registry.get_predefined(edit_chart_id)
+            if chart_instance:
+                config_dict = chart_instance.config.to_dict()
+
+        if not config_dict:
+            return dict(filter_values=[no_update] * len(filter_specs))
+
+        stored_filter_values = config_dict.get("filter_values", {})
+
+        # Build list of values matching the order of filter_specs
+        filter_values = []
+        for spec in filter_specs:
+            filter_id = spec["id"]
+            value = stored_filter_values.get(filter_id)
+            filter_values.append(value)
+
+        logger.debug(f"Loading filter values for chart {edit_chart_id}: {filter_values}")
+        return dict(filter_values=filter_values)
 
 
 def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -665,13 +736,65 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
                         html.I(className="fas fa-info-circle me-2"),
                         "Stacked Bar requires a ",
                         html.Strong("Color By"),
-                        " field to stack values. Expand 'Secondary Grouping' below.",
+                        " field to stack values.",
+                    ],
+                    color="info",
+                    className="mb-0 py-2 small",
+                )
+            )
+        elif chart_type == "histogram":
+            return dict(
+                children=dbc.Alert(
+                    [
+                        html.I(className="fas fa-info-circle me-2"),
+                        "Histograms show frequency distributions. Select a ",
+                        html.Strong("numeric field"),
+                        " for the X-axis. Bins and frequencies are computed automatically.",
+                    ],
+                    color="info",
+                    className="mb-0 py-2 small",
+                )
+            )
+        elif chart_type == "box":
+            return dict(
+                children=dbc.Alert(
+                    [
+                        html.I(className="fas fa-info-circle me-2"),
+                        "Box plots show data distribution with quartiles. Select the grouping field for X-axis and a ",
+                        html.Strong("numeric field"),
+                        " for Y-axis to see its distribution across groups.",
                     ],
                     color="info",
                     className="mb-0 py-2 small",
                 )
             )
         return dict(children=None)
+
+
+def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Hide/disable Y-axis aggregation fields for histograms."""
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            aggregation_disabled=Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
+            y_field_disabled=Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
+            y_label_disabled=Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
+            aggregation_value=Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
+        ),
+        inputs=dict(chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")),
+        prevent_initial_call=True,
+    )
+    def update_y_axis_visibility(chart_type):
+        """Disable Y-axis aggregation controls for histograms since they compute frequency automatically."""
+        is_histogram = chart_type == "histogram"
+
+        return dict(
+            aggregation_disabled=is_histogram,
+            y_field_disabled=is_histogram,
+            y_label_disabled=False,  # Keep label editable for all chart types
+            aggregation_value="count" if is_histogram else no_update,  # Set to count for histograms
+        )
 
 
 def _register_color_by_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -692,6 +815,92 @@ def _register_color_by_toggle(dash_app: "Dash", collection_name: CollectionName)
             icon_class = "fas fa-chevron-down me-2" if new_state else "fas fa-chevron-right me-2"
             return dict(is_open=new_state, icon_class=icon_class)
         return dict(is_open=is_open, icon_class="fas fa-chevron-right me-2")
+
+
+def _register_selection_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Toggle the Selection (X-axis) section in the modal."""
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            is_open=Output(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open"),
+            icon_class=Output(component_builder(ComponentID.SELECTION_ICON), "className"),
+        ),
+        inputs=dict(n_clicks=Input(component_builder(ComponentID.SELECTION_TOGGLE), "n_clicks")),
+        state=dict(is_open=State(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open")),
+        prevent_initial_call=True,
+    )
+    def toggle_selection_section(n_clicks, is_open):
+        if n_clicks:
+            new_state = not is_open
+            icon_class = "fas fa-chevron-down" if new_state else "fas fa-chevron-right"
+            return dict(is_open=new_state, icon_class=icon_class)
+        return dict(is_open=is_open, icon_class="fas fa-chevron-down")
+
+
+def _register_value_text_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Toggle the Value & text (Y-axis) section in the modal."""
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output=dict(
+            is_open=Output(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open"),
+            icon_class=Output(component_builder(ComponentID.VALUE_TEXT_ICON), "className"),
+        ),
+        inputs=dict(n_clicks=Input(component_builder(ComponentID.VALUE_TEXT_TOGGLE), "n_clicks")),
+        state=dict(is_open=State(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open")),
+        prevent_initial_call=True,
+    )
+    def toggle_value_text_section(n_clicks, is_open):
+        if n_clicks:
+            new_state = not is_open
+            icon_class = "fas fa-chevron-down" if new_state else "fas fa-chevron-right"
+            return dict(is_open=new_state, icon_class=icon_class)
+        return dict(is_open=is_open, icon_class="fas fa-chevron-right")
+
+
+def _register_chart_type_selection(dash_app: "Dash", collection_name: CollectionName) -> None:
+    """Handle chart type card selection."""
+    component_builder = ComponentIDBuilder(collection_name)
+    pattern_builder = PatternMatchingComponentID(collection_name)
+
+    @dash_app.callback(
+        output=Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value", allow_duplicate=True),
+        inputs=dict(
+            n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "n_clicks"),
+        ),
+        state=dict(
+            id_list=State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
+        ),
+        prevent_initial_call=True,
+    )
+    def handle_chart_type_card_click(n_clicks_list, id_list):
+        """Update chart type dropdown when a card is clicked."""
+        if not ctx.triggered_id or not n_clicks_list:
+            return no_update
+
+        triggered_value = ctx.triggered_id.get("index")
+        return triggered_value or no_update
+
+    @dash_app.callback(
+        output=Output(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "className"),
+        inputs=dict(
+            chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
+        ),
+        state=dict(
+            id_list=State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
+        ),
+    )
+    def sync_chart_type_highlight(chart_type, id_list):
+        """Keep visual selection in sync with the current chart type value."""
+        if not id_list:
+            return no_update
+
+        base_class = "chart-type-option text-center p-3 rounded"
+        card_classes = [
+            f"{base_class} selected" if card_id.get("index") == chart_type else base_class for card_id in id_list
+        ]
+        return card_classes
 
 
 def _register_chart_creation(
@@ -722,6 +931,7 @@ def _register_chart_creation(
             y_label=State(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
             show_legend=State(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
             show_grid=State(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
+            y_log_scale=State(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
             current_filter_values=State(component_builder(ComponentID.FILTER_STORE), "data"),
             modal_filter_values=State(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "value"
@@ -730,6 +940,7 @@ def _register_chart_creation(
             edit_chart_id=State(component_builder(ComponentID.EDIT_CHART_ID), "data"),
             render_trigger=State(component_builder(ComponentID.RENDER_TRIGGER), "data"),
             chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+            show_zero_values=State(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
         ),
         prevent_initial_call=True,
     )
@@ -745,12 +956,14 @@ def _register_chart_creation(
         y_label,
         show_legend,
         show_grid,
+        y_log_scale,
         current_filter_values,
         modal_filter_values,
         filter_specs,
         edit_chart_id,
         render_trigger,
         chart_configs,
+        show_zero_values,
     ):
         logger.debug(f"[MODAL] create_or_update_chart called, n_clicks={n_clicks}")
         logger.debug(f"[MODAL] chart_configs before: {list((chart_configs or {}).keys())}")
@@ -792,10 +1005,12 @@ def _register_chart_creation(
             y_label=y_label,
             show_legend=show_legend,
             show_grid=show_grid,
+            y_log_scale=y_log_scale,
             collection_name=collection_name,
             filter_specs=filter_specs,
             modal_filter_values=modal_filter_values,
             current_filter_values=current_filter_values,
+            show_zero_values=show_zero_values,
         )
 
         # Store config in client-side store; chart will be created on-demand during rendering
@@ -829,15 +1044,20 @@ def _validate_chart_form(
         errors.append("Chart title is required.")
     if not x_field:
         errors.append("X-axis field is required.")
-    if aggregation != AggregationType.COUNT.value and not y_field:
-        errors.append("Y-axis field is required for non-COUNT aggregations.")
+
+    # Histograms don't need Y-axis field validation
+    if chart_type != "histogram":
+        if aggregation != AggregationType.COUNT.value and not y_field:
+            errors.append("Y-axis field is required for non-COUNT aggregations.")
+        if x_field and y_field and x_field == y_field:
+            errors.append(
+                "X-axis and Y-axis cannot use the same field."
+                " The X-axis groups data, while the Y-axis aggregates values."
+            )
+
     if chart_type == "stacked_bar" and not color_field:
         errors.append("Stacked Bar chart requires a 'Color By' field for stacking.")
-    if x_field and y_field and x_field == y_field:
-        errors.append(
-            "X-axis and Y-axis cannot use the same field."
-            " The X-axis groups data, while the Y-axis aggregates values."
-        )
+
     return errors
 
 
@@ -853,10 +1073,12 @@ def _build_chart_config(
     y_label: str | None,
     show_legend: bool | None,
     show_grid: bool | None,
+    y_log_scale: bool | None,
     collection_name: CollectionName,
     filter_specs: list[dict] | None,
     modal_filter_values: list | None,
     current_filter_values: dict | None,
+    show_zero_values: bool | None,
 ) -> ChartConfig:
     """
     Build Chart config from modal form values.
@@ -879,12 +1101,14 @@ def _build_chart_config(
             field=y_field,
             label=y_label or y_field,
             aggregation=AggregationType(aggregation),
+            log_scale=y_log_scale or False,
         )
     else:
         y_axis = AxisConfig(
             field="count",
             label=y_label or "Count",
             aggregation=AggregationType.COUNT,
+            log_scale=y_log_scale or False,
         )
 
     color_axis_config = AxisConfig(field=color_field, label=color_field) if color_field else None
@@ -910,6 +1134,7 @@ def _build_chart_config(
         color_axis=color_axis_config,
         show_legend=show_legend if show_legend is not None else True,
         show_grid=show_grid if show_grid is not None else True,
+        show_zero_values=show_zero_values if show_zero_values is not None else True,
         is_editable=True,  # Custom charts created by users are editable
         filter_values=chart_filter_values,
     )

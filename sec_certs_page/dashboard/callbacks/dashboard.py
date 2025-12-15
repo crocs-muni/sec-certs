@@ -119,6 +119,7 @@ def _register_dashboard_selection(
         output=dict(
             empty_state_style=Output(component_builder(ComponentID.EMPTY_STATE), "style"),
             content_style=Output(component_builder(ComponentID.DASHBOARD_CONTENT), "style"),
+            header_style=Output(component_builder(ComponentID.DASHBOARD_HEADER), "style"),
             dashboard_id=Output(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
             name_input=Output(component_builder(ComponentID.DASHBOARD_NAME_INPUT), "value"),
             chart_configs=Output(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
@@ -161,9 +162,10 @@ def _register_dashboard_selection(
             return dict(
                 empty_state_style={"display": "none"},
                 content_style={"display": "block"},
-                dashboard_id=None,  # Mark as new/unsaved
+                header_style={"display": "block"},
+                dashboard_id=None,
                 name_input=new_name,
-                chart_configs={},  # Start fresh with no charts
+                chart_configs={},
                 selector_value=None,  # Clear the dropdown
                 toast_open=False,
                 toast_children="",
@@ -175,6 +177,7 @@ def _register_dashboard_selection(
             return dict(
                 empty_state_style=no_update,
                 content_style=no_update,
+                header_style=no_update,
                 dashboard_id=no_update,
                 name_input=no_update,
                 chart_configs=no_update,
@@ -188,6 +191,7 @@ def _register_dashboard_selection(
             return dict(
                 empty_state_style={"display": "block"},
                 content_style={"display": "none"},
+                header_style={"display": "none"},
                 dashboard_id=None,
                 name_input="",
                 chart_configs={},
@@ -203,6 +207,7 @@ def _register_dashboard_selection(
             return dict(
                 empty_state_style=no_update,
                 content_style=no_update,
+                header_style=no_update,
                 dashboard_id=no_update,
                 name_input=no_update,
                 chart_configs=no_update,
@@ -219,6 +224,7 @@ def _register_dashboard_selection(
             return dict(
                 empty_state_style={"display": "block"},
                 content_style={"display": "none"},
+                header_style={"display": "none"},
                 dashboard_id=None,
                 name_input="",
                 chart_configs={},
@@ -244,6 +250,7 @@ def _register_dashboard_selection(
         return dict(
             empty_state_style={"display": "none"},
             content_style={"display": "block"},
+            header_style={"display": "block"},
             dashboard_id=str(dashboard.dashboard_id),
             name_input=dashboard.name,
             chart_configs=chart_configs,
@@ -370,7 +377,6 @@ def _register_save_dashboard(
         if dashboard_id:
             dashboard = dashboard_manager.get_dashboard(dashboard_id)
             if dashboard and dashboard.user_id == user_id:
-                # Update existing dashboard
                 dashboard.name = dashboard_name or "Untitled Dashboard"
                 dashboard.charts = charts
             elif dashboard and dashboard.user_id != user_id:
@@ -394,7 +400,6 @@ def _register_save_dashboard(
                     current_dashboard_id=no_update,
                 )
         else:
-            # Create new dashboard
             dashboard = Dashboard(
                 collection_name=collection_name,
                 user_id=user_id,
@@ -402,7 +407,6 @@ def _register_save_dashboard(
             )
             dashboard.charts = charts
 
-        # Save to database
         saved_id = dashboard_manager.save_dashboard(dashboard)
 
         # Refresh dashboard list

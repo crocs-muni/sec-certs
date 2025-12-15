@@ -1,8 +1,8 @@
-import re
 from typing import TYPE_CHECKING, Any
 
 from ..filters.filter import FilterSpec
 from ..filters.registry import FilterSpecRegistry, get_all_registries, get_filter_registry
+from ..types.chart import ChartType
 from ..types.common import CollectionName
 from ..types.filter import AggregationType, DerivedFieldDefinition, FilterOperator
 
@@ -10,7 +10,18 @@ if TYPE_CHECKING:
     from ..chart.config import ChartConfig
 
 
-_DERIVED_FIELDS: frozenset[str] = frozenset({"year_from", "year_to", "count", "validity_days"})
+_DERIVED_FIELDS: frozenset[str] = frozenset(
+    {
+        "year_from",
+        "year_to",
+        "count",
+        "validity_days",
+        "cve_count",
+        "direct_transitive_cve_count",
+        "indirect_transitive_cve_count",
+        "total_transitive_cve_count",
+    }
+)
 
 
 def get_allowed_database_fields() -> frozenset[str]:
@@ -278,6 +289,9 @@ def build_chart_pipeline(
     2. $group stage for aggregation (from chart.x_axis and chart.y_axis)
     3. $sort stage for ordering results
 
+    For BOX and HISTOGRAM charts, aggregation is skipped and raw data is returned
+    (with only filtering and projection).
+
     All field names are validated against the whitelist to prevent NoSQL injection.
 
     :param chart: Chart configuration with axis and aggregation settings
@@ -308,6 +322,30 @@ def build_chart_pipeline(
         if match_query:
             pipeline.append({"$match": match_query})
 
+    # Box plots and histograms need raw data, not aggregated summaries
+    if chart.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
+        # Add $addFields stage to compute derived fields if needed
+        add_fields_stage = _build_add_fields_stage(chart)
+        if add_fields_stage:
+            pipeline.append({"$addFields": add_fields_stage})
+
+        # Project only the fields we need for the chart
+        project_fields = {chart.x_axis.field: 1}
+        # For box plots, include y_field if it's a real field (not a placeholder like "count")
+        if chart.chart_type == ChartType.BOX and chart.y_axis and chart.y_axis.field:
+            # Only project if it's not a placeholder aggregation value
+            aggregation_placeholders = {agg.value for agg in AggregationType}
+            if chart.y_axis.field not in aggregation_placeholders:
+                project_fields[chart.y_axis.field] = 1
+        if chart.color_axis and chart.color_axis.field:
+            project_fields[chart.color_axis.field] = 1
+        pipeline.append({"$project": project_fields})
+
+        # Sort by x-axis for better visualization
+        pipeline.append({"$sort": {chart.x_axis.field: 1}})
+        return pipeline
+
+    # For other chart types, use aggregation
     group_stage = _build_group_stage(chart)
     if group_stage:
         pipeline.append({"$group": group_stage})
@@ -376,7 +414,62 @@ DERIVED_FIELD_EXPRESSIONS: dict[str, DerivedFieldDefinition] = {
             ]
         },
     ),
+    # CVE-related derived fields for vulnerability analysis
+    "cve_count": DerivedFieldDefinition(
+        source="heuristics.related_cves._value",
+        label="CVE Count",
+        data_type="int",
+        expression={"$size": {"$ifNull": ["$heuristics.related_cves._value", []]}},
+    ),
+    "direct_transitive_cve_count": DerivedFieldDefinition(
+        source="heuristics.direct_transitive_cves._value",
+        label="Direct Transitive CVE Count",
+        data_type="int",
+        expression={"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
+    ),
+    "indirect_transitive_cve_count": DerivedFieldDefinition(
+        source="heuristics.indirect_transitive_cves._value",
+        label="Indirect Transitive CVE Count",
+        data_type="int",
+        expression={"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
+    ),
+    "total_transitive_cve_count": DerivedFieldDefinition(
+        source=["heuristics.direct_transitive_cves._value", "heuristics.indirect_transitive_cves._value"],
+        label="Total Transitive CVE Count",
+        data_type="int",
+        expression={
+            "$add": [
+                {"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
+                {"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
+            ]
+        },
+    ),
 }
+
+
+def _build_add_fields_stage(chart: "ChartConfig") -> dict[str, Any] | None:
+    """Build $addFields stage for derived fields.
+
+    This is used for box plots and histograms that need raw data with
+    computed fields like year_from or validity_days.
+
+    :param chart: Chart configuration
+    :return: Dictionary for $addFields stage or None if no derived fields needed
+    """
+    fields_to_add = {}
+
+    # Check all axes for derived fields
+    all_fields = [chart.x_axis.field]
+    if chart.y_axis and chart.y_axis.field:
+        all_fields.append(chart.y_axis.field)
+    if chart.color_axis and chart.color_axis.field:
+        all_fields.append(chart.color_axis.field)
+
+    for field in all_fields:
+        if field in DERIVED_FIELD_EXPRESSIONS:
+            fields_to_add[field] = DERIVED_FIELD_EXPRESSIONS[field].expression
+
+    return fields_to_add if fields_to_add else None
 
 
 def _get_field_expression(field: str) -> str | dict[str, Any]:
@@ -398,11 +491,30 @@ def _get_field_expression(field: str) -> str | dict[str, Any]:
     return f"${field}"
 
 
+def _get_aggregation_field_expr(field: str) -> str | dict[str, Any]:
+    """Get the MongoDB expression for a field to be used in aggregation.
+
+    For derived fields (like cve_count), returns the computation expression.
+    For regular fields, returns the simple field reference.
+
+    Unlike _get_field_expression, this doesn't validate against whitelist
+    since aggregation fields might be derived fields not in the filter registry.
+
+    :param field: Field name
+    :return: MongoDB field reference or expression
+    """
+    if field in DERIVED_FIELD_EXPRESSIONS:
+        return DERIVED_FIELD_EXPRESSIONS[field].expression
+    return f"${field}"
+
+
 def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
     """Build the $group stage for aggregation.
 
     Handles both single-level grouping (just x_axis) and two-level grouping
     (x_axis + color_axis for stacked/grouped bar charts).
+
+    For derived fields like cve_count, uses their expressions for aggregation.
 
     :param chart: Chart configuration
     :return: $group stage dictionary
@@ -427,24 +539,29 @@ def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
                 "value": {"$sum": 1},
             }
         elif agg_type == AggregationType.SUM:
+            # Use derived field expression if available
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$sum": f"${y_field}"},
+                "value": {"$sum": y_expr},
             }
         elif agg_type == AggregationType.AVG:
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$avg": f"${y_field}"},
+                "value": {"$avg": y_expr},
             }
         elif agg_type == AggregationType.MIN:
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$min": f"${y_field}"},
+                "value": {"$min": y_expr},
             }
         elif agg_type == AggregationType.MAX:
+            y_expr = _get_aggregation_field_expr(y_field)
             return {
                 "_id": group_id,
-                "value": {"$max": f"${y_field}"},
+                "value": {"$max": y_expr},
             }
 
     return {

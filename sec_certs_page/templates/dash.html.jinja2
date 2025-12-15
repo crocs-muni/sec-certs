@@ -5,8 +5,6 @@
     {{ metas|safe }}
     {{ favicon|safe }}
     {{ css|safe }}
-    {# Dashboard-specific styles #}
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 {% endblock %}
 {% block content %}
     {{ app_entry|safe }}
