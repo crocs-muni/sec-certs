@@ -152,6 +152,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._extract_policy_pdf_metadata()
         self._extract_policy_pdf_keywords()
         self._extract_algorithms_from_policy_tables()
+        self._extract_br1_metadata()
 
     def _extract_policy_pdf_keywords(self) -> None:
         logger.info("Extracting keywords from policy pdfs.")
@@ -161,6 +162,22 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             certs_to_process,
             use_threading=False,
             progress_bar_desc="Extracting keywords from policy pdfs",
+        )
+        self.update_with_certs(processed_certs)
+
+    def _extract_br1_metadata(self) -> None:
+        if config.pdf_converter != "docling":
+            logger.info(
+                "Skipping BR1 metadata parsing. BR1 parsing requires the 'docling' converter to properly handle the document structure."
+            )
+            return
+        logger.info("Extracting BR1 metadata.")
+        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
+        processed_certs = cert_processing.process_parallel(
+            FIPSCertificate.extract_br1_metadata,
+            certs_to_process,
+            use_threading=False,
+            progress_bar_desc="Extracting BR1 chapters and tables from certificates",
         )
         self.update_with_certs(processed_certs)
 

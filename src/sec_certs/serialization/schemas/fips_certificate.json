@@ -106,6 +106,67 @@
           "description": "Certificates that are indirectly referenced by this certificate."
         }
       }
+    },
+    "br1_table": {
+      "type": "object",
+      "properties": {
+        "section": { "type": "integer" },
+        "subsection": { "type": "integer" },
+        "found": { "type": "boolean" },
+        "entries": { "type": "array", "items": { "type": "object" } }
+      },
+      "required": ["section", "subsection", "found", "entries"]
+    },
+    "br1_tables": {
+      "type": "object",
+      "properties": {
+        "security_levels": { "$ref": "#/definitions/br1_table" },
+        "tested_module_id_hw": { "$ref": "#/definitions/br1_table" },
+        "tested_module_id_sw_fw_hy": { "$ref": "#/definitions/br1_table" },
+        "tested_module_id_hw_hy": { "$ref": "#/definitions/br1_table" },
+        "tested_op_env_sw_fw_hy": { "$ref": "#/definitions/br1_table" },
+        "vendor_affirmed_op_env_sw_fw_hy": { "$ref": "#/definitions/br1_table" },
+        "modes_of_operation": { "$ref": "#/definitions/br1_table" },
+        "approved_algorithms": { "$ref": "#/definitions/br1_table" },
+        "vendor_affirmed_algos": { "$ref": "#/definitions/br1_table" },
+        "non_approved_allowed_algos": { "$ref": "#/definitions/br1_table" },
+        "non_approved_allowed_NSC": { "$ref": "#/definitions/br1_table" },
+        "non_approved_not_allowed": { "$ref": "#/definitions/br1_table" },
+        "ports_interfaces": { "$ref": "#/definitions/br1_table" },
+        "authentication_methods": { "$ref": "#/definitions/br1_table" },
+        "approved_services": { "$ref": "#/definitions/br1_table" },
+        "non_approved_services": { "$ref": "#/definitions/br1_table" },
+        "mechanisms_actions": { "$ref": "#/definitions/br1_table" },
+        "storage_areas": { "$ref": "#/definitions/br1_table" },
+        "ssp_io_methods": { "$ref": "#/definitions/br1_table" },
+        "ssp_zeroization_methods": { "$ref": "#/definitions/br1_table" },
+        "self_tests": { "$ref": "#/definitions/br1_table" },
+        "error_states": { "$ref": "#/definitions/br1_table" }
+      },
+      "required": [
+        "security_levels",
+        "tested_module_id_hw",
+        "tested_module_id_sw_fw_hy",
+        "tested_module_id_hw_hy",
+        "tested_op_env_sw_fw_hy",
+        "vendor_affirmed_op_env_sw_fw_hy",
+        "modes_of_operation",
+        "approved_algorithms",
+        "vendor_affirmed_algos",
+        "non_approved_allowed_algos",
+        "non_approved_allowed_NSC",
+        "non_approved_not_allowed",
+        "ports_interfaces",
+        "authentication_methods",
+        "approved_services",
+        "non_approved_services",
+        "mechanisms_actions",
+        "storage_areas",
+        "ssp_io_methods",
+        "ssp_zeroization_methods",
+        "self_tests",
+        "error_states"
+      ]
     }
   },
   "properties": {
@@ -462,6 +523,20 @@
         },
         "indirect_transitive_cves": {
           "$ref": "base.json#/definitions/indirect_transitive_cves"
+        },
+        "is_br1_format": {
+          "type": "boolean"
+        },
+        "br1_deviations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "br1_tables": {
+          "description": "Data structure holding BR1 tables.",
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/definitions/br1_tables" }
+          ]
         }
       },
       "additionalProperties": false,

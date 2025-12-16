@@ -18,6 +18,10 @@ from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
 from sec_certs.converter import PDFConverter
+from sec_certs.heuristics.br1.chapter_parsing.mapper import extract_chapters_from_text
+from sec_certs.heuristics.br1.chapter_parsing.validator import validate_chapters
+from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
+from sec_certs.heuristics.br1.table_parsing.parser import parse_tables
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -469,6 +473,9 @@ class FIPSCertificate(
         module_processed_references: References = field(default_factory=References)
         direct_transitive_cves: set[str] | None = field(default=None)
         indirect_transitive_cves: set[str] | None = field(default=None)
+        is_br1_format: bool = field(default=False)
+        br1_deviations: int = field(default=0)
+        br1_tables: BR1Tables | None = field(default=None)
 
         @property
         def algorithm_numbers(self) -> set[str]:
@@ -644,6 +651,26 @@ class FIPSCertificate(
             cert.state.policy_extract_ok = False
         else:
             cert.pdf_data.keywords = keywords
+        return cert
+
+    @staticmethod
+    def extract_br1_metadata(cert: FIPSCertificate) -> FIPSCertificate:
+        """
+        Extract br1 chapters and tables from the document
+        """
+        with Path(cert.state.policy_txt_path).open() as f:
+            file_text = f.read()
+            chapters = extract_chapters_from_text(file_text)
+
+        error, _ = validate_chapters(chapters)
+        cert.heuristics.br1_deviations = error
+
+        is_br1 = error <= config.br1_error_accept
+        cert.heuristics.is_br1_format = is_br1
+
+        if is_br1:
+            cert.heuristics.br1_tables = parse_tables(chapters)
+
         return cert
 
     @staticmethod
