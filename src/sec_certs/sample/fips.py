@@ -20,7 +20,6 @@ from sec_certs.configuration import config
 from sec_certs.converter import PDFConverter
 from sec_certs.heuristics.br1.chapter_parsing.mapper import extract_chapters_from_text
 from sec_certs.heuristics.br1.chapter_parsing.validator import validate_chapters
-from sec_certs.heuristics.br1.config.constants import ERROR_ACCEPT as BR1_MAX_ERROR
 from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
 from sec_certs.heuristics.br1.table_parsing.parser import parse_tables
 from sec_certs.sample.certificate import Certificate, References, logger
@@ -666,7 +665,7 @@ class FIPSCertificate(
         error, _ = validate_chapters(chapters)
         cert.heuristics.br1_deviations = error
 
-        is_br1 = error <= BR1_MAX_ERROR
+        is_br1 = error <= config.br1_error_accept
         cert.heuristics.is_br1_format = is_br1
 
         if is_br1:

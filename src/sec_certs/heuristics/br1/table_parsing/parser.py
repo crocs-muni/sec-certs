@@ -3,7 +3,7 @@ from dataclasses import fields
 
 from fuzzysearch import find_near_matches
 
-import sec_certs.heuristics.br1.config.constants as config
+from sec_certs.configuration import config
 from sec_certs.heuristics.br1.models.chapter import Chapter
 from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
 
@@ -18,7 +18,7 @@ def match_sections_between_headers(text: str, headers: list[str]) -> tuple[dict[
     """
     Searches for each header of `headers` in the text using fuzzy matching
     (fuzzysearch.find_near_matches), then splits the parts of the `text`
-    between the headers and returns them
+    between the headers and returns them.
     """
     found_matches = []
 
@@ -28,7 +28,7 @@ def match_sections_between_headers(text: str, headers: list[str]) -> tuple[dict[
         matches = find_near_matches(
             search_term,
             text,
-            max_l_dist=config.MAX_DEVIATION,
+            max_l_dist=config.br1_max_parsing_deviation,
         )
 
         if matches:

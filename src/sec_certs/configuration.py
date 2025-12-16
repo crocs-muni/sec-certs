@@ -163,6 +163,17 @@ class Configuration(BaseSettings):
         description="Maximum number of PDFs to process before restarting the worker pool. Helps control memory usage in converters that gradually accumulate memory during long runs.",
     )
 
+    br1_error_accept: int = Field(
+        5,
+        description="Maximum number of errors (deviations from required BR1 structure - missing main chapter and missing or empty required subchapter) that are accepted to consider the certificate BR-1 compliant.",
+    )
+
+    br1_max_parsing_deviation: int = Field(
+        1,
+        description="Maximum allowed fuzzy matching distance from the BR1 template, applies to every chapter, subchapter and table during parsing. It is on top of case-insensitivity, spaces, and other variations (hyphens, en dash, em dash...).\
+            Increasing this value will increase complexity and potential for false positives.",
+    )
+
     def _get_nondefault_keys(self) -> set[str]:
         """
         Returns keys of the config that have non-default value, i.e. were provided as kwargs, env. vars. or additionaly set.
