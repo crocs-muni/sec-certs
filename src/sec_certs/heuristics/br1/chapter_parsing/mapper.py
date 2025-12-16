@@ -3,8 +3,8 @@ from pathlib import Path
 
 import regex
 
-import sec_certs.br1.config.constants as config
-from sec_certs.br1.models.chapter import Chapter
+import sec_certs.heuristics.br1.config.constants as config
+from sec_certs.heuristics.br1.models.chapter import Chapter
 
 from .chapter_utils import chapters_from_json, traverse_chapters
 

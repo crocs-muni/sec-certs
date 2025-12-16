@@ -1,6 +1,6 @@
 import logging
 
-from sec_certs.br1.models.chapter import Chapter
+from sec_certs.heuristics.br1.models.chapter import Chapter
 
 logger = logging.getLogger(__name__)
 

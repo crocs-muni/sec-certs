@@ -15,14 +15,14 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from sec_certs import constants
-from sec_certs.br1.chapter_parsing.mapper import extract_chapters_from_text
-from sec_certs.br1.chapter_parsing.validator import validate_chapters
-from sec_certs.br1.config.constants import ERROR_ACCEPT as BR1_MAX_ERROR
-from sec_certs.br1.table_parsing.model.br1_tables import BR1TablesClass
-from sec_certs.br1.table_parsing.parser import parse_tables
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
 from sec_certs.converter import PDFConverter
+from sec_certs.heuristics.br1.chapter_parsing.mapper import extract_chapters_from_text
+from sec_certs.heuristics.br1.chapter_parsing.validator import validate_chapters
+from sec_certs.heuristics.br1.config.constants import ERROR_ACCEPT as BR1_MAX_ERROR
+from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
+from sec_certs.heuristics.br1.table_parsing.parser import parse_tables
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -476,7 +476,7 @@ class FIPSCertificate(
         indirect_transitive_cves: set[str] | None = field(default=None)
         is_br1_format: bool = field(default=False)
         br1_deviations: int = field(default=0)
-        br1_tables: BR1TablesClass | None = field(default=None)
+        br1_tables: BR1Tables | None = field(default=None)
 
         @property
         def algorithm_numbers(self) -> set[str]:

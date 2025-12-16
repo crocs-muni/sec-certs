@@ -1,10 +1,11 @@
 import re
 from dataclasses import fields
 
-import sec_certs.br1.config.constants as config
 from fuzzysearch import find_near_matches
-from sec_certs.br1.models.chapter import Chapter
-from sec_certs.br1.table_parsing.model.br1_tables import BR1TablesClass
+
+import sec_certs.heuristics.br1.config.constants as config
+from sec_certs.heuristics.br1.models.chapter import Chapter
+from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
 
 from .md_tables import filter_table_lines, parse_markdown_tables
 
@@ -65,7 +66,7 @@ def match_sections_between_headers(text: str, headers: list[str]) -> tuple[dict[
 
 
 # Section is split into parts by the separator titles
-def get_splitted_section(text: str, section: int, subsection: int, name: str, adv_prop: BR1TablesClass) -> str:
+def get_splitted_section(text: str, section: int, subsection: int, name: str, adv_prop: BR1Tables) -> str:
     """
     Extracts the content associated with header name (`name`) from a section.
     Multiple sections contain more tables that are separated by their names.
@@ -81,11 +82,11 @@ def get_splitted_section(text: str, section: int, subsection: int, name: str, ad
     return "" if name not in matched else sections[name]
 
 
-def parse_tables(chapters: list[Chapter]) -> BR1TablesClass:
+def parse_tables(chapters: list[Chapter]) -> BR1Tables:
     """
     Parse all tables defined in the AdvancedProperties model from the chapters' content.
     """
-    res = BR1TablesClass()
+    res = BR1Tables()
     table = None
     chapter = ""
 

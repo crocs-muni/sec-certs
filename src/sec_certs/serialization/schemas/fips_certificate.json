@@ -117,7 +117,7 @@
       },
       "required": ["section", "subsection", "found", "entries"]
     },
-    "br1_tables_class": {
+    "br1_tables": {
       "type": "object",
       "properties": {
         "security_levels": { "$ref": "#/definitions/br1_table" },
@@ -535,7 +535,7 @@
           "description": "Data structure holding BR1 tables.",
           "anyOf": [
             { "type": "null" },
-            { "$ref": "#/definitions/br1_tables_class" }
+            { "$ref": "#/definitions/br1_tables" }
           ]
         }
       },

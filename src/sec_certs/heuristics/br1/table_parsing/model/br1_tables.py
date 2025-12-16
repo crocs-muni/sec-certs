@@ -26,7 +26,7 @@ from .table import BR1Table
 
 
 @dataclass
-class BR1TablesClass:
+class BR1Tables:
     # Security Levels
     security_levels: BR1Table[SecurityLevel] = field(default_factory=lambda: BR1Table("", 1, 2, SecurityLevel))
 
