@@ -2,6 +2,10 @@ from dataclasses import dataclass
 
 # Tables 32 - 35
 
+"""
+Table 32: Pre-Operational Self-Tests
+"""
+
 
 @dataclass
 class SelfTest:
@@ -11,6 +15,11 @@ class SelfTest:
     type: str
     indicator: str
     details: str
+
+
+"""
+Table 33: Conditional Self-Tests
+"""
 
 
 @dataclass
@@ -26,6 +35,11 @@ class CondSelfTest:
     coverageNotes: str  # optional
 
 
+"""
+Table 34: Pre-Operational Periodic Information
+"""
+
+
 @dataclass
 class PeriodicSelfTest:
     algorithmOrTest: str
@@ -33,6 +47,11 @@ class PeriodicSelfTest:
     type: str
     period: str
     periodicMethod: str
+
+
+"""
+Table 35: Conditional Periodic Information
+"""
 
 
 @dataclass

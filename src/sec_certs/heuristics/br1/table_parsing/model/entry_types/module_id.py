@@ -1,13 +1,21 @@
 from dataclasses import dataclass
 
+"""
+Table 2: Tested Module Identification – Hardware
+"""
 
-# Tables 2,3,4,5,6
+
 @dataclass
 class TestedHw:
     modelPartNum: str
     hwVersion: str
     processors: str
-    features: str  # optional
+    features: str = ""
+
+
+"""
+Table 3: Tested Module Identification – Software/Firmware/Hybrid (Executable Code Sets)
+"""
 
 
 @dataclass
@@ -18,13 +26,23 @@ class TestedSwFwHy:
     integrityTest: str
 
 
+"""
+Table 4: Tested Module Identification – Hybrid Disjoint Hardware
+"""
+
+
 @dataclass
 class TestedHyHw:
     modelPartNum: str
     hwVersion: str
-    fwVersion: str  # optional
-    processors: str  # optional
-    features: str  # optional
+    fwVersion: str = ""
+    processors: str = ""
+    features: str = ""
+
+
+"""
+Table 5: Tested Operational Environments - Software, Firmware, Hybrid
+"""
 
 
 @dataclass
@@ -35,6 +53,11 @@ class TestedOpEnvSwFwHy:
     paa_pai: str
     hypervisorHostOs: str  # optional
     version: str
+
+
+"""
+Table 6: Vendor Affirmed Operational Environments - Software, Firmware, Hybrid
+"""
 
 
 @dataclass

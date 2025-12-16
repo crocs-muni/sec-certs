@@ -1,12 +1,20 @@
 from dataclasses import dataclass
 
+"""
+Table 27: Storage Areas
+"""
 
-# Tables 27-31
+
 @dataclass
 class StorageArea:
     name: str
     description: str
     persistance: str
+
+
+"""
+Table 28: SSP Input-Output
+"""
 
 
 @dataclass
@@ -20,6 +28,11 @@ class SspIOMethod:
     sfiAlgo: str = ""
 
 
+"""
+Table 29: SSP Zeroization Methods
+"""
+
+
 @dataclass
 class SspZeroization:
     method: str
@@ -28,7 +41,13 @@ class SspZeroization:
     operatorId: str
 
 
-# This table consists of a number of optional columns, total 14 columns
+"""
+Table 30: SSP Information First
+Table 31: SSP Information Second
+This table consists of 2 parts
+"""
+
+
 @dataclass
 class Ssp:
     name: str

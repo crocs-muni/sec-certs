@@ -1,9 +1,8 @@
 import re
 from dataclasses import fields
 
-from fuzzysearch import find_near_matches
-
 import sec_certs.br1.config.constants as config
+from fuzzysearch import find_near_matches
 from sec_certs.br1.models.chapter import Chapter
 from sec_certs.br1.table_parsing.model.br1_tables import BR1TablesClass
 

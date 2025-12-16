@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 
+"""
+Table 7: Modes List and Description
+"""
 
-# Table 7
+
 @dataclass
 class ModeOfOp:
     name: str

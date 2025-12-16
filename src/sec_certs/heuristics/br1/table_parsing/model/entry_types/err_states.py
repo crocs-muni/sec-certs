@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-# Table 36
+"""
+Table 36: Error States
+"""
 
 
 @dataclass

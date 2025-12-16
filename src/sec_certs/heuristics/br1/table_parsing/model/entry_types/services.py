@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-# Tables 22-23, nested tables, for now will be skipped
+"""
+Table 22: Approved Services
+"""
 
 
 @dataclass
@@ -13,6 +15,11 @@ class ApprovedService:
     secFunImpl: str
     roles: str
     rolesSspAccess: str = ""
+
+
+"""
+Table 23: Non-Approved Services
+"""
 
 
 class NonApprovedService:

@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 
+"""
+Table 20: Authentication Methods
+"""
 
-# Tables 20, 21
+
 @dataclass
 class AuthMethod:
     name: str
@@ -9,6 +12,11 @@ class AuthMethod:
     mechanism: str
     strength: str
     perMinute: str = ""
+
+
+"""
+Table 21: Roles
+"""
 
 
 @dataclass

@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
-# Tables 24-26
-# Table 25,26 are cross tabulations - for now will be skipped
+"""
+Table 24: Mechanisms and Actions Required
+"""
 
 
 @dataclass

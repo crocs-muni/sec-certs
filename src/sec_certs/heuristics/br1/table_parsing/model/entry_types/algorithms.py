@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
-# Tables 5,6,7,8,9
-# AlgoProp is actually a Key:Value pair, but for simplicity it is represented as a string
+"""
+Table 8: Approved Algorithms
+"""
 
 
 @dataclass
@@ -12,7 +13,13 @@ class ApprovedAlgo:
     reference: str
 
 
-# Used for tables
+"""
+Table 9: Vendor Affirmed Algorithms
+and
+Table 10: Non-Approved, Allowed Algorithms
+"""
+
+
 @dataclass
 class Algo:
     name: str
@@ -21,11 +28,21 @@ class Algo:
     reference: str
 
 
+"""
+Table 11: Non-Approved, Allowed Algorithms with No Security Claimed
+"""
+
+
 @dataclass
 class NonApprovedAllowedNSC:
     name: str
     caveat: str
     use: str
+
+
+"""
+Table 12: Non-Approved, Not Allowed Algorithms
+"""
 
 
 @dataclass
