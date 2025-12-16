@@ -166,8 +166,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.update_with_certs(processed_certs)
 
     def _extract_br1_metadata(self) -> None:
+        if config.pdf_converter != "docling":
+            logger.info(
+                "Skipping BR1 metadata parsing. BR1 parsing requires the 'docling' converter to properly handle the document structure."
+            )
+            return
         logger.info("Extracting BR1 metadata.")
-
         certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_br1_metadata,
