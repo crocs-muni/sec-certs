@@ -1,8 +1,10 @@
+from importlib import resources
 import json
 import logging
 from collections.abc import Iterator
 from dataclasses import asdict
 from pathlib import Path
+from typing import Optional
 
 from sec_certs.heuristics.br1.config.constants import INDENT
 from sec_certs.heuristics.br1.models.chapter import Chapter
@@ -45,9 +47,16 @@ def chapter_from_dict(data: dict) -> Chapter:
     )
 
 
-def chapters_from_json(file_path: Path) -> list[Chapter]:
+def chapters_from_json(file_path: Optional[Path]) -> list[Chapter]:
     """Load a list of Chapter objects from a JSON string."""
-    with file_path.open(encoding="utf-8") as f:
-        json_str = f.read()
-    data = json.loads(json_str)
+    if file_path:
+        with file_path.open(encoding="utf-8") as f:
+            json_str = f.read()
+        data = json.loads(json_str)
+    else:
+        data = json.loads(resources.files("sec_certs.heuristics.br1.config")
+        .joinpath("base_chapters.json")
+        .read_text(encoding="utf-8")
+        )
+
     return [chapter_from_dict(ch) for ch in data]

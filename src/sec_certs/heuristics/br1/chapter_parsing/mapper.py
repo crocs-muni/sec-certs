@@ -35,7 +35,7 @@ def extract_chapters_from_text(text: str) -> list[Chapter]:
     insensitive, allows a number of errors in the heading text, which can be configured via
     config.MAX_DEVIATION.
     """
-    chapters = chapters_from_json(Path(config.BASE_CHAPTERS))
+    chapters = chapters_from_json()
     curr_chapter, curr_subchapter = 0, 0
     inside_chapter = False
 
