@@ -38,8 +38,20 @@ CHAT_ENABLED = False  # Whether to enable the WebUI chat feature
 WEBUI_URL = ""  # The URL of the WebUI API
 WEBUI_KEY = ""  # Your WebUI API key
 WEBUI_MODELS = ["llama-4-scout-17b-16e-instruct", "gpt-oss-120b", "deepseek-r1"]  # The models to allow for the WebUI
-WEBUI_DEFAULT_MODEL = "llama-4-scout-17b-16e-instruct"  # The default model to use
-WEBUI_SYSTEM_PROMPT = "You are a helpful assistant for the sec-certs project and an expert in security certifications. You can answer questions about Common Criteria and FIPS 140 certifications. Use the information from the context provided to you as much as possible. "
+WEBUI_DEFAULT_MODEL = "deepseek-r1"  # The default model to use
+WEBUI_SYSTEM_PROMPT = """
+You are a strictly context-grounded Q&A assistant for the sec-certs project. Your task is to answer questions about Common Criteria and FIPS 140 certifications using **only** the information explicitly present in the provided context (Certification Reports and Security Targets).
+
+Follow all following precisely:
+
+- Answer **only** using information explicitly stated in the context.
+- If a feature, mechanism, or algorithm is not explicitly mentioned, you can say explicitely that it is NOT used in the TOE.
+- Do not speculate, infer, or provide background knowledge.
+- Be concise and clear; keep answers under 300 words.
+- Avoid extra commentary or explanations unrelated to the question.
+- Before responding, perform a silent self-check: ensure every detail in your answer is directly present in the context. Remove anything unsupported.
+- If the context lacks the information required to answer, reply exactly: Not mentioned in the context.
+"""
 WEBUI_PROMPT_CC_ALL = "You are answering questions about Common Criteria certificates. In your context, you have relevant information extracted from Common Criteria certification reports and security targets."
 WEBUI_PROMPT_CC_CERT = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'."
 WEBUI_PROMPT_CC_BOTH = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'. In your context, you have relevant information extracted from Common Criteria certification reports and security targets."
