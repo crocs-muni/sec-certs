@@ -266,3 +266,52 @@ def edit_user(username):
     # prepopulate form
     form.roles.data = user_doc.get("roles", [])
     return render_template("admin/users/edit.html.jinja2", user=user_doc, form=form)
+
+
+@admin.route("/accounting")
+@login_required
+@admin_permission.require()
+@register_breadcrumb(admin, ".accounting", "Accounting")
+def accounting():
+    page = int(request.args.get("page", 1))
+    per_page = current_app.config.get("SEARCH_ITEMS_PER_PAGE", 25)
+    username_filter = request.args.get("username")
+    endpoint_filter = request.args.get("endpoint")
+
+    # Build query based on filters
+    query = {}
+    if username_filter:
+        query["username"] = username_filter
+    if endpoint_filter:
+        query["endpoint"] = endpoint_filter
+
+    # Get accounting logs sorted by period (most recent first)
+    logs_cursor = mongo.db.accounting.find(query).sort([("period", pymongo.DESCENDING)])
+    total = mongo.db.accounting.count_documents(query)
+    logs_list = list(logs_cursor[(page - 1) * per_page : page * per_page])
+
+    # Get distinct usernames and endpoints for filter dropdowns
+    distinct_usernames = sorted(
+        [u for u in mongo.db.accounting.distinct("username") if u is not None], key=lambda x: x.lower()
+    )
+    distinct_endpoints = sorted(mongo.db.accounting.distinct("endpoint"))
+
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        search=False,
+        found=total,
+        total=total,
+        css_framework="bootstrap5",
+        alignment="center",
+    )
+
+    return render_template(
+        "admin/accounting.html.jinja2",
+        logs=logs_list,
+        pagination=pagination,
+        distinct_usernames=distinct_usernames,
+        distinct_endpoints=distinct_endpoints,
+        username_filter=username_filter,
+        endpoint_filter=endpoint_filter,
+    )
