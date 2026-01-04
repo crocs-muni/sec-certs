@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 from bs4 import BeautifulSoup
 from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -17,6 +16,9 @@ from sec_certs.serialization.json import ComplexSerializableType, only_backed, s
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):

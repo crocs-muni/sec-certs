@@ -4,7 +4,7 @@ import itertools
 import logging
 import shutil
 from pathlib import Path
-from typing import ClassVar, Final
+from typing import TYPE_CHECKING, ClassVar, Final
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,6 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CPEDatasetHandler,
@@ -28,6 +27,9 @@ from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 from sec_certs.utils.helpers import fips_dgst
 from sec_certs.utils.profiling import staged
 
