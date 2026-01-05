@@ -28,7 +28,6 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.extract import normalize_match_string
-from sec_certs.utils.pdf import convert_pdf_file
 
 
 class CCCertificate(
