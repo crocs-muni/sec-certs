@@ -24,7 +24,6 @@ from sec_certs.heuristics.common import (
     compute_transitive_vulnerabilities,
     link_to_protection_profiles,
 )
-from sec_certs.sample import CCCertificate
 from sec_certs.sample.common import (
     extract_cert_pdf_keywords,
     extract_cert_pdf_metadata,
@@ -187,7 +186,7 @@ fresh: bool = True,
             f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
         )
 
-    convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
+    convert_func = f"convert_{short_name}_pdf"
     processed_certs = cert_processing.process_parallel_with_instance(
         converter_cls,
         (),
