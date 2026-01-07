@@ -27,6 +27,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
 from sec_certs.dataset.common import (
     compute_heuristics_body,
     convert_all_pdfs_body,
+    download_all_artifacts_body,
     extract_all_frontpages,
     extract_all_keywords,
     extract_all_metadata,
@@ -36,7 +37,6 @@ from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
-from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
 
 
@@ -625,57 +625,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return certs
 
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
-        self._download_reports(fresh)
-        self._download_targets(fresh)
-        self._download_certs(fresh)
-
-    @staged(logger, "Downloading PDFs of CC certification reports.")
-    def _download_reports(self, fresh: bool = True) -> None:
-        self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_download(fresh) and x.report_link]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC certification reports for which previous download failed."
-            )
-
-        cert_processing.process_parallel(
-            CCCertificate.download_pdf_report,
-            certs_to_process,
-            progress_bar_desc="Downloading PDFs of CC certification reports",
-        )
-
-    @staged(logger, "Downloading PDFs of CC security targets.")
-    def _download_targets(self, fresh: bool = True) -> None:
-        self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_download(fresh)]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC security targets for which previous download failed."
-            )
-
-        cert_processing.process_parallel(
-            CCCertificate.download_pdf_st,
-            certs_to_process,
-            progress_bar_desc="Downloading PDFs of CC security targets",
-        )
-
-    @staged(logger, "Downloading PDFs of CC certificates.")
-    def _download_certs(self, fresh: bool = True) -> None:
-        self.certificates_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_download(fresh)]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed."
-            )
-
-        cert_processing.process_parallel(
-            CCCertificate.download_pdf_cert,
-            certs_to_process,
-            progress_bar_desc="Downloading PDFs of CC certificates",
-        )
+        download_all_artifacts_body(self, fresh)
 
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
         convert_all_pdfs_body(self, fresh)

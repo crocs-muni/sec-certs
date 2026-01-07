@@ -25,6 +25,9 @@ from sec_certs.heuristics.common import (
     link_to_protection_profiles,
 )
 from sec_certs.sample.common import (
+    download_pdf_cert,
+    download_pdf_report,
+    download_pdf_st,
     extract_cert_pdf_keywords,
     extract_cert_pdf_metadata,
     extract_report_pdf_frontpage,
@@ -215,3 +218,56 @@ def convert_all_pdfs_body(obj, converter_cls: type[PDFConverter], fresh: bool = 
     convert_reports_pdfs(converter_cls, fresh)
     convert_targets_pdfs(converter_cls, fresh)
     convert_certs_pdfs(converter_cls, fresh)
+
+@staged(logger, "Downloading PDFs of CC certification reports.")
+def download_reports(obj, fresh: bool = True) -> None:
+    obj.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if x.state.report.is_ok_to_download(fresh) and x.report_link]
+
+    if not fresh and certs_to_process:
+        logger.info(
+            f"Downloading {len(certs_to_process)} PDFs of CC certification reports for which previous download failed."
+        )
+
+    cert_processing.process_parallel(
+        download_pdf_report,
+        certs_to_process,
+        progress_bar_desc="Downloading PDFs of CC certification reports",
+    )
+
+@staged(logger, "Downloading PDFs of CC security targets.")
+def download_targets(obj, fresh: bool = True) -> None:
+    obj.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if x.state.st.is_ok_to_download(fresh)]
+
+    if not fresh and certs_to_process:
+        logger.info(
+            f"Downloading {len(certs_to_process)} PDFs of CC security targets for which previous download failed.."
+        )
+
+    cert_processing.process_parallel(
+        download_pdf_st,
+        certs_to_process,
+        progress_bar_desc="Downloading PDFs of CC security targets",
+    )
+
+@staged(logger, "Downloading PDFs of CC certificates.")
+def download_certs(obj, fresh: bool = True) -> None:
+    obj.certificates_pdf_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if x.state.cert.is_ok_to_download(fresh)]
+
+    if not fresh and certs_to_process:
+        logger.info(
+            f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed.."
+        )
+
+    cert_processing.process_parallel(
+        download_pdf_cert,
+        certs_to_process,
+        progress_bar_desc="Downloading PDFs of CC certificates",
+    )
+
+def download_all_artifacts_body(obj, fresh: bool = True) -> None:
+    download_reports(obj, fresh)
+    download_targets(obj, fresh)
+    download_certs(obj, fresh)
