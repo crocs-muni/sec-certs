@@ -169,8 +169,10 @@ def compute_heuristics_body(obj, skip_schemes: bool = False) -> None:
 def convert_report_pdf_for_mp(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
     return convert_report_pdf(cert, converter)
 
+
 def convert_st_pdf_for_mp(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
     return convert_st_pdf(cert, converter)
+
 
 def convert_cert_pdf_for_mp(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
     return convert_cert_pdf(cert, converter)
