@@ -136,36 +136,6 @@ def convert_pdf(
     return cert
 
 
-def convert_report_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
-    """
-    Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
-
-    :param CCCertificate cert: cert to convert the pdf report for
-    :return CCCertificate: the modified certificate with updated state
-    """
-    return convert_pdf(cert, "report", converter)
-
-
-def convert_st_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
-    """
-    Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
-
-    :param CCCertificate cert: cert to convert the pdf security target for
-    :return CCCertificate: the modified certificate with updated state
-    """
-    return convert_pdf(cert, "st", converter)
-
-
-def convert_cert_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
-    """
-    Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
-
-    :param CCCertificate cert: cert to convert the certificate for
-    :return CCCertificate: the modified certificate with updated state
-    """
-    return convert_pdf(cert, "cert", converter)
-
-
 def download_pdf(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]):
     link = getattr(cert, f"{doc_type}_link")
     doc_state = getattr(cert.state, doc_type)
