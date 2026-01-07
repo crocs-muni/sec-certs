@@ -24,6 +24,7 @@ from sec_certs.heuristics.common import (
     compute_transitive_vulnerabilities,
     link_to_protection_profiles,
 )
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.common import (
     convert_cert_pdf,
     convert_report_pdf,
@@ -39,7 +40,6 @@ from sec_certs.sample.common import (
     extract_st_pdf_keywords,
     extract_st_pdf_metadata,
 )
-from sec_certs.sample.cc import CCCertificate
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
 
