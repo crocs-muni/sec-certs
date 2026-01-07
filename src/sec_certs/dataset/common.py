@@ -39,6 +39,7 @@ from sec_certs.sample.common import (
     extract_st_pdf_keywords,
     extract_st_pdf_metadata,
 )
+from sec_certs.sample.cc import CCCertificate
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
 
@@ -165,19 +166,14 @@ def compute_heuristics_body(obj, skip_schemes: bool = False) -> None:
     compute_sars(obj.certs.values())
 
 
-def convert_report_pdf_for_mp(cert_converter_tuple):
-    cert, converter_cls = cert_converter_tuple
-    return convert_report_pdf(cert, converter_cls)
+def convert_report_pdf_for_mp(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
+    return convert_report_pdf(cert, converter)
 
+def convert_st_pdf_for_mp(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
+    return convert_st_pdf(cert, converter)
 
-def convert_st_pdf_for_mp(cert_converter_tuple):
-    cert, converter_cls = cert_converter_tuple
-    return convert_st_pdf(cert, converter_cls)
-
-
-def convert_cert_pdf_for_mp(cert_converter_tuple):
-    cert, converter_cls = cert_converter_tuple
-    return convert_cert_pdf(cert, converter_cls)
+def convert_cert_pdf_for_mp(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
+    return convert_cert_pdf(cert, converter)
 
 
 def convert_pdfs(
