@@ -5,7 +5,7 @@ import shutil
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Literal, cast
+from typing import ClassVar, cast
 
 import numpy as np
 import pandas as pd
@@ -26,6 +26,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
 )
 from sec_certs.dataset.common import (
     compute_heuristics_body,
+    convert_all_pdfs_body,
     extract_all_frontpages,
     extract_all_keywords,
     extract_all_metadata,
@@ -676,63 +677,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs of CC certificates",
         )
 
-    def _convert_pdfs(
-        self,
-        doc_type: Literal["report", "target", "certificate"],
-        converter_cls: type[PDFConverter],
-        fresh: bool = True,
-    ) -> None:
-        doc_type_map = {
-            "report": {"short": "report", "long": "certification report"},
-            "target": {"short": "st", "long": "security target"},
-            "certificate": {"short": "cert", "long": "certificate"},
-        }
-        short_name = doc_type_map[doc_type]["short"]
-        long_name = doc_type_map[doc_type]["long"]
-
-        txt_dir = getattr(self, f"{doc_type}s_txt_dir")
-        json_dir = getattr(self, f"{doc_type}s_json_dir")
-        txt_dir.mkdir(parents=True, exist_ok=True)
-        json_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if getattr(x.state, short_name).is_ok_to_convert(fresh)]
-
-        if not certs_to_process:
-            return
-
-        if not fresh:
-            logger.info(
-                f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
-            )
-
-        convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
-        processed_certs = cert_processing.process_parallel_with_instance(
-            converter_cls,
-            (),
-            convert_func,
-            certs_to_process,
-            config.pdf_conversion_workers,
-            config.pdf_conversion_max_chunk_size,
-            progress_bar_desc=f"Converting PDFs of {long_name}s",
-        )
-
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Converting PDFs of certification reports.")
-    def _convert_reports_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_pdfs("report", converter_cls, fresh)
-
-    @staged(logger, "Converting PDFs of security targets.")
-    def _convert_targets_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_pdfs("target", converter_cls, fresh)
-
-    @staged(logger, "Converting PDFs of certificates.")
-    def _convert_certs_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_pdfs("certificate", converter_cls, fresh)
-
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_reports_pdfs(converter_cls, fresh)
-        self._convert_targets_pdfs(converter_cls, fresh)
-        self._convert_certs_pdfs(converter_cls, fresh)
+        convert_all_pdfs_body(self, fresh)
 
     @only_backed()
     def extract_data(self) -> None:
