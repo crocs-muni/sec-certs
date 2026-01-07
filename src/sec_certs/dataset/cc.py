@@ -628,7 +628,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         download_all_artifacts_body(self, fresh)
 
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        convert_all_pdfs_body(self, fresh)
+        convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
     def extract_data(self) -> None:
