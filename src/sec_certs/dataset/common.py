@@ -221,9 +221,9 @@ def convert_pdfs(
         logger.info(f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed.")
 
     convert_pdf_funcs = {
-        "report": convert_report_pdf_for_mp,
-        "st": convert_st_pdf_for_mp,
-        "cert": convert_cert_pdf_for_mp,
+        "report": convert_report_pdf,
+        "st": convert_st_pdf,
+        "cert": convert_cert_pdf,
     }
 
     convert_func = convert_pdf_funcs[short_name]
