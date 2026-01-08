@@ -9,7 +9,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar, cast
 
 import pandas as pd
 import requests
@@ -17,8 +17,6 @@ from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
-from sec_certs.converter import PDFConverter
-from sec_certs.converter.utils import get_converter_cls
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
@@ -29,6 +27,9 @@ from sec_certs.serialization.json import (
 )
 from sec_certs.utils import helpers
 from sec_certs.utils.profiling import staged
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 logger = logging.getLogger(__name__)
 
@@ -413,7 +414,10 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             return
 
         logger.info("Converting all PDFs.")
-        converter_cls = converter_cls or get_converter_cls()
+        if converter_cls is None:
+            from sec_certs.converter.utils import get_converter_cls
+
+            converter_cls = get_converter_cls()
         self._convert_all_pdfs_body(converter_cls, fresh)
 
         self.state.pdfs_converted = True
