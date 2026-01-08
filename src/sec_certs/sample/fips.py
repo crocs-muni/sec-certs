@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
-from typing import Any, ClassVar, Final, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 
 import dateutil
 import numpy as np
@@ -17,7 +17,6 @@ from bs4 import BeautifulSoup, Tag
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -27,6 +26,9 @@ from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import extract, helpers, tables
 from sec_certs.utils.helpers import fips_dgst
 from sec_certs.utils.pdf import extract_pdf_metadata, repair_pdf
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 class FIPSHTMLParser:
