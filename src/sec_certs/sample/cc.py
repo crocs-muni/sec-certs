@@ -15,7 +15,7 @@ import requests
 from bs4 import Tag
 
 from sec_certs import constants
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
+from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, rules
 from sec_certs.configuration import config
 from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
 from sec_certs.sample.certificate import Certificate, References, logger
@@ -26,11 +26,10 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
-from sec_certs.utils.extract import extract_keywords, normalize_match_string, scheme_frontpage_functions
+from sec_certs.utils.extract import normalize_match_string
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
-from sec_certs.utils.pdf import extract_pdf_metadata
 
 
 class CCCertificate(
@@ -786,111 +785,6 @@ class CCCertificate(
         :return CCCertificate: the modified certificate with updated state
         """
         return CCCertificate._convert_pdf(cert, "cert", converter)
-
-    @staticmethod
-    def _extract_pdf_metadata(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
-        doc_state = getattr(cert.state, doc_type)
-        try:
-            metadata = extract_pdf_metadata(doc_state.pdf_path)
-            setattr(cert.pdf_data, f"{doc_type}_metadata", metadata)
-            doc_state.extract_ok = True
-        except ValueError:
-            doc_state.extract_ok = False
-        return cert
-
-    @staticmethod
-    def extract_report_pdf_metadata(cert: CCCertificate) -> CCCertificate:
-        """
-        Extracts metadata from certification report pdf given the certificate. Staticmethod to allow for parallelization.
-
-        :param CCCertificate cert: cert to extract the metadata for.
-        :return CCCertificate: the modified certificate with updated state
-        """
-        return CCCertificate._extract_pdf_metadata(cert, "report")
-
-    @staticmethod
-    def extract_st_pdf_metadata(cert: CCCertificate) -> CCCertificate:
-        """
-        Extracts metadata from security target pdf given the certificate. Staticmethod to allow for parallelization.
-
-        :param CCCertificate cert: cert to extract the metadata for.
-        :return CCCertificate: the modified certificate with updated state
-        """
-        return CCCertificate._extract_pdf_metadata(cert, "st")
-
-    @staticmethod
-    def extract_cert_pdf_metadata(cert: CCCertificate) -> CCCertificate:
-        """
-        Extracts metadata from certificate pdf given the certificate. Staticmethod to allow for parallelization.
-
-        :param CCCertificate cert: cert to extract the metadata for.
-        :return CCCertificate: the modified certificate with updated state
-        """
-        return CCCertificate._extract_pdf_metadata(cert, "cert")
-
-    @staticmethod
-    def extract_report_pdf_frontpage(cert: CCCertificate) -> CCCertificate:
-        """
-        Extracts data from certification report pdf frontpage given the certificate. Staticmethod to allow for parallelization.
-
-        :param CCCertificate cert: cert to extract the frontpage data for.
-        :return CCCertificate: the modified certificate with updated state
-        """
-        cert.pdf_data.report_frontpage = {}
-
-        if cert.scheme in scheme_frontpage_functions:
-            header_func = scheme_frontpage_functions[cert.scheme]
-            try:
-                cert.pdf_data.report_frontpage[cert.scheme] = header_func(cert.state.report.txt_path)
-            except ValueError:
-                cert.state.report.extract_ok = False
-        return cert
-
-    @staticmethod
-    def _extract_pdf_keywords(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
-        doc_state = getattr(cert.state, doc_type)
-        try:
-            keywords = extract_keywords(doc_state.txt_path, cc_rules)
-            if keywords is None:
-                doc_state.extract_ok = False
-            else:
-                setattr(cert.pdf_data, f"{doc_type}_keywords", keywords)
-        except ValueError:
-            doc_state.extract_ok = False
-        return cert
-
-    @staticmethod
-    def extract_report_pdf_keywords(cert: CCCertificate) -> CCCertificate:
-        """
-        Matches regular expressions in txt obtained from certification report and extracts the matches into attribute.
-        Static method to allow for parallelization
-
-        :param CCCertificate cert: certificate to extract the keywords for.
-        :return CCCertificate: the modified certificate with extracted keywords.
-        """
-        return CCCertificate._extract_pdf_keywords(cert, "report")
-
-    @staticmethod
-    def extract_st_pdf_keywords(cert: CCCertificate) -> CCCertificate:
-        """
-        Matches regular expressions in txt obtained from security target and extracts the matches into attribute.
-        Static method to allow for parallelization
-
-        :param CCCertificate cert: certificate to extract the keywords for.
-        :return CCCertificate: the modified certificate with extracted keywords.
-        """
-        return CCCertificate._extract_pdf_keywords(cert, "st")
-
-    @staticmethod
-    def extract_cert_pdf_keywords(cert: CCCertificate) -> CCCertificate:
-        """
-        Matches regular expressions in txt obtained from the certificate and extracts the matches into attribute.
-        Static method to allow for parallelization
-
-        :param CCCertificate cert: certificate to extract the keywords for.
-        :return CCCertificate: the modified certificate with extracted keywords.
-        """
-        return CCCertificate._extract_pdf_keywords(cert, "cert")
 
     def compute_heuristics_cert_versions(self, cert_ids: dict[str, CertificateId | None]) -> None:  # noqa: C901
         """
