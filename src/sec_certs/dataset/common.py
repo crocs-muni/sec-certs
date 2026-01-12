@@ -24,9 +24,10 @@ from sec_certs.heuristics.common import (
     compute_transitive_vulnerabilities,
     link_to_protection_profiles,
 )
-from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.common import (
-    convert_pdf,
+    convert_cert_pdf,
+    convert_report_pdf,
+    convert_st_pdf,
     download_pdf_cert,
     download_pdf_report,
     download_pdf_st,
@@ -162,36 +163,6 @@ def compute_heuristics_body(obj, skip_schemes: bool = False) -> None:
     compute_cert_labs(obj.certs.values())
     compute_eals(obj.certs.values(), obj.aux_handlers[ProtectionProfileDatasetHandler].dset)
     compute_sars(obj.certs.values())
-
-
-def convert_report_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
-    """
-    Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
-
-    :param CCCertificate cert: cert to convert the pdf report for
-    :return CCCertificate: the modified certificate with updated state
-    """
-    return convert_pdf(cert, "report", converter)
-
-
-def convert_st_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
-    """
-    Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
-
-    :param CCCertificate cert: cert to convert the pdf security target for
-    :return CCCertificate: the modified certificate with updated state
-    """
-    return convert_pdf(cert, "st", converter)
-
-
-def convert_cert_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
-    """
-    Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
-
-    :param CCCertificate cert: cert to convert the certificate for
-    :return CCCertificate: the modified certificate with updated state
-    """
-    return convert_pdf(cert, "cert", converter)
 
 
 def convert_pdfs(

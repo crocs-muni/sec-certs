@@ -6,8 +6,8 @@ import requests
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
 from sec_certs.converter import PDFConverter
-from sec_certs.dataset.dataset import logger
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.certificate import logger
 from sec_certs.utils import helpers
 from sec_certs.utils.extract import extract_keywords, scheme_frontpage_functions
 from sec_certs.utils.pdf import extract_pdf_metadata
@@ -180,3 +180,33 @@ def download_pdf_cert(cert: CCCertificate) -> CCCertificate:
     :return CCCertificate: returns the modified certificate with updated state
     """
     return download_pdf(cert, "cert")
+
+
+def convert_report_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
+    """
+    Converts the pdf certification report to txt, given the certificate. Staticmethod to allow for parallelization.
+
+    :param CCCertificate cert: cert to convert the pdf report for
+    :return CCCertificate: the modified certificate with updated state
+    """
+    return convert_pdf(cert, "report", converter)
+
+
+def convert_st_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
+    """
+    Converts the pdf security target to txt, given the certificate. Staticmethod to allow for parallelization.
+
+    :param CCCertificate cert: cert to convert the pdf security target for
+    :return CCCertificate: the modified certificate with updated state
+    """
+    return convert_pdf(cert, "st", converter)
+
+
+def convert_cert_pdf(cert: CCCertificate, converter: PDFConverter) -> CCCertificate:
+    """
+    Converts the pdf certificate to txt, given the certificate. Staticmethod to allow for parallelization.
+
+    :param CCCertificate cert: cert to convert the certificate for
+    :return CCCertificate: the modified certificate with updated state
+    """
+    return convert_pdf(cert, "cert", converter)
