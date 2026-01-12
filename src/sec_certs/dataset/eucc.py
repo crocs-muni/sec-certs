@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from src.sec_certs import constants
 
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CCSchemeDatasetHandler,
@@ -174,6 +175,13 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         """
         time.sleep(random.uniform(*FETCH_DELAY_RANGE))
 
+    def  _get_soup(self, url: str) -> BeautifulSoup:
+        """
+        Fetch a URL and return a BeautifulSoup object
+        """
+        resp = SESSION.get(url)
+        resp.raise_for_status()
+        return BeautifulSoup(resp.content, "html.parser")
 
     def _get_certificates_links(self) -> list[str]:
         """
@@ -247,3 +255,15 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         links = self._get_certificates_links()
         self.certs = self._get_page_metadata(links)
         logger.info(f"The resulting dataset has {len(self)} certificates.")
+
+    def _compute_heuristics_body(self) -> None:
+        ...
+
+    def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
+        ...
+
+    def _download_all_artifacts_body(self, fresh: bool = True) -> None:
+        ...
+
+    def extract_data(self) -> None:
+        ...
