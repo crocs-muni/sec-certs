@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import copy
 from bisect import insort
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Literal
+from urllib.parse import unquote_plus, urlparse
 
 import numpy as np
 from bs4 import Tag
@@ -13,9 +13,9 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.sample.cc_certificate_id import CertificateId
-from sec_certs.sample.certificate import Certificate, References, logger
-from sec_certs.sample.certificate import Heuristics as BaseHeuristics
-from sec_certs.sample.document_state import DocumentState
+from sec_certs.sample.certificate import Certificate, logger
+from sec_certs.sample.heuristics import Heuristics
+from sec_certs.sample.internal_state import InternalState
 from sec_certs.sample.pdfdata import PdfData
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
@@ -65,48 +65,6 @@ class CCCertificate(
         def __lt__(self, other):
             return self.maintenance_date < other.maintenance_date
 
-    @dataclass
-    class InternalState(ComplexSerializableType):
-        """
-        Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
-        holds information about errors and paths to the files.
-        """
-
-        report: DocumentState = field(default_factory=DocumentState)
-        st: DocumentState = field(default_factory=DocumentState)
-        cert: DocumentState = field(default_factory=DocumentState)
-
-
-
-    @dataclass
-    class Heuristics(BaseHeuristics, ComplexSerializableType):
-        """
-        Class for various heuristics related to CCCertificate
-        """
-
-        extracted_versions: set[str] | None = field(default=None)
-        cpe_matches: set[str] | None = field(default=None)
-        verified_cpe_matches: set[str] | None = field(default=None)
-        related_cves: set[str] | None = field(default=None)
-        cert_lab: list[str] | None = field(default=None)
-        cert_id: str | None = field(default=None)
-        prev_certificates: list[str] | None = field(default=None)
-        next_certificates: list[str] | None = field(default=None)
-        st_references: References = field(default_factory=References)
-        report_references: References = field(default_factory=References)
-        # Contains direct outward references merged from both st, and report sources, annotated with ReferenceAnnotator
-        # TODO: Reference meanings as Enum if we work with it further.
-        annotated_references: dict[str, str] | None = field(default=None)
-        extracted_sars: set[SAR] | None = field(default=None)
-        direct_transitive_cves: set[str] | None = field(default=None)
-        indirect_transitive_cves: set[str] | None = field(default=None)
-        scheme_data: dict[str, Any] | None = field(default=None)
-        protection_profiles: set[str] | None = field(default=None)
-        eal: str | None = field(default=None)
-
-        @property
-        def serialized_attributes(self) -> list[str]:
-            return copy.deepcopy(super().serialized_attributes)
 
     pandas_columns: ClassVar[list[str]] = [
         "dgst",
@@ -178,9 +136,9 @@ class CCCertificate(
         self.manufacturer_web = sanitization.sanitize_link(manufacturer_web)
         self.protection_profile_links = protection_profile_links
         self.maintenance_updates = maintenance_updates
-        self.state = state if state else self.InternalState()
+        self.state = state if state else InternalState()
         self.pdf_data = pdf_data if pdf_data else PdfData()
-        self.heuristics: CCCertificate.Heuristics = heuristics if heuristics else self.Heuristics()
+        self.heuristics: Heuristics = heuristics if heuristics else Heuristics()
 
     @property
     def dgst(self) -> str:
