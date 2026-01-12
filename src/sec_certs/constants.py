@@ -195,3 +195,5 @@ CC_USA_API_PRODUCTS_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products_a
 CC_USA_API_PRODUCT_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products/{}/"
 CC_USA_API_FILES_URL = CC_USA_BASE_URL + "/api/file/get_pcl_files/"
 CC_USA_API_GETFILE_URL = CC_USA_BASE_URL + "/api/file/get_public_file/"
+
+EUCC_BASE_URL = "https://certification.enisa.europa.eu/certificates_en"
