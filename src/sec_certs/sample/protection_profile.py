@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import unquote_plus, urlparse
 
 import requests
@@ -12,7 +12,6 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -21,6 +20,9 @@ from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
 from sec_certs.utils.pdf import extract_pdf_metadata
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 class ProtectionProfile(

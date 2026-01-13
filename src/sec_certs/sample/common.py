@@ -1,16 +1,20 @@
-from typing import Literal
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Literal
 from urllib.parse import unquote_plus, urlparse
 
 import requests
 
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.certificate import logger
 from sec_certs.utils import helpers
 from sec_certs.utils.extract import extract_keywords, scheme_frontpage_functions
 from sec_certs.utils.pdf import extract_pdf_metadata
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 def extract_pdf_metadata_(cert: CCCertificate, doc_type: Literal["report", "st", "cert"]) -> CCCertificate:
