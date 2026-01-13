@@ -11,7 +11,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.dataset import logger
+from sec_certs.dataset.dataset import DatasetSubType, logger
 from sec_certs.heuristics.common import (
     compute_cert_labs,
     compute_cpe_heuristics,
@@ -166,7 +166,7 @@ def compute_heuristics_body(obj, skip_schemes: bool = False) -> None:
 
 
 def convert_pdfs(
-    obj,
+    obj: DatasetSubType,
     doc_type: Literal["report", "target", "certificate"],
     converter_cls: type[PDFConverter],
     fresh: bool = True,
@@ -212,24 +212,18 @@ def convert_pdfs(
 
 
 @staged(logger, "Converting PDFs of certification reports.")
-def convert_reports_pdfs(obj, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+def convert_reports_pdfs(obj: DatasetSubType, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
     convert_pdfs(obj, "report", converter_cls, fresh)
 
 
 @staged(logger, "Converting PDFs of security targets.")
-def convert_targets_pdfs(obj, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+def convert_targets_pdfs(obj: DatasetSubType, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
     convert_pdfs(obj, "target", converter_cls, fresh)
 
 
 @staged(logger, "Converting PDFs of certificates.")
-def convert_certs_pdfs(obj, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+def convert_certs_pdfs(obj: DatasetSubType, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
     convert_pdfs(obj, "certificate", converter_cls, fresh)
-
-
-def convert_all_pdfs_body(obj, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-    convert_reports_pdfs(obj, converter_cls, fresh)
-    convert_targets_pdfs(obj, converter_cls, fresh)
-    convert_certs_pdfs(obj, converter_cls, fresh)
 
 
 @staged(logger, "Downloading PDFs of CC certification reports.")

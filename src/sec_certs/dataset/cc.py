@@ -25,7 +25,9 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
 )
 from sec_certs.dataset.common import (
     compute_heuristics_body,
-    convert_all_pdfs_body,
+    convert_certs_pdfs,
+    convert_reports_pdfs,
+    convert_targets_pdfs,
     download_all_artifacts_body,
     extract_all_frontpages,
     extract_all_keywords,
@@ -630,7 +632,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         download_all_artifacts_body(self, fresh)
 
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        convert_all_pdfs_body(self, converter_cls, fresh)
+        convert_reports_pdfs(self, converter_cls, fresh)
+        convert_targets_pdfs(self, converter_cls, fresh)
+        convert_certs_pdfs(self, converter_cls, fresh)
 
     @only_backed()
     def extract_data(self) -> None:
