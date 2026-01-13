@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from typing import Literal
+
+from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     CCSchemeDatasetHandler,
     CPEDatasetHandler,
@@ -7,7 +11,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.dataset import logger
+from sec_certs.dataset.dataset import DatasetSubType, logger
 from sec_certs.heuristics.common import (
     compute_cert_labs,
     compute_cpe_heuristics,
@@ -21,6 +25,12 @@ from sec_certs.heuristics.common import (
     link_to_protection_profiles,
 )
 from sec_certs.sample.common import (
+    convert_cert_pdf,
+    convert_report_pdf,
+    convert_st_pdf,
+    download_pdf_cert,
+    download_pdf_report,
+    download_pdf_st,
     extract_cert_pdf_keywords,
     extract_cert_pdf_metadata,
     extract_report_pdf_frontpage,
@@ -153,3 +163,119 @@ def compute_heuristics_body(obj, skip_schemes: bool = False) -> None:
     compute_cert_labs(obj.certs.values())
     compute_eals(obj.certs.values(), obj.aux_handlers[ProtectionProfileDatasetHandler].dset)
     compute_sars(obj.certs.values())
+
+
+def convert_pdfs(
+    obj: DatasetSubType,
+    doc_type: Literal["report", "target", "certificate"],
+    converter_cls: type[PDFConverter],
+    fresh: bool = True,
+) -> None:
+    doc_type_map = {
+        "report": {"short": "report", "long": "certification report"},
+        "target": {"short": "st", "long": "security target"},
+        "certificate": {"short": "cert", "long": "certificate"},
+    }
+    short_name = doc_type_map[doc_type]["short"]
+    long_name = doc_type_map[doc_type]["long"]
+
+    txt_dir = getattr(obj, f"{doc_type}s_txt_dir")
+    json_dir = getattr(obj, f"{doc_type}s_json_dir")
+    txt_dir.mkdir(parents=True, exist_ok=True)
+    json_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if getattr(x.state, short_name).is_ok_to_convert(fresh)]
+
+    if not certs_to_process:
+        return
+
+    if not fresh:
+        logger.info(f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed.")
+
+    convert_pdf_funcs = {
+        "report": convert_report_pdf,
+        "st": convert_st_pdf,
+        "cert": convert_cert_pdf,
+    }
+
+    convert_func = convert_pdf_funcs[short_name]
+    processed_certs = cert_processing.process_parallel_with_instance(
+        converter_cls,
+        (),
+        convert_func,
+        certs_to_process,
+        config.pdf_conversion_workers,
+        config.pdf_conversion_max_chunk_size,
+        progress_bar_desc=f"Converting PDFs of {long_name}s",
+    )
+
+    obj.update_with_certs(processed_certs)
+
+
+@staged(logger, "Converting PDFs of certification reports.")
+def convert_reports_pdfs(obj: DatasetSubType, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+    convert_pdfs(obj, "report", converter_cls, fresh)
+
+
+@staged(logger, "Converting PDFs of security targets.")
+def convert_targets_pdfs(obj: DatasetSubType, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+    convert_pdfs(obj, "target", converter_cls, fresh)
+
+
+@staged(logger, "Converting PDFs of certificates.")
+def convert_certs_pdfs(obj: DatasetSubType, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+    convert_pdfs(obj, "certificate", converter_cls, fresh)
+
+
+@staged(logger, "Downloading PDFs of CC certification reports.")
+def download_reports(obj, fresh: bool = True) -> None:
+    obj.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if x.state.report.is_ok_to_download(fresh) and x.report_link]
+
+    if not fresh and certs_to_process:
+        logger.info(
+            f"Downloading {len(certs_to_process)} PDFs of CC certification reports for which previous download failed."
+        )
+
+    cert_processing.process_parallel(
+        download_pdf_report,
+        certs_to_process,
+        progress_bar_desc="Downloading PDFs of CC certification reports",
+    )
+
+
+@staged(logger, "Downloading PDFs of CC security targets.")
+def download_targets(obj, fresh: bool = True) -> None:
+    obj.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if x.state.st.is_ok_to_download(fresh)]
+
+    if not fresh and certs_to_process:
+        logger.info(
+            f"Downloading {len(certs_to_process)} PDFs of CC security targets for which previous download failed.."
+        )
+
+    cert_processing.process_parallel(
+        download_pdf_st,
+        certs_to_process,
+        progress_bar_desc="Downloading PDFs of CC security targets",
+    )
+
+
+@staged(logger, "Downloading PDFs of CC certificates.")
+def download_certs(obj, fresh: bool = True) -> None:
+    obj.certificates_pdf_dir.mkdir(parents=True, exist_ok=True)
+    certs_to_process = [x for x in obj if x.state.cert.is_ok_to_download(fresh)]
+
+    if not fresh and certs_to_process:
+        logger.info(f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed..")
+
+    cert_processing.process_parallel(
+        download_pdf_cert,
+        certs_to_process,
+        progress_bar_desc="Downloading PDFs of CC certificates",
+    )
+
+
+def download_all_artifacts_body(obj, fresh: bool = True) -> None:
+    download_reports(obj, fresh)
+    download_targets(obj, fresh)
+    download_certs(obj, fresh)
