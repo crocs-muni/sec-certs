@@ -4,27 +4,24 @@ from bisect import insort
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Literal
-from urllib.parse import unquote_plus, urlparse
 
-import numpy as np
 from bs4 import Tag
 
 from sec_certs import constants
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL
 from sec_certs.sample.cc_certificate_id import CertificateId
+from sec_certs.sample.cc_eucc_mixin import CC_EUCC_SampleMixin
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.heuristics import Heuristics
 from sec_certs.sample.internal_state import InternalState
-from sec_certs.sample.pdfdata import PdfData
-from sec_certs.sample.sar import SAR
+from sec_certs.sample.pdf_data import PdfData
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
 
 
 class CCCertificate(
-    Certificate["CCCertificate", "CCCertificate.Heuristics", "CCCertificate.PdfData"],
+    CC_EUCC_SampleMixin,
+    Certificate["CCCertificate", "Heuristics", "PdfData"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -65,37 +62,6 @@ class CCCertificate(
         def __lt__(self, other):
             return self.maintenance_date < other.maintenance_date
 
-
-    pandas_columns: ClassVar[list[str]] = [
-        "dgst",
-        "cert_id",
-        "name",
-        "status",
-        "category",
-        "manufacturer",
-        "scheme",
-        "security_level",
-        "eal",
-        "not_valid_before",
-        "not_valid_after",
-        "report_link",
-        "st_link",
-        "cert_link",
-        "manufacturer_web",
-        "extracted_versions",
-        "cpe_matches",
-        "verified_cpe_matches",
-        "related_cves",
-        "directly_referenced_by",
-        "indirectly_referenced_by",
-        "directly_referencing",
-        "indirectly_referencing",
-        "extracted_sars",
-        "protection_profile_links",
-        "protection_profiles",
-        "cert_lab",
-    ]
-
     def __init__(
         self,
         status: str,
@@ -111,7 +77,7 @@ class CCCertificate(
         cert_link: str | None,
         manufacturer_web: str | None,
         protection_profile_links: set[str] | None,
-        maintenance_updates: set[MaintenanceReport] | None,
+        maintenance_updates: set[CCCertificate.MaintenanceReport] | None,
         state: InternalState | None,
         pdf_data: PdfData | None,
         heuristics: Heuristics | None,
@@ -138,25 +104,7 @@ class CCCertificate(
         self.maintenance_updates = maintenance_updates
         self.state = state if state else InternalState()
         self.pdf_data = pdf_data if pdf_data else PdfData()
-        self.heuristics: Heuristics = heuristics if heuristics else Heuristics()
-
-    @property
-    def dgst(self) -> str:
-        """
-        Computes the primary key of the sample using first 16 bytes of SHA-256 digest
-        """
-        if not (self.name is not None and self.category is not None):
-            raise RuntimeError("Certificate digest can't be computed, because information is missing.")
-        return helpers.get_first_16_bytes_sha256(
-            "|".join(
-                [
-                    self.category,
-                    self.name,
-                    sanitization.sanitize_link_fname(self.report_link) or "None",
-                    sanitization.sanitize_link_fname(self.st_link) or "None",
-                ]
-            )
-        )
+        self.heuristics = heuristics if heuristics else Heuristics()
 
     @property
     def old_dgst(self) -> str:
@@ -171,67 +119,6 @@ class CCCertificate(
         if not (self.name is not None and self.report_link is not None and self.category is not None):
             raise RuntimeError("Certificate digest can't be computed, because information is missing.")
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
-
-    @property
-    def actual_sars(self) -> set[SAR] | None:
-        """
-        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs.
-
-        :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
-        """
-        sars = {}
-        if self.heuristics.eal:
-            sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.heuristics.eal[:4]]}
-
-        if self.heuristics.extracted_sars:
-            for sar in self.heuristics.extracted_sars:
-                if sar not in sars or sar.level > sars[sar.family].level:
-                    sars[sar.family] = sar
-
-        return set(sars.values()) if sars else None
-
-    @property
-    def label_studio_title(self) -> str | None:
-        return self.name
-
-    @property
-    def pandas_tuple(self) -> tuple:
-        """
-        Returns tuple of attributes meant for pandas serialization
-        """
-        return (
-            self.dgst,
-            self.heuristics.cert_id,
-            self.name,
-            self.status,
-            self.category,
-            self.manufacturer,
-            self.scheme,
-            self.security_level,
-            self.heuristics.eal,
-            self.not_valid_before,
-            self.not_valid_after,
-            self.report_link,
-            self.st_link,
-            self.cert_link,
-            self.manufacturer_web,
-            self.heuristics.extracted_versions,
-            self.heuristics.cpe_matches,
-            self.heuristics.verified_cpe_matches,
-            self.heuristics.related_cves,
-            self.heuristics.report_references.directly_referenced_by,
-            self.heuristics.report_references.indirectly_referenced_by,
-            self.heuristics.report_references.directly_referencing,
-            self.heuristics.report_references.indirectly_referencing,
-            self.heuristics.extracted_sars,
-            self.protection_profile_links if self.protection_profile_links else np.nan,
-            self.heuristics.protection_profiles if self.heuristics.protection_profiles else np.nan,
-            self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
-        )
-
-    def __str__(self) -> str:
-        printed_manufacturer = self.manufacturer if self.manufacturer else "Unknown manufacturer"
-        return str(printed_manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
 
     def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
@@ -511,38 +398,3 @@ class CCCertificate(
                         insort(self.heuristics.prev_certificates, str(other))
                     else:
                         insort(self.heuristics.next_certificates, str(other))
-
-    def compute_heuristics_version(self) -> None:
-        """
-        Fills in the heuristically obtained version of certified product into attribute in heuristics class.
-        """
-        self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name) if self.name else set()
-
-    def compute_heuristics_cert_lab(self) -> None:
-        """
-        Fills in the heuristically obtained evaluation laboratory into attribute in heuristics class.
-        """
-        if not self.pdf_data:
-            logger.error("Cannot compute sample lab when pdf files were not processed.")
-            return
-        self.heuristics.cert_lab = self.pdf_data.cert_lab
-
-    def compute_heuristics_cert_id(self):
-        """
-        Compute the heuristics cert_id of this cert, using several methods.
-
-        The candidate cert_ids are extracted from the frontpage, PDF metadata, filename, and keywords matches.
-
-        Finally, the cert_id is canonicalized.
-        """
-        if not self.pdf_data:
-            logger.warning("Cannot compute sample id when pdf files were not processed.")
-            return
-        # Extract candidate cert_ids
-        candidates = self.pdf_data.candidate_cert_ids(self.scheme)
-
-        if candidates:
-            max_weight = max(candidates.values())
-            max_candidates = list(filter(lambda x: candidates[x] == max_weight, candidates.keys()))
-            max_candidates.sort(key=len, reverse=True)
-            self.heuristics.cert_id = max_candidates[0]

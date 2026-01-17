@@ -10,13 +10,7 @@ import tests.data.cc.certificate
 
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CCCertificate
-from sec_certs.sample.common import (
-    extract_report_pdf_frontpage,
-    extract_report_pdf_keywords,
-    extract_report_pdf_metadata,
-    extract_st_pdf_keywords,
-    extract_st_pdf_metadata,
-)
+from sec_certs.sample.cc_eucc_mixin import CC_EUCC_SampleMixin
 from sec_certs.serialization.schemas import validator
 
 
@@ -41,27 +35,27 @@ def vulnerable_certificate(tmp_path_factory) -> CCCertificate:
 
 def test_extract_metadata(vulnerable_certificate: CCCertificate):
     vulnerable_certificate.state.st.extract_ok = True
-    extract_st_pdf_metadata(vulnerable_certificate)
+    CC_EUCC_SampleMixin.extract_st_pdf_metadata(vulnerable_certificate)
     assert vulnerable_certificate.state.st.extract_ok
 
     vulnerable_certificate.state.report.extract_ok = True
-    extract_report_pdf_metadata(vulnerable_certificate)
+    CC_EUCC_SampleMixin.extract_report_pdf_metadata(vulnerable_certificate)
     assert vulnerable_certificate.state.report.extract_ok
 
 
 def test_extract_frontpage(vulnerable_certificate: CCCertificate):
     vulnerable_certificate.state.report.extract_ok = True
-    extract_report_pdf_frontpage(vulnerable_certificate)
+    CC_EUCC_SampleMixin.extract_report_pdf_frontpage(vulnerable_certificate)
     assert vulnerable_certificate.state.report.extract_ok
 
 
 def test_keyword_extraction(vulnerable_certificate: CCCertificate):
     vulnerable_certificate.state.st.extract_ok = True
-    extract_st_pdf_keywords(vulnerable_certificate)
+    CC_EUCC_SampleMixin.extract_st_pdf_keywords(vulnerable_certificate)
     assert vulnerable_certificate.state.st.extract_ok
 
     vulnerable_certificate.state.report.extract_ok = True
-    extract_report_pdf_keywords(vulnerable_certificate)
+    CC_EUCC_SampleMixin.extract_report_pdf_keywords(vulnerable_certificate)
     assert vulnerable_certificate.state.report.extract_ok
 
 
