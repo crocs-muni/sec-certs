@@ -5,7 +5,7 @@ import shutil
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import ClassVar, cast
 
 import numpy as np
 import pandas as pd
@@ -23,16 +23,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.common import (
-    compute_heuristics_body,
-    convert_certs_pdfs,
-    convert_reports_pdfs,
-    convert_targets_pdfs,
-    download_all_artifacts_body,
-    extract_all_frontpages,
-    extract_all_keywords,
-    extract_all_metadata,
-)
+from sec_certs.dataset.cc_eucc_mixin import CertificateDatasetMixin
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
@@ -40,11 +31,8 @@ from sec_certs.serialization.json import ComplexSerializableType, only_backed, s
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.profiling import staged
 
-if TYPE_CHECKING:
-    from sec_certs.converter import PDFConverter
 
-
-class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
+class CCDataset(CertificateDatasetMixin, Dataset[CCCertificate], ComplexSerializableType):
     """
     Class that holds :class:`sec_certs.sample.cc.CCCertificate` samples.
 
@@ -97,6 +85,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
     FULL_ARCHIVE_URL: ClassVar[AnyHttpUrl] = config.cc_latest_full_archive
     SNAPSHOT_URL: ClassVar[AnyHttpUrl] = config.cc_latest_snapshot
+
+    dataset_name = "CC"
 
     def __init__(
         self,
@@ -154,102 +144,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         df["year_from"] = pd.DatetimeIndex(df.not_valid_before).year
 
         return df
-
-    @property
-    @only_backed(throw=False)
-    def reports_dir(self) -> Path:
-        """
-        Returns directory that holds files associated with certification reports
-        """
-        return self.certs_dir / "reports"
-
-    @property
-    @only_backed(throw=False)
-    def reports_pdf_dir(self) -> Path:
-        """
-        Returns directory that holds PDFs associated with certification reports
-        """
-        return self.reports_dir / "pdf"
-
-    @property
-    @only_backed(throw=False)
-    def reports_txt_dir(self) -> Path:
-        """
-        Returns directory that holds TXTs associated with certification reports
-        """
-        return self.reports_dir / "txt"
-
-    @property
-    @only_backed(throw=False)
-    def reports_json_dir(self) -> Path:
-        """
-        Returns directory that holds JSONs associated with certification reports
-        """
-        return self.reports_dir / "json"
-
-    @property
-    @only_backed(throw=False)
-    def targets_dir(self) -> Path:
-        """
-        Returns directory that holds files associated with security targets
-        """
-        return self.certs_dir / "targets"
-
-    @property
-    @only_backed(throw=False)
-    def targets_pdf_dir(self) -> Path:
-        """
-        Returns directory that holds PDFs associated with security targets
-        """
-        return self.targets_dir / "pdf"
-
-    @property
-    @only_backed(throw=False)
-    def targets_txt_dir(self) -> Path:
-        """
-        Returns directory that holds TXTs associated with security targets
-        """
-        return self.targets_dir / "txt"
-
-    @property
-    @only_backed(throw=False)
-    def targets_json_dir(self) -> Path:
-        """
-        Returns directory that holds JSONs associated with certification targets
-        """
-        return self.targets_dir / "json"
-
-    @property
-    @only_backed(throw=False)
-    def certificates_dir(self) -> Path:
-        """
-        Returns directory that holds files associated with the certificates
-        """
-        return self.certs_dir / "certificates"
-
-    @property
-    @only_backed(throw=False)
-    def certificates_pdf_dir(self) -> Path:
-        """
-        Returns directory that holds PDFs associated with certificates
-        """
-        return self.certificates_dir / "pdf"
-
-    @property
-    @only_backed(throw=False)
-    def certificates_txt_dir(self) -> Path:
-        """
-        Returns directory that holds TXTs associated with certificates
-        """
-        return self.certificates_dir / "txt"
-
-    @property
-    @only_backed(throw=False)
-    def certificates_json_dir(self) -> Path:
-        """
-        Returns directory that holds JSONs associated with certification certificates
-        """
-        return self.certificates_dir / "json"
 
     @property
     @only_backed(throw=False)
@@ -627,24 +521,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             certs.update(_parse_table(soup, cert_status, key, val))
 
         return certs
-
-    def _download_all_artifacts_body(self, fresh: bool = True) -> None:
-        download_all_artifacts_body(self, fresh)
-
-    def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        convert_reports_pdfs(self, converter_cls, fresh)
-        convert_targets_pdfs(self, converter_cls, fresh)
-        convert_certs_pdfs(self, converter_cls, fresh)
-
-    @only_backed()
-    def extract_data(self) -> None:
-        logger.info("Extracting various data from certification artifacts.")
-        extract_all_metadata(self)
-        extract_all_frontpages(self)
-        extract_all_keywords(self)
-
-    def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
-        compute_heuristics_body(self, skip_schemes)
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
