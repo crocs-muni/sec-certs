@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.cc.dataset
-from tests.conftest import get_converters
+from tests.conftest import compare_to_template, get_converters
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -83,8 +83,9 @@ def test_convert_pdfs(downloaded_toy_dataset: CCDataset, data_dir: Path, convert
     test_crt = downloaded_toy_dataset["e3dcf91ef38ddbf0"]
     template_report_path = data_dir / f"templates/{converter.get_name()}/reports/{test_crt.dgst}.txt"
     template_st_path = data_dir / f"templates/{converter.get_name()}/targets/{test_crt.dgst}.txt"
-    assert abs(test_crt.state.st.txt_path.stat().st_size - template_st_path.stat().st_size) < 1000
-    assert abs(test_crt.state.report.txt_path.stat().st_size - template_report_path.stat().st_size) < 1000
+
+    compare_to_template(template_report_path, test_crt.state.report.txt_path)
+    compare_to_template(template_st_path, test_crt.state.st.txt_path)
 
 
 @pytest.mark.remote

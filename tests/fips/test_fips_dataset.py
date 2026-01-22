@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.fips.dataset
-from tests.conftest import get_converters
+from tests.conftest import compare_to_template, get_converters
 
 from sec_certs import constants
 from sec_certs.configuration import config
@@ -141,7 +141,8 @@ def test_convert_pdfs(downloaded_toy_dataset: FIPSDataset, data_dir: Path, conve
 
     test_crt = downloaded_toy_dataset["184097a88a9b4ad9"]
     template_policy_path = data_dir / f"templates/{converter.get_name()}/policies/{test_crt.dgst}.txt"
-    assert abs(test_crt.state.policy_txt_path.stat().st_size - template_policy_path.stat().st_size) < 1000
+
+    compare_to_template(template_policy_path, test_crt.state.policy_txt_path)
 
 
 def test_to_pandas(toy_dataset: FIPSDataset):

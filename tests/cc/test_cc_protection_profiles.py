@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.protection_profiles
-from tests.conftest import get_converters
+from tests.conftest import compare_to_template, get_converters
 
 from sec_certs import constants
 from sec_certs.converter import PDFConverter
@@ -148,8 +148,9 @@ def test_convert_pdfs(
     test_crt = downloaded_toy_dataset["b02ed76d2545326a"]
     template_report_path = pp_data_dir / f"templates/{converter.get_name()}/reports/{test_crt.dgst}.txt"
     template_pp_path = pp_data_dir / f"templates/{converter.get_name()}/pps/{test_crt.dgst}.txt"
-    assert abs(test_crt.state.report.txt_path.stat().st_size - template_report_path.stat().st_size) < 1000
-    assert abs(test_crt.state.pp.txt_path.stat().st_size - template_pp_path.stat().st_size) < 1000
+
+    compare_to_template(template_report_path, test_crt.state.report.txt_path)
+    compare_to_template(template_pp_path, test_crt.state.pp.txt_path)
 
 
 def test_keyword_extraction(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmpdir):

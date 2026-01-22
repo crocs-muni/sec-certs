@@ -41,3 +41,10 @@ def lemmatize_product_name(nlp, product_name: str) -> str:
     if not product_name:
         return product_name
     return " ".join([token.lemma_ for token in nlp(fully_sanitize_string(product_name))])
+
+
+def normalize_whitespace(text: str) -> str:
+    text = text.strip()
+    text = re.sub(r"[^\S\n]+", " ", text)
+    text = re.sub(r"\n+", "\n", text)
+    return text
