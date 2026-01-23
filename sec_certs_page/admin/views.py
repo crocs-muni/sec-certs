@@ -278,6 +278,12 @@ def accounting():
     username_filter = request.args.get("username")
     endpoint_filter = request.args.get("endpoint")
 
+    # Validate filters to prevent injection attacks
+    if username_filter is not None and not isinstance(username_filter, str):
+        username_filter = None
+    if endpoint_filter is not None and not isinstance(endpoint_filter, str):
+        endpoint_filter = None
+
     # Build query based on filters
     query = {}
     if username_filter:
