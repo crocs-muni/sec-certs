@@ -63,3 +63,28 @@ def test_update_diff(logged_in_client):
     id = list(mongo.db.fips_diff.find({}, {"_id": True}))[-1]["_id"]
     resp = logged_in_client.get(f"/admin/update/diff/{id}")
     assert resp.status_code == 200
+
+
+def test_accounting(logged_in_client):
+    resp = logged_in_client.get("/admin/accounting")
+    assert resp.status_code == 200
+    assert b"Accounting Logs" in resp.data
+
+
+def test_accounting_filter_by_username(logged_in_client):
+    resp = logged_in_client.get("/admin/accounting?username=testuser1")
+    assert resp.status_code == 200
+    assert b"testuser1" in resp.data
+
+
+def test_accounting_filter_by_endpoint(logged_in_client):
+    resp = logged_in_client.get("/admin/accounting?endpoint=cc.search")
+    assert resp.status_code == 200
+    assert b"cc.search" in resp.data
+
+
+def test_accounting_combined_filters(logged_in_client):
+    resp = logged_in_client.get("/admin/accounting?username=testuser1&endpoint=chat.chat")
+    assert resp.status_code == 200
+    assert b"testuser1" in resp.data
+    assert b"chat.chat" in resp.data
