@@ -11,6 +11,7 @@ import yaml
 from bs4 import BeautifulSoup
 
 from sec_certs import constants
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CCSchemeDatasetHandler,
@@ -19,7 +20,14 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.cc_eucc_mixin import CertificateDatasetMixin
+from sec_certs.dataset.cc_eucc_common import (
+    compute_heuristics_body,
+    convert_all_pdfs_body,
+    download_all_artifacts_body,
+    extract_all_frontpages,
+    extract_all_keywords,
+    extract_all_metadata,
+)
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
@@ -43,9 +51,9 @@ with (Path(__file__).parent.parent / "rules.yaml").open(encoding="utf-8") as f:
     cc_cert_id_rules = yaml.safe_load(f)
 
 
-class EUCCDataset(CertificateDatasetMixin, Dataset[EUCCCertificate], ComplexSerializableType):
+class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
     """
-    Class that holds :class:`sec_certs.sample.cc.EUCCCertificate` samples.
+    Class that holds :class:`sec_certs.sample.eucc.EUCCCertificate` samples.
 
     Serializable into json, pandas, dictionary. Conveys basic certificate manipulations
     and dataset transformations. Many private methods that perform internal operations, feel free to exploit them.
@@ -113,8 +121,6 @@ class EUCCDataset(CertificateDatasetMixin, Dataset[EUCCCertificate], ComplexSeri
         "period of validity of the certificate": "validity_period_years",
     }
 
-    dataset_name = "EUCC"
-
     def __init__(
         self,
         certs: dict[str, EUCCCertificate] | None = None,
@@ -135,6 +141,106 @@ class EUCCDataset(CertificateDatasetMixin, Dataset[EUCCCertificate], ComplexSeri
                     self.auxiliary_datasets_dir if self.is_backed else None
                 ),
             }
+
+    @property
+    def dataset_name(self) -> str:
+        return "EUCC"
+
+    @property
+    @only_backed(throw=False)
+    def reports_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with certification reports
+        """
+        return self.certs_dir / "reports"
+
+    @property
+    @only_backed(throw=False)
+    def reports_pdf_dir(self) -> Path:
+        """
+        Returns directory that holds PDFs associated with certification reports
+        """
+        return self.reports_dir / "pdf"
+
+    @property
+    @only_backed(throw=False)
+    def reports_txt_dir(self) -> Path:
+        """
+        Returns directory that holds TXTs associated with certification reports
+        """
+        return self.reports_dir / "txt"
+
+    @property
+    @only_backed(throw=False)
+    def reports_json_dir(self) -> Path:
+        """
+        Returns directory that holds JSONs associated with certification reports
+        """
+        return self.reports_dir / "json"
+
+    @property
+    @only_backed(throw=False)
+    def targets_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with security targets
+        """
+        return self.certs_dir / "targets"
+
+    @property
+    @only_backed(throw=False)
+    def targets_pdf_dir(self) -> Path:
+        """
+        Returns directory that holds PDFs associated with security targets
+        """
+        return self.targets_dir / "pdf"
+
+    @property
+    @only_backed(throw=False)
+    def targets_txt_dir(self) -> Path:
+        """
+        Returns directory that holds TXTs associated with security targets
+        """
+        return self.targets_dir / "txt"
+
+    @property
+    @only_backed(throw=False)
+    def targets_json_dir(self) -> Path:
+        """
+        Returns directory that holds JSONs associated with certification targets
+        """
+        return self.targets_dir / "json"
+
+    @property
+    @only_backed(throw=False)
+    def certificates_dir(self) -> Path:
+        """
+        Returns directory that holds files associated with the certificates
+        """
+        return self.certs_dir / "certificates"
+
+    @property
+    @only_backed(throw=False)
+    def certificates_pdf_dir(self) -> Path:
+        """
+        Returns directory that holds PDFs associated with certificates
+        """
+        return self.certificates_dir / "pdf"
+
+    @property
+    @only_backed(throw=False)
+    def certificates_txt_dir(self) -> Path:
+        """
+        Returns directory that holds TXTs associated with certificates
+        """
+        return self.certificates_dir / "txt"
+
+    @property
+    @only_backed(throw=False)
+    def certificates_json_dir(self) -> Path:
+        """
+        Returns directory that holds JSONs associated with certification certificates
+        """
+        return self.certificates_dir / "json"
 
     def _fetch_delay(self) -> None:
         """
@@ -351,3 +457,19 @@ class EUCCDataset(CertificateDatasetMixin, Dataset[EUCCCertificate], ComplexSeri
                 self.targets_json_dir,
                 self.certificates_json_dir,
             )
+
+    def _download_all_artifacts_body(self, fresh: bool = True) -> None:
+        download_all_artifacts_body(self, fresh)
+
+    def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
+        convert_all_pdfs_body(self, converter_cls, fresh)
+
+    @only_backed()
+    def extract_data(self) -> None:
+        logger.info("Extracting various data from certification artifacts.")
+        extract_all_metadata(self)
+        extract_all_frontpages(self)
+        extract_all_keywords(self)
+
+    def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
+        compute_heuristics_body(self, skip_schemes)
