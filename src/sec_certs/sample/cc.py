@@ -4,23 +4,30 @@ from bisect import insort
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
+from typing import ClassVar
 
+import numpy as np
 from bs4 import Tag
 
 from sec_certs import constants
 from sec_certs.sample.cc_certificate_id import CertificateId
-from sec_certs.sample.cc_eucc_mixin import CC_EUCC_SampleMixin
+from sec_certs.sample.cc_eucc_common import (
+    Heuristics,
+    InternalState,
+    PdfData,
+    actual_sars,
+    compute_heuristics_cert_lab,
+    dgst,
+    set_local_paths,
+)
 from sec_certs.sample.certificate import Certificate, logger
-from sec_certs.sample.heuristics import Heuristics
-from sec_certs.sample.internal_state import InternalState
-from sec_certs.sample.pdf_data import PdfData
+from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
 
 
 class CCCertificate(
-    CC_EUCC_SampleMixin,
     Certificate["CCCertificate", "Heuristics", "PdfData"],
     PandasSerializableType,
     ComplexSerializableType,
@@ -31,6 +38,36 @@ class CCCertificate(
     Is basic element of `CCDataset`. The functionality is mostly related to holding data and transformations that
     the certificate can handle itself. `CCDataset` class then instrument this functionality.
     """
+
+    pandas_columns: ClassVar[list[str]] = [
+        "dgst",
+        "cert_id",
+        "name",
+        "status",
+        "category",
+        "manufacturer",
+        "scheme",
+        "security_level",
+        "eal",
+        "not_valid_before",
+        "not_valid_after",
+        "report_link",
+        "st_link",
+        "cert_link",
+        "manufacturer_web",
+        "extracted_versions",
+        "cpe_matches",
+        "verified_cpe_matches",
+        "related_cves",
+        "directly_referenced_by",
+        "indirectly_referenced_by",
+        "directly_referencing",
+        "indirectly_referencing",
+        "extracted_sars",
+        "protection_profile_links",
+        "protection_profiles",
+        "cert_lab",
+    ]
 
     @dataclass(eq=True, frozen=True)
     class MaintenanceReport(ComplexSerializableType):
@@ -107,6 +144,10 @@ class CCCertificate(
         self.heuristics = heuristics if heuristics else Heuristics()
 
     @property
+    def dgst(self) -> str:
+        return dgst(self)
+
+    @property
     def old_dgst(self) -> str:
         if not (self.name is not None and self.report_link is not None and self.category is not None):
             raise RuntimeError("Certificate digest can't be computed, because information is missing.")
@@ -119,6 +160,49 @@ class CCCertificate(
         if not (self.name is not None and self.report_link is not None and self.category is not None):
             raise RuntimeError("Certificate digest can't be computed, because information is missing.")
         return helpers.get_first_16_bytes_sha256(self.category + self.name + self.report_link)
+
+    @property
+    def actual_sars(self) -> set[SAR] | None:
+        return actual_sars(self)
+
+    @property
+    def label_studio_title(self) -> str | None:
+        return self.name
+
+    @property
+    def pandas_tuple(self) -> tuple:
+        """
+        Returns tuple of attributes meant for pandas serialization
+        """
+        return (
+            self.dgst,
+            self.heuristics.cert_id,
+            self.name,
+            self.status,
+            self.category,
+            self.manufacturer,
+            self.scheme,
+            self.security_level,
+            self.heuristics.eal,
+            self.not_valid_before,
+            self.not_valid_after,
+            self.report_link,
+            self.st_link,
+            self.cert_link,
+            self.manufacturer_web,
+            self.heuristics.extracted_versions,
+            self.heuristics.cpe_matches,
+            self.heuristics.verified_cpe_matches,
+            self.heuristics.related_cves,
+            self.heuristics.report_references.directly_referenced_by,
+            self.heuristics.report_references.indirectly_referenced_by,
+            self.heuristics.report_references.directly_referencing,
+            self.heuristics.report_references.indirectly_referencing,
+            self.heuristics.extracted_sars,
+            self.protection_profile_links if self.protection_profile_links else np.nan,
+            self.heuristics.protection_profiles if self.heuristics.protection_profiles else np.nan,
+            self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
+        )
 
     def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
@@ -319,39 +403,18 @@ class CCCertificate(
         st_json_dir: str | Path | None,
         cert_json_dir: str | Path | None,
     ) -> None:
-        """
-        Sets paths to files given the requested directories
-
-        :param Optional[Union[str, Path]] report_pdf_dir: Directory where pdf reports shall be stored
-        :param Optional[Union[str, Path]] st_pdf_dir: Directory where pdf security targets shall be stored
-        :param Optional[Union[str, Path]] cert_pdf_dir: Directory where pdf certificates shall be stored
-        :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
-        :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
-        :param Optional[Union[str, Path]] cert_txt_dir: Directory where txt certificates shall be stored
-        :param Optional[Union[str, Path]] report_json_dir: Directory where json reports shall be stored
-        :param Optional[Union[str, Path]] st_json_dir: Directory where json security targets shall be stored
-        :param Optional[Union[str, Path]] cert_json_dir: Directory where json certificates shall be stored
-        """
-        if report_pdf_dir:
-            self.state.report.pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
-        if st_pdf_dir:
-            self.state.st.pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
-        if cert_pdf_dir:
-            self.state.cert.pdf_path = Path(cert_pdf_dir) / (self.dgst + ".pdf")
-
-        if report_txt_dir:
-            self.state.report.txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
-        if st_txt_dir:
-            self.state.st.txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
-        if cert_txt_dir:
-            self.state.cert.txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
-
-        if report_json_dir:
-            self.state.report.json_path = Path(report_json_dir) / (self.dgst + ".json")
-        if st_json_dir:
-            self.state.st.json_path = Path(st_json_dir) / (self.dgst + ".json")
-        if cert_json_dir:
-            self.state.cert.json_path = Path(cert_json_dir) / (self.dgst + ".json")
+        return set_local_paths(
+            self,
+            report_pdf_dir,
+            st_pdf_dir,
+            cert_pdf_dir,
+            report_txt_dir,
+            st_txt_dir,
+            cert_txt_dir,
+            report_json_dir,
+            st_json_dir,
+            cert_json_dir,
+        )
 
     def compute_heuristics_cert_versions(self, cert_ids: dict[str, CertificateId | None]) -> None:  # noqa: C901
         """
@@ -398,3 +461,32 @@ class CCCertificate(
                         insort(self.heuristics.prev_certificates, str(other))
                     else:
                         insort(self.heuristics.next_certificates, str(other))
+
+    def compute_heuristics_version(self) -> None:
+        """
+        Fills in the heuristically obtained version of certified product into attribute in heuristics class.
+        """
+        self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name) if self.name else set()
+
+    def compute_heuristics_cert_lab(self):
+        compute_heuristics_cert_lab(self)
+
+    def compute_heuristics_cert_id(obj: CCCertificate):
+        """
+        Compute the heuristics cert_id of this cert, using several methods.
+
+        The candidate cert_ids are extracted from the frontpage, PDF metadata, filename, and keywords matches.
+
+        Finally, the cert_id is canonicalized.
+        """
+        if not obj.pdf_data:
+            logger.warning("Cannot compute sample id when pdf files were not processed.")
+            return
+        # Extract candidate cert_ids
+        candidates = obj.pdf_data.candidate_cert_ids(obj.scheme)
+
+        if candidates:
+            max_weight = max(candidates.values())
+            max_candidates = list(filter(lambda x: candidates[x] == max_weight, candidates.keys()))
+            max_candidates.sort(key=len, reverse=True)
+            obj.heuristics.cert_id = max_candidates[0]

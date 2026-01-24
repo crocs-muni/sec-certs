@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import random
-import re
 import time
 from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
-import yaml
 from bs4 import BeautifulSoup
 
 from sec_certs import constants
@@ -31,7 +29,6 @@ from sec_certs.dataset.cc_eucc_common import (
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
-from sec_certs.utils import helpers
 from sec_certs.utils.profiling import staged
 
 FETCH_DELAY_RANGE = (2, 5)
@@ -46,9 +43,6 @@ SESSION.headers.update(
         )
     }
 )
-
-with (Path(__file__).parent.parent / "rules.yaml").open(encoding="utf-8") as f:
-    cc_cert_id_rules = yaml.safe_load(f)
 
 
 class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
@@ -116,6 +110,8 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         "Protection Profile": "protection_profile",
         "Year of issuance": "issuance_year",
         "Month of Issuance": "issuance_month",
+        "date of issuance": "issuance_date_full",
+        "Certificate issue date": "issuance_date_full",
         "ID of the Certificate (yearly number of certificate issued by the CB)": "certificate_yearly_number",
         "Modification/ Reassurance plus the ID": "modification_or_reassurance",
         "period of validity of the certificate": "validity_period_years",
@@ -301,8 +297,9 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
             raw_key = cells[0].get_text(strip=True)
             raw_value = cells[1].get_text(strip=True)
+            clean_key = raw_key.strip().rstrip(";")
+            mapped_key = self._metadata_key_map.get(clean_key)
 
-            mapped_key = self._metadata_key_map.get(raw_key)
             if not mapped_key:
                 continue
 
@@ -343,20 +340,6 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
         return document_urls
 
-    def _get_scheme_from_cert_id(self, cert_id: str) -> str | None:
-        """
-        Returns the country code (2-letter) for a given certificate ID
-        based on the regex rules in cc_cert_id.yaml.
-        """
-        cert_id = cert_id.strip()
-        cert_id = re.sub(r"^CERTIFICATE[- ]?", "", cert_id, flags=re.IGNORECASE)
-
-        for country, regex_list in cc_cert_id_rules.get("cc_cert_id", {}).items():
-            for pattern in regex_list:
-                if re.fullmatch(pattern, cert_id):
-                    return country
-        return None
-
     def _download_page_metadata(self, links: list[str]) -> dict[str, EUCCCertificate]:
         """
         Iterates over EUCC certificate detail page URLs, downloads and parses their content,
@@ -371,33 +354,11 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
                 metadata = self._parse_page_metadata(soup)
                 document_urls = self._parse_certificate_document_urls(soup)
-
                 certificate_id = metadata.get("certificate_id")
                 if not certificate_id:
-                    continue
+                    return {}
 
-                dgst = helpers.get_first_16_bytes_sha256(certificate_id)
-                scheme = self._get_scheme_from_cert_id(certificate_id)
-
-                certificates[dgst] = EUCCCertificate(
-                    metadata.get("certificate_id", ""),
-                    metadata.get("product_type", ""),
-                    metadata.get("product_name", ""),
-                    metadata.get("holder_name", ""),
-                    scheme,
-                    metadata.get("package", ""),
-                    None,
-                    None,
-                    document_urls.get("certification_report"),
-                    document_urls.get("security_target"),
-                    document_urls.get("certificate"),
-                    metadata.get("holder_website"),
-                    None,
-                    None,
-                    None,
-                    None,
-                    metadata,
-                )
+                certificates.update(EUCCCertificate._from_metadata_dict(metadata, document_urls))
 
             finally:
                 self._fetch_delay()

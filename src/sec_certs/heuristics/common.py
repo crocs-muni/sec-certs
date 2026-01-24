@@ -23,6 +23,7 @@ from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.sample.cc_scheme import EntryType
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.cpe import CPE
+from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.utils.helpers import choose_lowest_eal
 from sec_certs.utils.profiling import staged
@@ -130,11 +131,13 @@ def compute_transitive_vulnerabilities(certs: dict[str, CertSubType]) -> None:
     if isinstance(some_cert, FIPSCertificate):
         transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: str(cert.cert_id))
         transitive_cve_finder.fit(certs, lambda cert: cert.heuristics.policy_processed_references)
-    elif isinstance(some_cert, CCCertificate):
+    elif isinstance(some_cert, CCCertificate | EUCCCertificate):
         transitive_cve_finder = TransitiveVulnerabilityFinder(lambda cert: str(cert.heuristics.cert_id))
         transitive_cve_finder.fit(certs, lambda cert: cert.heuristics.report_references)
     else:
-        raise ValueError("Members of `certs` object must be either FIPSCertificate or CCCertificate instances.")
+        raise ValueError(
+            "Members of `certs` object must be either FIPSCertificate, CCCertificate or EUCCCertificate instances."
+        )
 
     for cert in certs.values():
         transitive_cve = transitive_cve_finder.predict_single_cert(cert.dgst)
@@ -144,7 +147,7 @@ def compute_transitive_vulnerabilities(certs: dict[str, CertSubType]) -> None:
 
 @staged(logger, "Computing heuristics: Linking certificates to protection profiles")
 def link_to_protection_profiles(
-    certs: Iterable[CCCertificate],
+    certs: Iterable[CCCertificate | EUCCCertificate],
     pp_dset: ProtectionProfileDataset,
 ) -> None:
     for cert in certs:
@@ -158,7 +161,7 @@ def link_to_protection_profiles(
 
 
 @staged(logger, "Computing heuristics: references between certificates.")
-def compute_references(certs: dict[str, CCCertificate]) -> None:
+def compute_references(certs: dict[str, CCCertificate | EUCCCertificate]) -> None:
     def ref_lookup(kw_attr):
         def func(cert):
             kws = getattr(cert.pdf_data, kw_attr)
@@ -188,42 +191,51 @@ def compute_references(certs: dict[str, CCCertificate]) -> None:
 
 
 @staged(logger, "Computing heuristics: Deriving information about certificate ids from artifacts.")
-def compute_normalized_cert_ids(certs: Iterable[CCCertificate]) -> None:
+def compute_normalized_cert_ids(certs: Iterable[CCCertificate | EUCCCertificate]) -> None:
     for cert in certs:
-        cert.compute_heuristics_cert_id()
+        if isinstance(cert, CCCertificate):
+            cert.compute_heuristics_cert_id()
 
 
 @staged(logger, "Computing heuristics: Matching scheme data.")
-def compute_scheme_data(scheme_dset: CCSchemeDataset, certs: dict[str, CCCertificate]):
+def compute_scheme_data(scheme_dset: CCSchemeDataset, certs: dict[str, CCCertificate | EUCCCertificate]):
     for scheme in scheme_dset:
         if certified := scheme.lists.get(EntryType.Certified):
-            active_certs = [cert for cert in certs.values() if cert.status == "active"]
+            active_certs = [
+                cert
+                for cert in certs.values()
+                if (isinstance(cert, CCCertificate) and cert.status == "active") or isinstance(cert, EUCCCertificate)
+            ]
             matches, _ = CCSchemeMatcher.match_all(certified, scheme.country, active_certs)
             for dgst, match in matches.items():
                 certs[dgst].heuristics.scheme_data = match
         if archived := scheme.lists.get(EntryType.Archived):
-            archived_certs = [cert for cert in certs.values() if cert.status == "archived"]
+            archived_certs = [
+                cert
+                for cert in certs.values()
+                if (isinstance(cert, CCCertificate) and cert.status == "archived") or isinstance(cert, EUCCCertificate)
+            ]
             matches, _ = CCSchemeMatcher.match_all(archived, scheme.country, archived_certs)
             for dgst, match in matches.items():
                 certs[dgst].heuristics.scheme_data = match
 
 
 @staged(logger, "Computing heuristics: Deriving information about laboratories involved in certification.")
-def compute_cert_labs(certs: Iterable[CCCertificate]) -> None:
+def compute_cert_labs(certs: Iterable[CCCertificate | EUCCCertificate]) -> None:
     for cert in certs:
         cert.compute_heuristics_cert_lab()
 
 
 @staged(logger, "Computing heuristics: SARs")
-def compute_sars(certs: Iterable[CCCertificate]) -> None:
+def compute_sars(certs: Iterable[CCCertificate | EUCCCertificate]) -> None:
     transformer = SARTransformer().fit(certs)
     for cert in certs:
         cert.heuristics.extracted_sars = transformer.transform_single_cert(cert)
 
 
 @staged(logger, "Computing heuristics: EALs")
-def compute_eals(certs: Iterable[CCCertificate], pp_dataset: ProtectionProfileDataset) -> None:
-    def compute_cert_eal(cert: CCCertificate) -> str | None:
+def compute_eals(certs: Iterable[CCCertificate | EUCCCertificate], pp_dataset: ProtectionProfileDataset) -> None:
+    def compute_cert_eal(cert: CCCertificate | EUCCCertificate) -> str | None:
         res = [x for x in cert.security_level if re.match(security_level_csv_scan, x)]
         if res and len(res) == 1:
             return res[0]

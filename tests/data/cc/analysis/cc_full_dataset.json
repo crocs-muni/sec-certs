@@ -44,7 +44,7 @@
                 "elements": []
             },
             "state": {
-                "_type": "sec_certs.sample.internal_state.InternalState",
+                "_type": "sec_certs.sample.cc_eucc_common.InternalState",
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": false,
@@ -74,7 +74,7 @@
                 }
             },
             "pdf_data": {
-                "_type": "sec_certs.sample.pdf_data.PdfData",
+                "_type": "sec_certs.sample.cc_eucc_common.PdfData",
                 "report_metadata": {
                     "pdf_file_size_bytes": 1174271,
                     "pdf_is_encrypted": false,
@@ -508,7 +508,7 @@
                 "st_filename": "0683b_pdf.pdf"
             },
             "heuristics": {
-                "_type": "sec_certs.sample.heuristics.Heuristics",
+                "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
                 "extracted_versions": {
                     "_type": "Set",
                     "elements": [
