@@ -1,5 +1,5 @@
 """
-This module contains logic shared exclusively between `CCDataset` and `EUCCDataset`.
+This module contains logic shared exclusively between `CCCertificate` and `EUCCCertificate`.
 
 It is intentionally scoped to these two datasets only, as they share a substantial
 portion of processing and heuristics logic that does not apply to other dataset
@@ -390,7 +390,7 @@ def convert_pdf(
 
 
 def download_pdf(cert: CCCertificate | EUCCCertificate, doc_type: DocType):
-    link = getattr(cert, f"{doc_type}_link")
+    link = getattr(cert, f"{doc_type.short}_link")
     doc_state = getattr(cert.state, doc_type.short)
     exit_code = helpers.download_file(link, doc_state.pdf_path, proxy=config.cc_use_proxy) if link else "No link"
 
