@@ -8,7 +8,6 @@ from pathlib import Path
 import yaml
 from dateutil.relativedelta import relativedelta
 
-from sec_certs.sample.sar import SAR
 from sec_certs.sample.cc_eucc_common import (
     Heuristics,
     InternalState,
@@ -19,6 +18,7 @@ from sec_certs.sample.cc_eucc_common import (
     set_local_paths,
 )
 from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers, sanitization
 

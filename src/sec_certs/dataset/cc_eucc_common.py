@@ -1,7 +1,20 @@
+"""
+This module contains logic shared exclusively between `CCDataset` and `EUCCDataset`.
+
+It is intentionally scoped to these two datasets only, as they share a substantial
+portion of processing and heuristics logic that does not apply to other dataset
+types in the codebase.
+
+Includes:
+    - PDF downloading
+    - PDF conversion
+    - Metadata and keyword extraction
+    - Heuristic computations
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
-from enum import Enum
 from typing import TYPE_CHECKING
 
 from sec_certs.configuration import config
@@ -42,21 +55,12 @@ from sec_certs.sample.cc_eucc_common import (
     extract_st_pdf_metadata,
 )
 from sec_certs.utils import parallel_processing as cert_processing
+from sec_certs.utils.helpers import DocType
 from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
     from sec_certs.dataset.cc import CCDataset
     from sec_certs.dataset.eucc import EUCCDataset
-
-
-class DocType(Enum):
-    REPORT = ("report", "certification report")
-    TARGET = ("st", "security target")
-    CERTIFICATE = ("cert", "certificate")
-
-    def __init__(self, short: str, long: str):
-        self.short = short
-        self.long = long
 
 
 def download_pdfs(
@@ -254,7 +258,6 @@ def compute_heuristics_body(obj: CCDataset | EUCCDataset, skip_schemes: bool = F
     )
 
     compute_normalized_cert_ids(obj.certs.values())
-
     compute_references(obj.certs)
     compute_transitive_vulnerabilities(obj.certs)
 
