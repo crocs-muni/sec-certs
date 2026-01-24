@@ -252,7 +252,9 @@ def compute_heuristics_body(obj: CCDataset | EUCCDataset, skip_schemes: bool = F
         obj.aux_handlers[CPEMatchDictHandler].dset,
         obj.certs.values(),
     )
+
     compute_normalized_cert_ids(obj.certs.values())
+
     compute_references(obj.certs)
     compute_transitive_vulnerabilities(obj.certs)
 

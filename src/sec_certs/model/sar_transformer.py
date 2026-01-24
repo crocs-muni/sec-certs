@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from typing import cast
 
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.sample.sar import SAR, SAR_DICT_KEY
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ class SARTransformer:
     This class implements `sklearn.base.Transformer` interface, so fit_transform() can be called on it.
     """
 
-    def fit(self, certificates: Iterable[CCCertificate]) -> SARTransformer:
+    def fit(self, certificates: Iterable[CCCertificate | EUCCCertificate]) -> SARTransformer:
         """
         Just returns self, no fitting needed
 
@@ -38,7 +39,7 @@ class SARTransformer:
         """
         return [self.transform_single_cert(cert) for cert in certificates]
 
-    def transform_single_cert(self, cert: CCCertificate) -> set[SAR] | None:
+    def transform_single_cert(self, cert: CCCertificate | EUCCCertificate) -> set[SAR] | None:
         """
         Given CCCertificate, will transform SAR keywords extracted from txt files
         into a set of SAR objects. Also handles extractin of correct SAR levels, duplicities and filtering.
@@ -52,7 +53,9 @@ class SARTransformer:
         return self._resolve_candidate_conflicts(sec_level_candidates, st_candidates, report_candidates, cert.dgst)
 
     @staticmethod
-    def _collect_sar_candidates_from_all_sources(cert: CCCertificate) -> tuple[set[SAR], set[SAR], set[SAR]]:
+    def _collect_sar_candidates_from_all_sources(
+        cert: CCCertificate | EUCCCertificate,
+    ) -> tuple[set[SAR], set[SAR], set[SAR]]:
         """
         Parses SARs from three distinct sources and returns the results as a three tuple:
         - Security level from CSV scan
@@ -60,10 +63,10 @@ class SARTransformer:
         - Keywords from Certification report
         """
 
-        def st_keywords_may_have_sars(sample: CCCertificate):
+        def st_keywords_may_have_sars(sample: CCCertificate | EUCCCertificate):
             return sample.pdf_data.st_keywords and SAR_DICT_KEY in sample.pdf_data.st_keywords
 
-        def report_keywords_may_have_sars(sample: CCCertificate):
+        def report_keywords_may_have_sars(sample: CCCertificate | EUCCCertificate):
             return sample.pdf_data.report_keywords and SAR_DICT_KEY in sample.pdf_data.report_keywords
 
         sec_level_sars = SARTransformer._parse_sars_from_security_level_list(cert.security_level)
