@@ -165,13 +165,9 @@ class EUCCCertificate(
         return ""
 
     @staticmethod
-    def _from_metadata_dict(metadata: dict[str, str], document_urls: dict[str, str]) -> dict[str, EUCCCertificate]:
-        certificate_id = metadata.get("certificate_id")
-        if not certificate_id:
-            return {}
-
-        dgst = helpers.get_first_16_bytes_sha256(certificate_id)
-
+    def _from_metadata_dict(
+        certificate_id: str, metadata: dict[str, str], document_urls: dict[str, str]
+    ) -> EUCCCertificate:
         product_type = metadata.get("product_type", "").upper()
         product_name = metadata.get("product_name", "")
         holder_name = metadata.get("holder_name", "")
@@ -186,28 +182,26 @@ class EUCCCertificate(
 
         holder_website = EUCCCertificate._extract_holder_website(metadata.get("holder_website", ""))
 
-        return {
-            dgst: EUCCCertificate(
-                certificate_id,
-                product_type,
-                product_name,
-                None,
-                holder_name,
-                scheme,
-                security_level,
-                not_valid_before,
-                not_valid_after,
-                report_link,
-                st_link,
-                cert_link,
-                holder_website,
-                None,
-                None,
-                None,
-                None,
-                metadata,
-            )
-        }
+        return EUCCCertificate(
+            certificate_id,
+            product_type,
+            product_name,
+            None,
+            holder_name,
+            scheme,
+            security_level,
+            not_valid_before,
+            not_valid_after,
+            report_link,
+            st_link,
+            cert_link,
+            holder_website,
+            None,
+            None,
+            None,
+            None,
+            metadata,
+        )
 
     def compute_heuristics_cert_lab(self):
         compute_heuristics_cert_lab(self)
