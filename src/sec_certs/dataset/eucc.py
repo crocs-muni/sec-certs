@@ -358,7 +358,8 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
                 if not certificate_id:
                     return {}
 
-                certificates.update(EUCCCertificate._from_metadata_dict(metadata, document_urls))
+                cert = EUCCCertificate._from_metadata_dict(certificate_id, metadata, document_urls)
+                certificates[cert.dgst] = cert
 
             finally:
                 self._fetch_delay()
