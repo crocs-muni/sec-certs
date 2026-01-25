@@ -10,7 +10,7 @@ import tests.data.cc.certificate
 
 from sec_certs.dataset import CCDataset
 from sec_certs.sample import CCCertificate
-from sec_certs.sample.common import (
+from sec_certs.sample.cc_eucc_common import (
     extract_report_pdf_frontpage,
     extract_report_pdf_keywords,
     extract_report_pdf_metadata,

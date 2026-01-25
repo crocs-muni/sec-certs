@@ -434,7 +434,7 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.cc.CCCertificate.Heuristics"
+          "const": "sec_certs.sample.cc_eucc_common.Heuristics"
         },
         "eal": {
           "type": [
@@ -586,7 +586,7 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.cc.CCCertificate.PdfData"
+          "const": "sec_certs.sample.cc_eucc_common.PdfData"
         },
         "report_metadata": {
           "$ref": "base.json#/definitions/document_metadata",
@@ -616,7 +616,7 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.cc.CCCertificate.InternalState"
+          "const": "sec_certs.sample.cc_eucc_common.InternalState"
         },
         "cert": {
           "$ref": "#/definitions/cc_document_state"

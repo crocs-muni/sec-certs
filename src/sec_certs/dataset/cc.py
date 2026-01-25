@@ -5,7 +5,7 @@ import shutil
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import ClassVar, cast
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
+from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CCMaintenanceUpdateDatasetHandler,
@@ -23,11 +24,9 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.common import (
+from sec_certs.dataset.cc_eucc_common import (
     compute_heuristics_body,
-    convert_certs_pdfs,
-    convert_reports_pdfs,
-    convert_targets_pdfs,
+    convert_all_pdfs_body,
     download_all_artifacts_body,
     extract_all_frontpages,
     extract_all_keywords,
@@ -39,9 +38,6 @@ from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.profiling import staged
-
-if TYPE_CHECKING:
-    from sec_certs.converter import PDFConverter
 
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
@@ -154,6 +150,10 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         df["year_from"] = pd.DatetimeIndex(df.not_valid_before).year
 
         return df
+
+    @property
+    def dataset_name(self) -> str:
+        return "CC"
 
     @property
     @only_backed(throw=False)
@@ -632,9 +632,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         download_all_artifacts_body(self, fresh)
 
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        convert_reports_pdfs(self, converter_cls, fresh)
-        convert_targets_pdfs(self, converter_cls, fresh)
-        convert_certs_pdfs(self, converter_cls, fresh)
+        convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
     def extract_data(self) -> None:
@@ -667,11 +665,6 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     ):
         super().__init__(certs, root_dir, name, description, state, aux_handlers={})  # type: ignore
         self.state.meta_sources_parsed = True
-
-    @property
-    @only_backed(throw=False)
-    def certs_dir(self) -> Path:
-        return self.root_dir
 
     def __iter__(self) -> Iterator[CCMaintenanceUpdate]:
         yield from self.certs.values()  # type: ignore

@@ -9,6 +9,7 @@ import time
 from collections.abc import Collection
 from contextlib import nullcontext
 from datetime import datetime
+from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -348,3 +349,13 @@ def choose_lowest_eal(eals: set[str] | None) -> str | None:
         eal_entries.sort(key=lambda x: (x[0], x[1]))
         return eal_entries[0][2]
     return None
+
+
+class DocType(Enum):
+    REPORT = ("report", "certification report")
+    TARGET = ("st", "security target")
+    CERTIFICATE = ("cert", "certificate")
+
+    def __init__(self, short: str, long: str):
+        self.short = short
+        self.long = long

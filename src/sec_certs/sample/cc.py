@@ -1,33 +1,34 @@
 from __future__ import annotations
 
-import copy
-import re
 from bisect import insort
-from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import numpy as np
 from bs4 import Tag
 
 from sec_certs import constants
-from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, rules
-from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
-from sec_certs.sample.certificate import Certificate, References, logger
-from sec_certs.sample.certificate import Heuristics as BaseHeuristics
-from sec_certs.sample.certificate import PdfData as BasePdfData
-from sec_certs.sample.document_state import DocumentState
+from sec_certs.sample.cc_certificate_id import CertificateId
+from sec_certs.sample.cc_eucc_common import (
+    Heuristics,
+    InternalState,
+    PdfData,
+    actual_sars,
+    compute_heuristics_cert_lab,
+    dgst,
+    set_local_paths,
+)
+from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
 from sec_certs.utils import helpers, sanitization
-from sec_certs.utils.extract import normalize_match_string
 
 
 class CCCertificate(
-    Certificate["CCCertificate", "CCCertificate.Heuristics", "CCCertificate.PdfData"],
+    Certificate["CCCertificate", "Heuristics", "PdfData"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -37,254 +38,6 @@ class CCCertificate(
     Is basic element of `CCDataset`. The functionality is mostly related to holding data and transformations that
     the certificate can handle itself. `CCDataset` class then instrument this functionality.
     """
-
-    @dataclass(eq=True, frozen=True)
-    class MaintenanceReport(ComplexSerializableType):
-        """
-        Object for holding maintenance reports.
-        """
-
-        maintenance_date: date | None
-        maintenance_title: str | None
-        maintenance_report_link: str | None
-        maintenance_st_link: str | None
-
-        def __post_init__(self):
-            super().__setattr__("maintenance_report_link", sanitization.sanitize_link(self.maintenance_report_link))
-            super().__setattr__("maintenance_st_link", sanitization.sanitize_link(self.maintenance_st_link))
-            super().__setattr__("maintenance_title", sanitization.sanitize_string(self.maintenance_title))
-            super().__setattr__("maintenance_date", sanitization.sanitize_date(self.maintenance_date))
-
-        @classmethod
-        def from_dict(cls, dct: dict) -> CCCertificate.MaintenanceReport:
-            new_dct = dct.copy()
-            new_dct["maintenance_date"] = (
-                date.fromisoformat(dct["maintenance_date"])
-                if isinstance(dct["maintenance_date"], str)
-                else dct["maintenance_date"]
-            )
-            return super().from_dict(new_dct)
-
-        def __lt__(self, other):
-            return self.maintenance_date < other.maintenance_date
-
-    @dataclass
-    class InternalState(ComplexSerializableType):
-        """
-        Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
-        holds information about errors and paths to the files.
-        """
-
-        report: DocumentState = field(default_factory=DocumentState)
-        st: DocumentState = field(default_factory=DocumentState)
-        cert: DocumentState = field(default_factory=DocumentState)
-
-    @dataclass
-    class PdfData(BasePdfData, ComplexSerializableType):
-        """
-        Class that holds data extracted from pdf files.
-        """
-
-        report_metadata: dict[str, Any] | None = field(default=None)
-        st_metadata: dict[str, Any] | None = field(default=None)
-        cert_metadata: dict[str, Any] | None = field(default=None)
-        report_frontpage: dict[str, dict[str, Any]] | None = field(default=None)
-        st_frontpage: dict[str, dict[str, Any]] | None = field(
-            default=None
-        )  # TODO: Unused, we have no frontpage matching for targets
-        cert_frontpage: dict[str, dict[str, Any]] | None = field(
-            default=None
-        )  # TODO: Unused, we have no frontpage matching for certs
-        report_keywords: dict[str, Any] | None = field(default=None)
-        st_keywords: dict[str, Any] | None = field(default=None)
-        cert_keywords: dict[str, Any] | None = field(default=None)
-        report_filename: str | None = field(default=None)
-        st_filename: str | None = field(default=None)
-        cert_filename: str | None = field(default=None)
-
-        def __bool__(self) -> bool:
-            return any(x is not None for x in vars(self))
-
-        @property
-        def cert_lab(self) -> list[str] | None:
-            """
-            Returns labs for which certificate data was parsed.
-            """
-            if not self.report_frontpage:
-                return None
-            labs = [
-                data["cert_lab"].split(" ")[0].upper()
-                for scheme, data in self.report_frontpage.items()
-                if data and "cert_lab" in data
-            ]
-            return labs if labs else None
-
-        def frontpage_cert_id(self, scheme: str) -> dict[str, float]:
-            """
-            Get cert_id candidate from the frontpage of the report.
-            """
-            if not self.report_frontpage:
-                return {}
-            data = self.report_frontpage.get(scheme)
-            if not data:
-                return {}
-            cert_id = data.get("cert_id")
-            if not cert_id:
-                return {}
-            else:
-                return {cert_id: 1.0}
-
-        def filename_cert_id(self, scheme: str) -> dict[str, float]:
-            """
-            Get cert_id candidates from the matches in the report filename and cert filename.
-            """
-            scheme_filename_rules = rules["cc_filename_cert_id"][scheme]
-            if not scheme_filename_rules:
-                return {}
-            scheme_meta = schemes[scheme]
-            results: dict[str, float] = {}
-            for fname in (self.report_filename, self.cert_filename):
-                if not fname:
-                    continue
-
-                matches: Counter = Counter()
-                for rule in scheme_filename_rules:
-                    match = re.search(rule, fname)
-                    if match:
-                        try:
-                            meta = match.groupdict()
-                            cert_id = scheme_meta(meta)
-                            matches[cert_id] += 1
-                        except Exception:
-                            continue
-                if not matches:
-                    continue
-                total = max(matches.values())
-
-                for candidate, count in matches.items():
-                    results.setdefault(candidate, 0)
-                    results[candidate] += count / total
-            # TODO count length in weight
-            return results
-
-        def keywords_cert_id(self, scheme: str) -> dict[str, float]:
-            """
-            Get cert_id candidates from the keywords matches in the report and cert.
-            """
-            results: dict[str, float] = {}
-            for keywords in (self.report_keywords, self.cert_keywords):
-                if not keywords:
-                    continue
-                cert_id_matches = keywords.get("cc_cert_id")
-                if not cert_id_matches:
-                    continue
-
-                if scheme not in cert_id_matches:
-                    continue
-                matches: Counter = Counter(cert_id_matches[scheme])
-                if not matches:
-                    continue
-                total = max(matches.values())
-
-                for candidate, count in matches.items():
-                    results.setdefault(candidate, 0)
-                    results[candidate] += count / total
-            # TODO count length in weight
-            return results
-
-        def metadata_cert_id(self, scheme: str) -> dict[str, float]:
-            """
-            Get cert_id candidates from the report metadata.
-            """
-            scheme_rules = rules["cc_cert_id"][scheme]
-            fields = ("/Title", "/Subject")
-            results: dict[str, float] = {}
-            for metadata in (self.report_metadata, self.cert_metadata):
-                if not metadata:
-                    continue
-                matches: Counter = Counter()
-                for meta_field in fields:
-                    field_val = metadata.get(meta_field)
-                    if not field_val:
-                        continue
-                    for rule in scheme_rules:
-                        match = re.search(rule, field_val)
-                        if match:
-                            cert_id = normalize_match_string(match.group())
-                            matches[cert_id] += 1
-                if not matches:
-                    continue
-                total = max(matches.values())
-
-                for candidate, count in matches.items():
-                    results.setdefault(candidate, 0)
-                    results[candidate] += count / total
-            # TODO count length in weight
-            return results
-
-        def candidate_cert_ids(self, scheme: str) -> dict[str, float]:
-            frontpage_id = self.frontpage_cert_id(scheme)
-            metadata_id = self.metadata_cert_id(scheme)
-            filename_id = self.filename_cert_id(scheme)
-            keywords_id = self.keywords_cert_id(scheme)
-
-            # Join them and weigh them, each is normalized with weights from 0 to 1 (if anything is returned)
-            candidates: dict[str, float] = defaultdict(lambda: 0.0)
-            # TODO: Add heuristic based on ordering of ids (and extracted year + increment)
-            # TODO: Add heuristic based on length
-            # TODO: Add heuristic based on id "richness", we want to prefer IDs that have more components.
-            # If we cannot canonicalize, just skip that ID.
-            for candidate, count in frontpage_id.items():
-                try:
-                    candidates[canonicalize(candidate, scheme)] += count * 1.5
-                except Exception:
-                    continue
-            for candidate, count in metadata_id.items():
-                try:
-                    candidates[canonicalize(candidate, scheme)] += count * 1.2
-                except Exception:
-                    continue
-            for candidate, count in keywords_id.items():
-                try:
-                    candidates[canonicalize(candidate, scheme)] += count * 1.0
-                except Exception:
-                    continue
-            for candidate, count in filename_id.items():
-                try:
-                    candidates[canonicalize(candidate, scheme)] += count * 1.0
-                except Exception:
-                    continue
-            return candidates
-
-    @dataclass
-    class Heuristics(BaseHeuristics, ComplexSerializableType):
-        """
-        Class for various heuristics related to CCCertificate
-        """
-
-        extracted_versions: set[str] | None = field(default=None)
-        cpe_matches: set[str] | None = field(default=None)
-        verified_cpe_matches: set[str] | None = field(default=None)
-        related_cves: set[str] | None = field(default=None)
-        cert_lab: list[str] | None = field(default=None)
-        cert_id: str | None = field(default=None)
-        prev_certificates: list[str] | None = field(default=None)
-        next_certificates: list[str] | None = field(default=None)
-        st_references: References = field(default_factory=References)
-        report_references: References = field(default_factory=References)
-        # Contains direct outward references merged from both st, and report sources, annotated with ReferenceAnnotator
-        # TODO: Reference meanings as Enum if we work with it further.
-        annotated_references: dict[str, str] | None = field(default=None)
-        extracted_sars: set[SAR] | None = field(default=None)
-        direct_transitive_cves: set[str] | None = field(default=None)
-        indirect_transitive_cves: set[str] | None = field(default=None)
-        scheme_data: dict[str, Any] | None = field(default=None)
-        protection_profiles: set[str] | None = field(default=None)
-        eal: str | None = field(default=None)
-
-        @property
-        def serialized_attributes(self) -> list[str]:
-            return copy.deepcopy(super().serialized_attributes)
 
     pandas_columns: ClassVar[list[str]] = [
         "dgst",
@@ -316,6 +69,36 @@ class CCCertificate(
         "cert_lab",
     ]
 
+    @dataclass(eq=True, frozen=True)
+    class MaintenanceReport(ComplexSerializableType):
+        """
+        Object for holding maintenance reports.
+        """
+
+        maintenance_date: date | None
+        maintenance_title: str | None
+        maintenance_report_link: str | None
+        maintenance_st_link: str | None
+
+        def __post_init__(self):
+            super().__setattr__("maintenance_report_link", sanitization.sanitize_link(self.maintenance_report_link))
+            super().__setattr__("maintenance_st_link", sanitization.sanitize_link(self.maintenance_st_link))
+            super().__setattr__("maintenance_title", sanitization.sanitize_string(self.maintenance_title))
+            super().__setattr__("maintenance_date", sanitization.sanitize_date(self.maintenance_date))
+
+        @classmethod
+        def from_dict(cls, dct: dict) -> CCCertificate.MaintenanceReport:
+            new_dct = dct.copy()
+            new_dct["maintenance_date"] = (
+                date.fromisoformat(dct["maintenance_date"])
+                if isinstance(dct["maintenance_date"], str)
+                else dct["maintenance_date"]
+            )
+            return super().from_dict(new_dct)
+
+        def __lt__(self, other):
+            return self.maintenance_date < other.maintenance_date
+
     def __init__(
         self,
         status: str,
@@ -331,7 +114,7 @@ class CCCertificate(
         cert_link: str | None,
         manufacturer_web: str | None,
         protection_profile_links: set[str] | None,
-        maintenance_updates: set[MaintenanceReport] | None,
+        maintenance_updates: set[CCCertificate.MaintenanceReport] | None,
         state: InternalState | None,
         pdf_data: PdfData | None,
         heuristics: Heuristics | None,
@@ -356,27 +139,13 @@ class CCCertificate(
         self.manufacturer_web = sanitization.sanitize_link(manufacturer_web)
         self.protection_profile_links = protection_profile_links
         self.maintenance_updates = maintenance_updates
-        self.state = state if state else self.InternalState()
-        self.pdf_data = pdf_data if pdf_data else self.PdfData()
-        self.heuristics: CCCertificate.Heuristics = heuristics if heuristics else self.Heuristics()
+        self.state = state if state else InternalState()
+        self.pdf_data = pdf_data if pdf_data else PdfData()
+        self.heuristics = heuristics if heuristics else Heuristics()
 
     @property
     def dgst(self) -> str:
-        """
-        Computes the primary key of the sample using first 16 bytes of SHA-256 digest
-        """
-        if not (self.name is not None and self.category is not None):
-            raise RuntimeError("Certificate digest can't be computed, because information is missing.")
-        return helpers.get_first_16_bytes_sha256(
-            "|".join(
-                [
-                    self.category,
-                    self.name,
-                    sanitization.sanitize_link_fname(self.report_link) or "None",
-                    sanitization.sanitize_link_fname(self.st_link) or "None",
-                ]
-            )
-        )
+        return dgst(self)
 
     @property
     def old_dgst(self) -> str:
@@ -394,21 +163,7 @@ class CCCertificate(
 
     @property
     def actual_sars(self) -> set[SAR] | None:
-        """
-        Computes actual SARs. First, SARs implied by EAL are computed. Then, these are augmented with heuristically extracted SARs.
-
-        :return Optional[Set[SAR]]: Set of actual SARs of a certificate, None if empty
-        """
-        sars = {}
-        if self.heuristics.eal:
-            sars = {x[0]: SAR(x[0], x[1]) for x in SARS_IMPLIED_FROM_EAL[self.heuristics.eal[:4]]}
-
-        if self.heuristics.extracted_sars:
-            for sar in self.heuristics.extracted_sars:
-                if sar not in sars or sar.level > sars[sar.family].level:
-                    sars[sar.family] = sar
-
-        return set(sars.values()) if sars else None
+        return actual_sars(self)
 
     @property
     def label_studio_title(self) -> str | None:
@@ -448,10 +203,6 @@ class CCCertificate(
             self.heuristics.protection_profiles if self.heuristics.protection_profiles else np.nan,
             self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
         )
-
-    def __str__(self) -> str:
-        printed_manufacturer = self.manufacturer if self.manufacturer else "Unknown manufacturer"
-        return str(printed_manufacturer) + " " + str(self.name) + " dgst: " + self.dgst
 
     def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
@@ -652,39 +403,18 @@ class CCCertificate(
         st_json_dir: str | Path | None,
         cert_json_dir: str | Path | None,
     ) -> None:
-        """
-        Sets paths to files given the requested directories
-
-        :param Optional[Union[str, Path]] report_pdf_dir: Directory where pdf reports shall be stored
-        :param Optional[Union[str, Path]] st_pdf_dir: Directory where pdf security targets shall be stored
-        :param Optional[Union[str, Path]] cert_pdf_dir: Directory where pdf certificates shall be stored
-        :param Optional[Union[str, Path]] report_txt_dir: Directory where txt reports shall be stored
-        :param Optional[Union[str, Path]] st_txt_dir: Directory where txt security targets shall be stored
-        :param Optional[Union[str, Path]] cert_txt_dir: Directory where txt certificates shall be stored
-        :param Optional[Union[str, Path]] report_json_dir: Directory where json reports shall be stored
-        :param Optional[Union[str, Path]] st_json_dir: Directory where json security targets shall be stored
-        :param Optional[Union[str, Path]] cert_json_dir: Directory where json certificates shall be stored
-        """
-        if report_pdf_dir:
-            self.state.report.pdf_path = Path(report_pdf_dir) / (self.dgst + ".pdf")
-        if st_pdf_dir:
-            self.state.st.pdf_path = Path(st_pdf_dir) / (self.dgst + ".pdf")
-        if cert_pdf_dir:
-            self.state.cert.pdf_path = Path(cert_pdf_dir) / (self.dgst + ".pdf")
-
-        if report_txt_dir:
-            self.state.report.txt_path = Path(report_txt_dir) / (self.dgst + ".txt")
-        if st_txt_dir:
-            self.state.st.txt_path = Path(st_txt_dir) / (self.dgst + ".txt")
-        if cert_txt_dir:
-            self.state.cert.txt_path = Path(cert_txt_dir) / (self.dgst + ".txt")
-
-        if report_json_dir:
-            self.state.report.json_path = Path(report_json_dir) / (self.dgst + ".json")
-        if st_json_dir:
-            self.state.st.json_path = Path(st_json_dir) / (self.dgst + ".json")
-        if cert_json_dir:
-            self.state.cert.json_path = Path(cert_json_dir) / (self.dgst + ".json")
+        return set_local_paths(
+            self,
+            report_pdf_dir,
+            st_pdf_dir,
+            cert_pdf_dir,
+            report_txt_dir,
+            st_txt_dir,
+            cert_txt_dir,
+            report_json_dir,
+            st_json_dir,
+            cert_json_dir,
+        )
 
     def compute_heuristics_cert_versions(self, cert_ids: dict[str, CertificateId | None]) -> None:  # noqa: C901
         """
@@ -738,16 +468,10 @@ class CCCertificate(
         """
         self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name) if self.name else set()
 
-    def compute_heuristics_cert_lab(self) -> None:
-        """
-        Fills in the heuristically obtained evaluation laboratory into attribute in heuristics class.
-        """
-        if not self.pdf_data:
-            logger.error("Cannot compute sample lab when pdf files were not processed.")
-            return
-        self.heuristics.cert_lab = self.pdf_data.cert_lab
+    def compute_heuristics_cert_lab(self):
+        compute_heuristics_cert_lab(self)
 
-    def compute_heuristics_cert_id(self):
+    def compute_heuristics_cert_id(obj: CCCertificate):
         """
         Compute the heuristics cert_id of this cert, using several methods.
 
@@ -755,14 +479,14 @@ class CCCertificate(
 
         Finally, the cert_id is canonicalized.
         """
-        if not self.pdf_data:
+        if not obj.pdf_data:
             logger.warning("Cannot compute sample id when pdf files were not processed.")
             return
         # Extract candidate cert_ids
-        candidates = self.pdf_data.candidate_cert_ids(self.scheme)
+        candidates = obj.pdf_data.candidate_cert_ids(obj.scheme)
 
         if candidates:
             max_weight = max(candidates.values())
             max_candidates = list(filter(lambda x: candidates[x] == max_weight, candidates.keys()))
             max_candidates.sort(key=len, reverse=True)
-            self.heuristics.cert_id = max_candidates[0]
+            obj.heuristics.cert_id = max_candidates[0]
