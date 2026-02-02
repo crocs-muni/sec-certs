@@ -18,7 +18,6 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     CCSchemeDatasetHandler,
     CPEDatasetHandler,
@@ -59,6 +58,7 @@ from sec_certs.utils.helpers import DocType
 from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
     from sec_certs.dataset.cc import CCDataset
     from sec_certs.dataset.eucc import EUCCDataset
 
@@ -82,7 +82,7 @@ def download_pdfs(
 
     if not fresh:
         logger.info(
-            f"Downloading {len(certs_to_process)} PDFs of {obj.dataset_name} {doc_type.long}s for which previous download failed."
+            f"Downloading {len(certs_to_process)} PDFs of {obj.name} {doc_type.long}s for which previous download failed."
         )
 
     download_pdf_funcs = {
@@ -94,7 +94,7 @@ def download_pdfs(
     cert_processing.process_parallel(
         download_pdf_funcs[doc_type],
         certs_to_process,
-        progress_bar_desc=f"Downloading PDFs of {obj.dataset_name} {doc_type.long}s",
+        progress_bar_desc=f"Downloading PDFs of {obj.name} {doc_type.long}s",
     )
 
 
@@ -136,7 +136,7 @@ def convert_pdfs(
 
     if not fresh:
         logger.info(
-            f"Converting {len(certs_to_process)} PDFs of {obj.dataset_name} {doc_type.long}s for which previous conversion failed."
+            f"Converting {len(certs_to_process)} PDFs of {obj.name} {doc_type.long}s for which previous conversion failed."
         )
 
     convert_pdf_funcs = {
@@ -152,7 +152,7 @@ def convert_pdfs(
         certs_to_process,
         config.pdf_conversion_workers,
         config.pdf_conversion_max_chunk_size,
-        progress_bar_desc=f"Converting PDFs of {obj.dataset_name} {doc_type.long}s",
+        progress_bar_desc=f"Converting PDFs of {obj.name} {doc_type.long}s",
     )
 
     obj.update_with_certs(processed_certs)
@@ -189,7 +189,7 @@ def extract_generic(obj: CCDataset | EUCCDataset, doc_type: DocType, worker_func
         worker_func,
         certs_to_process,
         use_threading=False,
-        progress_bar_desc=f"Extracting {obj.dataset_name} {doc_type.long} {worker_func.__name__.split('_')[-1]}",
+        progress_bar_desc=f"Extracting {obj.name} {doc_type.long} {worker_func.__name__.split('_')[-1]}",
     )
     obj.update_with_certs(processed)
 

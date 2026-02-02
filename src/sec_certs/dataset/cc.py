@@ -5,7 +5,7 @@ import shutil
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 import pandas as pd
@@ -38,6 +38,9 @@ from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.profiling import staged
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
@@ -150,10 +153,6 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         df["year_from"] = pd.DatetimeIndex(df.not_valid_before).year
 
         return df
-
-    @property
-    def dataset_name(self) -> str:
-        return "CC"
 
     @property
     @only_backed(throw=False)

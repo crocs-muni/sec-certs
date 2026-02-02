@@ -139,10 +139,6 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
             }
 
     @property
-    def dataset_name(self) -> str:
-        return "EUCC"
-
-    @property
     @only_backed(throw=False)
     def reports_dir(self) -> Path:
         """
