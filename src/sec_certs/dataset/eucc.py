@@ -33,16 +33,10 @@ from sec_certs.utils.profiling import staged
 
 FETCH_DELAY_RANGE = (2, 5)
 
+BASE_HEADERS = {"User-Agent": "sec-certs.org"}
+
 SESSION = requests.Session()
-SESSION.headers.update(
-    {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        )
-    }
-)
+SESSION.headers.update(BASE_HEADERS)
 
 
 class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
