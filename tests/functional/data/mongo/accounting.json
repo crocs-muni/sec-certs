@@ -1,0 +1,37 @@
+[
+    {
+        "username": "testuser1",
+        "ip": null,
+        "endpoint": "cc.search",
+        "period": {"$date": "2024-01-01T00:00:00Z"},
+        "count": 42
+    },
+    {
+        "username": "testuser2",
+        "ip": null,
+        "endpoint": "fips.search",
+        "period": {"$date": "2024-01-01T00:00:00Z"},
+        "count": 15
+    },
+    {
+        "username": null,
+        "ip": "192.168.1.1",
+        "endpoint": "cc.detail",
+        "period": {"$date": "2024-01-02T00:00:00Z"},
+        "count": 5
+    },
+    {
+        "username": "testuser1",
+        "ip": null,
+        "endpoint": "chat.chat",
+        "period": {"$date": "2024-01-02T00:00:00Z"},
+        "count": 100
+    },
+    {
+        "username": null,
+        "ip": "10.0.0.1",
+        "endpoint": "fips.detail",
+        "period": {"$date": "2024-01-03T00:00:00Z"},
+        "count": 3
+    }
+]
