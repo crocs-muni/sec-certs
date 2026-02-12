@@ -60,6 +60,7 @@
     # Tasks
     "dramatiq[redis]",
     "periodiq",
+    "setuptools < 82.0.0",
     "redis",
     # Misc
     "sentry-sdk[flask] >= 2.13.0",

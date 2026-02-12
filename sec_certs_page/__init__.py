@@ -19,7 +19,6 @@ from dramatiq.middleware import (
 from dramatiq.results import Results
 from dramatiq.results.backends import StubBackend
 from dramatiq.results.backends.redis import RedisBackend
-from fakeredis import FakeRedis
 from flask import Flask, abort
 from flask_assets import Environment as Assets
 from flask_caching import Cache
@@ -120,6 +119,7 @@ public(broker=broker)
 
 redis: FlaskRedis
 if app.testing:
+    from fakeredis import FakeRedis
     redis = FlaskRedis.from_custom_provider(FakeRedis, app)
 else:
     redis = FlaskRedis(app)
