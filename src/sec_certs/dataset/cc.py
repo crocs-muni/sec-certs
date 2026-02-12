@@ -14,7 +14,6 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CCMaintenanceUpdateDatasetHandler,
