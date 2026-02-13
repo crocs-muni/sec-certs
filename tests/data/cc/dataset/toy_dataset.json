@@ -44,7 +44,7 @@
         "elements": []
       },
       "state": {
-        "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
+        "_type": "sec_certs.sample.cc_eucc_common.InternalState",
         "report": {
           "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
@@ -74,7 +74,7 @@
         }
       },
       "pdf_data": {
-        "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
+        "_type": "sec_certs.sample.cc_eucc_common.PdfData",
         "report_metadata": null,
         "st_metadata": null,
         "cert_metadata": null,
@@ -89,7 +89,7 @@
         "cert_filename": null
       },
       "heuristics": {
-        "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
+        "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
         "extracted_versions": null,
         "cpe_matches": null,
         "verified_cpe_matches": null,
@@ -150,7 +150,7 @@
         "elements": []
       },
       "state": {
-        "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
+        "_type": "sec_certs.sample.cc_eucc_common.InternalState",
         "report": {
           "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
@@ -180,7 +180,7 @@
         }
       },
       "pdf_data": {
-        "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
+        "_type": "sec_certs.sample.cc_eucc_common.PdfData",
         "report_metadata": null,
         "st_metadata": null,
         "cert_metadata": null,
@@ -195,7 +195,7 @@
         "cert_filename": null
       },
       "heuristics": {
-        "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
+        "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
         "extracted_versions": null,
         "cpe_matches": null,
         "verified_cpe_matches": null,
@@ -264,7 +264,7 @@
         ]
       },
       "state": {
-        "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
+        "_type": "sec_certs.sample.cc_eucc_common.InternalState",
         "report": {
           "_type": "sec_certs.sample.document_state.DocumentState",
           "download_ok": false,
@@ -294,7 +294,7 @@
         }
       },
       "pdf_data": {
-        "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
+        "_type": "sec_certs.sample.cc_eucc_common.PdfData",
         "report_metadata": null,
         "st_metadata": null,
         "cert_metadata": null,
@@ -309,7 +309,7 @@
         "cert_filename": null
       },
       "heuristics": {
-        "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
+        "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
         "extracted_versions": null,
         "cpe_matches": null,
         "verified_cpe_matches": null,

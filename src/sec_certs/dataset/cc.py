@@ -23,11 +23,9 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CVEDatasetHandler,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.common import (
+from sec_certs.dataset.cc_eucc_common import (
     compute_heuristics_body,
-    convert_certs_pdfs,
-    convert_reports_pdfs,
-    convert_targets_pdfs,
+    convert_all_pdfs_body,
     download_all_artifacts_body,
     extract_all_frontpages,
     extract_all_keywords,
@@ -632,9 +630,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         download_all_artifacts_body(self, fresh)
 
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        convert_reports_pdfs(self, converter_cls, fresh)
-        convert_targets_pdfs(self, converter_cls, fresh)
-        convert_certs_pdfs(self, converter_cls, fresh)
+        convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
     def extract_data(self) -> None:
@@ -667,11 +663,6 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
     ):
         super().__init__(certs, root_dir, name, description, state, aux_handlers={})  # type: ignore
         self.state.meta_sources_parsed = True
-
-    @property
-    @only_backed(throw=False)
-    def certs_dir(self) -> Path:
-        return self.root_dir
 
     def __iter__(self) -> Iterator[CCMaintenanceUpdate]:
         yield from self.certs.values()  # type: ignore
