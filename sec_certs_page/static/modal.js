@@ -99,8 +99,11 @@ export function compare_do(cc_url, fips_url) {
     let url;
     if (selected[0]["type"] === "cc") {
         url = cc_url;
-    } else {
+    } else if (selected[0][type] == "fips") {
         url = fips_url;
+    } else {
+        $("#compare-error").text("Comparing protection profiles not supported (yet).").show();
+        return;
     }
     url = url.replace("XXXXXXXXXXXXXXXX", selected[0]["hashid"]);
     url = url.replace("YYYYYYYYYYYYYYYY", selected[1]["hashid"]);
