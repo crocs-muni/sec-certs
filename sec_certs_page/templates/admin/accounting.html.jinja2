@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="endpoint" class="form-label">Endpoint</label>
-                        <select class="form-select" id="endpoint" name="endpoint">
+                        <select class="form-select" id="query" name="query">
                             <option value="">All Endpoints</option>
                             {% for endpoint in distinct_endpoints %}
                                 <option value="{{ endpoint }}" {% if endpoint_filter == endpoint %}selected{% endif %}>

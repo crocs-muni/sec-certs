@@ -276,7 +276,7 @@ def accounting():
     page = int(request.args.get("page", 1))
     per_page = current_app.config.get("SEARCH_ITEMS_PER_PAGE", 25)
     username_filter = request.args.get("username")
-    endpoint_filter = request.args.get("endpoint")
+    endpoint_filter = request.args.get("query")
 
     # Validate filters to prevent injection attacks
     if username_filter is not None and not isinstance(username_filter, str):
