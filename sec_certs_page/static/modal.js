@@ -74,7 +74,12 @@ export function add_current_cert(storage_key, current) {
         selected = [current];
     } else {
         selected = JSON.parse(selected);
-        selected.push(current);
+        if (selected["type"] === "cc" || selected["type"] === "fips") {
+        	selected.push(current);	
+        } else {
+        	$("#compare-error").text("Comparing protection profiles not supported (yet).").show();
+        	return;
+        }
     }
     localStorage.setItem(storage_key, JSON.stringify(selected));
     update_state();
@@ -101,7 +106,7 @@ export function compare_do(cc_url, fips_url) {
         url = cc_url;
     } else if (selected[0][type] == "fips") {
         url = fips_url;
-    } else {
+    } else if (selected[0][type] == "pp") {
         $("#compare-error").text("Comparing protection profiles not supported (yet).").show();
         return;
     }
