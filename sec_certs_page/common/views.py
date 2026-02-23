@@ -13,7 +13,6 @@ from flask import Response, abort, current_app, jsonify, make_response, request,
 from flask_login import current_user
 from flask_paginate import Pagination as FlaskPagination
 from networkx import DiGraph, node_link_data, weakly_connected_components
-from werkzeug.exceptions import BadRequest
 
 from .. import mongo
 

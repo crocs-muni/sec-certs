@@ -8,7 +8,6 @@ from typing import ClassVar, Iterable, List, Mapping, Optional, Set, Tuple, Unio
 
 import sentry_sdk
 from flask import Request, current_app
-from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest

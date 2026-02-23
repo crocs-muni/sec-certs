@@ -7,6 +7,7 @@ from periodiq import cron
 
 from . import sitemap, whoosh_index
 from .cc.tasks import update_data as update_cc_data
+from .eucc.tasks import update_data as update_eucc_data
 from .common.tasks.utils import task
 from .fips.tasks import update_data as update_fips_data
 from .fips.tasks import update_iut_data, update_mip_data
@@ -20,6 +21,7 @@ from .vuln.tasks import update_cpe_data, update_cpe_match_data, update_cve_data
 def run_updates_weekly() -> None:  # pragma: no cover
     (
         update_cc_data.message_with_options(pipe_ignore=True)
+        | update_eucc_data.message_with_options(pipe_ignore=True)
         | update_fips_data.message_with_options(pipe_ignore=True)
         | update_pp_data.message_with_options(pipe_ignore=True)
         | update_sitemap.message_with_options(pipe_ignore=True)

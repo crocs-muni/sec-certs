@@ -1,0 +1,126 @@
+{% extends "common/base.html.jinja2" %}
+{% set breadcrumb_title = True %}
+{% set canonical = True %}
+{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
+{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
+{% from "include/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button, render_frontpage, render_sfrs, render_sars, render_status %}
+{% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
+{% from "eucc/include.html.jinja2" import render_ava_van_level, clickable_contact, render_assurance_level, eucc_keywords, extract_eal %}
+{% from "cc/include.html.jinja2" import  cc_keywords %}
+
+{% block metadata %}
+    <meta property="description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="twitter:card" content="summary"/>
+    <meta property="twitter:site" content="@CRoCS_MUNI"/>
+    <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
+    <meta property="twitter:image" content="{{ url_for("static", filename="img/eucc_card.png", _external=True) }}"/>
+    <meta property="twitter:description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="og:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
+    <meta property="og:image" content="{{ url_for("static", filename="img/eucc_card.png", _external=True) }}"/>
+    <meta property="og:description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="og:site_name" content="sec-certs.org"/>
+    <meta name="description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+{% endblock %}
+
+{% set box_container = "row col-12 col-sm-10 my-4 p-4 bg-darker-light rounded-3" %}
+{% set box_container_without_bg = "row col-12 col-sm-10 p-4" %}
+
+{% block left_navigation %}
+    <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
+        <h4>Sections</h4>
+        <a class="list-group-item list-group-item-action rounded" href="#auth-info">Authoritative info</a>
+        <a class="list-group-item list-group-item-action rounded" href="#cert-info">Certificate</a>
+        <a class="list-group-item list-group-item-action rounded" href="#report-info">Certification report</a>
+        <a class="list-group-item list-group-item-action rounded" href="#st-info">Security target</a>
+        <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Heuristics</a>
+        <a class="list-group-item list-group-item-action rounded" href="#updates">Updates</a>
+        <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0"
+          class="shifted-section">
+        <div class="row">
+            <div class="col-12 col-sm-10 p-3 pt-md-5">
+                <div class="alert alert-warning d-sm-none" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile
+                    devices.
+                </div>
+                <div>
+                    <h1>{{ cert["name"]|default("", true) }}</h1>
+
+                    {% if cves %}
+                        {{ certificate_vuln_note() }}
+                    {% endif %}
+
+                    {% if removed and same %}
+                        <div class="alert alert-secondary mt-4">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            This certificate has disappeared from the EUCC portal listing<sup
+                                title="Likely due to the certifying scheme updating some of its fields."
+                                data-bs-toggle="tooltip">*</sup>.
+                            However, there {% if same|length > 1 %}are certificates that match{% else %}is a certificate
+                            that matches{% endif %}
+                            this one in the current listing:
+                            <table class="table table-secondary table-borderless mt-3 ms-3">
+                                {% for other in same %}
+                                    <tr>
+                                        <td class="py-2" class="align-middle">
+                                            <a href="{{ url_for("eucc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>
+                                        </td>
+                                        <td class="py-2"
+                                            class="align-middle">{{ other["other_metadata"]["certificate_id"] }}</td>
+                                        <td class="py-2">
+                                            <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
+                                               class="btn btn-outline-secondary">Compare</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                            <span style="margin-left: 20px">You can also examine other <a href="#similar">similar certificates</a> below.</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-3 flex-wrap">
+                        {{ compare_icon() }}
+                        {{ notification_icon(current_user, subscribed) }}
+                        {{ render_share_buttons(hashid, cert_id=cert["other_metadata"]["certificate_id"], name=cert["name"]) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'eucc/entry/components/authoritative_info.html.jinja2' %}
+
+        {% include 'eucc/entry/components/nonauthoritative_info.html.jinja2' %}
+
+        <script type="module">
+            import {copyLinkToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
+            // Necessary because of the share buttons.
+            $(".copy-on-click").on("click", function (e) {
+                e.preventDefault();
+                copyLinkToClipboard($(this));
+            });
+            window.certificate_data = {
+                name: "{{ cert["name"]|default("", true) }}",
+                hashid: "{{ hashid }}",
+                type: "eucc",
+                url: "{{ url_for("eucc.entry", hashid=hashid) }}"
+            };
+        </script>
+        {{ notification_script(csrf_token) }}
+    </main>
+
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_modal() }}
+    {% endif %}
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_icon() }}
+    {% endif %}
+{% endblock %}
