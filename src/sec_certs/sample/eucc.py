@@ -158,6 +158,16 @@ class EUCCCertificate(
             return None
 
     @staticmethod
+    def _get_status(date: date | None) -> str | None:
+        if not date:
+            return None
+        today = date.today()
+        if date > today:
+            return "active"
+        else:
+            return "archived"
+
+    @staticmethod
     def _extract_holder_website(text: str) -> str:
         url_pattern = r"https?://[a-zA-Z0-9./\-_]+"
         urls = re.findall(url_pattern, text)
@@ -222,6 +232,7 @@ class EUCCCertificate(
         security_level = EUCCCertificate._extract_first_eal(metadata["package"])
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))
+        status = EUCCCertificate._get_status(not_valid_after)
 
         report_link = document_urls.get("certification_report")
         st_link = document_urls.get("security_target")
@@ -236,7 +247,7 @@ class EUCCCertificate(
             certificate_id,
             product_type,
             product_name,
-            None,
+            status,
             holder_name,
             scheme,
             security_level,
