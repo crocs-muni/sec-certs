@@ -485,17 +485,18 @@ def diff_cc_cert_id(link: bool = True):
 
     return compare_str, render
 
-
-def diff_cc_dgst():
+def _diff_dgst(endpoint: str):
     compare_str, render_str = diff_str()
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('cc.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f"<a href=\"{url_for(endpoint, hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
         )
 
     return compare_str, render
 
+diff_cc_dgst = _diff_dgst('cc.entry')
+diff_eucc_dgst = _diff_dgst('eucc.entry')
 
 def diff_cc_sar():
     _, render_str = diff_str()
@@ -550,7 +551,7 @@ def render_dict(a, b, metas=None):
     return Markup(f"<ul>{item_string}</ul>")
 
 
-def diff_cc_frontpage():
+def diff_cc_eucc_frontpage():
     metas = {
         "cert_id": diff_cc_cert_id(link=False),
         "cc_security_level": diff_str(),
@@ -624,7 +625,7 @@ def diff_cc_mus():
     return compare, render
 
 
-def diff_cc_pps_old():
+def diff_eucc_pps_old():
     metas = {
         "_type": diff_none(),
         "pp_name": diff_str(),
@@ -651,7 +652,7 @@ def diff_cc_pps_old():
     return compare, render
 
 
-cc_diff_method = {
+cc_eucc_base_diff = {
     "_type": diff_none(),
     "name": diff_str(),
     "category": diff_str(),
@@ -665,7 +666,6 @@ cc_diff_method = {
     "manufacturer": diff_str(),
     "manufacturer_web": diff_url(),
     "security_level": diff_set(diff_str()),
-    "dgst": diff_cc_dgst(),
     "heuristics": {
         "_type": diff_none(),
         "annotated_references": diff_none(),
@@ -697,21 +697,20 @@ cc_diff_method = {
         },
         "protection_profiles": diff_set(diff_pp_dgst()),
     },
-    "maintenance_updates": diff_cc_mus(),
-    "protection_profiles": diff_cc_pps_old(),
+    "protection_profiles": diff_eucc_pps_old(),
     "protection_profile_links": diff_set(diff_url()),
     "pdf_data": {
         "_type": diff_none(),
         "cert_filename": diff_str(),
-        "cert_frontpage": diff_cc_frontpage(),
+        "cert_frontpage": diff_cc_eucc_frontpage(),
         "cert_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
         "cert_metadata": diff_pdf_meta(),
         "report_filename": diff_str(),
-        "report_frontpage": diff_cc_frontpage(),
+        "report_frontpage": diff_cc_eucc_frontpage(),
         "report_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
         "report_metadata": diff_pdf_meta(),
         "st_filename": diff_str(),
-        "st_frontpage": diff_cc_frontpage(),
+        "st_frontpage": diff_cc_eucc_frontpage(),
         "st_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
         "st_metadata": diff_pdf_meta(),
     },
@@ -745,6 +744,45 @@ cc_diff_method = {
             "txt_hash": diff_ident(),
         },
     },
+}
+
+cc_diff_method = {
+    **cc_eucc_base_diff,
+    "maintenance_updates": diff_cc_mus(),
+    "dgst": diff_cc_dgst,
+}
+eucc_diff_method = {
+    **cc_eucc_base_diff,
+    "dgst": diff_eucc_dgst,
+    "other_metadata": {
+        "_type": diff_none(),
+        "certificate_id": diff_str(),
+        "product_name": diff_str(),
+        "product_type": diff_str(),
+        "product_version": diff_str(),
+        "holder_name": diff_str(),
+        "holder_address": diff_str(),
+        "holder_contact": diff_str(),
+        "holder_website": diff_url(),
+        "certification_body": diff_str(),
+        "nando_id": diff_str(),
+        "certification_body_address": diff_str(),
+        "certification_body_contact": diff_str(),
+        "itsef": diff_str(),
+        "responsible_ncca": diff_str(),
+        "scheme": diff_str(),
+        "report_reference": diff_str(),
+        "assurance_level": diff_str(),
+        "cc_version": diff_str(),
+        "cem_version": diff_str(),
+        "ava_van_level": diff_str(),
+        "protection_profile": diff_str(),
+        "issuance_year": diff_int(),
+        "issuance_month": diff_int(),
+        "issuance_date_full": diff_str(),
+        "modification_or_reassurance": diff_str(),
+        "validity_period_years": diff_int()
+    }
 }
 
 fips_diff_method = {
