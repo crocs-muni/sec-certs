@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import yaml
 from dateutil.relativedelta import relativedelta
@@ -96,16 +97,16 @@ class EUCCCertificate(
         return actual_sars(self)
 
     def set_local_paths(
-        self,
-        report_pdf_dir: str | Path | None,
-        st_pdf_dir: str | Path | None,
-        cert_pdf_dir: str | Path | None,
-        report_txt_dir: str | Path | None,
-        st_txt_dir: str | Path | None,
-        cert_txt_dir: str | Path | None,
-        report_json_dir: str | Path | None,
-        st_json_dir: str | Path | None,
-        cert_json_dir: str | Path | None,
+            self,
+            report_pdf_dir: str | Path | None,
+            st_pdf_dir: str | Path | None,
+            cert_pdf_dir: str | Path | None,
+            report_txt_dir: str | Path | None,
+            st_txt_dir: str | Path | None,
+            cert_txt_dir: str | Path | None,
+            report_json_dir: str | Path | None,
+            st_json_dir: str | Path | None,
+            cert_json_dir: str | Path | None,
     ) -> None:
         set_local_paths(
             self,
@@ -165,14 +166,60 @@ class EUCCCertificate(
         return ""
 
     @staticmethod
+    @staticmethod
+    def _parse_package(text: str) -> dict[str, list[str]]:
+        """
+        Parses a string containing CC security packages to extract EALs and components.
+
+        Handles standard CC components (e.g., ADV_FSP.5), non-standard identifiers
+        (e.g., COMP), and various separators (commas, 'and', 'augmented with').
+        """
+        eal_pattern = r"EAL\d+"
+        comp_pattern = r"[A-Z]{3,4}(?:_[A-Z]{3,4})?(?:\.\d+)?"
+
+        tokens = re.split(r'(\s+|\(|\)|,|and)', text)
+
+        result = {}
+        current_eal = None
+
+        for token in tokens:
+            token = token.strip()
+            if not token or token in "()," or token.lower() in ["and", "with", "augmented"]:
+                continue
+
+            if re.fullmatch(eal_pattern, token):
+                current_eal = token
+                result[current_eal] = []
+
+            elif re.fullmatch(comp_pattern, token):
+                if current_eal:
+                    result[current_eal].append(token)
+
+        return result
+
+    def _extract_first_eal(text: str) -> str:
+        """
+        Finds the first EAL in the text and returns it.
+        Returns an empty string or None if no match is found.
+        """
+        if (not text):
+            return ""
+
+        match = re.search(r"EAL\d+", text)
+
+        if match:
+            return match.group(0)
+        return ""
+
+    @staticmethod
     def _from_metadata_dict(
-        certificate_id: str, metadata: dict[str, str], document_urls: dict[str, str]
+            certificate_id: str, metadata: dict[str, Any], document_urls: dict[str, str]
     ) -> EUCCCertificate:
         product_type = metadata.get("product_type", "").upper()
         product_name = metadata.get("product_name", "")
         holder_name = metadata.get("holder_name", "")
         scheme = EUCCCertificate._get_scheme_from_cert_id(certificate_id)
-        security_level = metadata.get("package", "")
+        security_level = EUCCCertificate._extract_first_eal(metadata["package"])
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))
 
@@ -181,6 +228,9 @@ class EUCCCertificate(
         cert_link = document_urls.get("certificate")
 
         holder_website = EUCCCertificate._extract_holder_website(metadata.get("holder_website", ""))
+
+        if "package" in metadata and metadata["package"]:
+            metadata["package"] = EUCCCertificate._parse_package(metadata["package"])
 
         return EUCCCertificate(
             certificate_id,
@@ -205,3 +255,9 @@ class EUCCCertificate(
 
     def compute_heuristics_cert_lab(self):
         compute_heuristics_cert_lab(self)
+
+    def compute_heuristics_version(self) -> None:
+        """
+        Fills in the heuristically obtained version of certified product into attribute in heuristics class.
+        """
+        self.heuristics.extracted_versions = helpers.compute_heuristics_version(self.name) if self.name else set()
