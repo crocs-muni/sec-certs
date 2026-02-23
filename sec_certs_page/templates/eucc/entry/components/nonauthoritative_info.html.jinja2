@@ -1,0 +1,24 @@
+{% from "eucc/entry/components/section_header.html.jinja2" import section_header %}
+
+{{ section_header(
+    "Nonauthoritative information",
+    "Extracted terms from PDFs or heuristic analysis.",
+    "non-auth"
+) }}
+
+<div class="ps-4">
+    {% include 'eucc/entry/components/documents.html.jinja2' %}
+
+    {% include 'eucc/entry/components/heuristics.html.jinja2' %}
+
+    <div id="updates" class="{{ box_container }}">
+        <h3>Updates</h3>
+        {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
+    </div>
+
+    <div id="raw-data-head" class="{{ box_container }}">
+        <h3>Raw data</h3>
+        {{ render_raw_data(json) }}
+    </div>
+</div>
+

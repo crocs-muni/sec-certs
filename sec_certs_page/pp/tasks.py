@@ -10,7 +10,6 @@ import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset import ProtectionProfileDataset
-from sec_certs.dataset.dataset import Dataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import mongo, runtime_config

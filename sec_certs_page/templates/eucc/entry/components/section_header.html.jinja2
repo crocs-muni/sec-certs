@@ -1,0 +1,12 @@
+{% macro section_header(title, tooltip, anchor_id) %}
+    <h2 id="{{ anchor_id }}" class="mt-4 d-flex align-items-center">
+        {{ title }}
+        <span class="text-muted ms-2 d-inline-flex align-items-center"
+              style="cursor: help;"
+              data-bs-toggle="tooltip"
+              title="{{ tooltip }}">
+            <i class="fas fa-info-circle fa-2xs"></i>
+        </span>
+    </h2>
+    <hr class="my-2">
+{% endmacro %}

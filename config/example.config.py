@@ -131,6 +131,14 @@ DATASET_PATH_CC_OUT_PP = "pp.json"
 DATASET_PATH_CC_DIR = "cc"
 DATASET_PATH_CC_ARCHIVE = "cc.tar.gz"
 
+DATASET_PATH_EUCC = "eucc_dataset"
+DATASET_PATH_EUCC_OUT = "eucc.json"
+DATASET_PATH_EUCC_OUT_MU = "eucc_mu.json"
+DATASET_PATH_EUCC_OUT_SCHEME = "cc_scheme.json"
+DATASET_PATH_EUCC_OUT_PP = "pp.json"
+DATASET_PATH_EUCC_DIR = "eucc"
+DATASET_PATH_EUCC_ARCHIVE = "eucc.tar.gz"
+
 DATASET_PATH_PP = "pp_dataset"
 DATASET_PATH_PP_OUT = DATASET_PATH_CC_OUT_PP
 DATASET_PATH_PP_DIR = "pp"
@@ -150,6 +158,7 @@ SUBSCRIPTIONS_ENABLED = True
 
 # Whether to skip the actual update (from remote CC, PP and FIPS servers) in the nightly update task. Useful for debugging.
 CC_SKIP_UPDATE = False
+EUCC_SKIP_UPDATE = False
 PP_SKIP_UPDATE = False
 FIPS_SKIP_UPDATE = False
 FIPS_IUT_SKIP_UPDATE = False
