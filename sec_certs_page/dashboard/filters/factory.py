@@ -3,7 +3,6 @@ from typing import Any, cast
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 from dash.dependencies import Input
-from dash.development.base_component import Component
 
 from ..dependencies import ComponentIDBuilder
 from ..types.common import CollectionName
@@ -13,6 +12,10 @@ from .query_builder import DERIVED_FIELD_EXPRESSIONS
 from .registry import FilterSpecRegistry, get_filter_registry
 
 DBC_GRID_COL_MAX_WIDTH = 12
+
+FilterComponent = (
+    dcc.Dropdown | dcc.DatePickerRange | dcc.DatePickerSingle | dbc.Input | dbc.Checkbox | html.Span | html.Div
+)
 """Maximum width for a column in Dash Bootstrap Components grid system."""
 
 
@@ -34,7 +37,7 @@ class FilterFactory:
         """Get the filter registry for this dataset type."""
         return self._registry
 
-    def create_filter(self, filter_spec: FilterSpec, with_label: bool = True) -> Component:
+    def create_filter(self, filter_spec: FilterSpec, *, with_label: bool = True) -> FilterComponent:
         """
         Create a single filter component from its specification.
 
@@ -46,7 +49,6 @@ class FilterFactory:
         params = filter_spec.component_params
 
         if params.component_type == FilterComponentType.DROPDOWN:
-            # Build options from filter data if available
             options: list[dict[str, Any]] = []
             if filter_spec.data:
                 options = [{"label": str(v), "value": v} for v in filter_spec.data]
@@ -119,14 +121,14 @@ class FilterFactory:
 
         return filter_component
 
-    def create_all_filters(self, with_labels: bool = True) -> list[Component]:
+    def create_all_filters(self, with_labels: bool = True) -> list[FilterComponent]:
         """
         Create all registered filters for this dataset type.
 
         :param with_labels: Whether to include labels
         :return: List of filter components
         """
-        return [self.create_filter(spec, with_labels) for spec in self._registry.get_all_filters().values()]
+        return [self.create_filter(spec, with_label=with_labels) for spec in self._registry.get_all_filters().values()]
 
     def create_filter_panel(self, title: str = "Filters", columns: int = 4) -> dbc.Card:
         """
@@ -207,7 +209,6 @@ class FilterFactory:
         :return: List of dicts with 'label', 'value', and 'data_type' keys
         """
         fields = []
-        # Track fields we've already added to avoid duplicates
         seen_fields = set()
 
         for filter_spec in self._registry.get_all_filters().values():
@@ -216,7 +217,6 @@ class FilterFactory:
             if filter_spec.database_field in ("not_valid_before", "not_valid_after"):
                 continue
 
-            # Skip if we've already added this database field
             if filter_spec.database_field in seen_fields:
                 continue
 
@@ -228,8 +228,6 @@ class FilterFactory:
                     "data_type": filter_spec.data_type,
                 }
             )
-
-        # These are computed fields available for custom charts
         fields.extend(self._build_derived_field_options())
 
         return fields

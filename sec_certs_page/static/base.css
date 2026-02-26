@@ -449,3 +449,581 @@ h6 {
 .flex-basis-0 {
     flex-basis: 0px;
 }
+
+/* ============================================
+   Dashboard Styles
+   ============================================ */
+
+/* Dashed border utility for empty state cards */
+.border-dashed {
+    border-style: dashed !important;
+}
+
+/* Collection card hover effect */
+.collection-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.collection-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ============================================
+   Dash Dropdown Bootstrap Integration
+   ============================================ */
+.dash-bootstrap .Select-control {
+    border-radius: 0.375rem;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+    min-height: 38px;
+}
+
+/* Vertically center single-select values */
+.dash-bootstrap .Select-control .Select-value,
+.dash-dropdown .Select-control .Select-value {
+    display: flex !important;
+    align-items: center;
+    height: 100%;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.dash-bootstrap .Select-control .Select-value-label,
+.dash-dropdown .Select-control .Select-value-label {
+    line-height: 36px;
+}
+
+.dash-bootstrap .Select-placeholder,
+.dash-dropdown .Select-placeholder {
+    line-height: 36px;
+}
+
+.dash-bootstrap .Select-control:hover {
+    border-color: var(--bs-primary);
+}
+
+.dash-bootstrap .Select-menu-outer {
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+}
+
+.dash-bootstrap .Select-option {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.dash-bootstrap .Select-option:hover,
+.dash-bootstrap .Select-option.is-focused {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.dash-bootstrap .Select-value-label,
+.dash-bootstrap .Select-placeholder {
+    color: var(--bs-body-color);
+}
+
+/* Dash Dropdown (newer versions) */
+.dash-dropdown .Select-control {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+.dash-dropdown .Select-menu {
+    background-color: var(--bs-body-bg) !important;
+    max-height: 300px !important;
+}
+
+.dash-dropdown .VirtualizedSelectOption {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.dash-dropdown .VirtualizedSelectFocusedOption {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+/* Truncate selected values in dropdown */
+.dash-bootstrap .Select-value-label,
+.dash-dropdown .Select-value-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+    line-height: 1.4;
+}
+
+/* Multi-select tags */
+.dash-bootstrap .Select--multi .Select-value,
+.dash-dropdown .Select--multi .Select-value {
+    max-width: 180px;
+    height: 24px !important;
+    line-height: 22px !important;
+    display: inline-flex !important;
+    align-items: center;
+    overflow: hidden;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.dash-bootstrap .Select--multi .Select-value-label,
+.dash-dropdown .Select--multi .Select-value-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 22px;
+    height: 22px;
+}
+
+/* ============================================
+   Dashboard Date Picker Styling
+   ============================================ */
+.DateRangePicker,
+.SingleDatePicker {
+    width: 100%;
+}
+
+.DateRangePickerInput,
+.SingleDatePickerInput {
+    background-color: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    border-radius: 0.375rem !important;
+}
+
+.DateInput_input {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+    border: none !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 1rem !important;
+}
+
+.CalendarDay__selected,
+.CalendarDay__selected:hover {
+    background: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.date-picker-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.date-picker-wrapper .date-picker-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    color: var(--bs-secondary);
+    pointer-events: none;
+}
+
+.date-picker-wrapper .SingleDatePicker,
+.date-picker-wrapper .DateRangePicker {
+    width: 100%;
+}
+
+.date-picker-wrapper .SingleDatePickerInput,
+.date-picker-wrapper .DateRangePickerInput {
+    width: 100% !important;
+    display: flex !important;
+}
+
+.date-picker-wrapper .DateInput {
+    width: 100% !important;
+}
+
+.date-picker-wrapper .DateInput_input {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 0.375rem 0.75rem 0.375rem 2.25rem !important;
+    font-size: 0.9rem !important;
+    cursor: text !important;
+}
+
+.DayPickerNavigation {
+    display: flex;
+    justify-content: space-between;
+}
+
+.CalendarMonth_caption {
+    padding-top: 15px !important;
+    padding-bottom: 40px !important;
+    color: var(--bs-body-color) !important;
+}
+
+.CalendarMonth_caption strong {
+    font-size: 1rem;
+}
+
+.date-range-wrapper .DateInput_input {
+    padding-left: 2.25rem !important;
+}
+
+.date-range-wrapper .DateInput:first-child .DateInput_input {
+    padding-left: 2.25rem !important;
+}
+
+.date-range-wrapper .DateInput:last-child .DateInput_input {
+    padding-left: 0.75rem !important;
+}
+
+.DayPicker,
+.CalendarMonth,
+.CalendarMonthGrid {
+    background-color: var(--bs-body-bg) !important;
+}
+
+.CalendarDay__default {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+.CalendarDay__default:hover {
+    background-color: var(--bs-light) !important;
+}
+
+.DayPickerNavigation_button__default {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+.DayPickerKeyboardShortcuts_show__bottomRight::before {
+    border-right-color: var(--bs-primary) !important;
+}
+
+/* ============================================
+   Dashboard Range Slider Styling
+   ============================================ */
+.rc-slider-track {
+    background-color: var(--bs-primary) !important;
+}
+
+.rc-slider-handle {
+    border-color: var(--bs-primary) !important;
+}
+
+.rc-slider-handle:hover,
+.rc-slider-handle:active {
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 5px rgba(var(--bs-primary-rgb), 0.2) !important;
+}
+
+/* ============================================
+   Dashboard Dark Theme Adjustments
+   ============================================ */
+
+/* Fix bg-light in dark mode for dashboard cards */
+[data-bs-theme="dark"] .bg-light {
+    background-color: var(--bs-gray-800) !important;
+}
+
+/* Fix card backgrounds in dark mode */
+[data-bs-theme="dark"] .card {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-gray-700);
+}
+
+[data-bs-theme="dark"] .card-header {
+    background-color: var(--bs-gray-800);
+    border-color: var(--bs-gray-700);
+}
+
+/* Dropdown controls in dark mode */
+[data-bs-theme="dark"] .dash-dropdown .Select-control,
+[data-bs-theme="dark"] .dash-bootstrap .Select-control {
+    background-color: var(--bs-gray-800) !important;
+    border-color: var(--bs-gray-600) !important;
+}
+
+/* Dropdown inner container backgrounds in dark mode */
+[data-bs-theme="dark"] .dash-dropdown .Select-multi-value-wrapper,
+[data-bs-theme="dark"] .dash-bootstrap .Select-multi-value-wrapper,
+[data-bs-theme="dark"] .dash-dropdown .Select-input,
+[data-bs-theme="dark"] .dash-bootstrap .Select-input {
+    background-color: transparent !important;
+    color: var(--bs-gray-900) !important;
+}
+
+[data-bs-theme="dark"] .dash-dropdown .Select-input > input,
+[data-bs-theme="dark"] .dash-bootstrap .Select-input > input {
+    background-color: transparent !important;
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .dash-dropdown .Select-value-label,
+[data-bs-theme="dark"] .dash-bootstrap .Select-value-label,
+[data-bs-theme="dark"] .dash-dropdown .Select-input input,
+[data-bs-theme="dark"] .dash-bootstrap .Select-input input,
+[data-bs-theme="dark"] .dash-dropdown .Select-placeholder,
+[data-bs-theme="dark"] .dash-bootstrap .Select-placeholder {
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .dash-dropdown .Select-arrow,
+[data-bs-theme="dark"] .dash-bootstrap .Select-arrow {
+    border-color: var(--bs-body-color) transparent transparent !important;
+}
+
+[data-bs-theme="dark"] .dash-dropdown .Select-option,
+[data-bs-theme="dark"] .dash-bootstrap .Select-option,
+[data-bs-theme="dark"] .dash-dropdown .VirtualizedSelectOption,
+[data-bs-theme="dark"] .dash-bootstrap .VirtualizedSelectOption {
+    background-color: var(--bs-gray-800) !important;
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .dash-dropdown .Select-option:hover,
+[data-bs-theme="dark"] .dash-bootstrap .Select-option:hover,
+[data-bs-theme="dark"] .dash-dropdown .Select-option.is-focused,
+[data-bs-theme="dark"] .dash-bootstrap .Select-option.is-focused,
+[data-bs-theme="dark"] .dash-dropdown .VirtualizedSelectFocusedOption,
+[data-bs-theme="dark"] .dash-bootstrap .VirtualizedSelectFocusedOption {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+[data-bs-theme="dark"] .dash-dropdown .Select-menu,
+[data-bs-theme="dark"] .dash-bootstrap .Select-menu-outer {
+    background-color: var(--bs-gray-800) !important;
+    border-color: var(--bs-gray-600) !important;
+}
+
+[data-bs-theme="dark"] .DateRangePickerInput,
+[data-bs-theme="dark"] .SingleDatePickerInput,
+[data-bs-theme="dark"] .DateInput_input {
+    background-color: var(--bs-gray-800) !important;
+    border-color: var(--bs-gray-600) !important;
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .DayPicker,
+[data-bs-theme="dark"] .CalendarMonth,
+[data-bs-theme="dark"] .CalendarMonthGrid {
+    background-color: var(--bs-gray-800) !important;
+}
+
+[data-bs-theme="dark"] .CalendarDay__default {
+    background-color: var(--bs-gray-800) !important;
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-gray-700) !important;
+}
+
+[data-bs-theme="dark"] .CalendarDay__default:hover {
+    background-color: var(--bs-gray-700) !important;
+}
+
+[data-bs-theme="dark"] .DayPickerNavigation_button__default {
+    background-color: var(--bs-gray-800) !important;
+    border-color: var(--bs-gray-600) !important;
+}
+
+[data-bs-theme="dark"] .CalendarMonth_caption {
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .DayPicker_weekHeader,
+[data-bs-theme="dark"] .DayPicker_weekHeader_li,
+[data-bs-theme="dark"] .DayPicker_weekHeader small {
+    color: var(--bs-gray-400) !important;
+}
+
+[data-bs-theme="dark"] .DayPickerNavigation_svg__horizontal {
+    fill: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .DateInput_fang {
+    fill: var(--bs-gray-800) !important;
+}
+
+[data-bs-theme="dark"] .DateInput_fangStroke {
+    stroke: var(--bs-gray-600) !important;
+}
+
+[data-bs-theme="dark"] .CalendarDay__outside {
+    color: var(--bs-gray-500) !important;
+}
+
+[data-bs-theme="dark"] .CalendarDay__selected,
+[data-bs-theme="dark"] .CalendarDay__selected:hover {
+    background: var(--bs-primary) !important;
+    color: white !important;
+}
+
+[data-bs-theme="dark"] .CalendarDay__hovered_span,
+[data-bs-theme="dark"] .CalendarDay__selected_span {
+    background: rgba(var(--bs-primary-rgb), 0.3) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* ============================================
+   Chart Creation Modal
+   ============================================ */
+
+/* Chart type selector cards */
+.chart-type-option {
+    border: 2px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.chart-type-option:hover {
+    border-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.chart-type-option.selected {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.chart-type-option i {
+    color: var(--bs-primary);
+}
+
+.chart-type-option.selected i {
+    color: white;
+}
+
+/* Cursor pointer utility */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Modal width to match container-fluid */
+.modal-xl-fluid .modal-dialog {
+    max-width: 95%;
+    margin: 1.75rem auto;
+}
+
+@media (min-width: 1200px) {
+    .modal-xl-fluid .modal-dialog {
+        max-width: 90%;
+    }
+}
+
+/* Modal filter sections */
+.modal-filters-container .card {
+    border: 1px solid var(--bs-border-color);
+}
+
+.modal-filters-container .card-header {
+    background-color: transparent;
+    padding: 0.5rem 1rem;
+}
+
+/* Filter section styling */
+.filter-section {
+    margin-bottom: 0.75rem;
+}
+
+.filter-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bs-light);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.filter-section-header:hover {
+    background-color: var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .filter-section-header {
+    background-color: var(--bs-gray-800);
+}
+
+[data-bs-theme="dark"] .filter-section-header:hover {
+    background-color: var(--bs-gray-700);
+}
+
+/* ============================================
+   Dashboard Loading States
+   ============================================ */
+.dash-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+._dash-loading-callback {
+    position: relative;
+}
+
+._dash-loading-callback::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-bs-theme="dark"] ._dash-loading-callback::after {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.mb-4.border-0 > .card-body {
+    background-color: var(--bs-gray-100);
+    border-radius: var(--bs-border-radius);
+}
+
+[data-bs-theme="dark"] .mb-4.border-0 > .card-body {
+    background-color: var(--bs-gray-800);
+}
+
+/* ============================================
+   Button Visibility Improvements
+   ============================================ */
+/* Make Refresh All button more visible when clickable */
+.refresh-all-btn:not(:disabled):not(.disabled) {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    border-width: 2px;
+    font-weight: 500;
+    color: white;
+}
+
+.refresh-all-btn:not(:disabled):not(.disabled):hover {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-dark);
+}
+
+/* Dark theme: use darker, more visible colors */
+[data-bs-theme="dark"] .refresh-all-btn:not(:disabled):not(.disabled) {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+[data-bs-theme="dark"] .refresh-all-btn:not(:disabled):not(.disabled):hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+    color: white;
+}
+

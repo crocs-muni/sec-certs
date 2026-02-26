@@ -27,6 +27,7 @@ class ComponentID(str, Enum):
     # Dashboard state and UI
     EMPTY_STATE = "empty-state"
     DASHBOARD_CONTENT = "dashboard-content"
+    DASHBOARD_HEADER = "dashboard-header"
     CURRENT_DASHBOARD_ID = "current-dashboard-id"
     DASHBOARD_NAME_INPUT = "dashboard-name-input"
     DASHBOARD_LOADED = "dashboard-loaded"
@@ -44,11 +45,20 @@ class ComponentID(str, Enum):
     UPDATE_ALL_BTN = "update-all-btn"
     FILTER_STORE = "filter-store"
 
+    # Modal collapsible sections
+    SELECTION_TOGGLE = "selection-toggle"
+    SELECTION_COLLAPSE = "selection-collapse"
+    SELECTION_ICON = "selection-icon"
+    VALUE_TEXT_TOGGLE = "value-text-toggle"
+    VALUE_TEXT_COLLAPSE = "value-text-collapse"
+    VALUE_TEXT_ICON = "value-text-icon"
+
     # Modal components
     MODAL = "modal"
     MODAL_CLOSE = "modal-close"
     MODAL_OPEN = "modal-open"
     MODAL_CONFIRM = "modal-confirm"
+    MODAL_SHOW_NON_ZERO = "modal-show-non-zero"
     CREATE_CHART_MODAL = "create-chart-modal"
     OPEN_CREATE_CHART_MODAL_BTN = "open-create-chart-modal-btn"
     MODAL_CANCEL_BTN = "modal-cancel-btn"
@@ -65,6 +75,7 @@ class ComponentID(str, Enum):
     MODAL_Y_LABEL = "modal-y-label"
     MODAL_SHOW_LEGEND = "modal-show-legend"
     MODAL_SHOW_GRID = "modal-show-grid"
+    MODAL_Y_LOG_SCALE = "modal-y-log-scale"
     COLOR_BY_COLLAPSE = "color-by-collapse"
     MODAL_FILTERS_CONTAINER = "modal-filters-container"
     MODAL_FILTERS_READY = "modal-filters-ready"
@@ -76,6 +87,7 @@ class ComponentID(str, Enum):
     COLOR_BY_TOGGLE = "color-by-toggle"
     MODAL_VALIDATION_ALERT = "modal-validation-alert"
     METADATA_LOADED = "metadata-loaded"
+    CHART_TYPE_CARD = "chart-type-card"
 
     # Pattern-matching component types (used in dicts)
     CHART_CONTENT = "chart-content"
@@ -105,6 +117,10 @@ class FilterID(str, Enum):
     STATUS_FILTER = "status-filter"
     YEAR_FILTER = "year-filter"
     VENDOR_FILTER = "vendor-filter"
+
+    # CVE/Vulnerability Filters
+    HAS_CVES_FILTER = "has-cves-filter"
+    HAS_TRANSITIVE_CVES_FILTER = "has-transitive-cves-filter"
 
 
 class ComponentIDBuilder:
@@ -179,8 +195,6 @@ class PatternMatchingComponentID(ComponentIDBuilder):
         :type component: ComponentID | FilterID
         :param index: The index value (MATCH, ALL, ALLSMALLER, or specific value).
         :type index: Any
-        :param use_prefix: If True, prepends collection_name to the component type.
-        :type use_prefix: bool
         :param index_key: The key name for the index in the dict (default: "index").
                          Can be "field" for filters, etc.
         :type index_key: str

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, TypedDict
-
-from typing_extensions import NotRequired
+from typing import Any
 
 
 class AggregationType(str, Enum):

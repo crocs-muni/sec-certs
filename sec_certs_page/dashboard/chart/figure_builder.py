@@ -42,29 +42,54 @@ class FigureBuilder:
         color_field = config.color_axis.field if config.color_axis else None
 
         try:
+            df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
             # Box plots and histograms need raw data distributions, not aggregated summaries
             if config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
                 columns = [x_field]
-                if y_field:
-                    if y_field not in df.columns:
-                        error_message = f"Box plot requires y-field '{y_field}' but it's not in the DataFrame columns: {list(df.columns)}"
-                        logger.error(error_message)
-                        return cls._empty_figure(f"Missing field: {y_field}", is_error=True)
-                    columns.append(y_field)
+
+                # Histograms don't use y_field, only box plots do
+                if config.chart_type == ChartType.BOX and y_field:
+                    # Only add y_field for box plots if it's actually in the data
+                    aggregation_placeholders = {agg.value for agg in AggregationType}
+                    if y_field not in aggregation_placeholders:
+                        if y_field not in df.columns:
+                            error_message = f"Box plot requires y-field '{y_field}' but it's not in the DataFrame columns: {list(df.columns)}"
+                            logger.error(error_message)
+                            return cls._empty_figure(f"Missing field: {y_field}", is_error=True)
+                        columns.append(y_field)
+
                 if color_field and color_field in df.columns:
                     columns.append(color_field)
                 agg_df = df[columns]
+
+                # For histograms, we only need x_field (y is computed by plotly)
+                # For box plots, use the actual y_field
+                if config.chart_type == ChartType.HISTOGRAM:
+                    actual_y_field = None  # Histogram doesn't need y_field
+                else:
+                    actual_y_field = y_field
             else:
                 # For other chart types, aggregate the data
                 agg_df = cls._aggregate_data(df, x_field, y_field, aggregation, color_field)
+                actual_y_field = y_field or "count"
 
-            fig = cls._create_chart_by_type(config, agg_df, x_field, y_field or "count", color_field)
+            if not config.show_zero_values and actual_y_field and actual_y_field in agg_df.columns:
+                agg_df = agg_df[agg_df[actual_y_field] != 0]
+
+            fig = cls._create_chart_by_type(config, agg_df, x_field, actual_y_field, color_field, hover_data=hover_data)
             fig.update_layout(
+                title=dict(text=config.title, font=dict(size=20)),
                 showlegend=config.show_legend,
                 template="plotly_white",
-                margin=dict(l=40, r=40, t=40, b=40),
-                height=600,
+                margin=dict(l=40, r=40, t=50, b=40),
+                height=800,
+                font=dict(size=14),
+                legend=dict(font=dict(size=12)),
             )
+            fig.update_xaxes(title_font=dict(size=18), tickfont=dict(size=14))
+            fig.update_yaxes(title_font=dict(size=18), tickfont=dict(size=14))
+            cls._apply_axis_scale(fig, config)
+
             return fig
         except Exception as e:
             error_message = f"Error creating figure for chart '{config.name}' (type: {config.chart_type})"
@@ -104,14 +129,26 @@ class FigureBuilder:
         if color_field and color_field not in df.columns:
             return cls._empty_figure(f"Missing color column: {color_field}", is_error=True)
 
+        if not config.show_zero_values and y_field in df.columns:
+            df = df[df[y_field] != 0]
+
         try:
-            fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field)
+            df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
+            fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field, hover_data=hover_data)
             fig.update_layout(
+                title=dict(text=config.title, font=dict(size=20)),
                 showlegend=config.show_legend,
                 template="plotly_white",
-                margin=dict(l=40, r=40, t=40, b=40),
-                height=600,
+                margin=dict(l=40, r=40, t=50, b=40),
+                height=800,
+                font=dict(size=14),
+                legend=dict(font=dict(size=12)),
             )
+            fig.update_xaxes(title_font=dict(size=18), tickfont=dict(size=14))
+            fig.update_yaxes(title_font=dict(size=18), tickfont=dict(size=14))
+            # Apply logarithmic scale if configured
+            cls._apply_axis_scale(fig, config)
+
             return fig
         except Exception as e:
             error_message = (
@@ -167,43 +204,86 @@ class FigureBuilder:
         config: ChartConfig,
         df: pd.DataFrame,
         x_field: str,
-        y_field: str,
+        y_field: str | None,
         color_field: str | None = None,
+        hover_data: list[str] | None = None,
     ) -> go.Figure:
         """Create chart based on chart type.
 
         :param config: Chart configuration
         :param df: DataFrame with data to plot
         :param x_field: Column name for X-axis
-        :param y_field: Column name for Y-axis
+        :param y_field: Column name for Y-axis (None for histograms)
         :param color_field: Optional column name for color dimension (secondary grouping)
         :return: Plotly Figure object
         """
         # Build labels dict to map field names to user-friendly labels
-        labels = {
-            x_field: config.x_axis.label,
-            y_field: config.y_axis.label if config.y_axis else "Count",
-        }
+        labels = {x_field: config.x_axis.label}
+        if y_field:
+            labels[y_field] = config.y_axis.label if config.y_axis else "Count"
         if color_field and config.color_axis:
             labels[color_field] = config.color_axis.label
 
+        if hover_data:
+            for col in hover_data:
+                labels[col] = config.x_axis.label + " (Original label)"
+
+        kwargs = {"data_frame": df, "x": x_field, "y": y_field, "labels": labels, "hover_data": hover_data}
+
         if config.chart_type == ChartType.BAR:
-            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="group", labels=labels)
+            return px.bar(**kwargs, color=color_field, barmode="group")
         elif config.chart_type == ChartType.STACKED_BAR:
-            return px.bar(df, x=x_field, y=y_field, color=color_field, barmode="stack", labels=labels)
+            return px.bar(**kwargs, color=color_field, barmode="stack")
         elif config.chart_type == ChartType.LINE:
-            return px.line(df, x=x_field, y=y_field, color=color_field, markers=True, labels=labels)
+            return px.line(**kwargs, color=color_field, markers=True)
         elif config.chart_type == ChartType.PIE:
-            # Pie charts don't support color dimension in the same way
-            return px.pie(df, names=x_field, values=y_field, labels=labels)
+            return px.pie(df, names=x_field, values=y_field, labels=labels, hover_data=hover_data)
         elif config.chart_type == ChartType.SCATTER:
-            return px.scatter(df, x=x_field, y=y_field, color=color_field, labels=labels)
+            return px.scatter(**kwargs, color=color_field)
         elif config.chart_type == ChartType.BOX:
-            return px.box(df, x=x_field, y=y_field, color=color_field, labels=labels)
+            return px.box(**kwargs, color=color_field)
         elif config.chart_type == ChartType.HISTOGRAM:
-            return px.histogram(df, x=x_field, color=color_field, labels=labels)
+            return px.histogram(**kwargs, color=color_field)
         else:
             return cls._empty_figure(f"Unsupported chart type: {config.chart_type}")
+
+    @classmethod
+    def _apply_axis_scale(cls, fig: go.Figure, config: ChartConfig) -> None:
+        """Apply logarithmic scale to axes if configured.
+
+        :param fig: Plotly figure to modify
+        :param config: Chart configuration with axis settings
+        """
+        if config.x_axis and config.x_axis.log_scale:
+            fig.update_xaxes(type="log")
+
+        if config.y_axis and config.y_axis.log_scale:
+            fig.update_yaxes(type="log")
+
+    @staticmethod
+    def _truncate_xaxis_ticks_label(df: pd.DataFrame, x_field, max_length: int = 20) -> tuple[pd.DataFrame, list[str]]:
+        """Shorten x_field label names for display purposes.
+
+        :param max_length: Maximum length before truncation
+        :return: Shortened label with ellipsis if truncated
+        """
+        hover_data = []
+        if x_field in df.columns:
+            has_long_values = df[x_field].apply(lambda x: len(str(x)) > max_length).any()
+
+            if has_long_values:
+                full_label_col = f"full_{x_field}"
+                # Create assignment dict with actual column names (x_field value, not literal "x_field")
+                assignment = {
+                    full_label_col: df[x_field],
+                    x_field: df[x_field].apply(
+                        lambda x: str(x)[:max_length] + "..." if len(str(x)) > max_length else x
+                    ),
+                }
+                df = df.assign(**assignment)
+                hover_data.append(full_label_col)
+
+        return df, hover_data
 
     @staticmethod
     def _empty_figure(message: str = "No data", is_error: bool = False) -> go.Figure:
@@ -215,7 +295,6 @@ class FigureBuilder:
         """
         fig = go.Figure()
 
-        # Add error icon if this is an error message
         display_message = f"⚠️ {message}" if is_error else message
         color = "#d9534f" if is_error else "gray"
 
@@ -226,7 +305,7 @@ class FigureBuilder:
             x=0.5,
             y=0.5,
             showarrow=False,
-            font=dict(size=16, color=color),
+            font=dict(size=18, color=color),
             align="center",
         )
         fig.update_layout(
