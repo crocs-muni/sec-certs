@@ -9,8 +9,8 @@ The app uses the following collections:
 
 - `cc`: To store the Common Criteria certificate documents.
 - `cc_diff`: To store the "diffs" of how the Common Criteria certificate documents in `cc` changed over time
-  with periodic updates done by a background Celery task (see `sec_certs_page.cc.tasks.update_data`).
-- `cc_log`: To store a log of "runs" of the background update Celery task mentioned above.
+  with periodic updates done by a background task.
+- `cc_log`: To store a log of "runs" of the background update task mentioned above.
 - `cc_old`: To store the mapping of old CC ids and new CC dgsts.
 - `cc_scheme`: To store the dump of CC scheme websites. **Unused**
 - `fips`: To store the FIPS 140 certificate documents.
@@ -22,12 +22,71 @@ The app uses the following collections:
 - `pp`: To store the protection profile documents.
 - `pp_diff`: Same as `cc_diff` above but instead for protection profiles.
 - `pp_log`: Same as `cc_log` above but instead for protection profiles.
-- `users`: To store the registered users of the site (admins and regular users with extended schema for user accounts)
+- `users`: To store the registered users of the site (admins and regular users).
 - `email_tokens`: To store temporary email tokens for email confirmation, password reset, and magic link login.
 - `subs`: To store the confirmed and unconfirmed notification subscriptions.
 - `accounting`: To store accounting data for users.
 - `cve`: To store the CVE dataset entries.
 - `cpe`: To store the CPE dataset entries
+
+## Diff schema
+
+The `*_diff` collections store the diffs of how the certificate documents in the main `cc`, `fips`, and `pp` collections
+changed over time. There are four types of diffs:
+ - New certificate: When a new certificate is added to the main collection, a diff document with `type: "new"` is created in the corresponding `*_diff` collection.
+ - Changed certificate: When an existing certificate in the main collection is updated, a diff document with `type: "change"` is created in the corresponding `*_diff` collection, containing the diff of the changes.
+ - Removed certificate: When a certificate is deleted from the main collection, a diff document with `type: "remove"` is created in the corresponding `*_diff` collection, containing the identifier of the deleted certificate.
+ - Returned certificate: When a certificate that was previously removed is added again to the main collection, a diff document with `type: "back"` is created in the corresponding `*_diff` collection.
+
+### New certificate diff schema
+
+```javascript
+{
+    _id: ObjectId;
+    run_id: ObjectId; // The _id of the corresponding log document in the *_log collection for this update run
+    dgst: String;
+    timestamp: Date;
+    type: "new";
+    diff: Object; // The full certificate document that was added
+}
+```
+
+### Changed certificate diff schema
+
+```javascript
+{
+    _id: ObjectId;
+    run_id: ObjectId; // The _id of the corresponding log document in the *_log collection for this update run
+    dgst: String;
+    timestamp: Date;
+    type: "change";
+    diff: Object; // An object containing the jsondiff of the changes
+}
+```
+
+### Removed certificate diff schema
+
+```javascript
+{
+    _id: ObjectId;
+    run_id: ObjectId; // The _id of the corresponding log document in the *_log collection for this update run
+    dgst: String;
+    timestamp: Date;
+    type: "remove";
+}
+```
+
+### Returned certificate diff schema
+
+```javascript
+{
+    _id: ObjectId;
+    run_id: ObjectId; // The _id of the corresponding log document in the *_log collection for this update run
+    dgst: String;
+    timestamp: Date;
+    type: "back";
+}
+```
 
 ## User Account Schema
 
