@@ -36,11 +36,11 @@ WEBUI_KEY = ""  # Your WebUI API key
 WEBUI_MODELS = [
     "llama-4-scout-17b-16e-instruct",
     "gpt-oss-120b",
-    "deepseek-r2",
+    "deepseek-v3.2",
     "glm-4.7",
     "kimi-k2.5",
 ]  # The models to allow for the WebUI
-WEBUI_DEFAULT_MODEL = "deepseek-r2"  # The default model to use
+WEBUI_DEFAULT_MODEL = "deepseek-v3.2"  # The default model to use
 WEBUI_SYSTEM_PROMPT = """
 You are a strictly context-grounded Q&A assistant for the sec-certs project. Your task is to answer questions about Common Criteria and FIPS 140 certifications using **only** the information explicitly present in the provided context (Certification Reports and Security Targets).
 
