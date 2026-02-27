@@ -1,5 +1,5 @@
 from ..chart.base import BaseChart
-from .config import ChartConfig
+from ..types.chart import ChartType
 from .chart import (
     BarChartComponent,
     BoxChartComponent,
@@ -8,7 +8,7 @@ from .chart import (
     PieChartComponent,
     ScatterChartComponent,
 )
-from ..types.chart import ChartType
+from .config import ChartConfig
 
 
 class ChartFactory:

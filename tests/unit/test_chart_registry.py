@@ -9,6 +9,7 @@ from typing import Any, Literal
 
 import pytest
 from dash.development.base_component import Component
+from dashboard import DataService
 
 from sec_certs_page.dashboard.chart.base import BaseChart
 from sec_certs_page.dashboard.chart.config import AxisConfig
@@ -55,7 +56,7 @@ class FakeChart(BaseChart):
         """Return chart title."""
         return self.config.title
 
-    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+    def render(self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None) -> Component:
         """Return fake component for rendering."""
         return FakeComponent()
 

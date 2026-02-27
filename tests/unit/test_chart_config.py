@@ -360,7 +360,7 @@ class TestChartQueryPipeline:
             collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
-        pipeline = [
+        pipeline: list[dict[str, Any]] = [
             {"$match": {"category": "ICs"}},
             {"$group": {"_id": "$category", "count": {"$sum": 1}}},
         ]
@@ -394,7 +394,7 @@ class TestChartQueryPipeline:
             collection_name=CollectionName.CommonCriteria,
             x_axis=AxisConfig(field="category", label="Category"),
         )
-        pipeline = [{"$match": {}}]
+        pipeline: list[dict[str, Any]] = [{"$match": {}}]
         chart.set_query_pipeline(pipeline)
 
         result = chart.get_query_pipeline()

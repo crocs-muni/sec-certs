@@ -120,6 +120,7 @@ public(broker=broker)
 redis: FlaskRedis
 if app.testing:
     from fakeredis import FakeRedis
+
     redis = FlaskRedis.from_custom_provider(FakeRedis, app)
 else:
     redis = FlaskRedis(app)

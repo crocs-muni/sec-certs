@@ -3,6 +3,7 @@ import logging
 import secrets
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Any
 
 import dramatiq
 import sentry_sdk
@@ -30,7 +31,7 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
 
     def deco(f):
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             msg = CurrentMessage.get_current_message()
             if msg is None:
                 # If we are testing and not in a worker, just execute
@@ -38,8 +39,8 @@ def no_simultaneous_execution(lock_name: str, abort: bool = False, timeout: floa
             lock: Lock = redis.lock(lock_name, timeout=timeout)
             acq = lock.acquire(blocking=not abort)
             if not acq:
-                logger.warning(f"Failed to acquire lock: {lock_name}")
-                return
+                logger.warning(f"Failed to acquire lock: {lock_name}. Aborting.")
+                return None
             try:
                 return f(*args, **kwargs)
             finally:
@@ -61,7 +62,7 @@ def single_queue(queue_name: str, timeout: float = 60 * 10):  # pragma: no cover
 
     def deco(f):
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             msg = CurrentMessage.get_current_message()
             if msg is None:
                 # If we are testing and not in a worker, just execute
@@ -92,7 +93,7 @@ def task(task_name):
 
     def deco(f):
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             msg = CurrentMessage.get_current_message()
             if msg is None:
                 # If we are testing and not in a worker, just execute

@@ -212,7 +212,7 @@ def accounting(
 
     def deco(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             now = datetime.now(timezone.utc)
             if aggregate == "daily":
                 period = now.replace(hour=0, minute=0, second=0, microsecond=0)

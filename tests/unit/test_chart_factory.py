@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import uuid4
 
 import pandas as pd
@@ -134,7 +135,7 @@ class TestFigureBuilderCreateFigure:
     ) -> None:
         """create_figure produces valid Figure for all supported chart types."""
         y_field = "count"
-        y_agg = AggregationType.COUNT
+        y_agg: Optional[AggregationType] = AggregationType.COUNT
 
         if chart_type == ChartType.BOX:
             y_field = "eal_level"

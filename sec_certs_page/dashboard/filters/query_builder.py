@@ -522,6 +522,7 @@ def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
     x_field = chart.x_axis.field
     x_expr = _get_field_expression(x_field)
 
+    group_id: str | dict[str, Any]
     if chart.color_axis:
         color_field = chart.color_axis.field
         color_expr = _get_field_expression(color_field)

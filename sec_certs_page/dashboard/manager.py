@@ -6,9 +6,12 @@ from uuid import uuid4
 from .chart.config import AxisConfig, ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
-from .chart.registry import ChartRegistry
 from .chart.predefined_charts.analysis_charts import create_cc_analysis_charts, create_fips_analysis_charts
-from .chart.predefined_charts.vulnerability_charts import create_cc_vulnerability_charts, create_fips_vulnerability_charts
+from .chart.predefined_charts.vulnerability_charts import (
+    create_cc_vulnerability_charts,
+    create_fips_vulnerability_charts,
+)
+from .chart.registry import ChartRegistry
 from .dashboard import Dashboard
 from .data import DataService
 from .filters.factory import FilterFactory

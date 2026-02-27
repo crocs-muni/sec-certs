@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from dash.development.base_component import Component
 
-from .config import ChartConfig
 from .base import BaseChart
+from .config import ChartConfig
 
 if TYPE_CHECKING:
     from ..data import DataService
