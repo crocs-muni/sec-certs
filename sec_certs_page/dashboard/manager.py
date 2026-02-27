@@ -58,55 +58,11 @@ class DashboardManager:
     def _register_cc_charts(self) -> None:
         cc_chart_registry = self.chart_registries[CollectionName.CommonCriteria]
 
-        category_distribution_config = ChartConfig(
-            chart_id=uuid4(),
-            name="cc-category-distribution",
-            title="Category Distribution",
-            chart_type=ChartType.PIE,
-            collection_name=CollectionName.CommonCriteria,
-            x_axis=AxisConfig(field="category", label="Category"),
-            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
-            show_legend=True,
-            show_grid=False,
-        )
-
-        certs_per_year_config = ChartConfig(
-            chart_id=uuid4(),
-            name="cc-certs-per-year",
-            title="Certificates by Category and Year",
-            chart_type=ChartType.BAR,
-            collection_name=CollectionName.CommonCriteria,
-            x_axis=AxisConfig(field="year_from", label="Year"),
-            y_axis=AxisConfig(field="count", label="Number of Certificates"),
-            show_legend=True,
-            show_grid=True,
-        )
-
-        validity_duration_config = ChartConfig(
-            chart_id=uuid4(),
-            name="cc-validity-duration",
-            title="Certificate Validity Duration",
-            chart_type=ChartType.BOX,
-            collection_name=CollectionName.CommonCriteria,
-            x_axis=AxisConfig(field="year_from", label="Year of Certification"),
-            y_axis=AxisConfig(field="validity_days", label="Lifetime of certificates (in days)"),
-            show_legend=True,
-            show_grid=True,
-        )
-
-        charts = [
-            ChartFactory.create_chart(category_distribution_config),
-            ChartFactory.create_chart(certs_per_year_config),
-            ChartFactory.create_chart(validity_duration_config),
-        ]
-
         vulnerability_charts = create_cc_vulnerability_charts()
-        charts.extend(vulnerability_charts)
-
         analysis_charts = create_cc_analysis_charts()
-        charts.extend(analysis_charts)
 
-        for chart in charts:
+        all_charts = vulnerability_charts + analysis_charts
+        for chart in all_charts:
             cc_chart_registry.register(chart)
 
     def _register_fips_charts(self) -> None:
