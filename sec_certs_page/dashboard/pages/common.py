@@ -32,7 +32,7 @@ def create_collection_page_layout(collection_name: CollectionName, title: str) -
     """
     cid = ComponentIDBuilder(collection_name)
     return html.Div(
-        className="py-3",
+        className="",
         children=[
             *_create_page_stores(collection_name),
             _create_toast(cid),
@@ -94,7 +94,7 @@ def _create_page_header(title: str) -> dbc.Row:
         children=[
             dbc.Col(
                 children=[
-                    html.H1(title, className="mb-2 fw-bold"),
+                    html.H1(title, className="mb-2"),
                     dcc.Link(
                         [html.I(className="fas fa-arrow-left me-2"), "Back to Dashboard Home"],
                         href=DASHBOARD_URL_BASE_PATHNAME,

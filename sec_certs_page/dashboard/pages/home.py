@@ -130,7 +130,7 @@ def layout(**kwargs) -> html.Div:
     :return: Page layout component
     """
     return html.Div(
-        className="py-4",
+        className="",
         children=[
             # Welcome section
             dbc.Row(
@@ -139,7 +139,7 @@ def layout(**kwargs) -> html.Div:
                     dbc.Col(
                         width=12,
                         children=[
-                            html.H1("Certificate Analysis Dashboard", className="mb-2 fw-bold"),
+                            html.H1("Dashboards", className="mb-2 fw-bold"),
                             html.P(
                                 "Select a certificate dataset below to create interactive visualizations and explore certification trends.",
                                 className="lead text-muted mb-0",
