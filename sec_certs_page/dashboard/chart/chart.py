@@ -50,7 +50,7 @@ class ConfigurableChart(BaseChart):
             if df.empty:
                 return self._render_container([self._render_empty_state()])
 
-            if self.config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
+            if self.config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM, ChartType.SCATTER):
                 fig = FigureBuilder.create_figure(self.config, df)
             else:
                 # Check if data is already aggregated by examining columns

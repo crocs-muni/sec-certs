@@ -43,10 +43,11 @@ def create_cc_analysis_charts() -> list:
         chart_id=uuid4(),
         name="cc-certs-per-year",
         title="Certificates by Category and Year",
-        chart_type=ChartType.BAR,
+        chart_type=ChartType.STACKED_BAR,
         collection_name=CollectionName.CommonCriteria,
         x_axis=AxisConfig(field="year_from", label="Year"),
-        y_axis=AxisConfig(field="count", label="Number of Certificates"),
+        y_axis=AxisConfig(field="count", label="Certificates Issued", aggregation=AggregationType.COUNT),
+        color_axis=AxisConfig(field="category", label="Category"),
         show_legend=True,
         show_grid=True,
     )

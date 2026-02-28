@@ -281,4 +281,6 @@ def get_aggregation_options() -> list[dict]:
 
     :return: List of option dicts with label and value
     """
-    return [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
+    return [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType] + [
+        {"label": "IDENTITY", "value": None}
+    ]
