@@ -137,7 +137,7 @@ class TestFigureBuilderCreateFigure:
         y_field = "count"
         y_agg: Optional[AggregationType] = AggregationType.COUNT
 
-        if chart_type == ChartType.BOX:
+        if chart_type in (ChartType.BOX, ChartType.SCATTER):
             y_field = "eal_level"
             y_agg = None
 
