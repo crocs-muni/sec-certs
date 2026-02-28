@@ -63,18 +63,18 @@
 {%- endmacro %}
 
 {% macro render_cve_impact(cve) %}
-    {% if cve["impact"]["severity"] == "CRITICAL" %}
+    {% if cve["cvss"]["severity"] == "CRITICAL" %}
         <span style="color: var(--bs-red)"><i class="fas fa-fw fa-exclamation-triangle"></i></span>
         CRITICAL
-    {% elif cve["impact"]["severity"] == "HIGH" %}
+    {% elif cve["cvss"]["severity"] == "HIGH" %}
         <span style="color: var(--bs-orange)"><i class="fas fa-fw fa-exclamation-circle"></i></span>
         HIGH
-    {% elif cve["impact"]["severity"] == "MEDIUM" %}
+    {% elif cve["cvss"]["severity"] == "MEDIUM" %}
         <span style="color: var(--bs-yellow)"><i class="fas fa-fw fa-exclamation"></i></span> MEDIUM
-    {% elif cve["impact"]["severity"] == "LOW" %}
+    {% elif cve["cvss"]["severity"] == "LOW" %}
         <span style="color: var(--bs-green)"><i class="fas fa-fw fa-exclamation"></i></span> LOW
     {% else %}
-        {{ cve["impact"]["severity"] }}
+        {{ cve["cvss"]["severity"] }}
     {% endif %}
 {% endmacro %}
 
@@ -98,23 +98,19 @@
                 <col style="width:20%">
                 <col style="width:10%">
                 <col style="width:10%">
-                <col style="width:10%">
-                <col style="width:15%">
             </colgroup>
             <thead>
             <tr>
                 <th scope="col" colspan="1" rowspan="2">ID</th>
                 <th scope="col" colspan="1" rowspan="2">Links</th>
                 <th scope="col" colspan="1" rowspan="2">Severity</th>
-                <th scope="col" colspan="3" class="text-center pb-0"><abbr title="Common Vulnerability Scoring System">CVSS</abbr>
+                <th scope="col" colspan="1" class="text-center pb-0"><abbr title="Common Vulnerability Scoring System">CVSS</abbr>
                     Score
                 </th>
                 <th scope="col" colspan="1" rowspan="2">Published on</th>
             </tr>
             <tr>
-                <th scope="col">Base</th>
-                <th scope="col">Exploitability</th>
-                <th scope="col">Impact</th>
+                <th scope="col">Base score</th>
             </tr>
             </thead>
             <tbody>
@@ -132,9 +128,7 @@
                     <td>
                         {{ render_cve_impact(cve) }}
                     </td>
-                    <td>{{ cve["impact"]["base_score"] }}</td>
-                    <td>{{ cve["impact"]["explotability_score"] }}</td>
-                    <td>{{ cve["impact"]["impact_score"] }}</td>
+                    <td>{{ cve["cvss"]["base_score"] }}</td>
                     <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y") }}</td>
 
                 </tr>
