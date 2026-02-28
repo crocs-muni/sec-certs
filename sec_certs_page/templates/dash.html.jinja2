@@ -1,9 +1,6 @@
 {% extends "common/base.html.jinja2" %}
 {% block head %}
-    {# TODO: This template is not fully correct. The metas are duplicated. #}
     {{ super() }}
-    {{ metas|safe }}
-    {{ favicon|safe }}
     {{ css|safe }}
 {% endblock %}
 {% block content %}
