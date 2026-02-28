@@ -94,10 +94,33 @@
             (() => {
                 'use strict'
 
-                const getStoredTheme = () => localStorage.getItem('theme')
+                // Detect available storage: prefer localStorage, fall back to sessionStorage, else null.
+                const storage = (() => {
+                    const test = '__storage_test__';
+                    const candidates = [
+                        () => window.localStorage,
+                        () => window.sessionStorage
+                    ];
+                    for (const getStorage of candidates) {
+                        try {
+                            const s = getStorage();
+                            if (s) {
+                                s.setItem(test, test);
+                                s.removeItem(test);
+                                return s;
+                            }
+                        } catch (e) {
+                            // storage unavailable or access denied, try next
+                        }
+                    }
+                    return null;
+                })();
+
+                const getStoredTheme = () => storage ? storage.getItem('theme') : null;
                 const setStoredTheme = theme => {
-                    localStorage.setItem('theme', theme);
-                    localStorage.setItem('mode', theme)
+                    if (!storage) return;
+                    storage.setItem('theme', theme);
+                    storage.setItem('mode', theme)
                 }
 
                 const getPreferredTheme = () => {
@@ -160,24 +183,26 @@
                 window.addEventListener('DOMContentLoaded', () => {
                     showActiveTheme(getPreferredTheme())
 
-                    document.querySelectorAll('[data-bs-theme-value]')
-                        .forEach(toggle => {
-                            toggle.addEventListener('click', () => {
-                                const theme = toggle.getAttribute('data-bs-theme-value')
-                                setStoredTheme(theme)
-                                setTheme(theme)
-                                showActiveTheme(theme, true)
+                    if (storage) {
+                        document.querySelectorAll('[data-bs-theme-value]')
+                            .forEach(toggle => {
+                                toggle.addEventListener('click', () => {
+                                    const theme = toggle.getAttribute('data-bs-theme-value')
+                                    setStoredTheme(theme)
+                                    setTheme(theme)
+                                    showActiveTheme(theme, true)
+                                })
                             })
-                        })
+                    }
                 })
 
                 window.addEventListener('DOMContentLoaded', () => {
-                    let storedEventText = localStorage.getItem("event_navbar_text");
                     let eventElement = document.getElementById("event-navbar");
                     if (eventElement === null) {
                         return;
                     }
                     let textElement = document.getElementById("event-navbar-text");
+                    let storedEventText = storage ? storage.getItem("event_navbar_text") : null;
 
                     if (storedEventText !== textElement.textContent) {
                         eventElement.style.display = "flex";
@@ -186,7 +211,9 @@
                     let closeElement = document.getElementById("event-navbar-close");
                     closeElement.addEventListener("click", () => {
                         eventElement.style.display = "none";
-                        localStorage.setItem("event_navbar_text", textElement.textContent);
+                        if (storage) {
+                            storage.setItem("event_navbar_text", textElement.textContent);
+                        }
                     });
                 });
             })()

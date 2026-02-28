@@ -1,9 +1,31 @@
+// Detect available storage: prefer localStorage, fall back to sessionStorage, else null.
+const storage = (() => {
+    const test = '__storage_test__';
+    const candidates = [
+        () => window.localStorage,
+        () => window.sessionStorage
+    ];
+    for (const getStorage of candidates) {
+        try {
+            const s = getStorage();
+            if (s) {
+                s.setItem(test, test);
+                s.removeItem(test);
+                return s;
+            }
+        } catch (e) {
+            // storage unavailable or access denied, try next
+        }
+    }
+    return null;
+})();
+
 function update_state_core(type, storage_key, action, enable, enable_callback, show) {
     if (typeof certificate_data !== "undefined") {
         $(`#${type}-add-current`).show();
     }
 
-    let selected = localStorage.getItem(storage_key);
+    let selected = storage ? storage.getItem(storage_key) : null;
     if (selected === null) {
         if (enable(0)) {
             enable_callback(selected);
@@ -57,19 +79,21 @@ export function update_state() {
 }
 
 export function remove_cert(storage_key, event) {
+    if (!storage) return;
     let elem = $(event.target).parents("tr");
-    let selected = localStorage.getItem(storage_key);
+    let selected = storage.getItem(storage_key);
     selected = JSON.parse(selected).filter(cert => cert["hashid"] !== elem.data("cert-hashid"));
     if (selected.length === 0) {
-        localStorage.removeItem(storage_key);
+        storage.removeItem(storage_key);
     } else {
-        localStorage.setItem(storage_key, JSON.stringify(selected));
+        storage.setItem(storage_key, JSON.stringify(selected));
     }
     update_state();
 }
 
 export function add_current_cert(storage_key, current) {
-    let selected = localStorage.getItem(storage_key);
+    if (!storage) return;
+    let selected = storage.getItem(storage_key);
     if (selected === null) {
         selected = [current];
     } else {
@@ -81,12 +105,12 @@ export function add_current_cert(storage_key, current) {
         	return;
         }
     }
-    localStorage.setItem(storage_key, JSON.stringify(selected));
+    storage.setItem(storage_key, JSON.stringify(selected));
     update_state();
 }
 
 export function compare_do(cc_url, fips_url) {
-    let selected = localStorage.getItem("selected_certs_comparison");
+    let selected = storage ? storage.getItem("selected_certs_comparison") : null;
     if (selected === null) {
         //whoops
         $("#compare-error").text("This should not have happened. Please report a bug and clear your browser's localStorage.").show();
