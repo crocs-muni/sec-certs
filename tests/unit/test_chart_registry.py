@@ -9,12 +9,12 @@ from typing import Any, Literal
 
 import pytest
 from dash.development.base_component import Component
-from dashboard import DataService
 
 from sec_certs_page.dashboard.chart.base import BaseChart
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.chart.registry import ChartRegistry
+from sec_certs_page.dashboard.data import DataService
 from sec_certs_page.dashboard.types.chart import ChartType
 from sec_certs_page.dashboard.types.common import CollectionName
 
