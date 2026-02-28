@@ -17,14 +17,12 @@ from .manager import DashboardManager
 logger: Logger = logging.getLogger(__name__)
 
 
-def layout(**kwargs) -> dbc.Container:
+def layout(**kwargs) -> html.Div:
     """
     Base layout for the dashboard application. This is a simple container that includes an alert for mobile users and the page content.
     """
 
-    return dbc.Container(
-        fluid=True,
-        className="col-12 col-sm-10 mx-auto p-3 py-md-5",
+    return html.Div(
         children=[
             dbc.Alert(
                 [

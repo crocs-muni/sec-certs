@@ -43,49 +43,18 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
 
     return dbc.Col(
         width=12,
-        lg=6,
-        className="mb-4",
+        md=6,
         children=[
-            dbc.Card(
-                className="h-100 shadow-sm collection-card",
-                children=[
-                    dbc.CardHeader(
-                        className=f"bg-{info['color']} text-white py-4",
-                        children=[
-                            html.Div(
-                                className="d-flex align-items-center",
-                                children=[
-                                    html.Div(
-                                        className="me-3",
-                                        children=[html.I(className=f"{info['icon']} fa-3x")],
-                                    ),
-                                    html.Div(
-                                        children=[html.H3(info["title"], className="mb-0 fw-bold")],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    dbc.CardBody(
-                        className="py-4",
-                        children=[
-                            html.P(info["description"], className="card-text lead mb-0"),
-                        ],
-                    ),
-                    dbc.CardFooter(
-                        className="bg-transparent border-0 pt-0 pb-4 px-4",
-                        children=[
-                            dbc.Button(
-                                ["Open Dashboard", html.I(className="fas fa-arrow-right ms-2")],
-                                href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name.value}",
-                                color=info["color"],
-                                size="lg",
-                                className="w-100",
-                                external_link=False,
-                            ),
-                        ],
-                    ),
-                ],
+            html.Div(
+                className="feature-icon bg-primary bg-gradient",
+                children=html.I(className=f"fas fa-fw fa-chart-line"),
+            ),
+            html.H2(info["title"]),
+            html.P(info["description"]),
+            dbc.Button(
+                ["Open Dashboard", html.I(className="fas fa-arrow-right ms-2")],
+                href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name.value}",
+                external_link=False,
             ),
         ],
     )
@@ -130,19 +99,25 @@ def layout(**kwargs) -> html.Div:
     :return: Page layout component
     """
     return html.Div(
-        className="",
         children=[
             # Welcome section
-            dbc.Row(
-                className="mb-4",
+            dbc.Col(
+                width=12,
+                sm=10,
+                className="mx-auto p-3 py-md-5",
                 children=[
-                    dbc.Col(
-                        width=12,
+                    dbc.Row(
+                        className="mb-4",
                         children=[
-                            html.H1("Dashboards", className="mb-2 fw-bold"),
-                            html.P(
-                                "Select a certificate dataset below to create interactive visualizations and explore certification trends.",
-                                className="lead text-muted mb-0",
+                            dbc.Col(
+                                width=12,
+                                children=[
+                                    html.H1("Dashboards", className="mb-2 fw-bold"),
+                                    html.P(
+                                        "Select a certificate dataset below to create interactive visualizations and explore certification trends.",
+                                        className="lead text-muted mb-0",
+                                    ),
+                                ],
                             ),
                         ],
                     ),
@@ -150,12 +125,29 @@ def layout(**kwargs) -> html.Div:
             ),
             # Collection cards
             dbc.Row(
-                className="g-4 mb-5",
-                children=_build_collection_cards(),
+                className="bg-darker-light p-3",
+                children=[
+                    dbc.Col(
+                        width=12,
+                        sm=10,
+                        className="mx-auto",
+                        children=[
+                            dbc.Row(
+                                className="my-5",
+                                children=_build_collection_cards(),
+                            )
+                        ],
+                    )
+                ],
             ),
             # Getting started section
-            _build_getting_started(),
-        ],
+            html.Div(
+                className="col-12 col-sm-10 mx-auto p-3 py-md-5",
+                children=[
+                    _build_getting_started(),
+                ],
+            ),
+        ]
     )
 
 
