@@ -26,6 +26,46 @@ def create_cc_analysis_charts() -> list:
     """
     charts = []
 
+    category_distribution_config = ChartConfig(
+        chart_id=uuid4(),
+        name="cc-category-distribution",
+        title="Category Distribution",
+        chart_type=ChartType.PIE,
+        collection_name=CollectionName.CommonCriteria,
+        x_axis=AxisConfig(field="category", label="Category"),
+        y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
+        show_legend=True,
+        show_grid=False,
+    )
+    charts.append(ChartFactory.create_chart(category_distribution_config))
+
+    certs_per_year_config = ChartConfig(
+        chart_id=uuid4(),
+        name="cc-certs-per-year",
+        title="Certificates by Category and Year",
+        chart_type=ChartType.STACKED_BAR,
+        collection_name=CollectionName.CommonCriteria,
+        x_axis=AxisConfig(field="year_from", label="Year"),
+        y_axis=AxisConfig(field="count", label="Certificates Issued", aggregation=AggregationType.COUNT),
+        color_axis=AxisConfig(field="category", label="Category"),
+        show_legend=True,
+        show_grid=True,
+    )
+    charts.append(ChartFactory.create_chart(certs_per_year_config))
+
+    validity_duration_config = ChartConfig(
+        chart_id=uuid4(),
+        name="cc-validity-duration",
+        title="Certificate Validity Duration",
+        chart_type=ChartType.BOX,
+        collection_name=CollectionName.CommonCriteria,
+        x_axis=AxisConfig(field="year_from", label="Year of Certification"),
+        y_axis=AxisConfig(field="validity_days", label="Lifetime of certificates (in days)"),
+        show_legend=True,
+        show_grid=True,
+    )
+    charts.append(ChartFactory.create_chart(validity_duration_config))
+
     # EAL Distribution by Category - Stacked Bar
     # Shows which categories tend to have higher assurance levels
     eal_by_category_config = ChartConfig(

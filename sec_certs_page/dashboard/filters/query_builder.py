@@ -323,7 +323,7 @@ def build_chart_pipeline(
             pipeline.append({"$match": match_query})
 
     # Box plots and histograms need raw data, not aggregated summaries
-    if chart.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
+    if chart.chart_type in (ChartType.BOX, ChartType.HISTOGRAM, ChartType.SCATTER):
         # Add $addFields stage to compute derived fields if needed
         add_fields_stage = _build_add_fields_stage(chart)
         if add_fields_stage:
@@ -332,7 +332,7 @@ def build_chart_pipeline(
         # Project only the fields we need for the chart
         project_fields = {chart.x_axis.field: 1}
         # For box plots, include y_field if it's a real field (not a placeholder like "count")
-        if chart.chart_type == ChartType.BOX and chart.y_axis and chart.y_axis.field:
+        if chart.chart_type in (ChartType.BOX, ChartType.SCATTER) and chart.y_axis and chart.y_axis.field:
             # Only project if it's not a placeholder aggregation value
             aggregation_placeholders = {agg.value for agg in AggregationType}
             if chart.y_axis.field not in aggregation_placeholders:
@@ -522,6 +522,7 @@ def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
     x_field = chart.x_axis.field
     x_expr = _get_field_expression(x_field)
 
+    group_id: str | dict[str, Any]
     if chart.color_axis:
         color_field = chart.color_axis.field
         color_expr = _get_field_expression(color_field)

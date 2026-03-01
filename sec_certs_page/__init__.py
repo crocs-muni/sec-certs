@@ -120,6 +120,7 @@ public(broker=broker)
 redis: FlaskRedis
 if app.testing:
     from fakeredis import FakeRedis
+
     redis = FlaskRedis.from_custom_provider(FakeRedis, app)
 else:
     redis = FlaskRedis(app)
@@ -240,7 +241,6 @@ with app.app_context():
         use_pages=True,
         suppress_callback_exceptions=True,
         pages_folder=pages_folder_path,
-        external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME],
     )
     from .dashboard import init_dashboard
 

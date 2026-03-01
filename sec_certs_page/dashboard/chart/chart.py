@@ -50,7 +50,7 @@ class ConfigurableChart(BaseChart):
             if df.empty:
                 return self._render_container([self._render_empty_state()])
 
-            if self.config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
+            if self.config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM, ChartType.SCATTER):
                 fig = FigureBuilder.create_figure(self.config, df)
             else:
                 # Check if data is already aggregated by examining columns
@@ -174,9 +174,7 @@ class PipelineChart(BaseChart):
     def title(self) -> str:
         return self.config.title if self.config else "Pipeline Chart"
 
-    def render(
-        self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None
-    ) -> Component:
+    def render(self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None) -> Component:
         """Render the chart using the custom pipeline."""
         if not data_service:
             return self._render_container([self._render_error_state("Data service not provided")])

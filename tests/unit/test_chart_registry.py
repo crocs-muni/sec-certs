@@ -14,6 +14,7 @@ from sec_certs_page.dashboard.chart.base import BaseChart
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.chart.registry import ChartRegistry
+from sec_certs_page.dashboard.data import DataService
 from sec_certs_page.dashboard.types.chart import ChartType
 from sec_certs_page.dashboard.types.common import CollectionName
 
@@ -55,7 +56,7 @@ class FakeChart(BaseChart):
         """Return chart title."""
         return self.config.title
 
-    def render(self, filter_values: dict[str, Any] | None = None) -> Component:
+    def render(self, data_service: DataService | None = None, filter_values: dict[str, Any] | None = None) -> Component:
         """Return fake component for rendering."""
         return FakeComponent()
 

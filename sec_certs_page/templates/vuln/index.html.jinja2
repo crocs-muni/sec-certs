@@ -25,7 +25,7 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-search fa-fw"></i>
                         </div>
-                        <h3>Search</h3>
+                        <h2>Search</h2>
                         <p>We are linking Common Criteria and FIPS 140 certificates to vulnerabilities. 
                         You can only search for a vulnerability and check if your certificate can be affected or not.</p>
                         <a href="{{ url_for(".search") }}" class="btn btn-primary">
@@ -37,7 +37,7 @@
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-file-alt fa-fw"></i>
                         </div>
-                        <h3>Data</h3>
+                        <h2>Data</h2>
                         <p>Want to see the dataset of vulnerabilities, which we are linking to certificates? Download it here.</p>
                         <a href="{{ url_for(".data") }}" class="btn btn-primary">
                             Learn more <i class="fa-solid fa-arrow-right"></i>
@@ -47,27 +47,5 @@
                 </div>
             </div>
         </div>
-        <script>
-            function cve_search() {
-                let input = $("#cve-input").val();
-                if (!/CVE-[0-9]{4}-[0-9]{1,5}/.test(input)) {
-                    $("#cve-input").addClass("is-invalid");
-                } else {
-                    window.location.href = "{{ url_for("vuln.cve", cve_id="") }}" + input;
-                }
-            }
-
-            function cpe_search() {
-                let input = $("#cpe-input").val();
-                if (input === "") {
-                    $("#cpe-input").addClass("is-invalid");
-                } else {
-                    window.location.href = "{{ url_for("vuln.cpe", cpe_id="") }}" + input;
-                }
-            }
-
-            $("#cve-button").click(cve_search);
-            $("#cpe-button").click(cpe_search);
-        </script>
     </main>
 {% endblock %}

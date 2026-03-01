@@ -43,12 +43,12 @@ class FigureBuilder:
 
         try:
             df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
-            # Box plots and histograms need raw data distributions, not aggregated summaries
-            if config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM):
+            # Box plots, histograms and scatters need raw data distributions, not aggregated summaries
+            if config.chart_type in (ChartType.BOX, ChartType.HISTOGRAM, ChartType.SCATTER):
                 columns = [x_field]
 
                 # Histograms don't use y_field, only box plots do
-                if config.chart_type == ChartType.BOX and y_field:
+                if config.chart_type in (ChartType.BOX, ChartType.SCATTER) and y_field:
                     # Only add y_field for box plots if it's actually in the data
                     aggregation_placeholders = {agg.value for agg in AggregationType}
                     if y_field not in aggregation_placeholders:
@@ -60,6 +60,8 @@ class FigureBuilder:
 
                 if color_field and color_field in df.columns:
                     columns.append(color_field)
+                if hover_data:
+                    columns.extend(hover_data)
                 agg_df = df[columns]
 
                 # For histograms, we only need x_field (y is computed by plotly)

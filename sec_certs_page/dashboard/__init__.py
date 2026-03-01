@@ -17,42 +17,13 @@ from .manager import DashboardManager
 logger: Logger = logging.getLogger(__name__)
 
 
-def layout(**kwargs) -> dbc.Container:
+def layout(**kwargs) -> html.Div:
     """
-    App shell layout with safe Server-Side Injection.
-
-    **The Problem (Blank Page Issue):**
-    Standard Dash Pages applications function as SPAs: the server returns an empty shell, and
-    the client-side router (`dcc.Location`) asynchronously triggers a callback to render the
-    content. When embedding Dash deeply within a Flask/Jinja2 environment, this initial
-    client-side routing event often fails to trigger.
-
-    **The Fix (Server-Side Injection):**
-    The system implements a manual Server-Side Rendering (SSR) step - inspecting the path, resolving the
-    Dash page manually, and inject the resulting component tree directly into dash.page_container.
+    Base layout for the dashboard application. This is a simple container that includes an alert for mobile users and the page content.
     """
 
-    return dbc.Container(
-        fluid=True,
-        className="col-12 col-sm-10 mx-auto p-3 py-md-5",
+    return html.Div(
         children=[
-            # Header
-            dbc.Row(
-                className="mb-4 pb-3 border-bottom",
-                children=[
-                    dbc.Col(
-                        children=[
-                            html.H1(
-                                [
-                                    html.I(className="fas fa-chart-line me-3"),
-                                    "Data Analysis",
-                                ],
-                                className="mb-2",
-                            ),
-                        ],
-                    ),
-                ],
-            ),
             dbc.Alert(
                 [
                     html.I(className="fas fa-exclamation-triangle me-2"),
@@ -117,7 +88,7 @@ def _register_dashboard_protection(dash_app: Dash, url_base_pathname: str) -> No
             return redirect(url_for("user.login", next=request.url))
 
         if not dashboard_permission.can():
-            abort(403)
+            return abort(403)
 
 
 def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:

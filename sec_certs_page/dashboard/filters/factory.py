@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import Any, TypeAlias, cast
 
 import dash_bootstrap_components as dbc
 from dash import dcc, html
@@ -13,7 +13,7 @@ from .registry import FilterSpecRegistry, get_filter_registry
 
 DBC_GRID_COL_MAX_WIDTH = 12
 
-FilterComponent = (
+FilterComponent: TypeAlias = (
     dcc.Dropdown | dcc.DatePickerRange | dcc.DatePickerSingle | dbc.Input | dbc.Checkbox | html.Span | html.Div
 )
 """Maximum width for a column in Dash Bootstrap Components grid system."""

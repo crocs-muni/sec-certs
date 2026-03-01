@@ -655,7 +655,10 @@ def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionN
 
         if has_numeric_fields:
             # Offer all aggregation types since numeric Y-fields are available
-            return dict(options=[{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType])
+            return dict(
+                options=[{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
+                + [{"label": "IDENTITY", "value": None}]
+            )
         else:
             # Only COUNT is meaningful without numeric fields
             return dict(options=[count_option])
@@ -1068,7 +1071,7 @@ def _build_chart_config(
     x_field: str,
     x_label: str | None,
     color_field: str | None,
-    aggregation: str,
+    aggregation: str | None,
     y_field: str | None,
     y_label: str | None,
     show_legend: bool | None,
@@ -1100,7 +1103,7 @@ def _build_chart_config(
         y_axis = AxisConfig(
             field=y_field,
             label=y_label or y_field,
-            aggregation=AggregationType(aggregation),
+            aggregation=AggregationType(aggregation) if aggregation is not None else None,
             log_scale=y_log_scale or False,
         )
     else:

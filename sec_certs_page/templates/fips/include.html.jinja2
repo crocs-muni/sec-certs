@@ -63,7 +63,7 @@
     <span title="{{ name }}">
         {% set ftype = get_fips_type(name) %}
         {% if ftype %}
-            <i class="fas fa-fw {{ ftype['icon'] }}" aria-label="{{ name }}"></i>
+            <i class="fas fa-fw {{ ftype['icon'] }}" title="{{ name }}"></i>
         {% endif %}
     </span>
 {%- endmacro %}

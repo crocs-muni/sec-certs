@@ -67,7 +67,7 @@
     <span title="{{ category }}">
     {% set cat = get_cc_category(category) %}
         {% if cat %}
-            <i class="fas fa-fw {{ cat['icon'] }}" aria-label="{{ category }}"></i>
+            <i class="fas fa-fw {{ cat['icon'] }}" title="{{ category }}"></i>
         {% endif %}
     </span>
 {%- endmacro %}

@@ -18,35 +18,7 @@ User authentication and management system for sec-certs.
 - **Unified Login**: Single authentication system for all user types
 
 ## Database Schema
-
-### Users Collection
-```javascript
-{
-  username: String,          // Unique identifier
-  email: String,             // User email
-  pwhash: String,           // Password hash (empty for OAuth users)
-  roles: Array,             // ["admin"] for administrators, [] for regular users
-  email_confirmed: Boolean, // Email confirmation status
-  created_at: Date,         // Account creation timestamp
-  github_id: String         // GitHub user ID (optional)
-}
-```
-
-### Email Tokens Collection
-```javascript
-{
-  token: String,            // URL-safe token
-  user_id: String,          // Username
-  type: String,             // "email_confirmation", "password_reset", "magic_link"
-  expires_at: Date,         // Expiration time
-  created_at: Date          // Creation time
-}
-```
-
-**Token Expiry:**
-- Email confirmation: 24 hours
-- Password reset: 1 hour  
-- Magic link: 15 minutes
+See [database.md](database.md) for details on the user-related collections and fields.
 
 ## Routes
 
