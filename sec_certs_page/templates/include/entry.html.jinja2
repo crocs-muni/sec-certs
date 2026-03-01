@@ -503,3 +503,31 @@
         <span>{{ status }}</span>
     {% endif %}
 {%- endmacro %}
+
+{% macro render_file_metadata(pdf_meta, title, id) %}
+    {% if pdf_meta %}
+        <div class="metadata-container">
+            <button class="btn p-0 mt-3 mb-1 collapsed w-100"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ id }}-collapse-body"
+                    aria-expanded="false"
+                    aria-controls="{{ id }}-collapse-body">
+
+                <div class="d-flex align-items-center gap-2">
+                    <h4 class="mb-0">File metadata</h4>
+                    <span class="small opacity-75">
+                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-chevron-up"></i>
+                    </span>
+                </div>
+            </button>
+
+            <div id="{{ id }}-collapse-body" class="collapse">
+                <div class="card-body p-0 pt-2">
+                    {{ render_pdf_meta(pdf_meta, title) }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
