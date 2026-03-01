@@ -24,6 +24,8 @@
                 {{ security_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
                 {{ other_keywords(cert["pdf_data"]["cert_keywords"], "cert") }}
             {% endif %}
+
+            {{ render_file_metadata(cert["pdf_data"]["cert_metadata"], "Certificate", "cert") }}
         </div>
     </div>
 
@@ -49,12 +51,12 @@
                     {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
                 {% endif %}
 
+                {{ render_file_metadata(cert["pdf_data"]["report_metadata"], "Certification report", "report") }}
+
                 {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
 
                 {{ render_references(network, hashid, "report", render_status) }}
             </div>
-
-
         </div>
     </div>
 
@@ -79,6 +81,8 @@
                     {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
                     {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
                 {% endif %}
+
+                {{ render_file_metadata(cert["pdf_data"]["st_metadata"], "Security target", "st") }}
 
                 {{ render_references(network, hashid, "st", render_status) }}
             </div>
