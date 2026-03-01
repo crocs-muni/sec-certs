@@ -33,7 +33,7 @@
                 "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/polyfills.js", "lib/sentry.tracing.min.js", "lib/driver.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
-        <script type="text/javascript" src="{{ url_for('static', filename='tour.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='tour.js') }}?{{ static_hash('tour.js') }}"></script>
         <!-- Matomo -->
         <script type="text/javascript">
             var _paq = window._paq = window._paq || [];

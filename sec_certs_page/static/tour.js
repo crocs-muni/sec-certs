@@ -20,7 +20,10 @@ $(function () {
         // Auto-start tour if requested via URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('tour') === 'start') {
-            const newUrl = window.location.pathname;
+            // Rebuild URL without the `tour` parameter, preserving other params and the hash
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete('tour');
+            const newUrl = currentUrl.pathname + currentUrl.search + currentUrl.hash;
             window.history.replaceState({}, document.title, newUrl);
             tour.drive();
         }

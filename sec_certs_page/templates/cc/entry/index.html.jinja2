@@ -637,17 +637,20 @@
                     side: "top",
                     align: 'center'
                 }
-            },
-            {
-                element: '#chat-icon',
-                popover: {
-                    title: 'AI Chat Assistant',
-                    description: 'Have a question about this certificate? Ask our AI assistant specifically about this product!',
-                    side: "left",
-                    align: 'center'
-                }
             }
         ];
+
+        {% if config["CHAT_ENABLED"] %}
+        window.tourSteps.push({
+            element: '#chat-icon',
+            popover: {
+                title: 'AI Chat Assistant',
+                description: 'Have a question about this certificate? Ask our AI assistant specifically about this product!',
+                side: "left",
+                align: 'center'
+            }
+        });
+        {% endif %}
     </script>
     {% if config["CHAT_ENABLED"] %}
         {{ chat_modal() }}

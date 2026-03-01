@@ -363,17 +363,19 @@
                     side: "top",
                     align: 'center'
                 }
-            },
-            {
-                element: '#chat-icon',
-                popover: {
-                    title: 'AI Chat Assistant',
-                    description: 'Ask questions about this specific FIPS 140 module.',
-                    side: "left",
-                    align: 'center'
-                }
             }
         ];
+        {% if config["CHAT_ENABLED"] %}
+        window.tourSteps.push({
+            element: '#chat-icon',
+            popover: {
+                title: 'AI Chat Assistant',
+                description: 'Ask questions about this specific FIPS 140 module.',
+                side: "left",
+                align: 'center'
+            }
+        });
+        {% endif %}
     </script>
     {% if config["CHAT_ENABLED"] %}
         {{ chat_modal() }}
