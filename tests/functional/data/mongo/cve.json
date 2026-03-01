@@ -40,12 +40,11 @@
 		}
 	],
 	"vulnerable_criteria_configurations": [],
-	"impact": {
-		"_type": "sec_certs.sample.cve.CVE.Metrics",
+	"cvss": {
+		"_type": "sec_certs.sample.cve.CVE.CVSS",
 		"base_score": 4.7,
 		"severity": "MEDIUM",
-		"exploitability_score": 1.0,
-		"impact_score": 3.6
+		"version": "3.0"
 	},
 	"published_date": "2019-08-29T18:15:12.657000",
 	"cwe_ids": {
@@ -126,12 +125,11 @@
 		}
 	],
 	"vulnerable_criteria_configurations": [],
-	"impact": {
-		"_type": "sec_certs.sample.cve.CVE.Metrics",
+	"cvss": {
+		"_type": "sec_certs.sample.cve.CVE.CVSS",
 		"base_score": 4.7,
 		"severity": "MEDIUM",
-		"exploitability_score": 1.0,
-		"impact_score": 3.6
+		"version": "3.0"
 	},
 	"published_date": "2019-10-03T14:15:11.320000",
 	"cwe_ids": {
