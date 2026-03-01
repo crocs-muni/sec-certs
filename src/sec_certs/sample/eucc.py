@@ -97,16 +97,16 @@ class EUCCCertificate(
         return actual_sars(self)
 
     def set_local_paths(
-            self,
-            report_pdf_dir: str | Path | None,
-            st_pdf_dir: str | Path | None,
-            cert_pdf_dir: str | Path | None,
-            report_txt_dir: str | Path | None,
-            st_txt_dir: str | Path | None,
-            cert_txt_dir: str | Path | None,
-            report_json_dir: str | Path | None,
-            st_json_dir: str | Path | None,
-            cert_json_dir: str | Path | None,
+        self,
+        report_pdf_dir: str | Path | None,
+        st_pdf_dir: str | Path | None,
+        cert_pdf_dir: str | Path | None,
+        report_txt_dir: str | Path | None,
+        st_txt_dir: str | Path | None,
+        cert_txt_dir: str | Path | None,
+        report_json_dir: str | Path | None,
+        st_json_dir: str | Path | None,
+        cert_json_dir: str | Path | None,
     ) -> None:
         set_local_paths(
             self,
@@ -176,7 +176,6 @@ class EUCCCertificate(
         return ""
 
     @staticmethod
-    @staticmethod
     def _parse_package(text: str) -> dict[str, list[str]]:
         """
         Parses a string containing CC security packages to extract EALs and components.
@@ -187,9 +186,9 @@ class EUCCCertificate(
         eal_pattern = r"EAL\d+"
         comp_pattern = r"[A-Z]{3,4}(?:_[A-Z]{3,4})?(?:\.\d+)?"
 
-        tokens = re.split(r'(\s+|\(|\)|,|and)', text)
+        tokens = re.split(r"(\s+|\(|\)|,|and)", text)
 
-        result = {}
+        result: dict[str, list[str]] = {}
         current_eal = None
 
         for token in tokens:
@@ -207,12 +206,13 @@ class EUCCCertificate(
 
         return result
 
+    @staticmethod
     def _extract_first_eal(text: str) -> str:
         """
         Finds the first EAL in the text and returns it.
         Returns an empty string or None if no match is found.
         """
-        if (not text):
+        if not text:
             return ""
 
         match = re.search(r"EAL\d+", text)
@@ -223,7 +223,7 @@ class EUCCCertificate(
 
     @staticmethod
     def _from_metadata_dict(
-            certificate_id: str, metadata: dict[str, Any], document_urls: dict[str, str]
+        certificate_id: str, metadata: dict[str, Any], document_urls: dict[str, str]
     ) -> EUCCCertificate:
         product_type = metadata.get("product_type", "").upper()
         product_name = metadata.get("product_name", "")
