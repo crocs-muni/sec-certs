@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 from sec_certs import constants
 from sec_certs.converter import PDFConverter
