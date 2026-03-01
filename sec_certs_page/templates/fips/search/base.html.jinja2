@@ -216,4 +216,53 @@
             {% block search_content %}{% endblock %}
         </div>
     </main>
+    <script>
+        window.tourSteps = [
+            {
+                element: '#search',
+                popover: {
+                    title: 'Search Query',
+                    description: 'Enter the name, ID, or any keyword related to the certificate you are looking for.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#nameSearchRadioId',
+                popover: {
+                    title: 'Name Search',
+                    description: 'Quickly find certificates by their official name or ID.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#fulltextSearchRadioId',
+                popover: {
+                    title: 'Fulltext Search',
+                    description: 'Search through the entire content of certification documents (PDFs).',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#extended-btn',
+                popover: {
+                    title: 'Advanced Filters',
+                    description: 'Refine your search by status, vendor, security level, and more.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#search-btn',
+                popover: {
+                    title: 'Find Results',
+                    description: 'Click here to execute your search and see the results below.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            }
+        ];
+    </script>
 {% endblock %}

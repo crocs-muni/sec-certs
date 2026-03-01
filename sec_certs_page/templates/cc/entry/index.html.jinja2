@@ -600,6 +600,55 @@
         </script>
         {{ notification_script(csrf_token) }}
     </main>
+    <script>
+        window.tourSteps = [
+            {
+                element: 'h1',
+                popover: {
+                    title: 'Certificate Details',
+                    description: 'This page contains comprehensive data extracted from the certification documents.',
+                    side: "bottom",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#csv-info',
+                popover: {
+                    title: 'Summary Information',
+                    description: 'Basic metadata like status, manufacturer, and security level.',
+                    side: "right",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#heuristics-info',
+                popover: {
+                    title: 'Extracted Heuristics',
+                    description: 'Automatically identified SARs, SFRs, and related CVE/CPE matches.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#reference-graph',
+                popover: {
+                    title: 'Reference Network',
+                    description: 'Interactive visualization of certificates that this product references or is referenced by.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#chat-icon',
+                popover: {
+                    title: 'AI Chat Assistant',
+                    description: 'Have a question about this certificate? Ask our AI assistant specifically about this product!',
+                    side: "left",
+                    align: 'center'
+                }
+            }
+        ];
+    </script>
     {% if config["CHAT_ENABLED"] %}
         {{ chat_modal() }}
     {% endif %}

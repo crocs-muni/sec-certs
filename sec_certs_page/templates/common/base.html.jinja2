@@ -19,7 +19,7 @@
             <link rel="canonical" href="{{ request.base_url if canonical is true else canonical }}"/>
         {% endif %}
         {% assets output="gen/libs.css",
-                "lib/bootstrap.min.css", "lib/bootstrap.colors.css", "lib/fontawesome.min.css", "lib/metropolis.css" %}
+                "lib/bootstrap.min.css", "lib/bootstrap.colors.css", "lib/fontawesome.min.css", "lib/metropolis.css", "lib/driver.css" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}">
         {% endassets %}
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Noto+Color+Emoji&display=swap"
@@ -30,9 +30,10 @@
         <link rel="preload" as="image" href="{{ url_for("static", filename="img/logo_dark.svg") }}">
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         {% assets output="gen/libs.js",
-                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/polyfills.js", "lib/sentry.tracing.min.js" %}
+                "lib/jquery.min.js", "lib/bootstrap.bundle.min.js", "lib/d3.min.js", "lib/d3-legend.min.js", "lib/lodash.min.js", "lib/polyfills.js", "lib/sentry.tracing.min.js", "lib/driver.js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
+        <script type="text/javascript" src="{{ url_for('static', filename='tour.js') }}"></script>
         <!-- Matomo -->
         <script type="text/javascript">
             var _paq = window._paq = window._paq || [];
@@ -354,6 +355,11 @@
                     <a href="{{ url_for("user.login") }}" class="btn btn-outline-light px-4 nav-button me-3"
                        role="button"><i class="fa fa-sign-in-alt"></i> Login</a>
                 {% endif %}
+                <span id="tour-trigger-wrapper" class="d-inline-block me-3" data-bs-toggle="tooltip" data-bs-title="Take a tour">
+                    <button id="tour-trigger" class="btn btn-outline-secondary" disabled>
+                        <i class="fas fa-route"></i><span class="d-none d-xl-inline ms-2">Tour</span>
+                    </button>
+                </span>
                 <div class="dropdown">
                     <button id="theme" class="nav-link dropdown-toggle text-secondary mx-3 mx-lg-0 py-1 p-lg-0" type="button"
                             data-bs-toggle="dropdown" data-bs-display="static" title="Change theme"></button>
