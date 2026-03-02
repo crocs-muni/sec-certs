@@ -99,7 +99,7 @@ class EUCCCertificate(
         holder_contact: str | None = None
         holder_website: str | None = None
         certification_body: str | None = None
-        nando_id: int | None = None
+        nando_id: str | None = None
         certification_body_address: str | None = None
         certification_body_contact: str | None = None
         itsef: str | None = None
@@ -114,13 +114,13 @@ class EUCCCertificate(
         protection_profile: str | None = None
         issuance_year: str | None = None
         issuance_month: str | None = None
-        issuance_date_full: date | None = None
+        issuance_date_full: str | None = None
         certificate_yearly_number: str | None = None
         modification_or_reassurance: str | None = None
         validity_period_years: str | None = None
 
         @classmethod
-        def from_dict(cls, metadata: dict[str, str]) -> EUCCCertificate.EnisaMetadata:
+        def from_dict(cls, metadata: dict[str, Any]) -> EUCCCertificate.EnisaMetadata:
             """
             Method to create an instance from a dictionary.
             """
@@ -262,7 +262,7 @@ class EUCCCertificate(
 
     @staticmethod
     def _from_metadata_dict(
-        certificate_id: str, metadata: dict[str, Any], document_urls: dict[str, str]
+        certificate_id: str, metadata: dict[str, str], document_urls: dict[str, str]
     ) -> EUCCCertificate:
         product_type = metadata.get("product_type", "").upper()
         product_name = metadata.get("product_name", "")
