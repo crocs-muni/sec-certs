@@ -68,7 +68,7 @@ def download_pdfs(
     doc_type: DocType,
     fresh: bool = True,
 ) -> None:
-    pdf_dir = getattr(obj, f"{doc_type.name.lower()}s_txt_dir")
+    pdf_dir = getattr(obj, f"{doc_type.name.lower()}s_pdf_dir")
     pdf_dir.mkdir(parents=True, exist_ok=True)
 
     certs_to_process = [
