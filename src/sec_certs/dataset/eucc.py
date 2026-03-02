@@ -114,7 +114,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
     def __init__(
         self,
         certs: dict[str, EUCCCertificate] | None = None,
-        root_dir: str | Path | None = "root_dir",
+        root_dir: str | Path | None = None,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
@@ -397,6 +397,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
+        self.root_dir.mkdir(parents=True, exist_ok=True)
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
