@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -58,7 +58,7 @@ class EUCCCertificate(
         state: InternalState | None,
         pdf_data: PdfData | None,
         heuristics: Heuristics | None,
-        other_metadata: dict[str, str] | None = None,
+        other_metadata: EnisaMetadata | None = None,
     ):
         super().__init__()
 
@@ -83,6 +83,76 @@ class EUCCCertificate(
         self.pdf_data = pdf_data if pdf_data else PdfData()
         self.heuristics = heuristics if heuristics else Heuristics()
         self.other_metadata = other_metadata if other_metadata else None
+
+    @dataclass
+    class EnisaMetadata(ComplexSerializableType):
+        """
+        Class to hold all the metadata fields that are obtained from ENISA's certificate page.
+        """
+
+        certificate_id: str | None = None
+        product_name: str | None = None
+        product_type: str | None = None
+        product_version: str | None = None
+        holder_name: str | None = None
+        holder_address: str | None = None
+        holder_contact: str | None = None
+        holder_website: str | None = None
+        certification_body: str | None = None
+        nando_id: int | None = None
+        certification_body_address: str | None = None
+        certification_body_contact: str | None = None
+        itsef: str | None = None
+        responsible_ncca: str | None = None
+        scheme: str | None = None
+        report_reference: str | None = None
+        assurance_level: str | None = None
+        cc_version: str | None = None
+        cem_version: str | None = None
+        ava_van_level: str | None = None
+        package: dict[str, list[str]] | None = None
+        protection_profile: str | None = None
+        issuance_year: str | None = None
+        issuance_month: str | None = None
+        issuance_date_full: date | None = None
+        certificate_yearly_number: str | None = None
+        modification_or_reassurance: str | None = None
+        validity_period_years: str | None = None
+
+        @classmethod
+        def from_dict(cls, metadata: dict[str, str]) -> EUCCCertificate.EnisaMetadata:
+            """
+            Method to create an instance from a dictionary.
+            """
+            field_names = {f.name for f in fields(cls)}
+            data = {k: v for k, v in metadata.items() if k in field_names}
+            return cls(**data)
+
+        def __post_init__(self) -> None:
+            if isinstance(self.package, str):
+                self.package = self._parse_package(self.package)
+
+        @staticmethod
+        def _parse_package(text: str) -> dict[str, list[str]]:
+            """
+            Parses CC security packages (e.g., 'EAL4 augmented with ALC_FLR.1')
+            into a structured dictionary mapping EALs to their components.
+            """
+            sections = re.split(r"\b(EAL\d+)\b", text)
+
+            result: dict[str, list[str]] = {}
+
+            # re.split with a capturing group returns [prefix, group, suffix, group, suffix...]
+            # We skip the first element (prefix before first EAL) and iterate in steps of 2
+            for i in range(1, len(sections), 2):
+                eal_key = sections[i]
+                content_after = sections[i + 1]
+
+                # Find all CC components
+                components = re.findall(r"\b[A-Z]{3,4}(?:_[A-Z]{3,4})?(?:\.\d+)?\b", content_after)
+                result[eal_key] = components
+
+            return result
 
     @property
     def dgst(self) -> str:
@@ -176,37 +246,6 @@ class EUCCCertificate(
         return ""
 
     @staticmethod
-    def _parse_package(text: str) -> dict[str, list[str]]:
-        """
-        Parses a string containing CC security packages to extract EALs and components.
-
-        Handles standard CC components (e.g., ADV_FSP.5), non-standard identifiers
-        (e.g., COMP), and various separators (commas, 'and', 'augmented with').
-        """
-        eal_pattern = r"EAL\d+"
-        comp_pattern = r"[A-Z]{3,4}(?:_[A-Z]{3,4})?(?:\.\d+)?"
-
-        tokens = re.split(r"(\s+|\(|\)|,|and)", text)
-
-        result: dict[str, list[str]] = {}
-        current_eal = None
-
-        for token in tokens:
-            token = token.strip()
-            if not token or token in "()," or token.lower() in ["and", "with", "augmented"]:
-                continue
-
-            if re.fullmatch(eal_pattern, token):
-                current_eal = token
-                result[current_eal] = []
-
-            elif re.fullmatch(comp_pattern, token):
-                if current_eal:
-                    result[current_eal].append(token)
-
-        return result
-
-    @staticmethod
     def _extract_first_eal(text: str) -> str:
         """
         Finds the first EAL in the text and returns it.
@@ -233,15 +272,10 @@ class EUCCCertificate(
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))
         status = EUCCCertificate._get_status(not_valid_after)
-
         report_link = document_urls.get("certification_report")
         st_link = document_urls.get("security_target")
         cert_link = document_urls.get("certificate")
-
         holder_website = EUCCCertificate._extract_holder_website(metadata.get("holder_website", ""))
-
-        if "package" in metadata and metadata["package"]:
-            metadata["package"] = EUCCCertificate._parse_package(metadata["package"])
 
         return EUCCCertificate(
             certificate_id,
@@ -261,7 +295,7 @@ class EUCCCertificate(
             None,
             None,
             None,
-            metadata,
+            EUCCCertificate.EnisaMetadata.from_dict(metadata),
         )
 
     def compute_heuristics_cert_lab(self):
