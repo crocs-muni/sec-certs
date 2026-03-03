@@ -98,7 +98,7 @@ export function add_current_cert(storage_key, current) {
         selected = [current];
     } else {
         selected = JSON.parse(selected);
-        if (selected["type"] === "cc" || selected["type"] === "fips") {
+        if (current["type"] === "cc" || current["type"] === "fips") {
         	selected.push(current);	
         } else {
         	$("#compare-error").text("Comparing protection profiles not supported (yet).").show();
