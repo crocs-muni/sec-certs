@@ -36,7 +36,7 @@
         <div class="row p-3">
             <div class="col-12 col-sm-10 mx-auto">
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-2">
-                    <div class="feature col mt-0">
+                    <div class="feature col mt-0" id="ai-feature">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-comments fa-fw"></i>
                         </div>
@@ -67,7 +67,7 @@
             <div class="col-12 col-sm-10 mx-auto">
                 <h2 class="pt-2">Main features</h2>
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
-                    <div class="feature col">
+                    <div class="feature col" id="search-feature">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-search fa-fw"></i>
                         </div>
@@ -92,7 +92,7 @@
                             FIPS
                         </a>
                     </div>
-                    <div class="feature col">
+                    <div class="feature col" id="references-feature">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-network-wired fa-fw"></i>
                         </div>
@@ -111,7 +111,7 @@
                             FIPS
                         </a>
                     </div>
-                    <div class="feature col">
+                    <div class="feature col" id="vulnerability-feature">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-bug fa-fw"></i>
                         </div>
@@ -262,4 +262,62 @@
             </div>
         </div>
     </main>
+    <script>
+        window.tourSteps = [
+            {
+                element: '.navbar-brand',
+                popover: {
+                    title: 'Welcome to sec-certs.org!',
+                    description: 'We are your one-stop shop for exploring the security certification ecosystem. Let us show you around!',
+                    side: "bottom",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#navbarSupportedContent > ul',
+                popover: {
+                    title: 'Certificate Collections',
+                    description: 'Browse through Common Criteria, FIPS 140, and Protection Profiles using these dropdowns.',
+                    side: "bottom",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#ai-feature',
+                popover: {
+                    title: 'Explore with AI',
+                    description: 'Use our AI assistant to analyze complex certification documents and ask questions about specific certificates.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#search-feature',
+                popover: {
+                    title: 'Unified Search',
+                    description: 'Search for certified products, filter by categories, and explore without downloading thousands of PDFs.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#references-feature',
+                popover: {
+                    title: 'Certificate References',
+                    description: 'Visualize relationships between products in our interactive reference graphs.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#vulnerability-feature',
+                popover: {
+                    title: 'Vulnerabilities',
+                    description: 'See which CVEs affect certified products, mapped automatically from NIST databases.',
+                    side: "top",
+                    align: 'center'
+                }
+            }
+        ];
+    </script>
 {% endblock %}

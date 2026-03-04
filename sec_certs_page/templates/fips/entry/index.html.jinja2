@@ -317,6 +317,66 @@
         </script>
         {{ notification_script(csrf_token) }}
     </main>
+    <script>
+        window.tourSteps = [
+            {
+                element: 'h1',
+                popover: {
+                    title: 'FIPS 140 Certificate',
+                    description: 'This page shows details for a specific FIPS 140 cryptographic module validation.',
+                    side: "bottom",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#web-info',
+                popover: {
+                    title: 'Webpage Information',
+                    description: 'Summary data from the NIST CMVP webpage, including status and validation dates.',
+                    side: "right",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#doc-info',
+                popover: {
+                    title: 'Security Policy',
+                    description: 'Access the security policy document and view extracted keywords.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#heuristics-info',
+                popover: {
+                    title: 'Heuristics',
+                    description: 'Matches to CPEs and related CVEs discovered by our analysis.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#reference-graph',
+                popover: {
+                    title: 'Reference Network',
+                    description: 'Explore the graph of related certificates.',
+                    side: "top",
+                    align: 'center'
+                }
+            }
+        ];
+        {% if config["CHAT_ENABLED"] %}
+        window.tourSteps.push({
+            element: '#chat-icon',
+            popover: {
+                title: 'AI Chat Assistant',
+                description: 'Ask questions about this specific FIPS 140 module.',
+                side: "left",
+                align: 'center'
+            }
+        });
+        {% endif %}
+    </script>
     {% if config["CHAT_ENABLED"] %}
         {{ chat_modal() }}
     {% endif %}

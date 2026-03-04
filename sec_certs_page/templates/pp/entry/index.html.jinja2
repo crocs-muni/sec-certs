@@ -213,6 +213,55 @@
         </script>
         {{ notification_script(csrf_token) }}
     </main>
+    <script>
+        window.tourSteps = [
+            {
+                element: 'h1',
+                popover: {
+                    title: 'Protection Profile',
+                    description: 'View the details of this Common Criteria Protection Profile.',
+                    side: "bottom",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#web-info',
+                popover: {
+                    title: 'General Information',
+                    description: 'Summary metadata including status, category, and security level.',
+                    side: "right",
+                    align: 'start'
+                }
+            },
+            {
+                element: '#report-info',
+                popover: {
+                    title: 'Certification Report',
+                    description: 'Access the official certification report for this profile.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#profile-info',
+                popover: {
+                    title: 'Profile Document',
+                    description: 'View the Protection Profile document itself and extracted keywords.',
+                    side: "top",
+                    align: 'center'
+                }
+            },
+            {
+                element: '#reference-graph',
+                popover: {
+                    title: 'References',
+                    description: 'List of certificates that claim conformance to this Protection Profile.',
+                    side: "top",
+                    align: 'center'
+                }
+            }
+        ];
+    </script>
     {% if config["CHAT_ENABLED"] %}
         {{ chat_modal() }}
     {% endif %}
