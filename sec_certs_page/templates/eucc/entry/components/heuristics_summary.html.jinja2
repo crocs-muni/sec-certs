@@ -1,0 +1,9 @@
+<div id="heuristics-summary" class="{{ box_container }}">
+    <h2>Heuristics summary</h2>
+
+    {% if cert["heuristics"]["cert_id"] %}
+        <div data-cs-name="Certificate ID">
+            <span class="fw-bold fs-5">Certificate ID:</span> {{ cert["heuristics"]["cert_id"] }}<br/>
+        </div>
+    {% endif %}
+</div>
