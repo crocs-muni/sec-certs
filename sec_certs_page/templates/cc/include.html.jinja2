@@ -10,7 +10,15 @@
 																		"Evaluation facilities": "eval_facility"}, hidden, map_funcs) }}
 {%- endmacro %}
 
-
+{% macro render_status(status) %}
+    {% if status == "active" %}
+        <span class="text-success"><i class="fas fa-check-square"></i> active</span>
+    {% elif status == "archived" %}
+        <span class="text-warning"><i class="fas fa-times-circle"></i> archived</span>
+    {% else %}
+        <span>{{ status }}</span>
+    {% endif %}
+{%- endmacro %}
 
 {% macro render_document_type(document_type) %}
     {% if document_type == "cert" %}

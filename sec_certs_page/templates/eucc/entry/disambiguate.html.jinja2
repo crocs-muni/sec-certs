@@ -8,7 +8,7 @@
             <ol>
                 {% for cert in certs %}
                     <li>
-                        <a href="{{ url_for("eucc.entry", hashid=cert["_id"]) }}">{{ cert["name"] }}</a>, {{ cert["heuristics"]["cert_id"] }} , {{ render_status(cert["status"]) }}, {{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}
+                        <a href="{{ url_for("eucc.entry", hashid=cert["_id"]) }}">{{ cert["name"] }}</a>, {{ cert["cert_id"] }} , {{ render_status(cert["status"]) }}, {{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}
                         - {{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</li>
                 {% endfor %}
             </ol>
