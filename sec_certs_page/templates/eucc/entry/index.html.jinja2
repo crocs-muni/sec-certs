@@ -24,13 +24,15 @@
     <meta name="description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
 {% endblock %}
 
-{% set box_container = "row col-12 col-sm-10 my-4 p-4 bg-darker-light rounded-3" %}
+{% set box_container = "row col-12 col-sm-10 my-4 p-4 ms-1 bg-darker-light  rounded-3" %}
 {% set box_container_without_bg = "row col-12 col-sm-10 p-4" %}
+{% set container_inner = "d-flex flex-column gap-1 pt-1" %}
 
 {% block left_navigation %}
     <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
         <h4>Sections</h4>
-        <a class="list-group-item list-group-item-action rounded" href="#auth-info">Authoritative info</a>
+        <a class="list-group-item list-group-item-action rounded" href="#webpage-info">Webpage information</a>
+        <a class="list-group-item list-group-item-action rounded" href="#heuristics-summary">Heuristics summary</a>
         <a class="list-group-item list-group-item-action rounded" href="#cert-info">Certificate</a>
         <a class="list-group-item list-group-item-action rounded" href="#report-info">Certification report</a>
         <a class="list-group-item list-group-item-action rounded" href="#st-info">Security target</a>
@@ -41,60 +43,35 @@
 {% endblock %}
 
 {% block content %}
-    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0"
+    <main data-bs-spy="scroll"
+          data-bs-target="#left-navigation"
+          data-bs-smooth-scroll="false"
+          tabindex="0"
           class="shifted-section">
-        <div class="row">
-            <div class="col-12 col-sm-10 p-3 pt-md-5">
-                <div class="alert alert-warning d-sm-none" role="alert">
-                    <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile
-                    devices.
-                </div>
-                <div>
-                    <h1>{{ cert["name"]|default("", true) }}</h1>
 
-                    {% if cves %}
-                        {{ certificate_vuln_note() }}
-                    {% endif %}
+        {% include 'eucc/entry/components/header.html.jinja2' %}
 
-                    {% if removed and same %}
-                        <div class="alert alert-secondary mt-4">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            This certificate has disappeared from the EUCC portal listing<sup
-                                title="Likely due to the certifying scheme updating some of its fields."
-                                data-bs-toggle="tooltip">*</sup>.
-                            However, there {% if same|length > 1 %}are certificates that match{% else %}is a certificate
-                            that matches{% endif %}
-                            this one in the current listing:
-                            <table class="table table-secondary table-borderless mt-3 ms-3">
-                                {% for other in same %}
-                                    <tr>
-                                        <td class="py-2" class="align-middle">
-                                            <a href="{{ url_for("eucc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>
-                                        </td>
-                                        <td class="py-2"
-                                            class="align-middle">{{ other["other_metadata"]["certificate_id"] }}</td>
-                                        <td class="py-2">
-                                            <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
-                                               class="btn btn-outline-secondary">Compare</a></td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                            <span style="margin-left: 20px">You can also examine other <a href="#similar">similar certificates</a> below.</span>
-                        </div>
-                    {% endif %}
+        {% include 'eucc/entry/components/webpage_info.html.jinja2' %}
 
-                    <div class="d-flex gap-3 flex-wrap">
-                        {{ compare_icon() }}
-                        {{ notification_icon(current_user, subscribed) }}
-                        {{ render_share_buttons(hashid, cert_id=cert["other_metadata"]["certificate_id"], name=cert["name"]) }}
-                    </div>
-                </div>
-            </div>
+        {% include 'eucc/entry/components/heuristics_summary.html.jinja2' %}
+
+        {% include 'eucc/entry/components/certificate_doc.html.jinja2' %}
+
+        {% include 'eucc/entry/components/cert_report_doc.html.jinja2' %}
+
+        {% include 'eucc/entry/components/security_target_doc.html.jinja2' %}
+
+        {% include 'eucc/entry/components/heuristics.html.jinja2' %}
+
+        <div id="updates" class="{{ box_container }}">
+            <h3>Updates</h3>
+            {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
         </div>
 
-        {% include 'eucc/entry/components/authoritative_info.html.jinja2' %}
-
-        {% include 'eucc/entry/components/nonauthoritative_info.html.jinja2' %}
+        <div id="raw-data-head" class="{{ box_container }}">
+            <h3>Raw data</h3>
+            {{ render_raw_data(json) }}
+        </div>
 
         <script type="module">
             import {copyLinkToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
