@@ -1,14 +1,16 @@
 <div class="{{ box_container }}" id="heuristics-info">
-    <h3>Heuristics</h3>
-    <div class="ps-4">
-        {% if not cert["cert_id"] and not cpes and not cves %}
-            <p>No heuristics are available for this certificate.</p>
-        {% else %}
-            {{ certificate_note() }}
-        {% endif %}
+    <h2>Heuristics</h2>
+    <div class="{{ container_inner }}">
+        <div>
+            {% if not cert["cert_id"] and not cpes and not cves %}
+                <p>No heuristics are available for this certificate.</p>
+            {% else %}
+                {{ certificate_note() }}
+            {% endif %}
+        </div>
 
         {% if cert["heuristics"]["extracted_sars"] %}
-            <div data-cs-name="Extracted SARs" class="my-3 pt-2">
+            <div data-cs-name="Extracted SARs">
                 <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
                 {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
                     {% set sar_name = sar["family"] + "." + sar["level"]|string %}
@@ -19,14 +21,14 @@
         {% endif %}
 
         {% if cpes %}
-            <div data-cs-name="CPE matches" class="my-3 pt-2">
+            <div data-cs-name="CPE matches">
                 <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
                 {{ render_cpes(cert, cpes) }}
             </div>
         {% endif %}
 
         {% if cves %}
-            <div data-cs-name="Related CVEs" class="my-3 pt-2">
+            <div data-cs-name="Related CVEs">
                 <h4 class="anchor" id="cves">Related <abbr
                         title="Common Vulnerability Enumeration">CVEs</abbr>
                 </h4>
@@ -35,7 +37,7 @@
         {% endif %}
 
         {% if previous or next %}
-            <div data-cs-name="Certificate versions" class="my-3 pt-2">
+            <div data-cs-name="Certificate versions" >
                 <h4 class="anchor" id="versions">Certificate versions</h4>
                 <table class="table table-striped my-2">
                     <thead>
@@ -110,7 +112,7 @@
         {% endif %}
 
         {% if similar %}
-            <div data-cs-name="Similar certificates" class="my-3 pt-2">
+            <div data-cs-name="Similar certificates">
                 <h4 class="anchor" id="similar">Similar certificates</h4>
                 <table class="table table-striped my-2">
                     <colgroup>
