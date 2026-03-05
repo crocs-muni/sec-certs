@@ -120,7 +120,7 @@ def download_file(  # noqa: C901
             allow_redirects=True,
             timeout=constants.REQUEST_TIMEOUT,
             stream=True,
-            headers={"Accept-Encoding": None},  # type: ignore
+            headers={"Accept-Encoding": None, "User-Agent": "sec-certs.org"},  # type: ignore
         )
         ctx: Any
         if show_progress_bar:
