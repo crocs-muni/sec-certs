@@ -494,16 +494,6 @@
     {%- endif -%}
 {%- endmacro %}
 
-{% macro render_status(status) %}
-    {% if status == "active" %}
-        <span class="text-success"><i class="fas fa-check-square"></i> active</span>
-    {% elif status == "archived" %}
-        <span class="text-warning"><i class="fas fa-times-circle"></i> archived</span>
-    {% else %}
-        <span>{{ status }}</span>
-    {% endif %}
-{%- endmacro %}
-
 {% macro render_file_metadata(pdf_meta, title, id) %}
     {% if pdf_meta %}
         <div class="metadata-container">
