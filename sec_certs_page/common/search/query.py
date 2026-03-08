@@ -243,7 +243,7 @@ class BasicSearch(ABC):
         cat = args.get("cat", None)
         advanced = False
         categories = cls.categories.copy()
-        if cat is not None:
+        if cat:
             for name, category in categories.items():
                 category["selected"] = category["id"] in cat
                 if category["id"] not in cat:
@@ -334,7 +334,7 @@ class FulltextSearch(ABC):
         q = args.get("q", None)
         cat = args.get("cat", None)
         advanced = False
-        if cat is not None:
+        if cat:
             for name, category in categories.items():
                 category["selected"] = category["id"] in cat
                 if category["id"] not in cat:
