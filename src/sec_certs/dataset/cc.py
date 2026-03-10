@@ -495,15 +495,11 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         df_base = df.loc[~df.is_maintenance].copy()
         df_main = df.loc[df.is_maintenance].copy()
 
-        df_base.report_link = df_base.report_link.map(map_ip_to_hostname).map(sanitization.sanitize_link)
-        df_base.st_link = df_base.st_link.map(map_ip_to_hostname).map(sanitization.sanitize_link)
+        df_base.report_link = df_base.report_link.map(map_ip_to_hostname)
+        df_base.st_link = df_base.st_link.map(map_ip_to_hostname)
 
-        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname).map(
-            sanitization.sanitize_link
-        )
-        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname).map(
-            sanitization.sanitize_link
-        )
+        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname)
+        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname)
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=["dgst"]))
