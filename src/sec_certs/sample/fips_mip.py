@@ -5,6 +5,7 @@ from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
+from functools import total_ordering
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -20,7 +21,15 @@ from sec_certs.utils.helpers import to_utc
 logger = logging.getLogger(__name__)
 
 
+@total_ordering
 class MIPStatus(Enum):
+    # Old statuses (before 2026.03.06) kept for parsing older snapshots
+    ON_HOLD = "On Hold"
+    REVIEW_PENDING = "Review Pending"
+    IN_REVIEW = "In Review"
+    COORDINATION = "Coordination"
+
+    # New statuses
     HOLD = "Hold"
     PENDING_REVIEW = "Pending Review"
     COST_RECOVERY = "Cost Recovery"
@@ -30,11 +39,11 @@ class MIPStatus(Enum):
     COMMENT_RESOLUTION_CMVP = "Comment Resolution - CMVP"
     FINALIZATION = "Finalization"
 
-    # Old statuses (before 2026.03.06) kept for parsing older snapshots
-    ON_HOLD = "On Hold"
-    IN_REVIEW = "In Review"
-    REVIEW_PENDING = "Review Pending"
-    COORDINATION = "Coordination"
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            mb = list(MIPStatus.__members__.keys())
+            return mb.index(self.name) < mb.index(other.name)
+        raise NotImplementedError
 
 
 @dataclass(frozen=True, order=True)
