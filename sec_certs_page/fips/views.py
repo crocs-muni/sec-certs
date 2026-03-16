@@ -289,15 +289,15 @@ def mip_entry(name):
     snapshots = list(mongo.db.fips_mip.find({"entries.module_name": name}).sort([("timestamp", pymongo.ASCENDING)]))
     if not snapshots:
         return abort(404)
-    first_present = datetime.fromisoformat(snapshots[0]["timestamp"]).replace(hour=0, minute=0, second=0)
-    last_present = datetime.fromisoformat(snapshots[-1]["timestamp"]).replace(hour=0, minute=0, second=0)
+    first_present = datetime.fromisoformat(snapshots[0]["timestamp"]).date()
+    last_present = datetime.fromisoformat(snapshots[-1]["timestamp"]).date()
     state_changes = []
     for snap in snapshots:
         snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
         one_entry = snap["entries"][0]
         # TODO: More than one entry might be present, add a test?
         if not state_changes or state_changes[-1][1] != one_entry["status"]:
-            change_date = datetime.fromisoformat(snap["timestamp"])
+            change_date = datetime.fromisoformat(snap["timestamp"]).date()
             state_changes.append([change_date, one_entry["status"]])
     for i, change in enumerate(state_changes):
         if i + 1 == len(state_changes):
