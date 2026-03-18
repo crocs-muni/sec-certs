@@ -613,43 +613,43 @@ asymmetric_crypto:
 #####
 pq_crypto:
   FIPS:
-    - "ML-KEM|ML-DSA|SLH-DSA"
+    - "ML[-_ ]?KEM|ML[-_ ]?DSA|SLH[-_ ]?DSA|FN[-_ ]DSA"
   ClassicMcEliece:
-    - "Classic[ -]McEliece"
+    - "Classic[-_ ]McEliece"
   CRYSTALS:
     - "CRYSTALS"
   Kyber:
-    - "(CRYSTALS-)?(Kyber|KYBER)"
+    - "(CRYSTALS-)?(Kyber|KYBER)[-_ ]?(512|768|1024)?"
   NTRU:
     - "NTRU"
   NTRUPrime:
-    - "NTRU[ -]?Prime"
+    - "NTRU[-_ ]?Prime"
   NewHope:
-    - "NewHope"
+    - "NewHope|NEWHOPE"
   Saber:
     - "Saber|SABER"
   Dilithium:
-    - "(CRYSTALS-)?(Dilithium|DILITHIUM)"
+    - "(CRYSTALS-)?(Dilithium|DILITHIUM)[-_ ]?(44|65|87)?"
   Falcon:
     - "Falcon|FALCON"
   Rainbow:
-    - "Rainbow"
+    - "Rainbow|RAINBOW"
   UOV:
     - "UOV"
   BIKE:
     - "BIKE"
   Frodo:
-    - "Frodo(KEM)?"
+    - "Frodo[-_ ]?KEM"
   HQC:
-    - "HQC"
+    - "HQC[-_ ]?(128|192|256)?"
   SIKE:
     - "SIKE"
   SIDH:
     - "SIDH"
   GeMSS:
-    - "GeMSS"
+    - "GeMSS|GEMSS"
   Picnic:
-    - "Picnic"
+    - "Picnic|PICNIC"
   SPHINCS:
     - "SPHINCS\\+"
   SABER:
@@ -657,9 +657,9 @@ pq_crypto:
   XMSS:
     - "XMSS(MT)?"
   LMS:
-    - "LMS"
+    - "LMS|HSS"
   PQC:
-    - "(PQC|Post-Quantum Cryptography)"
+    - "PQC|[Pp]ost[-_ ][Qq]uantum[-_ ][Cc]ryptography"
 #####
 # Hash-function, grouped by hash-function class (SHA, MD) or competition (PHC).
 #####
