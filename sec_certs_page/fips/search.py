@@ -7,6 +7,7 @@ from pymongo.cursor import Cursor
 
 from .. import mongo
 from ..common.search.query import BasicSearch, FulltextSearch
+from ..common.sentry import metrics
 from ..fips import fips_types
 
 
@@ -56,9 +57,12 @@ class FIPSBasicSearch(BasicSearch):
         if status is not None and status != "Any":
             query["web_data.status"] = status
 
-        with sentry_sdk.start_span(op="mongo", description="Find certs."):
-            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
-            count: int = cls.collection.count_documents(query)
+        with metrics.timing("search.latency", attributes={"collection": "fips", "type": "basic"}):
+            with sentry_sdk.start_span(op="mongo", description="Find certs."):
+                cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+                count: int = cls.collection.count_documents(query)
+
+        metrics.distribution("search.results_count", count, attributes={"collection": "fips"})
 
         timeline: List[Optional[datetime]] = []
         for cert in cursor.clone():

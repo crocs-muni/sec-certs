@@ -1,10 +1,14 @@
 from contextlib import contextmanager
+from time import perf_counter
+from types import ModuleType
+from typing import Any, Optional
 
 from dramatiq import Broker
 from dramatiq.middleware import default_middleware
 from sentry_sdk import Hub, new_scope
 from sentry_sdk.integrations.dramatiq import DramatiqIntegration as OriginalDramatiqIntegration
 from sentry_sdk.integrations.dramatiq import SentryMiddleware
+from sentry_sdk.metrics import count, distribution, gauge
 from sentry_sdk.tracing import Span
 
 
@@ -78,3 +82,27 @@ def before_send(event, hint):
         if isinstance(exc_value, OSError) and "write error" in str(exc_value):
             return None  # Drop this event
     return event  # Otherwise, send as normal
+
+
+@contextmanager
+def timing(name: str, attributes: Optional[dict[str, Any]] = None):
+    """
+    Send the duration of the op as a Sentry metric.
+
+    :param name:
+    :param attributes:
+    :return:
+    """
+    start = perf_counter()
+    try:
+        yield
+    finally:
+        end = perf_counter()
+        distribution(name, end - start, unit="seconds", attributes=attributes)
+
+
+metrics = ModuleType("metrics")
+metrics.count = count  # type: ignore[attr-defined]
+metrics.gauge = gauge  # type: ignore[attr-defined]
+metrics.distribution = distribution  # type: ignore[attr-defined]
+metrics.timing = timing  # type: ignore[attr-defined]

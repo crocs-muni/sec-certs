@@ -16,6 +16,7 @@ from networkx import DiGraph, node_link_data, weakly_connected_components
 from werkzeug.exceptions import BadRequest
 
 from .. import mongo
+from .sentry import metrics
 
 
 def entry_file_path_relative(root, hashid, dataset_path, document, format) -> Path:
@@ -228,9 +229,12 @@ def accounting(
             present = mongo.db.accounting.find_one(doc)
             if present:
                 if limit is not None:
-                    if present.get("count", 0) < limit:
+                    count = present.get("count", 0)
+                    metrics.gauge("accounting.quota_usage", count / limit, attributes={"endpoint": request.endpoint})
+                    if count < limit:
                         mongo.db.accounting.update_one(doc, {"$inc": {"count": 1}})
                     else:
+                        metrics.count("accounting.limit_exceeded", 1, attributes={"endpoint": request.endpoint})
                         message = f"You have reached the request limit of {limit} requests {aggregate} ({period})."
                         if json:
                             return jsonify({"status": "error", "message": message}), 429
@@ -239,6 +243,8 @@ def accounting(
             else:
                 doc["count"] = 1
                 r = mongo.db.accounting.insert_one(doc)
+                if limit is not None:
+                    metrics.gauge("accounting.quota_usage", 1 / limit, attributes={"endpoint": request.endpoint})
             res = func(*args, **kwargs)
 
             return res

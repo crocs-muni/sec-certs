@@ -22,6 +22,7 @@ from whoosh.util.text import rcompile
 
 from ... import get_searcher
 from ..objformats import load
+from ..sentry import metrics
 from ..views import Pagination, entry_file_path
 from .index import index_schema
 
@@ -393,11 +394,15 @@ class FulltextSearch(ABC):
         qr = parser.parse(q)
         with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
             searcher = get_searcher()
-        with sentry_sdk.start_span(op="whoosh.search", description="Search"):
-            if page is None:
-                res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
-            else:
-                res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
+        with metrics.timing("search.latency", attributes={"collection": cls.schema, "type": "fulltext"}):
+            with sentry_sdk.start_span(op="whoosh.search", description="Search"):
+                if page is None:
+                    res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
+                else:
+                    res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
+        metrics.distribution(
+            "search.results_count", len(res), attributes={"collection": cls.schema, "type": "fulltext"}
+        )
         return res, len(res), qr
 
     @classmethod
