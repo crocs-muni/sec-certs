@@ -53,6 +53,7 @@ class MIPEntry(ComplexSerializableType):
     standard: str
     status: MIPStatus
     status_since: date | None
+    submission_id: str | None = None
 
     def to_dict(self) -> dict[str, str | MIPStatus | date | None]:
         return {
@@ -69,6 +70,7 @@ class MIPEntry(ComplexSerializableType):
             dct["standard"],
             MIPStatus(dct["status"]),
             date.fromisoformat(dct["status_since"]) if dct.get("status_since") else None,
+            dct["submission_id"] if dct.get("submission_id") else None,
         )
 
 
@@ -172,19 +174,20 @@ class MIPSnapshot(ComplexSerializableType):
         }
 
     @classmethod
-    def _extract_entries_4(cls, lines):
-        """Works now."""
+    def _extract_entries_4(cls, lines, with_id=True):
+        """Works now. Submission ID parsing added for snapshots newer than 2026.03.05"""
         entries = set()
         for line in (tr.find_all("td") for tr in lines):
             module_name = str(line[0].string)
             vendor_name = str(" ".join(line[1].find_all(string=True, recursive=False)).strip())
+            submission_id = line[1].find("div").get("id")[1:] if with_id else None
             standard = str(line[2].string)
             status_line = FIPS_MIP_STATUS_RE.match(str(line[3].string))
             if status_line is None:
                 raise ValueError("Cannot parse MIP status line.")
             status = MIPStatus(status_line.group("status"))
             since = datetime.strptime(status_line.group("since"), "%m/%d/%Y").date()
-            entries.add(MIPEntry(module_name, vendor_name, standard, status, since))
+            entries.add(MIPEntry(module_name, vendor_name, standard, status, since, submission_id))
         return entries
 
     @classmethod
@@ -195,6 +198,9 @@ class MIPSnapshot(ComplexSerializableType):
             return cls._extract_entries_2(lines)
         if snapshot_date <= datetime(2022, 3, 23):
             return cls._extract_entries_3(lines)
+        if snapshot_date <= datetime(2026, 3, 5):
+            return cls._extract_entries_4(lines, False)
+
         return cls._extract_entries_4(lines)
 
     @classmethod
