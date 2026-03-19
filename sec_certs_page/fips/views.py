@@ -291,23 +291,30 @@ def mip_entry(name):
         return abort(404)
     first_present = datetime.fromisoformat(snapshots[0]["timestamp"]).date()
     last_present = datetime.fromisoformat(snapshots[-1]["timestamp"]).date()
-    state_changes = []
+    status_changes = {}
     for snap in snapshots:
         snap["entries"] = list(filter(lambda entry: entry["module_name"] == name, snap["entries"]))
-        one_entry = snap["entries"][0]
-        # TODO: More than one entry might be present, add a test?
-        if not state_changes or state_changes[-1][1] != one_entry["status"]:
-            change_date = datetime.fromisoformat(snap["timestamp"]).date()
-            state_changes.append([change_date, one_entry["status"]])
-    for i, change in enumerate(state_changes):
-        if i + 1 == len(state_changes):
-            next_change = last_present
-        else:
-            next_change = state_changes[i + 1][0]
-        change.append((next_change - change[0]).days)
+        for entry in snap["entries"]:
+            submission_id = entry.get("submission_id")
+            if submission_id is None:
+                continue
+
+            statuses = status_changes.setdefault(submission_id, [])
+            if not statuses or statuses[-1][1] != entry["status"]:
+                change_date = datetime.fromisoformat(snap["timestamp"]).date()
+                statuses.append([change_date, entry["status"]])
+
+    for statuses in status_changes.values():
+        for i, status in enumerate(statuses):
+            if i + 1 == len(statuses):
+                next_change = last_present
+            else:
+                next_change = statuses[i + 1][0]
+            status.append((next_change - status[0]).days)
+
     present = last_present - first_present
     return render_template(
-        "fips/mip/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present, state_changes=state_changes
+        "fips/mip/mip_entry.html.jinja2", snapshots=snapshots, name=name, present=present, status_changes=status_changes
     )
 
 

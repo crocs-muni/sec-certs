@@ -9,13 +9,17 @@
             <p>The module is present on the MIP list for at least {{ present.days }} days.</p>
             <div class="row my-5">
                 <p class="mb-4">This module has undergone the following status changes:</p>
-                <ul>
-                    {% for date, status, length in state_changes %}
-                        <li>
-                            {{ date|strftime("%d.%m.%Y") }} - {{ status }} - {{ length }} days
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% for submission_id, statuses in status_changes.items() %}
+                    <h6>Submission ID: {{ submission_id }}</h6>
+                    <ul>
+                        {% for date, status, duration in statuses %}
+                            <li>
+                                {{ date|strftime("%d.%m.%Y") }} - {{ status }} - {{ duration }} days
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                {% endfor %}
             </div>
             <div class="row my-3">
                 <p class="mb-4">This module is present in the following snapshots:</p>
@@ -27,7 +31,7 @@
                             <ul>
                                 {% for entry in snap["entries"]|sort(attribute="vendor_name,standard,status") %}
                                     <li>
-                                        {{ entry["vendor_name"] }}, {{ entry["standard"] }}, {{ entry["status"] }}
+                                        {{ entry["vendor_name"] }}, {{ entry["standard"] }}, {{ entry["status"] }}{% if entry.get("submission_id") %}, {{ entry["submission_id"] }}{% endif %}
                                     </li>
                                 {% endfor %}
                             </ul>
