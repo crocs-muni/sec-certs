@@ -535,7 +535,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 None,
                 None,
                 None,
-                updates.get(x.dgst, None),
+                updates.get(x.dgst),
                 None,
                 None,
                 None,
