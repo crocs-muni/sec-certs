@@ -95,8 +95,8 @@
 
 [dependency-groups]
   dev = [
-    "ruff==0.14.5",
-    "mypy==1.18.2",
+    "ruff==0.15.6",
+    "mypy==1.19.1",
     "types-PyYAML",
     "types-python-dateutil",
     "types-requests",
