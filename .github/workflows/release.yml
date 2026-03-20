@@ -14,18 +14,17 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: 3.10
+          python-version: "3.10"
           enable-cache: true
       - name: Build
         run: uv build
       - name: Publish package to PyPI
-        if: false
         run: uv publish
   docker_release:
     name: Release on DockerHub
@@ -36,7 +35,7 @@ jobs:
     if: github.repository == 'crocs-muni/sec-certs'
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
