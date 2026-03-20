@@ -45,7 +45,7 @@ def cve_dset_gz():
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["cve_id"]}],  # type: ignore
 )
 def cve(cve_id):
-    with sentry_sdk.start_span(op="mongo", description="Find CVE"):
+    with sentry_sdk.start_span(op="mongo", name="Find CVE"):
         cve_doc = mongo.db.cve.find_one({"_id": cve_id})
     if not cve_doc:
         return abort(404)
@@ -55,7 +55,7 @@ def cve(cve_id):
         for vuln_component in vuln_cfg["components"]:
             criteria |= set(vuln_match["criteria_id"] for vuln_match in vuln_component)
 
-    with sentry_sdk.start_span(op="mongo", description="Find CPE matches"):
+    with sentry_sdk.start_span(op="mongo", name="Find CPE matches"):
         matches = {match["_id"]: match for match in mongo.db.cpe_match.find({"_id": {"$in": list(criteria)}})}
 
     vuln_configs = []
@@ -86,9 +86,9 @@ def cve(cve_id):
             vuln_configs.append((False, matches_first, matches_second))
 
     vuln_configs.sort(key=lambda tup: (not tup[0], tup[1], tup[2]))
-    with sentry_sdk.start_span(op="mongo", description="Find CC certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find CC certs"):
         cc_certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
-    with sentry_sdk.start_span(op="mongo", description="Find FIPS certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find FIPS certs"):
         fips_certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
     return render_template(
         "vuln/cve.html.jinja2", cve=load(cve_doc), cc_certs=cc_certs, fips_certs=fips_certs, vuln_configs=vuln_configs
@@ -117,16 +117,16 @@ def cpe_match_dset_gz():
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["cpe_id"]}],  # type: ignore
 )
 def cpe(cpe_id):
-    with sentry_sdk.start_span(op="mongo", description="Find CPE"):
+    with sentry_sdk.start_span(op="mongo", name="Find CPE"):
         cpe_doc = mongo.db.cpe.find_one({"_id": cpe_id})
     if not cpe_doc:
         return abort(404)
 
-    with sentry_sdk.start_span(op="mongo", description="Find CC certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find CC certs"):
         cc_certs = list(map(load, mongo.db.cc.find({"heuristics.cpe_matches._value": cpe_id})))
-    with sentry_sdk.start_span(op="mongo", description="Find FIPS certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find FIPS certs"):
         fips_certs = list(map(load, mongo.db.fips.find({"heuristics.cpe_matches._value": cpe_id})))
-    with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
+    with sentry_sdk.start_span(op="mongo", name="Find CVEs"):
         match_ids = list(map(itemgetter("_id"), mongo.db.cpe_match.find({"matches.cpeName": cpe_id}, ["_id"])))
         # XXX: If we want to include the "running on/with" part of the matching then we need one more or
         #      in this statement (for components.1).

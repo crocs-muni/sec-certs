@@ -392,10 +392,10 @@ class FulltextSearch(ABC):
             fieldboosts={"name": 2, "cert_id": 4, "content": 1},
         )
         qr = parser.parse(q)
-        with sentry_sdk.start_span(op="whoosh.get_searcher", description="Get whoosh searcher"):
+        with sentry_sdk.start_span(op="whoosh.get_searcher", name="Get whoosh searcher"):
             searcher = get_searcher()
         with metrics.timing("search.latency", attributes={"collection": cls.schema, "type": "fulltext"}):
-            with sentry_sdk.start_span(op="whoosh.search", description="Search"):
+            with sentry_sdk.start_span(op="whoosh.search", name="Search"):
                 if page is None:
                     res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
                 else:
@@ -431,7 +431,7 @@ class FulltextSearch(ABC):
         runtime = res.results.runtime
         results = []
         highlite_start = time.perf_counter()
-        with sentry_sdk.start_span(op="whoosh.highlight", description="Highlight results"):
+        with sentry_sdk.start_span(op="whoosh.highlight", name="Highlight results"):
             for hit in res:
                 dgst = hit["dgst"]
                 cert = cls.collection.find_one({"_id": dgst})
@@ -440,7 +440,7 @@ class FulltextSearch(ABC):
                 try:
                     with open(fpath, encoding="utf-8") as f:
                         contents = f.read()
-                    with sentry_sdk.start_span(op="whoosh.highlight_one", description="Highlight one hit."):
+                    with sentry_sdk.start_span(op="whoosh.highlight_one", name="Highlight one hit."):
                         hlt = hit.highlights("content", text=contents)
                     entry["highlights"] = hlt
                 except FileNotFoundError:

@@ -28,7 +28,7 @@ def entry_file_path(hashid, dataset_path, document, format) -> Path:
 
 
 def _entry_download_func(collection, hashid, dataset_path, document, format) -> Response:
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         doc = mongo.db[collection].find_one({"_id": hashid})
     if doc:
         file_path = entry_file_path(hashid, dataset_path, document, format)

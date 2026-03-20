@@ -112,7 +112,7 @@ class Updater:  # pragma: no cover
     ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
-        with sentry_sdk.start_span(op=f"{self.collection}.db.new", description="Process new certs."):
+        with sentry_sdk.start_span(op=f"{self.collection}.db.new", name="Process new certs."):
             logger.info(f"Processing {len(new_ids)} new certificates.")
             for id in new_ids:
                 # Add a cert to DB
@@ -137,7 +137,7 @@ class Updater:  # pragma: no cover
     ) -> Tuple[List[object], List[object]]:
         res_col = []
         res_diff_col = []
-        with sentry_sdk.start_span(op=f"{self.collection}.db.updated", description="Process updated certs."):
+        with sentry_sdk.start_span(op=f"{self.collection}.db.updated", name="Process updated certs."):
             logger.info(f"Processing {len(updated_ids)} updated certificates.")
             diffs = 0
             appearances = 0
@@ -188,7 +188,7 @@ class Updater:  # pragma: no cover
 
     def process_removed_certs(self, dset: Dataset, removed_ids: Set[str], run_id, timestamp: datetime) -> List[object]:
         res_diff_col = []
-        with sentry_sdk.start_span(op=f"{self.collection}.db.removed", description="Process removed certs."):
+        with sentry_sdk.start_span(op=f"{self.collection}.db.removed", name="Process removed certs."):
             logger.info(f"Processing {len(removed_ids)} removed certificates.")
             for id in removed_ids:
                 # Find the last diff on this cert, if it is mark for removal, just continue
@@ -306,7 +306,7 @@ class Updater:  # pragma: no cover
 
             # TODO: Take dataset and certificate state into account when processing into DB.
 
-            with sentry_sdk.start_span(op=f"{self.collection}.db", description="Process certs into DB."):
+            with sentry_sdk.start_span(op=f"{self.collection}.db", name="Process certs into DB."):
                 res, res_diff = self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
                 self.insert_certs(self.collection, res, ordered=False)
                 self.insert_certs(self.diff_collection, res_diff, ordered=False)

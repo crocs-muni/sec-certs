@@ -58,7 +58,7 @@ class FIPSBasicSearch(BasicSearch):
             query["web_data.status"] = status
 
         with metrics.timing("search.latency", attributes={"collection": "fips", "type": "basic"}):
-            with sentry_sdk.start_span(op="mongo", description="Find certs."):
+            with sentry_sdk.start_span(op="mongo", name="Find certs."):
                 cursor: Cursor[Mapping] = cls.collection.find(query, projection)
                 count: int = cls.collection.count_documents(query)
 

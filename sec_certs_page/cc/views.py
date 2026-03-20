@@ -243,7 +243,7 @@ def fulltext_search():
 
 @cc.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
 def compare(one_hashid: str, other_hashid: str):
-    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find certs"):
         raw_one = mongo.db.cc.find_one({"_id": one_hashid}, {"_id": 0})
         raw_other = mongo.db.cc.find_one({"_id": other_hashid}, {"_id": 0})
     if not raw_one or not raw_other:
@@ -279,7 +279,7 @@ def rand():
 @cc.route("/<string(length=20):old_id>/")
 @cc.route("/<string(length=20):old_id>/<path:npath>")
 def entry_old(old_id, npath=None):
-    with sentry_sdk.start_span(op="mongo", description="Find id map entry."):
+    with sentry_sdk.start_span(op="mongo", name="Find id map entry."):
         id_map = mongo.db.cc_old.find_one({"_id": old_id})
     if id_map:
         redir_path = url_for("cc.entry", hashid=id_map["hashid"])
@@ -311,37 +311,37 @@ def redir_new(func):
 )
 @redir_new
 def entry(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         raw_doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 0})
     if raw_doc:
         doc = load(raw_doc)
-        with sentry_sdk.start_span(op="mongo", description="Find profiles"):
+        with sentry_sdk.start_span(op="mongo", name="Find profiles"):
             profiles = {}
             if "protection_profiles" in doc["heuristics"] and doc["heuristics"]["protection_profiles"]:
                 res = mongo.db.pp.find({"_id": {"$in": list(doc["heuristics"]["protection_profiles"])}})
                 profiles = {p["_id"]: load(p) for p in res}
         renderer = CCRenderer()
-        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
+        with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
-        with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
+        with sentry_sdk.start_span(op="mongo", name="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
             else:
                 cves = []
-        with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
+        with sentry_sdk.start_span(op="mongo", name="Find CPEs"):
             if doc["heuristics"]["cpe_matches"]:
                 cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": list(doc["heuristics"]["cpe_matches"])}})))
             else:
                 cpes = []
-        with sentry_sdk.start_span(op="files", description="Find local files"):
+        with sentry_sdk.start_span(op="files", name="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_CC_DIR"])
-        with sentry_sdk.start_span(op="network", description="Find network"):
+        with sentry_sdk.start_span(op="network", name="Find network"):
             cc_map = get_cc_references()
             cert_network = cc_map.get(hashid, {})
-        with sentry_sdk.start_span(op="mongo", description="Find prev/next certificates"):
+        with sentry_sdk.start_span(op="mongo", name="Find prev/next certificates"):
             # No need to "load()" the certs as they have no non-trivial types.
             if "prev_certificates" in doc["heuristics"] and doc["heuristics"]["prev_certificates"]:
                 previous = list(
@@ -361,7 +361,7 @@ def entry(hashid):
                 )
             else:
                 next = []
-        with sentry_sdk.start_span(op="mongo", description="Find subscription"):
+        with sentry_sdk.start_span(op="mongo", name="Find subscription"):
             if current_user.is_authenticated:
                 subs = mongo.db.subs.find_one(
                     {"username": current_user.username, "type": "changes", "certificate.hashid": hashid}
@@ -369,7 +369,7 @@ def entry(hashid):
                 subscribed = subs["updates"] if subs else None
             else:
                 subscribed = None
-        with sentry_sdk.start_span(op="mongo", description="Find related certificates"):
+        with sentry_sdk.start_span(op="mongo", name="Find related certificates"):
             # No need to "load()" the certs as they have no non-trivial types.
             similar_projection = {
                 "_id": 1,
@@ -497,7 +497,7 @@ def entry_cert_pdf(hashid):
 @cc.route("/<string(length=16):hashid>/graph.json")
 @redir_new
 def entry_graph_json(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
     if doc:
         cc_map = get_cc_references()
@@ -514,7 +514,7 @@ def entry_graph_json(hashid):
 @cc.route("/<string(length=16):hashid>/cert.json")
 @redir_new
 def entry_json(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         doc = mongo.db.cc.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
@@ -537,7 +537,7 @@ def entry_feed(hashid):
 
 @cc.route("/id/<path:cert_id>")
 def entry_id(cert_id):
-    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find certs"):
         ids = list(mongo.db.cc.find({"heuristics.cert_id": cert_id}, {"_id": 1}))
     if ids:
         if len(ids) == 1:
@@ -553,7 +553,7 @@ def entry_id(cert_id):
 
 @cc.route("/name/<path:name>")
 def entry_name(name):
-    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find certs"):
         ids = list(mongo.db.cc.find({"name": name}, {"_id": 1}))
     if ids:
         if len(ids) == 1:

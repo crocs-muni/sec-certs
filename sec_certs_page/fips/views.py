@@ -179,7 +179,7 @@ def fulltext_search():
 
 @fips.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
 def compare(one_hashid: str, other_hashid: str):
-    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find certs"):
         raw_one = mongo.db.fips.find_one({"_id": one_hashid}, {"_id": 0})
         raw_other = mongo.db.fips.find_one({"_id": other_hashid}, {"_id": 0})
     if not raw_one or not raw_other:
@@ -411,7 +411,7 @@ def rand():
 @fips.route("/<string(length=20):old_id>/")
 @fips.route("/<string(length=20):old_id>/<path:npath>")
 def entry_old(old_id, npath=None):
-    with sentry_sdk.start_span(op="mongo", description="Find id map entry."):
+    with sentry_sdk.start_span(op="mongo", name="Find id map entry."):
         id_map = mongo.db.fips_old.find_one({"_id": old_id})
     if id_map:
         redir_path = url_for("fips.entry", hashid=id_map["hashid"])
@@ -430,31 +430,31 @@ def entry_old(old_id, npath=None):
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],  # type: ignore
 )
 def entry(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         raw_doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if raw_doc:
         doc = load(raw_doc)
         renderer = FIPSRenderer()
-        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
+        with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
-        with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
+        with sentry_sdk.start_span(op="mongo", name="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
             else:
                 cves = []
-        with sentry_sdk.start_span(op="mongo", description="Find CPEs"):
+        with sentry_sdk.start_span(op="mongo", name="Find CPEs"):
             if doc["heuristics"]["cpe_matches"]:
                 cpes = list(map(load, mongo.db.cpe.find({"_id": {"$in": list(doc["heuristics"]["cpe_matches"])}})))
             else:
                 cpes = []
-        with sentry_sdk.start_span(op="files", description="Find local files"):
+        with sentry_sdk.start_span(op="files", name="Find local files"):
             local_files = entry_download_files(
                 hashid, current_app.config["DATASET_PATH_FIPS_DIR"], documents=("target",)
             )
-        with sentry_sdk.start_span(op="mongo", description="Find subscription"):
+        with sentry_sdk.start_span(op="mongo", name="Find subscription"):
             if current_user.is_authenticated:
                 subs = mongo.db.subs.find_one(
                     {"username": current_user.username, "type": "changes", "certificate.hashid": hashid}
@@ -462,7 +462,7 @@ def entry(hashid):
                 subscribed = subs["updates"] if subs else None
             else:
                 subscribed = None
-        with sentry_sdk.start_span(op="network", description="Find network"):
+        with sentry_sdk.start_span(op="network", name="Find network"):
             fips_map = get_fips_references()
             cert_network = fips_map.get(hashid, {})
         name = doc["web_data"]["module_name"] if doc["web_data"]["module_name"] else ""
@@ -500,7 +500,7 @@ def entry_target_pdf(hashid):
 
 @fips.route("/<string(length=16):hashid>/graph.json")
 def entry_graph_json(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
         fips_map = get_fips_references()
@@ -516,7 +516,7 @@ def entry_graph_json(hashid):
 
 @fips.route("/<string(length=16):hashid>/cert.json")
 def entry_json(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         doc = mongo.db.fips.find_one({"_id": hashid}, {"_id": 0})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
@@ -542,7 +542,7 @@ def entry_feed(hashid):
 
 @fips.route("/id/<int:cert_id>")
 def entry_id(cert_id):
-    with sentry_sdk.start_span(op="mongo", description="Find cert"):
+    with sentry_sdk.start_span(op="mongo", name="Find cert"):
         doc = mongo.db.fips.find_one({"cert_id": cert_id}, {"_id": 1})
     if doc:
         return redirect(url_for("fips.entry", hashid=doc["_id"]))
@@ -552,7 +552,7 @@ def entry_id(cert_id):
 
 @fips.route("/name/<string:name>")
 def entry_name(name):
-    with sentry_sdk.start_span(op="mongo", description="Find certs"):
+    with sentry_sdk.start_span(op="mongo", name="Find certs"):
         ids = list(mongo.db.fips.find({"web_data.module_name": name}, {"_id": 1}))
     if ids:
         if len(ids) == 1:

@@ -35,7 +35,7 @@ class Feed:
             doc = load(raw_doc)
             feed_url = url_for(".entry_feed", hashid=hashid, _external=True)
             entry_url = url_for(".entry", hashid=hashid, _external=True)
-            with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
+            with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
                 diffs = list(
                     map(load, self.diff_collection.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
                 )
