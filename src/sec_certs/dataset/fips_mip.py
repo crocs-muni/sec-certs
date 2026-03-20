@@ -84,7 +84,7 @@ class MIPDataset(JSONPathDataset, ComplexSerializableType):
             for key, dups in entries.items():
                 if len(dups) > 1:
                     logger.warning(f"Duplicate MIPEntry when computing MIPFlow, {key}.")
-                entry = sorted(dups)[0]
+                entry = max(dups, key=lambda e: (e.status_since or date.min, e.status))
                 entry_flows = flows.setdefault(key, [])
                 if entry_flows:
                     last_state_change = entry_flows[-1]

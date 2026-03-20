@@ -88,7 +88,7 @@ FIPS_MIP_URL = (
 
 FIPS_DOWNLOAD_DELAY = 1
 
-FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
+FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z- ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
 
 TAG_CERT_ID = "cert_id"
 TAG_CC_SECURITY_LEVEL = "cc_security_level"
