@@ -103,23 +103,23 @@ def fulltext_search():
     dynamic_list_constructor=lambda *args, **kwargs: [{"text": request.view_args["hashid"]}],  # type: ignore
 )
 def entry(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find profile"):
+    with sentry_sdk.start_span(op="mongo", name="Find profile"):
         raw_doc = mongo.db.pp.find_one({"_id": hashid})
     if raw_doc:
         doc = load(raw_doc)
-        with sentry_sdk.start_span(op="mongo", description="Find certs"):
+        with sentry_sdk.start_span(op="mongo", name="Find certs"):
             certs = []
             res = mongo.db.cc.find({"heuristics.protection_profiles._value": {"$elemMatch": {"$eq": hashid}}})
             for cert in res:
                 certs.append(load(cert))
         certs.sort(key=lambda x: x["name"])
         renderer = PPRenderer()
-        with sentry_sdk.start_span(op="mongo", description="Find and render diffs"):
+        with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.pp_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
             diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
             diffs = list(map(load, diffs))
             diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
-        with sentry_sdk.start_span(op="mongo", description="Find subscription"):
+        with sentry_sdk.start_span(op="mongo", name="Find subscription"):
             if current_user.is_authenticated:
                 subs = mongo.db.subs.find_one(
                     {"username": current_user.username, "type": "changes", "certificate.hashid": hashid}
@@ -127,7 +127,7 @@ def entry(hashid):
                 subscribed = subs["updates"] if subs else None
             else:
                 subscribed = None
-        with sentry_sdk.start_span(op="files", description="Find local files"):
+        with sentry_sdk.start_span(op="files", name="Find local files"):
             local_files = entry_download_files(hashid, current_app.config["DATASET_PATH_PP_DIR"])
         name = doc["web_data"]["name"] if doc["web_data"] and doc["web_data"]["name"] else ""
         return render_template(
@@ -173,7 +173,7 @@ def entry_profile_pdf(hashid):
 
 @pp.route("/<string(length=16):hashid>/profile.json")
 def entry_json(hashid):
-    with sentry_sdk.start_span(op="mongo", description="Find profile"):
+    with sentry_sdk.start_span(op="mongo", name="Find profile"):
         doc = mongo.db.pp.find_one({"_id": hashid})
     if doc:
         return send_json_attachment(StorageFormat(doc).to_json_mapping())
@@ -199,7 +199,7 @@ def entry_feed(hashid):
 
 @pp.route("/id/<string:profile_id>")
 def entry_id(profile_id):
-    with sentry_sdk.start_span(op="mongo", description="Find profile"):
+    with sentry_sdk.start_span(op="mongo", name="Find profile"):
         # TODO: This does not work, we have no ids
         doc = mongo.db.pp.find_one({"processed.cc_pp_csvid": profile_id}, {"_id": 1})
     if doc:
@@ -210,7 +210,7 @@ def entry_id(profile_id):
 
 @pp.route("/name/<string:name>")
 def entry_name(name):
-    with sentry_sdk.start_span(op="mongo", description="Find profile"):
+    with sentry_sdk.start_span(op="mongo", name="Find profile"):
         ids = list(mongo.db.pp.find({"web_data.name": name}, {"_id": 1}))
     if ids:
         if len(ids) == 1:

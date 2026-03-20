@@ -220,32 +220,32 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
         #    updated = file["updated_at"]
         #     targets_fmap[name] = (id, updated)
 
-        with sentry_sdk.start_span(op="cc.all", description="Get full CC dataset"):
+        with sentry_sdk.start_span(op="cc.all", name="Get full CC dataset"):
             if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(op="cc.get_certs", description="Get certs from web"), suppress_child_spans():
+                with sentry_sdk.start_span(op="cc.get_certs", name="Get certs from web"), suppress_child_spans():
                     dset.get_certs_from_web(update_json=False)
                 with (
                     sentry_sdk.start_span(
-                        op="cc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
+                        op="cc.auxiliary_datasets", name="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
                     ),
                     suppress_child_spans(),
                 ):
                     dset.process_auxiliary_datasets(update_json=False)
                 with (
-                    sentry_sdk.start_span(op="cc.download_artifacts", description="Download artifacts"),
+                    sentry_sdk.start_span(op="cc.download_artifacts", name="Download artifacts"),
                     suppress_child_spans(),
                 ):
                     dset.download_all_artifacts(update_json=False)
-                with sentry_sdk.start_span(op="cc.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
+                with sentry_sdk.start_span(op="cc.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(op="cc.analyze", description="Analyze certificates"), suppress_child_spans():
+                with sentry_sdk.start_span(op="cc.analyze", name="Analyze certificates"), suppress_child_spans():
                     dset.analyze_certificates(update_json=False)
-                with sentry_sdk.start_span(op="cc.write_json", description="Write JSON"), suppress_child_spans():
+                with sentry_sdk.start_span(op="cc.write_json", name="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
                     dset.aux_handlers[CCSchemeDatasetHandler].dset.to_json(paths["output_path_scheme"])
                     dset.aux_handlers[CCMaintenanceUpdateDatasetHandler].dset.to_json(paths["output_path_mu"])
 
-            with sentry_sdk.start_span(op="cc.move", description="Move files"), suppress_child_spans():
+            with sentry_sdk.start_span(op="cc.move", name="Move files"), suppress_child_spans():
                 for cert in dset:
                     if cert.state.report.pdf_path and cert.state.report.pdf_path.exists():
                         dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
@@ -284,7 +284,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
                             cert.state.cert.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "cert"))
-            with sentry_sdk.start_span(op="cc.old_map", description="Update old digest map"), suppress_child_spans():
+            with sentry_sdk.start_span(op="cc.old_map", name="Update old digest map"), suppress_child_spans():
                 for cert in dset:
                     if hasattr(cert, "old_dgst"):
                         mongo.db.cc_old.replace_one(

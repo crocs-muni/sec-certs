@@ -147,28 +147,28 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
         to_reindex = set()
         to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
 
-        with sentry_sdk.start_span(op="pp.all", description="Get full PP dataset"):
+        with sentry_sdk.start_span(op="pp.all", name="Get full PP dataset"):
             if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(op="pp.get_certs", description="Get certs from web"), suppress_child_spans():
+                with sentry_sdk.start_span(op="pp.get_certs", name="Get certs from web"), suppress_child_spans():
                     dset.get_certs_from_web(update_json=False)
                 with (
-                    sentry_sdk.start_span(op="pp.auxiliary_datasets", description="Process auxiliary datasets"),
+                    sentry_sdk.start_span(op="pp.auxiliary_datasets", name="Process auxiliary datasets"),
                     suppress_child_spans(),
                 ):
                     dset.process_auxiliary_datasets(update_json=False)
                 with (
-                    sentry_sdk.start_span(op="pp.download_artifacts", description="Download artifacts"),
+                    sentry_sdk.start_span(op="pp.download_artifacts", name="Download artifacts"),
                     suppress_child_spans(),
                 ):
                     dset.download_all_artifacts(update_json=False)
-                with sentry_sdk.start_span(op="pp.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
+                with sentry_sdk.start_span(op="pp.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
                     dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(op="pp.analyze", description="Analyze certificates"), suppress_child_spans():
+                with sentry_sdk.start_span(op="pp.analyze", name="Analyze certificates"), suppress_child_spans():
                     dset.analyze_certificates(update_json=False)
-                with sentry_sdk.start_span(op="pp.write_json", description="Write JSON"), suppress_child_spans():
+                with sentry_sdk.start_span(op="pp.write_json", name="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])
 
-            with sentry_sdk.start_span(op="pp.move", description="Move files"), suppress_child_spans():
+            with sentry_sdk.start_span(op="pp.move", name="Move files"), suppress_child_spans():
                 for prof in dset:
                     if prof.state.pp.pdf_path and prof.state.pp.pdf_path.exists():
                         dst = paths["profile_pdf"] / f"{prof.dgst}.pdf"

@@ -9,6 +9,7 @@ from werkzeug.datastructures import MultiDict
 from .. import mongo
 from ..cc import cc_categories
 from ..common.search.query import BasicSearch, FulltextSearch
+from ..common.sentry import metrics
 
 
 class CCBasicSearch(BasicSearch):
@@ -66,9 +67,12 @@ class CCBasicSearch(BasicSearch):
         if "eal" in kwargs and kwargs["eal"] != "any":
             query["security_level._value"] = kwargs["eal"]
 
-        with sentry_sdk.start_span(op="mongo", description="Find certs."):
-            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
-            count: int = cls.collection.count_documents(query)
+        with metrics.timing("search.latency", attributes={"collection": "cc", "type": "basic"}):
+            with sentry_sdk.start_span(op="mongo", name="Find certs."):
+                cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+                count: int = cls.collection.count_documents(query)
+
+        metrics.distribution("search.results_count", count, attributes={"collection": "cc"})
 
         timeline: List[Optional[datetime]] = [
             datetime.strptime(cert["not_valid_before"]["_value"], "%Y-%m-%d") for cert in cursor.clone()

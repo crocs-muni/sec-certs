@@ -1,7 +1,3 @@
-from datetime import datetime, timezone
-from secrets import token_hex
-
-from bson import ObjectId
 from flask import abort, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 from flask_dance.contrib.github import github
 from flask_login import current_user, login_required, login_user, logout_user
@@ -9,6 +5,7 @@ from flask_principal import AnonymousIdentity, Identity, identity_changed
 
 from .. import app, mongo
 from ..common.permissions import admin_permission
+from ..common.sentry import metrics
 from ..common.views import check_captcha, register_breadcrumb
 from . import user
 from .forms import LoginForm, MagicLinkForm, PasswordResetForm, PasswordResetRequestForm, RegisterForm
@@ -26,12 +23,14 @@ def login():
             if user_obj and user_obj.check_password(form.password.data):
                 login_user(user_obj, form.remember_me.data)
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
+                metrics.count("user.login", 1)
                 flash("You've been successfully logged in.", "info")
                 if admin_permission.can():
                     return redirect(url_for("admin.index"))
                 else:
                     return redirect(url_for("index"))
             else:
+                metrics.count("user.login_failed", 1, attributes={"reason": "invalid_credentials"})
                 flash("Bad.", "error")
     return render_template("user/login.html.jinja2", form=form)
 
@@ -62,6 +61,7 @@ def register():
         try:
             new_user = User.create(username=form.username.data, email=form.email.data, password=form.password.data)
             send_confirmation_email.send(new_user.username)
+            metrics.count("user.register", 1)
             flash("Registration successful! Please check your email to confirm your account.", "success")
             return redirect(url_for("user.login"))
         except UserExistsError:
@@ -190,6 +190,7 @@ def delete_account():
         session.pop(key, None)
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
 
+    metrics.count("user.delete_account", 1)
     flash("Your account has been deleted successfully.", "info")
     return redirect(url_for("index"))
 

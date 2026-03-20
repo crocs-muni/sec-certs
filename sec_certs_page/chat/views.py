@@ -8,6 +8,7 @@ from .. import mongo
 from ..common.ai.chat import chat_full, chat_rag
 from ..common.ai.webui import file_name, file_type, resolve_files
 from ..common.permissions import chat_permission
+from ..common.sentry import metrics
 from ..common.views import accounting
 from . import chat
 
@@ -82,7 +83,9 @@ def query_rag():
     hashid = data.get("hashid", None)
 
     try:
-        result = chat_rag(query, model, collection, hashid, about)
+        with metrics.timing("ai.api_latency", attributes={"model": model, "type": "rag"}):
+            result = chat_rag(query, model, collection, hashid, about)
+        metrics.count("ai.query", 1, attributes={"model": model, "type": "rag", "collection": collection})
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
 
@@ -173,7 +176,9 @@ def query_full():
         return {"status": "error", "message": "Invalid context specified."}, 400
 
     try:
-        result = chat_full(query, model, collection, hashid, context)
+        with metrics.timing("ai.api_latency", attributes={"model": model, "type": "full"}):
+            result = chat_full(query, model, collection, hashid, context)
+        metrics.count("ai.query", 1, attributes={"model": model, "type": "full", "collection": collection})
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
 
