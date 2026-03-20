@@ -84,12 +84,12 @@ class CPEDatasetHandler(AuxiliaryDatasetHandler):
             logger.info("Fetching new CPE records from NVD API")
             with CpeNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                 self.dset = builder.build_dataset()
+            self.dset.json_path = self.dset_path
         else:
             logger.info("Preparing CPEDataset from sec-certs.org.")
             self.dset = CPEDataset.from_web(self.dset_path)
 
         self.dset.to_json()
-        self.dset.json_path = self.dset_path
 
     def load_dataset(self) -> None:
         self.dset = CPEDataset.from_json(self.dset_path)
@@ -111,12 +111,12 @@ class CVEDatasetHandler(AuxiliaryDatasetHandler):
             logger.info("Fetching new CVE records from NVD API.")
             with CveNvdDatasetBuilder(api_key=config.nvd_api_key) as builder:
                 self.dset = builder.build_dataset()
+            self.dset.json_path = self.dset_path
         else:
             logger.info("Preparing CVEDataset from sec-certs.org.")
             self.dset = CVEDataset.from_web(self.dset_path)
 
         self.dset.to_json()
-        self.dset.json_path = self.dset_path
 
     def load_dataset(self):
         self.dset = CVEDataset.from_json(self.dset_path)
@@ -176,8 +176,9 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
             return
 
         self.dset = FIPSAlgorithmDataset.from_web(self.dset_path)
-        self.dset.to_json()
+        # Normally from_web sets json_path internally, kept for tests that mock from_web and bypass that
         self.dset.json_path = self.dset_path
+        self.dset.to_json()
 
     def load_dataset(self):
         self.dset = FIPSAlgorithmDataset.from_json(self.dset_path)
@@ -204,8 +205,9 @@ class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
             return
 
         self.dset = CCSchemeDataset.from_web(self.dset_path, self.only_schemes)
-        self.dset.to_json()
+        # Normally from_web sets json_path internally, kept for tests that mock from_web and bypass that
         self.dset.json_path = self.dset_path
+        self.dset.to_json()
 
     def load_dataset(self):
         self.dset = CCSchemeDataset.from_json(self.dset_path)
