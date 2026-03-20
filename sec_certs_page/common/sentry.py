@@ -84,6 +84,19 @@ def before_send(event, hint):
     return event  # Otherwise, send as normal
 
 
+def get_sampler(base_rate: float):
+    def traces_sampler(sampling_context):
+        # Always inherit
+        if sampling_context["parent_sampled"] is not None:
+            return sampling_context["parent_sampled"]
+        # Always sample Dramatiq tasks
+        if sampling_context["transaction_context"]["op"] in ("queue.task.dramatiq", "dramatiq"):
+            return 1.0
+        return base_rate
+
+    return traces_sampler
+
+
 @contextmanager
 def timing(name: str, attributes: Optional[dict[str, Any]] = None):
     """
