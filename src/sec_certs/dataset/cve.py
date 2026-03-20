@@ -180,7 +180,7 @@ class CVEDataset(JSONPathDataset, ComplexSerializableType):
         self.last_update_timestamp = datetime.fromisoformat(data["timestamp"])
         for vuln in data["vulnerabilities"]:
             # https://nvd.nist.gov/vuln/vulnerability-status#divNvdStatus
-            if vuln["cve"]["vulnStatus"] in {"Analyzed", "Modified"}:
+            if vuln["cve"]["vulnStatus"] in {"Analyzed", "Modified", "Deferred"}:
                 cve = CVE.from_nist_dict(vuln["cve"])
                 self[cve.cve_id] = cve
         return self
