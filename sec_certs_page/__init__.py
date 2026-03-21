@@ -4,7 +4,6 @@ from contextvars import ContextVar
 from logging import config
 from pathlib import Path
 
-import dash_bootstrap_components as dbc
 import sentry_sdk
 from dramatiq import Middleware
 from dramatiq.middleware import (
@@ -195,6 +194,7 @@ from .notifications import notifications as notifications_bp
 from .pp import pp as pp_bp
 from .user import user as user_bp
 from .vuln import vuln as vuln_bp
+from .eucc import eucc as eucc_bp
 
 with app.app_context():
     app.register_blueprint(admin_bp)
@@ -207,6 +207,7 @@ with app.app_context():
     app.register_blueprint(docs_bp)
     app.register_blueprint(about_bp)
     app.register_blueprint(chat_bp)
+    app.register_blueprint(eucc_bp)
 
     # Setup GitHub OAuth if enabled and configured
     if app.config.get("GITHUB_OAUTH_ENABLED", False):

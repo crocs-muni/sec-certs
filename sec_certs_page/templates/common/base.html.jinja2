@@ -259,7 +259,8 @@
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-2 mt-lg-0">
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "cc" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "cc" %}nav-current{% endif %}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             Common Criteria
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -274,7 +275,19 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "pp" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "eucc" %}nav-current{% endif %}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            EUCC
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('eucc.index') }}">Home</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('eucc.merged_search') }}">Search</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('eucc.data') }}">Data</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "pp" %}nav-current{% endif %}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             Protection Profiles
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -284,7 +297,8 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "fips" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "fips" %}nav-current{% endif %}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             FIPS 140
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -301,7 +315,8 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "vuln" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "vuln" %}nav-current{% endif %}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             Vulnerabilities
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -323,31 +338,40 @@
                     </li>
                     {% endif %}
                     <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "about" %}nav-current{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-dark dropdown-toggle {% if request.blueprint == "about" %}nav-current{% endif %}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             About
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item" href="{{ url_for('about.index') }}">Project</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('about.research') }}">Research</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('about.changelog') }}">Changelog</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('about.privacy_policy') }}">Privacy policy</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('about.privacy_policy') }}">Privacy policy</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
 
                 {% if current_user.is_authenticated %}
                     <div class="dropdown me-3">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa fa-user fa-fw"></i> {{ current_user.username }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="fa fa-user fa-fw"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('notify.manage') }}"><i class="fa fa-envelope fa-fw"></i> Subscriptions</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="fa fa-user fa-fw"></i>
+                                Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('notify.manage') }}"><i
+                                    class="fa fa-envelope fa-fw"></i> Subscriptions</a></li>
                             {% if is_admin() %}
-                                <li><a class="dropdown-item" href="{{ url_for("admin.index") }}"><i class="fa fa-cog fa-fw"></i> Admin</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for("admin.index") }}"><i
+                                        class="fa fa-cog fa-fw"></i> Admin</a></li>
                             {% endif %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('user.logout') }}"><i class="fa fa-sign-out-alt fa-fw"></i> Logout</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.logout') }}"><i
+                                    class="fa fa-sign-out-alt fa-fw"></i> Logout</a></li>
                         </ul>
                     </div>
                 {% else %}
@@ -355,7 +379,8 @@
                        role="button"><i class="fa fa-sign-in-alt"></i> Login</a>
                 {% endif %}
                 <div class="dropdown">
-                    <button id="theme" class="nav-link dropdown-toggle text-secondary mx-3 mx-lg-0 py-1 p-lg-0" type="button"
+                    <button id="theme" class="nav-link dropdown-toggle text-secondary mx-3 mx-lg-0 py-1 p-lg-0"
+                            type="button"
                             data-bs-toggle="dropdown" data-bs-display="static" title="Change theme"></button>
                     <ul class="dropdown-menu dropdown-menu-lg-end">
                         <li>
@@ -411,12 +436,15 @@
                 {% block footer %}
                     <div class="row position-relative">
                         <div class="d-flex d-md-block justify-content-center justify-content-md-around bg-dark px-5">
-                            <div class="d-flex justify-content-md-around flex-column flex-md-row gap-5  py-5 text-light" style="">
+                            <div class="d-flex justify-content-md-around flex-column flex-md-row gap-5  py-5 text-light"
+                                 style="">
                                 <div class="align-self-md-center flex-grow-1 flex-shrink-1 flex-basis-0">
                                     <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">
-                                            <img id="crocs-logo" src="{{ url_for("static", filename="img/crocs_claim_light.svg") }}"
-                                                alt="Centre for Research on Cryptography and Security" style="max-width: 70%; color: white;"
-                                                loading="lazy"/>
+                                        <img id="crocs-logo"
+                                             src="{{ url_for("static", filename="img/crocs_claim_light.svg") }}"
+                                             alt="Centre for Research on Cryptography and Security"
+                                             style="max-width: 70%; color: white;"
+                                             loading="lazy"/>
                                     </a>
                                 </div>
                                 <div class="align-self-center flex-grow-1 flex-shrink-1 flex-basis-0">
@@ -428,24 +456,37 @@
 
                                 <div class="flex-grow-1 flex-shrink-1 flex-basis-0">
                                     <span class="fs-5 fw-bold d-inline-block mb-4">Project</span>
-                                    <p><a href="https://github.com/crocs-muni/sec-certs" target="_blank" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Github</a></p>
-                                    <p><a href="{{ url_for('about.index') }}" target="_blank" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">About</a></p>
-                                    <p><a href="{{ url_for('about.research') }}" target="_blank" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Research</a></p>
+                                    <p><a href="https://github.com/crocs-muni/sec-certs" target="_blank"
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Github</a>
+                                    </p>
+                                    <p><a href="{{ url_for('about.index') }}" target="_blank"
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">About</a>
+                                    </p>
+                                    <p><a href="{{ url_for('about.research') }}" target="_blank"
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Research</a>
+                                    </p>
                                 </div>
                                 <div class="flex-grow-1 flex-shrink-1 flex-basis-0">
                                     <span class="fs-5 fw-bold d-inline-block mb-4">Quick links</span>
                                     <p><a href="{{ url_for("docs.serve_docs", path="index.html") }}"
-                                            class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
-                                                Documentation
-                                        </a>
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                                        Documentation
+                                    </a>
                                     </p>
-                                    <p><a href="{{ url_for('about.privacy_policy') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy policy</a></p>
-                                    <p><a href="{{ url_for('about.changelog') }}" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Changelog</a></p>
+                                    <p><a href="{{ url_for('about.privacy_policy') }}"
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy
+                                        policy</a></p>
+                                    <p><a href="{{ url_for('about.changelog') }}"
+                                              class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Changelog</a>
+                                        </p>
+
                                 </div>
 
                                 <div class="flex-grow-1 flex-shrink-1 flex-basis-0">
                                     <span class="fs-5 fw-bold d-inline-block mb-4">Contact us</span>
-                                    <p><a href="mailto:hello@sec-certs.org" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">hello@sec-certs.org</a></p>
+                                    <p><a href="mailto:hello@sec-certs.org"
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">hello@sec-certs.org</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

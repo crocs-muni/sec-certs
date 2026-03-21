@@ -1,0 +1,252 @@
+<div class="{{ box_container }}" id="heuristics-info">
+    <h2>Heuristics</h2>
+    <div class="{{ container_inner }}">
+        <div>
+            {% if not cert["cert_id"] and not cpes and not cves %}
+                <p>No heuristics are available for this certificate.</p>
+            {% else %}
+                {{ certificate_note() }}
+            {% endif %}
+        </div>
+
+        {% if cert["heuristics"]["extracted_sars"] %}
+            <div data-cs-name="Extracted SARs">
+                <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
+                {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
+                    {% set sar_name = sar["family"] + "." + sar["level"]|string %}
+                    {{ render_sars(sar_name) }}
+                    {%- if not loop.last -%}, {%- endif -%}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if cpes %}
+            <div data-cs-name="CPE matches">
+                <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
+                {{ render_cpes(cert, cpes) }}
+            </div>
+        {% endif %}
+
+        {% if cves %}
+            <div data-cs-name="Related CVEs">
+                <h4 class="anchor" id="cves">Related <abbr
+                        title="Common Vulnerability Enumeration">CVEs</abbr>
+                </h4>
+                {{ render_cves(cves) }}
+            </div>
+        {% endif %}
+
+        {% if previous or next %}
+            <div data-cs-name="Certificate versions" >
+                <h4 class="anchor" id="versions">Certificate versions</h4>
+                <table class="table table-striped my-2">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Certificate ID</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    {% if previous %}
+                        <tr>
+                            <td colspan="3" class="fw-bold">Previous</td>
+                        </tr>
+                    {% endif %}
+                    {% for other in previous %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for("eueucc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
+                                {% if other["name"] == cert["name"] and cert["name"] %}
+                                    <span class="badge rounded-pill bg-info text-dark"
+                                          title="Certificate name matches exactly."
+                                          data-bs-toggle="tooltip"><i
+                                            class="fas fa-equals"></i></span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ other["heuristics"]["cert_id"] }}
+                                {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
+                                    <span class="badge rounded-pill bg-info text-dark"
+                                          title="Certificate ID matches exactly."
+                                          data-bs-toggle="tooltip"><i
+                                            class="fas fa-equals"></i></span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ url_for("eueucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
+                                   class="btn btn-outline-primary">Compare</a></td>
+                        </tr>
+                    {% endfor %}
+                    {% if next %}
+                        <tr>
+                            <td colspan="3" class="fw-bold">Next</td>
+                        </tr>
+                    {% endif %}
+                    {% for other in next %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for("eucc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
+                                {% if other["name"] == cert["name"] and cert["name"] %}
+                                    <span class="badge rounded-pill bg-info text-dark"
+                                          title="Certificate name matches exactly."
+                                          data-bs-toggle="tooltip"><i
+                                            class="fas fa-equals"></i></span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ other["heuristics"]["cert_id"] }}
+                                {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
+                                    <span class="badge rounded-pill bg-info text-dark"
+                                          title="Certificate ID matches exactly."
+                                          data-bs-toggle="tooltip"><i
+                                            class="fas fa-equals"></i></span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
+                                   class="btn btn-outline-primary">Compare</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+
+        {% if similar %}
+            <div data-cs-name="Similar certificates">
+                <h4 class="anchor" id="similar">Similar certificates</h4>
+                <table class="table table-striped my-2">
+                    <colgroup>
+                        <col style="width: 80%"/>
+                        <col style="width: 15%"/>
+                        <col style="width: 5%"/>
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Certificate ID</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    {% for similar_cert in similar %}
+                        <tr {% if similar|length > 5 and loop.index0 >= 5 %}
+                            class="collapse similarity-collapse" {% endif %}>
+                            <td style="max-width: 70%">
+                                <a href="{{ url_for("eucc.entry", hashid=similar_cert['_id']) }}"
+                                   title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
+                                {% if similar_cert["name"] == cert["name"] and cert["name"] %}
+                                    <span class="badge rounded-pill bg-info text-dark"
+                                          title="Certificate name matches exactly."
+                                          data-bs-toggle="tooltip"><i
+                                            class="fas fa-equals"></i></span>
+                                {% endif %}
+                                {% if "state" in similar_cert %}
+                                    {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["pdf_hash"] == cert["state"]["cert"]["pdf_hash"] and cert["state"]["cert"]["pdf_hash"] %}
+                                        <span class="badge rounded-pill bg-info text-dark"
+                                              title="Certificate PDF file matches exactly."
+                                              data-bs-toggle="tooltip"><i
+                                                class="fas fa-file-alt"></i></span>
+                                    {% endif %}
+                                    {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["pdf_hash"] == cert["state"]["report"]["pdf_hash"] and cert["state"]["report"]["pdf_hash"] %}
+                                        <span class="badge rounded-pill bg-info text-dark"
+                                              title="Certification report PDF file matches exactly."
+                                              data-bs-toggle="tooltip"><i
+                                                class="fas fa-file-alt"></i></span>
+                                    {% endif %}
+                                    {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["pdf_hash"] == cert["state"]["st"]["pdf_hash"] and cert["state"]["st"]["pdf_hash"] %}
+                                        <span class="badge rounded-pill bg-info text-dark"
+                                              title="Security target PDF file matches exactly."
+                                              data-bs-toggle="tooltip"><i
+                                                class="fas fa-file-alt"></i></span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ similar_cert["cert_id"] }}
+                                {% if similar_cert["cert_id"] == cert["cert_id"] and cert["cert_id"] %}
+                                    <span class="badge rounded-pill bg-info text-dark"
+                                          title="Certificate ID matches exactly."
+                                          data-bs-toggle="tooltip"><i
+                                            class="fas fa-equals"></i></span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
+                                   class="btn btn-outline-primary">Compare</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                {% if similar|length > 5 %}
+                    <div id="similarity-toggle" class="d-flex justify-content-center">
+                        <div class="d-inline-flex flex-column">
+                            <span class="text-muted">Showing 5 out of {{ similar|length }}.</span>
+                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target=".similarity-collapse" aria-expanded="false"
+                                    aria-controls=".similarity-collapse"
+                                    onclick="$('#similarity-toggle').toggleClass('d-flex').hide()">Show all
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
+            <div data-cs-name="Scheme data" class="my-3">
+                <h4>Scheme data</h4>
+                <table class=" table-sm table-borderless w-auto">
+                    <colgroup>
+                        <col style="width: 20%"/>
+                        <col style="width: 20%"/>
+                        <col style="width: 60%"/>
+                    </colgroup>
+                    <tbody>
+                    {% for key, value in cert["heuristics"]["scheme_data"].items() %}
+                        {% set name = key|replace("_", " ")|title %}
+                        {% if key.endswith("link") or key.endswith("url") %}
+                            <tr data-cs-name="Scheme data - {{ name }}">
+                                <th scope="row">{{ name }}</th>
+                                <td colspan="2">
+                                    <a href="{{ value }}" target="_blank" rel="noopener">{{ value }}</a>
+                                </td>
+                            </tr>
+                        {% elif key == "enhanced" %}
+                            <tr>
+                                <th rowspan="{{ value|length + 1 }}">{{ name }}</th>
+                            </tr>
+
+                            {% for k, v in value.items() %}
+                                {% set kname = k|replace("_", " ")|title %}
+                                <tr data-cs-name="Scheme data - Enhanced - {{ kname }}">
+                                    <th scope="row">{{ kname }}</th>
+                                    <td>
+                                        {% if k.endswith("link") or k.endswith("url") %}
+                                            <a href="{{ v }}" target="_blank" rel="noopener">{{ v }}</a>
+                                        {% else %}
+                                            {% if v is date %}
+                                                {{ v|strftime("%d.%m.%Y") }}
+                                            {% else %}
+                                                {{ v }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr data-cs-name="Scheme data - {{ name }}">
+                                <th scope="row">{{ name }}</th>
+                                <td colspan="2">
+                                    {% if value is date %}
+                                        {{ value|strftime("%d.%m.%Y") }}
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>

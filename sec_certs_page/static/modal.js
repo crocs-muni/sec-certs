@@ -98,18 +98,18 @@ export function add_current_cert(storage_key, current) {
         selected = [current];
     } else {
         selected = JSON.parse(selected);
-        if (current["type"] === "cc" || current["type"] === "fips") {
-        	selected.push(current);	
+        if (current["type"] === "cc" || current["type"] === "fips" || current["type"] === "eucc") {
+        	selected.push(current);
         } else {
-        	$("#compare-error").text("Comparing protection profiles not supported (yet).").show();
-        	return;
+            $("#compare-error").text("Comparing protection profiles not supported (yet).").show();
+            return;
         }
     }
     storage.setItem(storage_key, JSON.stringify(selected));
     update_state();
 }
 
-export function compare_do(cc_url, fips_url) {
+export function compare_do(cc_url, fips_url, eucc_url) {
     let selected = storage ? storage.getItem("selected_certs_comparison") : null;
     if (selected === null) {
         //whoops
@@ -122,15 +122,17 @@ export function compare_do(cc_url, fips_url) {
         return;
     }
     if (selected[0]["type"] !== selected[1]["type"]) {
-        $("#compare-error").text("You can only compare certificates from the same framework (i.e. CC or FIPS).").show();
+        $("#compare-error").text("You can only compare certificates from the same framework (i.e. CC, EUCC or FIPS).").show();
         return;
     }
     let url;
     if (selected[0]["type"] === "cc") {
         url = cc_url;
-    } else if (selected[0][type] == "fips") {
+    } else if (selected[0]["type"] === "eucc") {
+        url = eucc_url;
+    } else if (selected[0]["type"] === "fips") {
         url = fips_url;
-    } else if (selected[0][type] == "pp") {
+    } else if (selected[0]["type"] === "pp") {
         $("#compare-error").text("Comparing protection profiles not supported (yet).").show();
         return;
     }
