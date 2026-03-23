@@ -1,10 +1,10 @@
 {% set sar_prefixes = ['ADV_', 'AGD_', 'ALC_', 'ASE_', 'ATE_', 'AVA_'] %}
 {% set sfr_prefixes = ['FAU_', 'FCS_', 'FDP_', 'FIA_', 'FMT_', 'FPR_', 'FPT_', 'FRU_', 'FTA_', 'FTP_'] %}
 
-{% set table_styles = "table table-striped table-borderless w-100" %}
+{% set table_styles = "table-sm table-borderless w-100" %}
 
-<div>
-    <h2 class="mt-5">Webpage information</h2>
+<div class="{{ box_container }}" id="webpage-info">
+    <h2>Webpage information</h2>
     <div class="{{ box_container_without_bg }}">
         <table class="{{ table_styles }}">
             <colgroup>
@@ -59,7 +59,7 @@
             </tbody>
         </table>
 
-        <h4 class="p-2">Product Specification</h4>
+        <h4 class="pt-4">Product Specification</h4>
         <table class="{{ table_styles }}">
             <colgroup>
                 <col style="width: 30%"/>
@@ -152,7 +152,7 @@
             </tbody>
         </table>
 
-        <h4 class="p-2">Certificate holder</h4>
+        <h4 class="pt-4">Certificate holder</h4>
         <table class="{{ table_styles }}">
             <colgroup>
                 <col style="width: 30%"/>
@@ -178,7 +178,7 @@
             </tbody>
         </table>
 
-        <h4 class="p-2">Certification body</h4>
+        <h4 class="pt-4">Certification body</h4>
         <table class="{{ table_styles }}">
             <colgroup>
                 <col style="width: 30%"/>
@@ -215,7 +215,7 @@
             </tbody>
         </table>
 
-        <h4 class="p-2">Standards & Compliance</h4>
+        <h4 class="pt-4">Standards & Compliance</h4>
         <table class="{{ table_styles }}">
             <colgroup>
                 <col style="width: 30%"/>
@@ -244,7 +244,7 @@
             </tbody>
         </table>
 
-        <h4 class="p-2">Other</h4>
+        <h4 class="pt-4">Other</h4>
         <table class="{{ table_styles }}">
             <colgroup>
                 <col style="width: 30%"/>

@@ -9,7 +9,7 @@ from typing import Optional, Set, Tuple
 import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
-from sec_certs.dataset.auxiliary_dataset_handling import CCMaintenanceUpdateDatasetHandler, CCSchemeDatasetHandler
+from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.eucc import EUCCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
@@ -216,8 +216,6 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
         #    name = file["meta"]["name"]
         #    updated = file["updated_at"]
         #     targets_fmap[name] = (id, updated)
-        dset.root_dir = "instance"
-        print(dset.root_dir)
         with sentry_sdk.start_span(op="eucc.all", description="Get full EUCC dataset"):
             if not self.skip_update or not paths["output_path"].exists():
                 with sentry_sdk.start_span(op="eucc.get_certs", description="Get certs from web"), suppress_child_spans():
