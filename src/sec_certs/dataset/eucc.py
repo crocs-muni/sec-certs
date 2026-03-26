@@ -114,7 +114,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
     def __init__(
         self,
         certs: dict[str, EUCCCertificate] | None = None,
-        root_dir: str | Path | None = "root_dir",
+        root_dir: str | Path | None = None,
         name: str | None = None,
         description: str = "",
         state: Dataset.DatasetInternalState | None = None,
@@ -269,6 +269,20 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         self._fetch_delay()
         return sorted(links)
 
+    def _extract_product_description(self, cert_soup: BeautifulSoup) -> str:
+        """
+        Locates the product description by finding the specific ewcms-page-section
+        and extracting text from the second 'ecl' div.
+        """
+        section = cert_soup.find("div", class_="ewcms-page-section")
+
+        if section:
+            ecl_elements = section.find_all("div", class_="ecl")
+            if len(ecl_elements) >= 2:
+                return ecl_elements[1].get_text(" ", strip=True)
+
+        return ""
+
     def _parse_page_metadata(self, cert_soup: BeautifulSoup) -> dict[str, str]:
         """
         Extract key-value metadata pairs from a certificate details page
@@ -294,6 +308,8 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
                 continue
 
             metadata[mapped_key] = raw_value
+
+        metadata["product_description"] = self._extract_product_description(cert_soup)
 
         return metadata
 
@@ -381,6 +397,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
+        self.root_dir.mkdir(parents=True, exist_ok=True)
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
