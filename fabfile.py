@@ -216,6 +216,25 @@ def run_cc(c):
 
 
 @task
+def run_pp(c):
+    """Run the PP update task."""
+    print("Sending PP update task.")
+    with c.cd("/var/www/sec-certs/sec-certs"):
+        c.run(
+            as_www_data(
+                [
+                    "env",
+                    "INSTANCE_PATH=/data/flask/instance/",
+                    "python",
+                    "-c",
+                    "'from sec_certs_page.pp.tasks import update_data; update_data.send()'",
+                ],
+                virtual=True,
+            )
+        )
+
+
+@task
 def run_fips(c):
     """Run the FIPS update task."""
     print("Sending FIPS update task.")
