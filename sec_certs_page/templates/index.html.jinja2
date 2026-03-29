@@ -7,7 +7,7 @@
                 <div class="col-12 col-sm-7 order-1 order-sm-0">
                     <h1>About sec-certs</h1>
                     <p class="lead fw-light pt-2">
-                        We want to become the one-stop shop to explore the Common Criteria / FIPS 140
+                        We want to become the one-stop shop to explore the Common Criteria / EUCC / FIPS 140
                         certification ecosystem. We aggregate and annotate certification data, enabling you to perform
                         unified searches,
                         investigate vulnerabilities, analyze trends, compare products side-by-side, subscribe to
@@ -43,12 +43,16 @@
                         <span class="fw-bold fs-2 ms-3 text-primary" style="">New!</span>
                         <h2 class="fs-3">Explore certificates with AI</h2>
                         <p>Use our AI assistant to help you explore and understand
-                            Common Criteria and FIPS 140 certificates. Ask questions about a certificate
+                            Common Criteria, EUCC and FIPS 140 certificates. Ask questions about a certificate
                             and let the AI guide you through the complex certification documents.
                         </p>
                         <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
                            data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
                             CC
+                        </a>
+                        <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                            EUCC
                         </a>
                         <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
                            data-bs-toggle="tooltip" data-bs-title="Pick a protection profile">
@@ -77,11 +81,15 @@
                         </p>
                         <p>
                             We download and process certificates weekly, allowing you to search for your favorite Common
-                            Criteria and FIPS 140 products.
+                            Criteria, EUCC and FIPS 140 products.
                         </p>
                         <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
                            data-bs-toggle="tooltip" data-bs-title="Search in Common Criteria">
                             CC
+                        </a>
+                        <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Search in EUCC">
+                            EUCC
                         </a>
                         <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
                            data-bs-toggle="tooltip" data-bs-title="Search in Protection Profiles">
@@ -192,6 +200,11 @@
                            class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
                            data-bs-title="Show Common Criteria datasets">
                             CC
+                        </a>
+                        <a href="{{ url_for("eucc.data") }}"
+                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                           data-bs-title="Show EUCC datasets">
+                            EUCC
                         </a>
                         <a href="{{ url_for("pp.data") }}"
                            class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
