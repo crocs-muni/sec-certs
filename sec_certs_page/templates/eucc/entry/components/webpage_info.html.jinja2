@@ -283,10 +283,16 @@
         <div class="mt-2 mb-2">
             <a class="btn btn-outline-primary" role="button"
                href="https://certification.enisa.europa.eu/certificates/{{ cert["other_metadata"]["certificate_id"] }}"
-               data-bs-toggle="tooltip" data-bs-placement="bottom"
+               data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Open certificate on ENISA's webpage"
                target="_blank"
                rel="noopener"><i
-                    class="fas fa-external-link-alt"></i> Webpage</a>
+                    class="fas fa-external-link-alt"></i> Certificate webpage</a>
         </div>
     </div>
 </div>
+
+<style>
+    .row > * {
+        padding-left: 0;
+    }
+</style>
