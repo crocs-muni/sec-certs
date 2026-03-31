@@ -131,15 +131,13 @@ def test_fips_algorithm_dataset_handler_process_dataset(temp_dir, monkeypatch):
     handler = FIPSAlgorithmDatasetHandler(temp_dir)
     mock_dset = FIPSAlgorithmDataset()
 
-    def mock_from_web(path):
+    def mock_from_web(root_dir=None):
         return mock_dset
 
     monkeypatch.setattr("sec_certs.dataset.fips_algorithm.FIPSAlgorithmDataset.from_web", mock_from_web)
-    monkeypatch.setattr("sec_certs.dataset.fips_algorithm.FIPSAlgorithmDataset.to_json", lambda x: None)
     handler.process_dataset(download_fresh=True)
     assert handler.dset == mock_dset
-    assert handler.dset_path == temp_dir / "algorithms.json"
-    assert handler.dset.json_path == handler.dset_path
+    assert handler.dset_path == temp_dir / "algorithms" / "algorithms_dataset.json"
 
 
 def test_cc_scheme_dataset_handler_set_local_paths(temp_dir):

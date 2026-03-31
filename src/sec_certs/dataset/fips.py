@@ -48,7 +48,11 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         │   ├── cpe_dataset.json
         │   ├── cve_dataset.json
         │   ├── cpe_match.json
-        │   └── algorithms.json
+        │   └── algorithms
+        │       ├── algorithms_dataset.json
+        │       └── html
+        │           ├── alg_list
+        │           └── products
         ├── certs
         │   └── targets
         │       ├── pdf
