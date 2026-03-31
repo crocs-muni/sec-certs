@@ -50,7 +50,7 @@ def test_build_dataset(default_dataset: Any, builder_class: type[NvdDatasetBuild
 
         assert len(dataset_builder._requests_to_process) > 90
         assert not dataset_builder._ok_responses
-        assert dataset_builder._attempts_left == dataset_builder.max_attempts
+        assert dataset_builder._attempts_left == config.n_download_attempts
 
         dataset_builder._requests_to_process = dataset_builder._requests_to_process[-2:]
         dataset_builder._request_parallel_and_handle_responses()
