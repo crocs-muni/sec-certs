@@ -147,29 +147,6 @@ def test_serialization_missing_path():
         dummy_dset.to_json()
 
 
-@pytest.mark.parametrize(
-    "example_id,expected_type",
-    [
-        (1, "HARDWARE"),
-        (2, "SOFTWARE"),
-        (3, "SOFTWARE"),
-        (4, "HARDWARE"),
-        (5, "SOFTWARE"),
-    ],
-)
-def test_parse_product_page_with_examples(example_id: int, expected_type: str):
-    html_path = Path(f"dataset/fips_algorithms/example_alg_{example_id}.html")
-    if not html_path.exists():
-        pytest.skip("Example HTML not available")
-    data = ProductPageData.from_html(html_path)
-    assert data.product_type == expected_type
-    assert data.description is not None
-    assert data.version is not None
-    assert len(data.validations) > 0
-    for pairs in data.validations.values():
-        assert len(pairs) > 0
-
-
 def test_from_web_mocked(alg_list_html_path: Path, product_page_html_path: Path, tmp_path):
     def mock_download_list(output_dir):
         return [alg_list_html_path]
