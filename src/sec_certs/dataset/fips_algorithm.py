@@ -226,7 +226,10 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
         failed_paths = list(paths)
         for attempt in range(1, config.n_download_attempts + 1):
             responses = helpers.download_parallel(
-                failed_urls, failed_paths, progress_bar_desc=f"{progress_bar_desc} (Attempt {attempt})"
+                failed_urls,
+                failed_paths,
+                progress_bar_desc=f"{progress_bar_desc} (Attempt {attempt})",
+                proxy=config.fips_use_proxy,
             )
             failed = [
                 (url, path)
@@ -247,7 +250,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
 
         first_page_url = constants.FIPS_ALG_SEARCH_URL + "1&" + items_per_page
         for _ in range(config.n_download_attempts):
-            res = helpers.download_file(first_page_url, first_page_path)
+            res = helpers.download_file(first_page_url, first_page_path, proxy=config.fips_use_proxy)
             if res == requests.codes.ok:
                 break
         else:
