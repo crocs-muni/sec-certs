@@ -5,7 +5,6 @@ import re
 from collections.abc import Iterator
 from contextlib import nullcontext
 from dataclasses import dataclass, field, replace
-from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import cast
@@ -333,7 +332,7 @@ class FIPSAlgorithmDataset(ComplexSerializableType):
                 continue
             alg_type, alg_number = parsed
 
-            validation_date = datetime.strptime(date_cell.get_text(strip=True), "%m/%d/%Y").date()
+            validation_date = FIPSAlgorithm.parse_date(date_cell.get_text(strip=True))
 
             alg = FIPSAlgorithm(
                 alg_number=alg_number,

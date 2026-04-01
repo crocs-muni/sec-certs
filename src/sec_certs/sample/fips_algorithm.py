@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Any, ClassVar
 
 from sec_certs import constants
@@ -70,9 +70,12 @@ class FIPSAlgorithm(PandasSerializableType, ComplexSerializableType):
         if isinstance(new_dct.get("capability_environment_pairs"), list):
             new_dct["capability_environment_pairs"] = tuple(tuple(x) for x in new_dct["capability_environment_pairs"])
         if isinstance(new_dct.get("validation_date"), str):
-            new_dct["validation_date"] = cls._parse_date(new_dct["validation_date"])
+            new_dct["validation_date"] = cls.parse_date(new_dct["validation_date"])
         return cls(**new_dct)
 
     @staticmethod
-    def _parse_date(date_str: str) -> date:
-        return date.fromisoformat(date_str)
+    def parse_date(date_str: str) -> date:
+        try:
+            return date.fromisoformat(date_str)
+        except ValueError:
+            return datetime.strptime(date_str, "%m/%d/%Y").date()
