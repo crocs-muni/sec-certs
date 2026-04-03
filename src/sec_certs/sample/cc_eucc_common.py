@@ -304,7 +304,7 @@ def extract_cert_pdf_metadata(cert: CCCertificate | EUCCCertificate) -> CCCertif
     :param CCCertificate cert: cert to extract the metadata for.
     :return CCCertificate: the modified certificate with updated state
     """
-    return extract_pdf_metadata_(cert, DocType.REPORT)
+    return extract_pdf_metadata_(cert, DocType.CERTIFICATE)
 
 
 def extract_pdf_keywords(cert: CCCertificate | EUCCCertificate, doc_type: DocType) -> CCCertificate | EUCCCertificate:
