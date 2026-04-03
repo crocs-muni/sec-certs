@@ -151,7 +151,6 @@
   version_scheme = "no-guess-dev"
 
 [tool.mypy]
-  plugins = ["numpy.typing.mypy_plugin"]
   ignore_missing_imports = true
   exclude = "build/"
 

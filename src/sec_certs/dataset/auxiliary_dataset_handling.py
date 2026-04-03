@@ -164,9 +164,11 @@ class CPEMatchDictHandler(AuxiliaryDatasetHandler):
 
 
 class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
+    RELATIVE_DIR: ClassVar[str | None] = "algorithms"
+
     @property
     def dset_path(self) -> Path:
-        return self.root_dir / "algorithms.json"
+        return self.root_dir / FIPSAlgorithmDataset.JSON_FILENAME
 
     @staged(logger, "Processing FIPS Algorithms")
     def _process_dataset_body(self, download_fresh: bool = False) -> None:
@@ -175,10 +177,7 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
             self.load_dataset()
             return
 
-        self.dset = FIPSAlgorithmDataset.from_web(self.dset_path)
-        # Normally from_web sets json_path internally, kept for tests that mock from_web and bypass that
-        self.dset.json_path = self.dset_path
-        self.dset.to_json()
+        self.dset = FIPSAlgorithmDataset.from_web(root_dir=self.root_dir)
 
     def load_dataset(self):
         self.dset = FIPSAlgorithmDataset.from_json(self.dset_path)

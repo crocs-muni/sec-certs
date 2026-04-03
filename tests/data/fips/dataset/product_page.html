@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><meta charset="utf-8" /><title>Test CAVP Product Page</title></head>
+<body>
+<div class="row padrow">
+    <div class="col-md-2">Implementation Name</div>
+    <div class="col-md-10"><a href="details?product=9999" id="product-name">Test Implementation Alpha</a></div>
+</div>
+<div class="row padrow">
+    <div class="col-md-2">Description</div>
+    <div class="col-md-10">A test cryptographic library for unit testing purposes.</div>
+</div>
+<div class="row padrow">
+    <div class="col-md-2">Version</div>
+    <div class="col-md-10" id="product-version">2.0.1</div>
+</div>
+<div class="row padrow">
+    <div class="col-md-2">Type</div>
+    <div class="col-md-10" id="product-type">SOFTWARE</div>
+</div>
+
+<form method="get">
+    <div class="row">
+        <div class="col-md-6">
+            <h4 style="display: inline-block">
+                <a href="details?validation=100">AES 123</a>
+            </h4>&nbsp;&nbsp;&nbsp;<small>First Validated: 1/15/2024</small>
+        </div>
+    </div>
+    <table class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center oe-algos">Operating Environment</th>
+                <th class="text-center oe-algos">Algorithm Capabilities</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    Ubuntu 22.04 on x86_64
+                    <a class="btn" role="button" data-toggle="collapse" href="#oe1">
+                    <i class="fa fa-search-plus"><span class="element-invisible">Expand</span></i>
+                    </a>
+                </td>
+                <td>
+                    <a href="Validation-Notes#AES-CBC">
+                    <b>AES-CBC:</b>
+                    </a>
+                    <a href="Validation-Notes#AES-GCM">
+                    <b>AES-GCM:</b>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Windows Server 2022 on x86_64
+                    <a class="btn" role="button" data-toggle="collapse" href="#oe2">
+                    <i class="fa fa-search-plus"><span class="element-invisible">Expand</span></i>
+                    </a>
+                </td>
+                <td>
+                    <a href="Validation-Notes#AES-CBC">
+                    <b>AES-CBC:</b>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+<form method="get">
+    <div class="row">
+        <div class="col-md-6">
+            <h4 style="display: inline-block">
+                <a href="details?validation=101">SHS 456</a>
+            </h4>&nbsp;&nbsp;&nbsp;<small>First Validated: 1/15/2024</small>
+        </div>
+    </div>
+    <table class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center oe-algos">Operating Environment</th>
+                <th class="text-center oe-algos">Algorithm Capabilities</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>N/A</td>
+                <td>
+                    <a href="Validation-Notes#SHA-256">
+                    <b>SHA-256:</b>
+                    </a>
+                    <a href="Validation-Notes#SHA-512">
+                    <b>SHA-512:</b>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+</html>

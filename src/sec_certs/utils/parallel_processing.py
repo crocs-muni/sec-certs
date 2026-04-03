@@ -73,6 +73,7 @@ def process_parallel_with_instance(
 def process_parallel(
     func: Callable,
     items: Iterable,
+    kwargs: dict[str, Any] | None = None,
     max_workers: int = config.n_threads,
     callback: Callable | None = None,
     use_threading: bool = True,
@@ -80,14 +81,32 @@ def process_parallel(
     unpack: bool = False,
     progress_bar_desc: str | None = None,
 ) -> list[Any]:
+    """
+    Execute a function in parallel over a collection of items using a thread or process pool.
+
+    :param func: The function to execute for each item.
+    :param items: The collection of items to process. Each item is passed to `func` as a single
+        positional argument, or unpacked as multiple positional arguments when `unpack=True`.
+    :param kwargs: Optional dictionary of keyword arguments forwarded to every invocation of `func`.
+    :param max_workers: Number of workers in the pool. Use -1 for all available CPUs.
+    :param callback: Optional callback invoked with the result of each completed task.
+    :param use_threading: If True (default), use a thread pool; otherwise use a process pool.
+    :param progress_bar: Whether to display a tqdm progress bar.
+    :param unpack: If True, each item is expected to be a tuple and is unpacked as positional
+        arguments to `func` (i.e., `func(*item, **kwargs)`). If False, each item is passed as a
+        single argument (i.e., `func(item, **kwargs)`).
+    :param progress_bar_desc: Description label for the progress bar.
+    :return: List of results, one per item, in the original order.
+    """
     if max_workers == -1:
         max_workers = cpu_count()
 
+    kwds = kwargs or {}
     pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
     results = (
-        [pool.apply_async(func, (*i,), callback=callback) for i in items]
+        [pool.apply_async(func, args=(*i,), kwds=kwds, callback=callback) for i in items]
         if unpack
-        else [pool.apply_async(func, (i,), callback=callback) for i in items]
+        else [pool.apply_async(func, args=(i,), kwds=kwds, callback=callback) for i in items]
     )
 
     if progress_bar is True and items:
