@@ -300,7 +300,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
                 continue
 
             raw_key = cells[0].get_text(strip=True)
-            raw_value = cells[1].get_text(strip=True)
+            raw_value = cells[1].get_text(separator=" ", strip=True)
             clean_key = raw_key.strip().rstrip(";")
             mapped_key = self._metadata_key_map.get(clean_key)
 

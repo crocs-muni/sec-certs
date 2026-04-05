@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import urllib.parse
 from dataclasses import dataclass, fields
 from datetime import date
 from pathlib import Path
@@ -94,6 +95,7 @@ class EUCCCertificate(
         product_name: str | None = None
         product_type: str | None = None
         product_version: str | None = None
+        product_description: str | None = None
         holder_name: str | None = None
         holder_address: str | None = None
         holder_contact: str | None = None
@@ -131,6 +133,65 @@ class EUCCCertificate(
         def __post_init__(self) -> None:
             if isinstance(self.package, str):
                 self.package = self._parse_package(self.package)
+
+            if isinstance(self.holder_contact, str):
+                self.holder_contact = self._deobfuscate_contact(self.holder_contact)
+
+            if isinstance(self.certification_body_contact, str):
+                self.certification_body_contact = self._deobfuscate_contact(self.certification_body_contact)
+
+        @staticmethod
+        def _deobfuscate_contact(text: str) -> str | None:
+            """
+            Deobfuscates contact information that may be hidden in the format "Name (obfuscated_email) phone_info".
+
+            Example inputs:
+                %20security [dot] department example [dot] com ( security[dot]department[at]example[dot]com )
+                Jane Doe j [dot] doe company [dot] com ( j[dot]doe[at]company[dot]com ) tel +123456789
+
+            Example outputs:
+                security.department@example.com
+                Jane Doe j.doe@company.com tel +123456789
+            """
+
+            if not text:
+                return None
+
+            # URL-decode characters (e.g., %20 to space)
+            text = urllib.parse.unquote(text)
+
+            # locates content inside parentheses
+            match = re.search(r"\((.*?)\)", text)
+            if not match:
+                return text
+
+            inside_parentheses = match.group(1).strip()
+
+            # reconstructs email by replacing obfuscation tokens
+            clean_email = inside_parentheses.replace("[dot]", ".").replace("[at]", "@").replace(" ", "")
+
+            # extracts the email prefix
+            first_part = re.split(r"\[dot\]|\[at\]|\.", inside_parentheses)[0].strip()
+
+            # isolates text before parentheses
+            before_parentheses = text.split("(")[0].strip()
+
+            # finds the last occurrence of the prefix
+            found_parts = list(re.finditer(r"\b" + re.escape(first_part) + r"\b", before_parentheses))
+
+            if found_parts:
+                last_match = found_parts[-1]
+                before_parentheses = before_parentheses[: last_match.start()].strip()
+            else:
+                before_parentheses = before_parentheses
+
+            # trims leftover noise and trailing punctuation from the name
+            before_parentheses = before_parentheses.strip(" .-_,%")
+
+            # captures everything after the parentheses
+            after_parentheses = text.split(")")[-1].strip()
+
+            return f"{before_parentheses} {clean_email} {after_parentheses}".strip()
 
         @staticmethod
         def _parse_package(text: str) -> dict[str, list[str]]:
