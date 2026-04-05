@@ -10,16 +10,15 @@
 {% endmacro %}
 
 {% macro clickable_contact(value) %}
-    {% set v = value | trim %}
-    {% if not v %}
-        {{ v }}
-    {% elif "@" in v %}
-        <a href="mailto:{{ v }}">{{ v }}</a>
-    {% elif v.startswith("http://") or v.startswith("https://") %}
-        <a href="{{ v }}" target="_blank" rel="noopener noreferrer">{{ v }}</a>
-    {% else %}
-        <a href="https://{{ v }}" target="_blank" rel="noopener noreferrer">{{ v }}</a>
-    {% endif %}
+    {% set words = value.split(" ") %}
+    {% for word in words %}
+        {% if word.startswith("http://") or word.startswith("https://") %}
+            <a href="{{ word }}" target="_blank" rel="noopener noreferrer">{{ word }}</a>
+        {%- else -%}
+            {{ word }}
+        {%- endif %}
+        {% if not loop.last %} {% endif %}
+    {% endfor %}
 {% endmacro %}
 
 {% macro render_eal(eal) %}
