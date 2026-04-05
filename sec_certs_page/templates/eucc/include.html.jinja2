@@ -1,0 +1,71 @@
+{% from "include/entry.html.jinja2" import keywords_card %}
+{% macro render_ava_van_level(level) %}
+    {% if level is string and ',' in level %}
+        {% for item in level.split(',') %}
+            {{ item.strip() }}<br>
+        {% endfor %}
+    {% else %}
+        {{ level }}
+    {% endif %}
+{% endmacro %}
+
+{% macro clickable_contact(value) %}
+    {% set words = value.split(" ") %}
+    {% for word in words %}
+        {% if word.startswith("http://") or word.startswith("https://") %}
+            <a href="{{ word }}" target="_blank" rel="noopener noreferrer">{{ word }}</a>
+        {%- else -%}
+            {{ word }}
+        {%- endif %}
+        {% if not loop.last %} {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro render_eal(eal) %}
+    {% set ealm = eal.replace("+", "") %}
+    {%- if get_cc_eal(ealm) -%}
+        <abbr title="{{ get_cc_eal(ealm)["name"] }}">{{ eal }}</abbr>
+    {%- elif get_cc_sar(eal) -%}
+        <abbr title="{{ get_cc_sar(eal) }}">{{ eal }}</abbr>
+    {%- else -%}
+        {{ eal }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_sfrs(sfr) %}
+    {%- if get_cc_sfr(sfr) -%}
+        <abbr title="{{ get_cc_sfr(sfr) }}">{{ sfr }}</abbr>
+    {%- else -%}
+        {{ sfr }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_sars(sar) %}
+    {%- if get_cc_sar(sar) -%}
+        <abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
+    {%- else -%}
+        {{ sar }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_assurance_level(level) %}
+    {% if level == "High" %}
+        <span class="text-success"><i class="fas fa-shield"></i> high</span>
+    {% elif level == "Substantial" %}
+        <span class="text-warning"><i class="fas fa-shield"></i> substantial</span>
+    {% else %}
+        <span>{{ level }}</span>
+    {% endif %}
+{%- endmacro %}
+
+
+{% macro extract_eal(package_text) %}
+    {% set parts = package_text.split('EAL') %}
+    {% set eals = [] %}
+    {% for part in parts %}
+        {% if part %}
+            {% set _ = eals.append('EAL' ~ part[0]) %}
+        {% endif %}
+    {% endfor %}
+    {{ eals | join(', ') }}
+{% endmacro %}

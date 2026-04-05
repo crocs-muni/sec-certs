@@ -8,7 +8,6 @@ from typing import ClassVar, Iterable, List, Mapping, Optional, Set, Tuple, Unio
 
 import sentry_sdk
 from flask import Request, current_app
-from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
@@ -376,7 +375,8 @@ class FulltextSearch(ABC):
         for name, category in categories.items():
             if category["selected"]:
                 cat_terms.append(query.Term("category", category["id"]))
-        q_filter &= reduce(operator.or_, cat_terms)
+        if cat_terms:
+            q_filter &= reduce(operator.or_, cat_terms)
         if document_type != "any":
             q_filter &= query.Term("document_type", document_type)
         if status.lower() != "any":

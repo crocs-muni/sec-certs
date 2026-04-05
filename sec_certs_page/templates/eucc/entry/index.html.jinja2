@@ -1,0 +1,100 @@
+{% extends "common/base.html.jinja2" %}
+{% set breadcrumb_title = True %}
+{% set canonical = True %}
+{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
+{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
+{% from "include/entry.html.jinja2" import render_file_metadata, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button, render_frontpage, render_sfrs, render_sars %}
+{% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
+{% from "eucc/include.html.jinja2" import render_ava_van_level, clickable_contact, render_assurance_level, extract_eal %}
+{% from "cc/include.html.jinja2" import  cc_keywords, render_status %}
+
+{% block metadata %}
+    <meta property="description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="twitter:card" content="summary"/>
+    <meta property="twitter:site" content="@CRoCS_MUNI"/>
+    <meta property="twitter:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
+    <meta property="twitter:image" content="{{ url_for("static", filename="img/eucc_card.png", _external=True) }}"/>
+    <meta property="twitter:description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="og:title" content="{{ cert["name"]|default("sec-certs.org", true) }}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="{{ url_for(".entry", hashid=hashid, _external=True) }}"/>
+    <meta property="og:image" content="{{ url_for("static", filename="img/eucc_card.png", _external=True) }}"/>
+    <meta property="og:description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+    <meta property="og:site_name" content="sec-certs.org"/>
+    <meta name="description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
+{% endblock %}
+
+{% set box_container = "row col-12 col-sm-10 my-4 p-4 ms-1 bg-darker-light  rounded-3" %}
+{% set box_container_without_bg = "row col-12 col-sm-10 p-4" %}
+{% set container_inner = "d-flex flex-column gap-1 pt-1" %}
+
+{% block left_navigation %}
+    <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
+        <h4>Sections</h4>
+        <a class="list-group-item list-group-item-action rounded" href="#webpage-info">Webpage information</a>
+        <a class="list-group-item list-group-item-action rounded" href="#cert-info">Certificate</a>
+        <a class="list-group-item list-group-item-action rounded" href="#report-info">Certification report</a>
+        <a class="list-group-item list-group-item-action rounded" href="#st-info">Security target</a>
+        <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Heuristics</a>
+        <a class="list-group-item list-group-item-action rounded" href="#updates">Updates</a>
+        <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <main data-bs-spy="scroll"
+          data-bs-target="#left-navigation"
+          data-bs-smooth-scroll="false"
+          tabindex="0"
+          class="shifted-section">
+
+        {% include 'eucc/entry/components/header.html.jinja2' %}
+
+        {% include 'eucc/entry/components/webpage_info.html.jinja2' %}
+
+        {% include 'eucc/entry/components/certificate_doc.html.jinja2' %}
+
+        {% include 'eucc/entry/components/cert_report_doc.html.jinja2' %}
+
+        {% include 'eucc/entry/components/security_target_doc.html.jinja2' %}
+
+        {% include 'eucc/entry/components/heuristics.html.jinja2' %}
+
+        <div id="updates" class="{{ box_container }}">
+            <h3>Updates</h3>
+            {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
+        </div>
+
+        <div id="raw-data-head" class="{{ box_container }}">
+            <h3>Raw data</h3>
+            {{ render_raw_data(json) }}
+        </div>
+
+        <script type="module">
+            import {copyLinkToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
+            // Necessary because of the share buttons.
+            $(".copy-on-click").on("click", function (e) {
+                e.preventDefault();
+                copyLinkToClipboard($(this));
+            });
+            window.certificate_data = {
+                name: "{{ cert["name"]|default("", true) }}",
+                hashid: "{{ hashid }}",
+                type: "eucc",
+                url: "{{ url_for("eucc.entry", hashid=hashid) }}"
+            };
+        </script>
+        {{ notification_script(csrf_token) }}
+    </main>
+
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_modal() }}
+    {% endif %}
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    {% if config["CHAT_ENABLED"] %}
+        {{ chat_icon() }}
+    {% endif %}
+{% endblock %}

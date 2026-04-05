@@ -1,0 +1,32 @@
+<div class="{{ box_container }}">
+    <h2>Security target</h2>
+        <div class="{{ container_inner }}">
+            <div>
+                {{ render_process_state(cert["state"], cert["st_link"], "st", "security target") }}
+            </div>
+
+            {% if cert["st_link"] %}
+                <div>
+                    {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+                </div>
+            {% endif %}
+
+            {% if cert["pdf_data"]["st_keywords"] %}
+                <div>
+                    <h4 class="mt-3">Extracted keywords</h4>
+                    {{ cryptography_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                    {{ device_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                    {{ cc_keywords(cert["pdf_data"]["st_keywords"], "target", map_funcs={"cc_sar": render_sars,
+                                                                                                    "cc_sfr": render_sfrs}) }}
+                    {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                    {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+                </div>
+            {% endif %}
+            <div>
+                {{ render_file_metadata(cert["pdf_data"]["st_metadata"], "Security target", "st") }}
+            </div>
+            <div>
+                {{ render_references(network, hashid, "st", render_status) }}
+            </div>
+        </div>
+</div>

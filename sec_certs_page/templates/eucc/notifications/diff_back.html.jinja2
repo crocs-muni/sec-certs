@@ -1,0 +1,10 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Certificate reappeared</h5>
+        <p class="card-text">An EUCC certificate for a product named <b>{{ cert["name"] }}</b>
+            is available again.</p>
+        {% if linkback %}
+            <a href="{{ url_for("eucc.entry", hashid=hashid) }}" class="card-link">Certificate page</a>
+        {% endif %}
+    </div>
+</div>
