@@ -2,6 +2,22 @@
     --sidebar-width: 250px;
 }
 
+/* Skip to main content link - accessible but visually hidden until focused */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #000;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
 .nav-button {
     margin-right: 0.5rem !important;
     margin-left: 0.5rem !important;
@@ -94,7 +110,7 @@
 .chat-message-user {
     text-align: right;
     background: #d1e7dd;
-    color: #0f5132;
+    color: #003d1a;
     border-radius: 1em 1em 0 1em;
     margin: 0.5em 0 0.5em auto;
     max-width: 75%;
@@ -104,7 +120,7 @@
 .chat-message-assistant {
     text-align: left;
     background: #d1dce7;
-    color: #0f3051;
+    color: #001529;
     border-radius: 1em 1em 1em 0;
     margin: 0.5em auto 0.5em 0;
     max-width: 75%;
@@ -361,12 +377,16 @@ h6 {
 .dropdown .dropbtn {
     font-size: 16px;
     border: none;
-    outline: none;
     color: white;
     padding: 14px 16px;
     background-color: inherit;
     font-family: inherit; /* Important for vertical align on mobile phones */
     margin: 0; /* Important for vertical align on mobile phones */
+}
+
+.dropdown .dropbtn:focus-visible {
+    outline: 3px solid #ffc107;
+    outline-offset: 2px;
 }
 
 #left-navigation {
@@ -1027,3 +1047,70 @@ h6 {
     color: white;
 }
 
+/* ==========================================================================
+    WCAG Accessibility implementation   
+    btn-outline-primary color overrides per theme
+   ========================================================================== */
+
+[data-bs-theme="light"] .btn-outline-primary {
+    --bs-btn-color: #0060F0;
+    --bs-btn-border-color: #0060F0;
+    --bs-btn-hover-bg: #0060F0;
+    --bs-btn-hover-border-color: #0060F0;
+    --bs-btn-active-bg: #0060F0;
+    --bs-btn-active-border-color: #0060F0;
+}
+
+[data-bs-theme="dark"] .btn-outline-primary {
+    --bs-btn-color: #85B6FF;
+    --bs-btn-border-color: #85B6FF;
+    --bs-btn-hover-bg: #85B6FF;
+    --bs-btn-hover-border-color: #85B6FF;
+    --bs-btn-active-bg: #85B6FF;
+    --bs-btn-active-border-color: #85B6FF;
+}
+
+/* Higher contrast for links (Light mode) */
+p a {
+    color: #1A6BCC; 
+}
+
+/* back to original color in dark mode*/
+[data-bs-theme="dark"] p a {
+    color: #85B6FF;
+}
+
+/* ==========================================================================
+   Status label colors per theme
+   ========================================================================== */
+
+/* Light mode */
+[data-bs-theme="light"] .status-active {
+    color: #198754;
+}
+[data-bs-theme="light"] .status-archived{
+    color: #8B6313;
+}
+[data-bs-theme="light"] .status-historical {
+    color: #876608;
+}
+[data-bs-theme="light"] .status-revoked {
+    color: #dc3545;
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] .status-active {
+    color: #3FBD7A;
+}
+[data-bs-theme="dark"] .status-archived,
+[data-bs-theme="dark"] .status-historical {
+    color: #ffcd39;
+}
+[data-bs-theme="dark"] .status-revoked {
+    color: #ea868f;
+}
+
+/* Alert-primary link colors */
+[data-bs-theme="light"] .alert-primary a {
+    color: #0158E4;
+}
