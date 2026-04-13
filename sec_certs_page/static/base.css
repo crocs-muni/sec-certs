@@ -1071,7 +1071,7 @@ h6 {
 }
 
 /* Higher contrast for links (Light mode) */
-p a {
+[data-bs-theme="light"]p a {
     color: #1A6BCC; 
 }
 
