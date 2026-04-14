@@ -118,15 +118,15 @@ def downloaded_toy_dataset(tmp_path_factory):
     dataset.download_all_artifacts()
 
     for cert in dataset:
-        if not cert.state.policy_download_ok or not cert.state.module_download_ok:
+        if not cert.state.policy.download_ok or not cert.state.module.download_ok:
             pytest.skip(reason="Skip due to error during download")
 
     return dataset
 
 
-def test_downloaded_pdf_hashes(downloaded_toy_dataset: FIPSDataset):
+def test_downloaded_source_hashes(downloaded_toy_dataset: FIPSDataset):
     crt = downloaded_toy_dataset["184097a88a9b4ad9"]
-    assert crt.state.policy_pdf_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
+    assert crt.state.policy.source_hash == "36b63890182f0aed29b305a0b4acc0d70b657262516f4be69138c70c2abdb1f1"
 
 
 @pytest.mark.parametrize("converter", get_converters())
@@ -134,15 +134,15 @@ def test_convert_pdfs(downloaded_toy_dataset: FIPSDataset, data_dir: Path, conve
     downloaded_toy_dataset.convert_all_pdfs(converter_cls=converter)
 
     for cert in downloaded_toy_dataset:
-        assert cert.state.policy_convert_ok
-        assert cert.state.policy_txt_path.exists()
+        assert cert.state.policy.convert_ok
+        assert cert.state.policy.txt_path.exists()
         if converter.HAS_JSON_OUTPUT:
-            assert cert.state.policy_json_path.exists()
+            assert cert.state.policy.json_path.exists()
 
     test_crt = downloaded_toy_dataset["184097a88a9b4ad9"]
     template_policy_path = data_dir / f"templates/{converter.get_name()}/policies/{test_crt.dgst}.txt"
 
-    compare_to_template(template_policy_path, test_crt.state.policy_txt_path)
+    compare_to_template(template_policy_path, test_crt.state.policy.txt_path)
 
 
 def test_to_pandas(toy_dataset: FIPSDataset):

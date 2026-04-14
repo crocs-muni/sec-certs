@@ -126,7 +126,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         Extracts data from html module file
         """
         logger.info("Extracting data from html modules.")
-        certs_to_process = [x for x in self if x.state.module_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.module.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.parse_html_module,
             certs_to_process,
@@ -151,8 +151,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts.")
         for cert in self:
-            cert.state.policy_extract_ok = True
-            cert.state.module_extract_ok = True
+            cert.state.policy.extract_ok = True
+            cert.state.module.extract_ok = True
 
         self._extract_data_from_html_modules()
         self._extract_policy_pdf_metadata()
@@ -161,7 +161,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def _extract_policy_pdf_keywords(self) -> None:
         logger.info("Extracting keywords from policy pdfs.")
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.policy.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_keywords,
             certs_to_process,
@@ -176,7 +176,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def _download_modules(self, fresh: bool = True) -> None:
         self.module_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.module_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.module.is_ok_to_download(fresh)]
 
         if fresh:
             logger.info("Downloading HTML cryptographic modules.")
@@ -191,7 +191,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     def _download_policies(self, fresh: bool = True) -> None:
         self.policies_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_download(fresh)]
+        certs_to_process = [x for x in self if x.state.policy.is_ok_to_download(fresh)]
 
         if fresh:
             logger.info("Downloading PDF security policies.")
@@ -208,7 +208,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     def _convert_policies_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
         self.policies_txt_dir.mkdir(parents=True, exist_ok=True)
         self.policies_json_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_convert(fresh)]
+        certs_to_process = [x for x in self if x.state.policy.is_ok_to_convert(fresh)]
 
         if not certs_to_process:
             logger.info("No FIPS security policies need conversion.")
@@ -289,7 +289,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @staged(logger, "Extracting Algorithms from policy tables.")
     def _extract_algorithms_from_policy_tables(self):
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.policy.is_ok_to_analyze()]
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
             certs_to_process,
@@ -299,7 +299,7 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @staged(logger, "Extracting security policy metadata from the pdfs.")
     def _extract_policy_pdf_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.policy_is_ok_to_analyze()]
+        certs_to_process = [x for x in self if x.state.policy.is_ok_to_analyze()]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_metadata,
             certs_to_process,

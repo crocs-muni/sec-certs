@@ -43,9 +43,9 @@ def test_extract_metadata(certificate: FIPSCertificate):
 
 
 def test_extract_module(certificate: FIPSCertificate):
-    certificate.state.module_extract_ok = True
+    certificate.state.module.extract_ok = True
     FIPSCertificate.parse_html_module(certificate)
-    assert certificate.state.module_extract_ok
+    assert certificate.state.module.extract_ok
 
 
 def test_extract_frontpage():
