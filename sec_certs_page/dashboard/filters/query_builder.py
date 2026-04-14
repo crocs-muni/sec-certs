@@ -359,92 +359,135 @@ def build_chart_pipeline(
     return pipeline
 
 
-DERIVED_FIELD_EXPRESSIONS: dict[str, DerivedFieldDefinition] = {
-    "year_from": DerivedFieldDefinition(
-        source="not_valid_before",
-        label="Certificate Year",
-        data_type="int",
-        expression={
-            "$cond": {
-                "if": {"$eq": [{"$type": "$not_valid_before"}, "date"]},
-                "then": {"$year": "$not_valid_before"},
-                "else": {"$toInt": {"$substr": ["$not_valid_before._value", 0, 4]}},
-            }
-        },
-    ),
-    "year_to": DerivedFieldDefinition(
-        source="not_valid_after",
-        label="Expiration Year",
-        data_type="int",
-        # Use $year for ISODate, fallback to $substr for serialized format (year at positions 0-3)
-        expression={
-            "$cond": {
-                "if": {"$eq": [{"$type": "$not_valid_after"}, "date"]},
-                "then": {"$year": "$not_valid_after"},
-                "else": {"$toInt": {"$substr": ["$not_valid_after._value", 0, 4]}},
-            }
-        },
-    ),
-    "validity_days": DerivedFieldDefinition(
-        source=["not_valid_before", "not_valid_after"],
-        label="Validity Duration (days)",
-        data_type="int",
-        # Calculate difference in milliseconds, convert to days
-        expression={
-            "$divide": [
-                {
-                    "$subtract": [
-                        {
-                            "$cond": {
-                                "if": {"$eq": [{"$type": "$not_valid_after"}, "date"]},
-                                "then": "$not_valid_after",
-                                "else": {"$dateFromString": {"dateString": "$not_valid_after._value"}},
-                            }
-                        },
-                        {
-                            "$cond": {
-                                "if": {"$eq": [{"$type": "$not_valid_before"}, "date"]},
-                                "then": "$not_valid_before",
-                                "else": {"$dateFromString": {"dateString": "$not_valid_before._value"}},
-                            }
-                        },
-                    ]
-                },
-                86400000,  # Milliseconds in a day
-            ]
-        },
-    ),
-    # CVE-related derived fields for vulnerability analysis
-    "cve_count": DerivedFieldDefinition(
-        source="heuristics.related_cves._value",
-        label="CVE Count",
-        data_type="int",
-        expression={"$size": {"$ifNull": ["$heuristics.related_cves._value", []]}},
-    ),
-    "direct_transitive_cve_count": DerivedFieldDefinition(
-        source="heuristics.direct_transitive_cves._value",
-        label="Direct Transitive CVE Count",
-        data_type="int",
-        expression={"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
-    ),
-    "indirect_transitive_cve_count": DerivedFieldDefinition(
-        source="heuristics.indirect_transitive_cves._value",
-        label="Indirect Transitive CVE Count",
-        data_type="int",
-        expression={"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
-    ),
-    "total_transitive_cve_count": DerivedFieldDefinition(
-        source=["heuristics.direct_transitive_cves._value", "heuristics.indirect_transitive_cves._value"],
-        label="Total Transitive CVE Count",
-        data_type="int",
-        expression={
-            "$add": [
-                {"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
-                {"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
-            ]
-        },
-    ),
+def _year_from_date_expr(date_field: str) -> dict[str, Any]:
+    """Build an expression that extracts the year from a date field.
+
+    Handles both native BSON dates and the serialized ``{"_type": "date", "_value": "YYYY-MM-DD"}`` shape.
+    Returns ``null`` when the value is missing or malformed instead of raising.
+    """
+    return {
+        "$cond": {
+            "if": {"$eq": [{"$type": f"${date_field}"}, "date"]},
+            "then": {"$year": f"${date_field}"},
+            "else": {
+                "$convert": {
+                    "input": {"$substr": [f"${date_field}._value", 0, 4]},
+                    "to": "int",
+                    "onError": None,
+                    "onNull": None,
+                }
+            },
+        }
+    }
+
+
+# Mapping: derived_field_name -> {collection (or None for any): DerivedFieldDefinition}.
+# Use ``None`` as the collection key for fields that apply to every collection.
+DERIVED_FIELD_EXPRESSIONS: dict[str, dict[CollectionName | None, DerivedFieldDefinition]] = {
+    "year_from": {
+        CollectionName.CommonCriteria: DerivedFieldDefinition(
+            source="not_valid_before",
+            label="Certificate Year",
+            data_type="int",
+            expression=_year_from_date_expr("not_valid_before"),
+        ),
+        CollectionName.FIPS140: DerivedFieldDefinition(
+            source="web_data.date_validation",
+            label="Validation Year",
+            data_type="int",
+            expression=_year_from_date_expr("web_data.date_validation"),
+        ),
+    },
+    "year_to": {
+        CollectionName.CommonCriteria: DerivedFieldDefinition(
+            source="not_valid_after",
+            label="Expiration Year",
+            data_type="int",
+            expression=_year_from_date_expr("not_valid_after"),
+        ),
+    },
+    "validity_days": {
+        CollectionName.CommonCriteria: DerivedFieldDefinition(
+            source=["not_valid_before", "not_valid_after"],
+            label="Validity Duration (days)",
+            data_type="int",
+            expression={
+                "$divide": [
+                    {
+                        "$subtract": [
+                            {
+                                "$cond": {
+                                    "if": {"$eq": [{"$type": "$not_valid_after"}, "date"]},
+                                    "then": "$not_valid_after",
+                                    "else": {"$dateFromString": {"dateString": "$not_valid_after._value"}},
+                                }
+                            },
+                            {
+                                "$cond": {
+                                    "if": {"$eq": [{"$type": "$not_valid_before"}, "date"]},
+                                    "then": "$not_valid_before",
+                                    "else": {"$dateFromString": {"dateString": "$not_valid_before._value"}},
+                                }
+                            },
+                        ]
+                    },
+                    86400000,  # Milliseconds in a day
+                ]
+            },
+        ),
+    },
+    # CVE-related derived fields apply to both collections.
+    "cve_count": {
+        None: DerivedFieldDefinition(
+            source="heuristics.related_cves._value",
+            label="CVE Count",
+            data_type="int",
+            expression={"$size": {"$ifNull": ["$heuristics.related_cves._value", []]}},
+        ),
+    },
+    "direct_transitive_cve_count": {
+        None: DerivedFieldDefinition(
+            source="heuristics.direct_transitive_cves._value",
+            label="Direct Transitive CVE Count",
+            data_type="int",
+            expression={"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
+        ),
+    },
+    "indirect_transitive_cve_count": {
+        None: DerivedFieldDefinition(
+            source="heuristics.indirect_transitive_cves._value",
+            label="Indirect Transitive CVE Count",
+            data_type="int",
+            expression={"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
+        ),
+    },
+    "total_transitive_cve_count": {
+        None: DerivedFieldDefinition(
+            source=["heuristics.direct_transitive_cves._value", "heuristics.indirect_transitive_cves._value"],
+            label="Total Transitive CVE Count",
+            data_type="int",
+            expression={
+                "$add": [
+                    {"$size": {"$ifNull": ["$heuristics.direct_transitive_cves._value", []]}},
+                    {"$size": {"$ifNull": ["$heuristics.indirect_transitive_cves._value", []]}},
+                ]
+            },
+        ),
+    },
 }
+
+
+def resolve_derived_field(field: str, collection_name: CollectionName) -> DerivedFieldDefinition | None:
+    """Resolve a derived field name to its definition for a given collection.
+
+    Prefers a collection-specific definition; falls back to the collection-agnostic one
+    registered under the ``None`` key. Returns ``None`` when the field is not a derived
+    field or has no definition applicable to ``collection_name``.
+    """
+    by_collection = DERIVED_FIELD_EXPRESSIONS.get(field)
+    if by_collection is None:
+        return None
+    return by_collection.get(collection_name) or by_collection.get(None)
 
 
 def _build_add_fields_stage(chart: "ChartConfig") -> dict[str, Any] | None:
@@ -466,32 +509,36 @@ def _build_add_fields_stage(chart: "ChartConfig") -> dict[str, Any] | None:
         all_fields.append(chart.color_axis.field)
 
     for field in all_fields:
-        if field in DERIVED_FIELD_EXPRESSIONS:
-            fields_to_add[field] = DERIVED_FIELD_EXPRESSIONS[field].expression
+        field_def = resolve_derived_field(field, chart.collection_name)
+        if field_def is not None:
+            fields_to_add[field] = field_def.expression
 
     return fields_to_add if fields_to_add else None
 
 
-def _get_field_expression(field: str) -> str | dict[str, Any]:
+def _get_field_expression(field: str, collection_name: CollectionName) -> str | dict[str, Any]:
     """Get the MongoDB expression for a field.
 
-    For derived fields (like year_from), returns the extraction expression.
-    For regular fields, returns the simple field reference.
+    For derived fields (like year_from), returns the extraction expression
+    appropriate to ``collection_name``. For regular fields, returns the simple
+    field reference.
 
     Field names are validated against the whitelist to prevent injection.
 
     :param field: Field name (must be in ALLOWED_DATABASE_FIELDS)
+    :param collection_name: Collection the chart targets; selects collection-specific derivations
     :return: MongoDB field reference or expression
     :raises FieldValidationError: If field is not whitelisted
     """
     _validate_field_name(field)
 
-    if field in DERIVED_FIELD_EXPRESSIONS:
-        return DERIVED_FIELD_EXPRESSIONS[field].expression
+    field_def = resolve_derived_field(field, collection_name)
+    if field_def is not None:
+        return field_def.expression
     return f"${field}"
 
 
-def _get_aggregation_field_expr(field: str) -> str | dict[str, Any]:
+def _get_aggregation_field_expr(field: str, collection_name: CollectionName) -> str | dict[str, Any]:
     """Get the MongoDB expression for a field to be used in aggregation.
 
     For derived fields (like cve_count), returns the computation expression.
@@ -501,10 +548,12 @@ def _get_aggregation_field_expr(field: str) -> str | dict[str, Any]:
     since aggregation fields might be derived fields not in the filter registry.
 
     :param field: Field name
+    :param collection_name: Collection the chart targets; selects collection-specific derivations
     :return: MongoDB field reference or expression
     """
-    if field in DERIVED_FIELD_EXPRESSIONS:
-        return DERIVED_FIELD_EXPRESSIONS[field].expression
+    field_def = resolve_derived_field(field, collection_name)
+    if field_def is not None:
+        return field_def.expression
     return f"${field}"
 
 
@@ -519,13 +568,14 @@ def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
     :param chart: Chart configuration
     :return: $group stage dictionary
     """
+    collection_name = chart.collection_name
     x_field = chart.x_axis.field
-    x_expr = _get_field_expression(x_field)
+    x_expr = _get_field_expression(x_field, collection_name)
 
     group_id: str | dict[str, Any]
     if chart.color_axis:
         color_field = chart.color_axis.field
-        color_expr = _get_field_expression(color_field)
+        color_expr = _get_field_expression(color_field, collection_name)
         group_id = {"x": x_expr, "color": color_expr}
     else:
         group_id = x_expr
@@ -541,25 +591,25 @@ def _build_group_stage(chart: "ChartConfig") -> dict[str, Any]:
             }
         elif agg_type == AggregationType.SUM:
             # Use derived field expression if available
-            y_expr = _get_aggregation_field_expr(y_field)
+            y_expr = _get_aggregation_field_expr(y_field, collection_name)
             return {
                 "_id": group_id,
                 "value": {"$sum": y_expr},
             }
         elif agg_type == AggregationType.AVG:
-            y_expr = _get_aggregation_field_expr(y_field)
+            y_expr = _get_aggregation_field_expr(y_field, collection_name)
             return {
                 "_id": group_id,
                 "value": {"$avg": y_expr},
             }
         elif agg_type == AggregationType.MIN:
-            y_expr = _get_aggregation_field_expr(y_field)
+            y_expr = _get_aggregation_field_expr(y_field, collection_name)
             return {
                 "_id": group_id,
                 "value": {"$min": y_expr},
             }
         elif agg_type == AggregationType.MAX:
-            y_expr = _get_aggregation_field_expr(y_field)
+            y_expr = _get_aggregation_field_expr(y_field, collection_name)
             return {
                 "_id": group_id,
                 "value": {"$max": y_expr},

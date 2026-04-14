@@ -8,7 +8,7 @@ from ..dependencies import ComponentIDBuilder
 from ..types.common import CollectionName
 from ..types.filter import FilterComponentType
 from .filter import FilterSpec
-from .query_builder import DERIVED_FIELD_EXPRESSIONS
+from .query_builder import DERIVED_FIELD_EXPRESSIONS, resolve_derived_field
 from .registry import FilterSpecRegistry, get_filter_registry
 
 DBC_GRID_COL_MAX_WIDTH = 12
@@ -228,31 +228,36 @@ class FilterFactory:
                     "data_type": filter_spec.data_type,
                 }
             )
-        fields.extend(self._build_derived_field_options())
+        fields.extend(self._build_derived_field_options(self.collection_name))
 
         return fields
 
     @staticmethod
-    def _build_derived_field_options() -> list[dict[str, Any]]:
-        """Build UI options for derived fields from DERIVED_FIELD_EXPRESSIONS.
+    def _build_derived_field_options(collection_name: CollectionName) -> list[dict[str, Any]]:
+        """Build UI options for derived fields applicable to a collection.
 
-        This creates a single source of truth - derived fields are defined
-        in DERIVED_FIELD_EXPRESSIONS with all their metadata (label, data_type, expression).
-        This method simply extracts the UI-relevant fields.
+        Derived fields are defined in DERIVED_FIELD_EXPRESSIONS with collection-specific
+        (or collection-agnostic) variants. This method picks the variant that applies
+        to ``collection_name`` and skips fields with no applicable definition
+        (e.g. ``validity_days`` is CC-only).
 
-        Adding a new derived field only requires updating DERIVED_FIELD_EXPRESSIONS.
-
+        :param collection_name: Collection to build options for
         :return: List of derived field options for UI dropdowns
         """
-        return [
-            {
-                "label": field_def.label,
-                "value": field_name,
-                "data_type": field_def.data_type,
-                "derived_from": field_def.source,
-            }
-            for field_name, field_def in DERIVED_FIELD_EXPRESSIONS.items()
-        ]
+        options: list[dict[str, Any]] = []
+        for field_name in DERIVED_FIELD_EXPRESSIONS:
+            field_def = resolve_derived_field(field_name, collection_name)
+            if field_def is None:
+                continue
+            options.append(
+                {
+                    "label": field_def.label,
+                    "value": field_name,
+                    "data_type": field_def.data_type,
+                    "derived_from": field_def.source,
+                }
+            )
+        return options
 
     def get_numeric_fields(self) -> list[dict[str, str]]:
         """
