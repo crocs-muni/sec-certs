@@ -36,29 +36,29 @@ def downloaded_toy_dataset(tmp_path_factory):
     return dataset
 
 
-def test_downloaded_pdf_hashes(downloaded_toy_dataset: CCDataset):
-    template_report_pdf_hashes = {
+def test_downloaded_source_hashes(downloaded_toy_dataset: CCDataset):
+    template_report_source_hashes = {
         "e3dcf91ef38ddbf0": "774c41fbba980191ca40ae610b2f61484c5997417b3325b6fd68b345173bde52",
         "ed7611868f0f9d97": "533a5995ef8b736cc48cfda30e8aafec77d285511471e0e5a9e8007c8750203a",
         "8f08cacb49a742fb": "e277151e4b279085cd3041ce914ffb3942b43e5ace911c557ad6b8ed764a4ece",
     }
 
-    template_st_pdf_hashes = {
+    template_st_source_hashes = {
         "e3dcf91ef38ddbf0": "b9a45995d9e40b2515506bbf5945e806ef021861820426c6d0a6a074090b47a9",
         "ed7611868f0f9d97": "3c8614338899d956e9e56f1aa88d90e37df86f3310b875d9d14ec0f71e4759be",
         "8f08cacb49a742fb": "fcee91f09bb72a6526a1f94d0ab754a6db3fbe3ba5773cd372df19788bb25292",
     }
 
-    template_cert_pdf_hashes = {
+    template_cert_source_hashes = {
         "e3dcf91ef38ddbf0": "9d38bca310c4d349cc39471e0b75d939cc275db9a75b07b8a365d719cfbedcc5",
         "ed7611868f0f9d97": None,
         "8f08cacb49a742fb": "4ba78f26f505819183256ca5a6b404fa90c750fe160c41791e4c400f64e2f6d5",
     }
 
     for cert in downloaded_toy_dataset:
-        assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
-        assert cert.state.st.pdf_hash == template_st_pdf_hashes[cert.dgst]
-        assert cert.state.cert.pdf_hash == template_cert_pdf_hashes[cert.dgst]
+        assert cert.state.report.source_hash == template_report_source_hashes[cert.dgst]
+        assert cert.state.st.source_hash == template_st_source_hashes[cert.dgst]
+        assert cert.state.cert.source_hash == template_cert_source_hashes[cert.dgst]
 
 
 @pytest.mark.parametrize("converter", get_converters())

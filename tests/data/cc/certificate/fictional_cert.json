@@ -40,7 +40,7 @@
       "download_ok": false,
       "convert_ok": false,
       "extract_ok": false,
-      "pdf_hash": null,
+      "source_hash": null,
       "txt_hash": null,
       "json_hash": null
     },
@@ -49,7 +49,7 @@
       "download_ok": false,
       "convert_ok": false,
       "extract_ok": false,
-      "pdf_hash": null,
+      "source_hash": null,
       "txt_hash": null,
       "json_hash": null
     },
@@ -58,7 +58,7 @@
       "download_ok": false,
       "convert_ok": false,
       "extract_ok": false,
-      "pdf_hash": null,
+      "source_hash": null,
       "txt_hash": null,
       "json_hash": null
     }

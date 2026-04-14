@@ -31,7 +31,7 @@
           "type": "boolean",
           "description": "Whether keyword extraction from the document was successful."
         },
-        "pdf_hash": {
+        "source_hash": {
           "type": [
             "string",
             "null"
