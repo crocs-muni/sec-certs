@@ -1,0 +1,87 @@
+{% extends "common/base.html.jinja2" %}
+
+{% block title %}
+    <title>Protection Profiles | sec-certs.org</title>
+{% endblock %}
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".search") }}">Search</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".network") }}">References</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".analysis") }}">Analysis</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for(".rand") }}">Random</a>
+    </li>
+{% endblock %}
+{% block content %}
+    <main>
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
+                <div class="col-sm-10 col-md-5 order-1 order-md-0">
+                    <h1>Protection Profiles</h1>
+                    <p class="lead">The protection profiles are collected from the Common Criteria portal
+                        <a href="https://www.commoncriteriaportal.org/" target="_blank">www.commoncriteriaportal.org</a>
+                        and the NIAP portal
+                        <a href="https://www.niap-ccevs.org/" target="_blank">www.niap-ccevs.org</a>.</p>
+                </div>
+                <div class="col-5 d-flex justify-content-md-center align-items-md-center order-0 order-md-1">
+                    <img src="{{ url_for("static", filename="img/cc_logo.svg") }}" alt="CC Protection Profiles"
+                         class="part-logo"
+                         style="width: 10em"/>
+                </div>
+            </div>
+        </div>
+        <div class="row bg-darker-light p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-search fa-fw"></i>
+                        </div>
+                        <h2>Search</h2>
+                        <p>We are converting all Protection Profiles from PDFs into machine readable format. You can use this website to 
+                        search in our database for any Protection Profile certificate, discover its extracted metadata, filter them and do much more.</p>
+                        <a href="{{ url_for(".merged_search") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fa fa-lightbulb" aria-hidden="true"></i>
+                        </div>
+                        <h2>Example</h2>
+                        <p>No more talking. Have a look at the example certificate we have chosen for you. Discover extracted metadata and much more.
+                        Don't forget to search for your own certificates later!</p>
+                        <a href="{{ url_for("pp.rand") }}" class="btn btn-outline-primary m-1 ms-0">
+                            Random certificate
+                        </a>
+                        <a href="{{ url_for(".entry", hashid="62c62b4b4210800e") }}" class="btn btn-primary m-1">
+                            Show example <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row my-5">
+                    <div class="col-12 col-md-6">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-file-alt fa-fw"></i>
+                        </div>
+                        <h2>Data</h2>
+                        <p>Want to process all Protection Profiles data on your own? Download our prepared datasets and analyse them.</p>
+                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
+                            Learn more <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
