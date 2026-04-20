@@ -2606,17 +2606,39 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "8dd4c4edd973a7e452c641db48c8eb33354f85e05844f701c90561e1c43a694d",
+							"json_hash": "50866f078b07251a5764a47074fc65a2d3decca7cf2db8c1d2d6336d18dd8b69"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "9ec9bc244cd2cdfa133da188f67f6302f7086acec87b2c453d19e5b906713150",
+							"json_hash": "31d2834acd0740f8cbb5ab636507d3252757db1c7f2ffe3092255f944f2b2f6d"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "9ec9bc244cd2cdfa133da188f67f6302f7086acec87b2c453d19e5b906713150",
+							"json_hash": "35348900cd0b0bae2f889b0b773a40a7bd6a06a94255c80512e973ec74da9a9c"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
 				}
 			},
@@ -4981,17 +5003,39 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "fe165dd9a7399dd5063f6a051bb9fab2de906f3949f9e9bf08df22d6d67818d2",
+							"json_hash": "fc7a035b5f4233b73ff2f94cfeb126a43766809dd0a0a36bf6dcabfcf3df7818"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "d57ff01507ab99d75e185c1ebde2bcb03553e139ff3b4d7833d34fc2f6ff3acd",
+							"json_hash": "15ca950b56c98c71e44f68aeecacf71b9d305c1e6824d141dfc80cea5442d136"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "589838ef5e10753b89f5d8e845950bdf5786142e158f0bf44cdce323bd9bfaf4",
+							"json_hash": "996a375e82013b4397b199938f52404f876e710d6d373cd78a64c9fce08193d5"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
 				}
 			},
@@ -6876,18 +6920,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "f1840e2ef500d15093d5f552581bb9a972d757c30d157bcf45d7fbc7fdb4a745",
+							"json_hash": "7fb9ec41da97057621de8c6f06f1738fe428f3cffb91cb802737f1d91b6be552"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "0a81c560fcdbfeee1165bf3c96d64fd3b07518a6bfdf33fb9f58f5cf29bb5779",
+							"json_hash": "3f0b1252fe0726b900fa576a6c5346e236d983bf036a1a52e66db30221808cfd"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": null,
+							"json_hash": null
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {
@@ -7860,18 +7927,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "512f1da62ce4f5835e8b31e36524bd134f7742b0faac623e92c9665a584a6ed2",
+							"json_hash": "280ed3f4cfd4184766657261650ae6bd94089284b7801df9c7e560ca88b7a1ae"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "a60c776ddd9b8ec08bb3c118665dabf5b1cd5d51d00a7fa4fec7920f56859557",
+							"json_hash": "72057d86555fdf79911b11d464aa069bbeee0bb6269be5c504c61a6a2c0c2f26"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": null,
+							"json_hash": null
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {
@@ -9994,18 +10084,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "a2fe7f1c2e1be47f06363ecbfab39a87b0d23ca34e7c3aa365df65c14b47bf51",
+							"json_hash": "6cfe3e850db319b44ced3203e87df5cae6646c4a16ef4d41dd8336ed0cdd7ffa"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "2653ed6302e324c0bd7e28d37d670f6a06c261a2efcc3d4a58516987c7cf1bdb",
+							"json_hash": "4f509e4477ee9a068af52bbf5c0989af17362dc733c066073f23e1c2e2d78644"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": null,
+							"json_hash": null
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {
@@ -11175,18 +11288,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "a6c878382223c0d3f707da7b8fed3f5a86bcd2c45c5141c991a03c7219454552",
+							"json_hash": "f5b1c6265eaddd7e5898766266503825a4ff6c2eb1f1bb6dcccf1a5a9a207eb7"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "90f8571cb4ca3b572e28f702a5d81fe720f41fe9c354ef8da9d3de5b7cfba527",
+							"json_hash": "bcf6ddfb7e4203c6960c396965e885e7a09380b25bf99fbcbf8678468d9d9896"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": null,
+							"json_hash": null
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {
@@ -12937,17 +13073,39 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "7f1504235e6203001d8a76829161dad2290439c3c12894114ea7f7c9af2e598b",
+							"json_hash": "8c99d5ec13175364aea9b84c403e7bd0fe00a11815bf1332f3e765c702ea3b11"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "8ecc55bb7d90483234c84c1ef8e3aea602013c1585e69406bc137d231dc0f32c",
+							"json_hash": "9850345a59a754102958ea024e8594ca8f057445c42b08195ab465729f287c70"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "8a0e4a3f1fc96a5708a0abfe59a7e3be697280f725215c928a2191988585c544",
+							"json_hash": "306a2b7d3ea70f0dd4c962d66db1dabe6149742596455102ea02ba55d7a67d31"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
 				}
 			},
@@ -14709,17 +14867,39 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "6900408c92dbd88ced9b2d5caa7089a6ff4911c9d8130f1896734953972eaecb",
+							"json_hash": "ec83b91ea097c274ebb93c8ca67dd1167c4c4604f421ef92a6e4027889f15522"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "8cb071786715c1b6a51f512f6106ceb650e28d083a971529d1c04d52d0424cb1",
+							"json_hash": "1a2aa199e257c6163e7576d2286074b3bca83d7ef7be6b3b07b1b90d8cf8a1e5"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "39455bc4e95c015a9e19aa537f6578735f2b9d920b3d31157080f2c772eae0f2",
+							"json_hash": "16d742f65bca009b2b125f9352c9ceefbd25b4da786812ba0bfc289a48494917"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
 				}
 			},
@@ -15926,17 +16106,39 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "089411731eb98ce7d5db0a412ad0c2454a5879ce69cbf14f4ad8a6835ff51150",
+							"json_hash": "db13251297ee4056e2ecf2c993914617c2c36f4081fde0401d9f433b92e4a31e"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "fbc9605c42f92dbaba8fc84b282b8fcea7376b123b0c9a646d59835df7690899",
+							"json_hash": "729a72a3042d359461825a00130cf077fccfec5d0ba0a2e03c98eb90e323bc2f"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "85ea73592ba0bef4cac8117e97fdfb1ecb6d73cdf906fb00243a561cc3d87795",
+							"json_hash": "58f4236ecbe327f950399af87a46ebd19a9fc7dd24b2d2e969627b4610400662"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
 				}
 			},
@@ -17785,18 +17987,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "3ac839d1ef5db4ced5bbf9efbcf8198a6a3dd6ebed3d6dc92ae1dc81aef72a9f",
+							"json_hash": "fefecca5d688cc83d940f462492ca9ad12edd7ffeeea331b187591c0156425d9"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "152484a7247105fb4bcdfbb13c6e13a83c03bc737486e802b35b3c0b1296b220",
+							"json_hash": "121703b0f9d841892128d5235156324c50b7cf437ef12b43cf9b5cc95abc3c57"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "ee0900cf79bde6803939a2be5b73daa8aeafcb308537e30d0692edf2a59130b1",
+							"json_hash": "5caf141be0c3c2b0e9d8f1a197771e73bacc4732f9a091ec4a5693754a6be484"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {
@@ -19788,18 +20013,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "6fbc3b28d1be4672e7e2026d84ff715f8dc4bf7c1c6c4a3c4ad6a75da0764006",
+							"json_hash": "3383727bcd5e73bf7ea85b178f4e3b91cea98aac2189b1905a7ecf508469606f"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "ec092f763133271b508c753ab609a4619824da935b9456403766882d8ae57759",
+							"json_hash": "5e75afc0536c9c7c13735c52968591e9b9358372eab78504d723da5391b5676d"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": null,
+							"json_hash": null
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {
@@ -21768,18 +22016,41 @@
 					"report": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "ef1e331d623caff5d9c2a8d69618406dea561d93e2ae41a86dbec88b7235d915",
+							"json_hash": "853312bbf9ef8c1c13ba570fe6b5a5a4e7483f0176a5b7c71a39ce92dfc45540"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"st": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+
+						},
+						"__insert__": {
+							"source_hash": "f82ad5e1cee4bcfcae9d7cbaf04b045331c17d93664a6e84df6b0ceb3f5a1268",
+							"json_hash": "5e911431f17519aeb3877187e292761362e6833281675fbc6bd6d71d4f8efbf6"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					},
 					"cert": {
 						"__update__": {
 							"_type": "sec_certs.sample.document_state.DocumentState"
-						}
+						},
+						"__insert__": {
+							"source_hash": "f7c91a1b171bde1b889ea01e4c1c7c7453a9e6519c661265cfce39ffad6b6123",
+							"json_hash": "72f61b7feaa96fc5a68450d98f922248241ae8b548dc2df5947a7bee78ebe9c7"
+						},
+						"__delete__": [
+							"pdf_hash"
+						]
 					}
+
 				}
 			},
 			"heuristics": {

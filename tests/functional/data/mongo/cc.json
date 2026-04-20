@@ -44,8 +44,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "fe165dd9a7399dd5063f6a051bb9fab2de906f3949f9e9bf08df22d6d67818d2",
-			"txt_hash": "c7e083548678887a9dce5c544e217d49628c0e4c5c9aa4db5bc84238cb86bf09"
+			"source_hash": "fe165dd9a7399dd5063f6a051bb9fab2de906f3949f9e9bf08df22d6d67818d2",
+			"txt_hash": "c7e083548678887a9dce5c544e217d49628c0e4c5c9aa4db5bc84238cb86bf09",
+			"json_hash": "fc7a035b5f4233b73ff2f94cfeb126a43766809dd0a0a36bf6dcabfcf3df7818"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -53,8 +54,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "d57ff01507ab99d75e185c1ebde2bcb03553e139ff3b4d7833d34fc2f6ff3acd",
-			"txt_hash": "208569ac4e98fa34ce71c4adebd1c61fed7fcc7ffb1e0bf324fd0f39ec4cc53b"
+			"source_hash": "d57ff01507ab99d75e185c1ebde2bcb03553e139ff3b4d7833d34fc2f6ff3acd",
+			"txt_hash": "208569ac4e98fa34ce71c4adebd1c61fed7fcc7ffb1e0bf324fd0f39ec4cc53b",
+			"json_hash": "15ca950b56c98c71e44f68aeecacf71b9d305c1e6824d141dfc80cea5442d136"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -62,8 +64,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "589838ef5e10753b89f5d8e845950bdf5786142e158f0bf44cdce323bd9bfaf4",
-			"txt_hash": "11f93d790b9a81a71dae294af43527e0e847d8b15487e9c396a708466ec801e5"
+			"source_hash": "589838ef5e10753b89f5d8e845950bdf5786142e158f0bf44cdce323bd9bfaf4",
+			"txt_hash": "11f93d790b9a81a71dae294af43527e0e847d8b15487e9c396a708466ec801e5",
+			"json_hash": "996a375e82013b4397b199938f52404f876e710d6d373cd78a64c9fce08193d5"
 		}
 	},
 	"pdf_data": {
@@ -1089,8 +1092,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "f1840e2ef500d15093d5f552581bb9a972d757c30d157bcf45d7fbc7fdb4a745",
-			"txt_hash": "21533fe78646caab51b211558b4ff6a82a4cf909b0faa1aa5d81b1aa9870d24a"
+			"source_hash": "f1840e2ef500d15093d5f552581bb9a972d757c30d157bcf45d7fbc7fdb4a745",
+			"txt_hash": "21533fe78646caab51b211558b4ff6a82a4cf909b0faa1aa5d81b1aa9870d24a",
+			"json_hash": "7fb9ec41da97057621de8c6f06f1738fe428f3cffb91cb802737f1d91b6be552"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -1098,8 +1102,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "0a81c560fcdbfeee1165bf3c96d64fd3b07518a6bfdf33fb9f58f5cf29bb5779",
-			"txt_hash": "155dd5d49e53d403a117e5cfacab64afd1e150ceeeb4a84b76b6abde67dd1a09"
+			"source_hash": "0a81c560fcdbfeee1165bf3c96d64fd3b07518a6bfdf33fb9f58f5cf29bb5779",
+			"txt_hash": "155dd5d49e53d403a117e5cfacab64afd1e150ceeeb4a84b76b6abde67dd1a09",
+			"json_hash": "3f0b1252fe0726b900fa576a6c5346e236d983bf036a1a52e66db30221808cfd"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -1107,8 +1112,9 @@
 			"convert_garbage": false,
 			"convert_ok": false,
 			"extract_ok": false,
-			"pdf_hash": null,
-			"txt_hash": null
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
 		}
 	},
 	"pdf_data": {
@@ -1996,8 +2002,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "6900408c92dbd88ced9b2d5caa7089a6ff4911c9d8130f1896734953972eaecb",
-			"txt_hash": "ae82395ac3623adeb01030433a768beacc1cc4510aa964b33b9bb4b3eabb58f1"
+			"source_hash": "6900408c92dbd88ced9b2d5caa7089a6ff4911c9d8130f1896734953972eaecb",
+			"txt_hash": "ae82395ac3623adeb01030433a768beacc1cc4510aa964b33b9bb4b3eabb58f1",
+			"json_hash": "ec83b91ea097c274ebb93c8ca67dd1167c4c4604f421ef92a6e4027889f15522"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -2005,8 +2012,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "8cb071786715c1b6a51f512f6106ceb650e28d083a971529d1c04d52d0424cb1",
-			"txt_hash": "a6b17d5491e2f0c12a49d751bf91d5b20b65772b0c804df6a512909b5956afba"
+			"source_hash": "8cb071786715c1b6a51f512f6106ceb650e28d083a971529d1c04d52d0424cb1",
+			"txt_hash": "a6b17d5491e2f0c12a49d751bf91d5b20b65772b0c804df6a512909b5956afba",
+			"json_hash": "1a2aa199e257c6163e7576d2286074b3bca83d7ef7be6b3b07b1b90d8cf8a1e5"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -2014,8 +2022,9 @@
 			"convert_garbage": true,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "39455bc4e95c015a9e19aa537f6578735f2b9d920b3d31157080f2c772eae0f2",
-			"txt_hash": "f4341e76ec140e33941c937297602a8b0cf1297296a86bda1cefec934d7b4b1d"
+			"source_hash": "39455bc4e95c015a9e19aa537f6578735f2b9d920b3d31157080f2c772eae0f2",
+			"txt_hash": "f4341e76ec140e33941c937297602a8b0cf1297296a86bda1cefec934d7b4b1d",
+			"json_hash": "16d742f65bca009b2b125f9352c9ceefbd25b4da786812ba0bfc289a48494917"
 		}
 	},
 	"pdf_data": {
@@ -2704,8 +2713,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "a6c878382223c0d3f707da7b8fed3f5a86bcd2c45c5141c991a03c7219454552",
-			"txt_hash": "169e05f0c2a2a902ae6ac8b34ad058f18a95c7ac48a185503127e797ee8506d2"
+			"source_hash": "a6c878382223c0d3f707da7b8fed3f5a86bcd2c45c5141c991a03c7219454552",
+			"txt_hash": "169e05f0c2a2a902ae6ac8b34ad058f18a95c7ac48a185503127e797ee8506d2",
+			"json_hash": "f5b1c6265eaddd7e5898766266503825a4ff6c2eb1f1bb6dcccf1a5a9a207eb7"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -2713,8 +2723,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "90f8571cb4ca3b572e28f702a5d81fe720f41fe9c354ef8da9d3de5b7cfba527",
-			"txt_hash": "cc31bfbb6e43ab9dbb149fb09e378648293eaf45cecf834f3565c9fd63a10221"
+			"source_hash": "90f8571cb4ca3b572e28f702a5d81fe720f41fe9c354ef8da9d3de5b7cfba527",
+			"txt_hash": "cc31bfbb6e43ab9dbb149fb09e378648293eaf45cecf834f3565c9fd63a10221",
+			"json_hash": "bcf6ddfb7e4203c6960c396965e885e7a09380b25bf99fbcbf8678468d9d9896"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -2722,8 +2733,9 @@
 			"convert_garbage": false,
 			"convert_ok": false,
 			"extract_ok": false,
-			"pdf_hash": null,
-			"txt_hash": null
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
 		}
 	},
 	"pdf_data": {
@@ -3226,8 +3238,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "6fbc3b28d1be4672e7e2026d84ff715f8dc4bf7c1c6c4a3c4ad6a75da0764006",
-			"txt_hash": "fd83e127ccb79a51b00892334e29ef092b5c1c56c9c775ee36fcd1113fb2a0ca"
+			"source_hash": "6fbc3b28d1be4672e7e2026d84ff715f8dc4bf7c1c6c4a3c4ad6a75da0764006",
+			"txt_hash": "fd83e127ccb79a51b00892334e29ef092b5c1c56c9c775ee36fcd1113fb2a0ca",
+			"json_hash": "3383727bcd5e73bf7ea85b178f4e3b91cea98aac2189b1905a7ecf508469606f"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -3235,8 +3248,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "ec092f763133271b508c753ab609a4619824da935b9456403766882d8ae57759",
-			"txt_hash": "96d35b228571591e8488fb184c60fae0532be3f536ce66fcb7cb56788f9b12ae"
+			"source_hash": "ec092f763133271b508c753ab609a4619824da935b9456403766882d8ae57759",
+			"txt_hash": "96d35b228571591e8488fb184c60fae0532be3f536ce66fcb7cb56788f9b12ae",
+			"json_hash": "5e75afc0536c9c7c13735c52968591e9b9358372eab78504d723da5391b5676d"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -3244,8 +3258,9 @@
 			"convert_garbage": false,
 			"convert_ok": false,
 			"extract_ok": false,
-			"pdf_hash": null,
-			"txt_hash": null
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
 		}
 	},
 	"pdf_data": {
@@ -3961,8 +3976,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "512f1da62ce4f5835e8b31e36524bd134f7742b0faac623e92c9665a584a6ed2",
-			"txt_hash": "aa1315d75f2a52c82a16f6f5a20bd964cee5c4b2fcb48be2dc395da6bc196365"
+			"source_hash": "512f1da62ce4f5835e8b31e36524bd134f7742b0faac623e92c9665a584a6ed2",
+			"txt_hash": "aa1315d75f2a52c82a16f6f5a20bd964cee5c4b2fcb48be2dc395da6bc196365",
+			"json_hash": "280ed3f4cfd4184766657261650ae6bd94089284b7801df9c7e560ca88b7a1ae"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -3970,8 +3986,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "a60c776ddd9b8ec08bb3c118665dabf5b1cd5d51d00a7fa4fec7920f56859557",
-			"txt_hash": "96f8d2f32e1f56eb718a302367ae57ac65331a0c15b64e859cbdf8fc40fc4976"
+			"source_hash": "a60c776ddd9b8ec08bb3c118665dabf5b1cd5d51d00a7fa4fec7920f56859557",
+			"txt_hash": "96f8d2f32e1f56eb718a302367ae57ac65331a0c15b64e859cbdf8fc40fc4976",
+			"json_hash": "72057d86555fdf79911b11d464aa069bbeee0bb6269be5c504c61a6a2c0c2f26"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -3979,8 +3996,9 @@
 			"convert_garbage": false,
 			"convert_ok": false,
 			"extract_ok": false,
-			"pdf_hash": null,
-			"txt_hash": null
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
 		}
 	},
 	"pdf_data": {
@@ -4374,8 +4392,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "7f1504235e6203001d8a76829161dad2290439c3c12894114ea7f7c9af2e598b",
-			"txt_hash": "b72deb54b7d3a3c7d4e27a30d2b21b02943bd661fb0f55dbcf3cc559d5122f55"
+			"source_hash": "7f1504235e6203001d8a76829161dad2290439c3c12894114ea7f7c9af2e598b",
+			"txt_hash": "b72deb54b7d3a3c7d4e27a30d2b21b02943bd661fb0f55dbcf3cc559d5122f55",
+			"json_hash": "8c99d5ec13175364aea9b84c403e7bd0fe00a11815bf1332f3e765c702ea3b11"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -4383,8 +4402,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "8ecc55bb7d90483234c84c1ef8e3aea602013c1585e69406bc137d231dc0f32c",
-			"txt_hash": "c10744f3c323cbe99996cfc8b0920f015b178f0a01a10a499893eb3ad1b88ea2"
+			"source_hash": "8ecc55bb7d90483234c84c1ef8e3aea602013c1585e69406bc137d231dc0f32c",
+			"txt_hash": "c10744f3c323cbe99996cfc8b0920f015b178f0a01a10a499893eb3ad1b88ea2",
+			"json_hash": "9850345a59a754102958ea024e8594ca8f057445c42b08195ab465729f287c70"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -4392,8 +4412,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "8a0e4a3f1fc96a5708a0abfe59a7e3be697280f725215c928a2191988585c544",
-			"txt_hash": "6ab337ad3cabd654b4207f25aede5eaf286ace65eaf13d94a4075eb09f230fb0"
+			"source_hash": "8a0e4a3f1fc96a5708a0abfe59a7e3be697280f725215c928a2191988585c544",
+			"txt_hash": "6ab337ad3cabd654b4207f25aede5eaf286ace65eaf13d94a4075eb09f230fb0",
+			"json_hash": "306a2b7d3ea70f0dd4c962d66db1dabe6149742596455102ea02ba55d7a67d31"
 		}
 	},
 	"pdf_data": {
@@ -5182,8 +5203,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "8dd4c4edd973a7e452c641db48c8eb33354f85e05844f701c90561e1c43a694d",
-			"txt_hash": "7483bc89235d6fc41cffa0952905a7fa4ea415e2556190e4f0b0c48e132685ed"
+			"source_hash": "8dd4c4edd973a7e452c641db48c8eb33354f85e05844f701c90561e1c43a694d",
+			"txt_hash": "7483bc89235d6fc41cffa0952905a7fa4ea415e2556190e4f0b0c48e132685ed",
+			"json_hash": "50866f078b07251a5764a47074fc65a2d3decca7cf2db8c1d2d6336d18dd8b69"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -5191,8 +5213,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "9ec9bc244cd2cdfa133da188f67f6302f7086acec87b2c453d19e5b906713150",
-			"txt_hash": "fe1f6fa6f2e466702df203929aa00510b8e554f774195f4ef29eddf064801fdb"
+			"source_hash": "9ec9bc244cd2cdfa133da188f67f6302f7086acec87b2c453d19e5b906713150",
+			"txt_hash": "fe1f6fa6f2e466702df203929aa00510b8e554f774195f4ef29eddf064801fdb",
+			"json_hash": "31d2834acd0740f8cbb5ab636507d3252757db1c7f2ffe3092255f944f2b2f6d"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -5200,8 +5223,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "4cd0982b954a019eb3c343c539948aa268bca50a5e1b79de557393146da50220",
-			"txt_hash": "0a56c1990efb616ab129cad19db0ced8506235cb7e0511dfe8713d97d01153c0"
+			"source_hash": "9ec9bc244cd2cdfa133da188f67f6302f7086acec87b2c453d19e5b906713150",
+			"txt_hash": "0a56c1990efb616ab129cad19db0ced8506235cb7e0511dfe8713d97d01153c0",
+			"json_hash": "35348900cd0b0bae2f889b0b773a40a7bd6a06a94255c80512e973ec74da9a9c"
 		}
 	},
 	"pdf_data": {
@@ -6252,8 +6276,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "ef1e331d623caff5d9c2a8d69618406dea561d93e2ae41a86dbec88b7235d915",
-			"txt_hash": "b5100b444e1f1cbb511b4a25626c161a2eed6f4c38be913a47ac937a9a325bf3"
+			"source_hash": "ef1e331d623caff5d9c2a8d69618406dea561d93e2ae41a86dbec88b7235d915",
+			"txt_hash": "b5100b444e1f1cbb511b4a25626c161a2eed6f4c38be913a47ac937a9a325bf3",
+			"json_hash": "853312bbf9ef8c1c13ba570fe6b5a5a4e7483f0176a5b7c71a39ce92dfc45540"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -6261,8 +6286,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "f82ad5e1cee4bcfcae9d7cbaf04b045331c17d93664a6e84df6b0ceb3f5a1268",
-			"txt_hash": "6e4019d8338c73fa8565073c764dd5399c635d7068e8762da83dd0f1bfaed7bf"
+			"source_hash": "f82ad5e1cee4bcfcae9d7cbaf04b045331c17d93664a6e84df6b0ceb3f5a1268",
+			"txt_hash": "6e4019d8338c73fa8565073c764dd5399c635d7068e8762da83dd0f1bfaed7bf",
+			"json_hash": "5e911431f17519aeb3877187e292761362e6833281675fbc6bd6d71d4f8efbf6"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -6270,8 +6296,9 @@
 			"convert_garbage": true,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "f7c91a1b171bde1b889ea01e4c1c7c7453a9e6519c661265cfce39ffad6b6123",
-			"txt_hash": "c60e2f8d622969b2f2d95e03e43c1b41d2f292ef85d39416ebad98a6cf3dceaa"
+			"source_hash": "f7c91a1b171bde1b889ea01e4c1c7c7453a9e6519c661265cfce39ffad6b6123",
+			"txt_hash": "c60e2f8d622969b2f2d95e03e43c1b41d2f292ef85d39416ebad98a6cf3dceaa",
+			"json_hash": "72f61b7feaa96fc5a68450d98f922248241ae8b548dc2df5947a7bee78ebe9c7"
 		}
 	},
 	"pdf_data": {
@@ -7093,8 +7120,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "3ac839d1ef5db4ced5bbf9efbcf8198a6a3dd6ebed3d6dc92ae1dc81aef72a9f",
-			"txt_hash": "d755e77be9c6b423acc65511df48fa0e92a8a1290b373272601bef2ccaef453d"
+			"source_hash": "3ac839d1ef5db4ced5bbf9efbcf8198a6a3dd6ebed3d6dc92ae1dc81aef72a9f",
+			"txt_hash": "d755e77be9c6b423acc65511df48fa0e92a8a1290b373272601bef2ccaef453d",
+			"json_hash": "fefecca5d688cc83d940f462492ca9ad12edd7ffeeea331b187591c0156425d9"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -7102,8 +7130,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "152484a7247105fb4bcdfbb13c6e13a83c03bc737486e802b35b3c0b1296b220",
-			"txt_hash": "b62e7c1f834374fde5c0a8253f1d4724403507673f5a767f00762972f569e255"
+			"source_hash": "152484a7247105fb4bcdfbb13c6e13a83c03bc737486e802b35b3c0b1296b220",
+			"txt_hash": "b62e7c1f834374fde5c0a8253f1d4724403507673f5a767f00762972f569e255",
+			"json_hash": "121703b0f9d841892128d5235156324c50b7cf437ef12b43cf9b5cc95abc3c57"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -7111,8 +7140,9 @@
 			"convert_garbage": true,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "ee0900cf79bde6803939a2be5b73daa8aeafcb308537e30d0692edf2a59130b1",
-			"txt_hash": "cb483314f2ca894958c836cdbc56f88415d7ae8695fcf6d6160506af40e6c56b"
+			"source_hash": "ee0900cf79bde6803939a2be5b73daa8aeafcb308537e30d0692edf2a59130b1",
+			"txt_hash": "cb483314f2ca894958c836cdbc56f88415d7ae8695fcf6d6160506af40e6c56b",
+			"json_hash": "5caf141be0c3c2b0e9d8f1a197771e73bacc4732f9a091ec4a5693754a6be484"
 		}
 	},
 	"pdf_data": {
@@ -7814,8 +7844,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "a2fe7f1c2e1be47f06363ecbfab39a87b0d23ca34e7c3aa365df65c14b47bf51",
-			"txt_hash": "d6ac0d7185d4fa38fa98dc98146ddf4b6ea9ea01f39e55e34e7a1154bedade64"
+			"source_hash": "a2fe7f1c2e1be47f06363ecbfab39a87b0d23ca34e7c3aa365df65c14b47bf51",
+			"txt_hash": "d6ac0d7185d4fa38fa98dc98146ddf4b6ea9ea01f39e55e34e7a1154bedade64",
+			"json_hash": "6cfe3e850db319b44ced3203e87df5cae6646c4a16ef4d41dd8336ed0cdd7ffa"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -7823,8 +7854,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "2653ed6302e324c0bd7e28d37d670f6a06c261a2efcc3d4a58516987c7cf1bdb",
-			"txt_hash": "70071e2450c0e9406b73cb05b1b478c1c19780f674a5819fd8dd3616810a41d9"
+			"source_hash": "2653ed6302e324c0bd7e28d37d670f6a06c261a2efcc3d4a58516987c7cf1bdb",
+			"txt_hash": "70071e2450c0e9406b73cb05b1b478c1c19780f674a5819fd8dd3616810a41d9",
+			"json_hash": "4f509e4477ee9a068af52bbf5c0989af17362dc733c066073f23e1c2e2d78644"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -7832,8 +7864,9 @@
 			"convert_garbage": false,
 			"convert_ok": false,
 			"extract_ok": false,
-			"pdf_hash": null,
-			"txt_hash": null
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
 		}
 	},
 	"pdf_data": {
@@ -8754,8 +8787,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "089411731eb98ce7d5db0a412ad0c2454a5879ce69cbf14f4ad8a6835ff51150",
-			"txt_hash": "ed68d88a4f19c0647798f9f3310b65fdd08ede647d1811214b7b27719d008e58"
+			"source_hash": "089411731eb98ce7d5db0a412ad0c2454a5879ce69cbf14f4ad8a6835ff51150",
+			"txt_hash": "ed68d88a4f19c0647798f9f3310b65fdd08ede647d1811214b7b27719d008e58",
+			"json_hash": "db13251297ee4056e2ecf2c993914617c2c36f4081fde0401d9f433b92e4a31e"
 		},
 		"st": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -8763,8 +8797,9 @@
 			"convert_garbage": false,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "fbc9605c42f92dbaba8fc84b282b8fcea7376b123b0c9a646d59835df7690899",
-			"txt_hash": "ec775d534c9d647b4aff65b2835e9ef67c77f7e843c3fc7b47e2e32f099c2a57"
+			"source_hash": "fbc9605c42f92dbaba8fc84b282b8fcea7376b123b0c9a646d59835df7690899",
+			"txt_hash": "ec775d534c9d647b4aff65b2835e9ef67c77f7e843c3fc7b47e2e32f099c2a57",
+			"json_hash": "729a72a3042d359461825a00130cf077fccfec5d0ba0a2e03c98eb90e323bc2f"
 		},
 		"cert": {
 			"_type": "sec_certs.sample.document_state.DocumentState",
@@ -8772,8 +8807,9 @@
 			"convert_garbage": true,
 			"convert_ok": true,
 			"extract_ok": true,
-			"pdf_hash": "85ea73592ba0bef4cac8117e97fdfb1ecb6d73cdf906fb00243a561cc3d87795",
-			"txt_hash": "5d8b4031853238bb052f2555556d0aaae45170f6cff56c3786e13e8e5c227739"
+			"source_hash": "85ea73592ba0bef4cac8117e97fdfb1ecb6d73cdf906fb00243a561cc3d87795",
+			"txt_hash": "5d8b4031853238bb052f2555556d0aaae45170f6cff56c3786e13e8e5c227739",
+			"json_hash": "58f4236ecbe327f950399af87a46ebd19a9fc7dd24b2d2e969627b4610400662"
 		}
 	},
 	"pdf_data": {

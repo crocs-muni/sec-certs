@@ -376,9 +376,9 @@ def entry(hashid):
                 "name": 1,
                 "dgst": 1,
                 "heuristics.cert_id": 1,
-                "state.cert.pdf_hash": 1,
-                "state.report.pdf_hash": 1,
-                "state.st.pdf_hash": 1,
+                "state.cert.source_hash": 1,
+                "state.report.source_hash": 1,
+                "state.st.source_hash": 1,
             }
             exact_queries = []
             if doc["name"]:
@@ -388,8 +388,8 @@ def entry(hashid):
             exact = list(mongo.db.cc.find({"$or": exact_queries}, similar_projection)) if exact_queries else []
             doc_hash_queries = []
             for doctype in ("cert", "report", "st"):
-                if doc["state"][doctype]["pdf_hash"]:
-                    doc_hash_queries.append({f"state.{doctype}.pdf_hash": doc["state"][doctype]["pdf_hash"]})
+                if doc["state"][doctype]["source_hash"]:
+                    doc_hash_queries.append({f"state.{doctype}.source_hash": doc["state"][doctype]["source_hash"]})
             doc_hash_match = (
                 list(mongo.db.cc.find({"$or": doc_hash_queries}, similar_projection)) if doc_hash_queries else []
             )
@@ -420,8 +420,8 @@ def entry(hashid):
                 if (cert_id := doc["heuristics"]["cert_id"]) and other["heuristics"]["cert_id"] == cert_id:
                     score += 1
                 for doctype in ("cert", "report", "st"):
-                    if (pdf_hash := doc["state"][doctype]["pdf_hash"]) and other["state"][doctype][
-                        "pdf_hash"
+                    if (pdf_hash := doc["state"][doctype]["source_hash"]) and other["state"][doctype][
+                        "source_hash"
                     ] == pdf_hash:
                         score += 1
                 if score >= 2:

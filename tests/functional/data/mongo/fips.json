@@ -146,14 +146,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": true,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "e85d2b3dceae2285830e03819c255d22a691aaa340b735a497e79685a8ae4c27",
-		"policy_txt_hash": "f2a653b4879554630ac981eb9c28119e9689b9fa3abbff2e82c486f2a73dfccc"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "e85d2b3dceae2285830e03819c255d22a691aaa340b735a497e79685a8ae4c27",
+			"txt_hash": "f2a653b4879554630ac981eb9c28119e9689b9fa3abbff2e82c486f2a73dfccc",
+			"json_hash": "651373b50dcdaffd547269bf56149e42038c4abeb7a3fd5c36b3e36aba67c728"
+		}
 	}
 },
 {
@@ -436,14 +448,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "2dea082518933e794bcce27efb708bbb0c95243df4e89ee6005c4f65c9afc6b2",
-		"policy_txt_hash": "f2173fa3706d9c93c7a68883697e737b6709822acc8cca72b8c87fb8be2393de"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "2dea082518933e794bcce27efb708bbb0c95243df4e89ee6005c4f65c9afc6b2",
+			"txt_hash": "f2173fa3706d9c93c7a68883697e737b6709822acc8cca72b8c87fb8be2393de",
+			"json_hash": "c0e4b55c50156cce63737dfea2b64b4f8b03be049f4d26a1b1eab6ee58c046af"
+		}
 	}
 },
 {
@@ -800,14 +824,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "c7305b318364bfcd082579022ef5e2c52a05f5cbb9c6c7086e880da3235eca93",
-		"policy_txt_hash": "b79ff5b0885fb9e6d6fb39b50aafec0dba25425c44bcc24c656c7acbffb944ef"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "c7305b318364bfcd082579022ef5e2c52a05f5cbb9c6c7086e880da3235eca93",
+			"txt_hash": "b79ff5b0885fb9e6d6fb39b50aafec0dba25425c44bcc24c656c7acbffb944ef",
+			"json_hash": "350d8b1517f7d46e2598223c7fceec360101252e7db85c806ec8b3f0388944a4"
+		}
 	}
 },
 {
@@ -1165,14 +1201,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "9609ce126a5b9716ed814a6cf80c4961178bce82099ba22756b745d84294c090",
-		"policy_txt_hash": "3ae75390122b6e601c736cee575c1be45faa896858c8026cd14b12e4944853df"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "9609ce126a5b9716ed814a6cf80c4961178bce82099ba22756b745d84294c090",
+			"txt_hash": "3ae75390122b6e601c736cee575c1be45faa896858c8026cd14b12e4944853df",
+			"json_hash": "db346483aade7452b98184686d2b7ae13289a0a13fcd1d939e4592237562f3f9"
+		}
 	}
 },
 {
@@ -1445,14 +1493,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "10835848c2f2a88514aac49bb1fc7c2394cc3153d5436fa14e0e55b36ecacdeb",
-		"policy_txt_hash": "f78936cf9faf03e15f980dc0d9e6478de9983f2e3a45e374d8280f6854c373e9"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "10835848c2f2a88514aac49bb1fc7c2394cc3153d5436fa14e0e55b36ecacdeb",
+			"txt_hash": "f78936cf9faf03e15f980dc0d9e6478de9983f2e3a45e374d8280f6854c373e9",
+			"json_hash": "f39ba0008a95f50211011f19b16924621795bce1cac036ad52d505235dce8605"
+		}
 	}
 },
 {
@@ -1774,14 +1834,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "f9c624b080c2ff6e3ff24c03ce58aa5944f1566190e7c26482f3251c138ea0cf",
-		"policy_txt_hash": "863ca04cb2f5f3a33499440b8e8f8ad69038557831a527534b8b0133141c136e"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "f9c624b080c2ff6e3ff24c03ce58aa5944f1566190e7c26482f3251c138ea0cf",
+			"txt_hash": "863ca04cb2f5f3a33499440b8e8f8ad69038557831a527534b8b0133141c136e",
+			"json_hash": "029937f5edef3d8add3d8e0d249480e97eb9bdab8886518eba8133d45a9e645f"
+		}
 	}
 },
 {
@@ -2133,14 +2205,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "3d653c513f816e3f97a1481ba9477a037b83281b13c0d29e45b9c2ffd089b03f",
-		"policy_txt_hash": "450a27673c4a87677fdafdcd9405a017b3bf6e4bea98a2effa19e3ebf14cd810"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "3d653c513f816e3f97a1481ba9477a037b83281b13c0d29e45b9c2ffd089b03f",
+			"txt_hash": "450a27673c4a87677fdafdcd9405a017b3bf6e4bea98a2effa19e3ebf14cd810",
+			"json_hash": "7755440c24f6d738debc1de0c8f935f0ecc868027b22d7ddf9816f8910dbfef3"
+		}
 	}
 },
 {
@@ -2371,14 +2455,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "391714adb4cb0ad11447f81ef6d7c8a1fcaee27e6c65542e42d3273c9a5cba97",
-		"policy_txt_hash": "c5afc790293023dd1c13f884ecff9a76ded8425573a4c25c7c15c95c67956b43"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "391714adb4cb0ad11447f81ef6d7c8a1fcaee27e6c65542e42d3273c9a5cba97",
+			"txt_hash": "c5afc790293023dd1c13f884ecff9a76ded8425573a4c25c7c15c95c67956b43",
+			"json_hash": "cf0daa83f5bd16537a87231a491a7e1920bc94331c7ac4e3ffa8b1a3ddde9ead"
+		}
 	}
 },
 {
@@ -2712,14 +2808,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "303965660db170405adae9da7a441821ef483c57e354d8195f17ae28261b8dc8",
-		"policy_txt_hash": "159eb42ccb8cf8f4c2e9d2310abdec062d12bdf09d3d9da3faf67e7ad1510c36"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "303965660db170405adae9da7a441821ef483c57e354d8195f17ae28261b8dc8",
+			"txt_hash": "159eb42ccb8cf8f4c2e9d2310abdec062d12bdf09d3d9da3faf67e7ad1510c36",
+			"json_hash": "5808c7b9b11edcd3dfe65a1c8bb54e1a2b9bdf8c9364597f0eddfcea435822a4"
+		}
 	}
 },
 {
@@ -2879,14 +2987,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": true,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "1e4424e859b1af2fceef6143b19167a671a47f24a4cd56a1d40600061911f71a",
-		"policy_txt_hash": "7f0c1804e8bf0f8c248b9d049d2ccb091cba9b7813b7824f0edde2c2372f5973"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "1e4424e859b1af2fceef6143b19167a671a47f24a4cd56a1d40600061911f71a",
+			"txt_hash": "7f0c1804e8bf0f8c248b9d049d2ccb091cba9b7813b7824f0edde2c2372f5973",
+			"json_hash": "50c3bbe3fdf7ddb7ea382158538feb9e2dbdaed6eaf7babfa5229f1a45551629"
+		}
 	}
 },
 {
@@ -3249,14 +3369,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "a55604650526a64f06d9f3a4cf1f41817693c3d1111ba357b8f69ead62268897",
-		"policy_txt_hash": "14c0b5ef2111e191396f490f03a0373507bb6ec5097318ddf085b4826c62c786"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "a55604650526a64f06d9f3a4cf1f41817693c3d1111ba357b8f69ead62268897",
+			"txt_hash": "14c0b5ef2111e191396f490f03a0373507bb6ec5097318ddf085b4826c62c786",
+			"json_hash": "379ac8d7bc68fb541c4debd4306d7204c46d123d7ba01e6112500689c52a96e0"
+		}
 	}
 },
 {
@@ -3416,14 +3548,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": true,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "3b5bba3b1aea9e1d98e5e57804db2d5694961133103ab117f9e7606b5a420bc3",
-		"policy_txt_hash": "7f0c1804e8bf0f8c248b9d049d2ccb091cba9b7813b7824f0edde2c2372f5973"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "3b5bba3b1aea9e1d98e5e57804db2d5694961133103ab117f9e7606b5a420bc3",
+			"txt_hash": "7f0c1804e8bf0f8c248b9d049d2ccb091cba9b7813b7824f0edde2c2372f5973",
+			"json_hash": "c0de63003b63815f75a95e627a79a0a930e5c859245ca9bf5b508ab6b4055223"
+		}
 	}
 },
 {
@@ -3767,14 +3911,26 @@
 	},
 	"state": {
 		"_type": "sec_certs.sample.fips.FIPSCertificate.InternalState",
-		"module_download_ok": true,
-		"policy_download_ok": true,
-		"policy_convert_garbage": false,
-		"policy_convert_ok": true,
-		"module_extract_ok": true,
-		"policy_extract_ok": true,
-		"policy_pdf_hash": "9cfe70e20befd7737398ede450302163cc6253487c219fb274edd86b7c2e92f4",
-		"policy_txt_hash": "2db96b5ba5ac2b2703ba4e799050bcfc91af0fe830fb54b9a7602f83bf7d2a46"
+		"module": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": null,
+			"txt_hash": null,
+			"json_hash": null
+		},
+		"policy": {
+			"_type": "sec_certs.sample.document_state.DocumentState",
+			"download_ok": true,
+			"convert_garbage": false,
+			"convert_ok": true,
+			"extract_ok": true,
+			"source_hash": "9cfe70e20befd7737398ede450302163cc6253487c219fb274edd86b7c2e92f4",
+			"txt_hash": "2db96b5ba5ac2b2703ba4e799050bcfc91af0fe830fb54b9a7602f83bf7d2a46",
+			"json_hash": "ac760103d43aba4661f8616ef1d5e0791421c15af669bcd0bc9d489f53ca7d69"
+		}
 	}
-}]
-
+}
+]
