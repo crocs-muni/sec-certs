@@ -170,19 +170,19 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
 
             with sentry_sdk.start_span(op="pp.move", name="Move files"), suppress_child_spans():
                 for prof in dset:
-                    if prof.state.pp.pdf_path and prof.state.pp.pdf_path.exists():
+                    if prof.state.pp.source_path and prof.state.pp.source_path.exists():
                         dst = paths["profile_pdf"] / f"{prof.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.pp.pdf_hash:
-                            prof.state.pp.pdf_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.pp.source_hash:
+                            prof.state.pp.source_path.replace(dst)
                     if prof.state.pp.txt_path and prof.state.pp.txt_path.exists():
                         dst = paths["profile_txt"] / f"{prof.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != prof.state.pp.txt_hash:
                             prof.state.pp.txt_path.replace(dst)
                             to_reindex.add((prof.dgst, "profile"))
-                    if prof.state.report.pdf_path and prof.state.report.pdf_path.exists():
+                    if prof.state.report.source_path and prof.state.report.source_path.exists():
                         dst = paths["report_pdf"] / f"{prof.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.pdf_hash:
-                            prof.state.report.pdf_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.source_hash:
+                            prof.state.report.source_path.replace(dst)
                     if prof.state.report.txt_path and prof.state.report.txt_path.exists():
                         dst = paths["report_txt"] / f"{prof.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.txt_hash:

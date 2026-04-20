@@ -723,7 +723,7 @@ cc_diff_method = {
             "convert_ok": diff_bool(),
             "download_ok": diff_bool(),
             "extract_ok": diff_bool(),
-            "pdf_hash": diff_ident(),
+            "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
         },
         "report": {
@@ -732,8 +732,9 @@ cc_diff_method = {
             "convert_ok": diff_bool(),
             "download_ok": diff_bool(),
             "extract_ok": diff_bool(),
-            "pdf_hash": diff_ident(),
+            "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
+            "json_hash": diff_ident()
         },
         "st": {
             "_type": diff_none(),
@@ -741,8 +742,9 @@ cc_diff_method = {
             "convert_ok": diff_bool(),
             "download_ok": diff_bool(),
             "extract_ok": diff_bool(),
-            "pdf_hash": diff_ident(),
+            "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
+            "json_hash": diff_ident()
         },
     },
 }
@@ -784,14 +786,26 @@ fips_diff_method = {
     },
     "state": {
         "_type": diff_none(),
-        "module_download_ok": diff_bool(),
-        "module_extract_ok": diff_bool(),
-        "policy_convert_garbage": diff_bool(),
-        "policy_convert_ok": diff_bool(),
-        "policy_download_ok": diff_bool(),
-        "policy_extract_ok": diff_bool(),
-        "policy_pdf_hash": diff_ident(),
-        "policy_txt_hash": diff_ident(),
+        "module": {
+            "_type": diff_none(),
+            "convert_garbage": diff_bool(),
+            "convert_ok": diff_bool(),
+            "download_ok": diff_bool(),
+            "extract_ok": diff_bool(),
+            "source_hash": diff_ident(),
+            "txt_hash": diff_ident(),
+            "json_hash": diff_ident()
+        },
+        "policy": {
+            "_type": diff_none(),
+            "convert_garbage": diff_bool(),
+            "convert_ok": diff_bool(),
+            "download_ok": diff_bool(),
+            "extract_ok": diff_bool(),
+            "source_hash": diff_ident(),
+            "txt_hash": diff_ident(),
+            "json_hash": diff_ident()
+        },
     },
     "web_data": {
         "_type": diff_none(),
