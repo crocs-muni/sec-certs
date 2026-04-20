@@ -472,42 +472,18 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.fips.FIPSCertificate.InternalState"
+          "const": "sec_certs.sample.fips.InternalState"
         },
-        "module_download_ok": {
-          "type": "boolean"
+        "module": {
+          "$ref": "base.json#/definitions/document_state"
         },
-        "policy_download_ok": {
-          "type": "boolean"
-        },
-        "policy_convert_ok": {
-          "type": "boolean"
-        },
-        "module_extract_ok": {
-          "type": "boolean"
-        },
-        "policy_extract_ok": {
-          "type": "boolean"
-        },
-        "policy_pdf_hash": {
-          "type": "string",
-          "pattern": "^[0-9a-fA-F]{64}$",
-          "description": "SHA256 hash of the policy PDF file."
-        },
-        "policy_txt_hash": {
-          "type": "string",
-          "pattern": "^[0-9a-fA-F]{64}$",
-          "description": "SHA256 hash of the policy txt file."
-        },
-        "policy_json_hash": {
-          "type": ["string", "null"],
-          "pattern": "^[0-9a-fA-F]{64}$",
-          "description": "SHA256 hash of the policy json representation file."
+        "policy": {
+          "$ref": "base.json#/definitions/document_state"
         }
       },
       "additionalProperties": false,
       "title": "Certificate Document States",
-      "description": "State of the document processing pipeline for policy and module documents."
+      "description": "State of the document processing pipeline for module and policy documents."
     }
   },
   "additionalProperties": false

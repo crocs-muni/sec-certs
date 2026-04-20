@@ -269,7 +269,7 @@ class PdfData(BasePdfData, ComplexSerializableType):
 def extract_pdf_metadata_(cert: CCCertificate | EUCCCertificate, doc_type: DocType) -> CCCertificate | EUCCCertificate:
     doc_state = getattr(cert.state, doc_type.short)
     try:
-        metadata = extract_pdf_metadata(doc_state.pdf_path)
+        metadata = extract_pdf_metadata(doc_state.source_path)
         setattr(cert.pdf_data, f"{doc_type.short}_metadata", metadata)
         doc_state.extract_ok = True
     except ValueError:
@@ -375,7 +375,7 @@ def convert_pdf(
     cert: CCCertificate | EUCCCertificate, doc_type: DocType, converter: PDFConverter
 ) -> CCCertificate | EUCCCertificate:
     doc_state = getattr(cert.state, doc_type.short)
-    ok_result = converter.convert(doc_state.pdf_path, doc_state.txt_path, doc_state.json_path)
+    ok_result = converter.convert(doc_state.source_path, doc_state.txt_path, doc_state.json_path)
     doc_state.convert_ok = ok_result
     if not ok_result:
         error_msg = f"failed to convert {doc_type.short} pdf->txt"
@@ -392,7 +392,7 @@ def convert_pdf(
 def download_pdf(cert: CCCertificate | EUCCCertificate, doc_type: DocType):
     link = getattr(cert, f"{doc_type.short}_link")
     doc_state = getattr(cert.state, doc_type.short)
-    exit_code = helpers.download_file(link, doc_state.pdf_path, proxy=config.cc_use_proxy) if link else "No link"
+    exit_code = helpers.download_file(link, doc_state.source_path, proxy=config.cc_use_proxy) if link else "No link"
 
     if exit_code != requests.codes.ok:
         error_msg = f"failed to download {doc_type.short} from {link}, code: {exit_code}"
@@ -400,7 +400,7 @@ def download_pdf(cert: CCCertificate | EUCCCertificate, doc_type: DocType):
         doc_state.download_ok = False
     else:
         doc_state.download_ok = True
-        doc_state.pdf_hash = helpers.get_sha256_filepath(doc_state.pdf_path)
+        doc_state.source_hash = helpers.get_sha256_filepath(doc_state.source_path)
         setattr(cert.pdf_data, f"{doc_type.short}_filename", unquote_plus(str(urlparse(link).path).split("/")[-1]))
     return cert
 
@@ -493,11 +493,11 @@ def set_local_paths(
     :param Optional[Union[str, Path]] cert_json_dir: Directory where json certificates shall be stored
     """
     if report_pdf_dir:
-        obj.state.report.pdf_path = Path(report_pdf_dir) / (obj.dgst + ".pdf")
+        obj.state.report.source_path = Path(report_pdf_dir) / (obj.dgst + ".pdf")
     if st_pdf_dir:
-        obj.state.st.pdf_path = Path(st_pdf_dir) / (obj.dgst + ".pdf")
+        obj.state.st.source_path = Path(st_pdf_dir) / (obj.dgst + ".pdf")
     if cert_pdf_dir:
-        obj.state.cert.pdf_path = Path(cert_pdf_dir) / (obj.dgst + ".pdf")
+        obj.state.cert.source_path = Path(cert_pdf_dir) / (obj.dgst + ".pdf")
 
     if report_txt_dir:
         obj.state.report.txt_path = Path(report_txt_dir) / (obj.dgst + ".txt")

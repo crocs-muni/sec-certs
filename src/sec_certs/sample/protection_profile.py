@@ -242,9 +242,9 @@ class ProtectionProfile(
         Adjusts local paths for various files.
         """
         if report_pdf_dir:
-            self.state.report.pdf_path = Path(report_pdf_dir) / f"{self.dgst}.pdf"
+            self.state.report.source_path = Path(report_pdf_dir) / f"{self.dgst}.pdf"
         if pp_pdf_dir:
-            self.state.pp.pdf_path = Path(pp_pdf_dir) / f"{self.dgst}.pdf"
+            self.state.pp.source_path = Path(pp_pdf_dir) / f"{self.dgst}.pdf"
         if report_txt_dir:
             self.state.report.txt_path = Path(report_txt_dir) / f"{self.dgst}.txt"
         if pp_txt_dir:
@@ -273,7 +273,7 @@ class ProtectionProfile(
             exit_code = "No link"
         else:
             exit_code = helpers.download_file(
-                cert.web_data.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy
+                cert.web_data.report_link, cert.state.report.source_path, proxy=config.cc_use_proxy
             )
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download report from {cert.web_data.report_link}, code: {exit_code}"
@@ -281,7 +281,7 @@ class ProtectionProfile(
             cert.state.report.download_ok = False
         else:
             cert.state.report.download_ok = True
-            cert.state.report.pdf_hash = helpers.get_sha256_filepath(cert.state.report.pdf_path)
+            cert.state.report.source_hash = helpers.get_sha256_filepath(cert.state.report.source_path)
             cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.web_data.report_link).path).split("/")[-1])
         return cert
 
@@ -294,14 +294,16 @@ class ProtectionProfile(
         if not cert.web_data.pp_link:
             exit_code = "No link"
         else:
-            exit_code = helpers.download_file(cert.web_data.pp_link, cert.state.pp.pdf_path, proxy=config.cc_use_proxy)
+            exit_code = helpers.download_file(
+                cert.web_data.pp_link, cert.state.pp.source_path, proxy=config.cc_use_proxy
+            )
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download PP from {cert.web_data.pp_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.pp.download_ok = False
         else:
             cert.state.pp.download_ok = True
-            cert.state.pp.pdf_hash = helpers.get_sha256_filepath(cert.state.pp.pdf_path)
+            cert.state.pp.source_hash = helpers.get_sha256_filepath(cert.state.pp.source_path)
             cert.pdf_data.pp_filename = unquote_plus(str(urlparse(cert.web_data.pp_link).path).split("/")[-1])
         return cert
 
@@ -310,7 +312,7 @@ class ProtectionProfile(
         cert: ProtectionProfile, doc_type: Literal["report", "pp"], converter: PDFConverter
     ) -> ProtectionProfile:
         cert_state = getattr(cert.state, doc_type)
-        ok_result = converter.convert(cert_state.pdf_path, cert_state.txt_path, cert_state.json_path)
+        ok_result = converter.convert(cert_state.source_path, cert_state.txt_path, cert_state.json_path)
         cert_state.convert_ok = ok_result
         if not ok_result:
             logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
@@ -342,7 +344,7 @@ class ProtectionProfile(
         Extracts various pdf metadata from the certification report.
         """
         try:
-            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.pdf_path)
+            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.source_path)
             cert.state.report.extract_ok = True
         except ValueError:
             cert.state.report.extract_ok = False
@@ -354,7 +356,7 @@ class ProtectionProfile(
         Extracts various pdf metadata from the actual protection profile.
         """
         try:
-            cert.pdf_data.pp_metadata = extract_pdf_metadata(cert.state.pp.pdf_path)
+            cert.pdf_data.pp_metadata = extract_pdf_metadata(cert.state.pp.source_path)
             cert.state.pp.extract_ok = True
         except ValueError:
             cert.state.pp.extract_ok = False

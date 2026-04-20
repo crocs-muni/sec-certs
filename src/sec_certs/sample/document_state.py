@@ -13,11 +13,11 @@ class DocumentState(ComplexSerializableType):
     extract_ok: bool = False  # Whether extraction went OK
     convert_garbage: bool = False  # deprecated
 
-    pdf_hash: str | None = None
+    source_hash: str | None = None
     txt_hash: str | None = None
     json_hash: str | None = None
 
-    _pdf_path: Path | None = None
+    _source_path: Path | None = None
     _txt_path: Path | None = None
     _json_path: Path | None = None
 
@@ -34,14 +34,14 @@ class DocumentState(ComplexSerializableType):
             return self.download_ok and self.convert_ok and not self.extract_ok
 
     @property
-    def pdf_path(self) -> Path:
-        if not self._pdf_path:
-            raise ValueError(f"pdf_path not set on {type(self)}")
-        return self._pdf_path
+    def source_path(self) -> Path:
+        if not self._source_path:
+            raise ValueError(f"source_path not set on {type(self)}")
+        return self._source_path
 
-    @pdf_path.setter
-    def pdf_path(self, pth: str | Path | None) -> None:
-        self._pdf_path = Path(pth) if pth else None
+    @source_path.setter
+    def source_path(self, pth: str | Path | None) -> None:
+        self._source_path = Path(pth) if pth else None
 
     @property
     def txt_path(self) -> Path:
@@ -65,4 +65,4 @@ class DocumentState(ComplexSerializableType):
 
     @property
     def serialized_attributes(self) -> list[str]:
-        return ["download_ok", "convert_ok", "extract_ok", "pdf_hash", "txt_hash", "json_hash"]
+        return ["download_ok", "convert_ok", "extract_ok", "source_hash", "txt_hash", "json_hash"]

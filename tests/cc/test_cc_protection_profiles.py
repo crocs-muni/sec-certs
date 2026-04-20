@@ -113,21 +113,21 @@ def downloaded_toy_dataset(tmp_path_factory):
     return dataset
 
 
-def test_downloaded_pdf_hashes(downloaded_toy_dataset: ProtectionProfileDataset):
-    template_pp_pdf_hashes = {
+def test_downloaded_source_hashes(downloaded_toy_dataset: ProtectionProfileDataset):
+    template_pp_source_hashes = {
         "c8b175590bb7fdfb": "f35ea732cfe303415080e0a95b9aa573ff9e02019e9ab971904c7530c2617b80",
         "e315e3e834a61448": "605489cda568c32371d0aeb6841df0dc63277f57113f59a5a60f8a64a1661def",
         "b02ed76d2545326a": "e88bddd8948a8624d3f350e4cb489f4b1b708e5f10e2c1402166cdfe08e5d32a",
     }
-    template_report_pdf_hashes = {
+    template_report_source_hashes = {
         "c8b175590bb7fdfb": "c7dbaec8c333431c65129a0f429cdea22aa244e971f79139fb0ae079d4805b29",
         "e315e3e834a61448": "5f72a3ef0dce80b66c077a8a7482a1843c36e90113bd77827fba81c6e148d248",
         "b02ed76d2545326a": "e4c2d590fce870cd14fe6571a3258bd094b1e66f83f5e4d4a53a28a96f27490e",
     }
 
     for cert in downloaded_toy_dataset:
-        assert cert.state.pp.pdf_hash == template_pp_pdf_hashes[cert.dgst]
-        assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
+        assert cert.state.pp.source_hash == template_pp_source_hashes[cert.dgst]
+        assert cert.state.report.source_hash == template_report_source_hashes[cert.dgst]
 
 
 @pytest.mark.parametrize("converter", get_converters())

@@ -13,50 +13,6 @@
       "title": "Certificate ID",
       "description": "The unique identifier of the Common Criteria certificate."
     },
-    "cc_document_state": {
-      "type": "object",
-      "properties": {
-        "_type": {
-          "const": "sec_certs.sample.document_state.DocumentState"
-        },
-        "convert_ok": {
-          "type": "boolean",
-          "description": "Whether the document was successfully converted from PDF to text."
-        },
-        "download_ok": {
-          "type": "boolean",
-          "description": "Whether the document was successfully downloaded."
-        },
-        "extract_ok": {
-          "type": "boolean",
-          "description": "Whether keyword extraction from the document was successful."
-        },
-        "pdf_hash": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "SHA256 hash of the PDF document, if available."
-        },
-        "txt_hash": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "SHA256 hash of the text document, if available."
-        },
-        "json_hash": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "SHA256 hash of the document json representation, if available."
-        }
-      },
-      "additionalProperties": false,
-      "title": "Certificate Document State (cert, report, st)",
-      "description": "State of the document processing pipeline for cert, report, or st document."
-    },
     "cc_document_frontpage_body": {
       "type": "object",
       "properties": {
@@ -619,13 +575,13 @@
           "const": "sec_certs.sample.cc_eucc_common.InternalState"
         },
         "cert": {
-          "$ref": "#/definitions/cc_document_state"
+          "$ref": "base.json#/definitions/document_state"
         },
         "report": {
-          "$ref": "#/definitions/cc_document_state"
+          "$ref": "base.json#/definitions/document_state"
         },
         "st": {
-          "$ref": "#/definitions/cc_document_state"
+          "$ref": "base.json#/definitions/document_state"
         }
       },
       "additionalProperties": false,
