@@ -7,11 +7,12 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <h1>Common Criteria</h1>
-            <h3 class="text-secondary">Search</h3>
+            <h2 class="text-secondary">Search</h2>
             <div class="card mt-3 mt-4 mb-4">
                 <div class="card-body container">
                     <div id="name" class="mt-1 mb-3">
                         <div class="form-inline">
+                            <label for="search" class="visually-hidden">Search prompt</label>
                             <input id="search" class="form-control mb-2" placeholder="Search prompt" type="search"
                                    value="{{ q|default('', true) }}"/>
 
@@ -51,7 +52,7 @@
                             </small><br/>
                             <small class="text-muted">
                                 E.g.
-                                <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">Infineon Security Controller</span>
+                                <span class="font-monospace border rounded" role="button" tabindex="0" onclick="window.getSelection().selectAllChildren(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.getSelection().selectAllChildren(this)}" aria-label="Click to select text">Infineon Security Controller</span>
                                 .
                             </small>
                         </div>
@@ -61,17 +62,17 @@
                                         target="_blank" rel="noopener">Whoosh query language</a>.
                             </small><br/>
                             <small class="text-muted">E.g. <span class="font-monospace border rounded"
-                                    onclick="window.getSelection().selectAllChildren(this)">"post quantum" OR "post-quantum" OR "PQC"</span>.
+                                    role="button" tabindex="0" onclick="window.getSelection().selectAllChildren(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.getSelection().selectAllChildren(this)}" aria-label="Click to select text">"post quantum" OR "post-quantum" OR "PQC"</span>.
                             </small>
                         </div>
                     </div>
                     <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
-                        <div id="categories" class="mb-3">
-                            <h4>Categories
+                        <div id="categories" class="mb-3" role="group" aria-labelledby="categories-heading" aria-describedby="categories-error">
+                            <h4 id="categories-heading">Categories
                                 <button id="cat-select-all" class="btn btn-outline-primary">Select all</button>
                                 <button id="cat-deselect-all" class="btn btn-outline-primary">Deselect all</button>
                             </h4>
-                            <div class="invalid-feedback" id="categories-error">
+                            <div class="invalid-feedback" id="categories-error" aria-live="polite" aria-atomic="true">
                             </div>
 
                             <div id="search-categories" class="row">
@@ -107,10 +108,10 @@
                                             <td>
                                                 <select id="search-status" class="d-inline form-select">
                                                     <option value="any" {% if status == "any" %}selected="selected"{% endif %}>Any</option>
-                                                    <option value="active" class="text-success"
+                                                    <option value="active" class="status-active"
                                                             {% if status == "active" %}selected="selected"{% endif %}>Active
                                                     </option>
-                                                    <option value="archived" class="text-warning"
+                                                    <option value="archived" class="status-archived"
                                                             {% if status == "archived" %}selected="selected"{% endif %}>Archived
                                                     </option>
                                                 </select>

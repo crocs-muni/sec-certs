@@ -20,9 +20,10 @@
                                 <h4 class="card-title anchor" id="cve">CVEs</h4>
                                 <p class="card-text">Browse through CVEs and see which certificates they impact.</p>
                                 <div class="form-inline">
+                                    <label for="cve-input" class="visually-hidden">CVE ID</label>
                                     <input id="cve-input" class="form-control mb-2" placeholder="CVE ID" type="search"
                                            value=""/>
-                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">CVE-2019-15809</span>.</small>
+                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" role="button" tabindex="0" onclick="window.getSelection().selectAllChildren(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.getSelection().selectAllChildren(this)}" aria-label="Click to select text">CVE-2019-15809</span>.</small>
                                     <div class="invalid-feedback">
                                         CVE invalid.
                                     </div>
@@ -38,9 +39,10 @@
                                 <h4 class="card-title anchor" id="cpe">CPEs</h4>
                                 <p class="card-text">Browse through CPEs and see which certificates they match.</p>
                                 <div class="form-inline">
+                                    <label for="cpe-input" class="visually-hidden">CPE URI</label>
                                     <input id="cpe-input" class="form-control mb-2" placeholder="CPE URI" type="search"
                                            value=""/>
-                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" onclick="window.getSelection().selectAllChildren(this)">cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*</span>.</small>
+                                    <small class="text-muted">E.g. <span class="font-monospace border rounded" role="button" tabindex="0" onclick="window.getSelection().selectAllChildren(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.getSelection().selectAllChildren(this)}" aria-label="Click to select text">cpe:2.3:a:microchip:atmel_toolbox:00.03.11.05:*:*:*:*:*:*:*</span>.</small>
 
                                     <div class="invalid-feedback">
                                         CPE invalid.
