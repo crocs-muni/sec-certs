@@ -58,7 +58,7 @@
     "dash",
     "dash-bootstrap-components",
     # Tasks
-    "dramatiq[redis]",
+    "dramatiq[redis] < 2.0",
     "periodiq",
     "setuptools < 82.0.0",
     "redis",
