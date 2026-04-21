@@ -62,8 +62,11 @@ class EUCCBasicSearch(BasicSearch):
             cursor: Cursor[Mapping] = cls.collection.find(query, projection)
             count: int = cls.collection.count_documents(query)
 
-        timeline: List[Optional[datetime]] = [
-            datetime.strptime(cert["not_valid_before"]["_value"], "%Y-%m-%d") for cert in cursor.clone()
+        timeline = [
+            datetime.strptime(cert["not_valid_before"]["_value"], "%Y-%m-%d")
+            if cert.get("not_valid_before") and cert["not_valid_before"].get("_value")
+            else None
+            for cert in cursor.clone()
         ]
 
         if sort == "match" and q is not None and q != "":
