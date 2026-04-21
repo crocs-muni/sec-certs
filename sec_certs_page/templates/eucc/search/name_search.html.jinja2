@@ -54,10 +54,10 @@
                                                              class="result-link">{{ name }}</a></span></td>
                             <td><span class="result-status">{{ render_status(status) }}</span></td>
                             <td><span
-                                    class="result-cert-date">{{ cert_date|strftime("%d.%m.%Y") if cert_date else "" }}</span>
+                                    class="result-cert-date">{{ cert_date|strftime("%d.%m.%Y") if cert_date else "N/A" }}</span>
                             </td>
                             <td><span
-                                    class="result-archive-date">{{ archive_date|strftime("%d.%m.%Y") if archive_date else "" }}</span>
+                                    class="result-archive-date">{{ archive_date|strftime("%d.%m.%Y") if archive_date else "N/A" }}</span>
                             </td>
                         </tr>
                     {% endfor %}

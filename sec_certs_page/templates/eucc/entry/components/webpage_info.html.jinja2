@@ -269,14 +269,12 @@
             </tr>
             <tr data-cs-name="Valid from">
                 <th scope="row">Valid from</th>
-                <td>{{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}</td>
+                <td>{{ cert.get("not_valid_before")|strftime("%d.%m.%Y") if cert.get("not_valid_before") else "N/A" }}</td>
             </tr>
-            {% if cert["not_valid_after"] %}
-                <tr data-cs-name="Valid until">
-                    <th scope="row">Valid until</th>
-                    <td>{{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</td>
-                </tr>
-            {% endif %}
+            <tr data-cs-name="Valid until">
+                <th scope="row">Valid until</th>
+                <td>{{ cert.get("not_valid_after")|strftime("%d.%m.%Y") if cert.get("not_valid_after") else "N/A" }}</td>
+            </tr>
             </tbody>
         </table>
 
