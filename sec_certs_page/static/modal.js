@@ -128,9 +128,9 @@ export function compare_do(cc_url, fips_url) {
     let url;
     if (selected[0]["type"] === "cc") {
         url = cc_url;
-    } else if (selected[0][type] == "fips") {
+    } else if (selected[0]["type"] == "fips") {
         url = fips_url;
-    } else if (selected[0][type] == "pp") {
+    } else if (selected[0]["type"] == "pp") {
         $("#compare-error").text("Comparing protection profiles not supported (yet).").show();
         return;
     }

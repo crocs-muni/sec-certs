@@ -227,14 +227,14 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
 
             with sentry_sdk.start_span(op="fips.move", name="Move files"), suppress_child_spans():
                 for cert in dset:
-                    if cert.state.policy_pdf_path and cert.state.policy_pdf_path.exists():
+                    if cert.state.policy.source_path and cert.state.policy.source_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy_pdf_hash:
-                            cert.state.policy_pdf_path.replace(dst)
-                    if cert.state.policy_txt_path and cert.state.policy_txt_path.exists():
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy.source_hash:
+                            cert.state.policy.source_path.replace(dst)
+                    if cert.state.policy.txt_path and cert.state.policy.txt_path.exists():
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy_txt_hash:
-                            cert.state.policy_txt_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy.txt_hash:
+                            cert.state.policy.txt_path.replace(dst)
                             to_reindex.add((cert.dgst, "target"))
         return to_reindex, to_update_kb
 

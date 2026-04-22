@@ -452,19 +452,19 @@
                                                         class="fas fa-equals"></i></span>
                                             {% endif %}
                                             {% if "state" in similar_cert %}
-                                                {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["pdf_hash"] == cert["state"]["cert"]["pdf_hash"] and cert["state"]["cert"]["pdf_hash"] %}
+                                                {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["source_hash"] == cert["state"]["cert"]["source_hash"] and cert["state"]["cert"]["source_hash"] %}
                                                     <span class="badge rounded-pill bg-info text-dark" role="img"
                                                           title="Certificate PDF file matches exactly."
                                                           data-bs-toggle="tooltip"><i
                                                             class="fas fa-file-alt"></i></span>
                                                 {% endif %}
-                                                {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["pdf_hash"] == cert["state"]["report"]["pdf_hash"] and cert["state"]["report"]["pdf_hash"] %}
+                                                {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["source_hash"] == cert["state"]["report"]["source_hash"] and cert["state"]["report"]["source_hash"] %}
                                                     <span class="badge rounded-pill bg-info text-dark" role="img"
                                                           title="Certification report PDF file matches exactly."
                                                           data-bs-toggle="tooltip"><i
                                                             class="fas fa-file-alt"></i></span>
                                                 {% endif %}
-                                                {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["pdf_hash"] == cert["state"]["st"]["pdf_hash"] and cert["state"]["st"]["pdf_hash"] %}
+                                                {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["source_hash"] == cert["state"]["st"]["source_hash"] and cert["state"]["st"]["source_hash"] %}
                                                     <span class="badge rounded-pill bg-info text-dark" role="img"
                                                           title="Security target PDF file matches exactly."
                                                           data-bs-toggle="tooltip"><i
