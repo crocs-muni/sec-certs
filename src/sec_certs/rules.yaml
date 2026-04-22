@@ -18,7 +18,7 @@ cc_cert_id:
     - "Rapport de certification (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
     - "Certification Report (?P<year>[0-9]{2,4})/(?P<counter>[0-9]+)([vV](?P<version>[0-9]))?"
     - "ANSS[Ii](?:-CC)?(?:-(?P<type>PP|SITE))?[ -](?P<year>[0-9]{2,4})[/_-](?P<counter>[0-9]+)(?:-(?P<doc>(?:[MSR][0-9]+)))?([vV](?P<version>[0-9]))?"
-    - "EUCC-ANSSI-(?P<year>[0-9]{4})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})"
+    - "EUCC-ANSSI-(?P<year>[0-9]{4})-(?P<month>[0-9]{1})-(?P<day>[0-9]{1})"
     - "EUCC-3090-(?P<year>[0-9]{4})-(?P<month>[0-9]{2})(-(?P<counter>[0-9]{1,4}))?"
     # Examples:
     # DCSSI-2009/07
