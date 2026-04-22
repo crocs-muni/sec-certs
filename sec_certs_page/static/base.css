@@ -1061,6 +1061,12 @@ h6 {
     --bs-btn-active-border-color: #0060F0;
 }
 
+[data-bs-theme="light"] .btn-link {
+    --bs-btn-color: #0060F0;
+    --bs-btn-hover-color: #0056B3;
+    --bs-btn-active-color: #0056B3;
+}
+
 [data-bs-theme="dark"] .btn-outline-primary {
     --bs-btn-color: #85B6FF;
     --bs-btn-border-color: #85B6FF;
@@ -1070,15 +1076,33 @@ h6 {
     --bs-btn-active-border-color: #85B6FF;
 }
 
+/* btn-outline-secondary:*/
+[data-bs-theme="dark"] .btn-outline-secondary {
+    --bs-btn-color: #AAAAAA;
+    --bs-btn-border-color: #AAAAAA;
+    --bs-btn-hover-color: #212529;
+    --bs-btn-hover-bg: #AAAAAA;
+    --bs-btn-hover-border-color: #AAAAAA;
+    --bs-btn-active-color: #212529;
+    --bs-btn-active-bg: #AAAAAA;
+    --bs-btn-active-border-color: #AAAAAA;
+}
+
 /* Higher contrast for links (Light mode) */
-[data-bs-theme="light"]p a {
-    color: #1A6BCC; 
+[data-bs-theme="light"] p a {
+    color: #1A6BCC;
+}
+
+[data-bs-theme="light"] p a:hover,
+[data-bs-theme="light"] p a:focus {
+    color: #0056B3;
 }
 
 /* back to original color in dark mode*/
 [data-bs-theme="dark"] p a {
     color: #85B6FF;
 }
+
 
 /* ==========================================================================
    Status label colors per theme
@@ -1110,7 +1134,15 @@ h6 {
     color: #ea868f;
 }
 
-/* Alert-primary link colors */
-[data-bs-theme="light"] .alert-primary a {
+/* ==========================================================================
+   Alert link colors per theme
+   ========================================================================== */
+
+[data-bs-theme="light"] .alert-primary a,
+[data-bs-theme="light"] .alert-info a {
     color: #0158E4;
+}
+
+[data-bs-theme="light"] .alert-warning a {
+    color: #6B4800;
 }
