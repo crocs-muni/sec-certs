@@ -179,9 +179,9 @@
                             <tr>
                                 <th scope="row">Vendor</th>
                                 <td>
-                                    {{ cert["web_data"]["vendor"] }} <a
+                                    {{ cert["web_data"]["vendor"] }}{% if cert["web_data"]["vendor_www"] %} <a
                                         href="{{ cert["web_data"]['vendor_www'] }}" target="_blank"
-                                        rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>
+                                        rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>{% endif %}
                                 </td>
                             </tr>
                             {% if cert["web_data"]["lab"] %}

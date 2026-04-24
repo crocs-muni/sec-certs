@@ -356,7 +356,7 @@
                                 <tr>
                                     <th scope="col">Name</th>
                                     <th scope="col">Certificate ID</th>
-                                    <th scope="col"></th>
+                                    <th scope="col"><span class="visually-hidden">Actions</span></th>
                                 </tr>
                                 </thead>
                                 {% if previous %}
@@ -369,19 +369,19 @@
                                         <td>
                                             <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                                             {% if other["name"] == cert["name"] and cert["name"] %}
-                                                <span class="badge rounded-pill bg-info text-dark"
-                                                      title="Certificate name matches exactly."
-                                                      data-bs-toggle="tooltip"><i
-                                                        class="fas fa-equals"></i></span>
+                                                <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                      aria-label="Certificate name matches exactly."
+                                                      data-bs-toggle="tooltip" title="Certificate name matches exactly."><i
+                                                        class="fas fa-equals" aria-hidden="true"></i></span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {{ other["heuristics"]["cert_id"] }}
                                             {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
-                                                <span class="badge rounded-pill bg-info text-dark"
-                                                      title="Certificate ID matches exactly."
-                                                      data-bs-toggle="tooltip"><i
-                                                        class="fas fa-equals"></i></span>
+                                                <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                      aria-label="Certificate ID matches exactly."
+                                                      data-bs-toggle="tooltip" title="Certificate ID matches exactly."><i
+                                                        class="fas fa-equals" aria-hidden="true"></i></span>
                                             {% endif %}
                                         </td>
                                         <td class="text-end">
@@ -399,19 +399,19 @@
                                         <td>
                                             <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                                             {% if other["name"] == cert["name"] and cert["name"] %}
-                                                <span class="badge rounded-pill bg-info text-dark"
-                                                      title="Certificate name matches exactly."
-                                                      data-bs-toggle="tooltip"><i
-                                                        class="fas fa-equals"></i></span>
+                                                <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                      aria-label="Certificate name matches exactly."
+                                                      data-bs-toggle="tooltip" title="Certificate name matches exactly."><i
+                                                        class="fas fa-equals" aria-hidden="true"></i></span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {{ other["heuristics"]["cert_id"] }}
                                             {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
-                                                <span class="badge rounded-pill bg-info text-dark"
-                                                      title="Certificate ID matches exactly."
-                                                      data-bs-toggle="tooltip"><i
-                                                        class="fas fa-equals"></i></span>
+                                                <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                      aria-label="Certificate ID matches exactly."
+                                                      data-bs-toggle="tooltip" title="Certificate ID matches exactly."><i
+                                                        class="fas fa-equals" aria-hidden="true"></i></span>
                                             {% endif %}
                                         </td>
                                         <td class="text-end">
@@ -436,7 +436,7 @@
                                 <tr>
                                     <th scope="col">Name</th>
                                     <th scope="col">Certificate ID</th>
-                                    <th scope="col"></th>
+                                    <th scope="col"><span class="visually-hidden">Actions</span></th>
                                 </tr>
                                 </thead>
                                 {% for similar_cert in similar %}
@@ -446,39 +446,39 @@
                                             <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}"
                                                title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
                                             {% if similar_cert["name"] == cert["name"] and cert["name"] %}
-                                                <span class="badge rounded-pill bg-info text-dark"
-                                                      title="Certificate name matches exactly."
-                                                      data-bs-toggle="tooltip"><i
-                                                        class="fas fa-equals"></i></span>
+                                                <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                      aria-label="Certificate name matches exactly."
+                                                      data-bs-toggle="tooltip" title="Certificate name matches exactly."><i
+                                                        class="fas fa-equals" aria-hidden="true"></i></span>
                                             {% endif %}
                                             {% if "state" in similar_cert %}
                                                 {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["source_hash"] == cert["state"]["cert"]["source_hash"] and cert["state"]["cert"]["source_hash"] %}
-                                                    <span class="badge rounded-pill bg-info text-dark"
-                                                          title="Certificate PDF file matches exactly."
-                                                          data-bs-toggle="tooltip"><i
-                                                            class="fas fa-file-alt"></i></span>
+                                                    <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                          aria-label="Certificate PDF file matches exactly."
+                                                          data-bs-toggle="tooltip" title="Certificate PDF file matches exactly."><i
+                                                            class="fas fa-file-alt" aria-hidden="true"></i></span>
                                                 {% endif %}
                                                 {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["source_hash"] == cert["state"]["report"]["source_hash"] and cert["state"]["report"]["source_hash"] %}
-                                                    <span class="badge rounded-pill bg-info text-dark"
-                                                          title="Certification report PDF file matches exactly."
-                                                          data-bs-toggle="tooltip"><i
-                                                            class="fas fa-file-alt"></i></span>
+                                                    <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                          aria-label="Certification report PDF file matches exactly."
+                                                          data-bs-toggle="tooltip" title="Certification report PDF file matches exactly."><i
+                                                            class="fas fa-file-alt" aria-hidden="true"></i></span>
                                                 {% endif %}
                                                 {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["source_hash"] == cert["state"]["st"]["source_hash"] and cert["state"]["st"]["source_hash"] %}
-                                                    <span class="badge rounded-pill bg-info text-dark"
-                                                          title="Security target PDF file matches exactly."
-                                                          data-bs-toggle="tooltip"><i
-                                                            class="fas fa-file-alt"></i></span>
+                                                    <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                          aria-label="Security target PDF file matches exactly."
+                                                          data-bs-toggle="tooltip" title="Security target PDF file matches exactly."><i
+                                                            class="fas fa-file-alt" aria-hidden="true"></i></span>
                                                 {% endif %}
                                             {% endif %}
                                         </td>
                                         <td>
                                             {{ similar_cert["heuristics"]["cert_id"] }}
                                             {% if similar_cert["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
-                                                <span class="badge rounded-pill bg-info text-dark"
-                                                      title="Certificate ID matches exactly."
-                                                      data-bs-toggle="tooltip"><i
-                                                        class="fas fa-equals"></i></span>
+                                                <span class="badge rounded-pill bg-info text-dark" role="img"
+                                                      aria-label="Certificate ID matches exactly."
+                                                      data-bs-toggle="tooltip" title="Certificate ID matches exactly."><i
+                                                        class="fas fa-equals" aria-hidden="true"></i></span>
                                             {% endif %}
                                         </td>
                                         <td class="text-end">
