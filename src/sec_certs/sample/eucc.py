@@ -167,6 +167,9 @@ class EUCCCertificate(
 
             inside_parentheses = match.group(1).strip()
 
+            if "[dot]" not in inside_parentheses and "[at]" not in inside_parentheses:
+                return text
+
             # reconstructs email by replacing obfuscation tokens
             clean_email = inside_parentheses.replace("[dot]", ".").replace("[at]", "@").replace(" ", "")
 
@@ -199,18 +202,18 @@ class EUCCCertificate(
             Parses CC security packages (e.g., 'EAL4 augmented with ALC_FLR.1')
             into a structured dictionary mapping EALs to their components.
             """
-            sections = re.split(r"\b(EAL\d+)\b", text)
+            sections = re.split(r"\b(EAL\s*\d+)\b", text)
 
             result: dict[str, list[str]] = {}
 
             # re.split with a capturing group returns [prefix, group, suffix, group, suffix...]
             # We skip the first element (prefix before first EAL) and iterate in steps of 2
             for i in range(1, len(sections), 2):
-                eal_key = sections[i]
+                eal_key = sections[i].replace(" ", "")
                 content_after = sections[i + 1]
 
                 # Find all CC components
-                components = re.findall(r"\b[A-Z]{3,4}(?:_[A-Z]{3,4})?(?:\.\d+)?\b", content_after)
+                components = re.findall(r"\b[A-Z]{3,4}_[A-Z]{3,4}(?:\.\d+)?\b", content_after)
                 result[eal_key] = components
 
             return result
