@@ -362,6 +362,26 @@ class EUCCCertificate(
             EUCCCertificate.EnisaMetadata.from_dict(metadata),
         )
 
+    @classmethod
+    def from_dict(cls, dct: dict) -> EUCCCertificate:
+        """
+        Deserializes dictionary into `EUCCCertificate`
+        """
+        new_dct = dct.copy()
+        if dct["protection_profile_links"]:
+            new_dct["protection_profile_links"] = set(dct["protection_profile_links"])
+        new_dct["not_valid_before"] = (
+            date.fromisoformat(dct["not_valid_before"])
+            if isinstance(dct["not_valid_before"], str)
+            else dct["not_valid_before"]
+        )
+        new_dct["not_valid_after"] = (
+            date.fromisoformat(dct["not_valid_after"])
+            if isinstance(dct["not_valid_after"], str)
+            else dct["not_valid_after"]
+        )
+        return super(cls, EUCCCertificate).from_dict(new_dct)
+
     def compute_heuristics_cert_lab(self):
         compute_heuristics_cert_lab(self)
 

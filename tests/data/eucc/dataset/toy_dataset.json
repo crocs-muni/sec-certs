@@ -1,0 +1,224 @@
+{
+  "_type": "sec_certs.dataset.eucc.EUCCDataset",
+  "state": {
+    "_type": "sec_certs.dataset.dataset.Dataset.DatasetInternalState",
+    "meta_sources_parsed": true,
+    "artifacts_downloaded": false,
+    "pdfs_converted": false,
+    "auxiliary_datasets_processed": false,
+    "certs_analyzed": false,
+    "sec_certs_version": "unknown"
+  },
+  "timestamp": "2026-04-27 17:04:14.770153",
+  "name": "toy dataset",
+  "description": "toy dataset description",
+  "n_certs": 2,
+  "certs": [
+    {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate",
+      "dgst": "e2a88386bd8e37a6",
+      "cert_id": "CERTIFICATE EUCC-3087-2025-12-0001",
+      "status": "active",
+      "category": "SMARTCARD CONTROLLER",
+      "name": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+      "manufacturer": "Infineon Technologies AG",
+      "scheme": "DE",
+      "security_level": {
+        "_type": "Set",
+        "elements": [
+          "EAL6"
+        ]
+      },
+      "not_valid_before": "2025-12-19",
+      "not_valid_after": "2030-12-19",
+      "report_link": "https://certification.enisa.europa.eu/document/download/39c71b1a-27f0-49d9-bd39-ac950ba8795c_en?filename=EUCC-3087-2025-12-0001%20Certificate%20Report.pdf",
+      "st_link": "https://certification.enisa.europa.eu/document/download/cd6b4c5a-4f26-452d-9ced-b7eb0683ef7c_en?filename=EUCC-3087-2025-12-0001%20Security.pdf",
+      "cert_link": "https://certification.enisa.europa.eu/document/download/110c73bb-359a-40af-9e59-612f085a0fc9_en?filename=EUCC-3087-2025-12-0001%20Certificate.pdf",
+      "manufacturer_web": "https://www.infineon.com/product-information/cybersecurity-information",
+      "protection_profile_links": {
+        "_type": "Set",
+        "elements": []
+      },
+      "state": {
+        "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+        "report": {
+          "_type": "sec_certs.sample.document_state.DocumentState",
+          "download_ok": false,
+          "convert_ok": false,
+          "extract_ok": false,
+          "source_hash": null,
+          "txt_hash": null,
+          "json_hash": null
+        },
+        "st": {
+          "_type": "sec_certs.sample.document_state.DocumentState",
+          "download_ok": false,
+          "convert_ok": false,
+          "extract_ok": false,
+          "source_hash": null,
+          "txt_hash": null,
+          "json_hash": null
+        },
+        "cert": {
+          "_type": "sec_certs.sample.document_state.DocumentState",
+          "download_ok": false,
+          "convert_ok": false,
+          "extract_ok": false,
+          "source_hash": null,
+          "txt_hash": null,
+          "json_hash": null
+        }
+      },
+      "pdf_data": {
+        "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+        "report_metadata": null,
+        "st_metadata": null,
+        "cert_metadata": null,
+        "report_frontpage": null,
+        "st_frontpage": null,
+        "cert_frontpage": null,
+        "report_keywords": null,
+        "st_keywords": null,
+        "cert_keywords": null,
+        "report_filename": null,
+        "st_filename": null,
+        "cert_filename": null
+      },
+      "heuristics": {
+        "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+        "extracted_versions": null,
+        "cpe_matches": null,
+        "verified_cpe_matches": null,
+        "related_cves": null,
+        "cert_lab": null,
+        "cert_id": null,
+        "annotated_references": null,
+        "extracted_sars": null,
+        "direct_transitive_cves": null,
+        "indirect_transitive_cves": null,
+        "next_certificates": null,
+        "prev_certificates": null,
+        "report_references": {
+          "_type": "sec_certs.sample.certificate.References",
+          "directly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referenced_by": null,
+          "indirectly_referencing": null
+        },
+        "st_references": {
+          "_type": "sec_certs.sample.certificate.References",
+          "directly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referenced_by": null,
+          "indirectly_referencing": null
+        },
+        "scheme_data": null,
+        "protection_profiles": null,
+        "eal": null
+      }
+    },
+    {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate",
+      "dgst": "68db933fd58bd56e",
+      "cert_id": "EUCC-3090-2025-10-03",
+      "status": "active",
+      "category": "SMART CARD AND SIMILAR DEVICE",
+      "name": "SCE900U",
+      "manufacturer": "IDEMIA",
+      "scheme": "FR",
+      "security_level": {
+        "_type": "Set",
+        "elements": [
+          "EAL5"
+        ]
+      },
+      "not_valid_before": "2025-10-15",
+      "not_valid_after": "2030-10-15",
+      "report_link": "https://certification.enisa.europa.eu/document/download/cfef8dc8-fd14-4d2a-82f8-aa37ade43167_en?filename=EUCC-3090-2025-10_03_Rapport.pdf",
+      "st_link": "https://certification.enisa.europa.eu/document/download/21805915-2a0c-4a6a-bc3f-b1844fb8ad92_en?filename=EUCC-3090-2025-10_03%20Security%20Target.pdf",
+      "cert_link": "https://certification.enisa.europa.eu/document/download/45175696-7940-4091-a655-7d786c47de61_en?filename=EUCC-3090-2025-10_03_Certificat.pdf",
+      "manufacturer_web": "www.idemia.com/microcontrollers-sce900u",
+      "protection_profile_links": {
+        "_type": "Set",
+        "elements": []
+      },
+      "state": {
+        "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+        "report": {
+          "_type": "sec_certs.sample.document_state.DocumentState",
+          "download_ok": false,
+          "convert_ok": false,
+          "extract_ok": false,
+          "source_hash": null,
+          "txt_hash": null,
+          "json_hash": null
+        },
+        "st": {
+          "_type": "sec_certs.sample.document_state.DocumentState",
+          "download_ok": false,
+          "convert_ok": false,
+          "extract_ok": false,
+          "source_hash": null,
+          "txt_hash": null,
+          "json_hash": null
+        },
+        "cert": {
+          "_type": "sec_certs.sample.document_state.DocumentState",
+          "download_ok": false,
+          "convert_ok": false,
+          "extract_ok": false,
+          "source_hash": null,
+          "txt_hash": null,
+          "json_hash": null
+        }
+      },
+      "pdf_data": {
+        "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+        "report_metadata": null,
+        "st_metadata": null,
+        "cert_metadata": null,
+        "report_frontpage": null,
+        "st_frontpage": null,
+        "cert_frontpage": null,
+        "report_keywords": null,
+        "st_keywords": null,
+        "cert_keywords": null,
+        "report_filename": null,
+        "st_filename": null,
+        "cert_filename": null
+      },
+      "heuristics": {
+        "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+        "extracted_versions": null,
+        "cpe_matches": null,
+        "verified_cpe_matches": null,
+        "related_cves": null,
+        "cert_lab": null,
+        "cert_id": null,
+        "annotated_references": null,
+        "extracted_sars": null,
+        "direct_transitive_cves": null,
+        "indirect_transitive_cves": null,
+        "next_certificates": null,
+        "prev_certificates": null,
+        "report_references": {
+          "_type": "sec_certs.sample.certificate.References",
+          "directly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referenced_by": null,
+          "indirectly_referencing": null
+        },
+        "st_references": {
+          "_type": "sec_certs.sample.certificate.References",
+          "directly_referenced_by": null,
+          "directly_referencing": null,
+          "indirectly_referenced_by": null,
+          "indirectly_referencing": null
+        },
+        "scheme_data": null,
+        "protection_profiles": null,
+        "eal": null
+      }
+    }
+  ]
+}
