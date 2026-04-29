@@ -263,6 +263,28 @@ class ProtectionProfile(
         """
         return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
 
+    @classmethod
+    def from_scheme_entry(cls, entry: Any) -> ProtectionProfile:
+        """
+        Builds a `ProtectionProfile` object from a PPSchemeEntry produced by a national scheme scraper.
+        """
+        return cls(
+            ProtectionProfile.WebData(
+                category=entry.category,
+                status=entry.status,
+                is_collaborative=entry.is_collaborative,
+                name=entry.name,
+                version=entry.version,
+                security_level=entry.security_level,
+                not_valid_before=entry.not_valid_before,
+                not_valid_after=entry.not_valid_after,
+                report_link=entry.report_link,
+                pp_link=entry.pp_link,
+                scheme=entry.scheme,
+                maintenances=entry.maintenances,
+            )
+        )
+
     @staticmethod
     def download_pdf_report(cert: ProtectionProfile) -> ProtectionProfile:
         """

@@ -423,10 +423,28 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     @only_backed()
     def process_auxiliary_datasets(self, **kwargs) -> None:
         """
-        Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.
-        This will just set the state `auxiliary_datasets_processed = True`
+        Fetches Protection Profiles from national scheme portals and merges any new entries into the dataset.
+
+        New PPs whose digest is not already present in the
+        dataset are inserted and local file paths are updated so that subsequent download steps work.
         """
-        logger.info("Protection Profile dataset has no auxiliary datasets to process, skipping.")
+        from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS
+
+        for scheme, scraper in PP_SCHEME_SCRAPERS.items():
+            try:
+                entries = scraper()
+            except Exception as e:
+                logger.error("Failed to scrape PP scheme %s: %s", scheme, e)
+                continue
+            added = 0
+            for entry in entries:
+                pp = ProtectionProfile.from_scheme_entry(entry)
+                if pp.dgst not in self.certs:
+                    self.certs[pp.dgst] = pp
+                    added += 1
+            logger.info("Added %d new PPs from scheme %s.", added, scheme)
+
+        self._set_local_paths()
         self.state.auxiliary_datasets_processed = True
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
