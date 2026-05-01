@@ -82,9 +82,7 @@ class PPSchemeEntry:
     maintenances: list[tuple[Any, ...]] = field(default_factory=list)
 
 
-# ---------------------------------------------------------------------------
 # NIAP scraping helpers
-# ---------------------------------------------------------------------------
 
 
 def _fetch_niap_pps() -> list[dict[str, Any]]:
@@ -162,11 +160,6 @@ def _niap_entry_to_scheme_entry(entry: dict[str, Any], files: list[dict[str, Any
         scheme="US",
         maintenances=[],
     )
-
-
-# ---------------------------------------------------------------------------
-# Public scraper functions
-# ---------------------------------------------------------------------------
 
 
 def get_niap_pps() -> list[PPSchemeEntry]:

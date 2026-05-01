@@ -11,6 +11,7 @@ from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
@@ -428,7 +429,6 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         New PPs whose digest is not already present in the
         dataset are inserted and local file paths are updated so that subsequent download steps work.
         """
-        from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS
 
         for scheme, scraper in PP_SCHEME_SCRAPERS.items():
             try:
