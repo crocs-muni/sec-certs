@@ -10,7 +10,6 @@ import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
-from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.eucc import EUCCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
@@ -197,7 +196,7 @@ def archive_all():  # pragma: no cover
 
 class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
     def process(
-        self, dset: CCDataset, paths: dict[str, Path]
+        self, dset: EUCCDataset, paths: dict[str, Path]
     ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
         to_reindex = set()
         to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
@@ -242,10 +241,10 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
 
             with sentry_sdk.start_span(op="eucc.move", description="Move files"), suppress_child_spans():
                 for cert in dset:
-                    if cert.state.report.pdf_path and cert.state.report.pdf_path.exists():
+                    if cert.state.report.source_path and cert.state.report.source_path.exists():
                         dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.pdf_hash:
-                            cert.state.report.pdf_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.source_hash:
+                            cert.state.report.source_path.replace(dst)
                     if cert.state.report.txt_path and cert.state.report.txt_path.exists():
                         dst = paths["report_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
@@ -256,10 +255,10 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
                         #    to_update_kb.add((cert.dgst, "report", None))
                         # elif reports_fmap[name][1] < dst.stat().st_mtime:
                         #    to_update_kb.add((cert.dgst, "report", reports_fmap[name][0]))
-                    if cert.state.st.pdf_path and cert.state.st.pdf_path.exists():
+                    if cert.state.st.source_path and cert.state.st.source_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.pdf_hash:
-                            cert.state.st.pdf_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.source_hash:
+                            cert.state.st.source_path.replace(dst)
                     if cert.state.st.txt_path and cert.state.st.txt_path.exists():
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
@@ -270,10 +269,10 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
                         #    to_update_kb.add((cert.dgst, "target", None))
                         # elif targets_fmap[name][1] < dst.stat().st_mtime:
                         #    to_update_kb.add((cert.dgst, "target", targets_fmap[name][0]))
-                    if cert.state.cert.pdf_path and cert.state.cert.pdf_path.exists():
+                    if cert.state.cert.source_path and cert.state.cert.source_path.exists():
                         dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.pdf_hash:
-                            cert.state.cert.pdf_path.replace(dst)
+                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.source_hash:
+                            cert.state.cert.source_path.replace(dst)
                     if cert.state.cert.txt_path and cert.state.cert.txt_path.exists():
                         dst = paths["cert_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:

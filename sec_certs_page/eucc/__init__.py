@@ -20,7 +20,7 @@ with eucc.open_resource("../common/resources/reference_types.json") as f:
     eucc_reference_types = json.load(f)
 
 def latest_run() -> bson.ObjectId:
-    """Get the latest CC processing run ID."""
+    """Get the latest EUCC processing run ID."""
     result = mongo.db.eucc_log.find_one({"ok": True}, sort=[("end_time", pymongo.DESCENDING)], projection={"_id": 1})
     if result is None:
         raise RuntimeError("No successful EUCC processing run found in eucc_log.")

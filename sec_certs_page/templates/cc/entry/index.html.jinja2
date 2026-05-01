@@ -569,6 +569,7 @@
 
                 <div id="updates" class="mt-5 mb-5">
                     <h2 class="anchor">Updates
+                        {{ render_update_feed_button(hashid) }}
                     </h2>
 
                     {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
@@ -576,7 +577,7 @@
 
                 <div class="mt-5 mb-5" id="raw-data-head">
                     <h2 class="anchor">Raw data
-
+                        {{ render_raw_data_button(hashid) }}
                     </h2>
                     {{ render_raw_data(json) }}
                 </div>

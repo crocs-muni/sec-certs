@@ -199,14 +199,9 @@
                         location.href = "{{ url_for("eucc.merged_search") }}?" + searchParams();
                     }
 
-                    function networkSearch() {
-                        location.href = "{{ url_for("eucc.network") }}?" + searchParams({search: "basic"});
-                    }
-
                     $("#nameSearchRadioId").click(nameSearchSetup);
                     $("#fulltextSearchRadioId").click(fulltextSearchSetup);
                     $("#search-btn").click(search);
-                    $("#network-btn").click(networkSearch);
                     $("#search").keyup(function (e) {
                         if (e.keyCode === 13) {
                             search();

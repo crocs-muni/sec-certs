@@ -53,8 +53,6 @@ def schemes():
         current_app.config["DATASET_PATH_EUCC_OUT_SCHEME"], "application/json", "schemes.json"
     )
 
-@eucc.route("/network/")
-@register_breadcrumb(eucc, ".network", "References")
 def network():
     """EUCC references visualization."""
     # TODO Not implemented yet, not many certificates
@@ -157,6 +155,12 @@ def entry(hashid):
             if "protection_profiles" in doc["heuristics"] and doc["heuristics"]["protection_profiles"]:
                 res = mongo.db.pp.find({"_id": {"$in": list(doc["heuristics"]["protection_profiles"])}})
                 profiles = {p["_id"]: load(p) for p in res}
+        renderer = EUCCRenderer()
+        with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
+            diffs = list(mongo.db.eucc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
+            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diffs = list(map(load, diffs))
+            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -207,9 +211,9 @@ def entry(hashid):
                 "name": 1,
                 "dgst": 1,
                 "cert_id": 1,
-                "state.cert.pdf_hash": 1,
-                "state.report.pdf_hash": 1,
-                "state.st.pdf_hash": 1,
+                "state.cert.source_hash": 1,
+                "state.report.source_hash": 1,
+                "state.st.source_hash": 1,
             }
             exact_queries = []
             if doc["name"]:
@@ -219,8 +223,8 @@ def entry(hashid):
             exact = list(mongo.db.eucc.find({"$or": exact_queries}, similar_projection)) if exact_queries else []
             doc_hash_queries = []
             for doctype in ("cert", "report", "st"):
-                if doc["state"][doctype]["pdf_hash"]:
-                    doc_hash_queries.append({f"state.{doctype}.pdf_hash": doc["state"][doctype]["pdf_hash"]})
+                if doc["state"][doctype]["source_hash"]:
+                    doc_hash_queries.append({f"state.{doctype}.source_hash": doc["state"][doctype]["source_hash"]})
             doc_hash_match = (
                 list(mongo.db.eucc.find({"$or": doc_hash_queries}, similar_projection)) if doc_hash_queries else []
             )
@@ -251,8 +255,8 @@ def entry(hashid):
                 if (cert_id := doc["cert_id"]) and other["cert_id"] == cert_id:
                     score += 1
                 for doctype in ("cert", "report", "st"):
-                    if (pdf_hash := doc["state"][doctype]["pdf_hash"]) and other["state"][doctype][
-                        "pdf_hash"
+                    if (pdf_hash := doc["state"][doctype]["source_hash"]) and other["state"][doctype][
+                        "source_hash"
                     ] == pdf_hash:
                         score += 1
                 if score >= 2:
@@ -263,6 +267,9 @@ def entry(hashid):
             cert=doc,
             hashid=hashid,
             profiles=profiles,
+            diffs=diffs,
+            diff_jsons=diff_jsons,
+            diff_renders=diff_renders,
             cves=cves,
             cpes=cpes,
             local_files=local_files,
@@ -283,7 +290,7 @@ def entry(hashid):
 @redir_new
 @expires_at(cron("0 12 * * 2"))
 def entry_target_txt(hashid):
-    return entry_download_target_txt("eucc", hashid, current_app.config["DATASET_PATH_CC_DIR"])
+    return entry_download_target_txt("eucc", hashid, current_app.config["DATASET_PATH_EUCC_DIR"])
 
 
 @eucc.route("/<string(length=16):hashid>/target.pdf")
@@ -365,7 +372,7 @@ def entry_name(name):
         ids = list(mongo.db.eucc.find({"name": name}, {"_id": 1}))
     if ids:
         if len(ids) == 1:
-            return redirect(url_for("cc.entry", hashid=ids[0]["_id"]))
+            return redirect(url_for("eucc.entry", hashid=ids[0]["_id"]))
         else:
             docs = list(map(load, mongo.db.eucc.find({"_id": {"$in": list(map(itemgetter("_id"), ids))}})))
             return render_template("eucc/entry/disambiguate.html.jinja2", certs=docs, attr_value=name, attr_name="name")
