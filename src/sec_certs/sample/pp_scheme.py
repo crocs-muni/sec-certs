@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import re
+from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Literal, Protocol
@@ -263,3 +265,73 @@ def _fetch_csec_pp_table(url: str) -> tuple[dict[str, Any], Any]:
                 key = cells[0].get_text(strip=True)
                 table[key] = cells[1]
     return table, soup
+
+
+def _csec_get_name(table: dict[str, Any], soup: Any) -> str:
+    """Extract PP name from CSEC table, falling back to the page <h1>."""
+    for key in ("Skyddsprofilens namn", "Produktnamn"):
+        cell = table.get(key)
+        if cell is not None:
+            return cell.get_text(strip=True)
+    h1 = soup.find("h1")
+    return h1.get_text(strip=True) if h1 else ""
+
+
+def _csec_parse_security_level(raw: str) -> set[str]:
+    """Parse 'EAL2 + ALC_FLR.1' into {'EAL2', 'ALC_FLR.1'}.
+
+    Returns an empty set when the value cannot be interpreted as CC assurance components.
+    """
+    parts = {re.sub(r"^(EAL)\s+(\d)", r"\1\2", p.strip()) for p in raw.split("+")}
+    return {p for p in parts if re.match(r"^EAL\d|^[A-Z]{2,}_[A-Z]{3}\.\d", p)}
+
+
+def _csec_get_first_pdf_link(cell: Any, base_url: str) -> str | None:
+    """Return the first PDF href found in *cell*, made absolute if needed."""
+    if cell is None:
+        return None
+    for tag in cell.find_all("a", href=True):
+        href: str = tag["href"]
+        if ".pdf" in href.lower():
+            if not href.startswith("http"):
+                href = base_url + href
+            return href
+    return None
+
+
+def _csec_table_to_scheme_entry(url: str, table: dict[str, Any], soup: Any) -> PPSchemeEntry:
+    """Build a PPSchemeEntry from a parsed CSEC PP page."""
+    name = _csec_get_name(table, soup)
+
+    raw_eal = table.get("Assuranspaket")
+    security_level = _csec_parse_security_level(raw_eal.get_text(strip=True)) if raw_eal is not None else set()
+
+    date_cell = table.get("Certifieringsdatum")
+    not_valid_before: date | None = None
+    if date_cell is not None:
+        with suppress(ValueError):
+            not_valid_before = datetime.strptime(date_cell.get_text(strip=True), "%Y-%m-%d").date()
+
+    report_link = _csec_get_first_pdf_link(table.get("Certifieringsrapport"), _CSEC_BASE_URL)
+    pp_cell = table.get("Skyddsprofil, PP") or table.get("Produkts\u00e4kerhetsdeklaration, Security Target")
+    pp_link = _csec_get_first_pdf_link(pp_cell, _CSEC_BASE_URL)
+
+    cat_cell = table.get("Produktkategori")
+    category = "Other Devices and Systems"
+    if cat_cell is not None:
+        category = _CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY.get(cat_cell.get_text(strip=True), "Other Devices and Systems")
+
+    return PPSchemeEntry(
+        category=category,
+        status="active",
+        is_collaborative=False,
+        name=name,
+        version="",
+        security_level=security_level,
+        not_valid_before=not_valid_before,
+        not_valid_after=None,
+        report_link=report_link,
+        pp_link=pp_link,
+        scheme="SE",
+        maintenances=[],
+    )
