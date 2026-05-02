@@ -430,11 +430,11 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         dataset are inserted and local file paths are updated so that subsequent download steps work.
         """
 
-        for scheme, scraper in PP_SCHEME_SCRAPERS.items():
+        for scraper in PP_SCHEME_SCRAPERS:
             try:
-                entries = scraper()
+                entries = scraper.scrape()
             except Exception as e:
-                logger.error("Failed to scrape PP scheme %s: %s", scheme, e)
+                logger.error("Failed to scrape PP scheme %s: %s", scraper.scheme, e)
                 continue
             added = 0
             for entry in entries:
@@ -442,7 +442,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 if pp.dgst not in self.certs:
                     self.certs[pp.dgst] = pp
                     added += 1
-            logger.info("Added %d new PPs from scheme %s.", added, scheme)
+            logger.info("Added %d new PPs from scheme %s.", added, scraper.scheme)
 
         self._set_local_paths()
         self.state.auxiliary_datasets_processed = True
