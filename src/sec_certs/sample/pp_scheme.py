@@ -57,6 +57,23 @@ _NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
     "Wireless PAN": "Network and Network-Related Devices and Systems",
 }
 
+# Swedish endpoints
+_CSEC_BASE_URL = "https://www.fmv.se"
+_CSEC_INDEX_URL = _CSEC_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/certifierade-skyddsprofiler/"
+
+# Mapping
+_CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY: dict[str, str] = {
+    "Brandvägg": "Boundary Protection Devices and Systems",
+    "Krypteringsapplikation": "Data Protection",
+    "Nätverksenhet": "Network and Network-Related Devices and Systems",
+    "Operativsystem": "Operating Systems",
+    "Smartkort": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "Åtkomstkontroll": "Access Control Devices and Systems",
+    "Databas": "Databases",
+    "Biometri": "Biometric Systems and Devices",
+    "Protection Profile": "Other Devices and Systems",
+}
+
 
 @dataclass
 class PPSchemeEntry:
