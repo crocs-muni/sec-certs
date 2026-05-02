@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Literal, Protocol
@@ -172,31 +171,34 @@ def _niap_entry_to_scheme_entry(entry: dict[str, Any], files: list[dict[str, Any
     )
 
 
-def get_niap_pps() -> list[PPSchemeEntry]:
-    """Fetch all public Protection Profiles from the NIAP API and return as PPSchemeEntry list."""
-    try:
-        raw_entries = _fetch_niap_pps()
-    except Exception as e:
-        logger.error("Failed to fetch NIAP PPs: %s", e)
-        return []
+class NIAPScraper:
+    """Scraper for US Protection Profiles from the NIAP public API."""
 
-    entries: list[PPSchemeEntry] = []
-    for raw in raw_entries:
+    scheme: str = "US"
+
+    def scrape(self) -> list[PPSchemeEntry]:
+        """Fetch all public Protection Profiles from the NIAP API and return as PPSchemeEntry list."""
         try:
-            pp_id = raw["pp_id"]
-            try:
-                files = _fetch_niap_pp_files(pp_id)
-            except Exception as e:
-                logger.warning("Failed to fetch files for NIAP PP %s: %s", pp_id, e)
-                files = None
-            entries.append(_niap_entry_to_scheme_entry(raw, files=files))
+            raw_entries = _fetch_niap_pps()
         except Exception as e:
-            logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
+            logger.error("Failed to fetch NIAP PPs: %s", e)
+            return []
 
-    logger.info("Parsed %d PPSchemeEntry objects from NIAP.", len(entries))
-    return entries
+        entries: list[PPSchemeEntry] = []
+        for raw in raw_entries:
+            try:
+                pp_id = raw["pp_id"]
+                try:
+                    files = _fetch_niap_pp_files(pp_id)
+                except Exception as file_err:
+                    logger.warning("Failed to fetch files for NIAP PP %s: %s", pp_id, file_err)
+                    files = None
+                entries.append(_niap_entry_to_scheme_entry(raw, files=files))
+            except Exception as e:
+                logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
+
+        logger.info("Parsed %d PPSchemeEntry objects from NIAP.", len(entries))
+        return entries
 
 
-PP_SCHEME_SCRAPERS: dict[str, Callable[[], list[PPSchemeEntry]]] = {
-    "US": get_niap_pps,
-}
+PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper()]
