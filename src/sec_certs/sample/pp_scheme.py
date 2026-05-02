@@ -6,7 +6,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 import requests
 
@@ -80,6 +80,16 @@ class PPSchemeEntry:
     pp_link: str | None
     scheme: str | None
     maintenances: list[tuple[Any, ...]] = field(default_factory=list)
+
+
+class PPScraper(Protocol):
+    """Structural interface for PP scheme scrapers.
+    Each scheme scraper must implement a scrape() method that returns a list of PPSchemeEntry objects.
+    """
+
+    scheme: str
+
+    def scrape(self) -> list[PPSchemeEntry]: ...
 
 
 # NIAP scraping helpers
