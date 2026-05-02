@@ -219,3 +219,47 @@ class NIAPScraper:
 
 
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper()]
+
+
+# Swedish scraping helpers
+
+
+def _fetch_csec_pp_urls() -> list[str]:
+    """Fetch the CSEC index page and return absolute URLs of individual PP subpages."""
+    logger.info("Fetching CSEC PP index: %s", _CSEC_INDEX_URL)
+    resp = requests.get(_CSEC_INDEX_URL, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    urls: list[str] = []
+    for tag in soup.find_all("a", href=True):
+        href: str = tag["href"]
+        if not href.startswith("http"):
+            href = _CSEC_BASE_URL + href
+        # Keep only subpages of the index
+        if href.startswith(_CSEC_INDEX_URL) and href.rstrip("/") != _CSEC_INDEX_URL.rstrip("/") and href not in urls:
+            urls.append(href)
+    logger.info("Found %d CSEC PP URLs.", len(urls))
+    return urls
+
+
+def _fetch_csec_pp_table(url: str) -> tuple[dict[str, Any], Any]:
+    """Fetch a single CSEC PP page and return (table_dict, soup).
+
+    table_dict maps the stripped text of the left column to the right <td> Tag.
+    """
+    from bs4 import BeautifulSoup, Tag
+
+    resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, "html.parser")
+    table: dict[str, Any] = {}
+    tbl = soup.find("table")
+    if tbl and isinstance(tbl, Tag):
+        for row in tbl.find_all("tr"):
+            cells = row.find_all(["th", "td"])
+            if len(cells) >= 2:
+                key = cells[0].get_text(strip=True)
+                table[key] = cells[1]
+    return table, soup
