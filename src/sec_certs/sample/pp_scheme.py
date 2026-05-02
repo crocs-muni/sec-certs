@@ -220,9 +220,6 @@ class NIAPScraper:
         return entries
 
 
-PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper()]
-
-
 # Swedish scraping helpers
 
 
@@ -335,3 +332,31 @@ def _csec_table_to_scheme_entry(url: str, table: dict[str, Any], soup: Any) -> P
         scheme="SE",
         maintenances=[],
     )
+
+
+class SwedishScraper:
+    """Scraper for Swedish Protection Profiles from the FMV/CSEC portal."""
+
+    scheme: str = "SE"
+
+    def scrape(self) -> list[PPSchemeEntry]:
+        """Fetch all certified Protection Profiles from the CSEC portal and return as PPSchemeEntry list."""
+        try:
+            urls = _fetch_csec_pp_urls()
+        except Exception as e:
+            logger.error("Failed to fetch CSEC PP index: %s", e)
+            return []
+
+        entries: list[PPSchemeEntry] = []
+        for url in urls:
+            try:
+                table, soup = _fetch_csec_pp_table(url)
+                entries.append(_csec_table_to_scheme_entry(url, table, soup))
+            except Exception as e:
+                logger.error("Error processing CSEC PP page %s: %s", url, e)
+
+        logger.info("Parsed %d PPSchemeEntry objects from CSEC.", len(entries))
+        return entries
+
+
+PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper()]
