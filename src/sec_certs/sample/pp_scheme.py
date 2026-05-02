@@ -62,6 +62,10 @@ _NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
 # Swedish endpoints
 _CSEC_BASE_URL = "https://www.fmv.se"
 _CSEC_INDEX_URL = _CSEC_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/certifierade-skyddsprofiler/"
+_CSEC_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 
 # Mapping
 _CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY: dict[str, str] = {
@@ -226,7 +230,7 @@ class NIAPScraper:
 def _fetch_csec_pp_urls() -> list[str]:
     """Fetch the CSEC index page and return absolute URLs of individual PP subpages."""
     logger.info("Fetching CSEC PP index: %s", _CSEC_INDEX_URL)
-    resp = requests.get(_CSEC_INDEX_URL, timeout=REQUEST_TIMEOUT)
+    resp = requests.get(_CSEC_INDEX_URL, headers=_CSEC_HEADERS, timeout=REQUEST_TIMEOUT)
     resp.raise_for_status()
     from bs4 import BeautifulSoup
 
@@ -250,7 +254,7 @@ def _fetch_csec_pp_table(url: str) -> tuple[dict[str, Any], Any]:
     """
     from bs4 import BeautifulSoup, Tag
 
-    resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+    resp = requests.get(url, headers=_CSEC_HEADERS, timeout=REQUEST_TIMEOUT)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
     table: dict[str, Any] = {}
