@@ -559,4 +559,69 @@ def _itscc_parse_detail(soup: Any) -> dict[str, Any]:
     return result
 
 
-PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper()]
+# Korean ITSCC scraper
+
+
+def _itscc_row_to_scheme_entry(detail: dict[str, Any], status: Literal["active", "archived"]) -> PPSchemeEntry:
+    """Convert a parsed ITSCC detail dict into a PPSchemeEntry."""
+    eal_raw = detail["eal"].strip()
+    security_level: set[str] = {eal_raw} if re.match(r"^EAL\d", eal_raw) else set()
+    category = _ITSCC_TYPE_TO_CC_CATEGORY.get(detail["type_of_pp"].strip(), "Other Devices and Systems")
+    return PPSchemeEntry(
+        category=category,
+        status=status,
+        is_collaborative=False,
+        name=detail["name"],
+        version="",
+        security_level=security_level,
+        not_valid_before=detail["date"],
+        not_valid_after=None,
+        report_link=detail["report_link"],
+        pp_link=detail["pp_link"],
+        scheme="KR",
+        maintenances=[],
+    )
+
+
+class KoreanScraper:
+    """Scraper for Korean Protection Profiles from the ITSCC portal (listA + listD)."""
+
+    scheme: str = "KR"
+
+    def scrape(self) -> list[PPSchemeEntry]:
+        """Fetch all active and archived PPs from ITSCC and return as PPSchemeEntry list."""
+        session = requests.Session()
+        entries: list[PPSchemeEntry] = []
+
+        sources: list[tuple[str, int, Literal["active", "archived"]]] = [
+            (_ITSCC_ACTIVE_LIST_URL, 1, "active"),
+            (_ITSCC_ARCHIVED_LIST_URL, 4, "archived"),
+        ]
+
+        for list_url, product_class, status in sources:
+            try:
+                rows = _fetch_itscc_all_pp_ids(list_url, session)
+            except Exception as e:
+                logger.error("Failed to fetch ITSCC PP list %s: %s", list_url, e)
+                continue
+
+            # We need a fresh CSRF token for POST requests; grab it from the first list page
+            try:
+                _, csrf = _fetch_itscc_list_page(list_url, session, 1)
+            except Exception as e:
+                logger.error("Failed to fetch CSRF token from %s: %s", list_url, e)
+                continue
+
+            for row in rows:
+                try:
+                    detail_soup = _fetch_itscc_detail(session, row["pp_id"], product_class, csrf)
+                    detail = _itscc_parse_detail(detail_soup)
+                    entries.append(_itscc_row_to_scheme_entry(detail, status))
+                except Exception as e:
+                    logger.error("Error processing ITSCC PP %s: %s", row.get("pp_number", "?"), e)
+
+        logger.info("Parsed %d PPSchemeEntry objects from ITSCC.", len(entries))
+        return entries
+
+
+PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper()]
