@@ -397,4 +397,79 @@ class SwedishScraper:
         return entries
 
 
+# Korean ITSCC list page helpers
+
+
+def _itscc_extract_csrf(soup: Any) -> str:
+    """Extract the CSRF token from a hidden form input on an ITSCC page."""
+    tag = soup.find("input", {"name": "csrf"})
+    if tag is None:
+        return ""
+    return str(tag.get("value", ""))
+
+
+def _itscc_parse_list_rows(soup: Any) -> list[dict[str, Any]]:
+    """Parse the PP list table on an ITSCC list page.
+
+    Returns a list of dicts with keys: pp_id (int), pp_number (str), eal (str), date_str (str).
+    pp_id is the numeric part of the KECS-PP-XXXX-YYYY certification number.
+    """
+    from bs4 import Tag
+
+    rows: list[dict[str, Any]] = []
+    table = soup.find("table")
+    if table is None or not isinstance(table, Tag):
+        return rows
+    for tr in table.find_all("tr"):
+        cells = tr.find_all("td")
+        # Expect at least 7 columns: №, name, EAL, date, status, PP-number, keyword
+        if len(cells) < 6:
+            continue
+        pp_number = cells[5].get_text(strip=True)
+        # Extract numeric id from "KECS-PP-1353-2025" → 1353
+        m = re.search(r"KECS-PP-(\d+)-\d+", pp_number)
+        if not m:
+            continue
+        rows.append(
+            {
+                "pp_id": int(m.group(1)),
+                "pp_number": pp_number,
+                "eal": cells[2].get_text(strip=True),
+                "date_str": cells[3].get_text(strip=True),
+            }
+        )
+    return rows
+
+
+def _fetch_itscc_list_page(url: str, session: requests.Session, page_index: int) -> tuple[Any, str]:
+    """Fetch one page of the ITSCC PP list. Returns (soup, csrf_token)."""
+    from bs4 import BeautifulSoup
+
+    resp = session.get(url, params={"pageIndex": page_index}, headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, "html.parser")
+    return soup, _itscc_extract_csrf(soup)
+
+
+def _fetch_itscc_all_pp_ids(url: str, session: requests.Session) -> list[dict[str, Any]]:
+    """Iterate all pages of an ITSCC PP list and return deduplicated row dicts."""
+    all_rows: list[dict[str, Any]] = []
+    seen_ids: set[int] = set()
+    page = 1
+    while True:
+        soup, _ = _fetch_itscc_list_page(url, session, page)
+        rows = _itscc_parse_list_rows(soup)
+        if not rows:
+            break
+        new_rows = [r for r in rows if r["pp_id"] not in seen_ids]
+        if not new_rows:
+            # All IDs already seen → pagination has looped back (JS-based pagination)
+            break
+        for r in new_rows:
+            seen_ids.add(r["pp_id"])
+        all_rows.extend(new_rows)
+        page += 1
+    return all_rows
+
+
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper()]
