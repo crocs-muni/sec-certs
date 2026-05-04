@@ -67,7 +67,7 @@ _CSEC_HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-# Mapping
+# Swedish category mapping
 _CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY: dict[str, str] = {
     "Brandvägg": "Boundary Protection Devices and Systems",
     "Krypteringsapplikation": "Data Protection",
@@ -78,6 +78,40 @@ _CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY: dict[str, str] = {
     "Databas": "Databases",
     "Biometri": "Biometric Systems and Devices",
     "Protection Profile": "Other Devices and Systems",
+}
+
+# Korean ITSCC endpoints
+_ITSCC_BASE_URL = "https://itscc.kr"
+_ITSCC_ACTIVE_LIST_URL = _ITSCC_BASE_URL + "/pprof/listA.do"
+_ITSCC_ARCHIVED_LIST_URL = _ITSCC_BASE_URL + "/pprof/listD.do"
+_ITSCC_VIEW_URL = _ITSCC_BASE_URL + "/pprof/view.do"
+_ITSCC_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+# "Type of PP" field on the English detail page → CC category
+_ITSCC_TYPE_TO_CC_CATEGORY: dict[str, str] = {
+    "Wireless LAN Authentication": "Network and Network-Related Devices and Systems",
+    "Network Access Control": "Access Control Devices and Systems",
+    "Smartphone Security Management": "Mobility",
+    "DB Encryption": "Data Protection",
+    "Document Encryption": "Data Protection",
+    "Unified Authentication": "Access Control Devices and Systems",
+    "DB Access Control": "Access Control Devices and Systems",
+    "Wireless Intrusion Prevention": "Detection Devices and Systems",
+    "VoIP Firewall": "Network and Network-Related Devices and Systems",
+    "IPS": "Detection Devices and Systems",
+    "Data Leakage Prevention": "Data Protection",
+    "Web Firewall": "Boundary Protection Devices and Systems",
+    "Server Access Control": "Access Control Devices and Systems",
+    "Integrated Security Management": "Detection Devices and Systems",
+    "Network Device": "Network and Network-Related Devices and Systems",
+    "Firewall": "Boundary Protection Devices and Systems",
+    "Operating System": "Operating Systems",
+    "Smart Card": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "VPN": "Network and Network-Related Devices and Systems",
+    "Virtual Private Network": "Network and Network-Related Devices and Systems",
 }
 
 
