@@ -92,26 +92,27 @@ _ITSCC_HEADERS = {
 
 # "Type of PP" field on the English detail page → CC category
 _ITSCC_TYPE_TO_CC_CATEGORY: dict[str, str] = {
-    "Wireless LAN Authentication": "Network and Network-Related Devices and Systems",
-    "Network Access Control": "Access Control Devices and Systems",
-    "Smartphone Security Management": "Mobility",
-    "DB Encryption": "Data Protection",
-    "Document Encryption": "Data Protection",
-    "Unified Authentication": "Access Control Devices and Systems",
+    # Values observed from live detail pages (Type of PP field)
+    "Access Control in OS": "Access Control Devices and Systems",
     "DB Access Control": "Access Control Devices and Systems",
-    "Wireless Intrusion Prevention": "Detection Devices and Systems",
-    "VoIP Firewall": "Network and Network-Related Devices and Systems",
+    "DB Encryption": "Data Protection",
+    "DLP": "Data Protection",
+    "Electronic Document Encryption": "Data Protection",
+    "ESM": "Detection Devices and Systems",
     "IPS": "Detection Devices and Systems",
-    "Data Leakage Prevention": "Data Protection",
-    "Web Firewall": "Boundary Protection Devices and Systems",
-    "Server Access Control": "Access Control Devices and Systems",
-    "Integrated Security Management": "Detection Devices and Systems",
+    "MDM": "Mobility",
+    "NAC": "Access Control Devices and Systems",
     "Network Device": "Network and Network-Related Devices and Systems",
+    "SSO": "Access Control Devices and Systems",
+    "VoIP Firewall": "Network and Network-Related Devices and Systems",
+    "Web Application Firewall": "Boundary Protection Devices and Systems",
+    "WIPS": "Detection Devices and Systems",
+    "Wireless LAN Authentication": "Network and Network-Related Devices and Systems",
+    # Additional values potentially present in archived pages
     "Firewall": "Boundary Protection Devices and Systems",
     "Operating System": "Operating Systems",
     "Smart Card": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
     "VPN": "Network and Network-Related Devices and Systems",
-    "Virtual Private Network": "Network and Network-Related Devices and Systems",
 }
 
 
@@ -411,31 +412,38 @@ def _itscc_extract_csrf(soup: Any) -> str:
 def _itscc_parse_list_rows(soup: Any) -> list[dict[str, Any]]:
     """Parse the PP list table on an ITSCC list page.
 
+    Table columns (0-indexed): name+link, KECS-PP-number, EAL, keyword, date.
+    The product_id is embedded as id="w-XXXX" on the <a> in the first column.
+
     Returns a list of dicts with keys: pp_id (int), pp_number (str), eal (str), date_str (str).
-    pp_id is the numeric part of the KECS-PP-XXXX-YYYY certification number.
     """
     from bs4 import Tag
 
     rows: list[dict[str, Any]] = []
-    table = soup.find("table")
-    if table is None or not isinstance(table, Tag):
+    # The main data table is the second table on the page (index 1)
+    tables = soup.find_all("table")
+    if len(tables) < 2:
+        return rows
+    table = tables[1]
+    if not isinstance(table, Tag):
         return rows
     for tr in table.find_all("tr"):
         cells = tr.find_all("td")
-        # Expect at least 7 columns: №, name, EAL, date, status, PP-number, keyword
-        if len(cells) < 6:
+        # Expect 5 columns: name, KECS-PP-number, EAL, keyword, date
+        if len(cells) < 5:
             continue
-        pp_number = cells[5].get_text(strip=True)
-        # Extract numeric id from "KECS-PP-1353-2025" → 1353
-        m = re.search(r"KECS-PP-(\d+)-\d+", pp_number)
-        if not m:
+        # product_id from id="w-XXXX" on the <a> in the first cell
+        link = cells[0].find("a", id=re.compile(r"^w-\d+$"))
+        if not link:
             continue
+        pp_id = int(str(link["id"]).lstrip("w-"))
+        pp_number = cells[1].get_text(strip=True)
         rows.append(
             {
-                "pp_id": int(m.group(1)),
+                "pp_id": pp_id,
                 "pp_number": pp_number,
                 "eal": cells[2].get_text(strip=True),
-                "date_str": cells[3].get_text(strip=True),
+                "date_str": cells[4].get_text(strip=True),
             }
         )
     return rows
@@ -591,6 +599,8 @@ class KoreanScraper:
     def scrape(self) -> list[PPSchemeEntry]:
         """Fetch all active and archived PPs from ITSCC and return as PPSchemeEntry list."""
         session = requests.Session()
+        # Visit the English entry point so that subsequent requests return English content
+        session.get(_ITSCC_BASE_URL + "/main/mainEn.do", headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
         entries: list[PPSchemeEntry] = []
 
         sources: list[tuple[str, int, Literal["active", "archived"]]] = [
