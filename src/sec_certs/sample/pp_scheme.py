@@ -472,4 +472,91 @@ def _fetch_itscc_all_pp_ids(url: str, session: requests.Session) -> list[dict[st
     return all_rows
 
 
+# Korean ITSCC detail page helpers
+
+
+def _fetch_itscc_detail(
+    session: requests.Session,
+    product_id: int,
+    product_class: int,
+    csrf: str,
+) -> Any:
+    """POST to ITSCC view.do and return the parsed soup for the detail page."""
+    from bs4 import BeautifulSoup
+
+    payload = {
+        "actType": "",
+        "product_class": str(product_class),
+        "product_id": str(product_id),
+        "selectPage": "1",
+        "orderBy": "",
+        "csrf": csrf,
+    }
+    resp = session.post(_ITSCC_VIEW_URL, data=payload, headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    return BeautifulSoup(resp.text, "html.parser")
+
+
+def _itscc_abs_href(cell: Any) -> str | None:
+    """Return the first absolute href found in *cell*, or None."""
+    link = cell.find("a", href=True)
+    if not link:
+        return None
+    href = str(link["href"])
+    return _ITSCC_BASE_URL + href if not href.startswith("http") else href
+
+
+def _itscc_apply_label(result: dict[str, Any], label: str, cell: Any) -> None:
+    """Update *result* in-place based on the th label and corresponding td cell."""
+    label_lower = label.lower()
+    if "title" in label_lower:
+        result["name"] = cell.get_text(strip=True)
+    elif "assurance level" in label_lower:
+        result["eal"] = cell.get_text(strip=True)
+    elif "date of certification" in label_lower:
+        with suppress(ValueError):
+            result["date"] = datetime.strptime(cell.get_text(strip=True), "%Y-%m-%d").date()
+    elif "type of pp" in label_lower:
+        result["type_of_pp"] = cell.get_text(strip=True)
+    elif "certification report" in label_lower and "no" not in label_lower:
+        result["report_link"] = _itscc_abs_href(cell)
+    elif "protection profile" in label_lower:
+        result["pp_link"] = _itscc_abs_href(cell)
+
+
+def _itscc_parse_detail(soup: Any) -> dict[str, Any]:
+    """Extract fields from the ITSCC detail page (English).
+
+    Returns a dict with keys: name, eal, date, type_of_pp, report_link, pp_link.
+    The wideWidth table has a 4-column layout where each row can have two th/td pairs.
+    """
+    from bs4 import Tag
+
+    result: dict[str, Any] = {
+        "name": "",
+        "eal": "",
+        "date": None,
+        "type_of_pp": "",
+        "report_link": None,
+        "pp_link": None,
+    }
+
+    tbl = soup.find("table", class_="wideWidth")
+    if tbl is None or not isinstance(tbl, Tag):
+        return result
+
+    for tr in tbl.find_all("tr"):
+        cells = tr.find_all(["th", "td"])
+        i = 0
+        while i + 1 < len(cells):
+            if cells[i].name == "th":
+                label = cells[i].get_text(separator=" ", strip=True)
+                _itscc_apply_label(result, label, cells[i + 1])
+                i += 2
+            else:
+                i += 1
+
+    return result
+
+
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper()]
