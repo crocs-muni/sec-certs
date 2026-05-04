@@ -449,34 +449,60 @@ def _itscc_parse_list_rows(soup: Any) -> list[dict[str, Any]]:
     return rows
 
 
+def _itscc_get_total_pages(soup: Any) -> int:
+    """Extract the total number of pages from the ITSCC pagination div."""
+    paginate = soup.find("div", class_="paginate")
+    if not paginate:
+        return 1
+    page_links = paginate.find_all("a", class_=lambda c: c and "fnMove" in c)
+    if not page_links:
+        return 1
+    return max(int(a.get("id", 1)) for a in page_links)
+
+
 def _fetch_itscc_list_page(url: str, session: requests.Session, page_index: int) -> tuple[Any, str]:
-    """Fetch one page of the ITSCC PP list. Returns (soup, csrf_token)."""
+    """Fetch the first page of the ITSCC PP list via GET. Returns (soup, csrf_token)."""
     from bs4 import BeautifulSoup
 
-    resp = session.get(url, params={"pageIndex": page_index}, headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
+    resp = session.get(url, headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
     return soup, _itscc_extract_csrf(soup)
 
 
-def _fetch_itscc_all_pp_ids(url: str, session: requests.Session) -> list[dict[str, Any]]:
-    """Iterate all pages of an ITSCC PP list and return deduplicated row dicts."""
+def _fetch_itscc_all_pp_ids(url: str, session: requests.Session, product_class: int) -> list[dict[str, Any]]:
+    """Iterate all pages of an ITSCC PP list via POST pagination and return deduplicated row dicts."""
+    from bs4 import BeautifulSoup
+
+    # Page 1: GET to obtain CSRF token and total page count
+    soup, csrf = _fetch_itscc_list_page(url, session, 1)
+    total_pages = _itscc_get_total_pages(soup)
+
     all_rows: list[dict[str, Any]] = []
     seen_ids: set[int] = set()
-    page = 1
-    while True:
-        soup, _ = _fetch_itscc_list_page(url, session, page)
-        rows = _itscc_parse_list_rows(soup)
-        if not rows:
-            break
-        new_rows = [r for r in rows if r["pp_id"] not in seen_ids]
-        if not new_rows:
-            # All IDs already seen → pagination has looped back (JS-based pagination)
-            break
-        for r in new_rows:
-            seen_ids.add(r["pp_id"])
-        all_rows.extend(new_rows)
-        page += 1
+
+    for page in range(1, total_pages + 1):
+        if page == 1:
+            page_soup = soup
+        else:
+            data = {
+                "product_class": product_class,
+                "selectPage": page,
+                "csrf": csrf,
+                "searchValueEn": "",
+                "searchCertNo": "",
+                "searchCertHolderEn": "",
+                "searchYear": "",
+            }
+            resp = session.post(url, data=data, headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
+            resp.raise_for_status()
+            page_soup = BeautifulSoup(resp.text, "html.parser")
+
+        for r in _itscc_parse_list_rows(page_soup):
+            if r["pp_id"] not in seen_ids:
+                seen_ids.add(r["pp_id"])
+                all_rows.append(r)
+
     return all_rows
 
 
@@ -610,7 +636,7 @@ class KoreanScraper:
 
         for list_url, product_class, status in sources:
             try:
-                rows = _fetch_itscc_all_pp_ids(list_url, session)
+                rows = _fetch_itscc_all_pp_ids(list_url, session, product_class)
             except Exception as e:
                 logger.error("Failed to fetch ITSCC PP list %s: %s", list_url, e)
                 continue
