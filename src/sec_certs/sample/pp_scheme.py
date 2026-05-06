@@ -845,4 +845,4 @@ class FrenchScraper:
         return entries
 
 
-PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper()]
+PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper(), FrenchScraper()]
