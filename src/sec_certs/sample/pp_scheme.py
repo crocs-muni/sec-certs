@@ -701,4 +701,109 @@ def _extract_anssi_sections(pdf_path: Path) -> tuple[str, str]:
     return active_text, archived_text
 
 
+# PP name keyword → CC category (substring match, case-insensitive)
+_ANSSI_PP_NAME_KEYWORD_TO_CC_CATEGORY: dict[str, str] = {
+    "smart card": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "smartcard": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "carte": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "globalplatform": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "nfc": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "mrtd": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "travel document": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "biometric": "Biometric Systems and Devices",
+    "firewall": "Boundary Protection Devices and Systems",
+    "network": "Network and Network-Related Devices and Systems",
+    "réseau": "Network and Network-Related Devices and Systems",
+    "signature": "Products for Digital Signatures",
+    "qes": "Products for Digital Signatures",
+    "pki": "Key Management Systems",
+    "operating system": "Operating Systems",
+    "tpm": "Other Devices and Systems",
+    "trusted platform": "Other Devices and Systems",
+    "iot": "Other Devices and Systems",
+    "automotive": "Other Devices and Systems",
+    "v2x": "Other Devices and Systems",
+}
+
+
+def _anssi_pp_name_to_cc_category(name: str) -> str:
+    name_lower = name.lower()
+    for keyword, category in _ANSSI_PP_NAME_KEYWORD_TO_CC_CATEGORY.items():
+        if keyword in name_lower:
+            return category
+    return "Other Devices and Systems"
+
+
+def _parse_anssi_date(s: str) -> date | None:
+    """Parse a date string in dd/mm/yyyy format, returning None on failure."""
+    with suppress(ValueError):
+        return datetime.strptime(s.strip(), "%d/%m/%Y").date()
+    return None
+
+
+def _parse_anssi_entries(text: str, status: Literal["active", "archived"]) -> list[PPSchemeEntry]:
+    """Parse PPSchemeEntry objects from an ANSSI catalogue text section.
+
+    Each table row contains (across potentially multiple lines): developer name,
+    PP name, commanditaire, CESTI, start date, end date, certificate link,
+    report link, security target link. Dates are dd/mm/yyyy; links are URLs.
+    """
+    entries: list[PPSchemeEntry] = []
+
+    date_pat = re.compile(r"\d{2}/\d{2}/\d{4}")
+    url_pat = re.compile(r"https?://\S+")
+
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+
+    # Group lines into row blocks: a block ends when a line contains two dates
+    blocks: list[list[str]] = []
+    current: list[str] = []
+    for line in lines:
+        current.append(line)
+        if len(date_pat.findall(line)) >= 2:
+            blocks.append(current)
+            current = []
+    if current:
+        blocks.append(current)
+
+    for block in blocks:
+        block_text = " ".join(block)
+        dates = date_pat.findall(block_text)
+        if len(dates) < 2:
+            continue
+        not_valid_before = _parse_anssi_date(dates[0])
+        not_valid_after = _parse_anssi_date(dates[1])
+
+        urls = url_pat.findall(block_text)
+        # Column order: certificate link, report link, security target link
+        report_link = urls[1] if len(urls) > 1 else (urls[0] if urls else None)
+        pp_link = urls[2] if len(urls) > 2 else None
+
+        # PP name: longest line that contains neither a URL nor a date
+        name_candidates = [ln for ln in block if not url_pat.search(ln) and not date_pat.search(ln) and len(ln) > 5]
+        name = max(name_candidates, key=len) if name_candidates else ""
+        if not name:
+            continue
+
+        entries.append(
+            PPSchemeEntry(
+                category=_anssi_pp_name_to_cc_category(name),
+                status=status,
+                is_collaborative=False,
+                name=name,
+                version="",
+                security_level=set(),
+                not_valid_before=not_valid_before,
+                not_valid_after=not_valid_after,
+                report_link=report_link,
+                pp_link=pp_link,
+                scheme="FR",
+                maintenances=[],
+            )
+        )
+
+    logger.info("Parsed %d ANSSI PPSchemeEntry objects (status=%s).", len(entries), status)
+    return entries
+
+
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper()]
