@@ -7,6 +7,7 @@ import re
 from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any, Literal, Protocol
 
 import requests
@@ -661,6 +662,19 @@ class KoreanScraper:
 
         logger.info("Parsed %d PPSchemeEntry objects from ITSCC.", len(entries))
         return entries
+
+
+# ANSSI (French) scraping helpers
+
+
+def _download_anssi_pdf(dest: Path) -> None:
+    """Download the ANSSI PP catalogue PDF to *dest*."""
+    logger.info("Downloading ANSSI PP catalogue from %s", _ANSSI_PP_CATALOGUE_URL)
+    resp = requests.get(_ANSSI_PP_CATALOGUE_URL, stream=True, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    with dest.open("wb") as fh:
+        for chunk in resp.iter_content(chunk_size=65536):
+            fh.write(chunk)
 
 
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper()]
