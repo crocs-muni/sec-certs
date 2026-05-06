@@ -680,24 +680,34 @@ def _download_anssi_pdf(dest: Path) -> None:
 
 
 def _extract_anssi_sections(pdf_path: Path) -> tuple[str, str]:
-    """Return (active_text, archived_text) extracted from the ANSSI catalogue PDF."""
+    """Return (active_text, archived_text) extracted from the ANSSI catalogue PDF.
+
+    Locates pages by content rather than text position to avoid matching the
+    table of contents.
+    """
     with pdf_path.open("rb") as fh:
-        pdf = pdftotext.PDF(fh)
-    full_text = "\n\f\n".join(pdf)
+        pdf = list(pdftotext.PDF(fh))
 
-    active_match = re.search(
-        r"4\s+Les profils de protection(.*?)(?=\n5\s+)",
-        full_text,
-        re.DOTALL,
-    )
-    active_text = active_match.group(1) if active_match else ""
+    chapter4_start = -1
+    chapter5_start = len(pdf)
+    archived_page = -1
 
-    archived_match = re.search(
-        r"6\.3\s+Profils de protection certifi\u00e9s archiv\u00e9s(.*)",
-        full_text,
-        re.DOTALL,
-    )
-    archived_text = archived_match.group(1) if archived_match else ""
+    for i, page_text in enumerate(pdf):
+        stripped = page_text.lstrip()
+        if chapter4_start < 0 and stripped.startswith("4 Les profils de protection"):
+            chapter4_start = i
+        elif chapter4_start >= 0 and chapter5_start == len(pdf) and re.match(r"5\s+", stripped):
+            chapter5_start = i
+        if (
+            archived_page < 0
+            and "Profils de protection certifi" in page_text
+            and "archiv" in page_text.lower()
+            and "ANSSI-CCPP-" in page_text
+        ):
+            archived_page = i
+
+    active_text = "\n\f\n".join(pdf[chapter4_start:chapter5_start]) if chapter4_start >= 0 else ""
+    archived_text = pdf[archived_page] if archived_page >= 0 else ""
 
     return active_text, archived_text
 
@@ -742,49 +752,97 @@ def _parse_anssi_date(s: str) -> date | None:
     return None
 
 
+_ANSSI_CERT_ID_PAT = re.compile(r"(ANSSI-CCPP-\d{4}-\d+(?:M\d+)?)")
+_ANSSI_DATE_PAT = re.compile(r"\d{2}/\d{2}/\d{4}")
+_ANSSI_CESTI: frozenset[str] = frozenset({"OPPIDA", "THALES", "SERMA"})
+# Lines to discard from table blocks: column headers, link placeholders, page numbers
+_ANSSI_SKIP_LINE_PAT = re.compile(
+    r"^(?:"
+    r"Lien vers.*"
+    r"|Nom du (?:d[\u00e9e]veloppeur.*|profil.*|commanditaire.*|centre.*|site.*)"
+    r"|\(par ordre alphab[\u00e9e]tique\)"
+    r"|\(CESTI\)"
+    r"|Date de (?:d[\u00e9e]but|fin) de"
+    r"|Page \d+ sur \d+"
+    r"|produit|d'\u00e9valuation|certificat|certification"
+    r"|rapport|rapport de|profil de|protection|GROUP"
+    r"|s[\u00e9e]curit[\u00e9e]|certificati|on|cible de|de"
+    r"|4\s+Les profils de protection"
+    r"|6\.3"
+    r"|Profils de protection certifi"
+    r")$",
+    re.IGNORECASE,
+)
+
+
+def _group_into_phrases(lines: list[str]) -> list[str]:
+    """Group consecutive non-blank lines into space-joined phrases."""
+    phrases: list[str] = []
+    current: list[str] = []
+    for ln in lines:
+        if ln:
+            current.append(ln)
+        elif current:
+            phrases.append(" ".join(current))
+            current = []
+    if current:
+        phrases.append(" ".join(current))
+    return phrases
+
+
 def _parse_anssi_entries(text: str, status: Literal["active", "archived"]) -> list[PPSchemeEntry]:
     """Parse PPSchemeEntry objects from an ANSSI catalogue text section.
 
-    Each table row contains (across potentially multiple lines): developer name,
-    PP name, commanditaire, CESTI, start date, end date, certificate link,
-    report link, security target link. Dates are dd/mm/yyyy; links are URLs.
+    Uses ANSSI-CCPP-* certificate IDs as row anchors, then extracts dates and
+    the most likely PP name from the text block preceding each certificate ID.
+    Note: the PDF stores links as annotations (not visible text), so
+    report_link and pp_link cannot be extracted and are set to None.
     """
     entries: list[PPSchemeEntry] = []
 
-    date_pat = re.compile(r"\d{2}/\d{2}/\d{4}")
-    url_pat = re.compile(r"https?://\S+")
+    # Split text on every cert ID; parts alternates [text, certid, text, certid, ..., text]
+    parts = _ANSSI_CERT_ID_PAT.split(text)
+    cert_ids = parts[1::2]
+    before_blocks = parts[0::2]
 
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    for i, cert_id in enumerate(cert_ids):
+        block = before_blocks[i]
 
-    # Group lines into row blocks: a block ends when a line contains two dates
-    blocks: list[list[str]] = []
-    current: list[str] = []
-    for line in lines:
-        current.append(line)
-        if len(date_pat.findall(line)) >= 2:
-            blocks.append(current)
-            current = []
-    if current:
-        blocks.append(current)
-
-    for block in blocks:
-        block_text = " ".join(block)
-        dates = date_pat.findall(block_text)
+        # Extract dates from raw block before any cleaning
+        dates = _ANSSI_DATE_PAT.findall(block)
         if len(dates) < 2:
             continue
-        not_valid_before = _parse_anssi_date(dates[0])
-        not_valid_after = _parse_anssi_date(dates[1])
+        not_valid_before = _parse_anssi_date(dates[-2])
+        not_valid_after = _parse_anssi_date(dates[-1])
 
-        urls = url_pat.findall(block_text)
-        # Column order: certificate link, report link, security target link
-        report_link = urls[1] if len(urls) > 1 else (urls[0] if urls else None)
-        pp_link = urls[2] if len(urls) > 2 else None
+        # Build cleaned lines, preserving blank lines as phrase separators
+        clean_lines: list[str] = []
+        for raw_line in block.splitlines():
+            stripped = raw_line.strip()
+            if not stripped:
+                clean_lines.append("")  # blank line → phrase separator
+            elif (
+                not _ANSSI_SKIP_LINE_PAT.match(stripped)
+                and stripped not in _ANSSI_CESTI
+                and not _ANSSI_DATE_PAT.fullmatch(stripped)
+            ):
+                clean_lines.append(stripped)
 
-        # PP name: longest line that contains neither a URL nor a date
-        name_candidates = [ln for ln in block if not url_pat.search(ln) and not date_pat.search(ln) and len(ln) > 5]
-        name = max(name_candidates, key=len) if name_candidates else ""
-        if not name:
-            continue
+        # Group consecutive non-blank lines into phrases
+        phrases = _group_into_phrases(clean_lines)
+
+        candidates = [p for p in phrases if len(p) > 5]
+        if not candidates:
+            name = cert_id  # fallback: no text extractable
+        else:
+            # Prefer phrases that look like protection profile names
+            pp_kw = {"profile", "profil", "protection", "pp", "tpm", "trust", "specification"}
+            named = [c for c in candidates if any(kw in c.lower() for kw in pp_kw)]
+            name = max(named, key=len) if named else max(candidates, key=len)
+            # «Lien vers le profil de protection» splits across lines; «protection» is skipped
+            # but the PP name starting with «Protection\nProfile» loses its first word → restore it
+            if re.match(r"Profile\b", name, re.IGNORECASE) and not re.match(r"Protection\b", name, re.IGNORECASE):
+                name = "Protection " + name
 
         entries.append(
             PPSchemeEntry(
@@ -796,8 +854,8 @@ def _parse_anssi_entries(text: str, status: Literal["active", "archived"]) -> li
                 security_level=set(),
                 not_valid_before=not_valid_before,
                 not_valid_after=not_valid_after,
-                report_link=report_link,
-                pp_link=pp_link,
+                report_link=None,
+                pp_link=None,
                 scheme="FR",
                 maintenances=[],
             )
