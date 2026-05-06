@@ -10,6 +10,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
+import pdftotext
 import requests
 
 from sec_certs.constants import REQUEST_TIMEOUT
@@ -675,6 +676,29 @@ def _download_anssi_pdf(dest: Path) -> None:
     with dest.open("wb") as fh:
         for chunk in resp.iter_content(chunk_size=65536):
             fh.write(chunk)
+
+
+def _extract_anssi_sections(pdf_path: Path) -> tuple[str, str]:
+    """Return (active_text, archived_text) extracted from the ANSSI catalogue PDF."""
+    with pdf_path.open("rb") as fh:
+        pdf = pdftotext.PDF(fh)
+    full_text = "\n\f\n".join(pdf)
+
+    active_match = re.search(
+        r"4\s+Les profils de protection(.*?)(?=\n5\s+)",
+        full_text,
+        re.DOTALL,
+    )
+    active_text = active_match.group(1) if active_match else ""
+
+    archived_match = re.search(
+        r"6\.3\s+Profils de protection certifi\u00e9s archiv\u00e9s(.*)",
+        full_text,
+        re.DOTALL,
+    )
+    archived_text = archived_match.group(1) if archived_match else ""
+
+    return active_text, archived_text
 
 
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper()]
