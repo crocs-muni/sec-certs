@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+import tempfile
 from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -804,6 +805,44 @@ def _parse_anssi_entries(text: str, status: Literal["active", "archived"]) -> li
 
     logger.info("Parsed %d ANSSI PPSchemeEntry objects (status=%s).", len(entries), status)
     return entries
+
+
+class FrenchScraper:
+    """Scraper for French Protection Profiles from the ANSSI catalogue PDF."""
+
+    scheme: str = "FR"
+
+    def scrape(self) -> list[PPSchemeEntry]:
+        """Download the ANSSI PP catalogue PDF and return all entries as PPSchemeEntry list."""
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+                tmp_path = Path(tmp.name)
+            _download_anssi_pdf(tmp_path)
+        except Exception as e:
+            logger.error("Failed to download ANSSI PP catalogue: %s", e)
+            return []
+
+        try:
+            active_text, archived_text = _extract_anssi_sections(tmp_path)
+        except Exception as e:
+            logger.error("Failed to extract sections from ANSSI PDF: %s", e)
+            return []
+        finally:
+            with suppress(OSError):
+                tmp_path.unlink()
+
+        entries: list[PPSchemeEntry] = []
+        try:
+            entries.extend(_parse_anssi_entries(active_text, "active"))
+        except Exception as e:
+            logger.error("Failed to parse ANSSI active PP entries: %s", e)
+        try:
+            entries.extend(_parse_anssi_entries(archived_text, "archived"))
+        except Exception as e:
+            logger.error("Failed to parse ANSSI archived PP entries: %s", e)
+
+        logger.info("Parsed %d PPSchemeEntry objects from ANSSI.", len(entries))
+        return entries
 
 
 PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper()]
