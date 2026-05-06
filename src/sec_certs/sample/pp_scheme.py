@@ -90,6 +90,9 @@ _ITSCC_HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
+# ANSSI (French) PP catalogue PDF(endpoint)
+_ANSSI_PP_CATALOGUE_URL = "https://messervices.cyber.gouv.fr/visas/catalogue-produits-services-profils-de-protection-sites-certifies-qualifies-agrees-anssi.pdf"
+
 # "Type of PP" field on the English detail page → CC category
 _ITSCC_TYPE_TO_CC_CATEGORY: dict[str, str] = {
     # Values observed from live detail pages (Type of PP field)
