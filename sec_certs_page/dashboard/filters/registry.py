@@ -262,7 +262,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
         ),
         filter_id(FilterID.YEAR_FILTER): FilterSpec(
             id="fips-year-filter",
-            database_field="web_data.date_validation",
+            database_field="web_data.validation_history",
             operator=FilterOperator.YEAR_IN,
             data_type="int",
             component_params=FilterComponentParams(

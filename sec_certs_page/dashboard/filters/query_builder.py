@@ -246,10 +246,7 @@ class QueryBuilder:
                 years = [int(transformed_value)]
             return {
                 "$expr": {
-                    "$in": [
-                        {"$toInt": {"$substr": [f"${filter_spec.database_field}._value", 0, 4]}},
-                        years,
-                    ]
+                    "$in": [_year_extraction_expr(filter_spec.database_field), years],
                 }
             }
         elif filter_spec.operator in (FilterOperator.IN, FilterOperator.NIN):
@@ -381,6 +378,39 @@ def _year_from_date_expr(date_field: str) -> dict[str, Any]:
     }
 
 
+# Field path for the FIPS validation-history array. Each element holds a
+# serialized date under ``date._value``; index 0 is the "Initial" entry.
+_FIPS_VALIDATION_HISTORY_FIELD = "web_data.validation_history"
+
+
+def _year_from_validation_history_expr() -> dict[str, Any]:
+    """Year of the initial entry in ``web_data.validation_history`` (FIPS).
+
+    Entries are chronological with index 0 being the "Initial" validation.
+    Returns ``null`` when the array is empty or the date is malformed.
+    """
+    first_date = {"$arrayElemAt": [f"${_FIPS_VALIDATION_HISTORY_FIELD}.date._value", 0]}
+    return {
+        "$convert": {
+            "input": {"$substr": [first_date, 0, 4]},
+            "to": "int",
+            "onError": None,
+            "onNull": None,
+        }
+    }
+
+
+def _year_extraction_expr(field_path: str) -> dict[str, Any]:
+    """Return the year-extraction expression that matches a field's storage shape.
+
+    Picks the array-aware variant for ``web_data.validation_history`` and the
+    scalar-date variant for everything else.
+    """
+    if field_path == _FIPS_VALIDATION_HISTORY_FIELD:
+        return _year_from_validation_history_expr()
+    return _year_from_date_expr(field_path)
+
+
 # Mapping: derived_field_name -> {collection (or None for any): DerivedFieldDefinition}.
 # Use ``None`` as the collection key for fields that apply to every collection.
 DERIVED_FIELD_EXPRESSIONS: dict[str, dict[CollectionName | None, DerivedFieldDefinition]] = {
@@ -392,10 +422,10 @@ DERIVED_FIELD_EXPRESSIONS: dict[str, dict[CollectionName | None, DerivedFieldDef
             expression=_year_from_date_expr("not_valid_before"),
         ),
         CollectionName.FIPS140: DerivedFieldDefinition(
-            source="web_data.date_validation",
+            source=_FIPS_VALIDATION_HISTORY_FIELD,
             label="Validation Year",
             data_type="int",
-            expression=_year_from_date_expr("web_data.date_validation"),
+            expression=_year_from_validation_history_expr(),
         ),
     },
     "year_to": {

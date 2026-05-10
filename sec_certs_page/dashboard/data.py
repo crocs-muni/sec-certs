@@ -226,25 +226,37 @@ class DataService:
     def _get_unique_years(self, collection: Any, collection_name: CollectionName) -> list[int]:
         """Extract unique years from the appropriate date field.
 
-        Handles dates stored as serialized dictionaries with format:
-        {"_type": "date", "_value": "YYYY-MM-DD"}
+        Dates are stored as serialized ``{"_type": "date", "_value": "YYYY-MM-DD"}`` dicts.
+        For FIPS the year is taken from the first entry of ``web_data.validation_history``
+        (the "Initial" validation), since FIPS records have no single scalar validation date.
 
         :param collection: MongoDB collection
         :param collection_name: Type of collection (CC or FIPS)
         :return: Sorted list of unique years
         """
-        # Determine the source date field based on collection type
         if collection_name == CollectionName.CommonCriteria:
             date_field = "not_valid_before"
+            match_stage: dict[str, Any] = {"$match": {f"{date_field}._value": {"$exists": True, "$ne": None}}}
+            year_input: Any = {"$substr": [f"${date_field}._value", 0, 4]}
         else:  # FIPS
-            date_field = "web_data.date_validation"
+            date_field = "web_data.validation_history"
+            # Numeric-index dot paths (".0.") aren't honoured in $match queries,
+            # so we require a non-empty array and at least one entry with a date string.
+            match_stage = {
+                "$match": {
+                    f"{date_field}.0": {"$exists": True},
+                    f"{date_field}.date._value": {"$exists": True, "$ne": None},
+                }
+            }
+            year_input = {"$substr": [{"$arrayElemAt": [f"${date_field}.date._value", 0]}, 0, 4]}
 
         try:
-            # Dates are stored as {"_type": "date", "_value": "YYYY-MM-DD"}
-            # Extract year from the _value string (first 4 characters)
+            # $convert tolerates malformed/empty values instead of aborting the pipeline.
+            year_expr = {"$convert": {"input": year_input, "to": "int", "onError": None, "onNull": None}}
             pipeline = [
-                {"$match": {f"{date_field}._value": {"$exists": True, "$ne": None}}},
-                {"$group": {"_id": {"$toInt": {"$substr": [f"${date_field}._value", 0, 4]}}}},
+                match_stage,
+                {"$group": {"_id": year_expr}},
+                {"$match": {"_id": {"$ne": None}}},
                 {"$sort": {"_id": 1}},
             ]
             result = list(collection.aggregate(pipeline))
