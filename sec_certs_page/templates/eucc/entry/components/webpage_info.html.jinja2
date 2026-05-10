@@ -281,7 +281,7 @@
 
         <div class="mt-2 mb-2">
             <a class="btn btn-outline-primary" role="button"
-               href="https://certification.enisa.europa.eu/certificates/{{ cert["other_metadata"]["certificate_id"] }}"
+               href="https://certification.enisa.europa.eu/certificates/{{ cert["other_metadata"]["certificate_id"] | replace("CERTIFICATE ", "", 1) }}"
                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Open certificate on ENISA's webpage"
                target="_blank"
                rel="noopener"><i
