@@ -106,7 +106,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         "Month of Issuance": "issuance_month",
         "date of issuance": "issuance_date_full",
         "Certificate issue date": "issuance_date_full",
-        "ID of the Certificate (yearly number of certificate issued by the CB)": "certificate_yearly_number",
+        "ID of the Certificate(yearly number of certificate issued by the CB)": "certificate_yearly_number",
         "Modification/ Reassurance plus the ID": "modification_or_reassurance",
         "period of validity of the certificate": "validity_period_years",
     }
