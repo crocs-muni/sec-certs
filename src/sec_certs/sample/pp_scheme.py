@@ -213,9 +213,6 @@ class NIAPScraper:
 
     @staticmethod
     def _niap_entry_to_scheme_entry(entry: dict[str, Any], files: list[dict[str, Any]] | None = None) -> PPSchemeEntry:
-        cc_version = entry.get("cc_version", "")
-        security_level: set[str] = {cc_version} if cc_version else set()
-
         pp_link: str | None = None
         if files:
             pp_file = NIAPScraper._pick_pp_pdf_file(files)
@@ -228,7 +225,7 @@ class NIAPScraper:
             is_collaborative=False,
             name=entry.get("pp_name", ""),
             version="",
-            security_level=security_level,
+            security_level=set(),
             not_valid_before=NIAPScraper._parse_niap_date(entry.get("pp_date")),
             not_valid_after=NIAPScraper._parse_niap_date(entry.get("sunset_date")),
             report_link=None,
