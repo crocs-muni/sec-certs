@@ -20,9 +20,9 @@ jobs:
         run: sudo apt-get update
       - name: Install Poppler
         run: sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -34,18 +34,19 @@ jobs:
         run: uv run pytest --cov=sec_certs -m "not remote and not docling" --cov-report=xml --cov-report=term --junitxml=junit.xml -o junit_family=legacy tests
       - name: Test summary
         if: always()
-        uses: test-summary/action@v2
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: junit.xml
           show: "fail, skip"
       - name: Code coverage upload
-        if: ${{ matrix.python-version == 3.10 }}
-        uses: codecov/codecov-action@v4
+        if: ${{ matrix.python-version == "3.10" }}
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           env_vars: PYTHON
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload test results to Codecov
-        if: ${{ !cancelled() &&  matrix.python-version == 3.10 }}
-        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() &&  matrix.python-version == "3.10"}}
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          report-type: test_results
