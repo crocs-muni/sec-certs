@@ -30,6 +30,7 @@ from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils.profiling import staged
+import xml.etree.ElementTree as ET
 
 FETCH_DELAY_RANGE = (2, 5)
 
@@ -96,19 +97,19 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         "Responsible NCCA": "responsible_ncca",
         "Scheme": "scheme",
         "Reference to the certification report associated with the certificate referred to in Annex V": "report_reference",
-        "Assurance level": "assurance_level",
+        "Assurance Level": "assurance_level",
         "CC Version": "cc_version",
         "CEM Version": "cem_version",
         "AVA_VAN Level": "ava_van_level",
         "Package": "package",
         "Protection Profile": "protection_profile",
-        "Year of issuance": "issuance_year",
+        "Year of Issuance": "issuance_year",
         "Month of Issuance": "issuance_month",
-        "date of issuance": "issuance_date_full",
+        "Date of Issuance": "issuance_date_full",
         "Certificate issue date": "issuance_date_full",
-        "ID of the Certificate(yearly number of certificate issued by the CB)": "certificate_yearly_number",
+        "ID of the Certificate": "certificate_yearly_number",
         "Modification/ Reassurance plus the ID": "modification_or_reassurance",
-        "period of validity of the certificate": "validity_period_years",
+        "Period of validity of the certificate": "validity_period_years",
     }
 
     def __init__(
@@ -244,43 +245,44 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
     def _download_certificates_links(self) -> list[str]:
         """
-        Parses the EUCC base page and extracts URLs pointing to individual certificate detail pages.
+        Fetches the RSS feed and extracts direct URLs to certificate detail pages.
+        RSS provides a more stable data structure than paring raw HTML.
         """
-        soup = self._get_soup(constants.EUCC_BASE_URL)
 
-        links: set[str] = set()
+        try:
+            response = requests.get(constants.EUCC_RSS_URL, timeout=10)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"Error fetching RSS feed: {e}")
+            return []
 
-        for anchor in soup.select("main a"):
-            href = anchor.get("href")
-            if not href:
-                continue
+        try:
+            root = ET.fromstring(response.content)
+        except ET.ParseError as e:
+            print(f"Error parsing XML content: {e}")
+            return []
 
-            text = anchor.get_text(strip=True)
+        links = set()
 
-            is_certificate_link = "certificate" in href.lower()
-            is_eucc_id_link = text.startswith("EUCC-")
+        for item in root.findall(".//item"):
+            link_tag = item.find("link")
 
-            if not (is_certificate_link or is_eucc_id_link):
-                continue
-
-            full_url = urljoin(constants.EUCC_BASE_URL, href)
-            links.add(full_url)
+            if link_tag is not None and link_tag.text:
+                url = link_tag.text.strip()
+                if "/certificates/" in url:
+                    links.add(url)
 
         self._fetch_delay()
-        return sorted(links)
+        return sorted(list(links))
 
     def _extract_product_description(self, cert_soup: BeautifulSoup) -> str:
         """
         Locates the product description by finding the specific ewcms-page-section
         and extracting text from the second 'ecl' div.
         """
-        section = cert_soup.find("div", class_="ewcms-page-section")
-
-        if section:
-            ecl_elements = section.find_all("div", class_="ecl")
-            if len(ecl_elements) >= 2:
-                return ecl_elements[1].get_text(" ", strip=True)
-
+        paragraphs = cert_soup.select(".ewcms-page-section .ecl-container p")
+        if paragraphs:
+            return " ".join(p.get_text(" ", strip=True) for p in paragraphs)
         return ""
 
     def _parse_page_metadata(self, cert_soup: BeautifulSoup) -> dict[str, str]:
@@ -295,13 +297,15 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         metadata: dict[str, str] = {}
 
         for row in table.select("tr"):
-            cells = row.find_all("td")
-            if len(cells) != 2:
+            header = row.find("th")
+            cell = row.find("td")
+
+            if not header or not cell:
                 continue
 
-            raw_key = cells[0].get_text(strip=True)
-            raw_value = cells[1].get_text(separator=" ", strip=True)
-            clean_key = raw_key.strip().rstrip(";")
+            raw_key = header.get_text(strip=True)
+            raw_value = cell.get_text(separator=" ", strip=True)
+            clean_key = raw_key.strip().rstrip(":")
             mapped_key = self._metadata_key_map.get(clean_key)
 
             if not mapped_key:
@@ -327,11 +331,11 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         }
 
         for label, key in document_type_map.items():
-            label_paragraph = cert_soup.find("p", string=label)
-            if not label_paragraph:
+            label_div = cert_soup.find("div", string=lambda t: t and label in t)
+            if not label_div:
                 continue
 
-            file_container = label_paragraph.find_next("div", class_="ecl-file")
+            file_container = label_div.find_next("div", class_="ecl-file")
             if not file_container:
                 continue
 
