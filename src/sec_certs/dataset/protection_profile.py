@@ -21,6 +21,7 @@ from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
+    from sec_certs.sample.pp_scheme import PPSchemeEntry
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):
@@ -433,11 +434,12 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     @only_backed()
     def process_auxiliary_datasets(self, **kwargs) -> None:
         """
-        Fetches Protection Profiles from national scheme portals and merges any new entries into the dataset.
-
-        New PPs whose digest is not already present in the
-        dataset are inserted and local file paths are updated so that subsequent download steps work.
+        Fetches Protection Profiles from national scheme portals, stores them as a separate dataset,
+        and then merges previously unseen entries into the main dataset.
         """
+
+        all_entries: list[PPSchemeEntry] = []
+        entries_by_scheme: dict[str, list[PPSchemeEntry]] = {}
 
         for scraper in PP_SCHEME_SCRAPERS:
             try:
@@ -446,22 +448,22 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 logger.error("Failed to scrape PP scheme %s: %s", scraper.scheme, e)
                 continue
 
-            scheme_certs = [c for c in self if c.web_data and c.web_data.scheme == scraper.scheme]
+            all_entries.extend(entries)
+            entries_by_scheme.setdefault(scraper.scheme, []).extend(entries)
+
+        scheme_dataset_certs: dict[str, ProtectionProfile] = {}
+        for entry in all_entries:
+            pp = ProtectionProfile.from_scheme_entry(entry)
+            scheme_dataset_certs[pp.dgst] = pp
+        scheme_dataset = ProtectionProfileDataset(certs=scheme_dataset_certs)
+        scheme_dataset.to_json(self.scheme_data_path)
+
+        for scheme, entries in entries_by_scheme.items():
+            scheme_pool_certs = [c for c in self if c.web_data and c.web_data.scheme == scheme]
             matchers = [PPSchemeMatcher(e) for e in entries]
-            matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_certs, config.pp_matching_threshold)
+            matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
             # matched: {cert.dgst -> PPSchemeEntry}
             matched_entries = {id(v) for v in matched.values()}
-
-            updated = 0
-            for cert_dgst, entry in matched.items():
-                cert = self.certs[cert_dgst]
-                if not cert.web_data.pp_link and entry.pp_link:
-                    cert.web_data.pp_link = entry.pp_link
-                if not cert.web_data.scheme and entry.scheme:
-                    cert.web_data.scheme = entry.scheme
-                if not cert.web_data.not_valid_after and entry.not_valid_after:
-                    cert.web_data.not_valid_after = entry.not_valid_after
-                updated += 1
 
             added = 0
             for entry in entries:
@@ -471,7 +473,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                         self.certs[pp.dgst] = pp
                         added += 1
 
-            logger.info("Scheme %s: %d matched/updated, %d new PPs added.", scraper.scheme, updated, added)
+            logger.info("Scheme %s: %d matched, %d new PPs added.", scheme, len(matched), added)
 
         self._set_local_paths()
         self.state.auxiliary_datasets_processed = True
