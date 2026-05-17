@@ -11,6 +11,7 @@ from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.model.pp_matching import PPSchemeMatcher
 from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
@@ -436,13 +437,33 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             except Exception as e:
                 logger.error("Failed to scrape PP scheme %s: %s", scraper.scheme, e)
                 continue
+
+            scheme_certs = [c for c in self if c.web_data and c.web_data.scheme == scraper.scheme]
+            matchers = [PPSchemeMatcher(e) for e in entries]
+            matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_certs, config.pp_matching_threshold)
+            # matched: {cert.dgst -> PPSchemeEntry}
+            matched_entries = {id(v) for v in matched.values()}
+
+            updated = 0
+            for cert_dgst, entry in matched.items():
+                cert = self.certs[cert_dgst]
+                if not cert.web_data.pp_link and entry.pp_link:
+                    cert.web_data.pp_link = entry.pp_link
+                if not cert.web_data.scheme and entry.scheme:
+                    cert.web_data.scheme = entry.scheme
+                if not cert.web_data.not_valid_after and entry.not_valid_after:
+                    cert.web_data.not_valid_after = entry.not_valid_after
+                updated += 1
+
             added = 0
             for entry in entries:
-                pp = ProtectionProfile.from_scheme_entry(entry)
-                if pp.dgst not in self.certs:
-                    self.certs[pp.dgst] = pp
-                    added += 1
-            logger.info("Added %d new PPs from scheme %s.", added, scraper.scheme)
+                if id(entry) not in matched_entries:
+                    pp = ProtectionProfile.from_scheme_entry(entry)
+                    if pp.dgst not in self.certs:
+                        self.certs[pp.dgst] = pp
+                        added += 1
+
+            logger.info("Scheme %s: %d matched/updated, %d new PPs added.", scraper.scheme, updated, added)
 
         self._set_local_paths()
         self.state.auxiliary_datasets_processed = True
