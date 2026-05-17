@@ -133,6 +133,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         """
         return self.root_dir / "web"
 
+    @property
+    @only_backed(throw=False)
+    def scheme_data_path(self) -> Path:
+        """
+        Path to JSON with raw PP data scraped from national scheme portals.
+        """
+        return self.root_dir / "pp_scheme_data.json"
+
     def _set_local_paths(self):
         super()._set_local_paths()
         if self.root_dir is None:
