@@ -268,12 +268,12 @@
                 <th scope="row">Protection profile</th>
                 <td>{{ cert["other_metadata"]["protection_profile"] }}</td>
             </tr>
-            <tr data-cs-name="Valid from">
-                <th scope="row">Valid from</th>
+            <tr data-cs-name="Certification date">
+                <th scope="row">Certification date</th>
                 <td>{{ cert.get("not_valid_before")|strftime("%d.%m.%Y") if cert.get("not_valid_before") else "" }}</td>
             </tr>
-            <tr data-cs-name="Valid until">
-                <th scope="row">Valid until</th>
+            <tr data-cs-name="Archived data">
+                <th scope="row">Archived date</th>
                 <td>{{ cert.get("not_valid_after")|strftime("%d.%m.%Y") if cert.get("not_valid_after") else "" }}</td>
             </tr>
             </tbody>
