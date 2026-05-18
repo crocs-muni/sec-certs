@@ -76,7 +76,7 @@
                     {% set desc = cert["other_metadata"]["product_description"] %}
                     {% if desc and desc|length > 150 %}
                         <div id="desc-summary">
-                            {{ cert["other_metadata"]["product_description"][:150] }}...
+                            {{ desc[:150] }}...
                             <button class="btn btn-link btn-sm p-0 ms-1 text-decoration-none"
                                     type="button"
                                     data-bs-toggle="collapse"
@@ -87,7 +87,7 @@
                             </button>
                         </div>
                         <div class="collapse" id="full-description">
-                            {{ cert["other_metadata"]["product_description"] }}
+                            {{ desc }}
                             <button class="btn btn-link btn-sm p-0 ms-1 text-decoration-non"
                                     type="button"
                                     data-bs-toggle="collapse"

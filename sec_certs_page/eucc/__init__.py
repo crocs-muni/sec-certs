@@ -1,7 +1,10 @@
 import json
 
 import bson
+import pymongo
 from flask import Blueprint
+
+from sec_certs_page import mongo
 
 eucc: Blueprint = Blueprint("eucc", __name__, url_prefix="/eucc")
 eucc.cli.short_help = "EUCC commands."

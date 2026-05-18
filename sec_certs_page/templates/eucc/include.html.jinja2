@@ -9,18 +9,6 @@
     {% endif %}
 {% endmacro %}
 
-{% macro clickable_contact(value) %}
-    {% set words = value.split(" ") %}
-    {% for word in words %}
-        {% if word.startswith("http://") or word.startswith("https://") %}
-            <a href="{{ word }}" target="_blank" rel="noopener noreferrer">{{ word }}</a>
-        {%- else -%}
-            {{ word }}
-        {%- endif %}
-        {% if not loop.last %} {% endif %}
-    {% endfor %}
-{% endmacro %}
-
 {% macro render_eal(eal) %}
     {% set ealm = eal.replace("+", "") %}
     {%- if get_cc_eal(ealm) -%}
@@ -57,15 +45,3 @@
         <span>{{ level }}</span>
     {% endif %}
 {%- endmacro %}
-
-
-{% macro extract_eal(package_text) %}
-    {% set parts = package_text.split('EAL') %}
-    {% set eals = [] %}
-    {% for part in parts %}
-        {% if part %}
-            {% set _ = eals.append('EAL' ~ part[0]) %}
-        {% endif %}
-    {% endfor %}
-    {{ eals | join(', ') }}
-{% endmacro %}

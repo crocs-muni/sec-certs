@@ -521,3 +521,15 @@
         </div>
     {% endif %}
 {% endmacro %}
+
+{% macro clickable_contact(value) %}
+    {% set words = value.split(" ") %}
+    {% for word in words %}
+        {% if word.startswith("http://") or word.startswith("https://") %}
+            <a href="{{ word }}" target="_blank" rel="noopener noreferrer">{{ word }}</a>
+        {%- else -%}
+            {{ word }}
+        {%- endif %}
+        {% if not loop.last %} {% endif %}
+    {% endfor %}
+{% endmacro %}
