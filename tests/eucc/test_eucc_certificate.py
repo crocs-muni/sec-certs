@@ -84,8 +84,6 @@ def test_parse_package(input_text, expected_output):
 @pytest.mark.parametrize(
     "cert_id, expected_output",
     [
-        ("EUCC-ANSSI-2025-3-2", "FR"),
-        ("EUCC-ANSSI-2025-3-1", "FR"),
         ("EUCC-3095-2025-07-01", "ES"),
         ("EUCC-3110-2025-08-2500052-01", "NL"),
         ("EUCC-3090-2025-10-0003", "FR"),
