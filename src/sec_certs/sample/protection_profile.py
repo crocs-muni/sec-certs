@@ -103,6 +103,9 @@ class ProtectionProfile(
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
 
+            # Collaborative PPs appear in archived HTML with name in <p> tag
+            is_collaborative = cells[0].find("p") is not None
+
             mu_div = cc_html_parsing.html_row_get_maintenance_div(row)
             maintenance_updates = cc_html_parsing.parse_maintenance_div(mu_div) if mu_div else []
             if maintenance_updates:
@@ -112,7 +115,7 @@ class ProtectionProfile(
             return cls(
                 category,
                 status,
-                False,
+                is_collaborative,
                 pp_name,
                 cls._html_row_get_version(cells[1]),
                 cls._html_row_get_security_level(cells[2]),
@@ -160,6 +163,10 @@ class ProtectionProfile(
 
         @staticmethod
         def _html_row_get_name(cell: Tag) -> str:
+            # Collaborative PPs in archived HTML have name in <p> tag, not in <a>
+            p_tag = cell.find("p")
+            if p_tag:
+                return p_tag.get_text().strip()
             return str(cell.find_all("a")[0].string)
 
         @staticmethod
