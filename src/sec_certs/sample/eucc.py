@@ -336,7 +336,7 @@ class EUCCCertificate(
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))
         status = EUCCCertificate._get_status(not_valid_after)
-        report_link = document_urls.get("certification_report")
+        report_link = document_urls.get("certificate_report")
         st_link = document_urls.get("security_target")
         cert_link = document_urls.get("certificate")
         holder_website = EUCCCertificate._extract_holder_website(metadata.get("holder_website", ""))

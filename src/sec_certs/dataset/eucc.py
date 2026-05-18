@@ -327,7 +327,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         document_type_map = {
             "Certificate": "certificate",
             "Security Target": "security_target",
-            "Certification Report": "certification_report",
+            "Certificate Report": "certificate_report",
         }
 
         for label, key in document_type_map.items():
