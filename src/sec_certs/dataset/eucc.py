@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -30,7 +31,6 @@ from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils.profiling import staged
-import xml.etree.ElementTree as ET
 
 FETCH_DELAY_RANGE = (2, 5)
 
@@ -273,7 +273,7 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
                     links.add(url)
 
         self._fetch_delay()
-        return sorted(list(links))
+        return sorted(links)
 
     def _extract_product_description(self, cert_soup: BeautifulSoup) -> str:
         """
