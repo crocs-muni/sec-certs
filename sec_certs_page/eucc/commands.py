@@ -4,13 +4,13 @@ import json
 
 import click
 
+from .. import mongo
+from ..common.mongo import collection_status
 from . import eucc
 from .mongo import create as create_collection
 from .mongo import drop as drop_collection
 from .mongo import query as query_collection
 from .tasks import update_kb as update_kb_core
-from .. import mongo
-from ..common.mongo import collection_status
 
 
 @eucc.cli.command("create", help="Create the DB of EUCC certs.")
@@ -39,7 +39,7 @@ def status():  # pragma: no cover
 
 @eucc.cli.command("update-kb", help="Update the KB of EUCC certs.")
 def update_kb():
-    ids = list(map(lambda doc: doc["_id"], mongo.db.eucc.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.eucc.find({}, {"_id": 1})]
     reports = [(dgst, "report", None) for dgst in ids]
     targets = [(dgst, "target", None) for dgst in ids]
     update_kb_core(reports + targets)

@@ -189,12 +189,12 @@ from .admin import admin as admin_bp
 from .cc import cc as cc_bp
 from .chat import chat as chat_bp
 from .docs import docs as docs_bp
+from .eucc import eucc as eucc_bp
 from .fips import fips as fips_bp
 from .notifications import notifications as notifications_bp
 from .pp import pp as pp_bp
 from .user import user as user_bp
 from .vuln import vuln as vuln_bp
-from .eucc import eucc as eucc_bp
 
 with app.app_context():
     app.register_blueprint(admin_bp)

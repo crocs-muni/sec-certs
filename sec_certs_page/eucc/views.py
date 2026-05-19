@@ -3,27 +3,34 @@
 import random
 from operator import itemgetter
 
-import sentry_sdk
-from flask import render_template, request, redirect, url_for, abort
-from werkzeug.utils import safe_join
-
-from . import eucc, eucc_schemes
-from .tasks import EUCCRenderer
-from .. import mongo
-from ..cc import redir_new, get_cc_references
-from .search import EUCCBasicSearch, EUCCFulltextSearch
-from ..common.diffs import render_compare, eucc_diff_method
-from ..common.feed import Feed
-from ..common.views import (
-    register_breadcrumb, expires_at, entry_download_certificate_pdf, entry_download_certificate_txt,
-    entry_download_report_pdf, entry_download_report_txt, entry_download_target_pdf, entry_download_target_txt,
-    entry_download_files, send_cacheable_instance_file, send_json_attachment,
-)
-from ..common.objformats import StorageFormat, load
 import pymongo
-from flask import current_app
+import sentry_sdk
+from flask import abort, current_app, redirect, render_template, request, url_for
 from flask_login import current_user
 from periodiq import cron
+from werkzeug.utils import safe_join
+
+from .. import mongo
+from ..cc import get_cc_references, redir_new
+from ..common.diffs import eucc_diff_method, render_compare
+from ..common.feed import Feed
+from ..common.objformats import StorageFormat, load
+from ..common.views import (
+    entry_download_certificate_pdf,
+    entry_download_certificate_txt,
+    entry_download_files,
+    entry_download_report_pdf,
+    entry_download_report_txt,
+    entry_download_target_pdf,
+    entry_download_target_txt,
+    expires_at,
+    register_breadcrumb,
+    send_cacheable_instance_file,
+    send_json_attachment,
+)
+from . import eucc, eucc_schemes
+from .search import EUCCBasicSearch, EUCCFulltextSearch
+from .tasks import EUCCRenderer
 
 
 @eucc.route("/")
@@ -158,9 +165,9 @@ def entry(hashid):
         renderer = EUCCRenderer()
         with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.eucc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
-            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diff_jsons = [StorageFormat(x).to_json_mapping() for x in diffs]
             diffs = list(map(load, diffs))
-            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
+            diff_renders = [renderer.render_diff(hashid, doc, x, linkback=False) for x in diffs]
         with sentry_sdk.start_span(op="mongo", description="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
