@@ -297,6 +297,7 @@ def entry(hashid):
             next=next,
             same=same,
             subscribed=subscribed,
+            removed=diffs[0]["type"] == "remove",
         )
     else:
         return abort(404)
