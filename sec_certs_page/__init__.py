@@ -225,10 +225,10 @@ from .tasks import *
 from .views import *
 
 with app.app_context():
-    import os
+    from pathlib import Path
 
     # Use absolute path for pages_folder to avoid Windows path issues
-    pages_folder_path = os.path.join(os.path.dirname(__file__), "dashboard", "pages")
+    pages_folder_path = Path(__file__).parent / "dashboard" / "pages"
     DASHBOARD_URL_BASE_PATHNAME = "/dashboard/"
 
     from .dashboard.base import Dash

@@ -1,5 +1,4 @@
 import logging
-import os
 from _operator import itemgetter
 from abc import abstractmethod
 from collections import Counter
@@ -79,21 +78,21 @@ class Updater:  # pragma: no cover
                 cve_dset_path.unlink()
             cve_dset_parent = cve_dset_path.parent
             cve_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cve_path"], cve_dset_path)
+            cve_dset_path.symlink_to(paths["cve_path"])
         if paths["cpe_path"].exists() and CPEDatasetHandler in dset.aux_handlers:
             cpe_dset_path = dset.aux_handlers[CPEDatasetHandler].dset_path
             if cpe_dset_path.exists():
                 cpe_dset_path.unlink()
             cpe_dset_parent = cpe_dset_path.parent
             cpe_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cpe_path"], cpe_dset_path)
+            cpe_dset_path.symlink_to(paths["cpe_path"])
         if paths["cpe_match_path"].exists() and CPEMatchDictHandler in dset.aux_handlers:
             cpe_match_dset_path = dset.aux_handlers[CPEMatchDictHandler].dset_path
             if cpe_match_dset_path.exists():
                 cpe_match_dset_path.unlink()
             cpe_match_dset_parent = cpe_match_dset_path.parent
             cpe_match_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cpe_match_path"], cpe_match_dset_path)
+            cpe_match_dset_path.symlink_to(paths["cpe_match_path"])
         if (
             "output_path_pp" in paths
             and paths["output_path_pp"].exists()
@@ -104,7 +103,7 @@ class Updater:  # pragma: no cover
                 pp_dset_path.unlink()
             pp_dset_parent = pp_dset_path.parent
             pp_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["output_path_pp"], pp_dset_path)
+            pp_dset_path.symlink_to(paths["output_path_pp"])
 
     def process_new_certs(
         self, dset: Dataset, new_ids: set[str], run_id, timestamp: datetime

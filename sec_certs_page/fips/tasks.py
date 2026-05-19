@@ -1,4 +1,3 @@
-import os
 import subprocess
 from datetime import timedelta
 from pathlib import Path
@@ -157,12 +156,12 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
 
             auxdir = tmpdir / "auxiliary_datasets"
             auxdir.mkdir()
-            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
-            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
-            os.symlink(paths["cpe_match_path"], auxdir / "cpe_match.json")
-            os.symlink(paths["output_path_algorithms"], auxdir / "algorithms.json")
+            (auxdir / "cve_dataset.json").symlink_to(paths["cve_path"])
+            (auxdir / "cpe_dataset.json").symlink_to(paths["cpe_path"])
+            (auxdir / "cpe_match.json").symlink_to(paths["cpe_match_path"])
+            (auxdir / "algorithms.json").symlink_to(paths["output_path_algorithms"])
 
-            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+            (tmpdir / "dataset.json").symlink_to(paths["output_path"])
 
             certs = tmpdir / "certs"
             certs.mkdir()

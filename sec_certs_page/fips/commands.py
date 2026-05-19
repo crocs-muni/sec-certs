@@ -2,7 +2,6 @@
 
 import json
 from datetime import datetime
-from glob import glob
 from hashlib import blake2b
 from pathlib import Path
 
@@ -64,7 +63,7 @@ def import_iut(directory):  # pragma: no cover
     )
 
     directory = Path(directory)
-    for iut_fname in sorted(glob(str(directory / "fips_iut_*.html"))):
+    for iut_fname in sorted(directory.glob("fips_iut_*.html")):
         try:
             iut_snapshot = IUTSnapshot.from_dump(iut_fname)
         except Exception as e:
@@ -89,7 +88,7 @@ def import_mip(directory):  # pragma: no cover
     )
 
     directory = Path(directory)
-    for mip_fname in sorted(glob(str(directory / "fips_mip_*.html"))):
+    for mip_fname in sorted(directory.glob("fips_mip_*.html")):
         try:
             mip_snapshot = MIPSnapshot.from_dump(mip_fname)
         except Exception as e:

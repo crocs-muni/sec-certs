@@ -1,5 +1,4 @@
 import logging
-import os
 import subprocess
 from datetime import timedelta
 from pathlib import Path
@@ -114,7 +113,7 @@ class PPArchiver(Archiver, PPMixin):
             logger.info(f"Archiving {path}")
             tmpdir = Path(tmpdir)
 
-            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+            (tmpdir / "dataset.json").symlink_to(paths["output_path"])
 
             self.map_artifact_dir(ids, paths["profile"], tmpdir / "pps")
             self.map_artifact_dir(ids, paths["report"], tmpdir / "reports")

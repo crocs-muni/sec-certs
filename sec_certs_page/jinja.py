@@ -1,7 +1,7 @@
 import re
 import time
 from datetime import date, datetime
-from os.path import join
+from pathlib import Path
 
 import sentry_sdk
 from flag import flag
@@ -126,13 +126,13 @@ def include_static(filename: str):
     bp = current_app.blueprints.get(request.blueprint)
     if bp is not None and bp.static_folder is not None:
         try:
-            with open(join(bp.static_folder, filename), encoding="utf-8") as f:
+            with (Path(bp.static_folder) / filename).open(encoding="utf-8") as f:
                 return Markup(f.read())
         except FileNotFoundError:
             return None
     elif current_app.static_folder is not None:
         try:
-            with open(join(current_app.static_folder, filename), encoding="utf-8") as f:
+            with (Path(current_app.static_folder) / filename).open(encoding="utf-8") as f:
                 return Markup(f.read())
         except FileNotFoundError:
             return None
@@ -154,14 +154,14 @@ def static_hash(filename: str):
     """Get the hash of a static file."""
     bp = current_app.blueprints.get(request.blueprint)
     if bp is not None and bp.static_folder is not None:
-        path = join(bp.static_folder, filename)
+        path = Path(bp.static_folder) / filename
     elif current_app.static_folder is not None:
-        path = join(current_app.static_folder, filename)
+        path = Path(current_app.static_folder) / filename
     else:
         return None
 
     try:
-        with open(path, "rb") as f:
+        with path.open("rb") as f:
             blake2b_hash = blake2b(f.read(), digest_size=4)
             return blake2b_hash.hexdigest()
     except FileNotFoundError:

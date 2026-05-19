@@ -437,7 +437,7 @@ class FulltextSearch(ABC):
                 entry = {"hit": hit, "cert": cert}
                 fpath = entry_file_path(dgst, current_app.config[cls.doc_dir], hit["document_type"], "txt")
                 try:
-                    with open(fpath, encoding="utf-8") as f:
+                    with fpath.open(encoding="utf-8") as f:
                         contents = f.read()
                     with sentry_sdk.start_span(op="whoosh.highlight_one", name="Highlight one hit."):
                         hlt = hit.highlights("content", text=contents)

@@ -1,5 +1,4 @@
 import logging
-import os
 import subprocess
 from datetime import timedelta
 from pathlib import Path
@@ -158,18 +157,18 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
 
             auxdir = tmpdir / "auxiliary_datasets"
             auxdir.mkdir()
-            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
-            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
-            os.symlink(paths["cpe_match_path"], auxdir / "cpe_match.json")
-            os.symlink(paths["output_path_scheme"], auxdir / "cc_scheme.json")
+            (auxdir / "cve_dataset.json").symlink_to(paths["cve_path"])
+            (auxdir / "cpe_dataset.json").symlink_to(paths["cpe_path"])
+            (auxdir / "cpe_match.json").symlink_to(paths["cpe_match_path"])
+            (auxdir / "cc_scheme.json").symlink_to(paths["output_path_scheme"])
             protection_profiles = auxdir / "protection_profiles"
             protection_profiles.mkdir()
-            os.symlink(paths["output_path_pp"], protection_profiles / "dataset.json")
+            (protection_profiles / "dataset.json").symlink_to(paths["output_path_pp"])
             maintenances = auxdir / "maintenances"
             maintenances.mkdir()
-            os.symlink(paths["output_path_mu"], maintenances / "maintenance_updates.json")
+            (maintenances / "maintenance_updates.json").symlink_to(paths["output_path_mu"])
 
-            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+            (tmpdir / "dataset.json").symlink_to(paths["output_path"])
 
             certs = tmpdir / "certs"
             certs.mkdir()

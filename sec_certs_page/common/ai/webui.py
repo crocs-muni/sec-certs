@@ -57,7 +57,7 @@ def upload_file(file_path: str | Path, metadata=None):
     :return: Response from the API.
     """
     url = "v1/files/"
-    with open(file_path, "rb") as file:
+    with Path(file_path).open("rb") as file:
         if metadata is not None:
             data = {"metadata": json.dumps(metadata)}
         else:
