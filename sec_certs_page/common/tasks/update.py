@@ -331,7 +331,7 @@ class Updater:  # pragma: no cover
             self.update_kb(to_update_kb)
             self.archive(all_ids, {name: str(path) for name, path in paths.items()})
         except Exception as e:
-            logger.info(f"Run errored.")
+            logger.info("Run errored.")
             # Store the failure in the update log
             end = datetime.now()
             result = {
