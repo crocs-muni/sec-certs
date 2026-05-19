@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import datetime
-from typing import List, Mapping, Optional, Tuple, Union
 
 import pymongo
 import sentry_sdk
@@ -21,7 +21,7 @@ class CCBasicSearch(BasicSearch):
     collection = mongo.db.cc
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         res = super().parse_args(args)
         scheme = args.get("scheme", "any")
         res["scheme"] = scheme
@@ -32,7 +32,7 @@ class CCBasicSearch(BasicSearch):
     @classmethod
     def select_certs(
         cls, q, cat, categories, status, sort, **kwargs
-    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
+    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
         projection = {
@@ -74,7 +74,7 @@ class CCBasicSearch(BasicSearch):
 
         metrics.distribution("search.results_count", count, attributes={"collection": "cc"})
 
-        timeline: List[Optional[datetime]] = [
+        timeline: list[datetime | None] = [
             datetime.strptime(cert["not_valid_before"]["_value"], "%Y-%m-%d") for cert in cursor.clone()
         ]
 
@@ -101,7 +101,7 @@ class CCFulltextSearch(FulltextSearch):
     doc_dir = "DATASET_PATH_CC_DIR"
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         res = super().parse_args(args)
         scheme = args.get("scheme", "any")
         res["scheme"] = scheme

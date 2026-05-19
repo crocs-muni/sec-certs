@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from functools import partial, wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, Literal
 
 import flask
 import networkx as nx
@@ -119,7 +119,7 @@ def send_cacheable_instance_file(path: str, mimetype: str, download_name: str) -
     return response
 
 
-def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
+def create_graph(references) -> tuple[DiGraph, list[DiGraph], dict[str, Any]]:
     """Create a graph out of references."""
     graph = nx.DiGraph()
     for key, value in references.items():

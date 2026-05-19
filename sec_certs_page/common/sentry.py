@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from time import perf_counter
 from types import ModuleType
-from typing import Any, Optional
+from typing import Any
 
 from dramatiq import Broker
 from dramatiq.middleware import default_middleware
@@ -98,7 +98,7 @@ def get_sampler(base_rate: float):
 
 
 @contextmanager
-def timing(name: str, attributes: Optional[dict[str, Any]] = None):
+def timing(name: str, attributes: dict[str, Any] | None = None):
     """
     Send the duration of the op as a Sentry metric.
 

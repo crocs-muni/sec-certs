@@ -1,4 +1,3 @@
-from typing import Optional
 
 import requests
 from flask import current_app, render_template_string
@@ -10,7 +9,7 @@ from .webui import files_for_hashid, post
 
 
 def chat_with_model(
-    model: str, queries, system_addition: str = "", kbs: Optional[list] = None, files: Optional[list] = None
+    model: str, queries, system_addition: str = "", kbs: list | None = None, files: list | None = None
 ):
     """
     Chat with the model using the WebUI API.
@@ -43,7 +42,7 @@ def chat_with_model(
 
 
 def chat_rag(
-    queries, model: str, collection: str, hashid: Optional[str] = None, about: str = "entry"
+    queries, model: str, collection: str, hashid: str | None = None, about: str = "entry"
 ) -> requests.Response:
     """
     Chat with the model using RAG (Retrieval-Augmented Generation).
@@ -58,8 +57,8 @@ def chat_rag(
                   For "collection", no hashid is needed.
     :return:
     """
-    files: Optional[list[str]] = None
-    kbs: Optional[list[str]] = None
+    files: list[str] | None = None
+    kbs: list[str] | None = None
     cert = None
     if collection not in ("cc", "fips", "pp"):
         raise ValueError("Invalid collection specified.")

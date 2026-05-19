@@ -4,7 +4,7 @@ from flask import current_app
 from redis import Redis
 
 
-class RuntimeConfig(object):
+class RuntimeConfig:
     redis: Redis
 
     def __init__(self, app):

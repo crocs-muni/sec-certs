@@ -2,9 +2,10 @@ import operator
 import sys
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Mapping
 from datetime import datetime
 from functools import reduce
-from typing import ClassVar, Iterable, List, Mapping, Optional, Set, Tuple, Union
+from typing import ClassVar
 
 import sentry_sdk
 from flask import Request, current_app
@@ -99,7 +100,7 @@ class VerbatimPhrasePlugin(Plugin):
             self.slop = slop
 
         def r(self):
-            return "%s %r~%s" % (self.__class__.__name__, self.text, self.slop)
+            return f"{self.__class__.__name__} {self.text!r}~{self.slop}"
 
         def apply(self, fn):
             return self.__class__(self.type, [fn(node) for node in self.nodes], slop=self.slop, boost=self.boost)
@@ -162,7 +163,7 @@ class WildcardPlugin(TaggingPlugin):
     # \u061F = Arabic question mark
     # \u1367 = Ethiopic question mark
     qmarks = "?\u055e\u061f\u1367"
-    expr = "(?P<text>[*%s])" % qmarks
+    expr = f"(?P<text>[*{qmarks}])"
 
     def filters(self, parser):
         # Run early, but definitely before multifield plugin
@@ -202,7 +203,7 @@ class WildcardPlugin(TaggingPlugin):
         qclass = query.Prefix
 
         def r(self):
-            return "%r*" % self.text
+            return f"{self.text!r}*"
 
     class WildcardNode(syntax.TextNode):
         # Note that this node inherits tokenize = False from TextNode,
@@ -212,21 +213,21 @@ class WildcardPlugin(TaggingPlugin):
         qclass = query.Wildcard
 
         def r(self):
-            return "Wild %r" % self.text
+            return f"Wild {self.text!r}"
 
     nodetype = WildcardNode
 
 
 class BasicSearch(ABC):
-    status_options: ClassVar[Set[str]]
+    status_options: ClassVar[set[str]]
     status_default: ClassVar[str]
-    sort_options: ClassVar[Set[str]]
+    sort_options: ClassVar[set[str]]
     sort_default: ClassVar[str]
     categories: ClassVar[dict[str, dict]]
     collection: ClassVar
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         """Parse the request into validated args."""
         try:
             page = int(args.get("page", 1))
@@ -276,7 +277,7 @@ class BasicSearch(ABC):
     @abstractmethod
     def select_certs(
         cls, q, cat, categories, status, sort, **kwargs
-    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
+    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
         raise NotImplementedError
 
     @classmethod
@@ -309,16 +310,16 @@ class BasicSearch(ABC):
 
 class FulltextSearch(ABC):
     schema: ClassVar[str]
-    status_options: ClassVar[Set[str]]
+    status_options: ClassVar[set[str]]
     status_default: ClassVar[str]
-    type_options: ClassVar[Set[str]]
+    type_options: ClassVar[set[str]]
     type_default: ClassVar[str]
     categories: ClassVar[dict[str, dict]]
     collection: ClassVar
     doc_dir: ClassVar[str]
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         categories = cls.categories.copy()
         try:
             page = int(args.get("page", 1))
@@ -368,7 +369,7 @@ class FulltextSearch(ABC):
     @classmethod
     def select_items(
         cls, q, cat, categories, status, document_type, page=None, **kwargs
-    ) -> Tuple[Union[Results, ResultsPage], int, Query]:
+    ) -> tuple[Results | ResultsPage, int, Query]:
         q_filter = query.Term("cert_schema", cls.schema)
         cat_terms = []
         for name, category in categories.items():
@@ -404,7 +405,7 @@ class FulltextSearch(ABC):
         return res, len(res), qr
 
     @classmethod
-    def select_certs(cls, q, cat, categories, status, document_type, **kwargs) -> Tuple[Iterable[Mapping], int]:
+    def select_certs(cls, q, cat, categories, status, document_type, **kwargs) -> tuple[Iterable[Mapping], int]:
         res, count, qr = cls.select_items(q, cat, categories, status, document_type, **kwargs)
         dgsts = set(map(operator.itemgetter("dgst"), res))
         certs = list(map(lambda dgst: load(cls.collection.find_one({"_id": dgst})), dgsts))

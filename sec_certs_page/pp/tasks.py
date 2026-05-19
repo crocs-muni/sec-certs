@@ -4,7 +4,6 @@ import subprocess
 from datetime import timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Set, Tuple
 
 import sentry_sdk
 from dramatiq import pipeline
@@ -142,9 +141,9 @@ def archive_all():  # pragma: no cover
 class PPUpdater(Updater, PPMixin):  # pragma: no cover
     def process(
         self, dset: ProtectionProfileDataset, paths: dict[str, Path]
-    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
+    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
         to_reindex = set()
-        to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
+        to_update_kb: set[tuple[str, str, str | None]] = set()
 
         with sentry_sdk.start_span(op="pp.all", name="Get full PP dataset"):
             if not self.skip_update or not paths["output_path"].exists():

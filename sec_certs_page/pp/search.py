@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import datetime
-from typing import List, Mapping, Optional, Tuple, Union
 
 import pymongo
 import sentry_sdk
@@ -21,7 +21,7 @@ class PPBasicSearch(BasicSearch):
     collection = mongo.db.pp
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         res = super().parse_args(args)
         scheme = args.get("scheme", "any")
         res["scheme"] = scheme
@@ -32,7 +32,7 @@ class PPBasicSearch(BasicSearch):
     @classmethod
     def select_certs(
         cls, q, cat, categories, status, sort, **kwargs
-    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
+    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
         projection = {
@@ -105,7 +105,7 @@ class PPFulltextSearch(FulltextSearch):
     doc_dir = "DATASET_PATH_PP_DIR"
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         res = super().parse_args(args)
         scheme = args.get("scheme", "any")
         res["scheme"] = scheme

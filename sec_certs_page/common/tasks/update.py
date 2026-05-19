@@ -7,7 +7,6 @@ from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
 from shutil import rmtree
-from typing import List, Optional, Set, Tuple, Type
 
 import sec_certs
 import sentry_sdk
@@ -39,7 +38,7 @@ class Updater:  # pragma: no cover
     diff_collection: str
     log_collection: str
     skip_update: bool
-    dset_class: Type[Dataset]
+    dset_class: type[Dataset]
 
     def make_dataset_paths(self) -> dict[str, Path]:
         """Setup paths from the config for the particular updater (CC, FIPS, PP)."""
@@ -108,8 +107,8 @@ class Updater:  # pragma: no cover
             os.symlink(paths["output_path_pp"], pp_dset_path)
 
     def process_new_certs(
-        self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
-    ) -> Tuple[List[object], List[object]]:
+        self, dset: Dataset, new_ids: set[str], run_id, timestamp: datetime
+    ) -> tuple[list[object], list[object]]:
         res_col = []
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.new", name="Process new certs."):
@@ -133,8 +132,8 @@ class Updater:  # pragma: no cover
         return res_col, res_diff_col
 
     def process_updated_certs(
-        self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
-    ) -> Tuple[List[object], List[object]]:
+        self, dset: Dataset, updated_ids: set[str], run_id, timestamp: datetime
+    ) -> tuple[list[object], list[object]]:
         res_col = []
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.updated", name="Process updated certs."):
@@ -186,7 +185,7 @@ class Updater:  # pragma: no cover
             )
         return res_col, res_diff_col
 
-    def process_removed_certs(self, dset: Dataset, removed_ids: Set[str], run_id, timestamp: datetime) -> List[object]:
+    def process_removed_certs(self, dset: Dataset, removed_ids: set[str], run_id, timestamp: datetime) -> list[object]:
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.removed", name="Process removed certs."):
             logger.info(f"Processing {len(removed_ids)} removed certificates.")
@@ -208,7 +207,7 @@ class Updater:  # pragma: no cover
                 )
         return res_diff_col
 
-    def insert_certs(self, collection: str, requests: List[object], ordered: bool = False):
+    def insert_certs(self, collection: str, requests: list[object], ordered: bool = False):
         if requests:
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
@@ -229,7 +228,7 @@ class Updater:  # pragma: no cover
     @abstractmethod
     def process(
         self, dset: Dataset, paths: dict[str, Path]
-    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
+    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
         """Process the dataset and return sets of cert IDs to reindex and update in the KB."""
         ...
 

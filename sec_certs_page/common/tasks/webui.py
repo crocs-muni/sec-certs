@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Optional, Set, Tuple
 
 from flask import current_app
 from tqdm import tqdm
@@ -28,7 +27,7 @@ class KBUpdater:  # pragma: no cover
     collection: str
     dataset_path: Path
 
-    def _load_kb(self, kbid: str) -> dict[str, Tuple[str, int, Optional[str]]]:
+    def _load_kb(self, kbid: str) -> dict[str, tuple[str, int, str | None]]:
         """
         Load a knowledge base file map.
 
@@ -40,7 +39,7 @@ class KBUpdater:  # pragma: no cover
         if kbid is None:
             return {}
         kb = get_knowledge_base(kbid)
-        fmap: dict[str, Tuple[str, int, Optional[str]]] = {}
+        fmap: dict[str, tuple[str, int, str | None]] = {}
         if not kb:
             return fmap
         for file in kb["files"]:
@@ -51,7 +50,7 @@ class KBUpdater:  # pragma: no cover
             fmap[name] = (id, updated, collection)
         return fmap
 
-    def update(self, to_update: Set[Tuple[str, str, Optional[str]]]):
+    def update(self, to_update: set[tuple[str, str, str | None]]):
         coll = self.collection.upper()
         reports_kbid = current_app.config.get(f"WEBUI_COLLECTION_{coll}_REPORTS", None)
         targets_kbid = current_app.config.get(f"WEBUI_COLLECTION_{coll}_TARGETS", None)

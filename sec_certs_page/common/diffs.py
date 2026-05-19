@@ -1,7 +1,8 @@
+from collections.abc import Mapping
 from difflib import SequenceMatcher
 from itertools import zip_longest
 from logging import getLogger
-from typing import Any, Mapping, Tuple
+from typing import Any
 
 from flask import render_template, url_for
 from jsondiff import symbols
@@ -90,7 +91,7 @@ class DiffRenderer:
     diff_collection: str
     log_collection: str
     templates: Mapping[str, str]
-    k2map: Mapping[str, Tuple[str, bool]]
+    k2map: Mapping[str, tuple[str, bool]]
 
     def render_diff(self, hashid, cert, diff, **kwargs) -> Markup:
         """
