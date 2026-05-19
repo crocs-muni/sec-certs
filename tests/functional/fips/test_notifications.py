@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 import pytest
 from flask import url_for
-
 from sec_certs_page import mail, mongo
 from sec_certs_page.fips.tasks import notify
 

@@ -2,7 +2,7 @@ import hashlib
 import secrets
 from binascii import unhexlify
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import Optional
 
 from flask import current_app
 from flask_login import UserMixin, current_user
@@ -18,7 +18,7 @@ def hash_password(password):
 
 def derive_secret(*items: str, digest_size: int = 16) -> bytes:
     blake = hashlib.blake2b(
-        b"".join(map(lambda x: x.encode("utf-8"), items)),
+        b"".join(x.encode("utf-8") for x in items),
         key=unhexlify(current_app.config["SECRET_KEY"]),
         digest_size=digest_size,
     )
@@ -54,10 +54,10 @@ class User(UserMixin):
         username: str,
         pwhash: str,
         email: str,
-        roles: List[str],
+        roles: list[str],
         email_confirmed: bool = False,
-        created_at: Optional[datetime] = None,
-        github_id: Optional[str] = None,
+        created_at: datetime | None = None,
+        github_id: str | None = None,
     ):
         self.username = username
         self.pwhash = pwhash
@@ -160,9 +160,9 @@ class User(UserMixin):
     def create(
         username: str,
         email: str,
-        password: Optional[str] = None,
-        roles: Optional[List[str]] = None,
-        github_id: Optional[str] = None,
+        password: str | None = None,
+        roles: list[str] | None = None,
+        github_id: str | None = None,
     ):
         """Create a new user"""
         if User.get(username) or User.get_by_email(email):

@@ -1,16 +1,13 @@
 import logging
-import os
 import subprocess
 from datetime import timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Set, Tuple
 
 import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset import ProtectionProfileDataset
-from sec_certs.dataset.dataset import Dataset
 from sec_certs.utils.helpers import get_sha256_filepath
 
 from .. import mongo, runtime_config
@@ -78,7 +75,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 
 @actor("pp_reindex_all", "pp_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
-    ids = list(map(lambda doc: doc["_id"], mongo.db.pp.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.pp.find({}, {"_id": 1})]
     to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "profile")]
     tasks = []
     for i in range(0, len(to_reindex), 1000):
@@ -116,7 +113,7 @@ class PPArchiver(Archiver, PPMixin):
             logger.info(f"Archiving {path}")
             tmpdir = Path(tmpdir)
 
-            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+            (tmpdir / "dataset.json").symlink_to(paths["output_path"])
 
             self.map_artifact_dir(ids, paths["profile"], tmpdir / "pps")
             self.map_artifact_dir(ids, paths["report"], tmpdir / "reports")
@@ -134,7 +131,7 @@ def archive(ids, paths):  # pragma: no cover
 
 @actor("pp_archive_all", "pp_archive_all", "updates", timedelta(hours=1))
 def archive_all():  # pragma: no cover
-    ids = list(map(lambda doc: doc["_id"], mongo.db.pp.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.pp.find({}, {"_id": 1})]
     updater = PPUpdater()
     paths = updater.make_dataset_paths()
     archive.send(ids, {name: str(path) for name, path in paths.items()})
@@ -143,9 +140,9 @@ def archive_all():  # pragma: no cover
 class PPUpdater(Updater, PPMixin):  # pragma: no cover
     def process(
         self, dset: ProtectionProfileDataset, paths: dict[str, Path]
-    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
+    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
         to_reindex = set()
-        to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
+        to_update_kb: set[tuple[str, str, str | None]] = set()
 
         with sentry_sdk.start_span(op="pp.all", name="Get full PP dataset"):
             if not self.skip_update or not paths["output_path"].exists():

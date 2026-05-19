@@ -4,7 +4,6 @@ from contextvars import ContextVar
 from logging import config
 from pathlib import Path
 
-import dash_bootstrap_components as dbc
 import sentry_sdk
 from dramatiq import Middleware
 from dramatiq.middleware import (
@@ -226,10 +225,10 @@ from .tasks import *
 from .views import *
 
 with app.app_context():
-    import os
+    from pathlib import Path
 
     # Use absolute path for pages_folder to avoid Windows path issues
-    pages_folder_path = os.path.join(os.path.dirname(__file__), "dashboard", "pages")
+    pages_folder_path = Path(__file__).parent / "dashboard" / "pages"
     DASHBOARD_URL_BASE_PATHNAME = "/dashboard/"
 
     from .dashboard.base import Dash

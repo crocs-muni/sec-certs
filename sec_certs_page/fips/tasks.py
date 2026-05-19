@@ -1,9 +1,7 @@
-import os
 import subprocess
 from datetime import timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Set, Tuple
 
 import sentry_sdk
 from dramatiq import pipeline
@@ -115,7 +113,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 
 @actor("fips_reindex_all", "fips_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
-    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
     to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "target", "cert")]
     tasks = []
     for i in range(0, len(to_reindex), 1000):
@@ -158,12 +156,12 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
 
             auxdir = tmpdir / "auxiliary_datasets"
             auxdir.mkdir()
-            os.symlink(paths["cve_path"], auxdir / "cve_dataset.json")
-            os.symlink(paths["cpe_path"], auxdir / "cpe_dataset.json")
-            os.symlink(paths["cpe_match_path"], auxdir / "cpe_match.json")
-            os.symlink(paths["output_path_algorithms"], auxdir / "algorithms.json")
+            (auxdir / "cve_dataset.json").symlink_to(paths["cve_path"])
+            (auxdir / "cpe_dataset.json").symlink_to(paths["cpe_path"])
+            (auxdir / "cpe_match.json").symlink_to(paths["cpe_match_path"])
+            (auxdir / "algorithms.json").symlink_to(paths["output_path_algorithms"])
 
-            os.symlink(paths["output_path"], tmpdir / "dataset.json")
+            (tmpdir / "dataset.json").symlink_to(paths["output_path"])
 
             certs = tmpdir / "certs"
             certs.mkdir()
@@ -182,7 +180,7 @@ def archive(ids, paths):  # pragma: no cover
 
 @actor("fips_archive_all", "fips_archive_all", "updates", timedelta(hours=1))
 def archive_all():  # pragma: no cover
-    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
     updater = FIPSUpdater()
     paths = updater.make_dataset_paths()
     archive.send(ids, {name: str(path) for name, path in paths.items()})
@@ -191,9 +189,9 @@ def archive_all():  # pragma: no cover
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
     def process(
         self, dset: FIPSDataset, paths: dict[str, Path]
-    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
+    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
         to_reindex = set()
-        to_update_kb: Set[Tuple[str, str, Optional[str]]] = set()
+        to_update_kb: set[tuple[str, str, str | None]] = set()
 
         with sentry_sdk.start_span(op="fips.all", name="Get full FIPS dataset"):
             if not self.skip_update or not paths["output_path"].exists():

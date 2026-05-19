@@ -47,7 +47,7 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
         children=[
             html.Div(
                 className="feature-icon bg-primary bg-gradient",
-                children=html.I(className=f"fas fa-fw fa-chart-line"),
+                children=html.I(className="fas fa-fw fa-chart-line"),
             ),
             html.H2(info["title"]),
             html.P(info["description"]),
