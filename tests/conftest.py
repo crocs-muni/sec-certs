@@ -11,7 +11,6 @@ from bson.json_util import object_hook
 from flask import Flask
 from flask.testing import FlaskClient
 from pymongo import MongoClient
-
 from sec_certs_page import app as sec_certs_app
 from sec_certs_page import mongo
 from sec_certs_page.cc.mongo import create as cc_create

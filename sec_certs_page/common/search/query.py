@@ -13,9 +13,8 @@ from pymongo.cursor import Cursor
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 from whoosh import highlight, query
-from whoosh.qparser import Plugin
+from whoosh.qparser import Plugin, RegexTagger, TaggingPlugin, attach, plugins, syntax
 from whoosh.qparser import QueryParser as OriginalQueryParser
-from whoosh.qparser import RegexTagger, TaggingPlugin, attach, plugins, syntax
 from whoosh.query import Query
 from whoosh.searching import Results, ResultsPage
 from whoosh.util.text import rcompile

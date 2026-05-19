@@ -1,5 +1,6 @@
 import logging
 import os
+from _operator import itemgetter
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime
@@ -10,7 +11,6 @@ from typing import List, Optional, Set, Tuple, Type
 
 import sec_certs
 import sentry_sdk
-from _operator import itemgetter
 from flask import current_app
 from jsondiff import diff
 from pymongo import DESCENDING, InsertOne, ReplaceOne

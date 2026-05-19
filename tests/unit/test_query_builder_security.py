@@ -4,7 +4,6 @@ These are pure unit tests that don't require MongoDB or any fixtures.
 """
 
 import pytest
-
 from sec_certs_page.dashboard.filters.query_builder import (
     ALLOWED_DATABASE_FIELDS,
     FieldValidationError,

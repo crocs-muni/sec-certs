@@ -4,7 +4,6 @@ Tests filter specification lookup through public APIs.
 """
 
 import pytest
-
 from sec_certs_page.dashboard.filters.registry import (
     CCFilterRegistry,
     FilterSpecRegistry,

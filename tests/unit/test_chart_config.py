@@ -3,7 +3,6 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
-
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.filters.filter import FilterSpec

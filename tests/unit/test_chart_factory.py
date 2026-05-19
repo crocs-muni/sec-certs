@@ -4,7 +4,6 @@ from uuid import uuid4
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
-
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.chart.figure_builder import FigureBuilder
