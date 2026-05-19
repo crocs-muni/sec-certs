@@ -48,7 +48,7 @@ class StorageFormat(Format):
                     return date.fromisoformat(obj["_value"])
                 else:
                     res = {}
-                    for key in obj.keys():
+                    for key in obj:
                         res[_symbol_map[key] if key in _symbol_map else key.replace("\uff0e", ".")] = walk(obj[key])
                     return frozendict(res)
             elif isinstance(obj, list):
@@ -66,7 +66,7 @@ class StorageFormat(Format):
                     return obj["_value"]
                 else:
                     res = {}
-                    for key in obj.keys():
+                    for key in obj:
                         res[key.replace("\uff0e", ".")] = walk(obj[key])
                     return res
             elif isinstance(obj, date):
@@ -102,7 +102,7 @@ class WorkingFormat(Format):
         def walk(obj):
             if isinstance(obj, (frozendict, dict)):
                 res = {}
-                for key in obj.keys():
+                for key in obj:
                     res[map_key(key)] = walk(obj[key])
                 return res
             elif isinstance(obj, list):
@@ -253,9 +253,7 @@ def unfreeze(doc):
             return list(map(walk, obj))
         elif isinstance(obj, tuple):
             return tuple(map(walk, obj))
-        elif isinstance(obj, set):
-            return set(map(walk, obj))
-        elif isinstance(obj, frozenset):
+        elif isinstance(obj, (set, frozenset)):
             return set(map(walk, obj))
         return obj
 

@@ -504,7 +504,7 @@ def entry_graph_json(hashid):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
         fips_map = get_fips_references()
-        if hashid in fips_map.keys():
+        if hashid in fips_map:
             network_data = node_link_data(fips_map[hashid], edges="links")
         else:
             network_data = {}

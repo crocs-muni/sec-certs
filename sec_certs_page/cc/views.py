@@ -501,7 +501,7 @@ def entry_graph_json(hashid):
         doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
     if doc:
         cc_map = get_cc_references()
-        if hashid in cc_map.keys():
+        if hashid in cc_map:
             network_data = node_link_data(cc_map[hashid], edges="links")
         else:
             network_data = {}

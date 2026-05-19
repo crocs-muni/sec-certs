@@ -19,9 +19,7 @@ def has_symbols(obj):
     def walk(o):
         if isinstance(o, dict):
             for k in o:
-                if k in symbols._all_symbols_:
-                    return True
-                elif walk(o[k]):
+                if k in symbols._all_symbols_ or walk(o[k]):
                     return True
         elif isinstance(o, (tuple, list, set)):
             for k in o:
@@ -357,7 +355,7 @@ def diff_keywords():
                     other_val = other.get(key, [])
                     item = render_list(compare_list(val, other_val), val, other_val)
                 else:
-                    other_val = other.get(key, None)
+                    other_val = other.get(key)
                     item = render_int(compare_int(val, other_val), val, other_val)
                     span = True
                     change = val != other_val
@@ -531,7 +529,7 @@ def render_dict(a, b, metas=None):
     items = []
     for key, val in sorted(a.items()):
         label = (bold if key not in b else normal)(key)
-        other_val = b.get(key, None)
+        other_val = b.get(key)
         change = val != other_val
         if metas and key in metas:
             differ = metas[key]

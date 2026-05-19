@@ -148,4 +148,4 @@ class TestAllowedFieldsDerivation:
 
     def test_constant_matches_function(self):
         """ALLOWED_DATABASE_FIELDS constant should match function output."""
-        assert ALLOWED_DATABASE_FIELDS == get_allowed_database_fields()
+        assert get_allowed_database_fields() == ALLOWED_DATABASE_FIELDS

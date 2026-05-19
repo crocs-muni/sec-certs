@@ -58,10 +58,9 @@ class FIPSBasicSearch(BasicSearch):
         if status is not None and status != "Any":
             query["web_data.status"] = status
 
-        with metrics.timing("search.latency", attributes={"collection": "fips", "type": "basic"}):
-            with sentry_sdk.start_span(op="mongo", name="Find certs."):
-                cursor: Cursor[Mapping] = cls.collection.find(query, projection)
-                count: int = cls.collection.count_documents(query)
+        with metrics.timing("search.latency", attributes={"collection": "fips", "type": "basic"}), sentry_sdk.start_span(op="mongo", name="Find certs."):
+            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+            count: int = cls.collection.count_documents(query)
 
         metrics.distribution("search.results_count", count, attributes={"collection": "fips"})
 

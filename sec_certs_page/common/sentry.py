@@ -57,9 +57,8 @@ def _patch_dramatiq_broker():
         else:
             middleware = list(middleware)
 
-        if integration is not None:
-            if SentryMiddleware not in (m.__class__ for m in middleware):
-                middleware.insert(0, SentryMiddleware())
+        if integration is not None and SentryMiddleware not in (m.__class__ for m in middleware):
+            middleware.insert(0, SentryMiddleware())
 
         kw["middleware"] = middleware
         original_broker__init__(self, *args, **kw)

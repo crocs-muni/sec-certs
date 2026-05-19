@@ -85,7 +85,7 @@ class Pagination(FlaskPagination):
     """A pagination class that allows for a custom url_callback."""
 
     def __init__(self, found=0, **kwargs):
-        self.url_callback = kwargs.get("url_callback", None)
+        self.url_callback = kwargs.get("url_callback")
         super().__init__(found, **kwargs)
 
     def page_href(self, page):

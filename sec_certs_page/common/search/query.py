@@ -393,12 +393,11 @@ class FulltextSearch(ABC):
         qr = parser.parse(q)
         with sentry_sdk.start_span(op="whoosh.get_searcher", name="Get whoosh searcher"):
             searcher = get_searcher()
-        with metrics.timing("search.latency", attributes={"collection": cls.schema, "type": "fulltext"}):
-            with sentry_sdk.start_span(op="whoosh.search", name="Search"):
-                if page is None:
-                    res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
-                else:
-                    res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
+        with metrics.timing("search.latency", attributes={"collection": cls.schema, "type": "fulltext"}), sentry_sdk.start_span(op="whoosh.search", name="Search"):
+            if page is None:
+                res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
+            else:
+                res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
         metrics.distribution(
             "search.results_count", len(res), attributes={"collection": cls.schema, "type": "fulltext"}
         )

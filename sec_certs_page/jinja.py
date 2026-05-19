@@ -40,9 +40,7 @@ def filter_strptime(dt, format):
 
 @app.template_filter("strftime")
 def filter_strftime(dt_obj, format):
-    if isinstance(dt_obj, datetime):
-        return dt_obj.strftime(format)
-    elif isinstance(dt_obj, date):
+    if isinstance(dt_obj, (datetime, date)):
         return dt_obj.strftime(format)
     raise TypeError("Not a datetime or a date")
 
