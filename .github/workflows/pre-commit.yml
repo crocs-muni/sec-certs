@@ -1,7 +1,6 @@
 name: Lint (Ruff, MyPy) [Page]
 on:
   push:
-    branches: [ page ]
   pull_request:
     branches: [ page ]
 jobs:
