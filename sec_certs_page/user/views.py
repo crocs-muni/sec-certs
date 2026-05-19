@@ -282,11 +282,11 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
                 flash(f"Account created successfully! Welcome, {user_obj.username}!", "success")
                 return redirect(url_for("index"))
-            except ValueError as e:
+            except ValueError:
                 flash("Failed to create account. Please try again.", "error")
                 return redirect(url_for("user.login"))
 
-        except Exception as e:
+        except Exception:
             flash("Authentication failed. Please try again.", "error")
             return redirect(url_for("user.login"))
 

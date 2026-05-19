@@ -27,7 +27,7 @@ if __name__ == "__main__":
                     about="entry",
                 )
                 model_id = resp.json()["choices"][0]["message"]["content"]
-            except ValueError as e:
+            except ValueError:
                 model_id = "error"
             our_id = cert["heuristics"]["cert_id"]
             print(f"{hashid},{our_id},{model_id}", flush=True)

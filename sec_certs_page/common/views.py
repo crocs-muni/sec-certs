@@ -241,7 +241,7 @@ def accounting(
                             return abort(429, description=message)
             else:
                 doc["count"] = 1
-                r = mongo.db.accounting.insert_one(doc)
+                mongo.db.accounting.insert_one(doc)
                 if limit is not None:
                     metrics.gauge("accounting.quota_usage", 1 / limit, attributes={"endpoint": request.endpoint})
             res = func(*args, **kwargs)
