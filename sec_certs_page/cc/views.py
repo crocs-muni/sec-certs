@@ -307,7 +307,10 @@ def redir_new(func):
 
 @cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
-    cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]  # type: ignore
+    cc,
+    ".entry",
+    "",
+    dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}],  # type: ignore
 )
 @redir_new
 def entry(hashid):

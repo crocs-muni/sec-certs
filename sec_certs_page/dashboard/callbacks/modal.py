@@ -215,7 +215,9 @@ def _register_edit_handler(
             "show_legend": Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value", allow_duplicate=True),
             "show_grid": Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
             "color_by_open": Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
-            "show_zero_values": Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True),
+            "show_zero_values": Output(
+                component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True
+            ),
             "y_log_scale": Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
         },
         inputs={"n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")},
@@ -595,7 +597,9 @@ def _register_filter_actions(dash_app: "Dash", collection_name: CollectionName) 
             )
         },
         inputs={
-            "n_clicks": Input(pattern_builder.pattern(ComponentID.SELECT_ALL_FILTER, MATCH, index_key="field"), "n_clicks")
+            "n_clicks": Input(
+                pattern_builder.pattern(ComponentID.SELECT_ALL_FILTER, MATCH, index_key="field"), "n_clicks"
+            )
         },
         state={
             "options": State(pattern_builder.pattern(ComponentID.MODAL_FILTER, MATCH, index_key="field"), "options")
@@ -783,7 +787,9 @@ def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionNam
             "aggregation_disabled": Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
             "y_field_disabled": Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
             "y_label_disabled": Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
-            "aggregation_value": Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
+            "aggregation_value": Output(
+                component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True
+            ),
         },
         inputs={"chart_type": Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")},
         prevent_initial_call=True,

@@ -407,7 +407,7 @@ def diff_cve():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('vuln.cve', cve_id=a)}\" title=\"Navigate to CVE\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("vuln.cve", cve_id=a)}" title="Navigate to CVE" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -418,7 +418,7 @@ def diff_cpe():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('vuln.cpe', cpe_id=a)}\"title=\"Navigate to CPE\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("vuln.cpe", cpe_id=a)}"title="Navigate to CPE" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -430,7 +430,7 @@ def diff_fips_cert_id():
     def render(equal: bool, a: Any, b: Any) -> Markup:
         if a:
             return Markup(
-                f"<a href=\"{url_for('fips.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, str(a), str(b))}</a>"
+                f'<a href="{url_for("fips.entry_id", cert_id=a)}" title="Navigate to cert by ID" data-bs-toggle="tooltip">{render_str(equal, str(a), str(b))}</a>'
             )
         else:
             return render_str(equal, str(a), str(b))
@@ -443,7 +443,7 @@ def diff_fips_dgst():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('fips.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("fips.entry", hashid=a)}" title="Navigate to cert by digest" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -477,7 +477,7 @@ def diff_cc_cert_id(link: bool = True):
     def render(equal: bool, a: Any, b: Any) -> Markup:
         if a and link:
             return Markup(
-                f"<a href=\"{url_for('cc.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+                f'<a href="{url_for("cc.entry_id", cert_id=a)}" title="Navigate to cert by ID" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
             )
         else:
             return render_str(equal, a, b)
@@ -490,7 +490,7 @@ def diff_cc_dgst():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('cc.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("cc.entry", hashid=a)}" title="Navigate to cert by digest" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -513,7 +513,7 @@ def diff_pp_dgst():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('pp.entry', hashid=a)}\" title=\"Navigate to protection profile by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("pp.entry", hashid=a)}" title="Navigate to protection profile by digest" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -733,7 +733,7 @@ cc_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
         "st": {
             "_type": diff_none(),
@@ -743,7 +743,7 @@ cc_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
     },
 }
@@ -793,7 +793,7 @@ fips_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
         "policy": {
             "_type": diff_none(),
@@ -803,7 +803,7 @@ fips_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
     },
     "web_data": {

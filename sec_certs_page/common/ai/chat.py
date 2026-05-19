@@ -1,4 +1,3 @@
-
 import requests
 from flask import current_app, render_template_string
 
@@ -8,9 +7,7 @@ from ..views import entry_file_path
 from .webui import files_for_hashid, post
 
 
-def chat_with_model(
-    model: str, queries, system_addition: str = "", kbs: list | None = None, files: list | None = None
-):
+def chat_with_model(model: str, queries, system_addition: str = "", kbs: list | None = None, files: list | None = None):
     """
     Chat with the model using the WebUI API.
 

@@ -260,9 +260,9 @@ class TestFilterSpecStructure:
 
         # Act & Assert
         for filter_id, filter_spec in filters.items():
-            assert isinstance(
-                filter_spec.component_params.component_type, FilterComponentType
-            ), f"Invalid component_type: {filter_id}"
+            assert isinstance(filter_spec.component_params.component_type, FilterComponentType), (
+                f"Invalid component_type: {filter_id}"
+            )
 
     @pytest.mark.parametrize("registry_class", [CCFilterRegistry, FIPSFilterRegistry])
     def test_filter_ids_are_unique(self, registry_class: type[FilterSpecRegistry]) -> None:

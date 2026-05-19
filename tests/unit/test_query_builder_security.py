@@ -137,9 +137,9 @@ class TestAllowedFieldsDerivation:
         # Dynamically check all registries
         for registry in get_all_registries():
             for filter_spec in registry.get_all_filters().values():
-                assert (
-                    filter_spec.database_field in fields
-                ), f"Field '{filter_spec.database_field}' from {registry.__name__} missing"
+                assert filter_spec.database_field in fields, (
+                    f"Field '{filter_spec.database_field}' from {registry.__name__} missing"
+                )
 
     def test_whitelist_is_frozenset(self):
         """Whitelist should be immutable."""

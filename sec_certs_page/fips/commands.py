@@ -55,7 +55,9 @@ def import_map():  # pragma: no cover
 @fips.cli.command("import-iut", help="Import manually downloaded FIPS IUT pages.")
 @click.argument("directory", type=click.types.Path(exists=True, file_okay=False, dir_okay=True))
 def import_iut(directory):  # pragma: no cover
-    already_present = [datetime.fromisoformat(entry["timestamp"]).date() for entry in mongo.db.fips_iut.find({}, {"timestamp": 1})]
+    already_present = [
+        datetime.fromisoformat(entry["timestamp"]).date() for entry in mongo.db.fips_iut.find({}, {"timestamp": 1})
+    ]
 
     directory = Path(directory)
     for iut_fname in sorted(directory.glob("fips_iut_*.html")):
@@ -75,7 +77,9 @@ def import_iut(directory):  # pragma: no cover
 @fips.cli.command("import-mip", help="Import manually downloaded FIPS MIP pages.")
 @click.argument("directory", type=click.types.Path(exists=True, file_okay=False, dir_okay=True))
 def import_mip(directory):  # pragma: no cover
-    already_present = [datetime.fromisoformat(entry["timestamp"]).date() for entry in mongo.db.fips_mip.find({}, {"timestamp": 1})]
+    already_present = [
+        datetime.fromisoformat(entry["timestamp"]).date() for entry in mongo.db.fips_mip.find({}, {"timestamp": 1})
+    ]
 
     directory = Path(directory)
     for mip_fname in sorted(directory.glob("fips_mip_*.html")):

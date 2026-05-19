@@ -126,7 +126,7 @@ class CCFilterRegistry(FilterSpecRegistry):
                 placeholder="Select start date...",
                 help_text="Minimum certification date (inclusive)",
             ),
-            transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
+            transform=lambda x: x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x),
         ),
         filter_id(FilterID.NOT_VALID_AFTER_FILTER): FilterSpec(
             id=filter_id(FilterID.NOT_VALID_AFTER_FILTER),
@@ -139,7 +139,7 @@ class CCFilterRegistry(FilterSpecRegistry):
                 placeholder="Select end date...",
                 help_text="Maximum certification date (inclusive)",
             ),
-            transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
+            transform=lambda x: x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x),
         ),
         # Additional fields for chart grouping (not typically used as filters)
         filter_id(FilterID.VENDOR_FILTER): FilterSpec(

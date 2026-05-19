@@ -73,9 +73,7 @@ class DataService:
         )
 
         try:
-            cursor = self.mongo.db[CollectionName.CommonCriteria.value].find(
-                query
-            )  # pyright: ignore[reportOptionalMemberAccess]
+            cursor = self.mongo.db[CollectionName.CommonCriteria.value].find(query)  # pyright: ignore[reportOptionalMemberAccess]
             data = list(cursor)
 
             if not data:
@@ -306,7 +304,7 @@ class DataService:
 
         if "heuristics" in df.columns:
             df["cert_lab"] = df["heuristics"].apply(
-                lambda x: (x.get("cert_lab", [None])[0] if isinstance(x, dict) and x.get("cert_lab") else None)
+                lambda x: x.get("cert_lab", [None])[0] if isinstance(x, dict) and x.get("cert_lab") else None
             )
             if "eal" not in df.columns:
                 df["eal"] = df["heuristics"].apply(lambda x: x.get("eal") if isinstance(x, dict) else None)
