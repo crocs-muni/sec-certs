@@ -49,8 +49,9 @@ def dataset():
 @eucc.route("/eucc.tar.gz")
 def dataset_archive():
     """EUCC dataset archive API endpoint."""
-    return send_cacheable_instance_file(current_app.config["DATASET_PATH_EUCC_ARCHIVE"], "application/gzip",
-                                        "eucc.tar.gz")
+    return send_cacheable_instance_file(
+        current_app.config["DATASET_PATH_EUCC_ARCHIVE"], "application/gzip", "eucc.tar.gz"
+    )
 
 
 @eucc.route("/schemes.json")
@@ -60,9 +61,11 @@ def schemes():
         current_app.config["DATASET_PATH_EUCC_OUT_SCHEME"], "application/json", "schemes.json"
     )
 
+
 def network():
     """EUCC references visualization."""
     # TODO Not implemented yet, not many certificates
+
 
 @eucc.route("/data/")
 def data():
@@ -127,11 +130,13 @@ def compare(one_hashid: str, other_hashid: str):
         hashid_other=other_hashid,
     )
 
+
 @eucc.route("/random/")
 def rand():
     """EUCC random certificate."""
     current_ids = list(map(itemgetter("_id"), mongo.db.eucc.find({}, ["_id"])))
     return redirect(url_for(".entry", hashid=random.choice(current_ids)))
+
 
 @eucc.route("/<string(length=20):old_id>/")
 @eucc.route("/<string(length=20):old_id>/<path:npath>")
@@ -146,9 +151,13 @@ def entry_old(old_id, npath=None):
     else:
         return abort(404)
 
+
 @eucc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
-    eucc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]
+    eucc,
+    ".entry",
+    "",
+    dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}],
     # type: ignore
 )
 @redir_new
@@ -334,6 +343,7 @@ def entry_cert_txt(hashid):
 def entry_cert_pdf(hashid):
     return entry_download_certificate_pdf("eucc", hashid, current_app.config["DATASET_PATH_EUCC_DIR"])
 
+
 @eucc.route("/<string(length=16):hashid>/cert.json")
 @redir_new
 def entry_json(hashid):
@@ -349,13 +359,18 @@ def entry_json(hashid):
 @redir_new
 def entry_feed(hashid):
     feed = Feed(
-        EUCCRenderer(), "img/eucc_card.png", mongo.db.eucc, mongo.db.eucc_diff, lambda doc: doc["name"] if doc["name"] else ""
+        EUCCRenderer(),
+        "img/eucc_card.png",
+        mongo.db.eucc,
+        mongo.db.eucc_diff,
+        lambda doc: doc["name"] if doc["name"] else "",
     )
     response = feed.render(hashid)
     if response:
         return response
     else:
         return abort(404)
+
 
 @eucc.route("/id/<path:cert_id>")
 def entry_id(cert_id):

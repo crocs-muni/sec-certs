@@ -215,11 +215,15 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
         #     targets_fmap[name] = (id, updated)
         with sentry_sdk.start_span(op="eucc.all", description="Get full EUCC dataset"):
             if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(op="eucc.get_certs", description="Get certs from web"), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(op="eucc.get_certs", description="Get certs from web"),
+                    suppress_child_spans(),
+                ):
                     dset.get_certs_from_web()
                 with (
                     sentry_sdk.start_span(
-                        op="eucc.auxiliary_datasets", description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
+                        op="eucc.auxiliary_datasets",
+                        description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)",
                     ),
                     suppress_child_spans(),
                 ):
@@ -231,7 +235,10 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
                     dset.download_all_artifacts()
                 with sentry_sdk.start_span(op="eucc.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
                     dset.convert_all_pdfs()
-                with sentry_sdk.start_span(op="eucc.analyze", description="Analyze certificates"), suppress_child_spans():
+                with (
+                    sentry_sdk.start_span(op="eucc.analyze", description="Analyze certificates"),
+                    suppress_child_spans(),
+                ):
                     dset.analyze_certificates()
                 with sentry_sdk.start_span(op="eucc.write_json", description="Write JSON"), suppress_child_spans():
                     dset.to_json(paths["output_path"])

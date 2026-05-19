@@ -3,9 +3,7 @@ from ..common.mongo import create_collection, drop_collection, query_collection
 
 
 def create():
-    create_collection(
-        "eucc", ["name", "cert_id"], ["heuristics.related_cves._value", "heuristics.cpe_matches._value"]
-    )
+    create_collection("eucc", ["name", "cert_id"], ["heuristics.related_cves._value", "heuristics.cpe_matches._value"])
 
 
 def drop():

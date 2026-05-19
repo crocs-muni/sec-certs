@@ -484,6 +484,7 @@ def diff_cc_cert_id(link: bool = True):
 
     return compare_str, render
 
+
 def _diff_dgst(endpoint: str):
     compare_str, render_str = diff_str()
 
@@ -494,8 +495,10 @@ def _diff_dgst(endpoint: str):
 
     return compare_str, render
 
-diff_cc_dgst = _diff_dgst('cc.entry')
-diff_eucc_dgst = _diff_dgst('eucc.entry')
+
+diff_cc_dgst = _diff_dgst("cc.entry")
+diff_eucc_dgst = _diff_dgst("eucc.entry")
+
 
 def diff_cc_sar():
     _, render_str = diff_str()
@@ -782,8 +785,8 @@ eucc_diff_method = {
         "issuance_month": diff_int(),
         "issuance_date_full": diff_str(),
         "modification_or_reassurance": diff_str(),
-        "validity_period_years": diff_int()
-    }
+        "validity_period_years": diff_int(),
+    },
 }
 
 fips_diff_method = {
