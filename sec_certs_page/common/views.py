@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from functools import partial, wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, Literal
 
 import flask
 import networkx as nx
@@ -85,7 +85,7 @@ class Pagination(FlaskPagination):
     """A pagination class that allows for a custom url_callback."""
 
     def __init__(self, found=0, **kwargs):
-        self.url_callback = kwargs.get("url_callback", None)
+        self.url_callback = kwargs.get("url_callback")
         super().__init__(found, **kwargs)
 
     def page_href(self, page):
@@ -119,7 +119,7 @@ def send_cacheable_instance_file(path: str, mimetype: str, download_name: str) -
     return response
 
 
-def create_graph(references) -> Tuple[DiGraph, List[DiGraph], Dict[str, Any]]:
+def create_graph(references) -> tuple[DiGraph, list[DiGraph], dict[str, Any]]:
     """Create a graph out of references."""
     graph = nx.DiGraph()
     for key, value in references.items():
@@ -241,7 +241,7 @@ def accounting(
                             return abort(429, description=message)
             else:
                 doc["count"] = 1
-                r = mongo.db.accounting.insert_one(doc)
+                mongo.db.accounting.insert_one(doc)
                 if limit is not None:
                     metrics.gauge("accounting.quota_usage", 1 / limit, attributes={"endpoint": request.endpoint})
             res = func(*args, **kwargs)

@@ -6,7 +6,8 @@ from the chart configuration.
 """
 
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import pandas as pd
 from dash.development.base_component import Component

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -57,7 +57,7 @@ def upload_file(file_path: str | Path, metadata=None):
     :return: Response from the API.
     """
     url = "v1/files/"
-    with open(file_path, "rb") as file:
+    with Path(file_path).open("rb") as file:
         if metadata is not None:
             data = {"metadata": json.dumps(metadata)}
         else:
@@ -146,7 +146,7 @@ def files_for_knowledge_base(kb_id: str) -> list[dict[str, Any]]:
 
 
 @cache.memoize(timeout=3600)
-def file_metadata(file_id: str) -> Optional[dict[str, Any]]:
+def file_metadata(file_id: str) -> dict[str, Any] | None:
     """Get metadata for a file without the actual data content."""
     data = get_file_metadata(file_id)
     if data:
@@ -157,7 +157,7 @@ def file_metadata(file_id: str) -> Optional[dict[str, Any]]:
         return None
 
 
-def file_name(file_id: str) -> Optional[str]:
+def file_name(file_id: str) -> str | None:
     """Get the filename for a file ID."""
     meta = file_metadata(file_id)
     if meta and "filename" in meta:
@@ -166,7 +166,7 @@ def file_name(file_id: str) -> Optional[str]:
         return None
 
 
-def file_type(file_id: str, collection: str) -> Optional[str]:
+def file_type(file_id: str, collection: str) -> str | None:
     """Determine the file type (report/target) for a given file ID and collection."""
     reports_kb = f"WEBUI_COLLECTION_{collection.upper()}_REPORTS"
     targets_kb = f"WEBUI_COLLECTION_{collection.upper()}_TARGETS"
@@ -182,7 +182,7 @@ def file_type(file_id: str, collection: str) -> Optional[str]:
         return None
 
 
-def get_file_metadata(file_id: str) -> Optional[dict[str, Any]]:
+def get_file_metadata(file_id: str) -> dict[str, Any] | None:
     """
     Get metadata for a file.
 
@@ -200,7 +200,7 @@ def get_file_metadata(file_id: str) -> Optional[dict[str, Any]]:
         return None
 
 
-def get_file_content(file_id: str) -> Optional[bytes]:
+def get_file_content(file_id: str) -> bytes | None:
     """
     Get content for a file.
 
@@ -217,7 +217,7 @@ def get_file_content(file_id: str) -> Optional[bytes]:
         return None
 
 
-def get_file_data_content(file_id: str) -> Optional[dict[str, Any]]:
+def get_file_data_content(file_id: str) -> dict[str, Any] | None:
     """
     Get data content for a file.
 
@@ -234,7 +234,7 @@ def get_file_data_content(file_id: str) -> Optional[dict[str, Any]]:
         return None
 
 
-def update_file_data_content(file_id: str, file) -> Optional[dict[str, Any]]:
+def update_file_data_content(file_id: str, file) -> dict[str, Any] | None:
     """
     Upload new data content for a file.
 
@@ -267,7 +267,7 @@ def remove_file(file_id: str) -> bool:
     return response.status_code == 200
 
 
-def get_knowledge_bases() -> Optional[list[dict[str, Any]]]:
+def get_knowledge_bases() -> list[dict[str, Any]] | None:
     """
     Get a list of knowledge bases.
 
@@ -284,7 +284,7 @@ def get_knowledge_bases() -> Optional[list[dict[str, Any]]]:
         return None
 
 
-def get_knowledge_base(kb_id: str) -> Optional[dict[str, Any]]:
+def get_knowledge_base(kb_id: str) -> dict[str, Any] | None:
     """
     Get details of a knowledge base.
 
@@ -302,7 +302,7 @@ def get_knowledge_base(kb_id: str) -> Optional[dict[str, Any]]:
         return None
 
 
-def create_knowledge_base(name: str, description: Optional[str] = None) -> Optional[dict[str, Any]]:
+def create_knowledge_base(name: str, description: str | None = None) -> dict[str, Any] | None:
     """
     Create a new knowledge base.
 
@@ -343,7 +343,7 @@ def add_file_to_knowledge_base(kb_id: str, file_id: str):
         return None
 
 
-def update_file_in_knowledge_base(kb_id: str, file_id: str) -> Optional[dict[str, Any]]:
+def update_file_in_knowledge_base(kb_id: str, file_id: str) -> dict[str, Any] | None:
     """
     Update a file in a knowledge base.
 
@@ -364,7 +364,7 @@ def update_file_in_knowledge_base(kb_id: str, file_id: str) -> Optional[dict[str
         return None
 
 
-def delete_knowledge_base(kb_id: str) -> Optional[bool]:
+def delete_knowledge_base(kb_id: str) -> bool | None:
     """
     Delete a knowledge base.
 

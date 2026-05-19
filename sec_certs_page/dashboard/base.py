@@ -6,7 +6,6 @@ from flask import render_template
 # Changing it via "dash.index_string" is insufficient because we need to
 # render it during a request (it needs a request context).
 class Dash(OriginalDash):
-
     def interpolate_index(
         self,
         metas="",

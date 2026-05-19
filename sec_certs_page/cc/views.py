@@ -307,7 +307,10 @@ def redir_new(func):
 
 @cc.route("/<string(length=16):hashid>/")
 @register_breadcrumb(
-    cc, ".entry", "", dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}]  # type: ignore
+    cc,
+    ".entry",
+    "",
+    dynamic_list_constructor=lambda *a, **kw: [{"text": request.view_args["hashid"]}],  # type: ignore
 )
 @redir_new
 def entry(hashid):
@@ -323,9 +326,9 @@ def entry(hashid):
         renderer = CCRenderer()
         with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.cc_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
-            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diff_jsons = [StorageFormat(x).to_json_mapping() for x in diffs]
             diffs = list(map(load, diffs))
-            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
+            diff_renders = [renderer.render_diff(hashid, doc, x, linkback=False) for x in diffs]
         with sentry_sdk.start_span(op="mongo", name="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -501,7 +504,7 @@ def entry_graph_json(hashid):
         doc = mongo.db.cc.find_one({"_id": hashid}, {"_id": 1})
     if doc:
         cc_map = get_cc_references()
-        if hashid in cc_map.keys():
+        if hashid in cc_map:
             network_data = node_link_data(cc_map[hashid], edges="links")
         else:
             network_data = {}

@@ -2,7 +2,6 @@ import random
 
 import pymongo
 import pytest
-
 from sec_certs_page import mongo
 from sec_certs_page.cc.tasks import CCNotifier
 from sec_certs_page.common.diffs import apply_explicit_diff, cc_diff_method, render_compare

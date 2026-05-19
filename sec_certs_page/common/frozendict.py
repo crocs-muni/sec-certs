@@ -115,10 +115,10 @@ class frozendict(dict):  # pragma: no cover
         return (self.__class__, (dict(self),))
 
     def __setitem__(self, key, val, *args, **kwargs):
-        raise TypeError(f"'{self.__class__.__name__}' object doesn't support item " "assignment")
+        raise TypeError(f"'{self.__class__.__name__}' object doesn't support item assignment")
 
     def __delitem__(self, key, *args, **kwargs):
-        raise TypeError(f"'{self.__class__.__name__}' object doesn't support item " "deletion")
+        raise TypeError(f"'{self.__class__.__name__}' object doesn't support item deletion")
 
 
 def frozendict_or(self, other, *args, **kwargs):  # pragma: no cover

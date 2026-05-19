@@ -4,7 +4,7 @@ from flask import current_app
 from redis import Redis
 
 
-class RuntimeConfig(object):
+class RuntimeConfig:
     redis: Redis
 
     def __init__(self, app):
@@ -28,7 +28,7 @@ class RuntimeConfig(object):
         return self.redis.hlen("runtime_config")
 
     def __iter__(self):
-        yield from map(lambda s: s.decode("utf-8"), self.redis.hkeys("runtime_config"))
+        yield from (s.decode("utf-8") for s in self.redis.hkeys("runtime_config"))
 
     def get(self, key, default=None):
         if self.redis.hexists("runtime_config", key):

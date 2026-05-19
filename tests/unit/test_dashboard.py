@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 from typing import Any
 
 import pytest
-
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.dashboard import Dashboard

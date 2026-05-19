@@ -3,7 +3,6 @@ from typing import Any
 import dash_bootstrap_components as dbc
 import pytest
 from dash import dcc, html
-
 from sec_certs_page.dashboard.filters.factory import FilterFactory
 from sec_certs_page.dashboard.filters.filter import FilterSpec
 from sec_certs_page.dashboard.types.common import CollectionName

@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 import pytest
 from flask.testing import FlaskClient
-
 from sec_certs_page import mongo
 from sec_certs_page.admin import User, hash_password
 

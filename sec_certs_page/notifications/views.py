@@ -165,7 +165,7 @@ def manage():
             with session.start_transaction():
                 # Handle the ordinary certificate subscriptions one by one.
                 for sub_form in form.changes.entries:
-                    sub = changes_subs.get(sub_form.certificate_hashid.data, None)
+                    sub = changes_subs.get(sub_form.certificate_hashid.data)
                     if not sub:
                         # This should never happen, as we only display existing subscriptions in the form.
                         return abort(400, description="Invalid form submission.")
@@ -179,7 +179,7 @@ def manage():
                         )
                 # Now handle the new certificate subscription.
                 for sub_form in form.new.entries:
-                    new_sub = new_subs.get(sub_form.which.data, None)
+                    new_sub = new_subs.get(sub_form.which.data)
                     if not new_sub and sub_form.subscribe.data:
                         request_time = datetime.now(timezone.utc)
                         sub = {

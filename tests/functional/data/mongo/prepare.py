@@ -39,7 +39,7 @@ def prepare_base(db: Database, scheme, base_ids, old_ids):
         print(f"Exporting {len(diffs)} {scheme} diffs")
         extract(f"{scheme}_diff", '{"dgst": {"$in": [' + ", ".join(f'"{id}"' for id in base_ids) + "]}}")
 
-    run_ids = set(d["run_id"] for d in diffs)
+    run_ids = {d["run_id"] for d in diffs}
     if run_ids:
         print(f"Exporting {len(run_ids)} {scheme} runs")
         extract(f"{scheme}_log", '{"_id": {"$in": [' + ", ".join(f'{{ "$oid": "{id}"}}' for id in run_ids) + "]}}")

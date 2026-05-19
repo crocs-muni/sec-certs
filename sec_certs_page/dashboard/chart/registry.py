@@ -1,4 +1,4 @@
-from typing import Dict, Iterator
+from collections.abc import Iterator
 
 from ..types.common import CollectionName
 from .base import BaseChart
@@ -18,7 +18,7 @@ class ChartRegistry:
 
     def __init__(self, collection_name: CollectionName) -> None:
         self.collection_name = collection_name
-        self._predefined_charts: Dict[str, BaseChart] = {}
+        self._predefined_charts: dict[str, BaseChart] = {}
 
     def register(self, chart: BaseChart) -> None:
         """Register a new predefined chart instance."""

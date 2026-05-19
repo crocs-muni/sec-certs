@@ -437,9 +437,9 @@ def entry(hashid):
         renderer = FIPSRenderer()
         with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.fips_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
-            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diff_jsons = [StorageFormat(x).to_json_mapping() for x in diffs]
             diffs = list(map(load, diffs))
-            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
+            diff_renders = [renderer.render_diff(hashid, doc, x, linkback=False) for x in diffs]
         with sentry_sdk.start_span(op="mongo", name="Find CVEs"):
             if doc["heuristics"]["related_cves"]:
                 cves = list(map(load, mongo.db.cve.find({"_id": {"$in": list(doc["heuristics"]["related_cves"])}})))
@@ -504,7 +504,7 @@ def entry_graph_json(hashid):
         doc = mongo.db.fips.find_one({"_id": hashid})
     if doc:
         fips_map = get_fips_references()
-        if hashid in fips_map.keys():
+        if hashid in fips_map:
             network_data = node_link_data(fips_map[hashid], edges="links")
         else:
             network_data = {}

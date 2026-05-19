@@ -37,7 +37,7 @@ def status():  # pragma: no cover
 
 @pp.cli.command("update-kb", help="Update the KB of PP certs.")
 def update_kb():
-    ids = list(map(lambda doc: doc["_id"], mongo.db.pp.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.pp.find({}, {"_id": 1})]
     reports = [(dgst, "report", None) for dgst in ids]
     targets = [(dgst, "target", None) for dgst in ids]
     update_kb_core(reports + targets)
