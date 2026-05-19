@@ -1,9 +1,9 @@
-from flask import abort, current_app, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import current_app, flash, redirect, render_template, request, session, url_for
 from flask_dance.contrib.github import github
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 
-from .. import app, mongo
+from .. import app
 from ..common.permissions import admin_permission
 from ..common.sentry import metrics
 from ..common.views import check_captcha, register_breadcrumb

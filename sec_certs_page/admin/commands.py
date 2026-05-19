@@ -1,5 +1,4 @@
 import click
-import pymongo
 from flask.cli import AppGroup
 from tqdm import tqdm
 

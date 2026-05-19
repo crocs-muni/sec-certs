@@ -1,9 +1,8 @@
 import logging
 from logging import Logger
 from typing import Optional
-from uuid import uuid4
 
-from .chart.config import AxisConfig, ChartConfig
+from .chart.config import ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.predefined_charts.analysis_charts import create_cc_analysis_charts, create_fips_analysis_charts
@@ -16,9 +15,7 @@ from .dashboard import Dashboard
 from .data import DataService
 from .filters.factory import FilterFactory
 from .repository import DashboardRepository
-from .types.chart import ChartType
 from .types.common import CollectionName
-from .types.filter import AggregationType
 
 logger: Logger = logging.getLogger(__name__)
 

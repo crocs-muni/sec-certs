@@ -4,7 +4,7 @@ import bson
 import pymongo
 from flask import Blueprint
 
-from .. import cache, mongo, redis
+from .. import cache, mongo
 from ..common.views import create_graph
 
 cc: Blueprint = Blueprint("cc", __name__, url_prefix="/cc")

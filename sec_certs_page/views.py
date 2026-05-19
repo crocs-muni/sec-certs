@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from flask import make_response, render_template, url_for
 from werkzeug.exceptions import HTTPException
