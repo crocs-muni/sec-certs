@@ -10,6 +10,7 @@ env:
 
 jobs:
   test:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-22.04
     strategy:
       matrix:
