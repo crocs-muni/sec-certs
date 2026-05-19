@@ -1,4 +1,4 @@
-name: Tests [page]
+name: Tests (page)
 
 on:
   push:
