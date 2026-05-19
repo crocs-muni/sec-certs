@@ -1,0 +1,47 @@
+<div class="{{ box_container }}">
+    <h2 id="report-info">Certification report</h2>
+    <div class="{{ container_inner }}">
+        <div>
+            {{ render_process_state(
+                cert["state"],
+                cert["report_link"],
+                "report",
+                "certification report") }}
+        </div>
+
+        {% if cert["report_link"] %}
+            <div>
+                {{ render_local_report(
+                    hashid,
+                    local_files,
+                    cert['report_link'],
+                    primary_style="btn-primary",
+                    secondary_style="btn-secondary") }}
+            </div>
+        {% endif %}
+
+        {% if cert["pdf_data"]["report_keywords"] %}
+            <div>
+                <h4 class="mt-3">Extracted keywords</h4>
+                {{ cryptography_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                {{ device_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                {{ cc_keywords(cert["pdf_data"]["report_keywords"], "report", map_funcs={"cc_sar": render_sars,
+                                                                                                    "cc_sfr": render_sfrs}) }}
+                {{ security_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+                {{ other_keywords(cert["pdf_data"]["report_keywords"], "report") }}
+            </div>
+        {% endif %}
+
+        <div>
+            {{ render_file_metadata(cert["pdf_data"]["report_metadata"], "Certification report", "report") }}
+        </div>
+
+        <div>
+            {{ render_frontpage(cert, "report_frontpage", "Certification report - Frontpage") }}
+        </div>
+
+        <div>
+            {{ render_references(network, hashid, "report", render_status) }}
+        </div>
+    </div>
+</div>

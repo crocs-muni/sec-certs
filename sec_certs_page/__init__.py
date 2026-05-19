@@ -189,6 +189,7 @@ from .admin import admin as admin_bp
 from .cc import cc as cc_bp
 from .chat import chat as chat_bp
 from .docs import docs as docs_bp
+from .eucc import eucc as eucc_bp
 from .fips import fips as fips_bp
 from .notifications import notifications as notifications_bp
 from .pp import pp as pp_bp
@@ -206,6 +207,7 @@ with app.app_context():
     app.register_blueprint(docs_bp)
     app.register_blueprint(about_bp)
     app.register_blueprint(chat_bp)
+    app.register_blueprint(eucc_bp)
 
     # Setup GitHub OAuth if enabled and configured
     if app.config.get("GITHUB_OAUTH_ENABLED", False):
