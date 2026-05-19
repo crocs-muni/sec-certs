@@ -55,12 +55,7 @@ def import_map():  # pragma: no cover
 @fips.cli.command("import-iut", help="Import manually downloaded FIPS IUT pages.")
 @click.argument("directory", type=click.types.Path(exists=True, file_okay=False, dir_okay=True))
 def import_iut(directory):  # pragma: no cover
-    already_present = list(
-        map(
-            lambda entry: datetime.fromisoformat(entry["timestamp"]).date(),
-            mongo.db.fips_iut.find({}, {"timestamp": 1}),
-        )
-    )
+    already_present = [datetime.fromisoformat(entry["timestamp"]).date() for entry in mongo.db.fips_iut.find({}, {"timestamp": 1})]
 
     directory = Path(directory)
     for iut_fname in sorted(directory.glob("fips_iut_*.html")):
@@ -80,12 +75,7 @@ def import_iut(directory):  # pragma: no cover
 @fips.cli.command("import-mip", help="Import manually downloaded FIPS MIP pages.")
 @click.argument("directory", type=click.types.Path(exists=True, file_okay=False, dir_okay=True))
 def import_mip(directory):  # pragma: no cover
-    already_present = list(
-        map(
-            lambda entry: datetime.fromisoformat(entry["timestamp"]).date(),
-            mongo.db.fips_mip.find({}, {"timestamp": 1}),
-        )
-    )
+    already_present = [datetime.fromisoformat(entry["timestamp"]).date() for entry in mongo.db.fips_mip.find({}, {"timestamp": 1})]
 
     directory = Path(directory)
     for mip_fname in sorted(directory.glob("fips_mip_*.html")):
@@ -104,6 +94,6 @@ def import_mip(directory):  # pragma: no cover
 
 @fips.cli.command("update-kb", help="Update the KB of FIPS certs.")
 def update_kb():
-    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
     targets = [(dgst, "target", None) for dgst in ids]
     update_kb_core(targets)

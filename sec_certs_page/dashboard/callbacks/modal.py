@@ -63,31 +63,31 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            is_open=Output(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open"),
-            edit_id=Output(component_builder(ComponentID.EDIT_CHART_ID), "data"),
+        output={
+            "is_open": Output(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open"),
+            "edit_id": Output(component_builder(ComponentID.EDIT_CHART_ID), "data"),
             # Form fields - reset on create, no_update on close
-            title=Output(component_builder(ComponentID.MODAL_CHART_TITLE), "value"),
-            chart_type=Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
-            x_field=Output(component_builder(ComponentID.MODAL_X_FIELD), "value"),
-            x_label=Output(component_builder(ComponentID.MODAL_X_LABEL), "value"),
-            color_field=Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "value"),
-            aggregation=Output(component_builder(ComponentID.MODAL_AGGREGATION), "value"),
-            y_field=Output(component_builder(ComponentID.MODAL_Y_FIELD), "value"),
-            y_label=Output(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
-            show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
-            show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
-            show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
-            y_log_scale=Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
-            color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open"),
-        ),
-        inputs=dict(
-            open_clicks=Input(component_builder(ComponentID.OPEN_CREATE_CHART_MODAL_BTN), "n_clicks"),
-            cancel_clicks=Input(component_builder(ComponentID.MODAL_CANCEL_BTN), "n_clicks"),
-        ),
-        state=dict(
-            is_open=State(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open"),
-        ),
+            "title": Output(component_builder(ComponentID.MODAL_CHART_TITLE), "value"),
+            "chart_type": Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
+            "x_field": Output(component_builder(ComponentID.MODAL_X_FIELD), "value"),
+            "x_label": Output(component_builder(ComponentID.MODAL_X_LABEL), "value"),
+            "color_field": Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "value"),
+            "aggregation": Output(component_builder(ComponentID.MODAL_AGGREGATION), "value"),
+            "y_field": Output(component_builder(ComponentID.MODAL_Y_FIELD), "value"),
+            "y_label": Output(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
+            "show_legend": Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
+            "show_grid": Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
+            "show_zero_values": Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
+            "y_log_scale": Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
+            "color_by_open": Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open"),
+        },
+        inputs={
+            "open_clicks": Input(component_builder(ComponentID.OPEN_CREATE_CHART_MODAL_BTN), "n_clicks"),
+            "cancel_clicks": Input(component_builder(ComponentID.MODAL_CANCEL_BTN), "n_clicks"),
+        },
+        state={
+            "is_open": State(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open"),
+        },
         prevent_initial_call=True,
     )
     def toggle_modal(open_clicks, cancel_clicks, is_open):
@@ -95,41 +95,41 @@ def _register_modal_toggle(dash_app: "Dash", collection_name: CollectionName) ->
         open_btn_id = component_builder(ComponentID.OPEN_CREATE_CHART_MODAL_BTN)
         cancel_btn_id = component_builder(ComponentID.MODAL_CANCEL_BTN)
 
-        no_change_form = dict(
-            title=no_update,
-            chart_type=no_update,
-            x_field=no_update,
-            x_label=no_update,
-            color_field=no_update,
-            aggregation=no_update,
-            y_field=no_update,
-            y_label=no_update,
-            show_legend=no_update,
-            show_grid=no_update,
-            color_by_open=no_update,
-            show_zero_values=no_update,
-            y_log_scale=no_update,
-        )
+        no_change_form = {
+            "title": no_update,
+            "chart_type": no_update,
+            "x_field": no_update,
+            "x_label": no_update,
+            "color_field": no_update,
+            "aggregation": no_update,
+            "y_field": no_update,
+            "y_label": no_update,
+            "show_legend": no_update,
+            "show_grid": no_update,
+            "color_by_open": no_update,
+            "show_zero_values": no_update,
+            "y_log_scale": no_update,
+        }
 
         if triggered == open_btn_id:
             # Opening in CREATE mode - reset all form fields
-            return dict(
-                is_open=True,
-                edit_id=None,
-                title="",
-                chart_type="bar",
-                x_field=None,
-                x_label="",
-                color_field=None,
-                aggregation="count",
-                y_field=None,
-                y_label="",
-                show_legend=True,
-                show_grid=True,
-                color_by_open=False,
-                show_zero_values=True,
-                y_log_scale=False,
-            )
+            return {
+                "is_open": True,
+                "edit_id": None,
+                "title": "",
+                "chart_type": "bar",
+                "x_field": None,
+                "x_label": "",
+                "color_field": None,
+                "aggregation": "count",
+                "y_field": None,
+                "y_label": "",
+                "show_legend": True,
+                "show_grid": True,
+                "color_by_open": False,
+                "show_zero_values": True,
+                "y_log_scale": False,
+            }
 
         if triggered == cancel_btn_id:
             # Closing modal - don't change form values
@@ -148,48 +148,48 @@ def _register_modal_filter_reset(dash_app: "Dash", collection_name: CollectionNa
     pattern_builder = PatternMatchingComponentID(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            filter_values=Output(pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "value")
-        ),
-        inputs=dict(
-            open_clicks=Input(component_builder(ComponentID.OPEN_CREATE_CHART_MODAL_BTN), "n_clicks"),
-        ),
-        state=dict(
-            current_filter_values=State(
+        output={
+            "filter_values": Output(pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "value")
+        },
+        inputs={
+            "open_clicks": Input(component_builder(ComponentID.OPEN_CREATE_CHART_MODAL_BTN), "n_clicks"),
+        },
+        state={
+            "current_filter_values": State(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "value"
             ),
-        ),
+        },
         prevent_initial_call=True,
     )
     def reset_modal_filters(open_clicks, current_filter_values):
         """Reset all modal filter values when Add Chart button is clicked."""
         if open_clicks:
-            return dict(filter_values=[None] * len(current_filter_values))
-        return dict(filter_values=[no_update] * len(current_filter_values))
+            return {"filter_values": [None] * len(current_filter_values)}
+        return {"filter_values": [no_update] * len(current_filter_values)}
 
 
 def _register_modal_mode(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            title=Output(component_builder(ComponentID.MODAL_TITLE), "children"),
-            btn_text=Output(component_builder(ComponentID.MODAL_CREATE_BTN), "children"),
-        ),
-        inputs=dict(edit_chart_id=Input(component_builder(ComponentID.EDIT_CHART_ID), "data")),
+        output={
+            "title": Output(component_builder(ComponentID.MODAL_TITLE), "children"),
+            "btn_text": Output(component_builder(ComponentID.MODAL_CREATE_BTN), "children"),
+        },
+        inputs={"edit_chart_id": Input(component_builder(ComponentID.EDIT_CHART_ID), "data")},
         prevent_initial_call=True,
     )
     def update_modal_mode(edit_chart_id):
         """Update modal title/button based on edit mode - only when edit_id changes."""
         if edit_chart_id:
-            return dict(
-                title=[html.I(className="fas fa-edit me-2"), "Edit Chart"],
-                btn_text=[html.I(className="fas fa-save me-2"), "Save Changes"],
-            )
-        return dict(
-            title=[html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
-            btn_text=[html.I(className="fas fa-plus me-2"), "Create Chart"],
-        )
+            return {
+                "title": [html.I(className="fas fa-edit me-2"), "Edit Chart"],
+                "btn_text": [html.I(className="fas fa-save me-2"), "Save Changes"],
+            }
+        return {
+            "title": [html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
+            "btn_text": [html.I(className="fas fa-plus me-2"), "Create Chart"],
+        }
 
 
 def _register_edit_handler(
@@ -201,48 +201,48 @@ def _register_edit_handler(
     pattern_builder = PatternMatchingComponentID(None)
 
     @dash_app.callback(
-        output=dict(
-            is_open=Output(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open", allow_duplicate=True),
-            edit_id=Output(component_builder(ComponentID.EDIT_CHART_ID), "data", allow_duplicate=True),
-            title=Output(component_builder(ComponentID.MODAL_CHART_TITLE), "value", allow_duplicate=True),
-            chart_type=Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value", allow_duplicate=True),
-            x_field=Output(component_builder(ComponentID.MODAL_X_FIELD), "value", allow_duplicate=True),
-            x_label=Output(component_builder(ComponentID.MODAL_X_LABEL), "value", allow_duplicate=True),
-            color_field=Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "value", allow_duplicate=True),
-            aggregation=Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
-            y_field=Output(component_builder(ComponentID.MODAL_Y_FIELD), "value", allow_duplicate=True),
-            y_label=Output(component_builder(ComponentID.MODAL_Y_LABEL), "value", allow_duplicate=True),
-            show_legend=Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value", allow_duplicate=True),
-            show_grid=Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
-            color_by_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
-            show_zero_values=Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True),
-            y_log_scale=Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
-        ),
-        inputs=dict(n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")),
-        state=dict(
-            id_list=State(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "id"),
-            chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
-        ),
+        output={
+            "is_open": Output(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open", allow_duplicate=True),
+            "edit_id": Output(component_builder(ComponentID.EDIT_CHART_ID), "data", allow_duplicate=True),
+            "title": Output(component_builder(ComponentID.MODAL_CHART_TITLE), "value", allow_duplicate=True),
+            "chart_type": Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value", allow_duplicate=True),
+            "x_field": Output(component_builder(ComponentID.MODAL_X_FIELD), "value", allow_duplicate=True),
+            "x_label": Output(component_builder(ComponentID.MODAL_X_LABEL), "value", allow_duplicate=True),
+            "color_field": Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "value", allow_duplicate=True),
+            "aggregation": Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
+            "y_field": Output(component_builder(ComponentID.MODAL_Y_FIELD), "value", allow_duplicate=True),
+            "y_label": Output(component_builder(ComponentID.MODAL_Y_LABEL), "value", allow_duplicate=True),
+            "show_legend": Output(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value", allow_duplicate=True),
+            "show_grid": Output(component_builder(ComponentID.MODAL_SHOW_GRID), "value", allow_duplicate=True),
+            "color_by_open": Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
+            "show_zero_values": Output(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value", allow_duplicate=True),
+            "y_log_scale": Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
+        },
+        inputs={"n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")},
+        state={
+            "id_list": State(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "id"),
+            "chart_configs": State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+        },
         prevent_initial_call=True,
     )
     def handle_edit_button(n_clicks_list, id_list, chart_configs):
-        no_change = dict(
-            is_open=no_update,
-            edit_id=no_update,
-            title=no_update,
-            chart_type=no_update,
-            x_field=no_update,
-            x_label=no_update,
-            color_field=no_update,
-            aggregation=no_update,
-            y_field=no_update,
-            y_label=no_update,
-            show_legend=no_update,
-            show_grid=no_update,
-            color_by_open=no_update,
-            show_zero_values=no_update,
-            y_log_scale=no_update,
-        )
+        no_change = {
+            "is_open": no_update,
+            "edit_id": no_update,
+            "title": no_update,
+            "chart_type": no_update,
+            "x_field": no_update,
+            "x_label": no_update,
+            "color_field": no_update,
+            "aggregation": no_update,
+            "y_field": no_update,
+            "y_label": no_update,
+            "show_legend": no_update,
+            "show_grid": no_update,
+            "color_by_open": no_update,
+            "show_zero_values": no_update,
+            "y_log_scale": no_update,
+        }
 
         if not n_clicks_list or not any(n_clicks_list):
             return no_change
@@ -265,23 +265,23 @@ def _register_edit_handler(
                 y_axis = config_dict.get("y_axis", {})
                 color_axis = config_dict.get("color_axis")
 
-                return dict(
-                    is_open=True,
-                    edit_id=chart_id,
-                    title=config_dict.get("title", ""),
-                    chart_type=config_dict.get("chart_type"),
-                    x_field=x_axis.get("field") if x_axis else None,
-                    x_label=x_axis.get("label", "") if x_axis else "",
-                    color_field=color_axis.get("field") if color_axis else None,
-                    aggregation=y_axis.get("aggregation", "count") if y_axis else "count",
-                    y_field=y_axis.get("field") if y_axis and y_axis.get("field") != "count" else None,
-                    y_label=y_axis.get("label", "") if y_axis else "",
-                    show_legend=config_dict.get("show_legend", True),
-                    show_grid=config_dict.get("show_grid", True),
-                    color_by_open=color_axis is not None,
-                    show_zero_values=config_dict.get("show_zero_values", True),
-                    y_log_scale=y_axis.get("log_scale", False) if y_axis else False,
-                )
+                return {
+                    "is_open": True,
+                    "edit_id": chart_id,
+                    "title": config_dict.get("title", ""),
+                    "chart_type": config_dict.get("chart_type"),
+                    "x_field": x_axis.get("field") if x_axis else None,
+                    "x_label": x_axis.get("label", "") if x_axis else "",
+                    "color_field": color_axis.get("field") if color_axis else None,
+                    "aggregation": y_axis.get("aggregation", "count") if y_axis else "count",
+                    "y_field": y_axis.get("field") if y_axis and y_axis.get("field") != "count" else None,
+                    "y_label": y_axis.get("label", "") if y_axis else "",
+                    "show_legend": config_dict.get("show_legend", True),
+                    "show_grid": config_dict.get("show_grid", True),
+                    "color_by_open": color_axis is not None,
+                    "show_zero_values": config_dict.get("show_zero_values", True),
+                    "y_log_scale": y_axis.get("log_scale", False) if y_axis else False,
+                }
 
         return no_change
 
@@ -296,27 +296,27 @@ def _register_edit_filter_loader(
     pattern_builder = PatternMatchingComponentID(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            filter_values=Output(
+        output={
+            "filter_values": Output(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"),
                 "value",
                 allow_duplicate=True,
             )
-        ),
-        inputs=dict(
-            edit_chart_id=Input(component_builder(ComponentID.EDIT_CHART_ID), "data"),
-            filters_ready=Input(component_builder(ComponentID.MODAL_FILTERS_READY), "data"),
-        ),
-        state=dict(
-            filter_specs=State(component_builder(ComponentID.FILTER_SPECS), "data"),
-            chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
-        ),
+        },
+        inputs={
+            "edit_chart_id": Input(component_builder(ComponentID.EDIT_CHART_ID), "data"),
+            "filters_ready": Input(component_builder(ComponentID.MODAL_FILTERS_READY), "data"),
+        },
+        state={
+            "filter_specs": State(component_builder(ComponentID.FILTER_SPECS), "data"),
+            "chart_configs": State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+        },
         prevent_initial_call=True,
     )
     def load_edit_filter_values(edit_chart_id, filters_ready, filter_specs, chart_configs):
         """Load filter values when editing a chart after filters UI is ready."""
         if not edit_chart_id or not filters_ready or not filter_specs:
-            return dict(filter_values=[no_update] * len(filter_specs or []))
+            return {"filter_values": [no_update] * len(filter_specs or [])}
 
         config_dict = (chart_configs or {}).get(edit_chart_id)
         if not config_dict:
@@ -325,7 +325,7 @@ def _register_edit_filter_loader(
                 config_dict = chart_instance.config.to_dict()
 
         if not config_dict:
-            return dict(filter_values=[no_update] * len(filter_specs))
+            return {"filter_values": [no_update] * len(filter_specs)}
 
         stored_filter_values = config_dict.get("filter_values", {})
 
@@ -337,28 +337,28 @@ def _register_edit_filter_loader(
             filter_values.append(value)
 
         logger.debug(f"Loading filter values for chart {edit_chart_id}: {filter_values}")
-        return dict(filter_values=filter_values)
+        return {"filter_values": filter_values}
 
 
 def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            children=Output(component_builder(ComponentID.MODAL_FILTERS_CONTAINER), "children"),
-            filters_ready=Output(component_builder(ComponentID.MODAL_FILTERS_READY), "data"),
-        ),
-        inputs=dict(filter_specs=Input(component_builder(ComponentID.FILTER_SPECS), "data")),
-        state=dict(current_ready=State(component_builder(ComponentID.MODAL_FILTERS_READY), "data")),
+        output={
+            "children": Output(component_builder(ComponentID.MODAL_FILTERS_CONTAINER), "children"),
+            "filters_ready": Output(component_builder(ComponentID.MODAL_FILTERS_READY), "data"),
+        },
+        inputs={"filter_specs": Input(component_builder(ComponentID.FILTER_SPECS), "data")},
+        state={"current_ready": State(component_builder(ComponentID.MODAL_FILTERS_READY), "data")},
         prevent_initial_call=True,
     )
     def generate_modal_filter_ui(filter_specs, current_ready):
         """Generate modal filter UI - only when filter_specs are loaded (modal open)."""
         if not filter_specs:
-            return dict(
-                children=html.P("No filters available.", className="text-muted"),
-                filters_ready=no_update,
-            )
+            return {
+                "children": html.P("No filters available.", className="text-muted"),
+                "filters_ready": no_update,
+            }
 
         filter_rows = []
         pattern_builder = PatternMatchingComponentID(collection_name)
@@ -380,7 +380,7 @@ def _register_modal_filter_ui(dash_app: "Dash", collection_name: CollectionName)
             filter_rows.append(dbc.Row(cols, className="g-2"))
 
         # Increment filters_ready to signal that UI is ready for options population
-        return dict(children=filter_rows, filters_ready=(current_ready or 0) + 1)
+        return {"children": filter_rows, "filters_ready": (current_ready or 0) + 1}
 
 
 def _create_filter_component(collection_name: CollectionName, spec: dict, field_id: dict | str) -> Component:
@@ -525,17 +525,17 @@ def _register_modal_filter_options(
     pattern_builder = PatternMatchingComponentID(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            options=Output(pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "options")
-        ),
-        inputs=dict(filters_ready=Input(component_builder(ComponentID.MODAL_FILTERS_READY), "data")),
-        state=dict(filter_specs=State(component_builder(ComponentID.FILTER_SPECS), "data")),
+        output={
+            "options": Output(pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "options")
+        },
+        inputs={"filters_ready": Input(component_builder(ComponentID.MODAL_FILTERS_READY), "data")},
+        state={"filter_specs": State(component_builder(ComponentID.FILTER_SPECS), "data")},
         prevent_initial_call=True,
     )
     def populate_modal_filter_options(filters_ready, filter_specs):
         """Populate modal filter options - only after filter UI components are rendered."""
         if not filters_ready or not filter_specs:
-            return dict(options=[])
+            return {"options": []}
 
         options_list = []
         for spec in filter_specs:
@@ -562,78 +562,78 @@ def _register_modal_filter_options(
             except Exception:
                 options_list.append([])
 
-        return dict(options=options_list)
+        return {"options": options_list}
 
 
 def _register_filter_actions(dash_app: "Dash", collection_name: CollectionName) -> None:
     pattern_builder = PatternMatchingComponentID(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            value=Output(
+        output={
+            "value": Output(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, MATCH, index_key="field"),
                 "value",
                 allow_duplicate=True,
             )
-        ),
-        inputs=dict(
-            n_clicks=Input(pattern_builder.pattern(ComponentID.CLEAR_FILTER, MATCH, index_key="field"), "n_clicks")
-        ),
+        },
+        inputs={
+            "n_clicks": Input(pattern_builder.pattern(ComponentID.CLEAR_FILTER, MATCH, index_key="field"), "n_clicks")
+        },
         prevent_initial_call=True,
     )
     def clear_filter_value(n_clicks):
         if n_clicks:
-            return dict(value=None)
-        return dict(value=no_update)
+            return {"value": None}
+        return {"value": no_update}
 
     @dash_app.callback(
-        output=dict(
-            value=Output(
+        output={
+            "value": Output(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, MATCH, index_key="field"),
                 "value",
                 allow_duplicate=True,
             )
-        ),
-        inputs=dict(
-            n_clicks=Input(pattern_builder.pattern(ComponentID.SELECT_ALL_FILTER, MATCH, index_key="field"), "n_clicks")
-        ),
-        state=dict(
-            options=State(pattern_builder.pattern(ComponentID.MODAL_FILTER, MATCH, index_key="field"), "options")
-        ),
+        },
+        inputs={
+            "n_clicks": Input(pattern_builder.pattern(ComponentID.SELECT_ALL_FILTER, MATCH, index_key="field"), "n_clicks")
+        },
+        state={
+            "options": State(pattern_builder.pattern(ComponentID.MODAL_FILTER, MATCH, index_key="field"), "options")
+        },
         prevent_initial_call=True,
     )
     def select_all_filter_values(n_clicks, options):
         if n_clicks and options:
-            return dict(value=[opt["value"] for opt in options if opt.get("value") != "__all__"])
-        return dict(value=no_update)
+            return {"value": [opt["value"] for opt in options if opt.get("value") != "__all__"]}
+        return {"value": no_update}
 
 
 def _register_axis_options(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            x_options=Output(component_builder(ComponentID.MODAL_X_FIELD), "options"),
-            color_options=Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "options"),
-        ),
-        inputs=dict(available_fields=Input(component_builder(ComponentID.AVAILABLE_FIELDS), "data")),
+        output={
+            "x_options": Output(component_builder(ComponentID.MODAL_X_FIELD), "options"),
+            "color_options": Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "options"),
+        },
+        inputs={"available_fields": Input(component_builder(ComponentID.AVAILABLE_FIELDS), "data")},
         prevent_initial_call=True,
     )
     def populate_axis_field_options(available_fields):
         """Populate axis field options - only when available_fields are loaded (modal open)."""
         if not available_fields:
-            return dict(x_options=[], color_options=[])
+            return {"x_options": [], "color_options": []}
         options = [{"label": f["label"], "value": f["value"]} for f in available_fields]
-        return dict(x_options=options, color_options=options)
+        return {"x_options": options, "color_options": options}
 
 
 def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(options=Output(component_builder(ComponentID.MODAL_AGGREGATION), "options")),
-        inputs=dict(x_field_value=Input(component_builder(ComponentID.MODAL_X_FIELD), "value")),
-        state=dict(available_fields=State(component_builder(ComponentID.AVAILABLE_FIELDS), "data")),
+        output={"options": Output(component_builder(ComponentID.MODAL_AGGREGATION), "options")},
+        inputs={"x_field_value": Input(component_builder(ComponentID.MODAL_X_FIELD), "value")},
+        state={"available_fields": State(component_builder(ComponentID.AVAILABLE_FIELDS), "data")},
         prevent_initial_call=True,
     )
     def update_aggregation_options(x_field_value, available_fields):
@@ -647,7 +647,7 @@ def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionN
         count_option = {"label": AggregationType.COUNT.value.upper(), "value": AggregationType.COUNT.value}
 
         if not available_fields:
-            return dict(options=[count_option])
+            return {"options": [count_option]}
 
         # Check if there are any numeric fields available for aggregation
         numeric_types = {"int", "float", "number", "numeric"}
@@ -655,32 +655,32 @@ def _register_aggregation_options(dash_app: "Dash", collection_name: CollectionN
 
         if has_numeric_fields:
             # Offer all aggregation types since numeric Y-fields are available
-            return dict(
-                options=[{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
+            return {
+                "options": [{"label": agg.value.upper(), "value": agg.value} for agg in AggregationType]
                 + [{"label": "IDENTITY", "value": None}]
-            )
+            }
         else:
             # Only COUNT is meaningful without numeric fields
-            return dict(options=[count_option])
+            return {"options": [count_option]}
 
 
 def _register_y_field_state(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            disabled=Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled"),
-            options=Output(component_builder(ComponentID.MODAL_Y_FIELD), "options"),
-            help_text=Output(component_builder(ComponentID.MODAL_Y_FIELD_HELP), "children"),
-        ),
-        inputs=dict(aggregation_value=Input(component_builder(ComponentID.MODAL_AGGREGATION), "value")),
-        state=dict(available_fields=State(component_builder(ComponentID.AVAILABLE_FIELDS), "data")),
+        output={
+            "disabled": Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled"),
+            "options": Output(component_builder(ComponentID.MODAL_Y_FIELD), "options"),
+            "help_text": Output(component_builder(ComponentID.MODAL_Y_FIELD_HELP), "children"),
+        },
+        inputs={"aggregation_value": Input(component_builder(ComponentID.MODAL_AGGREGATION), "value")},
+        state={"available_fields": State(component_builder(ComponentID.AVAILABLE_FIELDS), "data")},
         prevent_initial_call=True,
     )
     def update_y_field_state(aggregation_value, available_fields):
         """Update Y-field state based on aggregation - only when aggregation changes."""
         if aggregation_value == AggregationType.COUNT.value:
-            return dict(disabled=True, options=[], help_text="Not required for COUNT aggregation.")
+            return {"disabled": True, "options": [], "help_text": "Not required for COUNT aggregation."}
 
         numeric_types = {"int", "float", "number", "numeric"}
         numeric_fields = []
@@ -695,46 +695,46 @@ def _register_y_field_state(dash_app: "Dash", collection_name: CollectionName) -
         if not numeric_fields:
             help_text = "No numeric fields available for aggregation."
 
-        return dict(disabled=False, options=numeric_fields, help_text=help_text)
+        return {"disabled": False, "options": numeric_fields, "help_text": help_text}
 
 
 def _register_x_label_autofill(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(value=Output(component_builder(ComponentID.MODAL_X_LABEL), "value", allow_duplicate=True)),
-        inputs=dict(x_field_value=Input(component_builder(ComponentID.MODAL_X_FIELD), "value")),
-        state=dict(
-            available_fields=State(component_builder(ComponentID.AVAILABLE_FIELDS), "data"),
-            current_label=State(component_builder(ComponentID.MODAL_X_LABEL), "value"),
-        ),
+        output={"value": Output(component_builder(ComponentID.MODAL_X_LABEL), "value", allow_duplicate=True)},
+        inputs={"x_field_value": Input(component_builder(ComponentID.MODAL_X_FIELD), "value")},
+        state={
+            "available_fields": State(component_builder(ComponentID.AVAILABLE_FIELDS), "data"),
+            "current_label": State(component_builder(ComponentID.MODAL_X_LABEL), "value"),
+        },
         prevent_initial_call=True,
     )
     def auto_fill_x_label(x_field_value, available_fields, current_label):
         if current_label:
-            return dict(value=no_update)
+            return {"value": no_update}
 
         if x_field_value and available_fields:
             field_info = next((f for f in available_fields if f["value"] == x_field_value), None)
             if field_info:
-                return dict(value=field_info["label"])
+                return {"value": field_info["label"]}
 
-        return dict(value="")
+        return {"value": ""}
 
 
 def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(children=Output(component_builder(ComponentID.CHART_TYPE_HELP), "children")),
-        inputs=dict(chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")),
+        output={"children": Output(component_builder(ComponentID.CHART_TYPE_HELP), "children")},
+        inputs={"chart_type": Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")},
         prevent_initial_call=True,
     )
     def show_chart_type_help(chart_type):
         """Show chart type specific help - only when chart type changes."""
         if chart_type == "stacked_bar":
-            return dict(
-                children=dbc.Alert(
+            return {
+                "children": dbc.Alert(
                     [
                         html.I(className="fas fa-info-circle me-2"),
                         "Stacked Bar requires a ",
@@ -744,10 +744,10 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
                     color="info",
                     className="mb-0 py-2 small",
                 )
-            )
+            }
         elif chart_type == "histogram":
-            return dict(
-                children=dbc.Alert(
+            return {
+                "children": dbc.Alert(
                     [
                         html.I(className="fas fa-info-circle me-2"),
                         "Histograms show frequency distributions. Select a ",
@@ -757,10 +757,10 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
                     color="info",
                     className="mb-0 py-2 small",
                 )
-            )
+            }
         elif chart_type == "box":
-            return dict(
-                children=dbc.Alert(
+            return {
+                "children": dbc.Alert(
                     [
                         html.I(className="fas fa-info-circle me-2"),
                         "Box plots show data distribution with quartiles. Select the grouping field for X-axis and a ",
@@ -770,8 +770,8 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
                     color="info",
                     className="mb-0 py-2 small",
                 )
-            )
-        return dict(children=None)
+            }
+        return {"children": None}
 
 
 def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -779,45 +779,45 @@ def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionNam
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            aggregation_disabled=Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
-            y_field_disabled=Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
-            y_label_disabled=Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
-            aggregation_value=Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
-        ),
-        inputs=dict(chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")),
+        output={
+            "aggregation_disabled": Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
+            "y_field_disabled": Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
+            "y_label_disabled": Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
+            "aggregation_value": Output(component_builder(ComponentID.MODAL_AGGREGATION), "value", allow_duplicate=True),
+        },
+        inputs={"chart_type": Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value")},
         prevent_initial_call=True,
     )
     def update_y_axis_visibility(chart_type):
         """Disable Y-axis aggregation controls for histograms since they compute frequency automatically."""
         is_histogram = chart_type == "histogram"
 
-        return dict(
-            aggregation_disabled=is_histogram,
-            y_field_disabled=is_histogram,
-            y_label_disabled=False,  # Keep label editable for all chart types
-            aggregation_value="count" if is_histogram else no_update,  # Set to count for histograms
-        )
+        return {
+            "aggregation_disabled": is_histogram,
+            "y_field_disabled": is_histogram,
+            "y_label_disabled": False,  # Keep label editable for all chart types
+            "aggregation_value": "count" if is_histogram else no_update,  # Set to count for histograms
+        }
 
 
 def _register_color_by_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            is_open=Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
-            icon_class=Output(component_builder(ComponentID.COLOR_BY_ICON), "className"),
-        ),
-        inputs=dict(n_clicks=Input(component_builder(ComponentID.COLOR_BY_TOGGLE), "n_clicks")),
-        state=dict(is_open=State(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open")),
+        output={
+            "is_open": Output(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open", allow_duplicate=True),
+            "icon_class": Output(component_builder(ComponentID.COLOR_BY_ICON), "className"),
+        },
+        inputs={"n_clicks": Input(component_builder(ComponentID.COLOR_BY_TOGGLE), "n_clicks")},
+        state={"is_open": State(component_builder(ComponentID.COLOR_BY_COLLAPSE), "is_open")},
         prevent_initial_call=True,
     )
     def toggle_color_by_section(n_clicks, is_open):
         if n_clicks:
             new_state = not is_open
             icon_class = "fas fa-chevron-down me-2" if new_state else "fas fa-chevron-right me-2"
-            return dict(is_open=new_state, icon_class=icon_class)
-        return dict(is_open=is_open, icon_class="fas fa-chevron-right me-2")
+            return {"is_open": new_state, "icon_class": icon_class}
+        return {"is_open": is_open, "icon_class": "fas fa-chevron-right me-2"}
 
 
 def _register_selection_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -825,20 +825,20 @@ def _register_selection_toggle(dash_app: "Dash", collection_name: CollectionName
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            is_open=Output(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open"),
-            icon_class=Output(component_builder(ComponentID.SELECTION_ICON), "className"),
-        ),
-        inputs=dict(n_clicks=Input(component_builder(ComponentID.SELECTION_TOGGLE), "n_clicks")),
-        state=dict(is_open=State(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open")),
+        output={
+            "is_open": Output(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open"),
+            "icon_class": Output(component_builder(ComponentID.SELECTION_ICON), "className"),
+        },
+        inputs={"n_clicks": Input(component_builder(ComponentID.SELECTION_TOGGLE), "n_clicks")},
+        state={"is_open": State(component_builder(ComponentID.SELECTION_COLLAPSE), "is_open")},
         prevent_initial_call=True,
     )
     def toggle_selection_section(n_clicks, is_open):
         if n_clicks:
             new_state = not is_open
             icon_class = "fas fa-chevron-down" if new_state else "fas fa-chevron-right"
-            return dict(is_open=new_state, icon_class=icon_class)
-        return dict(is_open=is_open, icon_class="fas fa-chevron-down")
+            return {"is_open": new_state, "icon_class": icon_class}
+        return {"is_open": is_open, "icon_class": "fas fa-chevron-down"}
 
 
 def _register_value_text_toggle(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -846,20 +846,20 @@ def _register_value_text_toggle(dash_app: "Dash", collection_name: CollectionNam
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            is_open=Output(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open"),
-            icon_class=Output(component_builder(ComponentID.VALUE_TEXT_ICON), "className"),
-        ),
-        inputs=dict(n_clicks=Input(component_builder(ComponentID.VALUE_TEXT_TOGGLE), "n_clicks")),
-        state=dict(is_open=State(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open")),
+        output={
+            "is_open": Output(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open"),
+            "icon_class": Output(component_builder(ComponentID.VALUE_TEXT_ICON), "className"),
+        },
+        inputs={"n_clicks": Input(component_builder(ComponentID.VALUE_TEXT_TOGGLE), "n_clicks")},
+        state={"is_open": State(component_builder(ComponentID.VALUE_TEXT_COLLAPSE), "is_open")},
         prevent_initial_call=True,
     )
     def toggle_value_text_section(n_clicks, is_open):
         if n_clicks:
             new_state = not is_open
             icon_class = "fas fa-chevron-down" if new_state else "fas fa-chevron-right"
-            return dict(is_open=new_state, icon_class=icon_class)
-        return dict(is_open=is_open, icon_class="fas fa-chevron-right")
+            return {"is_open": new_state, "icon_class": icon_class}
+        return {"is_open": is_open, "icon_class": "fas fa-chevron-right"}
 
 
 def _register_chart_type_selection(dash_app: "Dash", collection_name: CollectionName) -> None:
@@ -869,12 +869,12 @@ def _register_chart_type_selection(dash_app: "Dash", collection_name: Collection
 
     @dash_app.callback(
         output=Output(component_builder(ComponentID.MODAL_CHART_TYPE), "value", allow_duplicate=True),
-        inputs=dict(
-            n_clicks_list=Input(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "n_clicks"),
-        ),
-        state=dict(
-            id_list=State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
-        ),
+        inputs={
+            "n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "n_clicks"),
+        },
+        state={
+            "id_list": State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
+        },
         prevent_initial_call=True,
     )
     def handle_chart_type_card_click(n_clicks_list, id_list):
@@ -887,12 +887,12 @@ def _register_chart_type_selection(dash_app: "Dash", collection_name: Collection
 
     @dash_app.callback(
         output=Output(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "className"),
-        inputs=dict(
-            chart_type=Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
-        ),
-        state=dict(
-            id_list=State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
-        ),
+        inputs={
+            "chart_type": Input(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
+        },
+        state={
+            "id_list": State(pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, ALL), "id"),
+        },
     )
     def sync_chart_type_highlight(chart_type, id_list):
         """Keep visual selection in sync with the current chart type value."""
@@ -914,37 +914,37 @@ def _register_chart_creation(
     pattern_builder = PatternMatchingComponentID(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            modal_open=Output(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open", allow_duplicate=True),
-            alert_open=Output(component_builder(ComponentID.MODAL_VALIDATION_ALERT), "is_open"),
-            alert_children=Output(component_builder(ComponentID.MODAL_VALIDATION_ALERT), "children"),
-            edit_id=Output(component_builder(ComponentID.EDIT_CHART_ID), "data", allow_duplicate=True),
-            render_trigger=Output(component_builder(ComponentID.RENDER_TRIGGER), "data", allow_duplicate=True),
-            chart_configs=Output(component_builder(ComponentID.CHART_CONFIGS_STORE), "data", allow_duplicate=True),
-        ),
-        inputs=dict(n_clicks=Input(component_builder(ComponentID.MODAL_CREATE_BTN), "n_clicks")),
-        state=dict(
-            title=State(component_builder(ComponentID.MODAL_CHART_TITLE), "value"),
-            chart_type=State(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
-            x_field=State(component_builder(ComponentID.MODAL_X_FIELD), "value"),
-            x_label=State(component_builder(ComponentID.MODAL_X_LABEL), "value"),
-            color_field=State(component_builder(ComponentID.MODAL_COLOR_FIELD), "value"),
-            aggregation=State(component_builder(ComponentID.MODAL_AGGREGATION), "value"),
-            y_field=State(component_builder(ComponentID.MODAL_Y_FIELD), "value"),
-            y_label=State(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
-            show_legend=State(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
-            show_grid=State(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
-            y_log_scale=State(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
-            current_filter_values=State(component_builder(ComponentID.FILTER_STORE), "data"),
-            modal_filter_values=State(
+        output={
+            "modal_open": Output(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open", allow_duplicate=True),
+            "alert_open": Output(component_builder(ComponentID.MODAL_VALIDATION_ALERT), "is_open"),
+            "alert_children": Output(component_builder(ComponentID.MODAL_VALIDATION_ALERT), "children"),
+            "edit_id": Output(component_builder(ComponentID.EDIT_CHART_ID), "data", allow_duplicate=True),
+            "render_trigger": Output(component_builder(ComponentID.RENDER_TRIGGER), "data", allow_duplicate=True),
+            "chart_configs": Output(component_builder(ComponentID.CHART_CONFIGS_STORE), "data", allow_duplicate=True),
+        },
+        inputs={"n_clicks": Input(component_builder(ComponentID.MODAL_CREATE_BTN), "n_clicks")},
+        state={
+            "title": State(component_builder(ComponentID.MODAL_CHART_TITLE), "value"),
+            "chart_type": State(component_builder(ComponentID.MODAL_CHART_TYPE), "value"),
+            "x_field": State(component_builder(ComponentID.MODAL_X_FIELD), "value"),
+            "x_label": State(component_builder(ComponentID.MODAL_X_LABEL), "value"),
+            "color_field": State(component_builder(ComponentID.MODAL_COLOR_FIELD), "value"),
+            "aggregation": State(component_builder(ComponentID.MODAL_AGGREGATION), "value"),
+            "y_field": State(component_builder(ComponentID.MODAL_Y_FIELD), "value"),
+            "y_label": State(component_builder(ComponentID.MODAL_Y_LABEL), "value"),
+            "show_legend": State(component_builder(ComponentID.MODAL_SHOW_LEGEND), "value"),
+            "show_grid": State(component_builder(ComponentID.MODAL_SHOW_GRID), "value"),
+            "y_log_scale": State(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value"),
+            "current_filter_values": State(component_builder(ComponentID.FILTER_STORE), "data"),
+            "modal_filter_values": State(
                 pattern_builder.pattern(ComponentID.MODAL_FILTER, ALL, index_key="field"), "value"
             ),
-            filter_specs=State(component_builder(ComponentID.FILTER_SPECS), "data"),
-            edit_chart_id=State(component_builder(ComponentID.EDIT_CHART_ID), "data"),
-            render_trigger=State(component_builder(ComponentID.RENDER_TRIGGER), "data"),
-            chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
-            show_zero_values=State(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
-        ),
+            "filter_specs": State(component_builder(ComponentID.FILTER_SPECS), "data"),
+            "edit_chart_id": State(component_builder(ComponentID.EDIT_CHART_ID), "data"),
+            "render_trigger": State(component_builder(ComponentID.RENDER_TRIGGER), "data"),
+            "chart_configs": State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+            "show_zero_values": State(component_builder(ComponentID.MODAL_SHOW_NON_ZERO), "value"),
+        },
         prevent_initial_call=True,
     )
     def create_or_update_chart(
@@ -971,14 +971,14 @@ def _register_chart_creation(
         logger.debug(f"[MODAL] create_or_update_chart called, n_clicks={n_clicks}")
         logger.debug(f"[MODAL] chart_configs before: {list((chart_configs or {}).keys())}")
 
-        no_change = dict(
-            modal_open=no_update,
-            alert_open=False,
-            alert_children="",
-            edit_id=no_update,
-            render_trigger=no_update,
-            chart_configs=no_update,
-        )
+        no_change = {
+            "modal_open": no_update,
+            "alert_open": False,
+            "alert_children": "",
+            "edit_id": no_update,
+            "render_trigger": no_update,
+            "chart_configs": no_update,
+        }
 
         if not n_clicks:
             return no_change
@@ -987,14 +987,14 @@ def _register_chart_creation(
 
         errors = _validate_chart_form(title, x_field, aggregation, y_field, chart_type, color_field)
         if errors:
-            return dict(
-                modal_open=no_update,
-                alert_open=True,
-                alert_children=html.Ul([html.Li(e) for e in errors]),
-                edit_id=no_update,
-                render_trigger=no_update,
-                chart_configs=no_update,
-            )
+            return {
+                "modal_open": no_update,
+                "alert_open": True,
+                "alert_children": html.Ul([html.Li(e) for e in errors]),
+                "edit_id": no_update,
+                "render_trigger": no_update,
+                "chart_configs": no_update,
+            }
 
         chart_config = _build_chart_config(
             edit_chart_id=edit_chart_id,
@@ -1024,14 +1024,14 @@ def _register_chart_creation(
         logger.debug(
             f"[MODAL] {'Updated' if is_edit_mode else 'Created'} chart {chart_id}, chart_configs after: {list(updated_chart_configs.keys())}"
         )
-        return dict(
-            modal_open=False,
-            alert_open=False,
-            alert_children="",
-            edit_id=None,
-            render_trigger=no_update,
-            chart_configs=updated_chart_configs,
-        )
+        return {
+            "modal_open": False,
+            "alert_open": False,
+            "alert_children": "",
+            "edit_id": None,
+            "render_trigger": no_update,
+            "chart_configs": updated_chart_configs,
+        }
 
 
 def _validate_chart_form(

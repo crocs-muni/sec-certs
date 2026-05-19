@@ -408,7 +408,7 @@ class FulltextSearch(ABC):
     def select_certs(cls, q, cat, categories, status, document_type, **kwargs) -> tuple[Iterable[Mapping], int]:
         res, count, qr = cls.select_items(q, cat, categories, status, document_type, **kwargs)
         dgsts = set(map(operator.itemgetter("dgst"), res))
-        certs = list(map(lambda dgst: load(cls.collection.find_one({"_id": dgst})), dgsts))
+        certs = [load(cls.collection.find_one({"_id": dgst})) for dgst in dgsts]
         return certs, len(certs)
 
     @classmethod

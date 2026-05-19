@@ -75,7 +75,7 @@ def import_map(file):  # pragma: no cover
 
 @cc.cli.command("update-kb", help="Update the KB of CC certs.")
 def update_kb():
-    ids = list(map(lambda doc: doc["_id"], mongo.db.cc.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.cc.find({}, {"_id": 1})]
     reports = [(dgst, "report", None) for dgst in ids]
     targets = [(dgst, "target", None) for dgst in ids]
     update_kb_core(reports + targets)

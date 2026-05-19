@@ -113,7 +113,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 
 @actor("fips_reindex_all", "fips_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
-    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
     to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "target", "cert")]
     tasks = []
     for i in range(0, len(to_reindex), 1000):
@@ -180,7 +180,7 @@ def archive(ids, paths):  # pragma: no cover
 
 @actor("fips_archive_all", "fips_archive_all", "updates", timedelta(hours=1))
 def archive_all():  # pragma: no cover
-    ids = list(map(lambda doc: doc["_id"], mongo.db.fips.find({}, {"_id": 1})))
+    ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
     updater = FIPSUpdater()
     paths = updater.make_dataset_paths()
     archive.send(ids, {name: str(path) for name, path in paths.items()})

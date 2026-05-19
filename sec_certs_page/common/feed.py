@@ -39,7 +39,7 @@ class Feed:
                 diffs = list(
                     map(load, self.diff_collection.find({"dgst": hashid}, sort=[("timestamp", pymongo.ASCENDING)]))
                 )
-                diff_renders = list(map(lambda x: self.renderer.render_diff(hashid, doc, x, linkback=True), diffs))
+                diff_renders = [self.renderer.render_diff(hashid, doc, x, linkback=True) for x in diffs]
             fg = FeedGenerator()
             fg.id(feed_url)
             fg.title(

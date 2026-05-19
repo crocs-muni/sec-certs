@@ -53,7 +53,7 @@ def _patch_dramatiq_broker():
                 middleware = None
 
         if middleware is None:
-            middleware = list(m() for m in default_middleware)
+            middleware = [m() for m in default_middleware]
         else:
             middleware = list(middleware)
 

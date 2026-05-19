@@ -18,7 +18,7 @@ def hash_password(password):
 
 def derive_secret(*items: str, digest_size: int = 16) -> bytes:
     blake = hashlib.blake2b(
-        b"".join(map(lambda x: x.encode("utf-8"), items)),
+        b"".join(x.encode("utf-8") for x in items),
         key=unhexlify(current_app.config["SECRET_KEY"]),
         digest_size=digest_size,
     )

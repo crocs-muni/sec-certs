@@ -7,7 +7,7 @@ from whoosh.analysis import STOP_WORDS, Analyzer, Filter, LowercaseFilter, PassF
 class IntraWordFilter(Filter):
     is_morph = True
 
-    __inittypes__ = dict(delims=str, splitwords=bool, splitnums=bool, merge=bool)
+    __inittypes__ = {"delims": str, "splitwords": bool, "splitnums": bool, "merge": bool}
 
     def __init__(self, delims="-_'\"()!@#$%^&*[]{}<>\\|;:,./?`~=+", splitwords=True, splitnums=True, merge=False):
         """

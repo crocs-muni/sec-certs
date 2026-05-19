@@ -116,9 +116,9 @@ def entry(hashid):
         renderer = PPRenderer()
         with sentry_sdk.start_span(op="mongo", name="Find and render diffs"):
             diffs = list(mongo.db.pp_diff.find({"dgst": hashid}, sort=[("timestamp", pymongo.DESCENDING)]))
-            diff_jsons = list(map(lambda x: StorageFormat(x).to_json_mapping(), diffs))
+            diff_jsons = [StorageFormat(x).to_json_mapping() for x in diffs]
             diffs = list(map(load, diffs))
-            diff_renders = list(map(lambda x: renderer.render_diff(hashid, doc, x, linkback=False), diffs))
+            diff_renders = [renderer.render_diff(hashid, doc, x, linkback=False) for x in diffs]
         with sentry_sdk.start_span(op="mongo", name="Find subscription"):
             if current_user.is_authenticated:
                 subs = mongo.db.subs.find_one(
