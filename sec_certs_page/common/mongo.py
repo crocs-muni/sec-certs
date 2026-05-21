@@ -62,7 +62,7 @@ def drop_collection(collection):
 def query_collection(query, projection, collection):
     """Query a MongoDB collection and return the results as JSON mappings."""
     docs = collection.find(query, projection=projection)
-    return list(map(lambda d: StorageFormat(d).to_json_mapping(), docs))
+    return [StorageFormat(d).to_json_mapping() for d in docs]
 
 
 def collection_status(collection):

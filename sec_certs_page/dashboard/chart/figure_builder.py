@@ -80,16 +80,16 @@ class FigureBuilder:
 
             fig = cls._create_chart_by_type(config, agg_df, x_field, actual_y_field, color_field, hover_data=hover_data)
             fig.update_layout(
-                title=dict(text=config.title, font=dict(size=20)),
+                title={"text": config.title, "font": {"size": 20}},
                 showlegend=config.show_legend,
                 template="plotly_white",
-                margin=dict(l=40, r=40, t=50, b=40),
+                margin={"l": 40, "r": 40, "t": 50, "b": 40},
                 height=800,
-                font=dict(size=14),
-                legend=dict(font=dict(size=12)),
+                font={"size": 14},
+                legend={"font": {"size": 12}},
             )
-            fig.update_xaxes(title_font=dict(size=18), tickfont=dict(size=14))
-            fig.update_yaxes(title_font=dict(size=18), tickfont=dict(size=14))
+            fig.update_xaxes(title_font={"size": 18}, tickfont={"size": 14})
+            fig.update_yaxes(title_font={"size": 18}, tickfont={"size": 14})
             cls._apply_axis_scale(fig, config)
 
             return fig
@@ -138,16 +138,16 @@ class FigureBuilder:
             df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
             fig = cls._create_chart_by_type(config, df, x_field, y_field, color_field, hover_data=hover_data)
             fig.update_layout(
-                title=dict(text=config.title, font=dict(size=20)),
+                title={"text": config.title, "font": {"size": 20}},
                 showlegend=config.show_legend,
                 template="plotly_white",
-                margin=dict(l=40, r=40, t=50, b=40),
+                margin={"l": 40, "r": 40, "t": 50, "b": 40},
                 height=800,
-                font=dict(size=14),
-                legend=dict(font=dict(size=12)),
+                font={"size": 14},
+                legend={"font": {"size": 12}},
             )
-            fig.update_xaxes(title_font=dict(size=18), tickfont=dict(size=14))
-            fig.update_yaxes(title_font=dict(size=18), tickfont=dict(size=14))
+            fig.update_xaxes(title_font={"size": 18}, tickfont={"size": 14})
+            fig.update_yaxes(title_font={"size": 18}, tickfont={"size": 14})
             # Apply logarithmic scale if configured
             cls._apply_axis_scale(fig, config)
 
@@ -307,14 +307,14 @@ class FigureBuilder:
             x=0.5,
             y=0.5,
             showarrow=False,
-            font=dict(size=18, color=color),
+            font={"size": 18, "color": color},
             align="center",
         )
         fig.update_layout(
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
+            xaxis={"visible": False},
+            yaxis={"visible": False},
             template="plotly_white",
-            margin=dict(l=40, r=40, t=40, b=40),
+            margin={"l": 40, "r": 40, "t": 40, "b": 40},
             height=400,
         )
         return fig

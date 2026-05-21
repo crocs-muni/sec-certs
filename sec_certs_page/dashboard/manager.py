@@ -1,9 +1,7 @@
 import logging
 from logging import Logger
-from typing import Optional
-from uuid import uuid4
 
-from .chart.config import AxisConfig, ChartConfig
+from .chart.config import ChartConfig
 from .chart.error import ErrorChart
 from .chart.factory import ChartFactory
 from .chart.predefined_charts.analysis_charts import create_cc_analysis_charts, create_fips_analysis_charts
@@ -16,9 +14,7 @@ from .dashboard import Dashboard
 from .data import DataService
 from .filters.factory import FilterFactory
 from .repository import DashboardRepository
-from .types.chart import ChartType
 from .types.common import CollectionName
-from .types.filter import AggregationType
 
 logger: Logger = logging.getLogger(__name__)
 
@@ -160,21 +156,21 @@ class DashboardManager:
     def save_dashboard(self, dashboard: Dashboard) -> str:
         return self.repository.save(dashboard)
 
-    def get_dashboard(self, dashboard_id: str) -> Optional[Dashboard]:
+    def get_dashboard(self, dashboard_id: str) -> Dashboard | None:
         return self.repository.get_by_id(dashboard_id)
 
     def get_user_dashboards(
         self,
         user_id: str,
-        collection_name: Optional[CollectionName] = None,
+        collection_name: CollectionName | None = None,
     ) -> list[Dashboard]:
         return self.repository.get_by_user(user_id, collection_name)
 
-    def get_default_dashboard(self, user_id: str, collection_name: CollectionName) -> Optional[Dashboard]:
+    def get_default_dashboard(self, user_id: str, collection_name: CollectionName) -> Dashboard | None:
         return self.repository.get_default(user_id, collection_name)
 
     def delete_dashboard(self, dashboard_id: str, user_id: str) -> bool:
         return self.repository.delete(dashboard_id, user_id)
 
-    def count_user_dashboards(self, user_id: str, collection_name: Optional[CollectionName] = None) -> int:
+    def count_user_dashboards(self, user_id: str, collection_name: CollectionName | None = None) -> int:
         return self.repository.count_by_user(user_id, collection_name)

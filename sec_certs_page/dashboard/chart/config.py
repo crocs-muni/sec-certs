@@ -341,6 +341,4 @@ class ChartConfig:
         """
         # Convert UUID to string and take first 8 characters for brevity
         chart_id_str = str(self.chart_id)[:8] if self.chart_id else "None"
-        return (
-            f"Chart(id={chart_id_str}..., name='{self.name}', " f"type={self.chart_type}, filters={len(self.filters)})"
-        )
+        return f"Chart(id={chart_id_str}..., name='{self.name}', type={self.chart_type}, filters={len(self.filters)})"

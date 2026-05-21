@@ -1,9 +1,9 @@
-from flask import abort, current_app, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import current_app, flash, redirect, render_template, request, session, url_for
 from flask_dance.contrib.github import github
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 
-from .. import app, mongo
+from .. import app
 from ..common.permissions import admin_permission
 from ..common.sentry import metrics
 from ..common.views import check_captcha, register_breadcrumb
@@ -17,21 +17,20 @@ from .tasks import send_confirmation_email, send_magic_link_email, send_password
 @register_breadcrumb(user, ".login", "Login")
 def login():
     form = LoginForm()
-    if form.is_submitted():
-        if form.validate():
-            user_obj = User.get(form.username.data)
-            if user_obj and user_obj.check_password(form.password.data):
-                login_user(user_obj, form.remember_me.data)
-                identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
-                metrics.count("user.login", 1)
-                flash("You've been successfully logged in.", "info")
-                if admin_permission.can():
-                    return redirect(url_for("admin.index"))
-                else:
-                    return redirect(url_for("index"))
+    if form.is_submitted() and form.validate():
+        user_obj = User.get(form.username.data)
+        if user_obj and user_obj.check_password(form.password.data):
+            login_user(user_obj, form.remember_me.data)
+            identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
+            metrics.count("user.login", 1)
+            flash("You've been successfully logged in.", "info")
+            if admin_permission.can():
+                return redirect(url_for("admin.index"))
             else:
-                metrics.count("user.login_failed", 1, attributes={"reason": "invalid_credentials"})
-                flash("Bad.", "error")
+                return redirect(url_for("index"))
+        else:
+            metrics.count("user.login_failed", 1, attributes={"reason": "invalid_credentials"})
+            flash("Bad.", "error")
     return render_template("user/login.html.jinja2", form=form)
 
 
@@ -120,10 +119,9 @@ def reset_password(token):
         flash("Invalid or expired reset link.", "error")
         return redirect(url_for("user.forgot_password"))
 
-    if current_user.is_authenticated:
-        if current_user.username != user.username:
-            flash("Invalid or expired reset link.", "error")
-            return redirect(url_for("user.forgot_password"))
+    if current_user.is_authenticated and current_user.username != user.username:
+        flash("Invalid or expired reset link.", "error")
+        return redirect(url_for("user.forgot_password"))
 
     form = PasswordResetForm()
     if form.validate_on_submit():
@@ -282,11 +280,11 @@ if app.config["GITHUB_OAUTH_ENABLED"]:
                 identity_changed.send(current_app._get_current_object(), identity=Identity(user_obj.id))
                 flash(f"Account created successfully! Welcome, {user_obj.username}!", "success")
                 return redirect(url_for("index"))
-            except ValueError as e:
+            except ValueError:
                 flash("Failed to create account. Please try again.", "error")
                 return redirect(url_for("user.login"))
 
-        except Exception as e:
+        except Exception:
             flash("Authentication failed. Please try again.", "error")
             return redirect(url_for("user.login"))
 

@@ -1,3 +1,4 @@
+import contextlib
 import shutil
 import zipfile
 from pathlib import Path
@@ -27,11 +28,8 @@ def upload_docs():
         with zipfile.ZipFile(request.files["data"], "r") as z:
             z.extractall(docs_dir)
     finally:
-        try:
+        with contextlib.suppress(LockNotOwnedError):
             lock.release()
-        except LockNotOwnedError:
-            # We lost the lock in the meantime but no biggie
-            pass
     return "Docs uploaded correctly"
 
 

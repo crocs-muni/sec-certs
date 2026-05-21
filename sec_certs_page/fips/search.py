@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any
 
 import pymongo
 import sentry_sdk
@@ -22,9 +23,9 @@ class FIPSBasicSearch(BasicSearch):
     @classmethod
     def select_certs(
         cls, q, cat, categories, status, sort, **kwargs
-    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
-        query: Dict[str, Any] = {}
-        projection: Dict[str, Any] = {
+    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
+        query: dict[str, Any] = {}
+        projection: dict[str, Any] = {
             "_id": 1,
             "cert_id": 1,
             "web_data.module_name": 1,
@@ -57,14 +58,16 @@ class FIPSBasicSearch(BasicSearch):
         if status is not None and status != "Any":
             query["web_data.status"] = status
 
-        with metrics.timing("search.latency", attributes={"collection": "fips", "type": "basic"}):
-            with sentry_sdk.start_span(op="mongo", name="Find certs."):
-                cursor: Cursor[Mapping] = cls.collection.find(query, projection)
-                count: int = cls.collection.count_documents(query)
+        with (
+            metrics.timing("search.latency", attributes={"collection": "fips", "type": "basic"}),
+            sentry_sdk.start_span(op="mongo", name="Find certs."),
+        ):
+            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+            count: int = cls.collection.count_documents(query)
 
         metrics.distribution("search.results_count", count, attributes={"collection": "fips"})
 
-        timeline: List[Optional[datetime]] = []
+        timeline: list[datetime | None] = []
         for cert in cursor.clone():
             val_history = cert["web_data"]["validation_history"]
             if not val_history:

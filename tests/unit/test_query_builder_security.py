@@ -4,7 +4,6 @@ These are pure unit tests that don't require MongoDB or any fixtures.
 """
 
 import pytest
-
 from sec_certs_page.dashboard.filters.query_builder import (
     ALLOWED_DATABASE_FIELDS,
     FieldValidationError,
@@ -138,9 +137,9 @@ class TestAllowedFieldsDerivation:
         # Dynamically check all registries
         for registry in get_all_registries():
             for filter_spec in registry.get_all_filters().values():
-                assert (
-                    filter_spec.database_field in fields
-                ), f"Field '{filter_spec.database_field}' from {registry.__name__} missing"
+                assert filter_spec.database_field in fields, (
+                    f"Field '{filter_spec.database_field}' from {registry.__name__} missing"
+                )
 
     def test_whitelist_is_frozenset(self):
         """Whitelist should be immutable."""
@@ -149,4 +148,4 @@ class TestAllowedFieldsDerivation:
 
     def test_constant_matches_function(self):
         """ALLOWED_DATABASE_FIELDS constant should match function output."""
-        assert ALLOWED_DATABASE_FIELDS == get_allowed_database_fields()
+        assert get_allowed_database_fields() == ALLOWED_DATABASE_FIELDS

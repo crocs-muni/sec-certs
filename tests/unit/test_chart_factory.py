@@ -1,10 +1,8 @@
-from typing import Optional
 from uuid import uuid4
 
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
-
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
 from sec_certs_page.dashboard.chart.figure_builder import FigureBuilder
@@ -135,7 +133,7 @@ class TestFigureBuilderCreateFigure:
     ) -> None:
         """create_figure produces valid Figure for all supported chart types."""
         y_field = "count"
-        y_agg: Optional[AggregationType] = AggregationType.COUNT
+        y_agg: AggregationType | None = AggregationType.COUNT
 
         if chart_type in (ChartType.BOX, ChartType.SCATTER):
             y_field = "eal_level"
