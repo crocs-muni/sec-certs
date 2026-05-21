@@ -1185,3 +1185,11 @@ h6 {
 [data-bs-theme="dark"] .bg-darker-light .alert-info a {
     color: #9EC5FE;
 }
+
+/*File metadata collapsible button — visible focus ring*/
+    
+.metadata-container > button:focus-visible {
+    outline: 3px solid var(--bs-focus-ring-color, #86b7fe);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
