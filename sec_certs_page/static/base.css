@@ -1103,6 +1103,24 @@ h6 {
     color: #85B6FF;
 }
 
+/* Higher contrast links on .bg-darker-light background*/
+[data-bs-theme="dark"] .bg-darker-light a:not(.btn) {
+    color: #9EC5FE;
+}
+[data-bs-theme="dark"] .bg-darker-light .btn-link {
+    --bs-btn-color: #9EC5FE;
+    --bs-btn-hover-color: #cfe2ff;
+    --bs-btn-active-color: #cfe2ff;
+}
+
+[data-bs-theme="light"] .bg-darker-light a:not(.btn) {
+    color: #1A6BCC;
+}
+[data-bs-theme="light"] .bg-darker-light .btn-link {
+    --bs-btn-color: #1A6BCC;
+    --bs-btn-hover-color: #0056B3;
+    --bs-btn-active-color: #0056B3;
+}
 
 /* ==========================================================================
    Status label colors per theme
@@ -1110,8 +1128,7 @@ h6 {
 
 /* Light mode */
 [data-bs-theme="light"] .status-active {
-    color: #57C78B;
-    /*color: #198754;*/
+    color: #177D4D;
 }
 [data-bs-theme="light"] .status-archived{
     color: #8B6313;
@@ -1137,10 +1154,16 @@ h6 {
 
 /* EUCC assurance levels */
 [data-bs-theme="light"] .eucc-assurance-high {
-    color: #146c43;
+    color: #177D4D;
 }
 [data-bs-theme="dark"] .eucc-assurance-high {
-    color: #86d4ae;
+    color: #57C78B;
+}
+[data-bs-theme="light"] .eucc-assurance-substantial {
+    color: #946300;
+}
+[data-bs-theme="dark"] .eucc-assurance-substantial {
+    color: #FFCA2C;
 }
 
 /* ==========================================================================
@@ -1148,10 +1171,17 @@ h6 {
    ========================================================================== */
 
 [data-bs-theme="light"] .alert-primary a,
-[data-bs-theme="light"] .alert-info a {
+[data-bs-theme="light"] .alert-info a,
+[data-bs-theme="light"] .bg-darker-light .alert-primary a,
+[data-bs-theme="light"] .bg-darker-light .alert-info a {
     color: #0158E4;
 }
 
 [data-bs-theme="light"] .alert-warning a {
     color: #6B4800;
+}
+
+[data-bs-theme="dark"] .alert-info a,
+[data-bs-theme="dark"] .bg-darker-light .alert-info a {
+    color: #9EC5FE;
 }
