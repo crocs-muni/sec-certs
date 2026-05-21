@@ -1110,7 +1110,8 @@ h6 {
 
 /* Light mode */
 [data-bs-theme="light"] .status-active {
-    color: #198754;
+    color: #57C78B;
+    /*color: #198754;*/
 }
 [data-bs-theme="light"] .status-archived{
     color: #8B6313;
@@ -1124,7 +1125,7 @@ h6 {
 
 /* Dark mode */
 [data-bs-theme="dark"] .status-active {
-    color: #3FBD7A;
+    color: #57C78B;
 }
 [data-bs-theme="dark"] .status-archived,
 [data-bs-theme="dark"] .status-historical {
@@ -1132,6 +1133,14 @@ h6 {
 }
 [data-bs-theme="dark"] .status-revoked {
     color: #ea868f;
+}
+
+/* EUCC assurance levels */
+[data-bs-theme="light"] .eucc-assurance-high {
+    color: #146c43;
+}
+[data-bs-theme="dark"] .eucc-assurance-high {
+    color: #86d4ae;
 }
 
 /* ==========================================================================
