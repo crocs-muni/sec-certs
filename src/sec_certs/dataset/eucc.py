@@ -253,13 +253,13 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
             response = requests.get(constants.EUCC_RSS_URL, timeout=10)
             response.raise_for_status()
         except requests.RequestException as e:
-            print(f"Error fetching RSS feed: {e}")
+            logger.error(f"Error fetching RSS feed: {e}")
             return []
 
         try:
             root = ET.fromstring(response.content)
         except ET.ParseError as e:
-            print(f"Error parsing XML content: {e}")
+            logger.error(f"Error parsing XML content: {e}")
             return []
 
         links = set()

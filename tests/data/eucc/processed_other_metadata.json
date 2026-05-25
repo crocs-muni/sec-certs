@@ -6,7 +6,7 @@
   "holder_name": "Infineon Technologies AG",
   "holder_address": "Am Campeon 1-15 85579 Neubiberg",
   "holder_contact": "psirt@infineon.com",
-  "holder_website": "https://www.infineon.com/product-information/cybersecurity-information'/product/combicao/",
+  "holder_website": "https://www.infineon.com/product-information/cybersecurity-information",
   "certification_body": "Federal Office for Information Security Bundesamt für Sicherheit in der Informationstechnik",
   "nando_id": "3087",
   "certification_body_address": "Godesberger Allee 87 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn",
@@ -19,7 +19,7 @@
   "cc_version": "CC:2022",
   "cem_version": "CC:2022",
   "ava_van_level": "Global: 5, SubTSF: 6",
- "package": {"EAL5": ["ADV_IMP.2",
+  "package": {"EAL5": ["ADV_IMP.2",
                       "ADV_INT.3",
                       "ADV_TDS.5",
                       "ALC_CMC.5",
@@ -36,6 +36,6 @@
   "modification_or_reassurance": "N/A",
   "issuance_date_full": "'19/12/2025'",
   "validity_period_years": "5 years",
-    "product_description": "The TOE provides a real 16-bit CPU-architecture and is compatible to the Intel 80251 architecture. The major components of the core system are the two CPUs (Central Processing Units), the MMU (Memory Management Unit), and the MED (Memory Encryption/Decryption Unit). The dual interface controller is able to communicate using either the contact based or the contactless interface. This TOE is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems.1",
-    "certificate_yearly_number": null
-  }
+  "product_description": "The TOE provides a real 16-bit CPU-architecture and is compatible to the Intel 80251 architecture. The major components of the core system are the two CPUs (Central Processing Units), the MMU (Memory Management Unit), and the MED (Memory Encryption/Decryption Unit). The dual interface controller is able to communicate using either the contact based or the contactless interface. This TOE is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems.1",
+  "certificate_yearly_number": null
+}
