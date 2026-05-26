@@ -459,10 +459,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         scheme_dataset.to_json(self.scheme_data_path)
 
         for scheme, entries in entries_by_scheme.items():
-            scheme_pool_certs = [c for c in self if c.web_data and c.web_data.scheme == scheme]
+            scheme_pool_certs = [
+                c
+                for c in self
+                if c.web_data
+                and (c.web_data.scheme == scheme or (c.web_data.scheme is None and c.web_data.is_collaborative))
+            ]
             matchers = [PPSchemeMatcher(e) for e in entries]
             matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
-            # matched: {cert.dgst -> PPSchemeEntry}
             matched_entries = {id(v) for v in matched.values()}
 
             added = 0
