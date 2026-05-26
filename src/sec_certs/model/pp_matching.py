@@ -30,7 +30,14 @@ class PPSchemeMatcher(AbstractMatcher["ProtectionProfile"]):
 
         name_score = self._compute_match(entry.name, cert.web_data.name or "")
 
-        date_score = 100.0 if entry.not_valid_before == cert.web_data.not_valid_before else 0.0
+        date_score = 0.0
+        if entry.not_valid_before is not None and cert.web_data.not_valid_before is not None:
+            if entry.not_valid_before.year == cert.web_data.not_valid_before.year:
+                date_score += 33.0
+            if entry.not_valid_before.month == cert.web_data.not_valid_before.month:
+                date_score += 33.0
+            if entry.not_valid_before.day == cert.web_data.not_valid_before.day:
+                date_score += 34.0
 
         entry_eals = {x for x in entry.security_level if _EAL_RE.match(x)}
         cert_eals = {x for x in (cert.web_data.security_level or set()) if _EAL_RE.match(x)}
