@@ -85,9 +85,10 @@ def test_parse_package(input_text, expected_output):
     "cert_id, expected_output",
     [
         ("EUCC-3095-2025-07-01", "ES"),
+        ("EUCC-3087-2026-0000000002-00000", "DE"),
         ("EUCC-3110-2025-08-2500052-01", "NL"),
-        ("EUCC-3090-2025-10-0003", "FR"),
-        ("EUCC-3090-2026-14", "FR"),
+        ("EUCC-3110-2025-0002500052-00001", "NL"),
+        ("EUCC-3090-2025-0000000006-00000", "FR"),
     ],
 )
 def test_get_scheme_from_cert_id(cert_id, expected_output):
