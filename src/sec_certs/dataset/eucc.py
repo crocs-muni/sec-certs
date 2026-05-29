@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import random
 import time
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -245,32 +244,27 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
     def _download_certificates_links(self) -> list[str]:
         """
-        Fetches the RSS feed and extracts direct URLs to certificate detail pages.
-        RSS provides a more stable data structure than paring raw HTML.
+        Parses the EUCC base page and extracts URLs pointing to individual certificate detail pages.
         """
+        soup = self._get_soup(constants.EUCC_BASE_URL)
 
-        try:
-            response = requests.get(constants.EUCC_RSS_URL, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            logger.error(f"Error fetching RSS feed: {e}")
-            return []
+        links: set[str] = set()
 
-        try:
-            root = ET.fromstring(response.content)
-        except ET.ParseError as e:
-            logger.error(f"Error parsing XML content: {e}")
-            return []
+        for anchor in soup.select("main a"):
+            href = anchor.get("href")
+            if not href:
+                continue
 
-        links = set()
+            text = anchor.get_text(strip=True)
 
-        for item in root.findall(".//item"):
-            link_tag = item.find("link")
+            is_certificate_link = "certificate" in href.lower()
+            is_eucc_id_link = text.startswith("EUCC-")
 
-            if link_tag is not None and link_tag.text:
-                url = link_tag.text.strip()
-                if "/certificates/" in url:
-                    links.add(url)
+            if not (is_certificate_link or is_eucc_id_link):
+                continue
+
+            full_url = urljoin(constants.EUCC_BASE_URL, href)
+            links.add(full_url)
 
         self._fetch_delay()
         return sorted(links)
