@@ -417,6 +417,35 @@ class TestFilterFactoryGetAvailableFields:
         fips_values = {f["value"] for f in fips_fields}
         assert cc_values != fips_values
 
+    def test_get_available_fields_fips_excludes_validation_history(self) -> None:
+        """FIPS axis options omit the validation_history array field (use year_from instead)."""
+        factory = FilterFactory(CollectionName.FIPS140)
+
+        fields = factory.get_available_fields()
+
+        field_values = [f["value"] for f in fields]
+        assert "web_data.validation_history" not in field_values
+        assert "year_from" in field_values
+
+    def test_get_available_fields_fips_has_single_validation_year_option(self) -> None:
+        """The FIPS YEAR filter no longer duplicates the year_from 'Validation Year' option."""
+        factory = FilterFactory(CollectionName.FIPS140)
+
+        fields = factory.get_available_fields()
+
+        validation_year_options = [f for f in fields if f["label"] == "Validation Year"]
+        assert len(validation_year_options) == 1
+        assert validation_year_options[0]["value"] == "year_from"
+
+    def test_get_available_fields_excludes_date_fields_from_axis(self) -> None:
+        """CC date fields marked exclude_from_axis are not surfaced as raw axis options."""
+        factory = FilterFactory(CollectionName.CommonCriteria)
+
+        field_values = [f["value"] for f in factory.get_available_fields()]
+
+        assert "not_valid_before" not in field_values
+        assert "not_valid_after" not in field_values
+
 
 class TestFilterFactoryCreateFilterPanel:
     """Tests for FilterFactory.create_filter_panel public API."""

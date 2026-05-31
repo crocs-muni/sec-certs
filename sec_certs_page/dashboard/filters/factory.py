@@ -212,9 +212,11 @@ class FilterFactory:
         seen_fields = set()
 
         for filter_spec in self._registry.get_all_filters().values():
-            # Skip date fields that are better represented as derived year fields
-            # (e.g., prefer year_from over not_valid_before for grouping)
-            if filter_spec.database_field in ("not_valid_before", "not_valid_after"):
+            # Skip fields explicitly marked unsuitable as axis options (e.g. date
+            # fields better represented by the year_from derived field, or array
+            # fields like web_data.validation_history). The decision lives on the
+            # FilterSpec so adding new filters doesn't require touching this loop.
+            if filter_spec.exclude_from_axis:
                 continue
 
             if filter_spec.database_field in seen_fields:
