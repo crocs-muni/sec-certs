@@ -1,12 +1,21 @@
 <script type="text/javascript">
     $(function () {
         $("#feedback-button").click(function () {
-            $("#feedback-card").toggleClass("collapsed");
+            var card = $("#feedback-card");
+            card.toggleClass("collapsed");
+            if (!card.hasClass("collapsed")) {
+                card.find("a, button").first().focus();
+            } else {
+                $("#feedback-button").focus();
+            }
         });
     })
 </script>
 
 <div id="feedback">
+    <button id="feedback-button" class="btn btn-secondary" type="button">
+        <span class="fas fa-fw fa-question-circle" aria-hidden="true"></span> Feedback
+    </button>
     <div id="feedback-card" class="card card-body collapsed">
         <h4>Feedback</h4>
         <p>Found a bug in the tool?</p>
@@ -21,8 +30,5 @@
         href="mailto:hello@sec-certs.org?subject=Site+feedback">
             <span class="fas fa-fw fa-envelope color-white" aria-hidden="true"></span>
             Email us!</a>
-    </div>
-    <div id="feedback-button" class="btn btn-secondary">
-        <span class="fas fa-fw fa-question-circle" aria-hidden="true"></span> Feedback
     </div>
 </div>

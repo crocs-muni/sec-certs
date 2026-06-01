@@ -176,7 +176,8 @@ class CertificateNetwork {
             .text("Status");
 
         const statusFilter = statusBox.append("select")
-            .attr("name", "status");
+            .attr("name", "status")
+            .attr("aria-label", "Filter by status");
 
         for (let status in this.statuses) {
             statusFilter.append("option")

@@ -7,11 +7,12 @@
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
             <h1>FIPS 140</h1>
-            <h3 class="text-secondary">Search</h3>
+            <h2 class="text-secondary">Search</h2>
             <div class="card mt-3 mt-4 mb-4">
                 <div class="card-body container">
                     <div id="name" class="mt-1 mb-3">
                         <div class="form-inline">
+                            <label for="search" class="visually-hidden">Search prompt</label>
                             <input id="search" class="form-control mb-2" placeholder="Search prompt" type="search"
                                    value="{{ q|default('', true) }}"/>
                             <div class="form-check form-check-inline">
@@ -102,13 +103,13 @@
                                             <td>
                                                 <select id="search-status" class="form-select">
                                                     <option value="Any" {% if status == "Any" %}selected="selected"{% endif %}>Any</option>
-                                                    <option value="Active" class="text-success"
+                                                    <option value="Active" class="status-active"
                                                             {% if status == "active" %}selected="selected"{% endif %}>Active
                                                     </option>
-                                                    <option value="Historical" class="text-warning"
+                                                    <option value="Historical" class="status-historical"
                                                             {% if status == "Historical" %}selected="selected"{% endif %}>Historical
                                                     </option>
-                                                    <option value="Revoked" class="text-danger"
+                                                    <option value="Revoked" class="status-revoked"
                                                             {% if status == "Revoked" %}selected="selected"{% endif %}>Revoked
                                                     </option>
                                                 </select>

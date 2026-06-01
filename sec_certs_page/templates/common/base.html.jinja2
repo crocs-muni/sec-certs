@@ -221,6 +221,7 @@
     {% endblock %}
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navbar" data-bs-offset="57" class="position-relative">
+<a href="#content" class="skip-link">Skip to main content</a>
 <script>
     $(function () {
         let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -467,7 +468,7 @@
                                     </p>
                                 </div>
                                 <div class="flex-grow-1 flex-shrink-1 flex-basis-0">
-                                    <span class="fs-5 fw-bold d-inline-block mb-4">Quick links</span>
+                                    <h2 class="fs-5 fw-bold d-inline-block mb-4">Quick links</h2>
                                     <p><a href="{{ url_for("docs.serve_docs", path="index.html") }}"
                                           class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
                                         Documentation
