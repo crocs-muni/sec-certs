@@ -50,10 +50,10 @@ def cve(cve_id):
     if not cve_doc:
         return abort(404)
     criteria = set()
-    criteria |= set(vuln_cpe["criteria_id"] for vuln_cpe in cve_doc["vulnerable_cpes"])
+    criteria |= {vuln_cpe["criteria_id"] for vuln_cpe in cve_doc["vulnerable_cpes"]}
     for vuln_cfg in cve_doc["vulnerable_criteria_configurations"]:
         for vuln_component in vuln_cfg["components"]:
-            criteria |= set(vuln_match["criteria_id"] for vuln_match in vuln_component)
+            criteria |= {vuln_match["criteria_id"] for vuln_match in vuln_component}
 
     with sentry_sdk.start_span(op="mongo", name="Find CPE matches"):
         matches = {match["_id"]: match for match in mongo.db.cpe_match.find({"_id": {"$in": list(criteria)}})}

@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 from jsondiff import diff
 from sec_certs.sample.cc import CCCertificate
-
 from sec_certs_page.common.objformats import ObjFormat, WorkingFormat, freeze, unfreeze
 
 

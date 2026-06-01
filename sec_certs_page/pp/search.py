@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import datetime
-from typing import List, Mapping, Optional, Tuple, Union
 
 import pymongo
 import sentry_sdk
@@ -21,7 +21,7 @@ class PPBasicSearch(BasicSearch):
     collection = mongo.db.pp
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         res = super().parse_args(args)
         scheme = args.get("scheme", "any")
         res["scheme"] = scheme
@@ -32,7 +32,7 @@ class PPBasicSearch(BasicSearch):
     @classmethod
     def select_certs(
         cls, q, cat, categories, status, sort, **kwargs
-    ) -> Tuple[Cursor[Mapping], int, List[Optional[datetime]]]:
+    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
         """Take parsed args and get the certs as: cursor and count."""
         query = {}
         projection = {
@@ -66,10 +66,12 @@ class PPBasicSearch(BasicSearch):
         if "eal" in kwargs and kwargs["eal"] != "any":
             query["web_data.security_level._value"] = kwargs["eal"]
 
-        with metrics.timing("search.latency", attributes={"collection": "pp", "type": "basic"}):
-            with sentry_sdk.start_span(op="mongo", name="Find certs."):
-                cursor: Cursor[Mapping] = cls.collection.find(query, projection)
-                count: int = cls.collection.count_documents(query)
+        with (
+            metrics.timing("search.latency", attributes={"collection": "pp", "type": "basic"}),
+            sentry_sdk.start_span(op="mongo", name="Find certs."),
+        ):
+            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
+            count: int = cls.collection.count_documents(query)
 
         metrics.distribution("search.results_count", count, attributes={"collection": "pp"})
 
@@ -105,7 +107,7 @@ class PPFulltextSearch(FulltextSearch):
     doc_dir = "DATASET_PATH_PP_DIR"
 
     @classmethod
-    def parse_args(cls, args: Union[dict, MultiDict]) -> dict[str, Optional[Union[int, str]]]:
+    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
         res = super().parse_args(args)
         scheme = args.get("scheme", "any")
         res["scheme"] = scheme

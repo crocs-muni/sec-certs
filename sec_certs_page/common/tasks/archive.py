@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 
@@ -63,7 +62,7 @@ class Archiver:  # pragma: no cover
                 from_file = src / name
                 to_file = dst / name
                 if from_file.exists():
-                    os.symlink(from_file, to_file)
+                    to_file.symlink_to(from_file)
 
     def archive(self, ids, path, paths):
         pass

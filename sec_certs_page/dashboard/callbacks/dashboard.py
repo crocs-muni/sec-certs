@@ -47,29 +47,29 @@ def _register_dashboard_names(
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(options=Output(component_builder(ComponentID.SELECTOR), "options")),
-        inputs=dict(loaded=Input(component_builder(ComponentID.DASHBOARD_LOADED), "data")),
+        output={"options": Output(component_builder(ComponentID.SELECTOR), "options")},
+        inputs={"loaded": Input(component_builder(ComponentID.DASHBOARD_LOADED), "data")},
         prevent_initial_call=True,
     )
     def load_dashboard_names(loaded):
         """Load dashboard names only after initial load is complete."""
         if not loaded:
-            return dict(options=[])
+            return {"options": []}
 
         user_id = get_current_user_id()
         if not user_id:
-            return dict(options=[])
+            return {"options": []}
 
         names = dashboard_manager.get_dashboard_names(user_id, collection_name)
-        return dict(
-            options=[
+        return {
+            "options": [
                 {
                     "label": f"{'★ ' if d['is_default'] else ''}{d['name']}",
                     "value": d["dashboard_id"],
                 }
                 for d in names
             ]
-        )
+        }
 
 
 def _register_initial_load(
@@ -80,31 +80,31 @@ def _register_initial_load(
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            selector_value=Output(component_builder(ComponentID.SELECTOR), "value"),
-            loaded=Output(component_builder(ComponentID.DASHBOARD_LOADED), "data"),
-        ),
-        inputs=dict(collection_name=Input(component_builder(ComponentID.COLLECTION_NAME), "data")),
-        state=dict(already_loaded=State(component_builder(ComponentID.DASHBOARD_LOADED), "data")),
+        output={
+            "selector_value": Output(component_builder(ComponentID.SELECTOR), "value"),
+            "loaded": Output(component_builder(ComponentID.DASHBOARD_LOADED), "data"),
+        },
+        inputs={"collection_name": Input(component_builder(ComponentID.COLLECTION_NAME), "data")},
+        state={"already_loaded": State(component_builder(ComponentID.DASHBOARD_LOADED), "data")},
     )
     def load_default_on_init(collection_name, already_loaded):
         """On initial load of the dashboard page, load the user's default dashboard if any."""
         logger.debug(f"Collection_type: {collection_name}, already_loaded: {already_loaded}")
         if already_loaded:
-            return dict(selector_value=no_update, loaded=no_update)
+            return {"selector_value": no_update, "loaded": no_update}
 
         user_id = get_current_user_id()
         logger.debug(f"user_id: {user_id}")
         if not user_id:
-            return dict(selector_value=None, loaded=True)
+            return {"selector_value": None, "loaded": True}
 
         dashboard, _ = dashboard_manager.load_default_dashboard(user_id, collection_name)
         if dashboard:
             logger.debug(f"Found default dashboard: {dashboard.dashboard_id}")
-            return dict(selector_value=str(dashboard.dashboard_id), loaded=True)
+            return {"selector_value": str(dashboard.dashboard_id), "loaded": True}
 
         logger.info("No default dashboard found")
-        return dict(selector_value=None, loaded=True)
+        return {"selector_value": None, "loaded": True}
 
 
 def _register_dashboard_selection(
@@ -116,26 +116,26 @@ def _register_dashboard_selection(
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            empty_state_style=Output(component_builder(ComponentID.EMPTY_STATE), "style"),
-            content_style=Output(component_builder(ComponentID.DASHBOARD_CONTENT), "style"),
-            header_style=Output(component_builder(ComponentID.DASHBOARD_HEADER), "style"),
-            dashboard_id=Output(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
-            name_input=Output(component_builder(ComponentID.DASHBOARD_NAME_INPUT), "value"),
-            chart_configs=Output(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
-            selector_value=Output(component_builder(ComponentID.SELECTOR), "value", allow_duplicate=True),
-            toast_open=Output(component_builder(ComponentID.DASHBOARD_TOAST), "is_open"),
-            toast_children=Output(component_builder(ComponentID.DASHBOARD_TOAST), "children"),
-            toast_icon=Output(component_builder(ComponentID.DASHBOARD_TOAST), "icon"),
-        ),
-        inputs=dict(
-            dashboard_id=Input(component_builder(ComponentID.SELECTOR), "value"),
-            create_clicks=Input(component_builder(ComponentID.CREATE_BTN), "n_clicks"),
-        ),
-        state=dict(
-            current_dashboard_id=State(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
-            selector_options=State(component_builder(ComponentID.SELECTOR), "options"),
-        ),
+        output={
+            "empty_state_style": Output(component_builder(ComponentID.EMPTY_STATE), "style"),
+            "content_style": Output(component_builder(ComponentID.DASHBOARD_CONTENT), "style"),
+            "header_style": Output(component_builder(ComponentID.DASHBOARD_HEADER), "style"),
+            "dashboard_id": Output(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
+            "name_input": Output(component_builder(ComponentID.DASHBOARD_NAME_INPUT), "value"),
+            "chart_configs": Output(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+            "selector_value": Output(component_builder(ComponentID.SELECTOR), "value", allow_duplicate=True),
+            "toast_open": Output(component_builder(ComponentID.DASHBOARD_TOAST), "is_open"),
+            "toast_children": Output(component_builder(ComponentID.DASHBOARD_TOAST), "children"),
+            "toast_icon": Output(component_builder(ComponentID.DASHBOARD_TOAST), "icon"),
+        },
+        inputs={
+            "dashboard_id": Input(component_builder(ComponentID.SELECTOR), "value"),
+            "create_clicks": Input(component_builder(ComponentID.CREATE_BTN), "n_clicks"),
+        },
+        state={
+            "current_dashboard_id": State(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
+            "selector_options": State(component_builder(ComponentID.SELECTOR), "options"),
+        },
         prevent_initial_call=True,
     )
     def handle_dashboard_selection(dashboard_id, create_clicks, current_dashboard_id, selector_options):
@@ -159,80 +159,80 @@ def _register_dashboard_selection(
             # Create new dashboard: start fresh with no charts
             new_name = _get_new_dashboard_name(selector_options)
             logger.debug(f"[DASHBOARD_SELECT] Creating new dashboard with name: {new_name}")
-            return dict(
-                empty_state_style={"display": "none"},
-                content_style={"display": "block"},
-                header_style={"display": "block"},
-                dashboard_id=None,
-                name_input=new_name,
-                chart_configs={},
-                selector_value=None,  # Clear the dropdown
-                toast_open=False,
-                toast_children="",
-                toast_icon="info",
-            )
+            return {
+                "empty_state_style": {"display": "none"},
+                "content_style": {"display": "block"},
+                "header_style": {"display": "block"},
+                "dashboard_id": None,
+                "name_input": new_name,
+                "chart_configs": {},
+                "selector_value": None,  # Clear the dropdown
+                "toast_open": False,
+                "toast_children": "",
+                "toast_icon": "info",
+            }
 
         # Only process selector changes if triggered by the selector itself
         if triggered != selector_id:
-            return dict(
-                empty_state_style=no_update,
-                content_style=no_update,
-                header_style=no_update,
-                dashboard_id=no_update,
-                name_input=no_update,
-                chart_configs=no_update,
-                selector_value=no_update,
-                toast_open=no_update,
-                toast_children=no_update,
-                toast_icon=no_update,
-            )
+            return {
+                "empty_state_style": no_update,
+                "content_style": no_update,
+                "header_style": no_update,
+                "dashboard_id": no_update,
+                "name_input": no_update,
+                "chart_configs": no_update,
+                "selector_value": no_update,
+                "toast_open": no_update,
+                "toast_children": no_update,
+                "toast_icon": no_update,
+            }
 
         if not dashboard_id:
-            return dict(
-                empty_state_style={"display": "block"},
-                content_style={"display": "none"},
-                header_style={"display": "none"},
-                dashboard_id=None,
-                name_input="",
-                chart_configs={},
-                selector_value=None,
-                toast_open=False,
-                toast_children="",
-                toast_icon="info",
-            )
+            return {
+                "empty_state_style": {"display": "block"},
+                "content_style": {"display": "none"},
+                "header_style": {"display": "none"},
+                "dashboard_id": None,
+                "name_input": "",
+                "chart_configs": {},
+                "selector_value": None,
+                "toast_open": False,
+                "toast_children": "",
+                "toast_icon": "info",
+            }
 
         # Check if the selected dashboard is already open
         if current_dashboard_id and str(dashboard_id) == str(current_dashboard_id):
             logger.debug(f"[DASHBOARD_SELECT] Dashboard {dashboard_id} is already open")
-            return dict(
-                empty_state_style=no_update,
-                content_style=no_update,
-                header_style=no_update,
-                dashboard_id=no_update,
-                name_input=no_update,
-                chart_configs=no_update,
-                selector_value=no_update,
-                toast_open=True,
-                toast_children="This dashboard is already open.",
-                toast_icon="info",
-            )
+            return {
+                "empty_state_style": no_update,
+                "content_style": no_update,
+                "header_style": no_update,
+                "dashboard_id": no_update,
+                "name_input": no_update,
+                "chart_configs": no_update,
+                "selector_value": no_update,
+                "toast_open": True,
+                "toast_children": "This dashboard is already open.",
+                "toast_icon": "info",
+            }
 
         logger.debug(f"[DASHBOARD_SELECT] Loading dashboard {dashboard_id}")
         dashboard, chart_instances = dashboard_manager.load_dashboard_with_charts(dashboard_id)
 
         if not dashboard:
-            return dict(
-                empty_state_style={"display": "block"},
-                content_style={"display": "none"},
-                header_style={"display": "none"},
-                dashboard_id=None,
-                name_input="",
-                chart_configs={},
-                selector_value=None,
-                toast_open=True,
-                toast_children="Failed to load the selected dashboard.",
-                toast_icon="danger",
-            )
+            return {
+                "empty_state_style": {"display": "block"},
+                "content_style": {"display": "none"},
+                "header_style": {"display": "none"},
+                "dashboard_id": None,
+                "name_input": "",
+                "chart_configs": {},
+                "selector_value": None,
+                "toast_open": True,
+                "toast_children": "Failed to load the selected dashboard.",
+                "toast_icon": "danger",
+            }
 
         chart_configs = {}
 
@@ -247,18 +247,18 @@ def _register_dashboard_selection(
         logger.debug(
             f"[DASHBOARD_SELECT] Loaded dashboard with {len(chart_configs)} charts: {list(chart_configs.keys())}"
         )
-        return dict(
-            empty_state_style={"display": "none"},
-            content_style={"display": "block"},
-            header_style={"display": "block"},
-            dashboard_id=str(dashboard.dashboard_id),
-            name_input=dashboard.name,
-            chart_configs=chart_configs,
-            selector_value=no_update,  # Selector already triggered with this value
-            toast_open=False,
-            toast_children="",
-            toast_icon="info",
-        )
+        return {
+            "empty_state_style": {"display": "none"},
+            "content_style": {"display": "block"},
+            "header_style": {"display": "block"},
+            "dashboard_id": str(dashboard.dashboard_id),
+            "name_input": dashboard.name,
+            "chart_configs": chart_configs,
+            "selector_value": no_update,  # Selector already triggered with this value
+            "toast_open": False,
+            "toast_children": "",
+            "toast_icon": "info",
+        }
 
 
 def _register_save_dashboard(
@@ -270,21 +270,21 @@ def _register_save_dashboard(
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            selector_options=Output(component_builder(ComponentID.SELECTOR), "options", allow_duplicate=True),
-            selector_value=Output(component_builder(ComponentID.SELECTOR), "value", allow_duplicate=True),
-            current_dashboard_id=Output(
+        output={
+            "selector_options": Output(component_builder(ComponentID.SELECTOR), "options", allow_duplicate=True),
+            "selector_value": Output(component_builder(ComponentID.SELECTOR), "value", allow_duplicate=True),
+            "current_dashboard_id": Output(
                 component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data", allow_duplicate=True
             ),
-        ),
-        inputs=dict(
-            save_clicks=Input(component_builder(ComponentID.SAVE_DASHBOARD_BTN), "n_clicks"),
-        ),
-        state=dict(
-            dashboard_id=State(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
-            dashboard_name=State(component_builder(ComponentID.DASHBOARD_NAME_INPUT), "value"),
-            chart_configs=State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
-        ),
+        },
+        inputs={
+            "save_clicks": Input(component_builder(ComponentID.SAVE_DASHBOARD_BTN), "n_clicks"),
+        },
+        state={
+            "dashboard_id": State(component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data"),
+            "dashboard_name": State(component_builder(ComponentID.DASHBOARD_NAME_INPUT), "value"),
+            "chart_configs": State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+        },
         prevent_initial_call=True,
     )
     def save_dashboard(save_clicks, dashboard_id, dashboard_name, chart_configs):
@@ -326,19 +326,19 @@ def _register_save_dashboard(
         logger.debug(f"[SAVE_DASHBOARD] chart_configs keys: {list((chart_configs or {}).keys())}")
 
         if not save_clicks:
-            return dict(
-                selector_options=no_update,
-                selector_value=no_update,
-                current_dashboard_id=no_update,
-            )
+            return {
+                "selector_options": no_update,
+                "selector_value": no_update,
+                "current_dashboard_id": no_update,
+            }
 
         user_id = get_current_user_id()
         if not user_id:
-            return dict(
-                selector_options=no_update,
-                selector_value=no_update,
-                current_dashboard_id=no_update,
-            )
+            return {
+                "selector_options": no_update,
+                "selector_value": no_update,
+                "current_dashboard_id": no_update,
+            }
 
         # Use chart_configs as the sole source of truth
         chart_ids = list((chart_configs or {}).keys())
@@ -384,21 +384,21 @@ def _register_save_dashboard(
                 logger.error(
                     f"[SAVE_DASHBOARD] User {user_id} attempted to modify dashboard {dashboard_id} owned by {dashboard.user_id}"
                 )
-                return dict(
-                    selector_options=no_update,
-                    selector_value=no_update,
-                    current_dashboard_id=no_update,
-                )
+                return {
+                    "selector_options": no_update,
+                    "selector_value": no_update,
+                    "current_dashboard_id": no_update,
+                }
             else:
                 # Dashboard ID exists in client state but not in database - inconsistent state
                 logger.error(
                     f"[SAVE_DASHBOARD] Dashboard {dashboard_id} not found in database but present in client state"
                 )
-                return dict(
-                    selector_options=no_update,
-                    selector_value=no_update,
-                    current_dashboard_id=no_update,
-                )
+                return {
+                    "selector_options": no_update,
+                    "selector_value": no_update,
+                    "current_dashboard_id": no_update,
+                }
         else:
             dashboard = Dashboard(
                 collection_name=collection_name,
@@ -422,8 +422,8 @@ def _register_save_dashboard(
         # Only update selector_value if this is a new dashboard
         # For existing dashboards, keep the current selection to avoid triggering
         # the "already open" toast
-        return dict(
-            selector_options=options,
-            selector_value=saved_id if is_new_dashboard else no_update,
-            current_dashboard_id=saved_id,
-        )
+        return {
+            "selector_options": options,
+            "selector_value": saved_id if is_new_dashboard else no_update,
+            "current_dashboard_id": saved_id,
+        }

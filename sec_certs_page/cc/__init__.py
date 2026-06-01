@@ -2,27 +2,28 @@ import json
 
 import bson
 import pymongo
-from flask import Blueprint
+from flask import Blueprint, url_for
 
-from .. import cache, mongo, redis
+from .. import cache, mongo
+from ..common.objformats import load
 from ..common.views import create_graph
 
 cc: Blueprint = Blueprint("cc", __name__, url_prefix="/cc")
 cc.cli.short_help = "Common Criteria commands."
 
-with cc.open_resource("resources/sfrs.json") as f:
+with cc.open_resource("../common/resources/sfrs.json") as f:
     cc_sfrs = json.load(f)
-with cc.open_resource("resources/sars.json") as f:
+with cc.open_resource("../common/resources/sars.json") as f:
     cc_sars = json.load(f)
 with cc.open_resource("resources/categories.json") as f:
     cc_categories = json.load(f)
-with cc.open_resource("resources/eals.json") as f:
+with cc.open_resource("../common/resources/eals.json") as f:
     cc_eals = json.load(f)
-with cc.open_resource("resources/status.json") as f:
+with cc.open_resource("../common/resources/status.json") as f:
     cc_status = json.load(f)
-with cc.open_resource("resources/reference_types.json") as f:
+with cc.open_resource("../common/resources/reference_types.json") as f:
     cc_reference_types = json.load(f)
-with cc.open_resource("resources/schemes.json") as f:
+with cc.open_resource("../common/resources/schemes.json") as f:
     cc_schemes = json.load(f)
 
 

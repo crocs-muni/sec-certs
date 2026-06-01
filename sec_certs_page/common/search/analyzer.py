@@ -7,7 +7,7 @@ from whoosh.analysis import STOP_WORDS, Analyzer, Filter, LowercaseFilter, PassF
 class IntraWordFilter(Filter):
     is_morph = True
 
-    __inittypes__ = dict(delims=str, splitwords=bool, splitnums=bool, merge=bool)
+    __inittypes__ = {"delims": str, "splitwords": bool, "splitnums": bool, "merge": bool}
 
     def __init__(self, delims="-_'\"()!@#$%^&*[]{}<>\\|;:,./?`~=+", splitwords=True, splitnums=True, merge=False):
         """
@@ -24,22 +24,22 @@ class IntraWordFilter(Filter):
         self.delims = re.escape(delims)
 
         # Expression for text between delimiter characters
-        self.between = re.compile("[^%s]+" % (self.delims,), re.UNICODE)
+        self.between = re.compile(f"[^{self.delims}]+", re.UNICODE)
         # Expression for removing "'s" from the end of sub-words
-        dispat = "(?<=[%s%s])'[Ss](?=$|[%s])" % (lowercase, uppercase, self.delims)
+        dispat = f"(?<=[{lowercase}{uppercase}])'[Ss](?=$|[{self.delims}])"
         self.possessive = re.compile(dispat, re.UNICODE)
 
         # Expression for finding case and letter-number transitions
-        lower2upper = "[%s][%s]" % (lowercase, uppercase)
-        letter2digit = "[%s%s][%s]" % (lowercase, uppercase, digits)
-        digit2letter = "[%s][%s%s]" % (digits, lowercase, uppercase)
+        lower2upper = f"[{lowercase}][{uppercase}]"
+        letter2digit = f"[{lowercase}{uppercase}][{digits}]"
+        digit2letter = f"[{digits}][{lowercase}{uppercase}]"
         if splitwords and splitnums:
-            splitpat = "(%s|%s|%s)" % (lower2upper, letter2digit, digit2letter)
+            splitpat = f"({lower2upper}|{letter2digit}|{digit2letter})"
             self.boundary = re.compile(splitpat, re.UNICODE)
         elif splitwords:
             self.boundary = re.compile(lower2upper, re.UNICODE)
         elif splitnums:
-            numpat = "(%s|%s)" % (letter2digit, digit2letter)
+            numpat = f"({letter2digit}|{digit2letter})"
             self.boundary = re.compile(numpat, re.UNICODE)
 
         self.splitting = splitwords or splitnums

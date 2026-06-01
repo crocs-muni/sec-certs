@@ -128,7 +128,8 @@
             $("#compare-do").click(function () {
                 let cc_url = "{{ url_for("cc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
                 let fips_url = "{{ url_for("fips.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
-                compare_do(cc_url, fips_url);
+                let eucc_url = "{{ url_for("eucc.compare", one_hashid="XXXXXXXXXXXXXXXX", other_hashid="YYYYYYYYYYYYYYYY") }}";
+                compare_do(cc_url, fips_url, eucc_url);
             });
             update_state();
         })

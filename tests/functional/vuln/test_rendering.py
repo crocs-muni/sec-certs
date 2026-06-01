@@ -2,7 +2,6 @@ import random
 
 import pytest
 from flask.testing import FlaskClient
-
 from sec_certs_page import mongo
 
 

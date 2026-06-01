@@ -1,7 +1,8 @@
+from collections.abc import Mapping
 from difflib import SequenceMatcher
 from itertools import zip_longest
 from logging import getLogger
-from typing import Any, Mapping, Tuple
+from typing import Any
 
 from flask import render_template, url_for
 from jsondiff import symbols
@@ -18,9 +19,7 @@ def has_symbols(obj):
     def walk(o):
         if isinstance(o, dict):
             for k in o:
-                if k in symbols._all_symbols_:
-                    return True
-                elif walk(o[k]):
+                if k in symbols._all_symbols_ or walk(o[k]):
                     return True
         elif isinstance(o, (tuple, list, set)):
             for k in o:
@@ -90,7 +89,7 @@ class DiffRenderer:
     diff_collection: str
     log_collection: str
     templates: Mapping[str, str]
-    k2map: Mapping[str, Tuple[str, bool]]
+    k2map: Mapping[str, tuple[str, bool]]
 
     def render_diff(self, hashid, cert, diff, **kwargs) -> Markup:
         """
@@ -356,7 +355,7 @@ def diff_keywords():
                     other_val = other.get(key, [])
                     item = render_list(compare_list(val, other_val), val, other_val)
                 else:
-                    other_val = other.get(key, None)
+                    other_val = other.get(key)
                     item = render_int(compare_int(val, other_val), val, other_val)
                     span = True
                     change = val != other_val
@@ -408,7 +407,7 @@ def diff_cve():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('vuln.cve', cve_id=a)}\" title=\"Navigate to CVE\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("vuln.cve", cve_id=a)}" title="Navigate to CVE" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -419,7 +418,7 @@ def diff_cpe():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('vuln.cpe', cpe_id=a)}\"title=\"Navigate to CPE\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("vuln.cpe", cpe_id=a)}"title="Navigate to CPE" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -431,7 +430,7 @@ def diff_fips_cert_id():
     def render(equal: bool, a: Any, b: Any) -> Markup:
         if a:
             return Markup(
-                f"<a href=\"{url_for('fips.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, str(a), str(b))}</a>"
+                f'<a href="{url_for("fips.entry_id", cert_id=a)}" title="Navigate to cert by ID" data-bs-toggle="tooltip">{render_str(equal, str(a), str(b))}</a>'
             )
         else:
             return render_str(equal, str(a), str(b))
@@ -444,7 +443,7 @@ def diff_fips_dgst():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('fips.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("fips.entry", hashid=a)}" title="Navigate to cert by digest" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -478,7 +477,7 @@ def diff_cc_cert_id(link: bool = True):
     def render(equal: bool, a: Any, b: Any) -> Markup:
         if a and link:
             return Markup(
-                f"<a href=\"{url_for('cc.entry_id', cert_id=a)}\" title=\"Navigate to cert by ID\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+                f'<a href="{url_for("cc.entry_id", cert_id=a)}" title="Navigate to cert by ID" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
             )
         else:
             return render_str(equal, a, b)
@@ -486,15 +485,19 @@ def diff_cc_cert_id(link: bool = True):
     return compare_str, render
 
 
-def diff_cc_dgst():
+def _diff_dgst(endpoint: str):
     compare_str, render_str = diff_str()
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('cc.entry', hashid=a)}\" title=\"Navigate to cert by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for(endpoint, hashid=a)}" title="Navigate to cert by digest" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
+
+
+diff_cc_dgst = _diff_dgst("cc.entry")
+diff_eucc_dgst = _diff_dgst("eucc.entry")
 
 
 def diff_cc_sar():
@@ -514,7 +517,7 @@ def diff_pp_dgst():
 
     def render(equal: bool, a: Any, b: Any) -> Markup:
         return Markup(
-            f"<a href=\"{url_for('pp.entry', hashid=a)}\" title=\"Navigate to protection profile by digest\" data-bs-toggle=\"tooltip\">{render_str(equal, a, b)}</a>"
+            f'<a href="{url_for("pp.entry", hashid=a)}" title="Navigate to protection profile by digest" data-bs-toggle="tooltip">{render_str(equal, a, b)}</a>'
         )
 
     return compare_str, render
@@ -530,7 +533,7 @@ def render_dict(a, b, metas=None):
     items = []
     for key, val in sorted(a.items()):
         label = (bold if key not in b else normal)(key)
-        other_val = b.get(key, None)
+        other_val = b.get(key)
         change = val != other_val
         if metas and key in metas:
             differ = metas[key]
@@ -550,7 +553,7 @@ def render_dict(a, b, metas=None):
     return Markup(f"<ul>{item_string}</ul>")
 
 
-def diff_cc_frontpage():
+def diff_cc_eucc_frontpage():
     metas = {
         "cert_id": diff_cc_cert_id(link=False),
         "cc_security_level": diff_str(),
@@ -624,7 +627,7 @@ def diff_cc_mus():
     return compare, render
 
 
-def diff_cc_pps_old():
+def diff_eucc_pps_old():
     metas = {
         "_type": diff_none(),
         "pp_name": diff_str(),
@@ -651,7 +654,7 @@ def diff_cc_pps_old():
     return compare, render
 
 
-cc_diff_method = {
+cc_eucc_base_diff = {
     "_type": diff_none(),
     "name": diff_str(),
     "category": diff_str(),
@@ -665,7 +668,6 @@ cc_diff_method = {
     "manufacturer": diff_str(),
     "manufacturer_web": diff_url(),
     "security_level": diff_set(diff_str()),
-    "dgst": diff_cc_dgst(),
     "heuristics": {
         "_type": diff_none(),
         "annotated_references": diff_none(),
@@ -697,21 +699,20 @@ cc_diff_method = {
         },
         "protection_profiles": diff_set(diff_pp_dgst()),
     },
-    "maintenance_updates": diff_cc_mus(),
-    "protection_profiles": diff_cc_pps_old(),
+    "protection_profiles": diff_eucc_pps_old(),
     "protection_profile_links": diff_set(diff_url()),
     "pdf_data": {
         "_type": diff_none(),
         "cert_filename": diff_str(),
-        "cert_frontpage": diff_cc_frontpage(),
+        "cert_frontpage": diff_cc_eucc_frontpage(),
         "cert_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
         "cert_metadata": diff_pdf_meta(),
         "report_filename": diff_str(),
-        "report_frontpage": diff_cc_frontpage(),
+        "report_frontpage": diff_cc_eucc_frontpage(),
         "report_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
         "report_metadata": diff_pdf_meta(),
         "st_filename": diff_str(),
-        "st_frontpage": diff_cc_frontpage(),
+        "st_frontpage": diff_cc_eucc_frontpage(),
         "st_keywords": {kw_group: diff_keywords() for kw_group in cc_rules},
         "st_metadata": diff_pdf_meta(),
     },
@@ -734,7 +735,7 @@ cc_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
         "st": {
             "_type": diff_none(),
@@ -744,8 +745,47 @@ cc_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
+    },
+}
+
+cc_diff_method = {
+    **cc_eucc_base_diff,
+    "maintenance_updates": diff_cc_mus(),
+    "dgst": diff_cc_dgst,
+}
+eucc_diff_method = {
+    **cc_eucc_base_diff,
+    "dgst": diff_eucc_dgst,
+    "other_metadata": {
+        "_type": diff_none(),
+        "certificate_id": diff_str(),
+        "product_name": diff_str(),
+        "product_type": diff_str(),
+        "product_version": diff_str(),
+        "holder_name": diff_str(),
+        "holder_address": diff_str(),
+        "holder_contact": diff_str(),
+        "holder_website": diff_url(),
+        "certification_body": diff_str(),
+        "nando_id": diff_str(),
+        "certification_body_address": diff_str(),
+        "certification_body_contact": diff_str(),
+        "itsef": diff_str(),
+        "responsible_ncca": diff_str(),
+        "scheme": diff_str(),
+        "report_reference": diff_str(),
+        "assurance_level": diff_str(),
+        "cc_version": diff_str(),
+        "cem_version": diff_str(),
+        "ava_van_level": diff_str(),
+        "protection_profile": diff_str(),
+        "issuance_year": diff_int(),
+        "issuance_month": diff_int(),
+        "issuance_date_full": diff_str(),
+        "modification_or_reassurance": diff_str(),
+        "validity_period_years": diff_int(),
     },
 }
 
@@ -794,7 +834,7 @@ fips_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
         "policy": {
             "_type": diff_none(),
@@ -804,7 +844,7 @@ fips_diff_method = {
             "extract_ok": diff_bool(),
             "source_hash": diff_ident(),
             "txt_hash": diff_ident(),
-            "json_hash": diff_ident()
+            "json_hash": diff_ident(),
         },
     },
     "web_data": {

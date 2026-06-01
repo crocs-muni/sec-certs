@@ -44,8 +44,8 @@ def _register_filter_options(
             continue
 
         @dash_app.callback(
-            output=dict(options=Output(filter_id, "options")),
-            inputs=dict(dashboard_loaded=Input(component_builder(ComponentID.DASHBOARD_LOADED), "data")),
+            output={"options": Output(filter_id, "options")},
+            inputs={"dashboard_loaded": Input(component_builder(ComponentID.DASHBOARD_LOADED), "data")},
             prevent_initial_call=True,
         )
         def load_options(
@@ -55,18 +55,18 @@ def _register_filter_options(
             ds=data_service,
         ):
             if not dashboard_loaded:
-                return dict(options=[])
+                return {"options": []}
             try:
-                return dict(
-                    options=ds.get_distinct_values_with_labels(
+                return {
+                    "options": ds.get_distinct_values_with_labels(
                         field=spec.database_field,
                         collection_name=factory.collection_name,
                     )
-                )
+                }
             except Exception:
                 error_message = f"[LOAD_OPTIONS] Error loading options for {spec.id}"
                 logger.exception(error_message)
-                return dict(options=[])
+                return {"options": []}
 
 
 def _register_filter_store(
@@ -82,24 +82,24 @@ def _register_filter_store(
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(data=Output(component_builder(ComponentID.FILTER_STORE), "data")),
+        output={"data": Output(component_builder(ComponentID.FILTER_STORE), "data")},
         inputs=filter_inputs,
     )
     def update_filter_store(*filter_values):
-        return dict(data=filter_factory.collect_filter_values(*filter_values))
+        return {"data": filter_factory.collect_filter_values(*filter_values)}
 
 
 def _register_button_states(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            update_disabled=Output(component_builder(ComponentID.UPDATE_ALL_BTN), "disabled"),
-            save_disabled=Output(component_builder(ComponentID.SAVE_DASHBOARD_BTN), "disabled"),
-        ),
-        inputs=dict(
-            chart_configs=Input(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
-        ),
+        output={
+            "update_disabled": Output(component_builder(ComponentID.UPDATE_ALL_BTN), "disabled"),
+            "save_disabled": Output(component_builder(ComponentID.SAVE_DASHBOARD_BTN), "disabled"),
+        },
+        inputs={
+            "chart_configs": Input(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
+        },
     )
     def update_button_states(chart_configs):
         # Enable buttons if there are charts in configs
@@ -109,7 +109,7 @@ def _register_button_states(dash_app: "Dash", collection_name: CollectionName) -
         )
         logger.debug(f"[BUTTON_STATES] update_disabled: {not has_charts}, save_disabled: {not has_charts}")
 
-        return dict(update_disabled=not has_charts, save_disabled=not has_charts)
+        return {"update_disabled": not has_charts, "save_disabled": not has_charts}
 
 
 def _register_metadata(
@@ -121,13 +121,13 @@ def _register_metadata(
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
-        output=dict(
-            available_fields=Output(component_builder(ComponentID.AVAILABLE_FIELDS), "data"),
-            filter_specs=Output(component_builder(ComponentID.FILTER_SPECS), "data"),
-            metadata_loaded=Output(component_builder(ComponentID.METADATA_LOADED), "data"),
-        ),
-        inputs=dict(modal_open=Input(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open")),
-        state=dict(already_loaded=State(component_builder(ComponentID.METADATA_LOADED), "data")),
+        output={
+            "available_fields": Output(component_builder(ComponentID.AVAILABLE_FIELDS), "data"),
+            "filter_specs": Output(component_builder(ComponentID.FILTER_SPECS), "data"),
+            "metadata_loaded": Output(component_builder(ComponentID.METADATA_LOADED), "data"),
+        },
+        inputs={"modal_open": Input(component_builder(ComponentID.CREATE_CHART_MODAL), "is_open")},
+        state={"already_loaded": State(component_builder(ComponentID.METADATA_LOADED), "data")},
         prevent_initial_call=True,
     )
     def load_metadata(modal_open, already_loaded):
@@ -135,14 +135,14 @@ def _register_metadata(
 
         # Don't do anything when modal closes
         if not modal_open:
-            return dict(available_fields=no_update, filter_specs=no_update, metadata_loaded=no_update)
+            return {"available_fields": no_update, "filter_specs": no_update, "metadata_loaded": no_update}
 
         # If already loaded, don't reload
         if already_loaded:
-            return dict(available_fields=no_update, filter_specs=no_update, metadata_loaded=no_update)
+            return {"available_fields": no_update, "filter_specs": no_update, "metadata_loaded": no_update}
 
-        return dict(
-            available_fields=filter_factory.get_available_fields(),
-            filter_specs=filter_factory.get_filter_specs_for_modal(),
-            metadata_loaded=True,
-        )
+        return {
+            "available_fields": filter_factory.get_available_fields(),
+            "filter_specs": filter_factory.get_filter_specs_for_modal(),
+            "metadata_loaded": True,
+        }

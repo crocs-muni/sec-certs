@@ -4,7 +4,6 @@ import pytest
 from flask import url_for
 from flask.testing import FlaskClient
 from pytest_mock import MockerFixture
-
 from sec_certs_page import mongo
 
 
@@ -120,7 +119,7 @@ def subscription(request, user, certificate):
 def test_manage(user, logged_in: FlaskClient, mocker: MockerFixture, subscription):
     user, password = user
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    resp = logged_in.get(f"/notify/manage/")
+    resp = logged_in.get("/notify/manage/")
     assert resp.status_code == 200
 
     data = {
@@ -131,7 +130,7 @@ def test_manage(user, logged_in: FlaskClient, mocker: MockerFixture, subscriptio
         "new-2-which": "pp",
         "new-2-subscribe": "y",
     }
-    resp = logged_in.post(f"/notify/manage/", data=data, follow_redirects=True)
+    resp = logged_in.post("/notify/manage/", data=data, follow_redirects=True)
     assert resp.status_code == 200
     subs = list(mongo.db.subs.find({"username": user.username}))
     assert len(subs) == 4
@@ -145,7 +144,7 @@ def test_manage(user, logged_in: FlaskClient, mocker: MockerFixture, subscriptio
         "new-2-which": "pp",
         "new-2-subscribe": "",
     }
-    resp = logged_in.post(f"/notify/manage/", data=data, follow_redirects=True)
+    resp = logged_in.post("/notify/manage/", data=data, follow_redirects=True)
     assert resp.status_code == 200
     subs = list(mongo.db.subs.find({"username": user.username}))
     assert len(subs) == 1
@@ -157,7 +156,7 @@ def test_manage(user, logged_in: FlaskClient, mocker: MockerFixture, subscriptio
         "changes-0-updates": "vuln",
         "changes-0-subscribe": "y",
     }
-    resp = logged_in.post(f"/notify/manage/", data=data, follow_redirects=True)
+    resp = logged_in.post("/notify/manage/", data=data, follow_redirects=True)
     assert resp.status_code == 200
     sub = mongo.db.subs.find_one({"_id": subscription["_id"]})
     assert sub["updates"] == "vuln"
@@ -165,7 +164,7 @@ def test_manage(user, logged_in: FlaskClient, mocker: MockerFixture, subscriptio
 
 def test_unsubscribe_single(logged_in: FlaskClient, mocker: MockerFixture, subscription):
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    resp = logged_in.post(f"/notify/unsubscribe/", json={"id": str(subscription["_id"])}, follow_redirects=True)
+    resp = logged_in.post("/notify/unsubscribe/", json={"id": str(subscription["_id"])}, follow_redirects=True)
     assert resp.status_code == 200
     sub = list(mongo.db.subs.find({"_id": subscription["_id"]}))
     assert not sub
@@ -174,7 +173,7 @@ def test_unsubscribe_single(logged_in: FlaskClient, mocker: MockerFixture, subsc
 def test_unsubscribe_all(user, logged_in: FlaskClient, mocker: MockerFixture, subscription):
     user, password = user
     mocker.patch("flask_wtf.csrf.validate_csrf")
-    resp = logged_in.post(f"/notify/unsubscribe/all/", follow_redirects=True)
+    resp = logged_in.post("/notify/unsubscribe/all/", follow_redirects=True)
     assert resp.status_code == 200
     sub = list(mongo.db.subs.find({"username": user.username}))
     assert not sub

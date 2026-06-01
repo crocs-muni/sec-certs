@@ -10,4 +10,4 @@ Pages:
 """
 
 # Import pages to trigger registration
-from . import cc, common, fips
+from . import cc, common, fips  # noqa

@@ -1,16 +1,14 @@
 import logging
-import os
+from _operator import itemgetter
 from abc import abstractmethod
 from collections import Counter
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
 from shutil import rmtree
-from typing import List, Optional, Set, Tuple, Type
 
 import sec_certs
 import sentry_sdk
-from _operator import itemgetter
 from flask import current_app
 from jsondiff import diff
 from pymongo import DESCENDING, InsertOne, ReplaceOne
@@ -39,7 +37,7 @@ class Updater:  # pragma: no cover
     diff_collection: str
     log_collection: str
     skip_update: bool
-    dset_class: Type[Dataset]
+    dset_class: type[Dataset]
 
     def make_dataset_paths(self) -> dict[str, Path]:
         """Setup paths from the config for the particular updater (CC, FIPS, PP)."""
@@ -80,21 +78,21 @@ class Updater:  # pragma: no cover
                 cve_dset_path.unlink()
             cve_dset_parent = cve_dset_path.parent
             cve_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cve_path"], cve_dset_path)
+            cve_dset_path.symlink_to(paths["cve_path"])
         if paths["cpe_path"].exists() and CPEDatasetHandler in dset.aux_handlers:
             cpe_dset_path = dset.aux_handlers[CPEDatasetHandler].dset_path
             if cpe_dset_path.exists():
                 cpe_dset_path.unlink()
             cpe_dset_parent = cpe_dset_path.parent
             cpe_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cpe_path"], cpe_dset_path)
+            cpe_dset_path.symlink_to(paths["cpe_path"])
         if paths["cpe_match_path"].exists() and CPEMatchDictHandler in dset.aux_handlers:
             cpe_match_dset_path = dset.aux_handlers[CPEMatchDictHandler].dset_path
             if cpe_match_dset_path.exists():
                 cpe_match_dset_path.unlink()
             cpe_match_dset_parent = cpe_match_dset_path.parent
             cpe_match_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["cpe_match_path"], cpe_match_dset_path)
+            cpe_match_dset_path.symlink_to(paths["cpe_match_path"])
         if (
             "output_path_pp" in paths
             and paths["output_path_pp"].exists()
@@ -105,11 +103,11 @@ class Updater:  # pragma: no cover
                 pp_dset_path.unlink()
             pp_dset_parent = pp_dset_path.parent
             pp_dset_parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(paths["output_path_pp"], pp_dset_path)
+            pp_dset_path.symlink_to(paths["output_path_pp"])
 
     def process_new_certs(
-        self, dset: Dataset, new_ids: Set[str], run_id, timestamp: datetime
-    ) -> Tuple[List[object], List[object]]:
+        self, dset: Dataset, new_ids: set[str], run_id, timestamp: datetime
+    ) -> tuple[list[object], list[object]]:
         res_col = []
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.new", name="Process new certs."):
@@ -133,8 +131,8 @@ class Updater:  # pragma: no cover
         return res_col, res_diff_col
 
     def process_updated_certs(
-        self, dset: Dataset, updated_ids: Set[str], run_id, timestamp: datetime
-    ) -> Tuple[List[object], List[object]]:
+        self, dset: Dataset, updated_ids: set[str], run_id, timestamp: datetime
+    ) -> tuple[list[object], list[object]]:
         res_col = []
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.updated", name="Process updated certs."):
@@ -186,7 +184,7 @@ class Updater:  # pragma: no cover
             )
         return res_col, res_diff_col
 
-    def process_removed_certs(self, dset: Dataset, removed_ids: Set[str], run_id, timestamp: datetime) -> List[object]:
+    def process_removed_certs(self, dset: Dataset, removed_ids: set[str], run_id, timestamp: datetime) -> list[object]:
         res_diff_col = []
         with sentry_sdk.start_span(op=f"{self.collection}.db.removed", name="Process removed certs."):
             logger.info(f"Processing {len(removed_ids)} removed certificates.")
@@ -208,7 +206,7 @@ class Updater:  # pragma: no cover
                 )
         return res_diff_col
 
-    def insert_certs(self, collection: str, requests: List[object], ordered: bool = False):
+    def insert_certs(self, collection: str, requests: list[object], ordered: bool = False):
         if requests:
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
@@ -229,7 +227,7 @@ class Updater:  # pragma: no cover
     @abstractmethod
     def process(
         self, dset: Dataset, paths: dict[str, Path]
-    ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str, Optional[str]]]]:
+    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
         """Process the dataset and return sets of cert IDs to reindex and update in the KB."""
         ...
 
@@ -331,7 +329,7 @@ class Updater:  # pragma: no cover
             self.update_kb(to_update_kb)
             self.archive(all_ids, {name: str(path) for name, path in paths.items()})
         except Exception as e:
-            logger.info(f"Run errored.")
+            logger.info("Run errored.")
             # Store the failure in the update log
             end = datetime.now()
             result = {

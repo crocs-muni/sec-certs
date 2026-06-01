@@ -155,7 +155,7 @@ class DashboardRepository:
 
         if dashboard.collection_name != collection_name:
             raise ValueError(
-                f"Dashboard {dashboard_id} is for collection " f"{dashboard.collection_name}, not {collection_name}"
+                f"Dashboard {dashboard_id} is for collection {dashboard.collection_name}, not {collection_name}"
             )
 
         self.collection.update_many(

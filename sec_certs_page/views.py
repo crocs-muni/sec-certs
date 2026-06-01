@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import make_response, render_template, url_for
 from werkzeug.exceptions import HTTPException
 
@@ -16,7 +14,7 @@ def index():
 @app.route("/robots.txt")
 def robots():
     content = f"""
-Sitemap: {url_for('flask_sitemap.sitemap', _external=True)}
+Sitemap: {url_for("flask_sitemap.sitemap", _external=True)}
 
 User-agent: ClaudeBot
 Crawl-delay: 10

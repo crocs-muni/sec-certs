@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from time import perf_counter
 from types import ModuleType
-from typing import Any, Optional
+from typing import Any
 
 from dramatiq import Broker
 from dramatiq.middleware import default_middleware
@@ -53,13 +53,12 @@ def _patch_dramatiq_broker():
                 middleware = None
 
         if middleware is None:
-            middleware = list(m() for m in default_middleware)
+            middleware = [m() for m in default_middleware]
         else:
             middleware = list(middleware)
 
-        if integration is not None:
-            if SentryMiddleware not in (m.__class__ for m in middleware):
-                middleware.insert(0, SentryMiddleware())
+        if integration is not None and SentryMiddleware not in (m.__class__ for m in middleware):
+            middleware.insert(0, SentryMiddleware())
 
         kw["middleware"] = middleware
         original_broker__init__(self, *args, **kw)
@@ -98,7 +97,7 @@ def get_sampler(base_rate: float):
 
 
 @contextmanager
-def timing(name: str, attributes: Optional[dict[str, Any]] = None):
+def timing(name: str, attributes: dict[str, Any] | None = None):
     """
     Send the duration of the op as a Sentry metric.
 

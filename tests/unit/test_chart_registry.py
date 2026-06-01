@@ -9,7 +9,6 @@ from typing import Any, Literal
 
 import pytest
 from dash.development.base_component import Component
-
 from sec_certs_page.dashboard.chart.base import BaseChart
 from sec_certs_page.dashboard.chart.config import AxisConfig
 from sec_certs_page.dashboard.chart.config import ChartConfig as Chart
