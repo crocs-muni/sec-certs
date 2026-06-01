@@ -197,3 +197,4 @@ CC_USA_API_FILES_URL = CC_USA_BASE_URL + "/api/file/get_pcl_files/"
 CC_USA_API_GETFILE_URL = CC_USA_BASE_URL + "/api/file/get_public_file/"
 
 EUCC_BASE_URL = "https://certification.enisa.europa.eu/certificates_en"
+EUCC_RSS_URL = "https://certification.enisa.europa.eu/node/198/rss_en"

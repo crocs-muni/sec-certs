@@ -167,6 +167,9 @@ class EUCCCertificate(
 
             inside_parentheses = match.group(1).strip()
 
+            if "[dot]" not in inside_parentheses and "[at]" not in inside_parentheses:
+                return text
+
             # reconstructs email by replacing obfuscation tokens
             clean_email = inside_parentheses.replace("[dot]", ".").replace("[at]", "@").replace(" ", "")
 
@@ -199,18 +202,18 @@ class EUCCCertificate(
             Parses CC security packages (e.g., 'EAL4 augmented with ALC_FLR.1')
             into a structured dictionary mapping EALs to their components.
             """
-            sections = re.split(r"\b(EAL\d+)\b", text)
+            sections = re.split(r"\b(EAL\s*\d+)\b", text)
 
             result: dict[str, list[str]] = {}
 
             # re.split with a capturing group returns [prefix, group, suffix, group, suffix...]
             # We skip the first element (prefix before first EAL) and iterate in steps of 2
             for i in range(1, len(sections), 2):
-                eal_key = sections[i]
+                eal_key = sections[i].replace(" ", "")
                 content_after = sections[i + 1]
 
                 # Find all CC components
-                components = re.findall(r"\b[A-Z]{3,4}(?:_[A-Z]{3,4})?(?:\.\d+)?\b", content_after)
+                components = re.findall(r"\b[A-Z]{3,4}_[A-Z]{3,4}(?:\.\d+)?\b", content_after)
                 result[eal_key] = components
 
             return result
@@ -333,7 +336,7 @@ class EUCCCertificate(
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))
         status = EUCCCertificate._get_status(not_valid_after)
-        report_link = document_urls.get("certification_report")
+        report_link = document_urls.get("certificate_report")
         st_link = document_urls.get("security_target")
         cert_link = document_urls.get("certificate")
         holder_website = EUCCCertificate._extract_holder_website(metadata.get("holder_website", ""))
@@ -358,6 +361,26 @@ class EUCCCertificate(
             None,
             EUCCCertificate.EnisaMetadata.from_dict(metadata),
         )
+
+    @classmethod
+    def from_dict(cls, dct: dict) -> EUCCCertificate:
+        """
+        Deserializes dictionary into `EUCCCertificate`
+        """
+        new_dct = dct.copy()
+        if dct["protection_profile_links"]:
+            new_dct["protection_profile_links"] = set(dct["protection_profile_links"])
+        new_dct["not_valid_before"] = (
+            date.fromisoformat(dct["not_valid_before"])
+            if isinstance(dct["not_valid_before"], str)
+            else dct["not_valid_before"]
+        )
+        new_dct["not_valid_after"] = (
+            date.fromisoformat(dct["not_valid_after"])
+            if isinstance(dct["not_valid_after"], str)
+            else dct["not_valid_after"]
+        )
+        return super(cls, EUCCCertificate).from_dict(new_dct)
 
     def compute_heuristics_cert_lab(self):
         compute_heuristics_cert_lab(self)
