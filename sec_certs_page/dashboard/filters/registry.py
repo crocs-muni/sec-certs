@@ -128,7 +128,7 @@ class CCFilterRegistry(FilterSpecRegistry):
                 placeholder="Select start date...",
                 help_text="Minimum certification date (inclusive)",
             ),
-            transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
+            transform=lambda x: x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x),
             # Date fields are better represented by the year_from derived field on axes.
             exclude_from_axis=True,
         ),
@@ -143,7 +143,7 @@ class CCFilterRegistry(FilterSpecRegistry):
                 placeholder="Select end date...",
                 help_text="Maximum certification date (inclusive)",
             ),
-            transform=lambda x: (x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x)),
+            transform=lambda x: x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x),
             # Date fields are better represented by the year_to derived field on axes.
             exclude_from_axis=True,
         ),
