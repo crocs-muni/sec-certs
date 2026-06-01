@@ -114,6 +114,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 searchable=True,
                 help_text="Year when certificate was issued (extracted from certification date)",
             ),
+            # Use the year_from derived field for year-based grouping instead.
+            exclude_from_axis=True,
         ),
         filter_id(FilterID.NOT_VALID_BEFORE_FILTER): FilterSpec(
             id=filter_id(FilterID.NOT_VALID_BEFORE_FILTER),
@@ -127,6 +129,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Minimum certification date (inclusive)",
             ),
             transform=lambda x: x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x),
+            # Date fields are better represented by the year_from derived field on axes.
+            exclude_from_axis=True,
         ),
         filter_id(FilterID.NOT_VALID_AFTER_FILTER): FilterSpec(
             id=filter_id(FilterID.NOT_VALID_AFTER_FILTER),
@@ -140,6 +144,8 @@ class CCFilterRegistry(FilterSpecRegistry):
                 help_text="Maximum certification date (inclusive)",
             ),
             transform=lambda x: x if isinstance(x, str) else x.isoformat() if isinstance(x, datetime) else str(x),
+            # Date fields are better represented by the year_to derived field on axes.
+            exclude_from_axis=True,
         ),
         # Additional fields for chart grouping (not typically used as filters)
         filter_id(FilterID.VENDOR_FILTER): FilterSpec(
@@ -262,7 +268,7 @@ class FIPSFilterRegistry(FilterSpecRegistry):
         ),
         filter_id(FilterID.YEAR_FILTER): FilterSpec(
             id="fips-year-filter",
-            database_field="web_data.date_validation",
+            database_field="web_data.validation_history",
             operator=FilterOperator.YEAR_IN,
             data_type="int",
             component_params=FilterComponentParams(
@@ -274,6 +280,9 @@ class FIPSFilterRegistry(FilterSpecRegistry):
                 searchable=True,
                 help_text="Year when module was validated",
             ),
+            # web_data.validation_history is an array; grouping/aggregating on it
+            # directly is meaningless. Use the year_from derived field instead.
+            exclude_from_axis=True,
         ),
         filter_id(FilterID.VENDOR_FILTER): FilterSpec(
             id="fips-vendor-filter",

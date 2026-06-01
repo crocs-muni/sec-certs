@@ -25,6 +25,10 @@ class FilterSpec:
     :param data: Fetched data from database for filter options or available values
     :param transform: Optional value transformation before query
     :param mongodb_pipeline: Custom MongoDB aggregation pipeline stages
+    :param exclude_from_axis: Skip this filter when building chart axis field options.
+        Use for fields whose stored shape is unsuitable for grouping/aggregation
+        (e.g. date fields better represented by the ``year_from`` derived field, or
+        array fields like ``web_data.validation_history``).
     """
 
     id: str
@@ -36,6 +40,7 @@ class FilterSpec:
     data: Any | None = None
     transform: Callable | None = None
     mongodb_pipeline: list[dict] | None = None
+    exclude_from_axis: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize filter configuration to dictionary."""
