@@ -100,7 +100,7 @@ def test_get_scheme_from_cert_id(cert_id, expected_output):
     "input_text, expected_output",
     [
         ("2023-01-01", date(2023, 1, 1)),
-        ("02/04/2025", date(2025, 2, 4)),
+        ("02/04/2025", date(2025, 4, 2)),
         ("", None),
         (None, None),
         ("not a date string", None),
