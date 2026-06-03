@@ -23,7 +23,7 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
-    from sec_certs.sample.pp_scheme import PPSchemeEntry
+    from sec_certs.sample.pp_scheme import PPSchemeRecord
 
 
 class ProtectionProfile(
@@ -270,9 +270,9 @@ class ProtectionProfile(
         return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
 
     @classmethod
-    def from_scheme_entry(cls, entry: PPSchemeEntry) -> ProtectionProfile:
+    def from_scheme_record(cls, entry: PPSchemeRecord) -> ProtectionProfile:
         """
-        Builds a `ProtectionProfile` object from a PPSchemeEntry produced by a national scheme scraper.
+        Builds a `ProtectionProfile` object from a PPSchemeRecord produced by a national scheme scraper.
         """
         return cls(
             ProtectionProfile.WebData(

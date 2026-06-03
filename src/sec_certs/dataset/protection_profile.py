@@ -21,7 +21,7 @@ from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
-    from sec_certs.sample.pp_scheme import PPSchemeEntry
+    from sec_certs.sample.pp_scheme import PPSchemeRecord
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):
@@ -438,8 +438,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         and then merges previously unseen entries into the main dataset.
         """
 
-        all_entries: list[PPSchemeEntry] = []
-        entries_by_scheme: dict[str, list[PPSchemeEntry]] = {}
+        all_entries: list[PPSchemeRecord] = []
+        entries_by_scheme: dict[str, list[PPSchemeRecord]] = {}
 
         for scraper in PP_SCHEME_SCRAPERS:
             try:
@@ -453,7 +453,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         scheme_dataset_certs: dict[str, ProtectionProfile] = {}
         for entry in all_entries:
-            pp = ProtectionProfile.from_scheme_entry(entry)
+            pp = ProtectionProfile.from_scheme_record(entry)
             scheme_dataset_certs[pp.dgst] = pp
         scheme_dataset = ProtectionProfileDataset(certs=scheme_dataset_certs)
         scheme_dataset.to_json(self.scheme_data_path)
@@ -472,7 +472,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             added = 0
             for entry in entries:
                 if id(entry) not in matched_entries:
-                    pp = ProtectionProfile.from_scheme_entry(entry)
+                    pp = ProtectionProfile.from_scheme_record(entry)
                     if pp.dgst not in self.certs:
                         self.certs[pp.dgst] = pp
                         added += 1

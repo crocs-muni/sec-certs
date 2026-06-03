@@ -123,7 +123,7 @@ _ITSCC_TYPE_TO_CC_CATEGORY: dict[str, str] = {
 
 
 @dataclass
-class PPSchemeEntry:
+class PPSchemeRecord:
     """
     Intermediate data class representing a Protection Profile scraped from a national scheme.
 
@@ -143,16 +143,17 @@ class PPSchemeEntry:
     pp_link: str | None
     scheme: str | None
     maintenances: list[tuple[Any, ...]] = field(default_factory=list)
+    extra: dict[str, Any] = field(default_factory=dict)
 
 
 class PPScraper(Protocol):
     """Structural interface for PP scheme scrapers.
-    Each scheme scraper must implement a scrape() method that returns a list of PPSchemeEntry objects.
+    Each scheme scraper must implement a scrape() method that returns a list of PPSchemeRecord objects.
     """
 
     scheme: str
 
-    def scrape(self) -> list[PPSchemeEntry]: ...
+    def scrape(self) -> list[PPSchemeRecord]: ...
 
 
 class NIAPScraper:
@@ -212,14 +213,14 @@ class NIAPScraper:
         return _NIAP_PP_FILE_DOWNLOAD_URL + "?file_id=" + str(file_id)
 
     @staticmethod
-    def _niap_entry_to_scheme_entry(entry: dict[str, Any], files: list[dict[str, Any]] | None = None) -> PPSchemeEntry:
+    def _niap_entry_to_scheme_entry(entry: dict[str, Any], files: list[dict[str, Any]] | None = None) -> PPSchemeRecord:
         pp_link: str | None = None
         if files:
             pp_file = NIAPScraper._pick_pp_pdf_file(files)
             if pp_file:
                 pp_link = NIAPScraper._niap_file_download_url(pp_file["file_id"])
 
-        return PPSchemeEntry(
+        return PPSchemeRecord(
             category=NIAPScraper._niap_tech_type_to_cc_category(entry.get("tech_type", "")),
             status=NIAPScraper._niap_status_to_cc(entry.get("status", "Publishing")),
             is_collaborative=False,
@@ -234,15 +235,15 @@ class NIAPScraper:
             maintenances=[],
         )
 
-    def scrape(self) -> list[PPSchemeEntry]:
-        """Fetch all public Protection Profiles from the NIAP API and return as PPSchemeEntry list."""
+    def scrape(self) -> list[PPSchemeRecord]:
+        """Fetch all public Protection Profiles from the NIAP API and return as PPSchemeRecord list."""
         try:
             raw_entries = self._fetch_niap_pps()
         except Exception as e:
             logger.error("Failed to fetch NIAP PPs: %s", e)
             return []
 
-        entries: list[PPSchemeEntry] = []
+        entries: list[PPSchemeRecord] = []
         for raw in raw_entries:
             try:
                 pp_id = raw["pp_id"]
@@ -255,7 +256,7 @@ class NIAPScraper:
             except Exception as e:
                 logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
 
-        logger.info("Parsed %d PPSchemeEntry objects from NIAP.", len(entries))
+        logger.info("Parsed %d PPSchemeRecord objects from NIAP.", len(entries))
         return entries
 
 
@@ -342,8 +343,8 @@ class SwedishScraper:
         return None
 
     @staticmethod
-    def _csec_table_to_scheme_entry(url: str, table: dict[str, Any], soup: Any) -> PPSchemeEntry:
-        """Build a PPSchemeEntry from a parsed CSEC PP page."""
+    def _csec_table_to_scheme_entry(url: str, table: dict[str, Any], soup: Any) -> PPSchemeRecord:
+        """Build a PPSchemeRecord from a parsed CSEC PP page."""
         name = SwedishScraper._csec_get_name(table, soup)
 
         raw_eal = table.get("Assuranspaket")
@@ -368,7 +369,7 @@ class SwedishScraper:
                 cat_cell.get_text(strip=True), "Other Devices and Systems"
             )
 
-        return PPSchemeEntry(
+        return PPSchemeRecord(
             category=category,
             status="active",
             is_collaborative=False,
@@ -383,15 +384,15 @@ class SwedishScraper:
             maintenances=[],
         )
 
-    def scrape(self) -> list[PPSchemeEntry]:
-        """Fetch all certified Protection Profiles from the CSEC portal and return as PPSchemeEntry list."""
+    def scrape(self) -> list[PPSchemeRecord]:
+        """Fetch all certified Protection Profiles from the CSEC portal and return as PPSchemeRecord list."""
         try:
             urls = self._fetch_csec_pp_urls()
         except Exception as e:
             logger.error("Failed to fetch CSEC PP index: %s", e)
             return []
 
-        entries: list[PPSchemeEntry] = []
+        entries: list[PPSchemeRecord] = []
         for url in urls:
             try:
                 table, soup = self._fetch_csec_pp_table(url)
@@ -399,7 +400,7 @@ class SwedishScraper:
             except Exception as e:
                 logger.error("Error processing CSEC PP page %s: %s", url, e)
 
-        logger.info("Parsed %d PPSchemeEntry objects from CSEC.", len(entries))
+        logger.info("Parsed %d PPSchemeRecord objects from CSEC.", len(entries))
         return entries
 
 
@@ -598,12 +599,12 @@ class KoreanScraper:
         return result
 
     @staticmethod
-    def _itscc_row_to_scheme_entry(detail: dict[str, Any], status: Literal["active", "archived"]) -> PPSchemeEntry:
-        """Convert a parsed ITSCC detail dict into a PPSchemeEntry."""
+    def _itscc_row_to_scheme_entry(detail: dict[str, Any], status: Literal["active", "archived"]) -> PPSchemeRecord:
+        """Convert a parsed ITSCC detail dict into a PPSchemeRecord."""
         eal_raw = detail["eal"].strip()
         security_level: set[str] = {eal_raw} if re.match(r"^EAL\d", eal_raw) else set()
         category = _ITSCC_TYPE_TO_CC_CATEGORY.get(detail["type_of_pp"].strip(), "Other Devices and Systems")
-        return PPSchemeEntry(
+        return PPSchemeRecord(
             category=category,
             status=status,
             is_collaborative=False,
@@ -618,12 +619,12 @@ class KoreanScraper:
             maintenances=[],
         )
 
-    def scrape(self) -> list[PPSchemeEntry]:
-        """Fetch all active and archived PPs from ITSCC and return as PPSchemeEntry list."""
+    def scrape(self) -> list[PPSchemeRecord]:
+        """Fetch all active and archived PPs from ITSCC and return as PPSchemeRecord list."""
         session = requests.Session()
         # Visit the English entry point so that subsequent requests return English content
         session.get(_ITSCC_BASE_URL + "/main/mainEn.do", headers=_ITSCC_HEADERS, timeout=REQUEST_TIMEOUT)
-        entries: list[PPSchemeEntry] = []
+        entries: list[PPSchemeRecord] = []
 
         sources: list[tuple[str, int, Literal["active", "archived"]]] = [
             (_ITSCC_ACTIVE_LIST_URL, 1, "active"),
@@ -652,7 +653,7 @@ class KoreanScraper:
                 except Exception as e:
                     logger.error("Error processing ITSCC PP %s: %s", row.get("pp_number", "?"), e)
 
-        logger.info("Parsed %d PPSchemeEntry objects from ITSCC.", len(entries))
+        logger.info("Parsed %d PPSchemeRecord objects from ITSCC.", len(entries))
         return entries
 
 
@@ -782,15 +783,15 @@ class FrenchScraper:
         return phrases
 
     @staticmethod
-    def _parse_anssi_entries(text: str, status: Literal["active", "archived"]) -> list[PPSchemeEntry]:
-        """Parse PPSchemeEntry objects from an ANSSI catalogue text section.
+    def _parse_anssi_entries(text: str, status: Literal["active", "archived"]) -> list[PPSchemeRecord]:
+        """Parse PPSchemeRecord objects from an ANSSI catalogue text section.
 
         Uses ANSSI-CCPP-* certificate IDs as row anchors, then extracts dates and
         the most likely PP name from the text block preceding each certificate ID.
         Note: the PDF stores links as annotations (not visible text), so
         report_link and pp_link cannot be extracted and are set to None.
         """
-        entries: list[PPSchemeEntry] = []
+        entries: list[PPSchemeRecord] = []
 
         # Split text on every cert ID; parts alternates [text, certid, text, certid, ..., text]
         parts = _ANSSI_CERT_ID_PAT.split(text)
@@ -837,7 +838,7 @@ class FrenchScraper:
                     name = "Protection " + name
 
             entries.append(
-                PPSchemeEntry(
+                PPSchemeRecord(
                     category=FrenchScraper._anssi_pp_name_to_cc_category(name),
                     status=status,
                     is_collaborative=False,
@@ -853,11 +854,11 @@ class FrenchScraper:
                 )
             )
 
-        logger.info("Parsed %d ANSSI PPSchemeEntry objects (status=%s).", len(entries), status)
+        logger.info("Parsed %d ANSSI PPSchemeRecord objects (status=%s).", len(entries), status)
         return entries
 
-    def scrape(self) -> list[PPSchemeEntry]:
-        """Download the ANSSI PP catalogue PDF and return all entries as PPSchemeEntry list."""
+    def scrape(self) -> list[PPSchemeRecord]:
+        """Download the ANSSI PP catalogue PDF and return all entries as PPSchemeRecord list."""
         try:
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
                 tmp_path = Path(tmp.name)
@@ -875,7 +876,7 @@ class FrenchScraper:
             with suppress(OSError):
                 tmp_path.unlink()
 
-        entries: list[PPSchemeEntry] = []
+        entries: list[PPSchemeRecord] = []
         try:
             entries.extend(self._parse_anssi_entries(active_text, "active"))
         except Exception as e:
@@ -885,7 +886,7 @@ class FrenchScraper:
         except Exception as e:
             logger.error("Failed to parse ANSSI archived PP entries: %s", e)
 
-        logger.info("Parsed %d PPSchemeEntry objects from ANSSI.", len(entries))
+        logger.info("Parsed %d PPSchemeRecord objects from ANSSI.", len(entries))
         return entries
 
 
