@@ -32,7 +32,11 @@ class ProtectionProfile(
 ):
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
-        pass
+        scheme_data: PPSchemeRecord | None = field(default=None)
+
+        @property
+        def serialized_attributes(self) -> list[str]:
+            return [a for a in super().serialized_attributes if a != "scheme_data"]
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
