@@ -11,8 +11,8 @@ from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.pp_scheme import PPSchemeDataset
 from sec_certs.model.pp_matching import PPSchemeMatcher
-from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
@@ -21,7 +21,6 @@ from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
-    from sec_certs.sample.pp_scheme import PPSchemeRecord
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):
@@ -438,27 +437,10 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         and then merges previously unseen entries into the main dataset.
         """
 
-        all_entries: list[PPSchemeRecord] = []
-        entries_by_scheme: dict[str, list[PPSchemeRecord]] = {}
+        scheme_dset = PPSchemeDataset.from_scrapers(json_path=self.scheme_data_path)
+        scheme_dset.to_json()
 
-        for scraper in PP_SCHEME_SCRAPERS:
-            try:
-                entries = scraper.scrape()
-            except Exception as e:
-                logger.error("Failed to scrape PP scheme %s: %s", scraper.scheme, e)
-                continue
-
-            all_entries.extend(entries)
-            entries_by_scheme.setdefault(scraper.scheme, []).extend(entries)
-
-        scheme_dataset_certs: dict[str, ProtectionProfile] = {}
-        for entry in all_entries:
-            pp = ProtectionProfile.from_scheme_record(entry)
-            scheme_dataset_certs[pp.dgst] = pp
-        scheme_dataset = ProtectionProfileDataset(certs=scheme_dataset_certs)
-        scheme_dataset.to_json(self.scheme_data_path)
-
-        for scheme, entries in entries_by_scheme.items():
+        for scheme, entries in scheme_dset.schemes.items():
             scheme_pool_certs = [
                 c
                 for c in self
@@ -467,13 +449,17 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             ]
             matchers = [PPSchemeMatcher(e) for e in entries]
             matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
-            matched_entries = {id(v) for v in matched.values()}
 
+            for dgst, record in matched.items():
+                self.certs[dgst].heuristics.scheme_data = record
+
+            matched_ids = {id(v) for v in matched.values()}
             added = 0
             for entry in entries:
-                if id(entry) not in matched_entries:
+                if id(entry) not in matched_ids:
                     pp = ProtectionProfile.from_scheme_record(entry)
                     if pp.dgst not in self.certs:
+                        pp.heuristics.scheme_data = entry
                         self.certs[pp.dgst] = pp
                         added += 1
 
