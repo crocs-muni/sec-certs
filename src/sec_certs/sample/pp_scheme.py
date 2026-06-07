@@ -248,10 +248,9 @@ class NIAPScraper:
             if pp_file:
                 pp_link = NIAPScraper._niap_file_download_url(pp_file["file_id"])
 
-        # NIAP exposes an explicit predecessor (a reliable backward link) on the per-PP detail
-        # endpoint. The successor field there is frequently null even when a successor exists, so
-        # successors are reconstructed later by inverting predecessor links (see _fill_niap_successors).
+        # NIAP exposes explicit predecessor/successor relations on the per-PP detail endpoint.
         predecessor = detail.get("predecessor_id__pp_short_name") if detail else None
+        successor = detail.get("successor_id__pp_short_name") if detail else None
 
         return PPSchemeRecord(
             category=NIAPScraper._niap_tech_type_to_cc_category(entry.get("tech_type", "")),
@@ -272,7 +271,7 @@ class NIAPScraper:
                 "pp_transition": entry.get("pp_transition"),
                 "cc_version": entry.get("cc_version"),
                 "predecessor": predecessor,
-                "successor": [],
+                "successor": successor,
             },
         )
 
@@ -293,7 +292,12 @@ class NIAPScraper:
                 except Exception as file_err:
                     logger.warning("Failed to fetch files for NIAP PP %s: %s", pp_id, file_err)
                     files = None
-                entries.append(self._niap_entry_to_scheme_entry(raw, files=files))
+                try:
+                    detail = self._fetch_niap_pp_detail(pp_id)
+                except Exception as detail_err:
+                    logger.warning("Failed to fetch detail for NIAP PP %s: %s", pp_id, detail_err)
+                    detail = None
+                entries.append(self._niap_entry_to_scheme_entry(raw, files=files, detail=detail))
             except Exception as e:
                 logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
 
