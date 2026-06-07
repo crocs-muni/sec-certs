@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 _NIAP_BASE_URL = "https://www.niap-ccevs.org"
 _NIAP_PP_API_URL = _NIAP_BASE_URL + "/api/protection-profile/public_pps_all/"
 _NIAP_PP_DETAIL_URL = _NIAP_BASE_URL + "/protectionprofiles/{}"
+_NIAP_PP_DETAIL_API_URL = _NIAP_BASE_URL + "/api/protection-profile/get_pp_by_id/"
 _NIAP_PP_FILE_API_URL = _NIAP_BASE_URL + "/api/file/get_public_files_by_type_and_type_id/"
 _NIAP_PP_FILE_DOWNLOAD_URL = _NIAP_BASE_URL + "/api/file/get_public_file/"
 
@@ -186,6 +187,18 @@ class NIAPScraper:
         resp = requests.get(
             _NIAP_PP_FILE_API_URL,
             params={"file_type": "protection-profile", "file_type_id": str(pp_id)},
+            timeout=REQUEST_TIMEOUT,
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    @staticmethod
+    def _fetch_niap_pp_detail(pp_id: int) -> dict[str, Any]:
+        """Fetch the per-PP detail record, which (unlike the list endpoint) carries the
+        predecessor relation as ``predecessor_id__pp_short_name``."""
+        resp = requests.get(
+            _NIAP_PP_DETAIL_API_URL,
+            params={"pp_id": str(pp_id)},
             timeout=REQUEST_TIMEOUT,
         )
         resp.raise_for_status()
