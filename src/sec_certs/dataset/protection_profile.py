@@ -451,7 +451,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
 
             for dgst, record in matched.items():
-                self.certs[dgst].heuristics.scheme_data = record
+                self.certs[dgst].heuristics.scheme_data = record.to_enrichment_dict()
 
             matched_ids = {id(v) for v in matched.values()}
             added = 0
@@ -459,7 +459,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
                 if id(entry) not in matched_ids:
                     pp = ProtectionProfile.from_scheme_record(entry)
                     if pp.dgst not in self.certs:
-                        pp.heuristics.scheme_data = entry
+                        pp.heuristics.scheme_data = entry.to_enrichment_dict()
                         self.certs[pp.dgst] = pp
                         added += 1
 
