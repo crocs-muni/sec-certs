@@ -237,12 +237,21 @@ class NIAPScraper:
         return _NIAP_PP_FILE_DOWNLOAD_URL + "?file_id=" + str(file_id)
 
     @staticmethod
-    def _niap_entry_to_scheme_entry(entry: dict[str, Any], files: list[dict[str, Any]] | None = None) -> PPSchemeRecord:
+    def _niap_entry_to_scheme_entry(
+        entry: dict[str, Any],
+        files: list[dict[str, Any]] | None = None,
+        detail: dict[str, Any] | None = None,
+    ) -> PPSchemeRecord:
         pp_link: str | None = None
         if files:
             pp_file = NIAPScraper._pick_pp_pdf_file(files)
             if pp_file:
                 pp_link = NIAPScraper._niap_file_download_url(pp_file["file_id"])
+
+        # NIAP exposes an explicit predecessor (a reliable backward link) on the per-PP detail
+        # endpoint. The successor field there is frequently null even when a successor exists, so
+        # successors are reconstructed later by inverting predecessor links (see _fill_niap_successors).
+        predecessor = detail.get("predecessor_id__pp_short_name") if detail else None
 
         return PPSchemeRecord(
             category=NIAPScraper._niap_tech_type_to_cc_category(entry.get("tech_type", "")),
@@ -257,6 +266,14 @@ class NIAPScraper:
             pp_link=pp_link,
             scheme="US",
             maintenances=[],
+            extra={
+                "pp_short_name": entry.get("pp_short_name"),
+                "pp_sponsor_id": entry.get("pp_sponsor_id"),
+                "pp_transition": entry.get("pp_transition"),
+                "cc_version": entry.get("cc_version"),
+                "predecessor": predecessor,
+                "successor": [],
+            },
         )
 
     def scrape(self) -> list[PPSchemeRecord]:
