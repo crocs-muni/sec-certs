@@ -27,6 +27,10 @@ _NIAP_PP_DETAIL_API_URL = _NIAP_BASE_URL + "/api/protection-profile/get_pp_by_id
 _NIAP_PP_FILE_API_URL = _NIAP_BASE_URL + "/api/file/get_public_files_by_type_and_type_id/"
 _NIAP_PP_FILE_DOWNLOAD_URL = _NIAP_BASE_URL + "/api/file/get_public_file/"
 
+# NIAP does not expose a version field; it is encoded as the trailing _v<version> of pp_short_name
+# (e.g. PP_APP_v1.4 -> 1.4). Minor parts may carry a letter suffix (2.0E, 1.1a, 1.d), kept verbatim.
+_NIAP_VERSION_RE = re.compile(r"[_-][vV](\d+(?:\.[0-9A-Za-z]+)*)$")
+
 _NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
     "AntiVirus": "Detection Devices and Systems",
     "Application Software": "Other Devices and Systems",
@@ -232,6 +236,11 @@ class NIAPScraper:
         return _NIAP_TECH_TYPE_TO_CC_CATEGORY.get(tech_type, "Other Devices and Systems")
 
     @staticmethod
+    def _niap_version_from_short_name(short_name: str | None) -> str:
+        match = _NIAP_VERSION_RE.search(short_name or "")
+        return match.group(1) if match else ""
+
+    @staticmethod
     def _pick_pp_pdf_file(files: list[dict[str, Any]]) -> dict[str, Any] | None:
         for f in files:
             mime = (f.get("file_mime_type") or "").lower()
@@ -265,7 +274,7 @@ class NIAPScraper:
             status=NIAPScraper._niap_status_to_cc(entry.get("status", "Publishing")),
             is_collaborative=False,
             name=entry.get("pp_name", ""),
-            version="",
+            version=NIAPScraper._niap_version_from_short_name(entry.get("pp_short_name")),
             security_level=set(),
             not_valid_before=NIAPScraper._parse_niap_date(entry.get("pp_date")),
             not_valid_after=NIAPScraper._parse_niap_date(entry.get("sunset_date")),
