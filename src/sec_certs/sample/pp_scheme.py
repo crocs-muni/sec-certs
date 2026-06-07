@@ -157,6 +157,14 @@ class PPSchemeRecord(ComplexSerializableType):
         dct["maintenances"] = [tuple(m) for m in dct.get("maintenances", [])]
         return cls(**dct)
 
+    def to_enrichment_dict(self) -> dict[str, Any]:
+        """Return the scheme-specific enrichment carried into ProtectionProfile.heuristics.scheme_data.
+
+        Holds only the extras not already present on WebData (e.g. NIAP predecessor/successor),
+        tagged with the source scheme.
+        """
+        return {"source_scheme": self.scheme, **self.extra}
+
 
 class PPScraper(Protocol):
     """Structural interface for PP scheme scrapers.
