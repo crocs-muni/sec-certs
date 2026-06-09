@@ -120,7 +120,10 @@ def _create_dashboard_control_panel(collection_name: CollectionName) -> html.Div
                 className="mb-4 border-0 shadow-sm",
                 children=[
                     dbc.CardBody(
-                        children=[_create_dashboard_selector_row(cid)],
+                        children=[
+                            section_header("Load Dashboard", "fas fa-folder-open"),
+                            _create_dashboard_selector_row(cid),
+                        ],
                     ),
                 ],
             ),
@@ -144,7 +147,6 @@ def _create_dashboard_selector_row(cid: ComponentIDBuilder) -> dbc.Row:
                 width=12,
                 lg=True,
                 children=[
-                    dbc.Label("Load Dashboard", className="fw-bold mb-2"),
                     dcc.Dropdown(
                         id=cid(ComponentID.SELECTOR),
                         options=[],
@@ -190,6 +192,7 @@ def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> dbc.Card:
         children=[
             dbc.CardBody(
                 children=[
+                    section_header("Configure Dashboard", "fas fa-sliders-h"),
                     _create_dashboard_name_row(cid),
                     html.Hr(className="my-3"),
                     _create_chart_controls_row(cid),
@@ -229,20 +232,6 @@ def _create_dashboard_name_row(cid: ComponentIDBuilder) -> dbc.Row:
                 lg="auto",
                 className="d-flex align-items-center gap-2 flex-wrap",
                 children=[
-                    dbc.Button(
-                        [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
-                        id=cid(ComponentID.UPDATE_ALL_BTN),
-                        n_clicks=0,
-                        disabled=True,
-                        color="secondary",
-                        outline=True,
-                        size="lg",
-                        className="refresh-all-btn",
-                    ),
-                    dbc.Tooltip(
-                        "Reload data and redraw every chart in this dashboard.",
-                        target=cid(ComponentID.UPDATE_ALL_BTN),
-                    ),
                     dbc.Button(
                         [html.I(className="fas fa-save me-2"), "Save Dashboard"],
                         id=cid(ComponentID.SAVE_DASHBOARD_BTN),
@@ -364,6 +353,28 @@ def _create_dashboard_content(collection_name: CollectionName) -> html.Div:
         id=cid(ComponentID.DASHBOARD_CONTENT),
         style={"display": "none"},
         children=[
+            # Charts toolbar: "Charts" heading on the left, bulk refresh on the right.
+            # Placed next to the chart grid (and the per-chart refresh buttons) so it is
+            # clear the button refreshes the charts, not the dashboard settings above.
+            html.Div(
+                className="d-flex align-items-center justify-content-between mb-3",
+                children=[
+                    section_header("Charts", "fas fa-chart-line", icon_color="text-primary"),
+                    dbc.Button(
+                        [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
+                        id=cid(ComponentID.UPDATE_ALL_BTN),
+                        n_clicks=0,
+                        disabled=True,
+                        color="secondary",
+                        outline=True,
+                        className="refresh-all-btn",
+                    ),
+                    dbc.Tooltip(
+                        "Reload data and redraw every chart in this dashboard.",
+                        target=cid(ComponentID.UPDATE_ALL_BTN),
+                    ),
+                ],
+            ),
             # Chart container
             html.Div(id=cid(ComponentID.CHART_CONTAINER)),
             # Chart creation modal
