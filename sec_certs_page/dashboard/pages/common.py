@@ -230,7 +230,7 @@ def _create_dashboard_name_row(cid: ComponentIDBuilder) -> dbc.Row:
                 className="d-flex align-items-center gap-2 flex-wrap",
                 children=[
                     dbc.Button(
-                        [html.I(className="fas fa-sync-alt me-2"), "Refresh All"],
+                        [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
                         id=cid(ComponentID.UPDATE_ALL_BTN),
                         n_clicks=0,
                         disabled=True,
@@ -238,6 +238,10 @@ def _create_dashboard_name_row(cid: ComponentIDBuilder) -> dbc.Row:
                         outline=True,
                         size="lg",
                         className="refresh-all-btn",
+                    ),
+                    dbc.Tooltip(
+                        "Reload data and redraw every chart in this dashboard.",
+                        target=cid(ComponentID.UPDATE_ALL_BTN),
                     ),
                     dbc.Button(
                         [html.I(className="fas fa-save me-2"), "Save Dashboard"],
