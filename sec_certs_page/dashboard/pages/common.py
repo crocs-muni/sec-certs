@@ -522,11 +522,18 @@ def _create_x_axis_settings(cid: ComponentIDBuilder) -> html.Div:
                 label="Label",
                 placeholder="Optional label...",
             ),
-            labeled_dropdown(
-                component_id=cid(ComponentID.MODAL_COLOR_FIELD),
-                label="Color By",
-                placeholder="Optional secondary grouping...",
-                class_name="",
+            # Color By is a secondary grouping that some chart types (e.g. pie)
+            # cannot render, so it is wrapped to be hidden for those types.
+            html.Div(
+                id=cid(ComponentID.MODAL_COLOR_CONTROLS),
+                children=[
+                    labeled_dropdown(
+                        component_id=cid(ComponentID.MODAL_COLOR_FIELD),
+                        label="Color By",
+                        placeholder="Optional secondary grouping...",
+                        class_name="",
+                    ),
+                ],
             ),
             # Hidden components for backwards compatibility
             hidden_collapse_components(cid),

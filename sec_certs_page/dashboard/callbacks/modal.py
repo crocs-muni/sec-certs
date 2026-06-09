@@ -785,6 +785,8 @@ def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionNam
     @dash_app.callback(
         output={
             "y_controls_style": Output(component_builder(ComponentID.MODAL_Y_VALUE_CONTROLS), "style"),
+            "color_controls_style": Output(component_builder(ComponentID.MODAL_COLOR_CONTROLS), "style"),
+            "color_value": Output(component_builder(ComponentID.MODAL_COLOR_FIELD), "value", allow_duplicate=True),
             "aggregation_disabled": Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
             "y_field_disabled": Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
             "y_label_disabled": Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
@@ -796,9 +798,11 @@ def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionNam
         prevent_initial_call=True,
     )
     def update_y_axis_visibility(chart_type):
-        """Adjust Y-axis controls per chart type.
+        """Adjust Y-axis and Color By controls per chart type.
 
-        - Pie charts have no Y-axis, so the whole Y-axis controls block is hidden.
+        - Pie charts have no Y-axis and cannot render a secondary color grouping,
+          so the whole Y-axis block and the Color By control are hidden. The Color
+          By value is also cleared so a stale selection cannot split the pie data.
         - Histograms compute frequency automatically, so the aggregation/field
           controls are disabled and forced to COUNT.
         """
@@ -807,6 +811,8 @@ def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionNam
 
         return {
             "y_controls_style": {"display": "none"} if is_pie else {"display": "block"},
+            "color_controls_style": {"display": "none"} if is_pie else {"display": "block"},
+            "color_value": None if is_pie else no_update,
             "aggregation_disabled": is_histogram,
             "y_field_disabled": is_histogram,
             "y_label_disabled": False,  # Keep label editable for all chart types

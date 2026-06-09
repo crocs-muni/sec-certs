@@ -70,6 +70,7 @@ class ComponentID(str, Enum):
     MODAL_X_FIELD = "modal-x-field"
     MODAL_X_LABEL = "modal-x-label"
     MODAL_COLOR_FIELD = "modal-color-field"
+    MODAL_COLOR_CONTROLS = "modal-color-controls"
     MODAL_AGGREGATION = "modal-aggregation"
     MODAL_Y_FIELD = "modal-y-field"
     MODAL_Y_LABEL = "modal-y-label"
