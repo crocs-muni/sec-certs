@@ -522,11 +522,18 @@ def _create_x_axis_settings(cid: ComponentIDBuilder) -> html.Div:
                 label="Label",
                 placeholder="Optional label...",
             ),
-            labeled_dropdown(
-                component_id=cid(ComponentID.MODAL_COLOR_FIELD),
-                label="Color By",
-                placeholder="Optional secondary grouping...",
-                class_name="",
+            # Color By is a secondary grouping that some chart types (e.g. pie)
+            # cannot render, so it is wrapped to be hidden for those types.
+            html.Div(
+                id=cid(ComponentID.MODAL_COLOR_CONTROLS),
+                children=[
+                    labeled_dropdown(
+                        component_id=cid(ComponentID.MODAL_COLOR_FIELD),
+                        label="Color By",
+                        placeholder="Optional secondary grouping...",
+                        class_name="",
+                    ),
+                ],
             ),
             # Hidden components for backwards compatibility
             hidden_collapse_components(cid),
@@ -543,60 +550,66 @@ def _create_y_axis_settings(cid: ComponentIDBuilder) -> html.Div:
     return html.Div(
         className="mb-3",
         children=[
-            subsection_header("Y-Axis", "fas fa-arrows-alt-v"),
-            # Aggregation dropdown
+            # Y-axis-specific controls, hidden for chart types without a Y-axis (e.g. pie)
             html.Div(
-                className="mb-3",
+                id=cid(ComponentID.MODAL_Y_VALUE_CONTROLS),
                 children=[
-                    dbc.Label("Aggregation", className="small text-muted mb-1"),
-                    dcc.Dropdown(
-                        id=cid(ComponentID.MODAL_AGGREGATION),
-                        options=get_aggregation_options(),
-                        value="count",
-                        clearable=False,
-                        className="dash-bootstrap",
+                    subsection_header("Y-Axis", "fas fa-arrows-alt-v"),
+                    # Aggregation dropdown
+                    html.Div(
+                        className="mb-3",
+                        children=[
+                            dbc.Label("Aggregation", className="small text-muted mb-1"),
+                            dcc.Dropdown(
+                                id=cid(ComponentID.MODAL_AGGREGATION),
+                                options=get_aggregation_options(),
+                                value="count",
+                                clearable=False,
+                                className="dash-bootstrap",
+                            ),
+                        ],
                     ),
+                    # Field to aggregate
+                    html.Div(
+                        className="mb-1",
+                        children=[
+                            dbc.Label("Field to Aggregate", className="small text-muted mb-1"),
+                            dcc.Dropdown(
+                                id=cid(ComponentID.MODAL_Y_FIELD),
+                                options=[],
+                                placeholder="For SUM/AVG/MIN/MAX...",
+                                disabled=True,
+                                className="dash-bootstrap",
+                            ),
+                        ],
+                    ),
+                    dbc.FormText(
+                        id=cid(ComponentID.MODAL_Y_FIELD_HELP),
+                        children="Not required for COUNT.",
+                        className="text-muted small mb-3",
+                    ),
+                    labeled_input(
+                        component_id=cid(ComponentID.MODAL_Y_LABEL),
+                        label="Label",
+                        placeholder="Optional label...",
+                    ),
+                    # Y Values options
+                    dbc.Checkbox(
+                        id=cid(ComponentID.MODAL_SHOW_NON_ZERO),
+                        label="Show only non-zero values",
+                        value=False,
+                        className="mb-2",
+                    ),
+                    dbc.Checkbox(
+                        id=cid(ComponentID.MODAL_Y_LOG_SCALE),
+                        label="Y-axis Logarithmic Scale",
+                        value=False,
+                        className="mb-2",
+                    ),
+                    # Display options
+                    html.Hr(className="my-3"),
                 ],
             ),
-            # Field to aggregate
-            html.Div(
-                className="mb-1",
-                children=[
-                    dbc.Label("Field to Aggregate", className="small text-muted mb-1"),
-                    dcc.Dropdown(
-                        id=cid(ComponentID.MODAL_Y_FIELD),
-                        options=[],
-                        placeholder="For SUM/AVG/MIN/MAX...",
-                        disabled=True,
-                        className="dash-bootstrap",
-                    ),
-                ],
-            ),
-            dbc.FormText(
-                id=cid(ComponentID.MODAL_Y_FIELD_HELP),
-                children="Not required for COUNT.",
-                className="text-muted small mb-3",
-            ),
-            labeled_input(
-                component_id=cid(ComponentID.MODAL_Y_LABEL),
-                label="Label",
-                placeholder="Optional label...",
-            ),
-            # Y Values options
-            dbc.Checkbox(
-                id=cid(ComponentID.MODAL_SHOW_NON_ZERO),
-                label="Show only non-zero values",
-                value=False,
-                className="mb-2",
-            ),
-            dbc.Checkbox(
-                id=cid(ComponentID.MODAL_Y_LOG_SCALE),
-                label="Y-axis Logarithmic Scale",
-                value=False,
-                className="mb-2",
-            ),
-            # Display options
-            html.Hr(className="my-3"),
             dbc.Checkbox(
                 id=cid(ComponentID.MODAL_SHOW_LEGEND),
                 label="Show Legend",

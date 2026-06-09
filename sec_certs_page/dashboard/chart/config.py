@@ -130,6 +130,18 @@ class ChartConfig:
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
+    def __post_init__(self) -> None:
+        """Normalize configuration invariants that must hold for every chart.
+
+        Pie charts render a single ``names``/``values`` series and cannot show a
+        secondary color grouping. Keeping a ``color_axis`` on a pie would still
+        split the underlying aggregation by (x, color), producing duplicate slice
+        names and distorted values. Drop it here so the invariant holds no matter
+        how the config was built (modal form, saved dashboard, predefined chart).
+        """
+        if self.chart_type == ChartType.PIE and self.color_axis is not None:
+            self.color_axis = None
+
     def add_filter(self, filter_config: FilterSpec) -> None:
         """Add or update a filter configuration.
 
