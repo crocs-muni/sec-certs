@@ -779,11 +779,12 @@ def _register_chart_type_help(dash_app: "Dash", collection_name: CollectionName)
 
 
 def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionName) -> None:
-    """Hide/disable Y-axis aggregation fields for histograms."""
+    """Hide/disable Y-axis aggregation fields based on chart type."""
     component_builder = ComponentIDBuilder(collection_name)
 
     @dash_app.callback(
         output={
+            "y_controls_style": Output(component_builder(ComponentID.MODAL_Y_VALUE_CONTROLS), "style"),
             "aggregation_disabled": Output(component_builder(ComponentID.MODAL_AGGREGATION), "disabled"),
             "y_field_disabled": Output(component_builder(ComponentID.MODAL_Y_FIELD), "disabled", allow_duplicate=True),
             "y_label_disabled": Output(component_builder(ComponentID.MODAL_Y_LABEL), "disabled"),
@@ -795,10 +796,17 @@ def _register_y_axis_visibility(dash_app: "Dash", collection_name: CollectionNam
         prevent_initial_call=True,
     )
     def update_y_axis_visibility(chart_type):
-        """Disable Y-axis aggregation controls for histograms since they compute frequency automatically."""
+        """Adjust Y-axis controls per chart type.
+
+        - Pie charts have no Y-axis, so the whole Y-axis controls block is hidden.
+        - Histograms compute frequency automatically, so the aggregation/field
+          controls are disabled and forced to COUNT.
+        """
+        is_pie = chart_type == "pie"
         is_histogram = chart_type == "histogram"
 
         return {
+            "y_controls_style": {"display": "none"} if is_pie else {"display": "block"},
             "aggregation_disabled": is_histogram,
             "y_field_disabled": is_histogram,
             "y_label_disabled": False,  # Keep label editable for all chart types

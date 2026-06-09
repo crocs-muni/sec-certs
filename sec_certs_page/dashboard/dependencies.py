@@ -73,6 +73,7 @@ class ComponentID(str, Enum):
     MODAL_AGGREGATION = "modal-aggregation"
     MODAL_Y_FIELD = "modal-y-field"
     MODAL_Y_LABEL = "modal-y-label"
+    MODAL_Y_VALUE_CONTROLS = "modal-y-value-controls"
     MODAL_SHOW_LEGEND = "modal-show-legend"
     MODAL_SHOW_GRID = "modal-show-grid"
     MODAL_Y_LOG_SCALE = "modal-y-log-scale"
