@@ -102,30 +102,30 @@ def _create_page_header(title: str) -> html.Div:
     )
 
 
-def _create_dashboard_control_panel(collection_name: CollectionName) -> dbc.Card:
-    """Create the unified dashboard control panel with all controls in one card.
+def _create_dashboard_control_panel(collection_name: CollectionName) -> html.Div:
+    """Create the dashboard control panel as two visually separated cards.
 
-    Contains:
-    - Dashboard selector and create new button
-    - Dashboard name input
-    - Action buttons (refresh, save)
-    - Chart controls
+    The "Load Dashboard" card (selector + create new) is kept distinct from
+    the dashboard setup card (name, actions and chart controls) so it is clear
+    that loading an existing dashboard and configuring one are separate tasks.
 
     :param collection_name: The collection name for component IDs
-    :return: Card containing all dashboard controls
+    :return: Div containing the load card and the setup card
     """
     cid = ComponentIDBuilder(collection_name)
-    return dbc.Card(
-        className="mb-4 border-0",
+    return html.Div(
         children=[
-            dbc.CardBody(
+            # Card 1: load an existing dashboard or create a new one
+            dbc.Card(
+                className="mb-4 border-0 shadow-sm",
                 children=[
-                    # Row 1: Dashboard selection / creation
-                    _create_dashboard_selector_row(cid),
-                    # Row 2: Dashboard name and actions (shown when dashboard is active)
-                    _create_dashboard_active_controls(cid),
+                    dbc.CardBody(
+                        children=[_create_dashboard_selector_row(cid)],
+                    ),
                 ],
             ),
+            # Card 2: dashboard setup (shown only when a dashboard is active)
+            _create_dashboard_active_controls(cid),
         ],
     )
 
@@ -174,20 +174,27 @@ def _create_dashboard_selector_row(cid: ComponentIDBuilder) -> dbc.Row:
     )
 
 
-def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> html.Div:
-    """Create the controls shown when a dashboard is active.
+def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> dbc.Card:
+    """Create the dashboard setup card shown when a dashboard is active.
+
+    Rendered as its own card so it is visually separated from the
+    "Load Dashboard" card above it.
 
     :param cid: Component ID builder
-    :return: Div containing active dashboard controls
+    :return: Card containing active dashboard controls
     """
-    return html.Div(
+    return dbc.Card(
         id=cid(ComponentID.DASHBOARD_HEADER),
+        className="mb-4 border-0 shadow-sm",
         style={"display": "none"},
         children=[
-            html.Hr(className="my-3"),
-            _create_dashboard_name_row(cid),
-            html.Hr(className="my-3"),
-            _create_chart_controls_row(cid),
+            dbc.CardBody(
+                children=[
+                    _create_dashboard_name_row(cid),
+                    html.Hr(className="my-3"),
+                    _create_chart_controls_row(cid),
+                ],
+            ),
         ],
     )
 
