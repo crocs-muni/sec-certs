@@ -143,7 +143,7 @@ CHART_TYPE_ICONS = {
     ChartType.LINE: "fas fa-chart-line",
     ChartType.PIE: "fas fa-chart-pie",
     ChartType.SCATTER: "fas fa-braille",
-    ChartType.BOX: "fas fa-box",
+    ChartType.BOX: "fas fa-chart-column",
     ChartType.HISTOGRAM: "fas fa-signal",
 }
 
