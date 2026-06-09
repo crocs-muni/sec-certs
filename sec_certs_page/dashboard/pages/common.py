@@ -360,18 +360,25 @@ def _create_dashboard_content(collection_name: CollectionName) -> html.Div:
                 className="d-flex align-items-center justify-content-between mb-3",
                 children=[
                     section_header("Charts", "fas fa-chart-line", icon_color="text-primary"),
-                    dbc.Button(
-                        [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
-                        id=cid(ComponentID.UPDATE_ALL_BTN),
-                        n_clicks=0,
-                        disabled=True,
-                        color="secondary",
-                        outline=True,
-                        className="refresh-all-btn",
-                    ),
-                    dbc.Tooltip(
-                        "Reload data and redraw every chart in this dashboard.",
-                        target=cid(ComponentID.UPDATE_ALL_BTN),
+                    # Wrap the button and its tooltip so the toolbar has only two flex
+                    # items (left header + right button group); the tooltip is not a
+                    # visible layout element and must not participate in the flex spacing.
+                    html.Div(
+                        children=[
+                            dbc.Button(
+                                [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
+                                id=cid(ComponentID.UPDATE_ALL_BTN),
+                                n_clicks=0,
+                                disabled=True,
+                                color="secondary",
+                                outline=True,
+                                className="refresh-all-btn",
+                            ),
+                            dbc.Tooltip(
+                                "Reload data and redraw every chart in this dashboard.",
+                                target=cid(ComponentID.UPDATE_ALL_BTN),
+                            ),
+                        ],
                     ),
                 ],
             ),
