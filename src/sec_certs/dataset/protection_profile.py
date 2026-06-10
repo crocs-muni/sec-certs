@@ -439,7 +439,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         scheme_dset = PPSchemeDataset.from_scrapers(json_path=self.scheme_data_path)
         scheme_dset.to_json()
+        self._match_and_enrich_from_scheme(scheme_dset)
+        self.state.auxiliary_datasets_processed = True
 
+    def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
+        """
+        Matches scraped scheme records against existing PPs (enriching their ``scheme_data``)
+        and inserts previously unseen records as new ProtectionProfile objects.
+        """
         for scheme, entries in scheme_dset.schemes.items():
             scheme_pool_certs = [
                 c
@@ -466,7 +473,6 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             logger.info("Scheme %s: %d matched, %d new PPs added.", scheme, len(matched), added)
 
         self._set_local_paths()
-        self.state.auxiliary_datasets_processed = True
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
         """
