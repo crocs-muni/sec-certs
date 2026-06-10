@@ -9,7 +9,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
+from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, PPSchemeDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.pp_scheme import PPSchemeDataset
 from sec_certs.model.pp_matching import PPSchemeMatcher
@@ -55,6 +55,10 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
         super().__init__(certs, root_dir, name, description, state, aux_handlers)
+        if aux_handlers is None:
+            self.aux_handlers = {
+                PPSchemeDatasetHandler: PPSchemeDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+            }
 
     @property
     @only_backed(throw=False)
@@ -139,7 +143,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         """
         Path to JSON with raw PP data scraped from national scheme portals.
         """
-        return self.root_dir / "pp_scheme_data.json"
+        return self.auxiliary_datasets_dir / "pp_scheme_data.json"
 
     def _set_local_paths(self):
         super()._set_local_paths()
@@ -427,20 +431,21 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    def _compute_heuristics_body(self):
-        logger.info("Protection profile dataset has no heuristics to compute, skipping.")
-
     @only_backed()
-    def process_auxiliary_datasets(self, **kwargs) -> None:
+    def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
         """
-        Fetches Protection Profiles from national scheme portals, stores them as a separate dataset,
-        and then merges previously unseen entries into the main dataset.
+        Builds the PP scheme auxiliary dataset by scraping national scheme portals via
+        PPSchemeDatasetHandler. Matching and enrichment is in compute_heuristics.
         """
-
-        scheme_dset = PPSchemeDataset.from_scrapers(json_path=self.scheme_data_path)
-        scheme_dset.to_json()
-        self._match_and_enrich_from_scheme(scheme_dset)
+        self.aux_handlers[PPSchemeDatasetHandler].process_dataset(download_fresh)
         self.state.auxiliary_datasets_processed = True
+
+    def _compute_heuristics_body(self):
+        handler = self.aux_handlers.get(PPSchemeDatasetHandler)
+        if handler is None or not getattr(handler, "dset", None):
+            logger.info("No PP scheme data available, skipping scheme enrichment.")
+            return
+        self._match_and_enrich_from_scheme(handler.dset)
 
     def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
         """
