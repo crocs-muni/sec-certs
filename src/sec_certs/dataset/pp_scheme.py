@@ -17,10 +17,8 @@ logger = logging.getLogger(__name__)
 
 class PPSchemeDataset(JSONPathDataset, ComplexSerializableType):
     """
-    A dataset of Protection Profile records scraped from national scheme portals.
-
-    Holds a mapping of scheme code (e.g. "US") to a list of
-    PPSchemeRecord objects scraped from the corresponding national portal.
+    A dataset of Protection Profile records scraped from national scheme portals
+    list of SchemeRecord objects
     """
 
     def __init__(self, schemes: dict[str, list[PPSchemeRecord]], json_path: str | Path | None = None):

@@ -14,7 +14,7 @@ _EAL_RE = re.compile(r"^EAL\d")
 
 class PPSchemeMatcher(AbstractMatcher["ProtectionProfile"]):
     """
-    Heuristic matcher between PPSchemeRecord objects (scraped from national portals)
+    Heuristic matcher between PPSchemeRecord objects (national portals)
     and ProtectionProfile certificates (from the CC portal).
     """
 

@@ -449,8 +449,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
         """
-        Matches scraped scheme records against existing PPs (enriching their ``scheme_data``)
-        and inserts previously unseen records as new ProtectionProfile objects.
+        Matches scraped scheme records against existing PPs (enriching scheme_data)
+        and inserts previously unseen records as new ProtectionProfile objects
         """
         for scheme, entries in scheme_dset.schemes.items():
             scheme_pool_certs = [
@@ -481,7 +481,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
         """
-        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if such exists.
+        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if exists
         """
         for pp in self:
             if pp.web_data.pp_link == pp_link:

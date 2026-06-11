@@ -68,9 +68,7 @@ _NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
 class PPSchemeRecord(ComplexSerializableType):
     """
     Intermediate data class representing a Protection Profile scraped from a national scheme.
-
-    Mirrors the fields of ProtectionProfile.WebData. The scraper's responsibility is to fill
-    these fields; the merge step uses them to construct and insert new ProtectionProfile objects.
+    Mirrors the fields of ProtectionProfile.WebData.
     """
 
     category: str
@@ -98,17 +96,17 @@ class PPSchemeRecord(ComplexSerializableType):
         return cls(**dct)
 
     def to_enrichment_dict(self) -> dict[str, Any]:
-        """Return the scheme-specific enrichment carried into ProtectionProfile.heuristics.scheme_data.
-
-        Holds only the extras not already present on WebData (e.g. NIAP predecessor/successor),
-        tagged with the source scheme.
+        """
+        Return the scheme-specific enrichment carried into ProtectionProfile.heuristics.scheme_data.
+        Holds only the extras not already present on WebData
         """
         return {"source_scheme": self.scheme, **self.extra}
 
 
 class PPScraper(Protocol):
-    """Structural interface for PP scheme scrapers.
-    Each scheme scraper must implement a scrape() method that returns a list of PPSchemeRecord objects.
+    """
+    Structural interface for PP scheme scrapers.
+    Each scheme scraper must implement a scrape() method that returns a list of PPSchemeRecord objects
     """
 
     scheme: str
@@ -201,7 +199,7 @@ class NIAPScraper:
             if pp_file:
                 pp_link = NIAPScraper._niap_file_download_url(pp_file["file_id"])
 
-        # NIAP exposes explicit predecessor/successor relations on the per-PP detail endpoint.
+        # NIAP exposes explicit predecessor/successor relations on the per-PP detail endpoint
         predecessor = detail.get("predecessor_id__pp_short_name") if detail else None
         successor = detail.get("successor_id__pp_short_name") if detail else None
 
