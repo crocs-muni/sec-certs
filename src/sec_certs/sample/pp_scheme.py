@@ -68,27 +68,6 @@ _NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
     "Wireless PAN": "Network and Network-Related Devices and Systems",
 }
 
-# Swedish endpoints
-_CSEC_BASE_URL = "https://www.fmv.se"
-_CSEC_INDEX_URL = _CSEC_BASE_URL + "/verksamhet/ovrig-verksamhet/csec/certifierade-skyddsprofiler/"
-_CSEC_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
-# Swedish category mapping
-_CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY: dict[str, str] = {
-    "Brandvägg": "Boundary Protection Devices and Systems",
-    "Krypteringsapplikation": "Data Protection",
-    "Nätverksenhet": "Network and Network-Related Devices and Systems",
-    "Operativsystem": "Operating Systems",
-    "Smartkort": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
-    "Åtkomstkontroll": "Access Control Devices and Systems",
-    "Databas": "Databases",
-    "Biometri": "Biometric Systems and Devices",
-    "Protection Profile": "Other Devices and Systems",
-}
-
 # Korean ITSCC endpoints
 _ITSCC_BASE_URL = "https://itscc.kr"
 _ITSCC_ACTIVE_LIST_URL = _ITSCC_BASE_URL + "/pprof/listA.do"
@@ -319,150 +298,6 @@ class NIAPScraper:
                 logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
 
         logger.info("Parsed %d PPSchemeRecord objects from NIAP.", len(entries))
-        return entries
-
-
-class SwedishScraper:
-    """Scraper for Swedish Protection Profiles from the FMV/CSEC portal."""
-
-    scheme: str = "SE"
-
-    @staticmethod
-    def _fetch_csec_pp_urls() -> list[str]:
-        """Fetch the CSEC index page and return absolute URLs of individual PP subpages."""
-        logger.info("Fetching CSEC PP index: %s", _CSEC_INDEX_URL)
-        resp = requests.get(_CSEC_INDEX_URL, headers=_CSEC_HEADERS, timeout=REQUEST_TIMEOUT)
-        resp.raise_for_status()
-        from bs4 import BeautifulSoup
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-        urls: list[str] = []
-        for tag in soup.find_all("a", href=True):
-            href: str = tag["href"]
-            if not href.startswith("http"):
-                href = _CSEC_BASE_URL + href
-            # Keep only subpages of the index
-            if (
-                href.startswith(_CSEC_INDEX_URL)
-                and href.rstrip("/") != _CSEC_INDEX_URL.rstrip("/")
-                and href not in urls
-            ):
-                urls.append(href)
-        logger.info("Found %d CSEC PP URLs.", len(urls))
-        return urls
-
-    @staticmethod
-    def _fetch_csec_pp_table(url: str) -> tuple[dict[str, Any], Any]:
-        """Fetch a single CSEC PP page and return (table_dict, soup).
-
-        table_dict maps the stripped text of the left column to the right <td> Tag.
-        """
-        from bs4 import BeautifulSoup, Tag
-
-        resp = requests.get(url, headers=_CSEC_HEADERS, timeout=REQUEST_TIMEOUT)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
-        table: dict[str, Any] = {}
-        tbl = soup.find("table")
-        if tbl and isinstance(tbl, Tag):
-            for row in tbl.find_all("tr"):
-                cells = row.find_all(["th", "td"])
-                if len(cells) >= 2:
-                    key = cells[0].get_text(strip=True)
-                    table[key] = cells[1]
-        return table, soup
-
-    @staticmethod
-    def _csec_get_name(table: dict[str, Any], soup: Any) -> str:
-        """Extract PP name from CSEC table, falling back to the page <h1>."""
-        for key in ("Skyddsprofilens namn", "Produktnamn"):
-            cell = table.get(key)
-            if cell is not None:
-                return cell.get_text(strip=True)
-        h1 = soup.find("h1")
-        return h1.get_text(strip=True) if h1 else ""
-
-    @staticmethod
-    def _csec_parse_security_level(raw: str) -> set[str]:
-        """Parse 'EAL2 + ALC_FLR.1' into {'EAL2', 'ALC_FLR.1'}.
-
-        Returns an empty set when the value cannot be interpreted as CC assurance components.
-        """
-        parts = {re.sub(r"^(EAL)\s+(\d)", r"\1\2", p.strip()) for p in raw.split("+")}
-        return {p for p in parts if re.match(r"^EAL\d|^[A-Z]{2,}_[A-Z]{3}\.\d", p)}
-
-    @staticmethod
-    def _csec_get_first_pdf_link(cell: Any, base_url: str) -> str | None:
-        """Return the first PDF href found in *cell*, made absolute if needed."""
-        if cell is None:
-            return None
-        for tag in cell.find_all("a", href=True):
-            href: str = tag["href"]
-            if ".pdf" in href.lower():
-                if not href.startswith("http"):
-                    href = base_url + href
-                return href
-        return None
-
-    @staticmethod
-    def _csec_table_to_scheme_entry(url: str, table: dict[str, Any], soup: Any) -> PPSchemeRecord:
-        """Build a PPSchemeRecord from a parsed CSEC PP page."""
-        name = SwedishScraper._csec_get_name(table, soup)
-
-        raw_eal = table.get("Assuranspaket")
-        security_level = (
-            SwedishScraper._csec_parse_security_level(raw_eal.get_text(strip=True)) if raw_eal is not None else set()
-        )
-
-        date_cell = table.get("Certifieringsdatum")
-        not_valid_before: date | None = None
-        if date_cell is not None:
-            with suppress(ValueError):
-                not_valid_before = datetime.strptime(date_cell.get_text(strip=True), "%Y-%m-%d").date()
-
-        report_link = SwedishScraper._csec_get_first_pdf_link(table.get("Certifieringsrapport"), _CSEC_BASE_URL)
-        pp_cell = table.get("Skyddsprofil, PP") or table.get("Produkts\u00e4kerhetsdeklaration, Security Target")
-        pp_link = SwedishScraper._csec_get_first_pdf_link(pp_cell, _CSEC_BASE_URL)
-
-        cat_cell = table.get("Produktkategori")
-        category = "Other Devices and Systems"
-        if cat_cell is not None:
-            category = _CSEC_PRODUKTKATEGORI_TO_CC_CATEGORY.get(
-                cat_cell.get_text(strip=True), "Other Devices and Systems"
-            )
-
-        return PPSchemeRecord(
-            category=category,
-            status="active",
-            is_collaborative=False,
-            name=name,
-            version="",
-            security_level=security_level,
-            not_valid_before=not_valid_before,
-            not_valid_after=None,
-            report_link=report_link,
-            pp_link=pp_link,
-            scheme="SE",
-            maintenances=[],
-        )
-
-    def scrape(self) -> list[PPSchemeRecord]:
-        """Fetch all certified Protection Profiles from the CSEC portal and return as PPSchemeRecord list."""
-        try:
-            urls = self._fetch_csec_pp_urls()
-        except Exception as e:
-            logger.error("Failed to fetch CSEC PP index: %s", e)
-            return []
-
-        entries: list[PPSchemeRecord] = []
-        for url in urls:
-            try:
-                table, soup = self._fetch_csec_pp_table(url)
-                entries.append(self._csec_table_to_scheme_entry(url, table, soup))
-            except Exception as e:
-                logger.error("Error processing CSEC PP page %s: %s", url, e)
-
-        logger.info("Parsed %d PPSchemeRecord objects from CSEC.", len(entries))
         return entries
 
 
@@ -952,4 +787,4 @@ class FrenchScraper:
         return entries
 
 
-PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), SwedishScraper(), KoreanScraper(), FrenchScraper()]
+PP_SCHEME_SCRAPERS: list[PPScraper] = [NIAPScraper(), KoreanScraper(), FrenchScraper()]
