@@ -23,8 +23,7 @@ _NIAP_PP_DETAIL_API_URL = _NIAP_BASE_URL + "/api/protection-profile/get_pp_by_id
 _NIAP_PP_FILE_API_URL = _NIAP_BASE_URL + "/api/file/get_public_files_by_type_and_type_id/"
 _NIAP_PP_FILE_DOWNLOAD_URL = _NIAP_BASE_URL + "/api/file/get_public_file/"
 
-# NIAP does not expose a version field; it is encoded as the trailing _v<version> of pp_short_name
-# (e.g. PP_APP_v1.4 -> 1.4). Minor parts may carry a letter suffix (2.0E, 1.1a, 1.d), kept verbatim.
+# NIAP does not expose a version field, its brought by regex from pp_short_name
 _NIAP_VERSION_RE = re.compile(r"[_-][vV](\d+(?:\.[0-9A-Za-z]+)*)$")
 
 _NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
