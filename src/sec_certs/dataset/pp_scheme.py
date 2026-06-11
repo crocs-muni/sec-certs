@@ -19,7 +19,7 @@ class PPSchemeDataset(JSONPathDataset, ComplexSerializableType):
     """
     A dataset of Protection Profile records scraped from national scheme portals.
 
-    Holds a mapping of scheme code (e.g. "US", "SE", "KR", "FR") to a list of
+    Holds a mapping of scheme code (e.g. "US") to a list of
     PPSchemeRecord objects scraped from the corresponding national portal.
     """
 
