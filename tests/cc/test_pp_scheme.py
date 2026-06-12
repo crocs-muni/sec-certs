@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from sec_certs.sample.pp_scheme import NIAPScraper
+from sec_certs.sample.pp_scheme import NIAPScraper, PPSchemeRecord
 
 
 @pytest.mark.parametrize(
@@ -63,3 +63,53 @@ def test_niap_entry_to_scheme_entry_without_files_or_detail():
     assert rec.pp_link is None
     assert rec.extra["predecessor"] is None
     assert rec.extra["successor"] is None
+
+
+def _make_record(**overrides) -> PPSchemeRecord:
+    fields = {
+        "category": "C",
+        "status": "active",
+        "is_collaborative": False,
+        "name": "N",
+        "version": "1.0",
+        "security_level": set(),
+        "not_valid_before": None,
+        "not_valid_after": None,
+        "report_link": None,
+        "pp_link": None,
+        "scheme": "US",
+    }
+    fields.update(overrides)
+    return PPSchemeRecord(**fields)
+
+
+def test_to_enrichment_dict():
+    rec = _make_record(extra={"pp_short_name": "PP_X_v1.0", "predecessor": "PP_X_v0.9"})
+    assert rec.to_enrichment_dict() == {
+        "source_scheme": "US",
+        "pp_short_name": "PP_X_v1.0",
+        "predecessor": "PP_X_v0.9",
+    }
+
+
+def test_record_from_dict_parses_dates_and_maintenances():
+    dct = {
+        "category": "C",
+        "status": "archived",
+        "is_collaborative": True,
+        "name": "N",
+        "version": "1.0",
+        "security_level": set(),
+        "not_valid_before": "2020-01-06",
+        "not_valid_after": "2021-02-07",
+        "report_link": None,
+        "pp_link": None,
+        "scheme": "US",
+        "maintenances": [["2020-05-05", "maint", "http://x"]],
+        "extra": {"k": "v"},
+    }
+    rec = PPSchemeRecord.from_dict(dct)
+    assert rec.not_valid_before == date(2020, 1, 6)
+    assert rec.not_valid_after == date(2021, 2, 7)
+    assert rec.maintenances == [("2020-05-05", "maint", "http://x")]
+    assert rec.extra == {"k": "v"}
