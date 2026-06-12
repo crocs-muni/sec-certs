@@ -176,6 +176,11 @@ class NIAPScraper:
         return match.group(1) if match else ""
 
     @staticmethod
+    def _niap_is_collaborative(name: str | None) -> bool:
+        # NIAP has no collaborative flag, now its brought from name
+        return (name or "").lower().startswith("collaborative")
+
+    @staticmethod
     def _pick_pp_pdf_file(files: list[dict[str, Any]]) -> dict[str, Any] | None:
         for f in files:
             mime = (f.get("file_mime_type") or "").lower()
@@ -209,7 +214,7 @@ class NIAPScraper:
         return PPSchemeRecord(
             category=NIAPScraper._niap_tech_type_to_cc_category(entry.get("tech_type", "")),
             status=NIAPScraper._niap_status_process(entry.get("status", "Publishing"), not_valid_after),
-            is_collaborative=False,
+            is_collaborative=NIAPScraper._niap_is_collaborative(entry.get("pp_name")),
             name=entry.get("pp_name", ""),
             version=NIAPScraper._niap_version_from_short_name(entry.get("pp_short_name")),
             security_level=set(),
