@@ -2,7 +2,10 @@ from datetime import date
 
 import pytest
 
+from sec_certs.configuration import config
+from sec_certs.model.pp_matching import PPSchemeMatcher
 from sec_certs.sample.pp_scheme import NIAPScraper, PPSchemeRecord
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 @pytest.mark.parametrize(
@@ -113,3 +116,40 @@ def test_record_from_dict_parses_dates_and_maintenances():
     assert rec.not_valid_after == date(2021, 2, 7)
     assert rec.maintenances == [("2020-05-05", "maint", "http://x")]
     assert rec.extra == {"k": "v"}
+
+
+def _make_pp(**overrides) -> ProtectionProfile:
+    fields = {
+        "category": "C",
+        "status": "active",
+        "is_collaborative": False,
+        "name": "Foo Protection Profile",
+        "version": "1.0",
+        "security_level": set(),
+        "not_valid_before": date(2020, 1, 1),
+        "not_valid_after": None,
+        "report_link": None,
+        "pp_link": "https://niap/foo.pdf",
+        "scheme": "US",
+        "maintenances": [],
+    }
+    fields.update(overrides)
+    return ProtectionProfile(ProtectionProfile.WebData(**fields))
+
+
+def test_single_match_by_pp_link():
+    pp = _make_pp()
+    rec = _make_record(name="Anything", pp_link="https://niap/foo.pdf")
+    assert PPSchemeMatcher(rec).match(pp) == 100.0
+
+
+def test_single_match_by_name_and_date():
+    pp = _make_pp(pp_link="https://cc/foo.pdf")
+    rec = _make_record(name="Foo Protection Profile", not_valid_before=date(2020, 1, 1))
+    assert PPSchemeMatcher(rec).match(pp) > config.pp_matching_threshold
+
+
+def test_single_match_below_threshold():
+    pp = _make_pp(pp_link="https://cc/foo.pdf", name="Alpha", not_valid_before=date(1999, 12, 31))
+    rec = _make_record(name="Zulu", not_valid_before=date(2020, 1, 1))
+    assert PPSchemeMatcher(rec).match(pp) < config.pp_matching_threshold
