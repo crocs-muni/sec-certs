@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -72,7 +73,7 @@ def test_niap_entry_to_scheme_entry_without_files_or_detail():
 
 
 def _make_record(**overrides) -> PPSchemeRecord:
-    fields = {
+    fields: dict[str, Any] = {
         "category": "C",
         "status": "active",
         "is_collaborative": False,
@@ -122,7 +123,7 @@ def test_record_from_dict_parses_dates_and_maintenances():
 
 
 def _make_pp(**overrides) -> ProtectionProfile:
-    fields = {
+    fields: dict[str, Any] = {
         "category": "C",
         "status": "active",
         "is_collaborative": False,
