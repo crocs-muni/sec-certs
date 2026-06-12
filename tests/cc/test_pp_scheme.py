@@ -3,6 +3,8 @@ from datetime import date
 import pytest
 
 from sec_certs.configuration import config
+from sec_certs.dataset.pp_scheme import PPSchemeDataset
+from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.pp_matching import PPSchemeMatcher
 from sec_certs.sample.pp_scheme import NIAPScraper, PPSchemeRecord
 from sec_certs.sample.protection_profile import ProtectionProfile
@@ -153,3 +155,26 @@ def test_single_match_below_threshold():
     pp = _make_pp(pp_link="https://cc/foo.pdf", name="Alpha", not_valid_before=date(1999, 12, 31))
     rec = _make_record(name="Zulu", not_valid_before=date(2020, 1, 1))
     assert PPSchemeMatcher(rec).match(pp) < config.pp_matching_threshold
+
+
+def test_match_and_enrich_from_scheme():
+    us_pp = _make_pp(name="Existing US PP", pp_link="https://niap/existing.pdf")
+    dset = ProtectionProfileDataset(certs={us_pp.dgst: us_pp})
+
+    rec_match = _make_record(
+        name="Existing US PP", pp_link="https://niap/existing.pdf", extra={"pp_short_name": "PP_EXIST_v1.0"}
+    )
+    rec_new = _make_record(
+        name="Brand New US PP", version="2.0", pp_link="https://niap/new.pdf", extra={"pp_short_name": "PP_NEW_v2.0"}
+    )
+    scheme_dset = PPSchemeDataset(schemes={"US": [rec_match, rec_new]})
+
+    before = len(dset.certs)
+    dset._match_and_enrich_from_scheme(scheme_dset)
+
+    # existing PP got enriched in place
+    assert us_pp.heuristics.scheme_data["pp_short_name"] == "PP_EXIST_v1.0"
+    # unmatched record was added as a new PP carrying its own enrichment
+    assert len(dset.certs) == before + 1
+    new_pp = next(c for c in dset if c.web_data.name == "Brand New US PP")
+    assert new_pp.heuristics.scheme_data["pp_short_name"] == "PP_NEW_v2.0"
