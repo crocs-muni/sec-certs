@@ -160,8 +160,9 @@ class NIAPScraper:
             return None
 
     @staticmethod
-    def _niap_status_to_cc(status: str) -> Literal["active", "archived"]:
-        if status.lower() == "archived":
+    def _niap_status_process(status: str, sunset: date | None) -> Literal["active", "archived"]:
+        # The list endpoint's status is almost always Publishing while NIAP treats a PP as archived
+        if status.lower() == "archived" or (sunset is not None and sunset < date.today()):
             return "archived"
         return "active"
 
@@ -203,15 +204,17 @@ class NIAPScraper:
         predecessor = detail.get("predecessor_id__pp_short_name") if detail else None
         successor = detail.get("successor_id__pp_short_name") if detail else None
 
+        not_valid_after = NIAPScraper._parse_niap_date(entry.get("sunset_date"))
+
         return PPSchemeRecord(
             category=NIAPScraper._niap_tech_type_to_cc_category(entry.get("tech_type", "")),
-            status=NIAPScraper._niap_status_to_cc(entry.get("status", "Publishing")),
+            status=NIAPScraper._niap_status_process(entry.get("status", "Publishing"), not_valid_after),
             is_collaborative=False,
             name=entry.get("pp_name", ""),
             version=NIAPScraper._niap_version_from_short_name(entry.get("pp_short_name")),
             security_level=set(),
             not_valid_before=NIAPScraper._parse_niap_date(entry.get("pp_date")),
-            not_valid_after=NIAPScraper._parse_niap_date(entry.get("sunset_date")),
+            not_valid_after=not_valid_after,
             report_link=None,
             pp_link=pp_link,
             scheme="US",
