@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 
 from sec_certs.configuration import config
+from sec_certs.dataset.auxiliary_dataset_handling import PPSchemeDatasetHandler
 from sec_certs.dataset.pp_scheme import PPSchemeDataset
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 from sec_certs.model.pp_matching import PPSchemeMatcher
@@ -187,3 +188,22 @@ def test_niap_scrape():
     assert all(r.scheme == "US" for r in records)
     assert any(r.extra.get("predecessor") for r in records)
     assert any(r.version for r in records)
+
+
+def test_pp_scheme_dataset_handler_set_local_paths(tmp_path):
+    handler = PPSchemeDatasetHandler(tmp_path)
+    new_path = tmp_path / "new_path"
+    handler.set_local_paths(new_path)
+    assert handler.aux_datasets_dir == new_path
+
+
+def test_pp_scheme_dataset_handler_process_dataset(tmp_path, monkeypatch):
+    handler = PPSchemeDatasetHandler(tmp_path)
+    mock_dset = PPSchemeDataset(schemes={})
+
+    monkeypatch.setattr("sec_certs.dataset.pp_scheme.PPSchemeDataset.from_scrapers", lambda json_path=None: mock_dset)
+    monkeypatch.setattr("sec_certs.dataset.pp_scheme.PPSchemeDataset.to_json", lambda x: None)
+    handler.process_dataset(download_fresh=True)
+
+    assert handler.dset is mock_dset
+    assert handler.dset_path == tmp_path / "pp_scheme_data.json"
