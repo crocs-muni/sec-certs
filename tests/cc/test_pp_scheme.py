@@ -178,3 +178,12 @@ def test_match_and_enrich_from_scheme():
     assert len(dset.certs) == before + 1
     new_pp = next(c for c in dset if c.web_data.name == "Brand New US PP")
     assert new_pp.heuristics.scheme_data["pp_short_name"] == "PP_NEW_v2.0"
+
+
+@pytest.mark.remote
+def test_niap_scrape():
+    records = NIAPScraper().scrape()
+    assert len(records) > 0
+    assert all(r.scheme == "US" for r in records)
+    assert any(r.extra.get("predecessor") for r in records)
+    assert any(r.version for r in records)
