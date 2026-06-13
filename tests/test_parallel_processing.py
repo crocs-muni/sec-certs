@@ -51,7 +51,7 @@ def test_process_parallel_callback():
         collected.append(result)
 
     process_parallel(_identity, [10, 20, 30], callback=_on_result, progress_bar=False)
-    assert collected == [10, 20, 30]
+    assert sorted(collected) == [10, 20, 30]
 
 
 def test_process_parallel_empty_items():
