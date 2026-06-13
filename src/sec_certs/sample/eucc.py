@@ -275,7 +275,7 @@ class EUCCCertificate(
         if not issuance_date_full:
             return None
         try:
-            not_valid_before = helpers.parse_date(issuance_date_full)
+            not_valid_before = helpers.parse_date(issuance_date_full, format="%d/%m/%Y")
             return not_valid_before
         except Exception:
             return None
@@ -285,7 +285,7 @@ class EUCCCertificate(
         if not issuance_date_full:
             return None
         try:
-            issuance_date = helpers.parse_date(issuance_date_full)
+            issuance_date = helpers.parse_date(issuance_date_full, format="%d/%m/%Y")
             not_valid_after = issuance_date + relativedelta(years=5)
             return not_valid_after
         except Exception:
