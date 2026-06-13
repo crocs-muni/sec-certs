@@ -23,6 +23,7 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
+    from sec_certs.sample.pp_scheme import PPSchemeRecord
 
 
 class ProtectionProfile(
@@ -31,7 +32,15 @@ class ProtectionProfile(
 ):
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
-        pass
+        scheme_data: dict[str, Any] | None = field(default=None)
+
+        @property
+        def serialized_attributes(self) -> list[str]:
+            # Persist scheme_data only when populated; PPs without scheme enrichment omit the key.
+            attrs = super().serialized_attributes
+            if self.scheme_data is None:
+                return [a for a in attrs if a != "scheme_data"]
+            return attrs
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
@@ -102,6 +111,8 @@ class ProtectionProfile(
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
 
+            is_collaborative = cells[0].find("p") is not None
+
             mu_div = cc_html_parsing.html_row_get_maintenance_div(row)
             maintenance_updates = cc_html_parsing.parse_maintenance_div(mu_div) if mu_div else []
             if maintenance_updates:
@@ -111,7 +122,7 @@ class ProtectionProfile(
             return cls(
                 category,
                 status,
-                False,
+                is_collaborative,
                 pp_name,
                 cls._html_row_get_version(cells[1]),
                 cls._html_row_get_security_level(cells[2]),
@@ -159,6 +170,9 @@ class ProtectionProfile(
 
         @staticmethod
         def _html_row_get_name(cell: Tag) -> str:
+            p_tag = cell.find("p")
+            if p_tag:
+                return p_tag.get_text().strip()
             return str(cell.find_all("a")[0].string)
 
         @staticmethod
@@ -262,6 +276,28 @@ class ProtectionProfile(
         Builds a `ProtectionProfile` object from html row obtained from cc portal html source.
         """
         return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
+
+    @classmethod
+    def from_scheme_record(cls, entry: PPSchemeRecord) -> ProtectionProfile:
+        """
+        Builds a `ProtectionProfile` object from a PPSchemeRecord produced by a national scheme scraper.
+        """
+        return cls(
+            ProtectionProfile.WebData(
+                category=entry.category,
+                status=entry.status,
+                is_collaborative=entry.is_collaborative,
+                name=entry.name,
+                version=entry.version,
+                security_level=entry.security_level,
+                not_valid_before=entry.not_valid_before,
+                not_valid_after=entry.not_valid_after,
+                report_link=entry.report_link,
+                pp_link=entry.pp_link,
+                scheme=entry.scheme,
+                maintenances=entry.maintenances,
+            )
+        )
 
     @staticmethod
     def download_pdf_report(cert: ProtectionProfile) -> ProtectionProfile:

@@ -9,8 +9,10 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
+from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, PPSchemeDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.pp_scheme import PPSchemeDataset
+from sec_certs.model.pp_matching import PPSchemeMatcher
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
@@ -53,6 +55,10 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
         super().__init__(certs, root_dir, name, description, state, aux_handlers)
+        if aux_handlers is None:
+            self.aux_handlers = {
+                PPSchemeDatasetHandler: PPSchemeDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
+            }
 
     @property
     @only_backed(throw=False)
@@ -130,6 +136,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         Path to directory with html sources downloaded from commoncriteriaportal.org
         """
         return self.root_dir / "web"
+
+    @property
+    @only_backed(throw=False)
+    def scheme_data_path(self) -> Path:
+        """
+        Path to JSON with raw PP data scraped from national scheme portals.
+        """
+        return self.auxiliary_datasets_dir / "pp_scheme_data.json"
 
     def _set_local_paths(self):
         super()._set_local_paths()
@@ -417,21 +431,57 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    def _compute_heuristics_body(self):
-        logger.info("Protection profile dataset has no heuristics to compute, skipping.")
-
     @only_backed()
-    def process_auxiliary_datasets(self, **kwargs) -> None:
+    def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
         """
-        Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.
-        This will just set the state `auxiliary_datasets_processed = True`
+        Builds the PP scheme auxiliary dataset by scraping national scheme portals via
+        PPSchemeDatasetHandler. Matching and enrichment is in compute_heuristics.
         """
-        logger.info("Protection Profile dataset has no auxiliary datasets to process, skipping.")
+        self.aux_handlers[PPSchemeDatasetHandler].process_dataset(download_fresh)
         self.state.auxiliary_datasets_processed = True
+
+    def _compute_heuristics_body(self):
+        handler = self.aux_handlers.get(PPSchemeDatasetHandler)
+        if handler is None or not getattr(handler, "dset", None):
+            logger.info("No PP scheme data available, skipping scheme enrichment.")
+            return
+        self._match_and_enrich_from_scheme(handler.dset)
+
+    def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
+        """
+        Matches scraped scheme records against existing PPs (enriching scheme_data)
+        and inserts previously unseen records as new ProtectionProfile objects
+        """
+        for scheme, entries in scheme_dset.schemes.items():
+            scheme_pool_certs = [
+                c
+                for c in self
+                if c.web_data
+                and (c.web_data.scheme == scheme or (c.web_data.scheme is None and c.web_data.is_collaborative))
+            ]
+            matchers = [PPSchemeMatcher(e) for e in entries]
+            matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
+
+            for dgst, record in matched.items():
+                self.certs[dgst].heuristics.scheme_data = record.to_enrichment_dict()
+
+            matched_ids = {id(v) for v in matched.values()}
+            added = 0
+            for entry in entries:
+                if id(entry) not in matched_ids:
+                    pp = ProtectionProfile.from_scheme_record(entry)
+                    if pp.dgst not in self.certs:
+                        pp.heuristics.scheme_data = entry.to_enrichment_dict()
+                        self.certs[pp.dgst] = pp
+                        added += 1
+
+            logger.info("Scheme %s: %d matched, %d new PPs added.", scheme, len(matched), added)
+
+        self._set_local_paths()
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
         """
-        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if such exists.
+        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if exists
         """
         for pp in self:
             if pp.web_data.pp_link == pp_link:

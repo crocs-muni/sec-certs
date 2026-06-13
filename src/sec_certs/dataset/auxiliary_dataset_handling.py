@@ -288,3 +288,27 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
         self.dset.download_all_artifacts()
         self.dset.convert_all_pdfs()
         self.dset.analyze_certificates()
+
+
+class PPSchemeDatasetHandler(AuxiliaryDatasetHandler):
+    @property
+    def dset_path(self) -> Path:
+        return self.root_dir / "pp_scheme_data.json"
+
+    def load_dataset(self) -> None:
+        from sec_certs.dataset.pp_scheme import PPSchemeDataset
+
+        self.dset = PPSchemeDataset.from_json(self.dset_path)
+
+    @staged(logger, "Processing PP schemes")
+    def _process_dataset_body(self, download_fresh: bool = False) -> None:
+        from sec_certs.dataset.pp_scheme import PPSchemeDataset
+
+        if not download_fresh and self.dset_path.exists():
+            logger.info("Preparing PPSchemeDataset from json.")
+            self.load_dataset()
+            return
+
+        self.dset_path.parent.mkdir(exist_ok=True, parents=True)
+        self.dset = PPSchemeDataset.from_scrapers(json_path=self.dset_path)
+        self.dset.to_json()
