@@ -459,7 +459,6 @@ class FIPSCertificate(
         algorithms, cert.web_data = parser.get_web_data_and_algorithms()
         cert.heuristics.algorithms |= algorithms
         cert.state.module.extract_ok = True
-        cert.state.module.convert_ok = True  # No conversion needed for html, so we set it to True
 
         return cert
 
@@ -475,6 +474,8 @@ class FIPSCertificate(
             cert.state.module.download_ok = False
         else:
             cert.state.module.download_ok = True
+            cert.state.module.convert_ok = True  # No conversion needed for html, so we set it to True
+
         return cert
 
     @staticmethod
@@ -519,6 +520,7 @@ class FIPSCertificate(
         """
         try:
             cert.pdf_data.policy_metadata = extract_pdf_metadata(cert.state.policy.source_path)
+            cert.state.policy.extract_ok = True
         except ValueError:
             cert.state.policy.extract_ok = False
         return cert
