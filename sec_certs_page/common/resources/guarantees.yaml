@@ -1,0 +1,13 @@
+csv_information:
+  level: certified
+  label: "Official listing data"
+  description: >-
+    Taken directly from the official Common Criteria portal listing.
+    This is the authoritative source, so it has high confidence.
+
+heuristics:
+  level: derived
+  label: "Automatically derived data"
+  description: >-
+    Extracted from the certification report and Security Target by our
+    automated heuristics. It may contain errors — verify before relying on it.
