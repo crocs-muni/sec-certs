@@ -4,6 +4,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import sentry_sdk
+import yaml
 from flag import flag
 from flask import current_app, request
 from flask_principal import Permission, RoleNeed
@@ -13,6 +14,15 @@ from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
 from . import app, cache, runtime_config
+
+with (Path(__file__).parent / "common" / "resources" / "guarantees.yaml").open(encoding="utf-8") as _guarantees_file:
+    GUARANTEES = yaml.safe_load(_guarantees_file)
+
+
+@app.template_global("guarantee_info")
+def guarantee_info(key):
+    """Return the guarantee explanation for a report-page key or None"""
+    return GUARANTEES.get(key)
 
 
 @app.template_global("country_to_flag")
