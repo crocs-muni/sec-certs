@@ -138,3 +138,14 @@
         });
     </script>
 {% endmacro %}
+
+{% macro help_icon(key) %}
+    {%- set g = guarantee_info(key) -%}
+    {%- if g %}
+        <span class="align-middle ms-1" style="font-size: 0.7em" tabindex="0"
+              data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+              data-bs-title="<strong>{{ g.label }}</strong><br>{{ g.description }}">
+            <i class="fa fa-info-circle text-muted" aria-hidden="true"></i>
+        </span>
+    {%- endif %}
+{%- endmacro %}
