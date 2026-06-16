@@ -36,7 +36,7 @@ from ..common.views import (
     sitemap_cert_pipeline,
 )
 from . import cc, cc_categories, cc_eals, cc_reference_types, cc_sars, cc_schemes, cc_sfrs, cc_status, get_cc_references
-from .search import CCBasicSearch, CCFulltextSearch
+from .search import CCSearch
 from .tasks import CCRenderer
 
 
@@ -207,32 +207,24 @@ def data():
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():
-    args = {**request.args, "searchType": "by-name"}
-    return redirect(url_for(".merged_search", **args))
+    return redirect(url_for(".merged_search", **request.args))
 
 
 @cc.route("/mergedsearch/")
 @register_breadcrumb(cc, ".merged_search", "Search")
 def merged_search():
-    search_type = request.args.get("searchType")
-    if search_type != "by-name" and search_type != "fulltext":
-        search_type = "by-name"
-
-    res = {}
     template = "cc/search/name_search.html.jinja2"
-    if search_type == "by-name":
-        res = CCBasicSearch.process_search(request)
-    elif search_type == "fulltext":
-        res = CCFulltextSearch.process_search(request)
-        template = "cc/search/fulltext_search.html.jinja2"
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        template = "cc/search/name_search_results.html.jinja2"
+    res = CCSearch.process_search(request)
     return render_template(
         template,
         **res,
-        schemes=cc_schemes,
-        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        search_type=search_type,
+        all_schemes=cc_schemes,
+        all_eals=cc_eals,
+        title=f"Common Criteria | sec-certs.org",
     )
-
 
 @cc.route("/ftsearch/")
 @register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
