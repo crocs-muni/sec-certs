@@ -38,9 +38,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
 from whoosh.index import EmptyIndexError, Index
-
 from .common.config import RuntimeConfig
-from .common.search.index import create_index, get_index
 from .common.sentry import DramatiqIntegration, before_send, get_sampler
 
 # See https://github.com/crocs-muni/sec-certs/issues/470
@@ -163,26 +161,8 @@ public(sitemap=sitemap)
 
 whoosh_index: Index
 with app.app_context():
-    try:
-        whoosh_index = get_index()
-    except EmptyIndexError:
-        whoosh_index = create_index()
+    whoosh_index = None
 public(whoosh_index=whoosh_index)
-
-whoosh_searcher: ContextVar = ContextVar("whoosh_searcher")
-
-
-def get_searcher():
-    try:
-        searcher = whoosh_searcher.get()
-        searcher = searcher.refresh()
-    except LookupError:
-        searcher = whoosh_index.searcher()
-    whoosh_searcher.set(searcher)
-    return searcher
-
-
-public(whoosh_searcher=whoosh_searcher)
 
 from .about import about as about_bp
 from .admin import admin as admin_bp
