@@ -11,6 +11,13 @@ def index():
     return render_template("index.html.jinja2")
 
 
+@app.route("/query-guide/")
+@register_breadcrumb(app, ".query_guide", "Query guide")
+def query_guide():
+    """Search query syntax guide, shared across all certificate schemes."""
+    return render_template("query_guide.html.jinja2")
+
+
 @app.route("/robots.txt")
 def robots():
     content = f"""
