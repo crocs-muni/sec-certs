@@ -5,6 +5,7 @@ from tqdm import tqdm
 from .. import app, mongo
 from ..cc.tasks import reindex_collection as reindex_cc
 from ..common.mongo import init_collections as init_collections_func
+from ..eucc.tasks import reindex_collection as reindex_eucc
 from ..fips.tasks import reindex_collection as reindex_fips
 from ..user.models import User, hash_password
 
@@ -55,17 +56,19 @@ def init_collections():  # pragma: no cover
         click.echo(f"Collections already present: {', '.join(existed)}")
 
 
-@app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
+@app.cli.command("index-collections", help="Index the CC, FIPS and EUCC collections into Tantivy.")
 def index_collections():  # pragma: no cover
     click.echo("Building CC entries to index...")
-    cc_entries = []
-    for id in tqdm(mongo.db.cc.find({}, {"_id": 1})):
-        cc_entries.append((id["_id"], "report"))
-        cc_entries.append((id["_id"], "target"))
+    cc_entries = [doc["_id"] for doc in tqdm(mongo.db.cc.find({}, {"_id": 1}))]
     click.echo("Indexing CC entries...")
     reindex_cc(cc_entries)
 
     click.echo("Building FIPS entries to index...")
-    fips_entries = [(id["_id"], "target") for id in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
+    fips_entries = [doc["_id"] for doc in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
     click.echo("Indexing FIPS entries...")
     reindex_fips(fips_entries)
+
+    click.echo("Building EUCC entries to index...")
+    eucc_entries = [doc["_id"] for doc in tqdm(mongo.db.eucc.find({}, {"_id": 1}))]
+    click.echo("Indexing EUCC entries...")
+    reindex_eucc(eucc_entries)

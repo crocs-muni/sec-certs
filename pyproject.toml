@@ -75,6 +75,7 @@
     "requests",
     "feedgen",
     "pendulum",
+    "tantivy>=0.25.1",
 ]
 
 [project.optional-dependencies]
