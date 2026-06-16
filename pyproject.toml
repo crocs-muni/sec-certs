@@ -48,7 +48,6 @@
 
     # Web utils
     "filtercss",
-    "Whoosh",
     "email-validator",
     "MarkupSafe",
     "Werkzeug",

@@ -37,7 +37,6 @@ from sec_certs.configuration import config as tool_config
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
-from whoosh.index import EmptyIndexError, Index
 from .common.config import RuntimeConfig
 from .common.sentry import DramatiqIntegration, before_send, get_sampler
 
@@ -158,11 +157,6 @@ class Sitemap(FlaskSitemap):
 
 sitemap: Sitemap = Sitemap(app)
 public(sitemap=sitemap)
-
-whoosh_index: Index
-with app.app_context():
-    whoosh_index = None
-public(whoosh_index=whoosh_index)
 
 from .about import about as about_bp
 from .admin import admin as admin_bp
