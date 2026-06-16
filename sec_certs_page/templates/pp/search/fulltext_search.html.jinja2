@@ -9,7 +9,7 @@
         <script type="module">
             import {
                 fulltextSearchSetup,
-            } from "/static/search.js?{{ static_hash("search.js") }}";
+            } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
 
             $(function () {
                 fulltextSearchSetup();
