@@ -1,0 +1,75 @@
+{% from "fips/include.html.jinja2" import render_type, render_status, render_document_type %}
+
+<div id="search-partial"
+     data-sort-by="{{ sort_by or '' }}"
+     data-sort-dir="{{ sort_dir or '' }}"
+     data-errors='{{ errors|tojson }}'>
+
+    <div id="pagination-top-wrapper"
+         class="d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+        <span id="pagination-info" class="text-muted small">{{ pagination.info }}</span>
+        <div id="pagination-links-top">{{ pagination.links }}</div>
+    </div>
+
+    <table hidden><tbody id="results-body">
+       {% if result %}
+            {% for cert in result %}
+                {% set idd = cert["cert_id"]|default("", true) %}
+                {% set name = cert["name"]|default("N/A", true) %}
+                {% set status = cert["status"] %}
+                {% set hashid = cert["dgst"] %}
+                {% set validation_dates = cert["validation_date"] if cert["validation_date"] is iterable and cert["validation_date"] is not string else [cert["validation_date"]] %}
+                {% set sunset_date = cert["sunset_date"] %}
+                {% set category = cert["category"] %}
+                {% set vendor = cert["vendor"] %}
+                {% set level = cert["level"] %}
+                <tr class="search-result{% if cert.get('snippets') %} has-snippets{% endif %}">
+                    <td data-col="cert_id" class="text-nowrap">
+                        <span class="result-category">{{ render_type(category) }}</span>&nbsp;<span class="result-id ">{{ idd }}</span>
+                    </td>
+                    <td data-col="name">
+                        <a href="{{ url_for('.entry', hashid=hashid) }}"
+                           class="result-clamp result-link text-decoration-none fw-medium"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top">{{ name }}</a>
+                        {% if cert.get("snippets") %}
+                        {% set doc_type_labels = {"policy": "Security Policy"} %}
+                        <div class="d-flex flex-column gap-1">
+                            {% for doc_type, snippet_html in cert["snippets"].items() %}
+                            <div>
+                                <div class="snippet-label">[{{ doc_type_labels.get(doc_type, doc_type) }}]</div>
+                                <div class="snippet-text">{{ snippet_html|safe }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td data-col="vendor"><div class="result-clamp" data-bs-toggle="tooltip" data-bs-placement="top">{{ vendor }}</div></td>
+                    <td data-col="status">{{ render_status(status) }}</td>
+                    <td data-col="level">{{ level }}</td>
+                    <td data-col="validation_date" class="text-nowrap">
+                      {% for validation_date in validation_dates %}
+                        {{ validation_date|strftime("%d.%m.%Y") if validation_date else "" }}
+                        {% if not loop.last %}<br>{% endif %}
+                      {% endfor %}
+                    </td>
+                    <td data-col="sunset_date" class="text-nowrap">{{ sunset_date|strftime("%d.%m.%Y") if sunset_date else "" }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="9" class="text-center text-muted py-5">
+                    <i class="fas fa-search fa-2x mb-2 d-block opacity-25"></i>
+                    No results found.
+                </td>
+            </tr>
+        {% endif %}
+    </tbody></table>
+
+    <div id="pagination-bottom-wrapper"
+         class="mt-3 mb-4 d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+        <div id="pagination-links-bottom">{{ pagination.links }}</div>
+        <span id="pagination-info-bottom" class="text-muted small">{{ pagination.info }}</span>
+    </div>
+
+</div>

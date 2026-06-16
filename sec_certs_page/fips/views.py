@@ -34,8 +34,10 @@ from ..common.views import (
     sitemap_cert_pipeline,
 )
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_references
-from .search import FIPSBasicSearch, FIPSFulltextSearch
+from .search import FIPSSearch
 from .tasks import FIPSRenderer
+from ..fips import fips_levels
+
 
 
 @fips.app_template_global("get_fips_type")
@@ -150,23 +152,16 @@ def search():
 @fips.route("/mergedsearch/")
 @register_breadcrumb(fips, ".merged_search", "Search")
 def merged_search():
-    search_type = request.args.get("searchType")
-    if search_type != "by-name" and search_type != "fulltext":
-        search_type = "by-name"
-
-    res = {}
-    template = "fips/search/name_search.html.jinja2"
-    if search_type == "by-name":
-        res = FIPSBasicSearch.process_search(request)
-    elif search_type == "fulltext":
-        res = FIPSFulltextSearch.process_search(request)
-        template = "fips/search/fulltext_search.html.jinja2"
-
+    template = "fips/search/search.html.jinja2"
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        template = "fips/search/search_partial.html.jinja2"
+    res = FIPSSearch.process_search(request)
     return render_template(
         template,
         **res,
-        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        search_type=search_type,
+        all_levels=fips_levels,
+        title=f"FIPS 140 | sec-certs.org",
     )
 
 
