@@ -74,7 +74,8 @@
     padding: 0.175rem 0.5rem;
 }
 
-#chat-modal .modal-lg, #chat-modal .modal-xl {
+#chat-modal .modal-lg,
+#chat-modal .modal-xl {
     height: 90vh;
 }
 
@@ -271,15 +272,17 @@
     background-color: rgba(0, 0, 0, 0.03);
 }
 
-#search-categories div {
-    display: flex;
-    flex-direction: column;
+#search-categories,
+#search-schemes,
+#search-eals {
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 body {
     font-family: "IBM Plex Sans",
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
-    "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
+        "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 .h1,
@@ -353,7 +356,7 @@ h6 {
 
 [data-bs-theme="dark"] .row.bg-dark {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19),
-    0 -4px 8px 0 rgba(0, 0, 0, 0.2), 0 -6px 20px 0 rgba(0, 0, 0, 0.19);
+        0 -4px 8px 0 rgba(0, 0, 0, 0.2), 0 -6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .hide-light {
@@ -380,8 +383,10 @@ h6 {
     color: white;
     padding: 14px 16px;
     background-color: inherit;
-    font-family: inherit; /* Important for vertical align on mobile phones */
-    margin: 0; /* Important for vertical align on mobile phones */
+    font-family: inherit;
+    /* Important for vertical align on mobile phones */
+    margin: 0;
+    /* Important for vertical align on mobile phones */
 }
 
 .dropdown .dropbtn:focus-visible {
@@ -780,8 +785,8 @@ h6 {
     color: var(--bs-gray-900) !important;
 }
 
-[data-bs-theme="dark"] .dash-dropdown .Select-input > input,
-[data-bs-theme="dark"] .dash-bootstrap .Select-input > input {
+[data-bs-theme="dark"] .dash-dropdown .Select-input>input,
+[data-bs-theme="dark"] .dash-bootstrap .Select-input>input {
     background-color: transparent !important;
     color: var(--bs-body-color) !important;
 }
@@ -1008,12 +1013,12 @@ h6 {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.mb-4.border-0 > .card-body {
+.mb-4.border-0>.card-body {
     background-color: var(--bs-gray-100);
     border-radius: var(--bs-border-radius);
 }
 
-[data-bs-theme="dark"] .mb-4.border-0 > .card-body {
+[data-bs-theme="dark"] .mb-4.border-0>.card-body {
     background-color: var(--bs-gray-800);
 }
 
@@ -1047,8 +1052,105 @@ h6 {
     color: white;
 }
 
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+th.sortable:hover {
+    background: rgba(0, 0, 0, .04);
+}
+
+[data-bs-theme="dark"] th.sortable:hover {
+    background: rgba(255, 255, 255, .05);
+}
+
+.sort-icon {
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+}
+
+.sort-icon::after {
+    content: ' ↓↑';
+    opacity: .35;
+    font-size: 0.75rem;
+}
+
+th.sort-asc,
+th.sort-desc {
+    background: rgba(0, 0, 0, .05);
+}
+
+[data-bs-theme="dark"] th.sort-asc,
+[data-bs-theme="dark"] th.sort-desc {
+    background: rgba(255, 255, 255, .07);
+}
+
+th.sort-asc .sort-icon::after {
+    content: ' ↑';
+    opacity: 1;
+}
+
+th.sort-desc .sort-icon::after {
+    content: ' ↓';
+    opacity: 1;
+}
+
+.col-hidden {
+    display: none;
+}
+
+
+#filter-fields-desktop .d-flex.gap-1 input {
+    min-width: 0;
+    flex: 1 1 0;
+}
+
+#results-body .fa-search {
+    color: var(--bs-secondary);
+}
+tr.has-snippets > td {
+    vertical-align: top;
+}
+.result-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+@media (min-width: 1200px) {
+  .results-container {
+    max-width: 1320px;
+  }
+}
+
+
+@media (min-width: 1400px) {
+  .results-container {
+    max-width: 1720px;
+  }
+}
+
+.snippet-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--bs-secondary);
+    margin-top: 0.35rem;
+}
+.snippet-text {
+    font-size: 0.95rem;
+    color: var(--bs-secondary);
+    margin-top: 0.1rem;
+}
+.snippet-text b {
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
 /* ==========================================================================
-    WCAG Accessibility implementation   
+    WCAG Accessibility implementation
     btn-outline-primary color overrides per theme
    ========================================================================== */
 
