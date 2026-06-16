@@ -105,25 +105,12 @@ def network():
 @fips.route("/network/graph.json")
 def network_graph():
     fips_references = get_fips_references()
-    if "search" in request.args:
+    if request.args.get("search") == "cve":
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
-        if request.args["search"] == "basic":
-            args = FIPSBasicSearch.parse_args(args)
-            if "page" in args:
-                del args["page"]
-            certs, count, timeline = FIPSBasicSearch.select_certs(**args)
-        elif request.args["search"] == "fulltext":
-            args = FIPSFulltextSearch.parse_args(args)
-            if "page" in args:
-                del args["page"]
-            certs, count = FIPSFulltextSearch.select_certs(**args)
-        elif request.args["search"] == "cve":
-            if "cve" not in args:
-                raise BadRequest("Missing 'cve' parameter for CVE search.")
-            cve_id = args["cve"]
-            certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
-        else:
-            raise BadRequest("Invalid search query.")
+        if "cve" not in args:
+            raise BadRequest("Missing 'cve' parameter for CVE search.")
+        cve_id = args["cve"]
+        certs = list(mongo.db.fips.find({"heuristics.related_cves._value": cve_id}, {"_id": 1}))
         components = {}
         ids = []
         for cert in certs:
