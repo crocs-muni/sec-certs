@@ -8,11 +8,8 @@ heuristics:
   level: derived
   label: "Automatically derived data"
   description: >-
-    These values are inferred automatically by our algorithms from the
-    certification documents and public databases. Treat them as a research
-    starting point, not ground truth. To verify any item, follow the links to
-    the source document, the NVD entry, or the scheme's listing.
-
+    Not sure about a value? Follow its link to the source and confirm it really appears there.
+  
 related_cves:
   level: derived
   label: "Related CVEs"
