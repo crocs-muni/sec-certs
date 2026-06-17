@@ -3,7 +3,7 @@
 {% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "include/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_pdf_meta, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% from "cc/include.html.jinja2" import cc_keywords, render_eal, render_status, render_sars, render_sfrs, render_category %}
-{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
+{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script, help_icon with context %}
 {% from "include/legal.html.jinja2" import certificate_note %}
 
 {% block title %}
@@ -30,7 +30,7 @@
 {% block left_navigation %}
     <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
         <h4>Sections</h4>
-        <a class="list-group-item list-group-item-action rounded" href="#web-info">Web information</a>
+        <a class="list-group-item list-group-item-action rounded" href="#web-info">Webpage information</a>
         <a class="list-group-item list-group-item-action rounded" href="#report-info">Report</a>
         <a class="list-group-item list-group-item-action rounded" href="#profile-info">Profile</a>
         <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References</a>
@@ -59,7 +59,7 @@
                     {% if "web_data" in profile %}
                         <div class="row pt-5" id="web-info">
                             <div class="col-12 col-md-6">
-                                <h2 class="anchor">Web information</h2>
+                                <h2 class="anchor">Webpage information {{ help_icon('webpage_information') }}</h2>
                                 <table class="table table-sm table-borderless w-auto">
                                     <colgroup>
                                         <col style="width: 30%"/>
