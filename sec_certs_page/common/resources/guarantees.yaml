@@ -9,5 +9,7 @@ heuristics:
   level: derived
   label: "Automatically derived data"
   description: >-
-    Extracted from the certification report and Security Target by our
-    automated heuristics. It may contain errors — verify before relying on it.
+    These values are inferred automatically by our algorithms from the
+    certification documents and public databases. Treat them as a research
+    starting point, not ground truth. To verify any item, follow the links to
+    the source document, the NVD entry, or the scheme's listing.

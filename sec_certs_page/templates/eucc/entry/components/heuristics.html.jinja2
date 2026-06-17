@@ -1,5 +1,6 @@
+{% from "include/utils.html.jinja2" import help_icon %}
 <div class="{{ box_container }}" id="heuristics-info">
-    <h2>Heuristics</h2>
+    <h2>Heuristics {{ help_icon('heuristics') }}</h2>
     <div class="{{ container_inner }}">
         <div>
             {% if not cert["cert_id"] and not cpes and not cves %}
