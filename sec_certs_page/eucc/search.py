@@ -108,7 +108,8 @@ class EUCCSearch(Search):
         if args["status"]:
             subqueries.append((Occur.Must, Query.term_query(eucc_schema, "status", args["status"])))
 
-        subqueries.append((Occur.Must, Query.term_set_query(eucc_schema, "scheme", args["selected_schemes"])))
+        if len(args["selected_schemes"]) < len(eucc_schemes):
+            subqueries.append((Occur.Must, Query.term_set_query(eucc_schema, "scheme", args["selected_schemes"])))
 
         subqueries.append(
             (Occur.Must, get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", eucc_schema))

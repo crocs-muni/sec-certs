@@ -107,7 +107,8 @@ class PPSearch(Search):
         if args["status"]:
             subqueries.append((Occur.Must, Query.term_query(pp_schema, "status", args["status"])))
 
-        subqueries.append((Occur.Must, Query.term_set_query(pp_schema, "scheme", args["selected_schemes"])))
+        if len(args["selected_schemes"]) < len(cc_schemes):
+            subqueries.append((Occur.Must, Query.term_set_query(pp_schema, "scheme", args["selected_schemes"])))
 
         subqueries.append(
             (Occur.Must, get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", pp_schema))
