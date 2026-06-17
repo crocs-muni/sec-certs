@@ -83,8 +83,10 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
         doc.add_text("category", cert["category"])
         doc.add_text("eal", cert["heuristics"].get("eal") or "")
         doc.add_text("status", cert["status"])
-        doc.add_date("not_valid_before", datetime.fromisoformat(cert["not_valid_before"]["_value"]))
-        doc.add_date("not_valid_after", datetime.fromisoformat(cert["not_valid_after"]["_value"]))
+        if cert["not_valid_before"]:
+            doc.add_date("not_valid_before", datetime.fromisoformat(cert["not_valid_before"]["_value"]))
+        if cert["not_valid_after"]:
+            doc.add_date("not_valid_after", datetime.fromisoformat(cert["not_valid_after"]["_value"]))
         doc.add_text("name", cert["name"])
         doc.add_text("manufacturer", cert["manufacturer"])
         cert_labs = cert["heuristics"]["cert_lab"]
