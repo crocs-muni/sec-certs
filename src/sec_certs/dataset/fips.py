@@ -150,10 +150,6 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @only_backed()
     def extract_data(self) -> None:
         logger.info("Extracting various data from certification artifacts.")
-        for cert in self:
-            cert.state.policy.extract_ok = True
-            cert.state.module.extract_ok = True
-
         self._extract_data_from_html_modules()
         self._extract_policy_pdf_metadata()
         self._extract_policy_pdf_keywords()
