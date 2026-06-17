@@ -13,3 +13,13 @@ heuristics:
     certification documents and public databases. Treat them as a research
     starting point, not ground truth. To verify any item, follow the links to
     the source document, the NVD entry, or the scheme's listing.
+
+related_cves:
+  level: derived
+  label: "Related CVEs"
+  description: >-
+    Publicly known vulnerabilities (CVEs) reported for the product we
+    matched to this certificate via CPE. A listed CVE does not necessarily
+    mean the certified configuration is affected — it means a product we
+    linked here has a reported vulnerability. Always check the affected
+    product and version.
