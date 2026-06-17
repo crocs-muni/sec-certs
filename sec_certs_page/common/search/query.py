@@ -197,9 +197,7 @@ class Search(ABC):
         sort_by = args["sort_by"]
         sort_dir = args["sort_dir"]
 
-        index = cls.index()
-        index.reload()
-        searcher = index.searcher()
+        searcher = cls.index().searcher()
         query, result, errors = cls._search_with_fallback(args, searcher, sort_by, sort_dir, per_page, page, fulltext)
         if errors:
             return [], 0, errors

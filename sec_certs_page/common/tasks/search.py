@@ -55,4 +55,5 @@ class Indexer(ABC):  # pragma: no cover
 
         writer.commit()
         writer.wait_merging_threads()
+        self.index.reload()
         logger.info(f"Reindexed {updated} out of {len(to_reindex)} {self.cert_schema} files.")
