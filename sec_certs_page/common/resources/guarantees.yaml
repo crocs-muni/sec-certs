@@ -2,8 +2,7 @@ webpage_information:
   level: certified
   label: "Official listing data"
   description: >-
-    Information taken from the certification scheme's official online listing.
-    It reflects what the scheme published as of our last update.
+    Information taken from the official source that lists this certificate.
 
 heuristics:
   level: derived
@@ -34,12 +33,11 @@ validation_dates:
     is no longer current.
 
 updates:
-  level: certified
+  level: derived
   label: "Updates"
   description: >-
-    Maintenance reports and re-assessments issued after the original
-    certification. They can confirm or extend the certificate for minor
-    product changes without a full re-evaluation.
+    A log of how this entry's data changed across our periodic updates (New / Changed / Removed).
+    Changes may reflect updates to the source listing or improvements in our own data extraction
 
 references:
   level: derived
