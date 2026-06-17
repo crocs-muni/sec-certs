@@ -8,17 +8,14 @@ cc_schema = (
     SchemaBuilder()
     # internal purpouse fields
     .add_text_field("dgst", stored=True, tokenizer_name="raw", index_option="basic")
-
     # option fields
     .add_text_field("scheme", stored=True, fast=True, tokenizer_name="raw", index_option="basic")
     .add_text_field("category", stored=True, tokenizer_name="raw", index_option="basic")
     .add_text_field("eal", stored=True, fast=True, tokenizer_name="raw", index_option="basic")
     .add_text_field("status", stored=True, fast=True, tokenizer_name="raw", index_option="basic")
-
     # date fields
     .add_date_field("not_valid_before", stored=True, indexed=True, fast=True)
     .add_date_field("not_valid_after", stored=True, indexed=True, fast=True)
-
     # full-text fields
     .add_text_field("name", stored=True, fast=True)
     .add_text_field("manufacturer", stored=True, fast=True)
@@ -28,7 +25,6 @@ cc_schema = (
     .add_text_field("body_cert", stored=True)
     .add_text_field("body_report", stored=True)
     .add_text_field("body_target", stored=True)
-
     .build()
 )
 

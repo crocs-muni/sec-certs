@@ -1,13 +1,29 @@
+import re
 from abc import ABC, abstractmethod
-from typing import ClassVar, Any, Callable
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any, ClassVar
+
 from flask import current_app
+from tantivy import (
+    DocAddress,
+    FieldType,
+    Filter,
+    Index,
+    Occur,
+    Order,
+    Query,
+    Schema,
+    Searcher,
+    SnippetGenerator,
+    TextAnalyzerBuilder,
+    Tokenizer,
+)
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
+
 from ..views import Pagination
-from .fields import FieldProtocol, IntField, TextField, OptionField
-from datetime import datetime
-import re
-from tantivy import Query, Occur, DocAddress, Searcher, Schema, Index, FieldType, Order, TextAnalyzerBuilder, Tokenizer, Filter, SnippetGenerator
+from .fields import FieldProtocol, IntField, OptionField, TextField
 
 default_tokenizer = TextAnalyzerBuilder(Tokenizer.simple()).filter(Filter.lowercase()).build()
 
@@ -32,7 +48,7 @@ def detect_advanced_syntax(query: str) -> set[str]:
         ("range", r"[\[{][^\]\}\n]+\bTO\b[^\]\}\n]+[\]}]"),
         ("set", r"\bIN\s*\[[^\]]*\]"),
         ("boost", r"\^(\d+|\d*\.\d*)"),
-        ("regex", r"/[^/\n]+/")
+        ("regex", r"/[^/\n]+/"),
     ]
 
     matched = set()
@@ -73,7 +89,9 @@ def get_text_query(query: str | None, field_name: str, prefix: bool, index: Inde
     if "field_prefix" not in advanced_features:
         query = f"{field_name}:{query}"
 
-    return index.parse_query_lenient(query, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=True)
+    return index.parse_query_lenient(
+        query, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=True
+    )
 
 
 def get_date_query(lower: datetime | None, upper: datetime | None, field_name: str, schema: Schema) -> Query:
@@ -83,7 +101,9 @@ def get_date_query(lower: datetime | None, upper: datetime | None, field_name: s
     return Query.range_query(schema, field_name, FieldType.Date, lower, upper)
 
 
-def get_snippet_generators(searcher: Searcher, query: Query, snippet_fields: dict[str, str], schema: Schema) -> dict[str, SnippetGenerator]:
+def get_snippet_generators(
+    searcher: Searcher, query: Query, snippet_fields: dict[str, str], schema: Schema
+) -> dict[str, SnippetGenerator]:
     result = {}
     for doc_type, field in snippet_fields.items():
         gen = SnippetGenerator.create(searcher, query, schema, field)
@@ -93,7 +113,9 @@ def get_snippet_generators(searcher: Searcher, query: Query, snippet_fields: dic
     return result
 
 
-def get_results_from_hits(searcher: Searcher, hits: list[tuple[Any, DocAddress]], snippet_generators: dict[str, SnippetGenerator]) -> list[dict]:
+def get_results_from_hits(
+    searcher: Searcher, hits: list[tuple[Any, DocAddress]], snippet_generators: dict[str, SnippetGenerator]
+) -> list[dict]:
     result = []
     for _, doc_addr in hits:
         doc = searcher.doc(doc_addr)
@@ -130,10 +152,9 @@ class Search(ABC):
         return {
             "query": TextField(),
             "page": IntField(1, min=1),
-            "per_page": IntField(
-                current_app.config["SEARCH_ITEMS_PER_PAGE"], min=1, max=100),
+            "per_page": IntField(current_app.config["SEARCH_ITEMS_PER_PAGE"], min=1, max=100),
             "search_type": OptionField({"name", "fulltext"}, "name"),
-            **cls.search_args
+            **cls.search_args,
         }
 
     @classmethod
@@ -151,14 +172,18 @@ class Search(ABC):
         return cls._enrich_args(parsed)
 
     @classmethod
-    def _search_with_fallback(cls, args: dict, searcher: Searcher, sort_by: str, sort_dir: str, per_page: int, page: int, fulltext: bool):
+    def _search_with_fallback(
+        cls, args: dict, searcher: Searcher, sort_by: str, sort_dir: str, per_page: int, page: int, fulltext: bool
+    ):
         for broader in (False, True):
             query, errs = cls._build_query(args, broader, fulltext)
             if errs:
                 return None, None, errs
 
             order_dir = Order.Desc if sort_dir == "desc" else Order.Asc
-            result = searcher.search(query, order_by_field=sort_by, order=order_dir, limit=per_page, offset=(page - 1) * per_page)
+            result = searcher.search(
+                query, order_by_field=sort_by, order=order_dir, limit=per_page, offset=(page - 1) * per_page
+            )
             if result.count > 0:
                 break
 

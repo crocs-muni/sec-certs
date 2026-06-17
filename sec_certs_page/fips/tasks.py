@@ -1,5 +1,5 @@
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -12,6 +12,7 @@ from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 from sec_certs.utils.helpers import get_sha256_filepath
+from tantivy import Document
 
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
@@ -23,10 +24,8 @@ from ..common.tasks.search import Indexer
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
 from ..common.tasks.webui import KBUpdater
-
-from tantivy import Document
 from .index import fips_index
-from datetime import datetime
+
 logger = get_logger(__name__)
 
 
@@ -116,7 +115,6 @@ class FIPSIndexer(Indexer, FIPSMixin):
         return doc
 
 
-
 @actor("fips_reindex_collection", "fips_reindex_collection", "updates", timedelta(hours=4))
 def reindex_collection(to_reindex):  # pragma: no cover
     indexer = FIPSIndexer()
@@ -126,7 +124,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 @actor("fips_reindex_all", "fips_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
-    to_reindex = [dgst for dgst in ids]
+    to_reindex = list(ids)
     tasks = []
     for i in range(0, len(to_reindex), 1000):
         j = i + 1000

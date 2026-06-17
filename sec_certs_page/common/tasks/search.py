@@ -36,7 +36,7 @@ class Indexer(ABC):  # pragma: no cover
         for i, dgst in enumerate(to_reindex):
             content = {}
             for doc_type in self.doc_types:
-                fpath = entry_file_path(dgst, self.dataset_path, doc_type , "txt")
+                fpath = entry_file_path(dgst, self.dataset_path, doc_type, "txt")
                 doc_content = ""
                 try:
                     with fpath.open("r") as f:

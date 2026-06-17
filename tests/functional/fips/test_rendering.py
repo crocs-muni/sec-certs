@@ -25,9 +25,7 @@ def test_analysis(client: FlaskClient):
 
 
 @pytest.mark.remote
-@pytest.mark.parametrize(
-    "sort_by", ["name", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"]
-)
+@pytest.mark.parametrize("sort_by", ["name", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"])
 def test_search_basic(client: FlaskClient, sort_by):
     cert_id = "310"
     cert_name = "MOVEit Crypto"

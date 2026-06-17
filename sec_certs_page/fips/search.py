@@ -1,10 +1,21 @@
 from typing import Any
+
+from tantivy import Occur, Query
+
 from .. import mongo
-from ..common.search.query import Search, select_by_id, select_by_bitmask, detect_advanced_syntax, get_text_query, get_date_query
-from .index import fips_schema, fips_index
-from ..fips import fips_types as fips_categories, fips_levels
-from ..common.search.fields import TextField, OptionField, DateField, IntField
-from tantivy import Query, Occur
+from ..common.search.fields import DateField, IntField, OptionField, TextField
+from ..common.search.query import (
+    Search,
+    detect_advanced_syntax,
+    get_date_query,
+    get_text_query,
+    select_by_bitmask,
+    select_by_id,
+)
+from ..fips import fips_levels
+from ..fips import fips_types as fips_categories
+from .index import fips_index, fips_schema
+
 
 class FIPSSearch(Search):
     search_args = {
@@ -14,13 +25,15 @@ class FIPSSearch(Search):
         "body": TextField(),
         "cat": TextField(),
         "status": OptionField({"active", "historical", "revoked"}),
-        "sort_by": OptionField({"name", "validation_date", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"}),
+        "sort_by": OptionField(
+            {"name", "validation_date", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"}
+        ),
         "sort_dir": OptionField({"desc", "asc"}),
         "level": IntField(base=16),
         "validation_date_from": DateField(),
         "validation_date_to": DateField(),
         "sunset_date_from": DateField(),
-        "sunset_date_to": DateField()
+        "sunset_date_to": DateField(),
     }
     snippet_fields = {"policy": "body"}
     schema = fips_schema
@@ -45,7 +58,7 @@ class FIPSSearch(Search):
             "advanced": advanced,
             "selected_categories": select_by_id(parsed["cat"], fips_categories),
             "selected_levels": select_by_bitmask(parsed["level"], fips_levels),
-            **parsed
+            **parsed,
         }
 
     @classmethod
@@ -58,7 +71,9 @@ class FIPSSearch(Search):
         if "field_prefix" not in advanced_features:
             query = f"body:{query}"
 
-        parsed_query, err = fips_index().parse_query_lenient(query, default_field_names=["body"], conjunction_by_default=True, allow_regexes=False)
+        parsed_query, err = fips_index().parse_query_lenient(
+            query, default_field_names=["body"], conjunction_by_default=True, allow_regexes=False
+        )
         if err:
             errors.update({"query": [str(e) for e in err]})
 
@@ -74,7 +89,9 @@ class FIPSSearch(Search):
         if "field_prefix" not in detect_advanced_syntax(query):
             query = f"cert_id:{query}"
 
-        parsed_query, err = fips_index().parse_query_lenient(query, default_field_names=["cert_id"], conjunction_by_default=True, allow_regexes=False)
+        parsed_query, err = fips_index().parse_query_lenient(
+            query, default_field_names=["cert_id"], conjunction_by_default=True, allow_regexes=False
+        )
         if err:
             errors.update({"cert_id": [str(e) for e in err]})
 
@@ -100,7 +117,6 @@ class FIPSSearch(Search):
 
         return Query.boolean_query(subqueries)
 
-
     @classmethod
     def _build_query(cls, args: dict, broader: bool = False, fulltext: bool = False) -> tuple[Query, Any]:
         subqueries = []
@@ -111,8 +127,17 @@ class FIPSSearch(Search):
         if args["status"]:
             subqueries.append((Occur.Must, Query.term_query(fips_schema, "status", args["status"])))
 
-        subqueries.append((Occur.Must, get_date_query(args["validation_date_from"], args["validation_date_to"], "validation_date", fips_schema)))
-        subqueries.append((Occur.Must, get_date_query(args["sunset_date_from"], args["sunset_date_to"], "sunset_date", fips_schema)))
+        subqueries.append(
+            (
+                Occur.Must,
+                get_date_query(
+                    args["validation_date_from"], args["validation_date_to"], "validation_date", fips_schema
+                ),
+            )
+        )
+        subqueries.append(
+            (Occur.Must, get_date_query(args["sunset_date_from"], args["sunset_date_to"], "sunset_date", fips_schema))
+        )
 
         categories = [key for key, val in args["selected_categories"].items() if val["selected"]]
         subqueries.append((Occur.Must, Query.term_set_query(fips_schema, "category", categories)))

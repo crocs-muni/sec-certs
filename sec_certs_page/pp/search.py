@@ -1,10 +1,19 @@
 from typing import Any
+
+from tantivy import Occur, Query
+
 from .. import mongo
 from ..cc import cc_categories, cc_schemes
-from ..common.search.query import Search, select_by_id, select_by_bitmask, detect_advanced_syntax, get_text_query, get_date_query
-from .index import pp_schema, pp_index
-from ..common.search.fields import TextField, OptionField, DateField, IntField
-from tantivy import Query, Occur
+from ..common.search.fields import DateField, IntField, OptionField, TextField
+from ..common.search.query import (
+    Search,
+    detect_advanced_syntax,
+    get_date_query,
+    get_text_query,
+    select_by_bitmask,
+    select_by_id,
+)
+from .index import pp_index, pp_schema
 
 
 class PPSearch(Search):
@@ -19,7 +28,7 @@ class PPSearch(Search):
         "cert_date_from": DateField(),
         "cert_date_to": DateField(),
         "archive_date_from": DateField(),
-        "archive_date_to": DateField()
+        "archive_date_to": DateField(),
     }
     snippet_fields = {"report": "body_report", "profile": "body_profile"}
     schema = pp_schema
@@ -45,7 +54,7 @@ class PPSearch(Search):
             "advanced": advanced,
             "selected_categories": select_by_id(parsed["cat"], cc_categories),
             "selected_schemes": select_by_bitmask(parsed["schemes"], cls.sorted_schemes),
-            **parsed
+            **parsed,
         }
 
     @classmethod
@@ -60,7 +69,9 @@ class PPSearch(Search):
             if "field_prefix" not in advanced_features:
                 body = f"body_{doc_type}:{query}"
 
-            parsed_query, err = pp_index().parse_query_lenient(body, default_field_names=[f"body_{doc_type}"], conjunction_by_default=True, allow_regexes=False)
+            parsed_query, err = pp_index().parse_query_lenient(
+                body, default_field_names=[f"body_{doc_type}"], conjunction_by_default=True, allow_regexes=False
+            )
             if err:
                 errors.update({"query": [str(e) for e in err]})
 
@@ -98,8 +109,15 @@ class PPSearch(Search):
 
         subqueries.append((Occur.Must, Query.term_set_query(pp_schema, "scheme", args["selected_schemes"])))
 
-        subqueries.append((Occur.Must, get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", pp_schema)))
-        subqueries.append((Occur.Must, get_date_query(args["archive_date_from"], args["archive_date_to"], "not_valid_after", pp_schema)))
+        subqueries.append(
+            (Occur.Must, get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", pp_schema))
+        )
+        subqueries.append(
+            (
+                Occur.Must,
+                get_date_query(args["archive_date_from"], args["archive_date_to"], "not_valid_after", pp_schema),
+            )
+        )
 
         categories = [key for key, val in args["selected_categories"].items() if val["selected"]]
         subqueries.append((Occur.Must, Query.term_set_query(pp_schema, "category", categories)))

@@ -201,7 +201,7 @@ def search():
 @register_breadcrumb(cc, ".merged_search", "Search")
 def merged_search():
     template = "cc/search/name_search.html.jinja2"
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
         template = "cc/search/name_search_results.html.jinja2"
     res = CCSearch.process_search(request)
@@ -210,8 +210,9 @@ def merged_search():
         **res,
         all_schemes=cc_schemes,
         all_eals=cc_eals,
-        title=f"Common Criteria | sec-certs.org",
+        title="Common Criteria | sec-certs.org",
     )
+
 
 @cc.route("/ftsearch/")
 @register_breadcrumb(cc, ".fulltext_search", "Fulltext search")

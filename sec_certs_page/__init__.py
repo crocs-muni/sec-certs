@@ -1,6 +1,5 @@
 import os
 import sys
-from contextvars import ContextVar
 from logging import config
 from pathlib import Path
 
@@ -37,6 +36,7 @@ from sec_certs.configuration import config as tool_config
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 from sentry_sdk.integrations.redis import RedisIntegration
+
 from .common.config import RuntimeConfig
 from .common.sentry import DramatiqIntegration, before_send, get_sampler
 

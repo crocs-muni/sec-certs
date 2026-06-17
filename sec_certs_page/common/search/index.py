@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from tantivy import Schema, Index
 from flask import current_app
+from tantivy import Index, Schema
 
 
 def get_index(schema: Schema, name: str) -> Index:

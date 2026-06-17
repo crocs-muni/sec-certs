@@ -1,6 +1,6 @@
-from typing import Any, Protocol
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Protocol
 
 
 @dataclass
@@ -11,8 +11,7 @@ class ParseResult:
 
 
 class FieldProtocol(Protocol):
-    def parse(self, raw: str | None) -> ParseResult:
-        ...
+    def parse(self, raw: str | None) -> ParseResult: ...
 
 
 @dataclass

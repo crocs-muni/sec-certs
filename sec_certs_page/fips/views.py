@@ -33,11 +33,10 @@ from ..common.views import (
     send_json_attachment,
     sitemap_cert_pipeline,
 )
+from ..fips import fips_levels
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_references
 from .search import FIPSSearch
 from .tasks import FIPSRenderer
-from ..fips import fips_levels
-
 
 
 @fips.app_template_global("get_fips_type")
@@ -140,7 +139,7 @@ def search():
 @register_breadcrumb(fips, ".merged_search", "Search")
 def merged_search():
     template = "fips/search/search.html.jinja2"
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
         template = "fips/search/search_partial.html.jinja2"
     res = FIPSSearch.process_search(request)
@@ -148,7 +147,7 @@ def merged_search():
         template,
         **res,
         all_levels=fips_levels,
-        title=f"FIPS 140 | sec-certs.org",
+        title="FIPS 140 | sec-certs.org",
     )
 
 

@@ -1,10 +1,20 @@
 from typing import Any
+
+from tantivy import Occur, Query
+
 from .. import mongo
 from ..cc import cc_categories, cc_eals, cc_schemes
-from ..common.search.query import Search, select_by_id, select_by_bitmask, detect_advanced_syntax, get_text_query, get_date_query
-from .index import cc_schema, cc_index
-from ..common.search.fields import TextField, OptionField, DateField, IntField
-from tantivy import Query, Occur
+from ..common.search.fields import DateField, IntField, OptionField, TextField
+from ..common.search.query import (
+    Search,
+    detect_advanced_syntax,
+    get_date_query,
+    get_text_query,
+    select_by_bitmask,
+    select_by_id,
+)
+from .index import cc_index, cc_schema
+
 
 class CCSearch(Search):
     search_args = {
@@ -15,14 +25,26 @@ class CCSearch(Search):
         "cert_lab": TextField(),
         "cat": TextField(),
         "status": OptionField({"active", "archived"}),
-        "sort_by": OptionField({"name", "not_valid_after", "not_valid_before", "cert_id", "manufacturer", "cert_lab", "scheme", "status", "eal"}),
+        "sort_by": OptionField(
+            {
+                "name",
+                "not_valid_after",
+                "not_valid_before",
+                "cert_id",
+                "manufacturer",
+                "cert_lab",
+                "scheme",
+                "status",
+                "eal",
+            }
+        ),
         "sort_dir": OptionField({"desc", "asc"}),
         "schemes": IntField(base=16),
         "eal": IntField(base=16),
         "cert_date_from": DateField(),
         "cert_date_to": DateField(),
         "archive_date_from": DateField(),
-        "archive_date_to": DateField()
+        "archive_date_to": DateField(),
     }
     snippet_fields = {"cert": "body_cert", "report": "body_report", "target": "body_target"}
     schema = cc_schema
@@ -50,7 +72,7 @@ class CCSearch(Search):
             "selected_categories": select_by_id(parsed["cat"], cc_categories),
             "selected_schemes": select_by_bitmask(parsed["schemes"], cls.sorted_schemes),
             "selected_eals": select_by_bitmask(parsed["eal"], cls.sorted_eals),
-            **parsed
+            **parsed,
         }
 
     @classmethod
@@ -65,7 +87,9 @@ class CCSearch(Search):
             if "field_prefix" not in advanced_features:
                 body = f"body_{doc_type}:{query}"
 
-            parsed_query, err = cc_index().parse_query_lenient(body, default_field_names=[f"body_{doc_type}"], conjunction_by_default=True, allow_regexes=False)
+            parsed_query, err = cc_index().parse_query_lenient(
+                body, default_field_names=[f"body_{doc_type}"], conjunction_by_default=True, allow_regexes=False
+            )
             if err:
                 errors.update({"query": [str(e) for e in err]})
 
@@ -101,7 +125,6 @@ class CCSearch(Search):
 
         return Query.boolean_query(subqueries)
 
-
     @classmethod
     def _build_query(cls, args: dict, broader: bool = False, fulltext: bool = False) -> tuple[Query, Any]:
         subqueries = []
@@ -114,8 +137,15 @@ class CCSearch(Search):
 
         subqueries.append((Occur.Must, Query.term_set_query(cc_schema, "scheme", args["selected_schemes"])))
 
-        subqueries.append((Occur.Must, get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", cc_schema)))
-        subqueries.append((Occur.Must, get_date_query(args["archive_date_from"], args["archive_date_to"], "not_valid_after", cc_schema)))
+        subqueries.append(
+            (Occur.Must, get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", cc_schema))
+        )
+        subqueries.append(
+            (
+                Occur.Must,
+                get_date_query(args["archive_date_from"], args["archive_date_to"], "not_valid_after", cc_schema),
+            )
+        )
 
         categories = [key for key, val in args["selected_categories"].items() if val["selected"]]
         subqueries.append((Occur.Must, Query.term_set_query(cc_schema, "category", categories)))
