@@ -40,3 +40,12 @@ updates:
     Maintenance reports and re-assessments issued after the original
     certification. They can confirm or extend the certificate for minor
     product changes without a full re-evaluation.
+
+references:
+  level: derived
+  label: "References"
+  description: >-
+    Other certificates linked to this one, detected by matching certificate
+    IDs in the PDF documents. Outgoing = certificates mentioned in this
+    certificate's documents; Incoming = certificates whose documents mention
+    this one.

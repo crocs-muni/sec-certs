@@ -1,3 +1,4 @@
+{% from "include/utils.html.jinja2" import help_icon %}
 {% macro render_local_file(hashid, link_content, link, local_files, document, primary_style, secondary_style) %}
     <div class="btn-group">
         {% if link %}
@@ -179,7 +180,7 @@
         {% endfor %}
 
         {% if refs.incoming or refs.outgoing %}
-            <h3 class="mt-3">References</h3>
+            <h3 class="mt-3">References {{ help_icon('references') }}</h3>
             {% if refs.outgoing %}
                 <b>Outgoing</b>
                 <ul class="outgoing-list">
