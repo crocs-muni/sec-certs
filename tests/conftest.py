@@ -15,9 +15,12 @@ from pymongo import MongoClient
 from sec_certs_page import app as sec_certs_app
 from sec_certs_page import mongo
 from sec_certs_page.cc.mongo import create as cc_create
+from sec_certs_page.cc.tasks import CCIndexer
 from sec_certs_page.common.mongo import init_collections
 from sec_certs_page.fips.mongo import create as fips_create
+from sec_certs_page.fips.tasks import FIPSIndexer
 from sec_certs_page.pp.mongo import create as pp_create
+from sec_certs_page.pp.tasks import PPIndexer
 from sec_certs_page.user.models import User, hash_password
 
 from .client import RemoteTestClient
@@ -75,6 +78,15 @@ def mongo_data(app, mongodb):
             data = json.load(f, object_hook=object_hook)
         collection = file.name.removesuffix(".json")
         mongo.db[collection].insert_many(data)
+    yield
+
+
+@pytest.fixture(autouse=True, scope="session")
+def search_index(app, mongo_data, tmp_path_factory):
+    app.config["SEARCH_INDEX_PATH"] = str(tmp_path_factory.mktemp("search"))
+    for indexer_cls, collection in ((CCIndexer, "cc"), (FIPSIndexer, "fips"), (PPIndexer, "pp")):
+        indexer = indexer_cls()
+        indexer.reindex([doc["_id"] for doc in mongo.db[collection].find({}, {"_id": 1})])
     yield
 
 

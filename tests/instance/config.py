@@ -99,8 +99,8 @@ CACHE_NO_NULL_WARNING = True
 USE_X_ACCEL_REDIRECT = False
 X_ACCEL_REDIRECT_PATH = ""
 
-# WHOOSH
-WHOOSH_INDEX_PATH = "search"
+# Search index location, relative to the instance path.
+SEARCH_INDEX_PATH = "search"
 
 DOCS_AUTH_TOKEN = "12345678"
 
