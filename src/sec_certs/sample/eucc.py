@@ -332,7 +332,7 @@ class EUCCCertificate(
         product_name = metadata.get("product_name", "")
         holder_name = metadata.get("holder_name", "")
         scheme = EUCCCertificate._get_scheme_from_cert_id(certificate_id)
-        security_level = EUCCCertificate._extract_first_eal(metadata["package"])
+        security_level = EUCCCertificate._extract_first_eal(metadata.get("package", ""))
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))
         status = EUCCCertificate._get_status(not_valid_after)
