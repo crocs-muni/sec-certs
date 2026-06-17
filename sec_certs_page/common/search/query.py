@@ -29,10 +29,7 @@ default_tokenizer = TextAnalyzerBuilder(Tokenizer.simple()).filter(Filter.lowerc
 
 
 def select_by_id(selected: str, options: dict) -> dict:
-    result = options.copy()
-    for val in result.values():
-        val["selected"] = (val["id"] in selected) if selected else True
-    return result
+    return {key: {**val, "selected": (val["id"] in selected) if selected else True} for key, val in options.items()}
 
 
 def select_by_bitmask(mask: int | None, options: list) -> list:
