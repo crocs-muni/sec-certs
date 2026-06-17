@@ -1,10 +1,11 @@
+{% from "include/utils.html.jinja2" import help_icon %}
 {% set sar_prefixes = ['ADV_', 'AGD_', 'ALC_', 'ASE_', 'ATE_', 'AVA_'] %}
 {% set sfr_prefixes = ['FAU_', 'FCS_', 'FDP_', 'FIA_', 'FMT_', 'FPR_', 'FPT_', 'FRU_', 'FTA_', 'FTP_'] %}
 
 {% set table_styles = "table-sm table-borderless w-100" %}
 
 <div class="{{ box_container }}" id="webpage-info">
-    <h2>Webpage information</h2>
+    <h2>Webpage information {{ help_icon('webpage_information') }}</h2>
     <div class="{{ box_container_without_bg }}">
         <table class="{{ table_styles }}">
             <colgroup>

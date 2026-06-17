@@ -1,9 +1,9 @@
-csv_information:
+webpage_information:
   level: certified
   label: "Official listing data"
   description: >-
-    Taken directly from the official Common Criteria portal listing.
-    This is the authoritative source, so it has high confidence.
+    Information taken from the certification scheme's official online listing.
+    It reflects what the scheme published as of our last update.
 
 heuristics:
   level: derived
