@@ -79,8 +79,7 @@ class EUCCIndexer(Indexer, EUCCMixin):  # pragma: no cover
         doc = Document()
         doc.add_text("dgst", dgst)
         doc.add_text("scheme", cert["scheme"])
-        sec = cert.get("security_level") or {}
-        doc.add_text("eal", (sec.get("_value") if isinstance(sec, dict) else None) or "")
+        doc.add_text("eal", cert["heuristics"].get("eal") or "")
         doc.add_text("status", cert["status"])
         nvb = (cert.get("not_valid_before") or {}).get("_value")
         nva = (cert.get("not_valid_after") or {}).get("_value")
