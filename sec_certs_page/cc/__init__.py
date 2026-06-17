@@ -18,13 +18,13 @@ with cc.open_resource("../common/resources/sars.json") as f:
 with cc.open_resource("resources/categories.json") as f:
     cc_categories = json.load(f)
 with cc.open_resource("../common/resources/eals.json") as f:
-    cc_eals = json.load(f)
+    cc_eals: dict[str, dict[str, str]] = json.load(f)
 with cc.open_resource("../common/resources/status.json") as f:
     cc_status = json.load(f)
 with cc.open_resource("../common/resources/reference_types.json") as f:
     cc_reference_types = json.load(f)
 with cc.open_resource("../common/resources/schemes.json") as f:
-    cc_schemes = json.load(f)
+    cc_schemes: list[str] = json.load(f)
 
 
 def latest_run() -> bson.ObjectId:

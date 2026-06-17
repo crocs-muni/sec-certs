@@ -100,7 +100,7 @@ class PPSearch(Search):
     @classmethod
     def _build_query(cls, args: dict, broader: bool = False, fulltext: bool = False) -> tuple[Query, Any]:
         subqueries = []
-        errors = {}
+        errors: dict[str, list[str]] = {}
 
         subqueries.append((Occur.Must, cls._build_text_fields_query(args, broader, errors, fulltext)))
 
