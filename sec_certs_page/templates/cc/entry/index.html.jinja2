@@ -99,7 +99,7 @@
                                     <td>{{ render_status(cert["status"]) }}</td>
                                 </tr>
                                 <tr data-cs-name="Valid from">
-                                    <th scope="row">Valid from</th>
+                                    <th scope="row">Valid from {{ help_icon('validation_dates') }}</th>
                                     <td>{{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}</td>
                                 </tr>
                                 {% if cert["not_valid_after"] %}
@@ -568,7 +568,7 @@
                 </div>
 
                 <div id="updates" class="mt-5 mb-5">
-                    <h2 class="anchor">Updates
+                    <h2 class="anchor">Updates {{ help_icon('updates') }}
                         {{ render_update_feed_button(hashid) }}
                     </h2>
 

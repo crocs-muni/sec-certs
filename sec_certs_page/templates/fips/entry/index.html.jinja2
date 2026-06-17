@@ -286,7 +286,7 @@
                     {{ render_reference_network(cert, network, hashid, categories=".types") }}
                 </div>
                 <div id="updates" class="mt-5 mb-5">
-                    <h2 class="anchor">Updates
+                    <h2 class="anchor">Updates {{ help_icon('updates') }}
                         {{ render_update_feed_button(hashid) }}
                     </h2>
                     {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}

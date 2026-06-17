@@ -23,3 +23,20 @@ related_cves:
     mean the certified configuration is affected — it means a product we
     linked here has a reported vulnerability. Always check the affected
     product and version.
+
+validation_dates:
+  level: certified
+  label: "Validation dates"
+  description: >-
+    The period during which the certificate is officially valid according to
+    the scheme. After 'Valid until' the certificate is considered
+    archived/expired — the product may still be in use, but the certification
+    is no longer current.
+
+updates:
+  level: certified
+  label: "Updates"
+  description: >-
+    Maintenance reports and re-assessments issued after the original
+    certification. They can confirm or extend the certificate for minor
+    product changes without a full re-evaluation.
