@@ -9,7 +9,7 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, PPSchemeDatasetHandler
+from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.dataset.pp_scheme import PPSchemeDataset
 from sec_certs.model.pp_matching import PPSchemeMatcher
@@ -55,10 +55,6 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
     ):
         super().__init__(certs, root_dir, name, description, state, aux_handlers)
-        if aux_handlers is None:
-            self.aux_handlers = {
-                PPSchemeDatasetHandler: PPSchemeDatasetHandler(self.auxiliary_datasets_dir if self.is_backed else None),
-            }
 
     @property
     @only_backed(throw=False)
@@ -201,6 +197,12 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         logger.info("Adding HTML certificates to ProtectionProfile dataset.")
         self.certs = self._get_all_certs_from_html(get_active, get_archived, get_collaborative)
         logger.info(f"The resulting dataset has {len(self)} certificates.")
+
+        if to_download:
+            try:
+                self._match_and_enrich_from_scheme(PPSchemeDataset.from_scrapers())
+            except Exception as e:
+                logger.warning("Failed to process PP schemes: %s", e)
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
@@ -431,21 +433,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    @only_backed()
-    def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
-        """
-        Builds the PP scheme auxiliary dataset by scraping national scheme portals via
-        PPSchemeDatasetHandler. Matching and enrichment is in compute_heuristics.
-        """
-        self.aux_handlers[PPSchemeDatasetHandler].process_dataset(download_fresh)
-        self.state.auxiliary_datasets_processed = True
-
     def _compute_heuristics_body(self):
-        handler = self.aux_handlers.get(PPSchemeDatasetHandler)
-        if handler is None or not getattr(handler, "dset", None):
-            logger.info("No PP scheme data available, skipping scheme enrichment.")
-            return
-        self._match_and_enrich_from_scheme(handler.dset)
+        logger.info("Protection profile dataset has no heuristics to compute, skipping.")
 
     def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
         """
