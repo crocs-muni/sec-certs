@@ -217,12 +217,15 @@ class ProtectionProfile(
         pdf_data: PdfData | None = None,
         heuristics: Heuristics | None = None,
         state: InternalState | None = None,
+        scheme_metadata: dict[str, Any] | None = None,
     ):
         super().__init__()
         self.web_data: ProtectionProfile.WebData = web_data
         self.pdf_data: ProtectionProfile.PdfData = pdf_data if pdf_data else ProtectionProfile.PdfData()
         self.heuristics: ProtectionProfile.Heuristics = heuristics if heuristics else ProtectionProfile.Heuristics()
         self.state: ProtectionProfile.InternalState = state if state else ProtectionProfile.InternalState()
+        # Enrichment from national schemes - always serialized (null when not there)
+        self.scheme_metadata: dict[str, Any] | None = scheme_metadata
 
     @property
     def dgst(self) -> str:
@@ -296,7 +299,8 @@ class ProtectionProfile(
                 pp_link=entry.pp_link,
                 scheme=entry.scheme,
                 maintenances=entry.maintenances,
-            )
+            ),
+            scheme_metadata=entry.to_enrichment_dict(),
         )
 
     @staticmethod
