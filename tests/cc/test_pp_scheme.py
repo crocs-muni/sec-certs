@@ -174,11 +174,11 @@ def test_match_and_enrich_from_scheme():
     dset._match_and_enrich_from_scheme(scheme_dset)
 
     # existing PP got enriched in place
-    assert us_pp.heuristics.scheme_data["pp_short_name"] == "PP_EXIST_v1.0"
-    # unmatched record was added as a new PP carrying its own enrichment
+    assert us_pp.scheme_metadata["pp_short_name"] == "PP_EXIST_v1.0"
+    # unmatched record was added as a new PP
     assert len(dset.certs) == before + 1
     new_pp = next(c for c in dset if c.web_data.name == "Brand New US PP")
-    assert new_pp.heuristics.scheme_data["pp_short_name"] == "PP_NEW_v2.0"
+    assert new_pp.scheme_metadata["pp_short_name"] == "PP_NEW_v2.0"
 
 
 @pytest.mark.remote
