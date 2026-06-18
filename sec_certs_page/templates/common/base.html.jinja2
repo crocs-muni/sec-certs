@@ -229,7 +229,7 @@
             '[data-bs-toggle="tooltip"], [title]:not([data-bs-toggle])'
         ));
         tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-            new bootstrap.Tooltip(tooltipTriggerEl);
+            new bootstrap.Tooltip(tooltipTriggerEl, {delay: {show: 100, hide: 0}});
         });
     });
 </script>
