@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
 
 from sec_certs.model.matching import AbstractMatcher
-
-if TYPE_CHECKING:
-    from sec_certs.sample.pp_scheme import PPSchemeRecord
-    from sec_certs.sample.protection_profile import ProtectionProfile
+from sec_certs.sample.pp_scheme import PPSchemeRecord
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 _EAL_RE = re.compile(r"^EAL\d")
 

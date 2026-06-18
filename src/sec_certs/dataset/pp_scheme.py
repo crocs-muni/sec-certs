@@ -3,14 +3,10 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
-from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS, PPSchemeRecord
+from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS, PPSchemeRecord, PPScraper
 from sec_certs.serialization.json import ComplexSerializableType
-
-if TYPE_CHECKING:
-    from sec_certs.sample.pp_scheme import PPScraper
 
 logger = logging.getLogger(__name__)
 
