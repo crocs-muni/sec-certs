@@ -96,10 +96,7 @@ class PPSchemeRecord(ComplexSerializableType):
         return cls(**dct)
 
     def to_enrichment_dict(self) -> dict[str, Any]:
-        """
-        Return the scheme-specific enrichment carried into ProtectionProfile.heuristics.scheme_data.
-        Holds only the extras not already present on WebData
-        """
+        # Return the scheme-specific enrichment carried into ProtectionProfile.scheme_metadata.
         return {"source_scheme": self.scheme, **self.extra}
 
 

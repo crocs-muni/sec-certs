@@ -32,15 +32,7 @@ class ProtectionProfile(
 ):
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
-        scheme_data: dict[str, Any] | None = field(default=None)
-
-        @property
-        def serialized_attributes(self) -> list[str]:
-            # Persist scheme_data only when populated; PPs without scheme enrichment omit the key.
-            attrs = super().serialized_attributes
-            if self.scheme_data is None:
-                return [a for a in attrs if a != "scheme_data"]
-            return attrs
+        pass
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
