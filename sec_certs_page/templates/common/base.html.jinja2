@@ -224,9 +224,12 @@
 <a href="#content" class="skip-link">Skip to main content</a>
 <script>
     $(function () {
-        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        // Turn every hover hint into a faster Bootstrap tooltip
+        let tooltipTriggerList = [].slice.call(document.querySelectorAll(
+            '[data-bs-toggle="tooltip"], [title]:not([data-bs-toggle])'
+        ));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
         });
     });
 </script>
