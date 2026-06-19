@@ -82,11 +82,19 @@ class ProtectionProfile(
             """
             if is_collaborative:
                 return cls._from_html_row_collaborative(row, category)
-            return cls._from_html_row_classic_pp(row, status, category)
+            row_is_collaborative = cls._html_row_is_collaborative(row)
+            return cls._from_html_row_classic_pp(row, status, category, row_is_collaborative)
+
+        @staticmethod
+        def _html_row_is_collaborative(row: Tag) -> bool:
+            # Collaborative PPs embedded in the archived page carry their name in a <p> tag;
+            # the filename-based flag misses them, so detect per row.
+            first_cell = row.find("td")
+            return first_cell is not None and first_cell.find("p") is not None
 
         @classmethod
         def _from_html_row_classic_pp(
-            cls, row: Tag, status: Literal["active", "archived"], category: str
+            cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
         ) -> ProtectionProfile.WebData:
             cells = list(row.find_all("td"))
             if status == "active" and len(cells) != 6:
@@ -102,8 +110,6 @@ class ProtectionProfile(
             pp_name = cls._html_row_get_name(cells[0])
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
-
-            is_collaborative = cells[0].find("p") is not None
 
             mu_div = cc_html_parsing.html_row_get_maintenance_div(row)
             maintenance_updates = cc_html_parsing.parse_maintenance_div(mu_div) if mu_div else []
