@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 # NIAP API endpoints
 _NIAP_BASE_URL = "https://www.niap-ccevs.org"
 _NIAP_PP_API_URL = _NIAP_BASE_URL + "/api/protection-profile/public_pps_all/"
-_NIAP_PP_DETAIL_URL = _NIAP_BASE_URL + "/protectionprofiles/{}"
 _NIAP_PP_DETAIL_API_URL = _NIAP_BASE_URL + "/api/protection-profile/get_pp_by_id/"
 _NIAP_PP_FILE_API_URL = _NIAP_BASE_URL + "/api/file/get_public_files_by_type_and_type_id/"
 _NIAP_PP_FILE_DOWNLOAD_URL = _NIAP_BASE_URL + "/api/file/get_public_file/"
