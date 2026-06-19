@@ -1,12 +1,10 @@
-"""Scraping of Protection Profiles from national CC schemes."""
-
 from __future__ import annotations
 
 import logging
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Any, Literal, Protocol
+from typing import Any, ClassVar, Literal, Protocol
 
 import requests
 
@@ -14,53 +12,6 @@ from sec_certs.constants import REQUEST_TIMEOUT
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
-
-# NIAP API endpoints
-_NIAP_BASE_URL = "https://www.niap-ccevs.org"
-_NIAP_PP_API_URL = _NIAP_BASE_URL + "/api/protection-profile/public_pps_all/"
-_NIAP_PP_DETAIL_API_URL = _NIAP_BASE_URL + "/api/protection-profile/get_pp_by_id/"
-_NIAP_PP_FILE_API_URL = _NIAP_BASE_URL + "/api/file/get_public_files_by_type_and_type_id/"
-_NIAP_PP_FILE_DOWNLOAD_URL = _NIAP_BASE_URL + "/api/file/get_public_file/"
-
-# NIAP does not expose a version field, its brought by regex from pp_short_name
-_NIAP_VERSION_RE = re.compile(r"[_-][vV](\d+(?:\.[0-9A-Za-z]+)*)$")
-
-_NIAP_TECH_TYPE_TO_CC_CATEGORY: dict[str, str] = {
-    "AntiVirus": "Detection Devices and Systems",
-    "Application Software": "Other Devices and Systems",
-    "BIOS Update": "Other Devices and Systems",
-    "Biometrics": "Biometric Systems and Devices",
-    "Certificate Authority": "Products for Digital Signatures",
-    "DBMS": "Databases",
-    "Email Client": "Other Devices and Systems",
-    "Encrypted Storage": "Data Protection",
-    "Enterprise Security Management": "Detection Devices and Systems",
-    "Firewall": "Boundary Protection Devices and Systems",
-    "Hardware Platform and Components": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
-    "Miscellaneous": "Other Devices and Systems",
-    "Mobility": "Mobility",
-    "Multi Function Device": "Multi-Function Devices",
-    "Network Device": "Network and Network-Related Devices and Systems",
-    "Network Encryption": "Network and Network-Related Devices and Systems",
-    "Operating System": "Operating Systems",
-    "PKI/KMI": "Key Management Systems",
-    "Peripheral Switch": "Other Devices and Systems",
-    "Redaction Tool": "Other Devices and Systems",
-    "Remote Access": "Access Control Devices and Systems",
-    "Router": "Network and Network-Related Devices and Systems",
-    "SIP Server": "Network and Network-Related Devices and Systems",
-    "Smart Card": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
-    "Traffic Monitoring": "Detection Devices and Systems",
-    "USB Flash Drive": "Data Protection",
-    "Virtual Private Network": "Network and Network-Related Devices and Systems",
-    "Virtualization": "Other Devices and Systems",
-    "VoIP": "Network and Network-Related Devices and Systems",
-    "Web Browser": "Other Devices and Systems",
-    "Web Server": "Network and Network-Related Devices and Systems",
-    "Wireless LAN": "Network and Network-Related Devices and Systems",
-    "Wireless Monitoring": "Detection Devices and Systems",
-    "Wireless PAN": "Network and Network-Related Devices and Systems",
-}
 
 
 @dataclass
@@ -114,11 +65,53 @@ class NIAPScraper:
     """Scraper for US Protection Profiles from the NIAP public API."""
 
     scheme: str = "US"
+    _NIAP_BASE_URL: ClassVar[str] = "https://www.niap-ccevs.org"
+    _NIAP_PP_API_URL: ClassVar[str] = _NIAP_BASE_URL + "/api/protection-profile/public_pps_all/"
+    _NIAP_PP_DETAIL_API_URL: ClassVar[str] = _NIAP_BASE_URL + "/api/protection-profile/get_pp_by_id/"
+    _NIAP_PP_FILE_API_URL: ClassVar[str] = _NIAP_BASE_URL + "/api/file/get_public_files_by_type_and_type_id/"
+    _NIAP_PP_FILE_DOWNLOAD_URL: ClassVar[str] = _NIAP_BASE_URL + "/api/file/get_public_file/"
+    _NIAP_VERSION_RE: ClassVar[re.Pattern[str]] = re.compile(r"[_-][vV](\d+(?:\.[0-9A-Za-z]+)*)$")
+    _NIAP_TECH_TYPE_TO_CC_CATEGORY: ClassVar[dict[str, str]] = {
+        "AntiVirus": "Detection Devices and Systems",
+        "Application Software": "Other Devices and Systems",
+        "BIOS Update": "Other Devices and Systems",
+        "Biometrics": "Biometric Systems and Devices",
+        "Certificate Authority": "Products for Digital Signatures",
+        "DBMS": "Databases",
+        "Email Client": "Other Devices and Systems",
+        "Encrypted Storage": "Data Protection",
+        "Enterprise Security Management": "Detection Devices and Systems",
+        "Firewall": "Boundary Protection Devices and Systems",
+        "Hardware Platform and Components": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+        "Miscellaneous": "Other Devices and Systems",
+        "Mobility": "Mobility",
+        "Multi Function Device": "Multi-Function Devices",
+        "Network Device": "Network and Network-Related Devices and Systems",
+        "Network Encryption": "Network and Network-Related Devices and Systems",
+        "Operating System": "Operating Systems",
+        "PKI/KMI": "Key Management Systems",
+        "Peripheral Switch": "Other Devices and Systems",
+        "Redaction Tool": "Other Devices and Systems",
+        "Remote Access": "Access Control Devices and Systems",
+        "Router": "Network and Network-Related Devices and Systems",
+        "SIP Server": "Network and Network-Related Devices and Systems",
+        "Smart Card": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+        "Traffic Monitoring": "Detection Devices and Systems",
+        "USB Flash Drive": "Data Protection",
+        "Virtual Private Network": "Network and Network-Related Devices and Systems",
+        "Virtualization": "Other Devices and Systems",
+        "VoIP": "Network and Network-Related Devices and Systems",
+        "Web Browser": "Other Devices and Systems",
+        "Web Server": "Network and Network-Related Devices and Systems",
+        "Wireless LAN": "Network and Network-Related Devices and Systems",
+        "Wireless Monitoring": "Detection Devices and Systems",
+        "Wireless PAN": "Network and Network-Related Devices and Systems",
+    }
 
     @staticmethod
     def _fetch_niap_pps() -> list[dict[str, Any]]:
-        logger.info("Fetching Protection Profiles from NIAP API: %s", _NIAP_PP_API_URL)
-        resp = requests.get(_NIAP_PP_API_URL, timeout=REQUEST_TIMEOUT)
+        logger.info("Fetching Protection Profiles from NIAP API: %s", NIAPScraper._NIAP_PP_API_URL)
+        resp = requests.get(NIAPScraper._NIAP_PP_API_URL, timeout=REQUEST_TIMEOUT)
         resp.raise_for_status()
         data = resp.json()
         logger.info("Fetched %d Protection Profiles from NIAP.", len(data))
@@ -127,7 +120,7 @@ class NIAPScraper:
     @staticmethod
     def _fetch_niap_pp_files(pp_id: int) -> list[dict[str, Any]]:
         resp = requests.get(
-            _NIAP_PP_FILE_API_URL,
+            NIAPScraper._NIAP_PP_FILE_API_URL,
             params={"file_type": "protection-profile", "file_type_id": str(pp_id)},
             timeout=REQUEST_TIMEOUT,
         )
@@ -139,7 +132,7 @@ class NIAPScraper:
         """Fetch the per-PP detail record, which (unlike the list endpoint) carries the
         predecessor relation as ``predecessor_id__pp_short_name``."""
         resp = requests.get(
-            _NIAP_PP_DETAIL_API_URL,
+            NIAPScraper._NIAP_PP_DETAIL_API_URL,
             params={"pp_id": str(pp_id)},
             timeout=REQUEST_TIMEOUT,
         )
@@ -164,11 +157,11 @@ class NIAPScraper:
 
     @staticmethod
     def _niap_tech_type_to_cc_category(tech_type: str) -> str:
-        return _NIAP_TECH_TYPE_TO_CC_CATEGORY.get(tech_type, "Other Devices and Systems")
+        return NIAPScraper._NIAP_TECH_TYPE_TO_CC_CATEGORY.get(tech_type, "Other Devices and Systems")
 
     @staticmethod
     def _niap_version_from_short_name(short_name: str | None) -> str:
-        match = _NIAP_VERSION_RE.search(short_name or "")
+        match = NIAPScraper._NIAP_VERSION_RE.search(short_name or "")
         return match.group(1) if match else ""
 
     @staticmethod
@@ -187,7 +180,7 @@ class NIAPScraper:
 
     @staticmethod
     def _niap_file_download_url(file_id: int) -> str:
-        return _NIAP_PP_FILE_DOWNLOAD_URL + "?file_id=" + str(file_id)
+        return NIAPScraper._NIAP_PP_FILE_DOWNLOAD_URL + "?file_id=" + str(file_id)
 
     @staticmethod
     def _niap_entry_to_scheme_entry(
