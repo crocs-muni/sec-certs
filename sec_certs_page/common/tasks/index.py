@@ -11,6 +11,35 @@ from ..views import entry_file_path
 logger = logging.getLogger(__name__)
 
 
+def _is_match_bucket(node: dict) -> bool:
+    return bool(node) and all(not isinstance(v, dict) for v in node.values())
+
+
+def keyword_paths(keywords: dict | None) -> list[str]:
+    if not keywords:
+        return []
+
+    paths: set[str] = set()
+
+    def visit(node: dict, prefix: tuple[str, ...]) -> bool:
+        found = False
+        for key, child in node.items():
+            path = (*prefix, str(key))
+            if _is_match_bucket(child) or visit(child, path):
+                found = True
+                for depth in range(1, len(path) + 1):
+                    paths.add(".".join(path[:depth]))
+        return found
+
+    visit(keywords, ())
+    return sorted(paths)
+
+
+def add_keyword_paths(doc: Document, field: str, keywords: dict | None) -> None:
+    for path in keyword_paths(keywords):
+        doc.add_text(field, path)
+
+
 class Indexer(ABC):  # pragma: no cover
     """
     Base class for reindexing Tantivy documents for a given certificate schema.

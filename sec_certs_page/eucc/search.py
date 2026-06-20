@@ -3,8 +3,16 @@ from typing import Any
 from tantivy import Occur, Query
 
 from .. import mongo
-from ..common.search.fields import DateField, IntField, OptionField, TextField
-from ..common.search.query import Search, detect_advanced_syntax, get_date_query, get_text_query, select_by_bitmask
+from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
+from ..common.search.query import (
+    Search,
+    build_keyword_query,
+    detect_advanced_syntax,
+    get_date_query,
+    get_text_query,
+    select_by_bitmask,
+    select_by_list,
+)
 from ..eucc import eucc_eals, eucc_schemes
 from .index import eucc_index, eucc_schema
 
@@ -23,8 +31,12 @@ class EUCCSearch(Search):
         "cert_date_to": DateField(),
         "archive_date_from": DateField(),
         "archive_date_to": DateField(),
+        "keywords": ListField(),
+        "kw_sources": ListField(),
+        "kw_mode": OptionField({"and", "or"}),
     }
     snippet_fields = {"cert": "body_cert", "report": "body_report", "target": "body_target"}
+    kw_source_fields = {"cert": "keywords_cert", "report": "keywords_report", "target": "keywords_target"}
     schema = eucc_schema
     index = eucc_index
     collection = mongo.db.eucc
@@ -45,10 +57,13 @@ class EUCCSearch(Search):
         else:
             parsed["name"] = parsed["query"]
 
+        parsed["kw_mode"] = parsed["kw_mode"] or "or"
+
         return {
             "advanced": advanced,
             "selected_schemes": select_by_bitmask(parsed["schemes"], cls.sorted_schemes),
             "selected_eals": select_by_bitmask(parsed["eal"], cls.sorted_eals),
+            "selected_kw_sources": select_by_list(parsed["kw_sources"], cls.kw_source_fields),
             **parsed,
         }
 
@@ -123,5 +138,10 @@ class EUCCSearch(Search):
 
         if len(args["selected_eals"]) < len(eucc_eals):
             subqueries.append((Occur.Must, Query.term_set_query(eucc_schema, "eal", args["selected_eals"])))
+
+        if args["keywords"] and args["selected_kw_sources"]:
+            kw_fields = [cls.kw_source_fields[s] for s in args["selected_kw_sources"]]
+            kw_query = build_keyword_query(eucc_schema, args["keywords"], kw_fields, args["kw_mode"])
+            subqueries.append((Occur.Must, kw_query))
 
         return Query.boolean_query(subqueries), errors

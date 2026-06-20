@@ -76,3 +76,17 @@ class TextField:
         if raw == "":
             return ParseResult(True, None)
         return ParseResult(True, raw)
+
+
+@dataclass
+class ListField:
+    sep: str = ","
+    max_items: int = 500
+
+    def parse(self, raw: str | None) -> ParseResult:
+        if not raw:
+            return ParseResult(True, None)
+        items = [item for item in raw.split(self.sep) if item]
+        if len(items) > self.max_items:
+            return ParseResult(False, None, f"Too many items (max {self.max_items}).")
+        return ParseResult(True, items)

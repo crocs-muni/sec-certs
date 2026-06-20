@@ -1,8 +1,10 @@
 {% extends "common/base.html.jinja2" %}
+{% from "include/keyword_filter.html.jinja2" import keyword_filter %}
 
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='year_range_slider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='keyword_tree.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -253,6 +255,7 @@
                                 </div>
                                 <div id="levels-error" class="invalid-feedback" role="alert"></div>
                             </div>
+                            {{ keyword_filter("fips", [], keywords, [], kw_mode) }}
                         </div>
                         <div class="mt-3">
                             <button type="button" id="reset-filters-btn"
@@ -269,7 +272,9 @@
 
         <script type="module">
             import { initSearch } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+            import { initKeywordTree } from "{{ url_for('static', filename='keyword_tree.js') }}?{{ static_hash("keyword_tree.js") }}";
 
+            initKeywordTree();
             initSearch({
                 searchUrl: "{{ url_for("fips.merged_search") }}",
                 networkUrl: "{{ url_for("fips.network") }}",

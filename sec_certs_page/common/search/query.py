@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import datetime
 from typing import Any, ClassVar
 
@@ -34,6 +34,10 @@ def select_by_id(selected: str, options: dict) -> dict:
 
 def select_by_bitmask(mask: int | None, options: list) -> list:
     return [opt for i, opt in enumerate(options) if not mask or (mask >> i & 1)]
+
+
+def select_by_list(selected: list | None, options: Iterable) -> list:
+    return [opt for opt in options if not selected or opt in selected]
 
 
 def detect_advanced_syntax(query: str) -> set[str]:
@@ -89,6 +93,18 @@ def get_text_query(query: str | None, field_name: str, prefix: bool, index: Inde
     return index.parse_query_lenient(
         query, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=True
     )
+
+
+def build_keyword_query(schema: Schema, paths: list[str], fields: list[str], mode: str) -> Query:
+    if mode == "and":
+        subqueries = []
+        for path in paths:
+            per_path = [(Occur.Should, Query.term_query(schema, field, path)) for field in fields]
+            subqueries.append((Occur.Must, Query.boolean_query(per_path)))
+        return Query.boolean_query(subqueries)
+
+    subqueries = [(Occur.Should, Query.term_set_query(schema, field, paths)) for field in fields]
+    return Query.boolean_query(subqueries)
 
 
 def get_date_query(lower: datetime | None, upper: datetime | None, field_name: str, schema: Schema) -> Query:

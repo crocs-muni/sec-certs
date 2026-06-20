@@ -1,8 +1,10 @@
 {% extends "common/base.html.jinja2" %}
+{% from "include/keyword_filter.html.jinja2" import keyword_filter %}
 
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='year_range_slider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='keyword_tree.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -130,8 +132,8 @@
                                     {% for error in errors.cert_lab %}<div>{{ error }}</div>{% endfor %}
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4 col-lg-3 name-only">
-                                <div id="status-container" data-relocate>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <div id="status-container">
                                     <label class="form-label fw-semibold mb-1 d-block" for="status-dropdown-btn">Status</label>
                                     <div class="dropdown">
                                         <button class="form-select text-start w-100" type="button"
@@ -162,6 +164,7 @@
                                     <input type="hidden" id="search-status" data-param="status" value="{{ status|default('', true) }}">
                                 </div>
                             </div>
+                            <div class="w-100 mt-0"></div>
                             <div class="col-12 col-lg-6" role="group" aria-labelledby="cert-date-legend">
                                 <span id="cert-date-legend" class="form-label fw-semibold mb-1 d-block">Certification date</span>
                                 <div class="d-flex gap-1 align-items-center">
@@ -301,8 +304,7 @@
                                 </div>
                                 <div id="eals-error" class="invalid-feedback" role="alert"></div>
                             </div>
-                            <div class="col-12 col-md-4 col-lg-3 fulltext-only">
-                            </div>
+                            {{ keyword_filter("cc", [("cert", "Certificate"), ("report", "Certification report"), ("target", "Security target")], keywords, selected_kw_sources, kw_mode) }}
                         </div>
                         <div class="mt-3">
                             <button type="button" id="reset-filters-btn"
@@ -319,11 +321,13 @@
 
         <script type="module">
             import { initSearch } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+            import { initKeywordTree } from "{{ url_for('static', filename='keyword_tree.js') }}?{{ static_hash("keyword_tree.js") }}";
 
             initSearch({
                 searchUrl: "{{ url_for("cc.merged_search") }}",
                 networkUrl: "{{ url_for("cc.network") }}",
             });
+            initKeywordTree();
         </script>
 
         {% block search_content %}{% endblock %}

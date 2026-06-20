@@ -17,6 +17,9 @@ pp_schema = (
     .add_date_field("not_valid_after", stored=True, indexed=True, fast=True)
     # full-text fields
     .add_text_field("name", stored=True, fast=True)
+    # extracted-keyword path fields (multi-valued), one per document source
+    .add_text_field("keywords_report", stored=False, tokenizer_name="raw", index_option="basic")
+    .add_text_field("keywords_profile", stored=False, tokenizer_name="raw", index_option="basic")
     .add_text_field("body_report", stored=True)
     .add_text_field("body_profile", stored=True)
     .build()

@@ -3,9 +3,10 @@ from typing import Any
 from tantivy import Occur, Query
 
 from .. import mongo
-from ..common.search.fields import DateField, IntField, OptionField, TextField
+from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
 from ..common.search.query import (
     Search,
+    build_keyword_query,
     detect_advanced_syntax,
     get_date_query,
     get_text_query,
@@ -34,8 +35,11 @@ class FIPSSearch(Search):
         "validation_date_to": DateField(),
         "sunset_date_from": DateField(),
         "sunset_date_to": DateField(),
+        "keywords": ListField(),
+        "kw_mode": OptionField({"and", "or"}),
     }
     snippet_fields = {"policy": "body"}
+    kw_source_fields = {"target": "keywords_target"}
     schema = fips_schema
     index = fips_index
     collection = mongo.db.fips
@@ -53,6 +57,8 @@ class FIPSSearch(Search):
             parsed["body"] = parsed["query"]
         else:
             parsed["name"] = parsed["query"]
+
+        parsed["kw_mode"] = parsed["kw_mode"] or "or"
 
         return {
             "advanced": advanced,
@@ -144,5 +150,9 @@ class FIPSSearch(Search):
 
         if len(args["selected_levels"]) < len(fips_levels):
             subqueries.append((Occur.Must, Query.term_set_query(fips_schema, "level", args["selected_levels"])))
+
+        if args["keywords"]:
+            kw_query = build_keyword_query(fips_schema, args["keywords"], ["keywords_target"], args["kw_mode"])
+            subqueries.append((Occur.Must, kw_query))
 
         return Query.boolean_query(subqueries), errors

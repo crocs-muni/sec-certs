@@ -16,6 +16,10 @@ cc_schema = (
     # date fields
     .add_date_field("not_valid_before", stored=True, indexed=True, fast=True)
     .add_date_field("not_valid_after", stored=True, indexed=True, fast=True)
+    # keywords
+    .add_text_field("keywords_cert", stored=False, tokenizer_name="raw", index_option="basic")
+    .add_text_field("keywords_report", stored=False, tokenizer_name="raw", index_option="basic")
+    .add_text_field("keywords_target", stored=False, tokenizer_name="raw", index_option="basic")
     # full-text fields
     .add_text_field("name", stored=True, fast=True)
     .add_text_field("manufacturer", stored=True, fast=True)

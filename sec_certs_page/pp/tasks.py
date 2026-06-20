@@ -15,7 +15,7 @@ from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
-from ..common.tasks.search import Indexer
+from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
 from ..common.tasks.webui import KBUpdater
@@ -73,6 +73,9 @@ class PPIndexer(Indexer, PPMixin):  # pragma: no cover
         if web_data["not_valid_after"]:
             doc.add_date("not_valid_after", datetime.fromisoformat(web_data["not_valid_after"]["_value"]))
 
+        pdf_data = cert.get("pdf_data") or {}
+        add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))
+        add_keyword_paths(doc, "keywords_profile", pdf_data.get("pp_keywords"))
         doc.add_text("body_report", content["report"])
         doc.add_text("body_profile", content["profile"])
 

@@ -19,8 +19,8 @@ from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
+from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
-from ..common.tasks.search import Indexer
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
 from ..common.tasks.webui import KBUpdater
@@ -110,6 +110,8 @@ class FIPSIndexer(Indexer, FIPSMixin):
         for entry in web_data["validation_history"] or []:
             doc.add_date("validation_date", datetime.fromisoformat(entry["date"]["_value"]))
 
+        pdf_data = cert.get("pdf_data") or {}
+        add_keyword_paths(doc, "keywords_target", pdf_data.get("keywords"))
         doc.add_text("body", content["target"])
 
         return doc

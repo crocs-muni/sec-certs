@@ -1,8 +1,10 @@
 {% extends "common/base.html.jinja2" %}
+{% from "include/keyword_filter.html.jinja2" import keyword_filter %}
 
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='year_range_slider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='keyword_tree.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -197,7 +199,7 @@
                                 </div>
                                 <div id="schemes-error" class="invalid-feedback" role="alert"></div>
                             </div>
-                            <div class="w-100"></div>
+                            <div class="w-100 mt-0"></div>
                             <div class="col-12 col-lg-6" role="group" aria-labelledby="cert-date-legend">
                                 <span id="cert-date-legend" class="form-label fw-semibold mb-1 d-block">Certification date</span>
                                 <div class="d-flex gap-1 align-items-center">
@@ -230,6 +232,7 @@
                                 <div class="year-range-slider mt-2" data-from="archive-date-from" data-to="archive-date-to" data-max-year="2040"></div>
                                 <div id="archive-date-error" class="invalid-feedback" role="alert"></div>
                             </div>
+                            {{ keyword_filter("pp", [("report", "Certification report"), ("profile", "Protection Profile")], keywords, selected_kw_sources, kw_mode) }}
                         </div>
                         <div class="mt-3">
                             <button type="button" id="reset-filters-btn"
@@ -246,7 +249,9 @@
 
         <script type="module">
             import { initSearch } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+            import { initKeywordTree } from "{{ url_for('static', filename='keyword_tree.js') }}?{{ static_hash("keyword_tree.js") }}";
 
+            initKeywordTree();
             initSearch({
                 searchUrl: "{{ url_for("pp.merged_search") }}",
                 networkUrl: "{{ url_for("pp.network") }}",

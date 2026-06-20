@@ -64,7 +64,7 @@ export function searchParams(additional) {
         if (params[key] == null || params[key] === "") delete params[key];
     });
 
-    return $.param(params);
+    return $.param(params).replace(/%2C/g, ",");
 }
 
 // Group name is the #search-<name> suffix; its error element is #<name>-error.
@@ -180,15 +180,6 @@ function initDropdownKeyboard() {
     });
 }
 
-// CC keeps the status field in the search-type-specific column; move it into the
-// last visible column of the active mode so it fills the empty grid cell. Opt-in
-// via #status-container[data-relocate]; sections without it (FIPS) keep status put.
-function relocateStatus(modeSelector) {
-    const status = document.getElementById("status-container");
-    if (!status || status.dataset.relocate === undefined) return;
-    $(status).appendTo(`${modeSelector}:not(.d-none):last`);
-}
-
 function resetFilters() {
     // Reset filter fields only; leave the main query box untouched.
     document.querySelectorAll("[data-param]:not([data-param='query'])")
@@ -212,8 +203,8 @@ export function initSearch({ searchUrl, networkUrl }) {
         const doSearch = search(searchUrl);
         const doNetworkSearch = networkSearch(networkUrl);
 
-        const initName = () => { nameSearchSetup(); relocateStatus(".name-only"); };
-        const initFulltext = () => { fulltextSearchSetup(); relocateStatus(".fulltext-only"); };
+        const initName = () => { nameSearchSetup(); };
+        const initFulltext = () => { fulltextSearchSetup(); };
 
         $("#nameSearchRadioId").click(initName);
         $("#fulltextSearchRadioId").click(initFulltext);

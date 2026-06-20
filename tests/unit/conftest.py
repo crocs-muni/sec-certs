@@ -13,6 +13,12 @@ def mongo_data():
     yield
 
 
+@pytest.fixture(autouse=True, scope="session")
+def search_index():
+    """Override the search_index fixture to avoid Flask/MongoDB dependency."""
+    yield
+
+
 @pytest.fixture(scope="session")
 def mongodb():
     """Override the mongodb fixture to avoid MongoDB dependency."""

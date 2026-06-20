@@ -4,14 +4,16 @@ from tantivy import Occur, Query
 
 from .. import mongo
 from ..cc import cc_categories, cc_schemes
-from ..common.search.fields import DateField, IntField, OptionField, TextField
+from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
 from ..common.search.query import (
     Search,
+    build_keyword_query,
     detect_advanced_syntax,
     get_date_query,
     get_text_query,
     select_by_bitmask,
     select_by_id,
+    select_by_list,
 )
 from .index import pp_index, pp_schema
 
@@ -29,12 +31,16 @@ class PPSearch(Search):
         "cert_date_to": DateField(),
         "archive_date_from": DateField(),
         "archive_date_to": DateField(),
+        "keywords": ListField(),
+        "kw_sources": ListField(),
+        "kw_mode": OptionField({"and", "or"}),
     }
     snippet_fields = {"report": "body_report", "profile": "body_profile"}
     schema = pp_schema
     index = pp_index
     collection = mongo.db.pp
     sorted_schemes = sorted(cc_schemes)
+    kw_source_fields = {"report": "keywords_report", "profile": "keywords_profile"}
 
     @classmethod
     def _enrich_args(cls, parsed: dict) -> dict:
@@ -50,10 +56,13 @@ class PPSearch(Search):
         else:
             parsed["name"] = parsed["query"]
 
+        parsed["kw_mode"] = parsed["kw_mode"] or "or"
+
         return {
             "advanced": advanced,
             "selected_categories": select_by_id(parsed["cat"], cc_categories),
             "selected_schemes": select_by_bitmask(parsed["schemes"], cls.sorted_schemes),
+            "selected_kw_sources": select_by_list(parsed["kw_sources"], cls.kw_source_fields),
             **parsed,
         }
 
@@ -122,5 +131,10 @@ class PPSearch(Search):
 
         categories = [key for key, val in args["selected_categories"].items() if val["selected"]]
         subqueries.append((Occur.Must, Query.term_set_query(pp_schema, "category", categories)))
+
+        if args["keywords"] and args["selected_kw_sources"]:
+            kw_fields = [cls.kw_source_fields[s] for s in args["selected_kw_sources"]]
+            kw_query = build_keyword_query(pp_schema, args["keywords"], kw_fields, args["kw_mode"])
+            subqueries.append((Occur.Must, kw_query))
 
         return Query.boolean_query(subqueries), errors
