@@ -194,7 +194,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             try:
                 self._match_and_enrich_from_scheme(PPSchemeDataset.from_scrapers())
             except Exception as e:
-                logger.warning("Failed to process PP schemes: %s", e)
+                logger.error("Scheme scrape/merge failed; dataset will have no scheme enrichment: %s", e)
+        else:
+            logger.info("Skipping scheme scrape/merge (to_download=False); dataset will have no scheme enrichment.")
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
