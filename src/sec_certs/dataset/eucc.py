@@ -96,19 +96,19 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         "Responsible NCCA": "responsible_ncca",
         "Scheme": "scheme",
         "Reference to the certification report associated with the certificate referred to in Annex V": "report_reference",
-        "Assurance level": "assurance_level",
+        "Assurance Level": "assurance_level",
         "CC Version": "cc_version",
         "CEM Version": "cem_version",
         "AVA_VAN Level": "ava_van_level",
         "Package": "package",
         "Protection Profile": "protection_profile",
-        "Year of issuance": "issuance_year",
+        "Year of Issuance": "issuance_year",
         "Month of Issuance": "issuance_month",
-        "date of issuance": "issuance_date_full",
+        "Date of Issuance": "issuance_date_full",
         "Certificate issue date": "issuance_date_full",
-        "ID of the Certificate (yearly number of certificate issued by the CB)": "certificate_yearly_number",
+        "ID of the Certificate": "certificate_yearly_number",
         "Modification/ Reassurance plus the ID": "modification_or_reassurance",
-        "period of validity of the certificate": "validity_period_years",
+        "Period of validity of the certificate": "validity_period_years",
     }
 
     def __init__(
@@ -274,13 +274,9 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         Locates the product description by finding the specific ewcms-page-section
         and extracting text from the second 'ecl' div.
         """
-        section = cert_soup.find("div", class_="ewcms-page-section")
-
-        if section:
-            ecl_elements = section.find_all("div", class_="ecl")
-            if len(ecl_elements) >= 2:
-                return ecl_elements[1].get_text(" ", strip=True)
-
+        paragraphs = cert_soup.select(".ewcms-page-section .ecl-container p")
+        if paragraphs:
+            return " ".join(p.get_text(" ", strip=True) for p in paragraphs)
         return ""
 
     def _parse_page_metadata(self, cert_soup: BeautifulSoup) -> dict[str, str]:
@@ -295,13 +291,15 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         metadata: dict[str, str] = {}
 
         for row in table.select("tr"):
-            cells = row.find_all("td")
-            if len(cells) != 2:
+            header = row.find("th")
+            cell = row.find("td")
+
+            if not header or not cell:
                 continue
 
-            raw_key = cells[0].get_text(strip=True)
-            raw_value = cells[1].get_text(separator=" ", strip=True)
-            clean_key = raw_key.strip().rstrip(";")
+            raw_key = header.get_text(strip=True)
+            raw_value = cell.get_text(separator=" ", strip=True)
+            clean_key = raw_key.strip().rstrip(":")
             mapped_key = self._metadata_key_map.get(clean_key)
 
             if not mapped_key:
@@ -323,15 +321,15 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         document_type_map = {
             "Certificate": "certificate",
             "Security Target": "security_target",
-            "Certification Report": "certification_report",
+            "Certificate Report": "certificate_report",
         }
 
         for label, key in document_type_map.items():
-            label_paragraph = cert_soup.find("p", string=label)
-            if not label_paragraph:
+            label_div = cert_soup.find("div", string=lambda t: t and label in t)
+            if not label_div:
                 continue
 
-            file_container = label_paragraph.find_next("div", class_="ecl-file")
+            file_container = label_div.find_next("div", class_="ecl-file")
             if not file_container:
                 continue
 
