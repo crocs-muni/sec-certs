@@ -22,6 +22,7 @@ from sec_certs_page.fips.tasks import FIPSIndexer
 from sec_certs_page.pp.mongo import create as pp_create
 from sec_certs_page.pp.tasks import PPIndexer
 from sec_certs_page.user.models import User, hash_password
+from sec_certs_page.vuln.tasks import CPEIndexer, CVEIndexer
 
 from .client import RemoteTestClient
 
@@ -84,7 +85,14 @@ def mongo_data(app, mongodb):
 @pytest.fixture(autouse=True, scope="session")
 def search_index(app, mongo_data, tmp_path_factory):
     app.config["SEARCH_INDEX_PATH"] = str(tmp_path_factory.mktemp("search"))
-    for indexer_cls, collection in ((CCIndexer, "cc"), (FIPSIndexer, "fips"), (PPIndexer, "pp")):
+    indexers = (
+        (CCIndexer, "cc"),
+        (FIPSIndexer, "fips"),
+        (PPIndexer, "pp"),
+        (CVEIndexer, "cve"),
+        (CPEIndexer, "cpe"),
+    )
+    for indexer_cls, collection in indexers:
         indexer = indexer_cls()
         indexer.reindex([doc["_id"] for doc in mongo.db[collection].find({}, {"_id": 1})])
     yield

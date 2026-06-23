@@ -1,0 +1,240 @@
+{% extends "common/base.html.jinja2" %}
+{% from "include/entry.html.jinja2" import render_cve_impact %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='range_slider.css') }}">
+{% endblock %}
+
+{% block content %}
+    <main>
+        <div class="container-lg px-3 px-md-4 pt-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1>Vulnerabilities</h1>
+                <span class="text-secondary fs-3">Search</span>
+            </div>
+
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('vuln.cve_search') }}">CVEs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('vuln.cpe_search') }}">CPEs</a>
+                </li>
+            </ul>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-3 p-md-4">
+                    <input type="radio" id="nameSearchRadioId" checked hidden>
+
+                    <div class="d-flex gap-2 align-items-center">
+                        <label for="search" class="visually-hidden">Search query</label>
+                        <input id="search"
+                               data-param="query"
+                               data-feedback="query-error"
+                               class="form-control flex-grow-1 {% if errors.query %}is-invalid{% endif %}"
+                               placeholder="Search prompt"
+                               type="search"
+                               aria-describedby="query-error"
+                               value="{{ query|default('', true) }}"/>
+                        <button type="button" id="search-btn" class="btn btn-primary flex-shrink-0">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                        <button id="extended-btn"
+                                class="btn btn-outline-secondary flex-shrink-0 d-inline-flex align-items-center gap-1"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#extended"
+                                aria-controls="extended"
+                                aria-expanded="{% if advanced %}true{% else %}false{% endif %}">
+                            <i class="fas fa-sliders"></i>
+                            <span class="d-none d-sm-inline">Advanced search</span>
+                        </button>
+                    </div>
+                    <div id="query-error" class="invalid-feedback d-block" role="alert" aria-live="polite">
+                        {% for error in errors.query %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
+                        <hr class="mt-0 mb-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1" for="cwe">CWE</label>
+                                <input id="cwe" type="text"
+                                       data-param="cwe"
+                                       data-feedback="cwe-error"
+                                       class="form-control"
+                                       placeholder="e.g. CWE-79"
+                                       value="{{ cwe|default('', true) }}">
+                                <div id="cwe-error" class="invalid-feedback"></div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1 d-block" for="severities-dropdown-btn">Severity</label>
+                                <div class="dropdown">
+                                    <button class="form-select text-start w-100" type="button"
+                                            id="severities-dropdown-btn"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-auto-close="outside"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span>Severity</span>
+                                        <span id="severities-badge" class="badge bg-secondary ms-1">{{ selected_severities|length }}</span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="group" aria-labelledby="severities-dropdown-btn" style="min-width: 200px">
+                                        <li><h6 class="dropdown-header">Select severities</h6></li>
+                                        <li>
+                                            <div id="search-severities" data-search-group data-param="severities" data-encoding="bitmask">
+                                                {% for s in all_severities %}
+                                                    <label class="dropdown-item d-flex align-items-center gap-2" for="severity-{{ s }}">
+                                                        <input type="checkbox" id="severity-{{ s }}"
+                                                               class="form-check-input"
+                                                               {% if s in selected_severities %}checked{% endif %}>
+                                                        {{ render_cve_impact(s) }}
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="d-flex justify-content-between px-3">
+                                            <button class="btn btn-link btn-sm p-0" data-group-action="select">Select all</button>
+                                            <button class="btn btn-link btn-sm p-0" data-group-action="deselect">Deselect all</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="severities-error" class="invalid-feedback" role="alert"></div>
+                            </div>
+                            <div class="w-100 mt-0"></div>
+                            <div class="col-12 col-lg-6" role="group" aria-labelledby="published-date-legend">
+                                <span id="published-date-legend" class="form-label fw-semibold mb-1 d-block">Published date</span>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <label class="visually-hidden" for="published-date-from">Published date from</label>
+                                    <input id="published-date-from" type="date" class="form-control"
+                                           data-param="date_from" data-range="published-date"
+                                           value="{{ date_from.strftime('%Y-%m-%d') if date_from else '' }}">
+                                    <span class="text-muted small flex-shrink-0" aria-hidden="true">–</span>
+                                    <label class="visually-hidden" for="published-date-to">Published date to</label>
+                                    <input id="published-date-to" type="date" class="form-control"
+                                           data-param="date_to" data-range="published-date"
+                                           value="{{ date_to.strftime('%Y-%m-%d') if date_to else '' }}">
+                                </div>
+                                <div class="range-slider mt-2" data-from="published-date-from" data-to="published-date-to" data-min-year="1999"></div>
+                                <div id="published-date-error" class="invalid-feedback" role="alert"></div>
+                            </div>
+                            <div class="col-12 col-lg-6" role="group" aria-labelledby="score-legend">
+                                <span id="score-legend" class="form-label fw-semibold mb-1 d-block">CVSS base score</span>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <label class="visually-hidden" for="score-from">CVSS score from</label>
+                                    <input id="score-from" type="number" min="0" max="10" step="0.1" class="form-control"
+                                           data-param="score_from" placeholder="0.0"
+                                           value="{{ score_from if score_from is not none else '' }}">
+                                    <span class="text-muted small flex-shrink-0" aria-hidden="true">–</span>
+                                    <label class="visually-hidden" for="score-to">CVSS score to</label>
+                                    <input id="score-to" type="number" min="0" max="10" step="0.1" class="form-control"
+                                           data-param="score_to" placeholder="10.0"
+                                           value="{{ score_to if score_to is not none else '' }}">
+                                </div>
+                                <div class="range-slider mt-2" data-type="number"
+                                     data-from="score-from" data-to="score-to"
+                                     data-min="0" data-max="10" data-step="0.1"></div>
+                            </div>
+
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" id="reset-filters-btn"
+                                    class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-rotate-left me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-xl results-container px-3 px-md-5 pb-4">
+            <div id="results" data-sort-by="{{ sort_by or '' }}" data-sort-dir="{{ sort_dir or '' }}">
+                <div class="d-grid mt-3 mb-1" style="grid-template-columns: 1fr auto 1fr; align-items: end;">
+                    <div></div>
+                    <div id="pagination-top-wrapper" class="d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+                        <span id="pagination-info" class="text-muted small">{{ pagination.info }}</span>
+                        <div id="pagination-links-top">{{ pagination.links }}</div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    id="col-picker-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                    aria-expanded="false">
+                                <i class="fas fa-columns me-1"></i>Visible columns
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" id="col-dropdown" style="min-width: 200px;">
+                                <li><h6 class="dropdown-header">Visible columns</h6></li>
+                                <div id="col-list"></div>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="d-flex justify-content-between px-3">
+                                    <button class="btn btn-link btn-sm p-0" id="col-show-all">Show all</button>
+                                    <button class="btn btn-link btn-sm p-0" id="col-hide-all">Hide all</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <colgroup>
+                            <col data-col="cve_id">
+                            <col data-col="cwe" style="width: 18ch">
+                            <col data-col="severity" style="width: 12ch">
+                            <col data-col="base_score" style="width: 10ch">
+                            <col data-col="published_date" style="width: 13ch">
+                            <col data-col="cert_count" style="width: 4ch">
+                        </colgroup>
+                        <thead class="table-light">
+                            <tr>
+                                <th class="sortable" data-col="cve_number"><span class="th-label">CVE ID</span> <span class="sort-icon"></span></th>
+                                <th data-col="cwe"><span class="th-label">CWE</span></th>
+                                <th class="sortable" data-col="severity"><span class="th-label">Severity</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="base_score"><span class="th-label">CVSS</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="published_date" data-default-sort="true"><span class="th-label">Published</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="cert_count"><span class="th-label">Affected certs</span> <span class="sort-icon"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            {% include "vuln/search/_cve_rows.html.jinja2" %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagination-bottom-wrapper" class="mt-3 mb-4 d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+                    <div id="pagination-links-bottom">{{ pagination.links }}</div>
+                    <span id="pagination-info-bottom" class="text-muted small">{{ pagination.info }}</span>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+            import { initSearch } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+            import { initSearchResults } from "{{ url_for('static', filename='search_results.js') }}?{{ static_hash("search_results.js") }}";
+
+            const ENDPOINT = "{{ url_for('vuln.cve_search') }}";
+            const COLS = [
+                { key: 'cve_id',         label: 'CVE ID',        locked: true },
+                { key: 'cwe',            label: 'CWE',           defaultVisible: true  },
+                { key: 'severity',       label: 'Severity',      defaultVisible: true  },
+                { key: 'base_score',     label: 'CVSS',          defaultVisible: true  },
+                { key: 'published_date', label: 'Published',     defaultVisible: true  },
+                { key: 'cert_count',     label: 'Affected certs', defaultVisible: true },
+            ];
+
+            initSearch({ searchUrl: ENDPOINT, networkUrl: ENDPOINT });
+
+            $(function () {
+                initSearchResults({
+                    endpoint: ENDPOINT,
+                    cols: COLS,
+                    storageKey: 'cve-col-visibility',
+                    fieldMap: { query: "#search", cwe: "#cwe" },
+                    sortBy: "{{ sort_by or '' }}",
+                    sortDir: "{{ sort_dir or '' }}",
+                });
+            });
+        </script>
+    </main>
+{% endblock %}

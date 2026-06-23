@@ -39,6 +39,29 @@ class IntField:
 
 
 @dataclass
+class FloatField:
+    default: float | None = None
+    min: float | None = None
+    max: float | None = None
+
+    def parse(self, raw: str | None) -> ParseResult:
+        if not raw:
+            return ParseResult(True, self.default)
+
+        try:
+            value = float(raw)
+        except ValueError:
+            return ParseResult(False, None, "Expected a number.")
+
+        if self.min is not None and value < self.min:
+            return ParseResult(False, None, f"Must be >= {self.min}.")
+        if self.max is not None and value > self.max:
+            return ParseResult(False, None, f"Must be <= {self.max}.")
+
+        return ParseResult(True, value)
+
+
+@dataclass
 class OptionField:
     options: set[str]
     default: str | None = None

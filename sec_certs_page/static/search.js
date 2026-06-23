@@ -1,7 +1,7 @@
 import {
-    initYearRangeSliders,
-    resetYearRangeSliders,
-} from "./year_range_slider.js";
+    initRangeSliders,
+    resetRangeSliders,
+} from "./range_slider.js";
 
 export function nameSearchSetup() {
     document.getElementById("nameSearchRadioId").checked = true;
@@ -190,7 +190,7 @@ function resetFilters() {
         $(group).find("input").prop("checked", true);
         updateCountBadge(group);
     });
-    resetYearRangeSliders();
+    resetRangeSliders();
 }
 
 export function initSearch({ searchUrl, networkUrl }) {
@@ -198,7 +198,7 @@ export function initSearch({ searchUrl, networkUrl }) {
     initDropdownKeyboard();
 
     $(document).ready(() => {
-        initYearRangeSliders();
+        initRangeSliders();
 
         const doSearch = search(searchUrl);
         const doNetworkSearch = networkSearch(networkUrl);

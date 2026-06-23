@@ -1,8 +1,8 @@
-.yrs-wrap {
+.rs-wrap {
     user-select: none;
 }
 
-.yrs-labels {
+.rs-labels {
     display: flex;
     justify-content: space-between;
     font-size: 0.8rem;
@@ -12,15 +12,15 @@
     padding: 0 6px;
 }
 
-.yrs-track-wrap {
+.rs-track-wrap {
     position: relative;
     height: 20px;
     display: flex;
     align-items: center;
 }
 
-.yrs-track-bg,
-.yrs-track-fill {
+.rs-track-bg,
+.rs-track-fill {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -29,19 +29,19 @@
     pointer-events: none;
 }
 
-.yrs-track-bg {
+.rs-track-bg {
     left: 0;
     right: 0;
     background: var(--bs-border-color);
 }
 
-.yrs-track-fill {
+.rs-track-fill {
     background: var(--bs-primary);
     left: 0%;
     width: 100%;
 }
 
-.yrs-range {
+.rs-range {
     position: absolute;
     left: 0;
     width: 100%;
@@ -54,11 +54,11 @@
     padding: 0;
 }
 
-.yrs-range:focus {
+.rs-range:focus {
     outline: none;
 }
 
-.yrs-range::-webkit-slider-thumb {
+.rs-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 16px;
@@ -72,12 +72,12 @@
     transition: box-shadow 0.15s;
 }
 
-.yrs-range::-webkit-slider-thumb:active {
+.rs-range::-webkit-slider-thumb:active {
     cursor: grabbing;
     box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.2);
 }
 
-.yrs-range::-moz-range-thumb {
+.rs-range::-moz-range-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -88,7 +88,7 @@
     cursor: grab;
 }
 
-.yrs-edge-labels {
+.rs-edge-labels {
     display: flex;
     justify-content: space-between;
     font-size: 0.7rem;

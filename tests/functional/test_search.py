@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sec_certs_page.common.search.fields import DateField, IntField, OptionField, TextField
+from sec_certs_page.common.search.fields import DateField, FloatField, IntField, OptionField, TextField
 from sec_certs_page.common.search.query import detect_advanced_syntax, select_by_bitmask, select_by_id
 
 
@@ -32,6 +32,19 @@ def test_int_field_hex():
     assert _result(field.parse("ff")) == (True, 255, None)
     assert _result(field.parse("10")) == (True, 16, None)
     assert field.parse("xyz").ok is False
+
+
+def test_float_field():
+    field = FloatField()
+    assert _result(field.parse("4.7")) == (True, 4.7, None)
+    assert _result(field.parse("0")) == (True, 0.0, None)
+    assert _result(field.parse(None)) == (True, None, None)
+    assert _result(field.parse("")) == (True, None, None)
+    assert _result(FloatField(default=1.0).parse(None)) == (True, 1.0, None)
+    assert field.parse("abc").ok is False
+    assert FloatField(min=0).parse("-1").ok is False
+    assert FloatField(max=10).parse("11").ok is False
+    assert _result(FloatField(min=0, max=10).parse("5.5")) == (True, 5.5, None)
 
 
 def test_option_field():

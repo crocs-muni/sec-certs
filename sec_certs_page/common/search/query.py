@@ -114,6 +114,19 @@ def get_date_query(lower: datetime | None, upper: datetime | None, field_name: s
     return Query.range_query(schema, field_name, FieldType.Date, lower, upper)
 
 
+def get_number_range_query(
+    lower: float | int | None,
+    upper: float | int | None,
+    field_name: str,
+    schema: Schema,
+    field_type: FieldType = FieldType.Float,
+) -> Query:
+    if lower is None and upper is None:
+        return Query.all_query()
+
+    return Query.range_query(schema, field_name, field_type, lower, upper)
+
+
 def get_snippet_generators(
     searcher: Searcher, query: Query, snippet_fields: dict[str, str], schema: Schema
 ) -> dict[str, SnippetGenerator]:

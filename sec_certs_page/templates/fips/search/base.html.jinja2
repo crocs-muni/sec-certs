@@ -3,7 +3,7 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='year_range_slider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='range_slider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='keyword_tree.css') }}">
 {% endblock %}
 
@@ -165,7 +165,7 @@
                                            data-param="validation_date_to" data-range="validation-date"
                                            value="{{ validation_date_to.strftime('%Y-%m-%d') if validation_date_to else '' }}">
                                 </div>
-                                <div class="year-range-slider mt-2" data-from="validation-date-from" data-to="validation-date-to" data-min-year="1997"></div>
+                                <div class="range-slider mt-2" data-from="validation-date-from" data-to="validation-date-to" data-min-year="1997"></div>
                                 <div id="validation-date-error" class="invalid-feedback" role="alert"></div>
                             </div>
                             <div class="col-12 col-lg-6" role="group" aria-labelledby="sunset-date-legend">
@@ -181,7 +181,7 @@
                                            data-param="sunset_date_to" data-range="sunset-date"
                                            value="{{ sunset_date_to.strftime('%Y-%m-%d') if sunset_date_to else '' }}">
                                 </div>
-                                <div class="year-range-slider mt-2" data-from="sunset-date-from" data-to="sunset-date-to" data-max-year="2040"></div>
+                                <div class="range-slider mt-2" data-from="sunset-date-from" data-to="sunset-date-to" data-max-year="2040"></div>
                                 <div id="sunset-date-error" class="invalid-feedback" role="alert"></div>
                             </div>
                             <div class="col-12 col-md-4 col-lg-3">

@@ -3,7 +3,7 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='year_range_slider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='range_slider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='keyword_tree.css') }}">
 {% endblock %}
 
@@ -154,7 +154,7 @@
                                            data-param="cert_date_to" data-range="cert-date"
                                            value="{{ cert_date_to.strftime('%Y-%m-%d') if cert_date_to else '' }}">
                                 </div>
-                                <div class="year-range-slider mt-2" data-from="cert-date-from" data-to="cert-date-to" data-min-year="1997"></div>
+                                <div class="range-slider mt-2" data-from="cert-date-from" data-to="cert-date-to" data-min-year="1997"></div>
                                 <div id="cert-date-error" class="invalid-feedback" role="alert"></div>
                             </div>
                             <div class="col-12 col-lg-6" role="group" aria-labelledby="archive-date-legend">
@@ -170,7 +170,7 @@
                                            data-param="archive_date_to" data-range="archive-date"
                                            value="{{ archive_date_to.strftime('%Y-%m-%d') if archive_date_to else '' }}">
                                 </div>
-                                <div class="year-range-slider mt-2" data-from="archive-date-from" data-to="archive-date-to" data-max-year="2040"></div>
+                                <div class="range-slider mt-2" data-from="archive-date-from" data-to="archive-date-to" data-max-year="2040"></div>
                                 <div id="archive-date-error" class="invalid-feedback" role="alert"></div>
                             </div>
                             <div class="w-100 mt-0"></div>

@@ -62,19 +62,19 @@
     </table>
 {%- endmacro %}
 
-{% macro render_cve_impact(cve) %}
-    {% if cve["cvss"]["severity"] == "CRITICAL" %}
+{% macro render_cve_impact(severity) %}
+    {% if severity == "CRITICAL" %}
         <span style="color: var(--bs-red)"><i class="fas fa-fw fa-exclamation-triangle"></i></span>
         CRITICAL
-    {% elif cve["cvss"]["severity"] == "HIGH" %}
+    {% elif severity == "HIGH" %}
         <span style="color: var(--bs-orange)"><i class="fas fa-fw fa-exclamation-circle"></i></span>
         HIGH
-    {% elif cve["cvss"]["severity"] == "MEDIUM" %}
+    {% elif severity == "MEDIUM" %}
         <span style="color: var(--bs-yellow)"><i class="fas fa-fw fa-exclamation"></i></span> MEDIUM
-    {% elif cve["cvss"]["severity"] == "LOW" %}
+    {% elif severity == "LOW" %}
         <span style="color: var(--bs-green)"><i class="fas fa-fw fa-exclamation"></i></span> LOW
     {% else %}
-        {{ cve["cvss"]["severity"] }}
+        {{ severity }}
     {% endif %}
 {% endmacro %}
 
@@ -126,7 +126,7 @@
                         {{ render_cve_links(cve) }}
                     </td>
                     <td>
-                        {{ render_cve_impact(cve) }}
+                        {{ render_cve_impact(cve["cvss"]["severity"]) }}
                     </td>
                     <td>{{ cve["cvss"]["base_score"] }}</td>
                     <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y") }}</td>

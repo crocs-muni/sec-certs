@@ -52,7 +52,7 @@
                             </tr>
                             <tr data-cs-name="Severity">
                                 <th scope="row">Severity</th>
-                                <td>{{ render_cve_impact(cve) }}</td>
+                                <td>{{ render_cve_impact(cve["cvss"]["severity"]) }}</td>
                             </tr>
                         </table>
 
