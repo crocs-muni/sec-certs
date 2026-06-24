@@ -2,6 +2,7 @@ import {
     initRangeSliders,
     resetRangeSliders,
 } from "./range_slider.js";
+import { isUserSorted } from "./sortable.js";
 
 export function nameSearchSetup() {
     document.getElementById("nameSearchRadioId").checked = true;
@@ -38,12 +39,19 @@ function getSort() {
     if (!th) return null;
 
     const dir = th.classList.contains('sort-asc') ? 'asc' : 'desc';
-    // Suppress params only for the default column in its default (desc) direction,
-    // so the URL stays clean and a fresh query falls back to relevance ranking.
-    // A flipped default column (asc) must be sent explicitly.
-    if (th.dataset.defaultSort === "true" && dir === "desc") return null;
+    if (th.dataset.defaultSort === "true" && dir === "desc" && !isUserSorted()) return null;
 
     return [th.dataset.col, dir];
+}
+
+export function hasActiveCriteria() {
+    for (const el of document.querySelectorAll("[data-param]")) {
+        if (el.value && String(el.value).trim() !== "") return true;
+    }
+    for (const group of document.querySelectorAll("[data-search-group]")) {
+        if (collectGroup(group) != null) return true;
+    }
+    return false;
 }
 
 export function searchParams(additional) {

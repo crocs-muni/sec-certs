@@ -282,14 +282,7 @@
         </script>
 
           <script type="module">
-        import {
-            nameSearchSetup,
-            fulltextSearchSetup,
-            resultsFetch,
-            searchParams,
-        } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
-        import { initColumnPicker, applyColumnVisibility } from "{{ url_for('static', filename='column_picker.js') }}";
-        import { initSortable, setSort } from "{{ url_for('static', filename='sortable.js') }}";
+        import { initSearchResults } from "{{ url_for('static', filename='search_results.js') }}?{{ static_hash("search_results.js") }}";
 
         const ENDPOINT = "{{ url_for('fips.merged_search') }}";
         const COLS = [
@@ -302,74 +295,14 @@
             { key: 'sunset_date',      label: 'Sunset date',        defaultVisible: true  },
         ];
 
-        const STORAGE_KEY = 'fips-col-visibility';
-
-        function initClampTooltips() {
-            document.querySelectorAll('.result-clamp').forEach(el => {
-                bootstrap.Tooltip.getInstance(el)?.dispose();
-                el.removeAttribute('title');
-                if (el.offsetWidth === 0) return;
-                if (el.scrollHeight > el.clientHeight) {
-                    el.title = el.textContent.trim();
-                    new bootstrap.Tooltip(el, { placement: 'top' });
-                }
-            });
-        }
-
-        function applyErrors(errors) {
-            $("[data-feedback]").removeClass("is-invalid");
-            $(".invalid-feedback").empty();
-
-            const fieldMap = {
-                query: "#search",
-                name: "#name",
-                cert_id: "#cert-id",
-                vendor: "#vendor",
-            };
-
-            for (const [key, messages] of Object.entries(errors)) {
-                const selector = fieldMap[key];
-                if (!selector) continue;
-                const $input = $(selector);
-                $(`#${$input.data("feedback")}`)
-                    .html(messages.map(m => `<div>${m}</div>`).join(""));
-                $input.addClass("is-invalid");
-            }
-        }
-
         $(function () {
-            {{ 'fulltextSearchSetup' if search_type == 'fulltext' else 'nameSearchSetup' }}();
-
-            const { visible, rerender } = initColumnPicker({
+            initSearchResults({
+                endpoint: ENDPOINT,
                 cols: COLS,
-                storageKey: STORAGE_KEY,
-                onAfterApply: initClampTooltips,
-            });
-
-            const doFetch = resultsFetch(function onSwap() {
-                const c = document.getElementById('results');
-                applyErrors(JSON.parse(c.dataset.errors || "{}"));
-                applyColumnVisibility(COLS, visible, initClampTooltips);
-                setSort(c.dataset.sortBy, c.dataset.sortDir)
-            });
-
-            initSortable(() => doFetch(`${ENDPOINT}?${searchParams()}`));
-            rerender();
-            setSort("{{ sort_by }}", "{{ sort_dir }}");
-            applyColumnVisibility(COLS, visible, initClampTooltips);
-
-            document.addEventListener('ajax-search', e => {
-                e.preventDefault();
-                doFetch(e.detail.url);
-            });
-
-            document.addEventListener('click', e => {
-                const a = e.target.closest('a[href]');
-                if (!a) return;
-                const container = document.getElementById('results');
-                if (!container?.contains(a) || !a.closest('.pagination')) return;
-                e.preventDefault();
-                doFetch(a.href);
+                storageKey: 'fips-col-visibility',
+                fieldMap: { query: "#search", name: "#name", cert_id: "#cert-id", vendor: "#vendor" },
+                sortBy: "{{ sort_by or '' }}",
+                sortDir: "{{ sort_dir or '' }}",
             });
         });
     </script>

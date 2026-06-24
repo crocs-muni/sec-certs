@@ -17,9 +17,21 @@
  * so it survives AJAX row swaps without being re-applied per fetch.
  */
 
-import { resultsFetch, searchParams } from "./search.js";
+import { resultsFetch, searchParams, hasActiveCriteria } from "./search.js";
 import { initColumnPicker } from "./column_picker.js";
 import { initSortable, setSort } from "./sortable.js";
+
+function initClampTooltips() {
+    document.querySelectorAll('.result-clamp').forEach(el => {
+        bootstrap.Tooltip.getInstance(el)?.dispose();
+        el.removeAttribute('title');
+        if (el.offsetWidth === 0) return;
+        if (el.scrollHeight > el.clientHeight) {
+            el.title = el.textContent.trim();
+            new bootstrap.Tooltip(el, { placement: 'top' });
+        }
+    });
+}
 
 export function initSearchResults({
     endpoint,
@@ -42,16 +54,18 @@ export function initSearchResults({
         }
     }
 
-    const picker = cols && storageKey ? initColumnPicker({ cols, storageKey, onAfterApply }) : null;
+    const afterApply = () => { initClampTooltips(); onAfterApply?.(); };
+
+    const picker = cols && storageKey ? initColumnPicker({ cols, storageKey, onAfterApply: afterApply }) : null;
 
     const doFetch = resultsFetch(function onSwap() {
         const c = document.getElementById("results");
         applyErrors(JSON.parse(c.dataset.errors || "{}"));
         setSort(c.dataset.sortBy, c.dataset.sortDir);
-        onAfterApply?.();
+        afterApply();
     });
 
-    initSortable(() => doFetch(`${endpoint}?${searchParams()}`));
+    initSortable(() => doFetch(`${endpoint}?${searchParams()}`), hasActiveCriteria);
     picker?.rerender();
     setSort(sortBy, sortDir);
 
