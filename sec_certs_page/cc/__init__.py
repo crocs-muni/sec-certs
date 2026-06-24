@@ -16,7 +16,7 @@ with cc.open_resource("../common/resources/sfrs.json") as f:
 with cc.open_resource("../common/resources/sars.json") as f:
     cc_sars = json.load(f)
 with cc.open_resource("resources/categories.json") as f:
-    cc_categories = json.load(f)
+    cc_categories: dict[str, dict[str, str]] = json.load(f)
 with cc.open_resource("../common/resources/eals.json") as f:
     cc_eals: dict[str, dict[str, str]] = json.load(f)
 with cc.open_resource("../common/resources/status.json") as f:

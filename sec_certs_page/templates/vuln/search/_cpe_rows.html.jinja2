@@ -1,11 +1,11 @@
 {% if result %}
     {% for cpe in result %}
         <tr class="search-result">
+            <td data-col="cpe_title">{{ cpe.get("cpe_title") or "" }}</td>
             <td data-col="uri">
                 <a href="{{ url_for('vuln.cpe', cpe_id=cpe['id']) }}"
                    class="result-link text-decoration-none fw-medium font-monospace small">{{ cpe.get("uri") }}</a>
             </td>
-            <td data-col="cpe_title">{{ cpe.get("cpe_title") or "" }}</td>
             <td data-col="vendor">{{ cpe.get("vendor") }}</td>
             <td data-col="product">{{ cpe.get("product") }}</td>
             <td data-col="version" class="text-nowrap">{{ cpe.get("version") }}</td>

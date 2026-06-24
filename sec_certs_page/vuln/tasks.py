@@ -277,7 +277,7 @@ class CVEIndexer(VulnIndexer):  # pragma: no cover
         cve_id = cve["_id"]
         doc.add_text("id", cve_id)
         doc.add_text("cve_id", cve_id)
-        doc.add_text("cve_tokenized", cve_id)
+        doc.add_text("cve_id_tokenized", cve_id)
         _, year, seq = cve_id.split("-", 2)
         doc.add_integer("cve_number", int(year) * 10_000_000 + int(seq))
         cvss = cve.get("cvss") or {}
@@ -288,8 +288,10 @@ class CVEIndexer(VulnIndexer):  # pragma: no cover
         if published:
             doc.add_date("published_date", datetime.fromisoformat(published))
         cwe = cve.get("cwe_ids")
-        for entry in cwe.get("_value") or []:
-            doc.add_text("cwe", entry)
+        if cwe:
+            for entry in cwe.get("_value") or []:
+                doc.add_text("cwe", entry)
+                doc.add_text("cwe_tokenized", entry)
         doc.add_integer("cert_count", cert_count)
         return doc
 
@@ -308,7 +310,7 @@ class CPEIndexer(VulnIndexer):  # pragma: no cover
         doc = Document()
         doc.add_text("id", uri)
         doc.add_text("uri", uri)
-        doc.add_text("text", f"{cpe.vendor} {cpe.item_name} {cpe.title or ''} {uri}")
+        doc.add_text("uri_tokenized", uri)
         doc.add_text("vendor", cpe.vendor)
         doc.add_text("product", cpe.item_name)
         if cpe.title:

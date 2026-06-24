@@ -82,24 +82,24 @@ def search():
 @eucc.route("/mergedsearch/")
 @register_breadcrumb(eucc, ".merged_search", "Search")
 def merged_search():
-    template = "eucc/search/name_search.html.jinja2"
+    template = "eucc/search/search.html.jinja2"
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
-        template = "eucc/search/name_search_results.html.jinja2"
+        template = "eucc/search/search_results.html.jinja2"
     res = EUCCSearch.process_search(request)
     return render_template(
         template,
         **res,
         all_schemes=eucc_schemes,
         all_eals=eucc_eals,
-        title="EUCC | sec-certs.org",
+        title="EUCC search | sec-certs.org",
     )
 
 
 @eucc.route("/ftsearch/")
 @register_breadcrumb(eucc, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    args = {**request.args, "searchType": "fulltext"}
+    args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
 
 

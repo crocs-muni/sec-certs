@@ -61,7 +61,7 @@ def dataset_archive():
 @pp.route("/search/")
 @register_breadcrumb(pp, ".search", "Search")
 def search():
-    args = {**request.args, "searchType": "by-name"}
+    args = {**request.args, "search_type": "name"}
     return redirect(url_for(".merged_search", **args))
 
 
@@ -71,20 +71,20 @@ def merged_search():
     template = "pp/search/search.html.jinja2"
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
-        template = "pp/search/search_partial.html.jinja2"
+        template = "pp/search/search_results.html.jinja2"
     res = PPSearch.process_search(request)
     return render_template(
         template,
         **res,
         all_schemes=cc_schemes,
-        title="Protection Profiles | sec-certs.org",
+        title="Protection Profiles Search | sec-certs.org",
     )
 
 
 @pp.route("/ftsearch/")
 @register_breadcrumb(pp, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    args = {**request.args, "searchType": "fulltext"}
+    args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
 
 

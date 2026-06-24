@@ -81,6 +81,10 @@ FIPS_KEYWORD_GROUPS = {
 }
 
 
+def _slug(name: str) -> str:
+    return name.lower().replace(" ", "_")
+
+
 def _build_subtree(node: dict, prefix: str) -> list[dict[str, Any]]:
     children = []
     for name, val in node.items():
@@ -104,5 +108,18 @@ def build_keyword_tree(scheme: str = "cc") -> list[dict[str, Any]]:
                 continue
             categories.append({"name": display, "path": cat, "children": _build_subtree(cat_rules, cat)})
         if categories:
-            tree.append({"name": group_name, "path": None, "children": categories})
+            tree.append({"name": group_name, "path": _slug(group_name), "children": categories})
     return tree
+
+
+@lru_cache(maxsize=4)
+def group_paths(scheme: str = "cc") -> dict[str, list[str]]:
+    groups = FIPS_KEYWORD_GROUPS if scheme == "fips" else CC_KEYWORD_GROUPS
+    return {_slug(name): list(mapping.values()) for name, mapping in groups.items()}
+
+
+def keyword_units(keywords: list[str] | None, scheme: str = "cc") -> list[list[str]]:
+    if not keywords:
+        return []
+    groups = group_paths(scheme)
+    return [groups.get(token, [token]) for token in keywords]

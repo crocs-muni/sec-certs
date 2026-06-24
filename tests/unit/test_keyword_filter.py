@@ -1,6 +1,6 @@
 """Unit tests for the extracted-keywords tree filter (no DB required)."""
 
-from sec_certs_page.common.keyword_groups import build_keyword_tree
+from sec_certs_page.common.keyword_groups import build_keyword_tree, keyword_units
 from sec_certs_page.common.search.fields import ListField
 from sec_certs_page.common.search.query import build_keyword_query
 from sec_certs_page.common.tasks.index import keyword_paths
@@ -109,27 +109,57 @@ def _hits(index, schema, query):
 def test_build_keyword_query_or_matches_any():
     index, schema = _kw_index()
     fields = ["keywords_cert", "keywords_report", "keywords_target"]
-    q = build_keyword_query(schema, ["hash_function.SHA.SHA2", "symmetric_crypto.AES_competition.AES"], fields, "or")
+    q = build_keyword_query(
+        schema, [["hash_function.SHA.SHA2"], ["symmetric_crypto.AES_competition.AES"]], fields, "or"
+    )
     assert _hits(index, schema, q) == {"A", "B", "C"}
 
 
-def test_build_keyword_query_and_requires_all():
+def test_build_keyword_query_and_requires_all_units():
     index, schema = _kw_index()
     fields = ["keywords_cert", "keywords_report", "keywords_target"]
-    q = build_keyword_query(schema, ["hash_function.SHA.SHA2", "symmetric_crypto.AES_competition.AES"], fields, "and")
-    # Only C has both keywords (across any source).
+    # Two separate units -> the cert must satisfy BOTH. Only C has both keywords.
+    q = build_keyword_query(
+        schema, [["hash_function.SHA.SHA2"], ["symmetric_crypto.AES_competition.AES"]], fields, "and"
+    )
     assert _hits(index, schema, q) == {"C"}
+
+
+def test_build_keyword_query_and_ors_within_a_unit():
+    index, schema = _kw_index()
+    fields = ["keywords_cert", "keywords_report", "keywords_target"]
+    # One unit with two paths (e.g. a whole group) -> ANY of them satisfies it, even in "and".
+    q = build_keyword_query(schema, [["hash_function.SHA.SHA2", "symmetric_crypto.AES_competition.AES"]], fields, "and")
+    assert _hits(index, schema, q) == {"A", "B", "C"}
 
 
 def test_build_keyword_query_internal_node_matches_descendants():
     index, schema = _kw_index()
     fields = ["keywords_cert", "keywords_report", "keywords_target"]
-    q = build_keyword_query(schema, ["hash_function"], fields, "or")
+    q = build_keyword_query(schema, [["hash_function"]], fields, "or")
     assert _hits(index, schema, q) == {"A", "C"}
 
 
 def test_build_keyword_query_doc_source_restriction():
     index, schema = _kw_index()
     # AES only counts in 'report' (B) or 'cert' (C); restricting to report finds only B.
-    q = build_keyword_query(schema, ["symmetric_crypto.AES_competition.AES"], ["keywords_report"], "or")
+    q = build_keyword_query(schema, [["symmetric_crypto.AES_competition.AES"]], ["keywords_report"], "or")
     assert _hits(index, schema, q) == {"B"}
+
+
+# --- keyword_units (group token expansion) -----------------------------------
+
+
+def test_keyword_units_expands_group_tokens():
+    units = keyword_units(["cryptography", "hash_function.SHA"], "cc")
+    # The bare path stays a single-path unit.
+    assert ["hash_function.SHA"] in units
+    # The group token expands to its category paths (a multi-path OR-unit).
+    crypto_unit = next(u for u in units if len(u) > 1)
+    assert "symmetric_crypto" in crypto_unit
+    assert "hash_function" in crypto_unit
+
+
+def test_keyword_units_empty():
+    assert keyword_units(None, "cc") == []
+    assert keyword_units([], "cc") == []

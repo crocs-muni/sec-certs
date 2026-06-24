@@ -12,13 +12,13 @@ fips: Blueprint = Blueprint("fips", __name__, url_prefix="/fips")
 fips.cli.short_help = "FIPS 140 commands."
 
 with fips.open_resource("resources/types.json") as f:
-    fips_types = json.load(f)
+    fips_types: dict[str, dict[str, str]] = json.load(f)
 with fips.open_resource("resources/status.json") as f:
     fips_status = json.load(f)
 with fips.open_resource("resources/reference_types.json") as f:
     fips_reference_types = json.load(f)
 with fips.open_resource("resources/levels.json") as f:
-    fips_levels = json.load(f)
+    fips_levels: dict[str, dict[str, str]] = json.load(f)
 
 
 def latest_run() -> bson.ObjectId:

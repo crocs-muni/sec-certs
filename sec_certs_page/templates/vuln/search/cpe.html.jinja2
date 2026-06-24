@@ -27,7 +27,7 @@
                                data-param="query"
                                data-feedback="query-error"
                                class="form-control flex-grow-1 {% if errors.query %}is-invalid{% endif %}"
-                               placeholder="Vendor, product or title, e.g. microsoft windows"
+                               placeholder="Search by title, e.g. Enterprise Linux"
                                type="search"
                                aria-describedby="query-error"
                                value="{{ query|default('', true) }}"/>
@@ -52,13 +52,25 @@
                     <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
                         <hr class="mt-0 mb-3">
                         <div class="row g-3">
+                            <div class="col-12 col-md-4 col-lg-5">
+                                <label class="form-label fw-semibold mb-1" for="uri">URI</label>
+                                <input id="uri" type="text"
+                                       data-param="uri"
+                                       data-feedback="uri-error"
+                                       class="form-control {% if errors.uri %}is-invalid{% endif %}"
+                                       placeholder="e.g. cpe:2.3:o:redhat:enterprise_linux:8.1:*:*:*:*:*:*:*"
+                                       value="{{ uri|default('', true) }}">
+                                <div id="uri-error" class="invalid-feedback">
+                                    {% for error in errors.uri %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
                             <div class="col-12 col-md-4 col-lg-3">
                                 <label class="form-label fw-semibold mb-1" for="vendor">Vendor</label>
                                 <input id="vendor" type="text"
                                        data-param="vendor"
                                        data-feedback="vendor-error"
                                        class="form-control {% if errors.vendor %}is-invalid{% endif %}"
-                                       placeholder="e.g. microsoft"
+                                       placeholder="e.g. redhat"
                                        value="{{ vendor|default('', true) }}">
                                 <div id="vendor-error" class="invalid-feedback">
                                     {% for error in errors.vendor %}<div>{{ error }}</div>{% endfor %}
@@ -70,22 +82,10 @@
                                        data-param="product"
                                        data-feedback="product-error"
                                        class="form-control {% if errors.product %}is-invalid{% endif %}"
-                                       placeholder="e.g. windows"
+                                       placeholder="e.g. linux"
                                        value="{{ product|default('', true) }}">
                                 <div id="product-error" class="invalid-feedback">
                                     {% for error in errors.product %}<div>{{ error }}</div>{% endfor %}
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4 col-lg-3">
-                                <label class="form-label fw-semibold mb-1" for="cpe_title">Title</label>
-                                <input id="cpe_title" type="text"
-                                       data-param="cpe_title"
-                                       data-feedback="cpe_title-error"
-                                       class="form-control {% if errors.cpe_title %}is-invalid{% endif %}"
-                                       placeholder="e.g. Windows 10"
-                                       value="{{ cpe_title|default('', true) }}">
-                                <div id="cpe_title-error" class="invalid-feedback">
-                                    {% for error in errors.cpe_title %}<div>{{ error }}</div>{% endfor %}
                                 </div>
                             </div>
                             <div class="col-12 col-md-4 col-lg-3">
@@ -93,7 +93,7 @@
                                 <input id="version" type="text"
                                        data-param="version"
                                        class="form-control"
-                                       placeholder="exact, e.g. 10.0"
+                                       placeholder="e.g. 10.0"
                                        value="{{ version|default('', true) }}">
                             </div>
                         </div>
@@ -138,8 +138,8 @@
                 <div class="table-responsive">
                     <table class="table table-hover table-striped align-middle mb-0">
                         <colgroup>
+                            <col data-col="cpe_title" style="width: 40ch">
                             <col data-col="uri">
-                            <col data-col="cpe_title" style="width: 24ch">
                             <col data-col="vendor" style="width: 16ch">
                             <col data-col="product" style="width: 18ch">
                             <col data-col="version" style="width: 12ch">
@@ -147,12 +147,12 @@
                         </colgroup>
                         <thead class="table-light">
                             <tr>
-                                <th class="sortable" data-col="uri"><span class="th-label">URI</span> <span class="sort-icon"></span></th>
                                 <th class="sortable" data-col="cpe_title"><span class="th-label">Title</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="uri"><span class="th-label">URI</span> <span class="sort-icon"></span></th>
                                 <th class="sortable" data-col="vendor"><span class="th-label">Vendor</span> <span class="sort-icon"></span></th>
                                 <th class="sortable" data-col="product"><span class="th-label">Product</span> <span class="sort-icon"></span></th>
                                 <th class="sortable" data-col="version"><span class="th-label">Version</span> <span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="cert_count" data-default-sort="true"><span class="th-label">Matched certs</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="cert_count" data-default-sort="true"><span class="th-label">Linked certs</span> <span class="sort-icon"></span></th>
                             </tr>
                         </thead>
                         <tbody id="results-body">
@@ -188,7 +188,7 @@
                     endpoint: ENDPOINT,
                     cols: COLS,
                     storageKey: 'cpe-col-visibility',
-                    fieldMap: { query: "#search", vendor: "#vendor", product: "#product", cpe_title: "#cpe_title" },
+                    fieldMap: { query: "#search", uri: "#uri", vendor: "#vendor", product: "#product" },
                     sortBy: "{{ sort_by or '' }}",
                     sortDir: "{{ sort_dir or '' }}",
                 });

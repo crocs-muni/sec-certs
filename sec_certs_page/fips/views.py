@@ -131,7 +131,7 @@ def network_graph():
 @fips.route("/search/")
 @register_breadcrumb(fips, ".search", "Search")
 def search():
-    args = {**request.args, "searchType": "by-name"}
+    args = {**request.args, "search_type": "name"}
     return redirect(url_for(".merged_search", **args))
 
 
@@ -141,20 +141,20 @@ def merged_search():
     template = "fips/search/search.html.jinja2"
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
-        template = "fips/search/search_partial.html.jinja2"
+        template = "fips/search/search_results.html.jinja2"
     res = FIPSSearch.process_search(request)
     return render_template(
         template,
         **res,
         all_levels=fips_levels,
-        title="FIPS 140 | sec-certs.org",
+        title="FIPS 140 Search | sec-certs.org",
     )
 
 
 @fips.route("/ftsearch/")
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    args = {**request.args, "searchType": "fulltext"}
+    args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
 
 

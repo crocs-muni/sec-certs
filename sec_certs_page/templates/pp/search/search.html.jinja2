@@ -1,10 +1,264 @@
-{% extends "pp/search/base.html.jinja2" %}
+{% extends "common/base.html.jinja2" %}
+{% from "include/keyword_filter.html.jinja2" import keyword_filter %}
 
-{% from "cc/include.html.jinja2" import render_category, render_status %}
-{% from "pp/include.html.jinja2" import render_document_type %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='range_slider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='keyword_tree.css') }}">
+{% endblock %}
 
-{% block search_content %}
-    <script type="module">
+{% block content %}
+    <main>
+        <div class="alert alert-warning d-sm-none" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+        </div>
+        <div class="container-lg px-3 px-md-4 pt-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1>Protection Profiles</h1>
+                <span class="text-secondary fs-3">Search</span>
+            </div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-3 p-md-4">
+                    <fieldset class="mb-3 border-0 p-0">
+                        <legend class="fw-semibold fs-6 mb-2">Search type</legend>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="radio" name="searchTypeRadio"
+                                       id="nameSearchRadioId" value="by-name"
+                                       {% if search_type == "name" %}checked{% endif %}>
+                                <label class="form-check-label" for="nameSearchRadioId">
+                                    Name search
+                                </label>
+                                <i class="fa fa-info-circle ms-1 text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Search only in protection profile names"
+                                   aria-hidden="true"></i>
+                            </div>
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="radio" name="searchTypeRadio"
+                                       id="fulltextSearchRadioId" value="fulltext"
+                                       {% if search_type == "fulltext" %}checked{% endif %}>
+                                <label class="form-check-label" for="fulltextSearchRadioId">
+                                    Fulltext search
+                                </label>
+                                <i class="fa fa-info-circle ms-1 text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Search within the entire content of protection profile PDFs"
+                                   aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="d-flex gap-2 align-items-center">
+                        <label for="search" class="visually-hidden">Search query</label>
+                        <input id="search"
+                               data-param="query"
+                               data-feedback="query-error"
+                               class="form-control flex-grow-1 {% if errors.query %}is-invalid{% endif %}"
+                               placeholder="Search prompt"
+                               type="search"
+                               aria-describedby="query-error"
+                               value="{{ query|default('', true) }}"/>
+                        <button type="button" id="search-btn" class="btn btn-primary flex-shrink-0">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                        <button id="extended-btn"
+                                class="btn btn-outline-secondary flex-shrink-0 d-inline-flex align-items-center gap-1"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#extended"
+                                aria-controls="extended"
+                                aria-expanded="{% if advanced %}true{% else %}false{% endif %}">
+                            <i class="fas fa-sliders"></i>
+                            <span class="d-none d-sm-inline">Advanced search</span>
+                        </button>
+                    </div>
+                    <div id="query-error" class="invalid-feedback d-block" role="alert" aria-live="polite">
+                        {% for error in errors.query %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="mt-1">
+                        <a href="{{ url_for('query_guide') }}" class="text-muted small" target="_blank">
+                            <i class="fas fa-book me-1"></i>Query syntax guide
+                        </a>
+                    </div>
+                    <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
+                        <hr class="mt-0 mb-3">
+                        <div class="row g-3" id="filter-fields-desktop">
+                            <div class="col-12 col-md-4 col-lg-3 fulltext-only">
+                                <label class="form-label fw-semibold mb-1" for="name">Name</label>
+                                <input id="name" type="text"
+                                       data-param="name"
+                                       data-feedback="name-error"
+                                       class="form-control {% if errors.name %}is-invalid{% endif %}"
+                                       placeholder="e.g. Smartcard"
+                                       value="{{ name|default('', true) }}">
+                                <div id="name-error" class="invalid-feedback">
+                                    {% for error in errors.name %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <div id="status-container">
+                                    <label class="form-label fw-semibold mb-1 d-block" for="status-dropdown-btn">Status</label>
+                                    <div class="dropdown">
+                                        <button class="form-select text-start w-100" type="button"
+                                                id="status-dropdown-btn"
+                                                data-bs-toggle="dropdown"
+                                                data-bs-auto-close="outside"
+                                                aria-haspopup="true"
+                                                aria-expanded="false"
+                                                aria-label="Status: {{ status|capitalize if status else 'Any' }}">
+                                            <span id="status-label">{{ status|capitalize if status else 'Any' }}</span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="group" aria-labelledby="status-dropdown-btn" style="min-width: 140px;">
+                                            <li><h6 class="dropdown-header" id="status-menu-header">Select status</h6></li>
+                                            {% for val, label in [('', 'Any'), ('active', 'Active'), ('archived', 'Archived')] %}
+                                            <li role="none">
+                                                <label class="dropdown-item d-flex align-items-center gap-2" role="menuitemradio"
+                                                       aria-checked="{{ 'true' if (status == val or (not status and val == '')) else 'false' }}">
+                                                    <input type="radio" name="status-radio"
+                                                           class="form-check-input status-radio"
+                                                           value="{{ val }}"
+                                                           {% if status == val or (not status and val == '') %}checked{% endif %}>
+                                                    {{ label }}
+                                                </label>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" id="search-status" data-param="status" value="{{ status|default('', true) }}">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1 d-block" for="categories-dropdown-btn">Categories</label>
+                                <div class="dropdown">
+                                    <button class="form-select text-start w-100" type="button"
+                                            id="categories-dropdown-btn"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-auto-close="outside"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span>Categories</span>
+                                        <span id="categories-badge" class="badge bg-secondary ms-1" aria-label="{{ selected_categories.values()|selectattr('selected')|list|length }} selected">{{ selected_categories.values()|selectattr("selected")|list|length }}</span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="group" aria-labelledby="categories-dropdown-btn">
+                                        <li><h6 class="dropdown-header" id="categories-menu-header">Select categories</h6></li>
+                                        <li>
+                                            <div id="search-categories" data-search-group data-param="cat" data-encoding="concat">
+                                                {% for name, val in selected_categories.items() %}
+                                                    <label class="dropdown-item d-flex align-items-center gap-2" for="category-{{ val['id'] }}">
+                                                        <input type="checkbox" id="category-{{ val['id'] }}"
+                                                               class="form-check-input"
+                                                               data-id="{{ val['id'] }}"
+                                                               {% if val["selected"] %}checked{% endif %}>
+                                                        <i class="fas fa-fw {{ val['icon'] }}" aria-hidden="true"></i> {{ name }}
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="d-flex justify-content-between px-3">
+                                            <button class="btn btn-link btn-sm p-0" id="cat-select-all" data-group-action="select">Select all</button>
+                                            <button class="btn btn-link btn-sm p-0" id="cat-deselect-all" data-group-action="deselect">Deselect all</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="categories-error" class="invalid-feedback" role="alert"></div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1 d-block" for="schemes-dropdown-btn">Schemes</label>
+                                <div class="dropdown">
+                                    <button class="form-select text-start w-100" type="button"
+                                            id="schemes-dropdown-btn"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-auto-close="outside"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span>Schemes</span>
+                                        <span id="schemes-badge" class="badge bg-secondary ms-1" aria-label="{{ selected_schemes|length }} selected">{{ selected_schemes|length }}</span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="group" aria-labelledby="schemes-dropdown-btn" style="min-width: 200px">
+                                        <li><h6 class="dropdown-header" id="schemes-menu-header">Select schemes</h6></li>
+                                        <li>
+                                            <div id="search-schemes" data-search-group data-param="schemes" data-encoding="bitmask">
+                                                {% for s in all_schemes|sort %}
+                                                    <label class="dropdown-item d-flex align-items-center gap-2" for="scheme-{{ s }}">
+                                                        <input type="checkbox" id="scheme-{{ s }}"
+                                                               class="form-check-input"
+                                                               {% if s in selected_schemes %}checked{% endif %}>
+                                                        {{ country_to_flag(s) }} {{ s }}
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="d-flex justify-content-between px-3">
+                                            <button class="btn btn-link btn-sm p-0" id="schemes-select-all" data-group-action="select">Select all</button>
+                                            <button class="btn btn-link btn-sm p-0" id="schemes-deselect-all" data-group-action="deselect">Deselect all</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="schemes-error" class="invalid-feedback" role="alert"></div>
+                            </div>
+                            <div class="w-100 mt-0"></div>
+                            <div class="col-12 col-lg-6" role="group" aria-labelledby="cert-date-legend">
+                                <span id="cert-date-legend" class="form-label fw-semibold mb-1 d-block">Certification date</span>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <label class="visually-hidden" for="cert-date-from">Certification date from</label>
+                                    <input id="cert-date-from" type="date" class="form-control"
+                                           data-param="cert_date_from" data-range="cert-date"
+                                           value="{{ cert_date_from.strftime('%Y-%m-%d') if cert_date_from else '' }}">
+                                    <span class="text-muted small flex-shrink-0" aria-hidden="true">–</span>
+                                    <label class="visually-hidden" for="cert-date-to">Certification date to</label>
+                                    <input id="cert-date-to" type="date" class="form-control"
+                                           data-param="cert_date_to" data-range="cert-date"
+                                           value="{{ cert_date_to.strftime('%Y-%m-%d') if cert_date_to else '' }}">
+                                </div>
+                                <div class="range-slider mt-2" data-from="cert-date-from" data-to="cert-date-to" data-min-year="1997"></div>
+                                <div id="cert-date-error" class="invalid-feedback" role="alert"></div>
+                            </div>
+                            <div class="col-12 col-lg-6" role="group" aria-labelledby="archive-date-legend">
+                                <span id="archive-date-legend" class="form-label fw-semibold mb-1 d-block">Archive date</span>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <label class="visually-hidden" for="archive-date-from">Archive date from</label>
+                                    <input id="archive-date-from" type="date" class="form-control"
+                                           data-param="archive_date_from" data-range="archive-date"
+                                           value="{{ archive_date_from.strftime('%Y-%m-%d') if archive_date_from else '' }}">
+                                    <span class="text-muted small flex-shrink-0" aria-hidden="true">–</span>
+                                    <label class="visually-hidden" for="archive-date-to">Archive date to</label>
+                                    <input id="archive-date-to" type="date" class="form-control"
+                                           data-param="archive_date_to" data-range="archive-date"
+                                           value="{{ archive_date_to.strftime('%Y-%m-%d') if archive_date_to else '' }}">
+                                </div>
+                                <div class="range-slider mt-2" data-from="archive-date-from" data-to="archive-date-to" data-max-year="2040"></div>
+                                <div id="archive-date-error" class="invalid-feedback" role="alert"></div>
+                            </div>
+                            {{ keyword_filter("pp", [("report", "Certification report"), ("profile", "Protection Profile")], keywords, selected_kw_sources, kw_mode) }}
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" id="reset-filters-btn"
+                                    class="btn btn-outline-secondary btn-sm"
+                                    title="Reset all to their default values."
+                                    data-bs-toggle="tooltip">
+                                <i class="fas fa-rotate-left me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+            import { initSearch } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+            import { initKeywordTree } from "{{ url_for('static', filename='keyword_tree.js') }}?{{ static_hash("keyword_tree.js") }}";
+
+            initKeywordTree();
+            initSearch({
+                searchUrl: "{{ url_for("pp.merged_search") }}",
+                networkUrl: "{{ url_for("pp.network") }}",
+            });
+        </script>
+
+  <script type="module">
         import {
             nameSearchSetup,
             fulltextSearchSetup,
@@ -145,50 +399,7 @@
                     </tr>
                 </thead>
                 <tbody id="results-body">
-                    {% if result %}
-                        {% for cert in result %}
-                            {% set name = cert["name"]|default("N/A", true) %}
-                            {% set status = cert["status"] %}
-                            {% set hashid = cert["dgst"] %}
-                            {% set category = cert["category"] %}
-                            {% set scheme = cert["scheme"] %}
-                            {% set not_valid_before = cert["not_valid_before"] %}
-                            {% set not_valid_after = cert["not_valid_after"] %}
-                            <tr class="search-result{% if cert.get('snippets') %} has-snippets{% endif %}">
-                                <td data-col="name">
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="result-category flex-shrink-0">{{ render_category(category) }}</span>
-                                        <a href="{{ url_for('.entry', hashid=hashid) }}"
-                                           class="result-clamp result-link text-decoration-none fw-medium"
-                                           data-bs-toggle="tooltip"
-                                           data-bs-placement="top">{{ name }}</a>
-                                    </div>
-                                    {% if cert.get("snippets") %}
-                                    {% set doc_type_labels = {"report": "Certification Report", "profile": "Protection Profile"} %}
-                                    <div class="d-flex flex-column gap-1">
-                                        {% for doc_type, snippet_html in cert["snippets"].items() %}
-                                        <div>
-                                            <div class="snippet-label">[{{ doc_type_labels.get(doc_type, doc_type) }}]</div>
-                                            <div class="snippet-text">{{ snippet_html|safe }}</div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </td>
-                                <td data-col="scheme" class="text-nowrap">{{ country_to_flag(scheme) }} {{ scheme }}</td>
-                                <td data-col="status">{{ render_status(status) }}</td>
-                                <td data-col="not_valid_before" class="text-nowrap">{{ not_valid_before|strftime("%d.%m.%Y") if not_valid_before else "" }}</td>
-                                <td data-col="not_valid_after" class="text-nowrap">{{ not_valid_after|strftime("%d.%m.%Y") if not_valid_after else "" }}</td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-5">
-                                <i class="fas fa-search fa-2x mb-2 d-block opacity-25"></i>
-                                No results found.
-                            </td>
-                        </tr>
-                    {% endif %}
+                    {% include "pp/search/_search_rows.html.jinja2" %}
                 </tbody>
             </table>
         </div>
@@ -199,4 +410,5 @@
         </div>
     </div>
  </div>
+    </main>
 {% endblock %}

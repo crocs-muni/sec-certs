@@ -1,6 +1,8 @@
 import re
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from datetime import datetime
 from typing import Any, ClassVar
 
@@ -61,7 +63,7 @@ def detect_advanced_syntax(query: str) -> set[str]:
 
 
 def get_expanded_query(query: str, field_name: str, prefix: bool, schema: Schema) -> Query:
-    words = default_tokenizer.analyze(query) if not field_name.endswith("_raw") else query.split()
+    words = default_tokenizer.analyze(query)
     subqueries = []
     if len(words) >= 2:
         subqueries.append((Occur.Should, Query.boost_query(Query.phrase_query(schema, field_name, words), 3)))
@@ -95,15 +97,16 @@ def get_text_query(query: str | None, field_name: str, prefix: bool, index: Inde
     )
 
 
-def build_keyword_query(schema: Schema, paths: list[str], fields: list[str], mode: str) -> Query:
+def build_keyword_query(schema: Schema, units: list[list[str]], fields: list[str], mode: str) -> Query:
     if mode == "and":
         subqueries = []
-        for path in paths:
-            per_path = [(Occur.Should, Query.term_query(schema, field, path)) for field in fields]
-            subqueries.append((Occur.Must, Query.boolean_query(per_path)))
+        for unit in units:
+            per_unit = [(Occur.Should, Query.term_query(schema, field, path)) for path in unit for field in fields]
+            subqueries.append((Occur.Must, Query.boolean_query(per_unit)))
         return Query.boolean_query(subqueries)
 
-    subqueries = [(Occur.Should, Query.term_set_query(schema, field, paths)) for field in fields]
+    all_paths = [path for unit in units for path in unit]
+    subqueries = [(Occur.Should, Query.term_set_query(schema, field, all_paths)) for field in fields]
     return Query.boolean_query(subqueries)
 
 
@@ -125,6 +128,91 @@ def get_number_range_query(
         return Query.all_query()
 
     return Query.range_query(schema, field_name, field_type, lower, upper)
+
+
+class Errors(dict):
+    def add(self, key: str, err) -> None:
+        if err:
+            self[key] = [str(e) for e in err]
+
+
+def get_term_query(schema: Schema, field_name: str, value: str | None) -> Query | None:
+    return Query.term_query(schema, field_name, value) if value else None
+
+
+def get_term_set_query(schema: Schema, field_name: str, selected: list, all_options) -> Query | None:
+    if len(selected) < len(all_options):
+        return Query.term_set_query(schema, field_name, selected)
+    return None
+
+
+def get_selection_query(schema: Schema, field_name: str, selection: dict) -> Query:
+    ids = [key for key, val in selection.items() if val["selected"]]
+    return Query.term_set_query(schema, field_name, ids)
+
+
+def get_keyword_query(schema: Schema, units: list[list[str]] | None, fields: list, mode: str) -> Query | None:
+    if not units or not fields:
+        return None
+    return build_keyword_query(schema, units, fields, mode)
+
+
+def get_text_field_query(
+    index: Callable[[], Index],
+    schema: Schema,
+    value: str | None,
+    field_name: str,
+    broader: bool,
+    errors: "Errors",
+    error_key: str | None = None,
+) -> Query:
+    query, err = get_text_query(value, field_name, broader, index(), schema)
+    errors.add(error_key or field_name, err)
+    return query
+
+
+def get_id_query(
+    index: Callable[[], Index],
+    schema: Schema,
+    value: str | None,
+    broader: bool,
+    errors: "Errors",
+    raw_field: str,
+    text_field: str,
+    error_key: str | None = None,
+) -> Query:
+    if value is None:
+        return Query.all_query()
+    friendly, err = get_text_query(value, text_field, broader, index(), schema)
+    errors.add(error_key or text_field, err)
+    return Query.boolean_query(
+        [
+            (Occur.Should, Query.term_query(schema, raw_field, value)),
+            (Occur.Should, friendly),
+        ]
+    )
+
+
+def get_body_query(index: Callable[[], Index], value: str | None, doc_types: list, errors: "Errors") -> Query:
+    if value is None:
+        return Query.empty_query()
+
+    advanced_features = detect_advanced_syntax(value)
+    subqueries = []
+    for doc_type in doc_types:
+        field_name = f"body_{doc_type}" if doc_type else "body"
+        text = value if "field_prefix" in advanced_features else f"{field_name}:{value}"
+        parsed_query, err = index().parse_query_lenient(
+            text, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=False
+        )
+        errors.add("query", err)
+        subqueries.append((Occur.Should, parsed_query))
+
+    return Query.boolean_query(subqueries)
+
+
+def build_must_query(*queries: Query | None) -> Query:
+    return Query.boolean_query([(Occur.Must, q) for q in queries if q is not None])
 
 
 def get_snippet_generators(
@@ -156,17 +244,50 @@ def get_results_from_hits(
     return result
 
 
+@dataclass(frozen=True)
+class Facet:
+    out: str
+    fn: Callable
+    src: str
+    options: Any
+
+
+@dataclass(frozen=True)
+class SearchConfig:
+    default_sort_by: str
+    default_sort_dir: str = "desc"
+    query_targets: dict = dc_field(default_factory=dict)
+    facets: tuple = ()
+
+
 class Search(ABC):
     search_args: ClassVar[dict[str, FieldProtocol]]
     snippet_fields: ClassVar
     schema: ClassVar[Schema]
     index: ClassVar[Callable[[], Index]]
     collection: ClassVar
+    config: ClassVar[SearchConfig]
 
     @classmethod
-    @abstractmethod
     def _enrich_args(cls, parsed: dict) -> dict:
-        raise NotImplementedError
+        cfg = cls.config
+        fulltext = parsed["search_type"] == "fulltext"
+        advanced = any(parsed[a] is not None for a in cls.search_args if a not in ("sort_by", "sort_dir"))
+
+        if not advanced and not parsed["query"]:
+            parsed["sort_by"] = parsed["sort_by"] or cfg.default_sort_by
+            parsed["sort_dir"] = parsed["sort_dir"] or cfg.default_sort_dir
+
+        if "*" in cfg.query_targets:
+            parsed[cfg.query_targets["*"]] = parsed["query"]
+        else:
+            parsed[cfg.query_targets["fulltext"] if fulltext else cfg.query_targets["name"]] = parsed["query"]
+
+        if "kw_mode" in parsed:
+            parsed["kw_mode"] = parsed["kw_mode"] or "or"
+
+        selected = {f.out: f.fn(parsed[f.src], f.options) for f in cfg.facets}
+        return {"advanced": advanced, **selected, **parsed}
 
     @classmethod
     @abstractmethod

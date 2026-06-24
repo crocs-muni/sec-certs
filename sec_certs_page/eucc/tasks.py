@@ -89,7 +89,7 @@ class EUCCIndexer(Indexer, EUCCMixin):  # pragma: no cover
             doc.add_date("not_valid_after", datetime.strptime(nva, "%Y-%m-%d"))
         doc.add_text("name", cert["name"] or "")
         doc.add_text("cert_id", cert.get("cert_id") or "")
-        doc.add_text("cert_id_raw", cert.get("cert_id") or "")
+        doc.add_text("cert_id_tokenized", cert.get("cert_id") or "")
         pdf_data = cert.get("pdf_data") or {}
         add_keyword_paths(doc, "keywords_cert", pdf_data.get("cert_keywords"))
         add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))

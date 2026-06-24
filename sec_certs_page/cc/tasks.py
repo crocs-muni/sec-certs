@@ -91,7 +91,7 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
         cert_labs = cert["heuristics"]["cert_lab"]
         doc.add_text("cert_lab", cert_labs[0] if cert_labs else "")
         doc.add_text("cert_id", cert["heuristics"]["cert_id"] or "")
-        doc.add_text("cert_id_raw", cert["heuristics"]["cert_id"] or "")
+        doc.add_text("cert_id_tokenized", cert["heuristics"]["cert_id"] or "")
         pdf_data = cert.get("pdf_data") or {}
         add_keyword_paths(doc, "keywords_cert", pdf_data.get("cert_keywords"))
         add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))

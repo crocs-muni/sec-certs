@@ -33,7 +33,7 @@
                                data-param="query"
                                data-feedback="query-error"
                                class="form-control flex-grow-1 {% if errors.query %}is-invalid{% endif %}"
-                               placeholder="Search prompt"
+                               placeholder="Search by CVE ID, e.g CVE-2019-15809"
                                type="search"
                                aria-describedby="query-error"
                                value="{{ query|default('', true) }}"/>
@@ -189,12 +189,12 @@
                         </colgroup>
                         <thead class="table-light">
                             <tr>
-                                <th class="sortable" data-col="cve_number"><span class="th-label">CVE ID</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="cve_number"><span class="th-label">ID</span> <span class="sort-icon"></span></th>
                                 <th data-col="cwe"><span class="th-label">CWE</span></th>
                                 <th class="sortable" data-col="severity"><span class="th-label">Severity</span> <span class="sort-icon"></span></th>
                                 <th class="sortable" data-col="base_score"><span class="th-label">CVSS</span> <span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="published_date" data-default-sort="true"><span class="th-label">Published</span> <span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="cert_count"><span class="th-label">Affected certs</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="published_date" data-default-sort="true"><span class="th-label">Publish date</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="cert_count"><span class="th-label">Linked certs</span> <span class="sort-icon"></span></th>
                             </tr>
                         </thead>
                         <tbody id="results-body">
@@ -215,12 +215,12 @@
 
             const ENDPOINT = "{{ url_for('vuln.cve_search') }}";
             const COLS = [
-                { key: 'cve_id',         label: 'CVE ID',        locked: true },
-                { key: 'cwe',            label: 'CWE',           defaultVisible: true  },
-                { key: 'severity',       label: 'Severity',      defaultVisible: true  },
-                { key: 'base_score',     label: 'CVSS',          defaultVisible: true  },
-                { key: 'published_date', label: 'Published',     defaultVisible: true  },
-                { key: 'cert_count',     label: 'Affected certs', defaultVisible: true },
+                { key: 'cve_id',         label: 'ID',             locked: true },
+                { key: 'cwe',            label: 'CWE',            defaultVisible: true  },
+                { key: 'severity',       label: 'Severity',       defaultVisible: true  },
+                { key: 'base_score',     label: 'CVSS',           defaultVisible: true  },
+                { key: 'published_date', label: 'Publish date',   defaultVisible: true  },
+                { key: 'cert_count',     label: 'Linked certs',   defaultVisible: true },
             ];
 
             initSearch({ searchUrl: ENDPOINT, networkUrl: ENDPOINT });

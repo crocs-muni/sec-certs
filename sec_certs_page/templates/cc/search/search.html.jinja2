@@ -330,6 +330,171 @@
             initKeywordTree();
         </script>
 
-        {% block search_content %}{% endblock %}
+        <script type="module">
+        import {
+            nameSearchSetup,
+            fulltextSearchSetup,
+            resultsFetch,
+            searchParams,
+        } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+        import { initColumnPicker, applyColumnVisibility } from "{{ url_for('static', filename='column_picker.js') }}";
+        import { initSortable, setSort } from "{{ url_for('static', filename='sortable.js') }}";
+
+        const ENDPOINT = "{{ url_for('cc.merged_search') }}";
+        const COLS = [
+            { key: 'cert_id',          label: 'ID',                 defaultVisible: true  },
+            { key: 'name',             label: 'Name',               defaultVisible: true  },
+            { key: 'manufacturer',     label: 'Manufacturer',       defaultVisible: false },
+            { key: 'cert_lab',         label: 'Certification lab',  defaultVisible: false },
+            { key: 'scheme',           label: 'Scheme',             defaultVisible: false },
+            { key: 'eal',              label: 'EAL',                defaultVisible: true  },
+            { key: 'status',           label: 'Status',             defaultVisible: true  },
+            { key: 'not_valid_before', label: 'Certification date', defaultVisible: true  },
+            { key: 'not_valid_after',  label: 'Archive date',       defaultVisible: true  },
+        ];
+        const STORAGE_KEY = 'cc-col-visibility';
+
+        function initClampTooltips() {
+            document.querySelectorAll('.result-clamp').forEach(el => {
+                bootstrap.Tooltip.getInstance(el)?.dispose();
+                el.removeAttribute('title');
+                if (el.offsetWidth === 0) return;
+                if (el.scrollHeight > el.clientHeight) {
+                    el.title = el.textContent.trim();
+                    new bootstrap.Tooltip(el, { placement: 'top' });
+                }
+            });
+        }
+
+        function applyErrors(errors) {
+            $("[data-feedback]").removeClass("is-invalid");
+            $(".invalid-feedback").empty();
+
+            const fieldMap = {
+                query: "#search",
+                name: "#name",
+                cert_id: "#cert-id",
+                manufacturer: "#manufacturer",
+                cert_lab: "#cert-lab",
+            };
+
+            for (const [key, messages] of Object.entries(errors)) {
+                const selector = fieldMap[key];
+                if (!selector) continue;
+                const $input = $(selector);
+                $(`#${$input.data("feedback")}`)
+                    .html(messages.map(m => `<div>${m}</div>`).join(""));
+                $input.addClass("is-invalid");
+            }
+        }
+
+        $(function () {
+            {{ 'fulltextSearchSetup' if search_type == 'fulltext' else 'nameSearchSetup' }}();
+
+            const { visible, rerender } = initColumnPicker({
+                cols: COLS,
+                storageKey: STORAGE_KEY,
+                onAfterApply: initClampTooltips,
+            });
+
+            const doFetch = resultsFetch(function onSwap() {
+                const c = document.getElementById('results');
+                applyErrors(JSON.parse(c.dataset.errors || "{}"));
+                applyColumnVisibility(COLS, visible, initClampTooltips);
+                setSort(c.dataset.sortBy, c.dataset.sortDir)
+            });
+
+            initSortable(() => doFetch(`${ENDPOINT}?${searchParams()}`));
+            rerender();
+            setSort("{{ sort_by }}", "{{ sort_dir }}");
+            applyColumnVisibility(COLS, visible, initClampTooltips);
+
+            document.addEventListener('ajax-search', e => {
+                e.preventDefault();
+                doFetch(e.detail.url);
+            });
+
+            document.addEventListener('click', e => {
+                const a = e.target.closest('a[href]');
+                if (!a) return;
+                const container = document.getElementById('results');
+                if (!container?.contains(a) || !a.closest('.pagination')) return;
+                e.preventDefault();
+                doFetch(a.href);
+            });
+        });
+    </script>
+
+
+ <div class="container-xl results-container px-3 px-md-5 pb-4">
+     <div id="results" data-sort-by="{{ sort_by or '' }}" data-sort-dir="{{ sort_dir or '' }}">
+        <div class="d-grid mt-3 mb-1" style="grid-template-columns: 1fr auto 1fr; align-items: end;">
+            <div></div>
+            <div id="pagination-top-wrapper" class="d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+                <span id="pagination-info" class="text-muted small">{{ pagination.info }}</span>
+                <div id="pagination-links-top">{{ pagination.links }}</div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            type="button"
+                            id="col-picker-toggle"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            aria-expanded="false">
+                        <i class="fas fa-columns me-1"></i>Visible columns
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" id="col-dropdown" style="min-width: 200px;">
+                        <li><h6 class="dropdown-header">Visible columns</h6></li>
+                        <div id="col-list"></div>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="d-flex justify-content-between px-3">
+                            <button class="btn btn-link btn-sm p-0" id="col-show-all">Show all</button>
+                            <button class="btn btn-link btn-sm p-0" id="col-hide-all">Hide all</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="table-scroll-wrapper">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <colgroup>
+                    <col data-col="cert_id"          style="width: 16ch">
+                    <col data-col="name">
+                    <col data-col="manufacturer"     style="width: 18ch">
+                    <col data-col="cert_lab"         style="width: 14ch">
+                    <col data-col="scheme"           style="width: 6ch">
+                    <col data-col="eal"              style="width: 8ch">
+                    <col data-col="status"           style="width: 11ch">
+                    <col data-col="not_valid_before" style="width: 11ch">
+                    <col data-col="not_valid_after"  style="width: 11ch">
+                </colgroup>
+                <thead class="table-light">
+                    <tr>
+                        <th class="sortable" data-col="cert_id" title="Certificate ID"><span class="th-label">ID</span> <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="name" title="Certificate name"><span class="th-label">Name</span> <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="manufacturer" title="Manufacturer"><span class="th-label">Manufacturer</span> <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="cert_lab" title="Certification lab"><span class="th-label">Cert. lab</span> <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="scheme" title="Scheme"><span class="th-label">Scheme</span> <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="eal" title="Evaluation Assurance Level"><span class="th-label">EAL</span><span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="status" title="Status"><span class="th-label">Status</span><span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="not_valid_before" data-default-sort="true" title="Certification date"><span class="th-label">Cert. date</span> <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="not_valid_after" title="Archive date"><span class="th-label">Archive date</span> <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                    {% include "cc/search/_search_rows.html.jinja2" %}
+                </tbody>
+            </table>
+        </div>
+        </div>
+        <div id="pagination-bottom-wrapper" class="mt-3 mb-4 d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+            <div id="pagination-links-bottom">{{ pagination.links }}</div>
+            <span id="pagination-info-bottom" class="text-muted small">{{ pagination.info }}</span>
+        </div>
+    </div>
+ </div>
     </main>
 {% endblock %}
