@@ -623,3 +623,57 @@ class TestChartWithColorAxis:
 
         assert chart.color_axis is not None
         assert chart.color_axis.field == "scheme"
+
+
+class TestPieChartColorAxisInvariant:
+    """Pie charts cannot render a secondary color grouping.
+
+    A color_axis on a pie would split the aggregation by (x, color), producing
+    duplicate slice names and distorted values, so it must be dropped no matter
+    how the config is constructed.
+    """
+
+    def test_pie_construction_drops_color_axis(self) -> None:
+        """Building a pie Chart with a color axis clears it."""
+        chart = Chart(
+            chart_id=uuid4(),
+            name="pie-test",
+            chart_type=ChartType.PIE,
+            collection_name=CollectionName.CommonCriteria,
+            x_axis=AxisConfig(field="category", label="Category"),
+            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
+            color_axis=AxisConfig(field="scheme", label="Scheme"),
+        )
+
+        assert chart.color_axis is None
+
+    def test_pie_from_dict_drops_color_axis(self) -> None:
+        """Deserializing a saved/legacy pie config drops the color axis."""
+        data = {
+            "chart_id": str(uuid4()),
+            "name": "pie-test",
+            "chart_type": ChartType.PIE.value,
+            "collection_name": CollectionName.CommonCriteria.value,
+            "x_axis": {"field": "category", "label": "Category"},
+            "y_axis": {"field": "count", "label": "Count", "aggregation": AggregationType.COUNT},
+            "color_axis": {"field": "scheme", "label": "Scheme"},
+        }
+
+        chart = Chart.from_dict(data)
+
+        assert chart.color_axis is None
+
+    def test_non_pie_keeps_color_axis(self) -> None:
+        """The invariant only affects pie charts; other types are untouched."""
+        chart = Chart(
+            chart_id=uuid4(),
+            name="bar-test",
+            chart_type=ChartType.BAR,
+            collection_name=CollectionName.CommonCriteria,
+            x_axis=AxisConfig(field="category", label="Category"),
+            y_axis=AxisConfig(field="count", label="Count", aggregation=AggregationType.COUNT),
+            color_axis=AxisConfig(field="scheme", label="Scheme"),
+        )
+
+        assert chart.color_axis is not None
+        assert chart.color_axis.field == "scheme"
