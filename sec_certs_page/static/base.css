@@ -1193,3 +1193,9 @@ h6 {
     outline-offset: 2px;
     border-radius: 0.25rem;
 }
+
+abbr {
+    text-decoration: underline dotted;
+    text-decoration-skip-ink: none;
+    cursor: help;
+}
