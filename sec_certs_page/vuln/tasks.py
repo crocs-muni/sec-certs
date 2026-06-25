@@ -214,12 +214,13 @@ def update_cpe_match_data() -> None:  # pragma: no cover
         logger.info(f"Cleaned up {res.deleted_count} CPE matches.")
 
 
-def _aggregate_cert_counts(path: str) -> dict[str, int]:
-    """Count CC + FIPS certificates linked to each CVE id / CPE uri via ``path``."""
+def _aggregate_cert_counts(path: str, ids: list) -> dict[str, int]:
+    """Count CC + FIPS certificates linked to each of ``ids`` (CVE id / CPE uri) via ``path``."""
     counts: dict[str, int] = defaultdict(int)
     agg = [
-        {"$match": {path: {"$exists": True, "$ne": None}}},
+        {"$match": {path: {"$in": ids}}},
         {"$unwind": f"${path}"},
+        {"$match": {path: {"$in": ids}}},
         {"$group": {"_id": f"${path}", "n": {"$sum": 1}}},
     ]
     for coll in ("cc", "fips"):
@@ -247,7 +248,7 @@ class VulnIndexer:  # pragma: no cover
     def reindex(self, ids):
         ids = list(ids)
         logger.info(f"Reindexing {len(ids)} {self.collection} documents.")
-        counts = _aggregate_cert_counts(self.count_path)
+        counts = _aggregate_cert_counts(self.count_path, ids)
         writer = self.index.writer()
         for _id in ids:
             writer.delete_documents_by_term("id", _id)

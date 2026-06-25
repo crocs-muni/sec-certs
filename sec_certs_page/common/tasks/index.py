@@ -61,6 +61,8 @@ class Indexer(ABC):  # pragma: no cover
         logger.info(f"Reindexing {len(to_reindex)} {self.cert_schema} files.")
         updated = 0
 
+        certs = {c["_id"]: c for c in mongo.db[self.cert_schema].find({"_id": {"$in": list(to_reindex)}})}
+
         writer = self.index.writer()
         for i, dgst in enumerate(to_reindex):
             content = {}
@@ -75,7 +77,7 @@ class Indexer(ABC):  # pragma: no cover
 
                 content[doc_type] = doc_content
 
-            cert = mongo.db[self.cert_schema].find_one({"_id": dgst})
+            cert = certs[dgst]
             writer.delete_documents_by_term("dgst", dgst)
             writer.add_document(self.create_document(dgst, cert, content))
             updated += 1
