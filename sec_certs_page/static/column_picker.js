@@ -87,21 +87,21 @@ function renderPicker(cols, visible, storageKey, onAfterApply) {
             applyColumnVisibility(cols, visible, onAfterApply);
         });
     });
-
-    const setAll = (state) => {
-        cols.forEach(c => { visible[c.key] = isLocked(c) ? true : state; });
-        saveVisible(storageKey, visible);
-        applyColumnVisibility(cols, visible, onAfterApply);
-        renderPicker(cols, visible, storageKey, onAfterApply);
-    };
-
-    document.getElementById("col-show-all")?.addEventListener("click", () => setAll(true));
-    document.getElementById("col-hide-all")?.addEventListener("click", () => setAll(false));
 }
 
 export function initColumnPicker({ cols, storageKey, onAfterApply } = {}) {
     const visible = loadVisible(cols, storageKey);
     const rerender = () => renderPicker(cols, visible, storageKey, onAfterApply);
+
+    const setAll = (state) => {
+        cols.forEach(c => { visible[c.key] = isLocked(c) ? true : state; });
+        saveVisible(storageKey, visible);
+        applyColumnVisibility(cols, visible, onAfterApply);
+        rerender();
+    };
+    document.getElementById("col-show-all")?.addEventListener("click", () => setAll(true));
+    document.getElementById("col-hide-all")?.addEventListener("click", () => setAll(false));
+
     rerender();
     applyColumnVisibility(cols, visible, onAfterApply);
     return { visible, rerender };
