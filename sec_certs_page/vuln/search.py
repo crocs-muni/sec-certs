@@ -1,5 +1,3 @@
-import re
-
 from tantivy import Query
 
 from .. import mongo
@@ -20,7 +18,6 @@ from ..common.search.query import (
 from .index import cpe_index, cpe_schema, cve_index, cve_schema
 
 CVE_SEVERITIES = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"]
-CPE_URI_RE = re.compile(r"^cpe:", re.IGNORECASE)
 
 
 class CVESearch(Search):
@@ -38,7 +35,6 @@ class CVESearch(Search):
     schema = cve_schema
     index = cve_index
     collection = mongo.db.cve
-    sorted_severities = CVE_SEVERITIES
 
     config = SearchConfig(
         default_sort_by="published_date",

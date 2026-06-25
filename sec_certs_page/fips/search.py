@@ -45,9 +45,7 @@ class FIPSSearch(Search):
         "body": TextField(),
         "cat": TextField(),
         "status": OptionField({"active", "historical", "revoked"}),
-        "sort_by": OptionField(
-            {"name", "validation_date", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"}
-        ),
+        "sort_by": OptionField({"name", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"}),
         "sort_dir": OptionField({"desc", "asc"}),
         "level": IntField(base=16),
         "validation_date_from": DateField(),
@@ -58,7 +56,6 @@ class FIPSSearch(Search):
         "kw_mode": OptionField({"and", "or"}),
     }
     snippet_fields = {"policy": "body"}
-    kw_source_fields = {"target": "keywords_target"}
     schema = fips_schema
     index = fips_index
     collection = mongo.db.fips
