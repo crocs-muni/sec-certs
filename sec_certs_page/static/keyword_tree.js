@@ -27,6 +27,14 @@
 
 let treeRoot = null; // container element
 
+function debounce(fn, ms) {
+    let t = null;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+    };
+}
+
 function buildNode(node) {
     const li = document.createElement("li");
     li.className = "kw-node";
@@ -90,23 +98,33 @@ function cascadeDown(li, checked) {
     });
 }
 
+function recomputeFromChildren(li) {
+    // Set this node's checked/indeterminate from the state of its direct children.
+    const childUl = li.querySelector(":scope > .kw-children");
+    if (!childUl) return;
+    const childChecks = Array.from(childUl.children)
+        .map(c => c.querySelector(":scope > .kw-row .kw-check"))
+        .filter(Boolean);
+    if (!childChecks.length) return;
+    const all = childChecks.every(c => c.checked && !c.indeterminate);
+    const some = childChecks.some(c => c.checked || c.indeterminate);
+    const cb = li.querySelector(":scope > .kw-row .kw-check");
+    cb.checked = all;
+    cb.indeterminate = !all && some;
+}
+
 function refreshAncestors() {
-    // Walk from deepest to shallowest, setting each parent's checked/indeterminate
-    // from its direct children.
-    const nodes = Array.from(treeRoot.querySelectorAll(".kw-node")).reverse();
-    nodes.forEach(li => {
-        const childUl = li.querySelector(":scope > .kw-children");
-        if (!childUl) return;
-        const childChecks = Array.from(childUl.children)
-            .map(c => c.querySelector(":scope > .kw-row .kw-check"))
-            .filter(Boolean);
-        if (!childChecks.length) return;
-        const all = childChecks.every(c => c.checked && !c.indeterminate);
-        const some = childChecks.some(c => c.checked || c.indeterminate);
-        const cb = li.querySelector(":scope > .kw-row .kw-check");
-        cb.checked = all;
-        cb.indeterminate = !all && some;
-    });
+    // Full deepest-to-shallowest pass; used on restore where many nodes change at once.
+    Array.from(treeRoot.querySelectorAll(".kw-node")).reverse().forEach(recomputeFromChildren);
+}
+
+function refreshAncestorsOf(li) {
+    // After a single toggle only the changed node's ancestor chain can change state.
+    let parent = li.parentElement?.closest(".kw-node");
+    while (parent) {
+        recomputeFromChildren(parent);
+        parent = parent.parentElement?.closest(".kw-node");
+    }
 }
 
 /**
@@ -253,8 +271,9 @@ export function initKeywordTree() {
         const cb = e.target.closest(".kw-check");
         if (!cb) return;
         cb.indeterminate = false;
-        cascadeDown(cb.closest(".kw-node"), cb.checked);
-        refreshAncestors();
+        const node = cb.closest(".kw-node");
+        cascadeDown(node, cb.checked);
+        refreshAncestorsOf(node);
         syncState();
     });
 
@@ -262,7 +281,7 @@ export function initKeywordTree() {
     document.querySelectorAll('input[name="kw-mode-radio"]').forEach(r => r.addEventListener("change", syncState));
 
     const search = document.getElementById("keyword-tree-search");
-    if (search) search.addEventListener("input", () => filterTree(search.value));
+    if (search) search.addEventListener("input", debounce(() => filterTree(search.value), 150));
 
     // Keep the tree consistent when the shared "Reset" button clears hidden inputs.
     document.getElementById("reset-filters-btn")?.addEventListener("click", resetKeywordTree);
