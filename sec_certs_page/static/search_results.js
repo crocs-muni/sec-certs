@@ -49,7 +49,8 @@ export function initSearchResults({
             const selector = fieldMap[key];
             if (!selector) continue;
             const $input = $(selector);
-            $(`#${$input.data("feedback")}`).html(messages.map(m => `<div>${m}</div>`).join(""));
+            const $feedback = $(`#${$input.data("feedback")}`).empty();
+            messages.forEach(m => $feedback.append($("<div>").text(m)));
             $input.addClass("is-invalid");
         }
     }
