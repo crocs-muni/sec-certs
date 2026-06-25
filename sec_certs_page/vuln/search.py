@@ -1,6 +1,5 @@
 from tantivy import Query
 
-from .. import mongo
 from ..common.search.fields import DateField, FloatField, IntField, OptionField, TextField
 from ..common.search.query import (
     Errors,
@@ -34,7 +33,6 @@ class CVESearch(Search):
     snippet_fields = {}
     schema = cve_schema
     index = cve_index
-    collection = mongo.db.cve
 
     config = SearchConfig(
         default_sort_by="published_date",
@@ -73,7 +71,6 @@ class CPESearch(Search):
     snippet_fields = {}
     schema = cpe_schema
     index = cpe_index
-    collection = mongo.db.cpe
 
     config = SearchConfig(
         default_sort_by="cert_count",

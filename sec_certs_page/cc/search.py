@@ -1,6 +1,5 @@
 from tantivy import Occur, Query
 
-from .. import mongo
 from ..cc import cc_categories, cc_eals, cc_schemes
 from ..common.keyword_groups import keyword_units
 from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
@@ -62,7 +61,6 @@ class CCSearch(Search):
     kw_source_fields = {"cert": "keywords_cert", "report": "keywords_report", "target": "keywords_target"}
     schema = cc_schema
     index = cc_index
-    collection = mongo.db.cc
     sorted_schemes = sorted(cc_schemes)
     sorted_eals = sorted(cc_eals)
 

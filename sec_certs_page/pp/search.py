@@ -1,6 +1,5 @@
 from tantivy import Occur, Query
 
-from .. import mongo
 from ..cc import cc_categories, cc_schemes
 from ..common.keyword_groups import keyword_units
 from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
@@ -45,7 +44,6 @@ class PPSearch(Search):
     kw_source_fields = {"report": "keywords_report", "profile": "keywords_profile"}
     schema = pp_schema
     index = pp_index
-    collection = mongo.db.pp
     sorted_schemes = sorted(cc_schemes)
 
     config = SearchConfig(

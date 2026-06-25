@@ -267,7 +267,6 @@ class Search(ABC):
     snippet_fields: ClassVar
     schema: ClassVar[Schema]
     index: ClassVar[Callable[[], Index]]
-    collection: ClassVar
     config: ClassVar[SearchConfig]
 
     @classmethod
@@ -367,7 +366,7 @@ class Search(ABC):
             per_page=parsed["per_page"],
             search=True,
             found=count,
-            total=cls.collection.estimated_document_count(),
+            total=count,
             css_framework="bootstrap5",
             alignment="center",
             url_callback=callback,

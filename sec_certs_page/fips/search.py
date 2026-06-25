@@ -1,6 +1,5 @@
 from tantivy import Occur, Query
 
-from .. import mongo
 from ..common.keyword_groups import keyword_units
 from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
 from ..common.search.query import (
@@ -58,7 +57,6 @@ class FIPSSearch(Search):
     snippet_fields = {"policy": "body"}
     schema = fips_schema
     index = fips_index
-    collection = mongo.db.fips
 
     config = SearchConfig(
         default_sort_by="cert_id",

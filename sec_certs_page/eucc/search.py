@@ -1,6 +1,5 @@
 from tantivy import Occur, Query
 
-from .. import mongo
 from ..common.keyword_groups import keyword_units
 from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
 from ..common.search.query import (
@@ -45,7 +44,6 @@ class EUCCSearch(Search):
     kw_source_fields = {"cert": "keywords_cert", "report": "keywords_report", "target": "keywords_target"}
     schema = eucc_schema
     index = eucc_index
-    collection = mongo.db.eucc
     sorted_schemes = sorted(eucc_schemes)
     sorted_eals = sorted(eucc_eals)
 
