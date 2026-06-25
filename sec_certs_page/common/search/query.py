@@ -45,7 +45,6 @@ def select_by_list(selected: list | None, options: Iterable) -> list:
 def detect_advanced_syntax(query: str) -> set[str]:
     rules = [
         ("boolean_op", r"\b(AND|OR)\b"),
-        ("field_prefix", r"\w+:"),
         ("phrase", r'"[^"]*"'),
         ("must_exclude", r"(^|\s)[+\-]\w"),
         ("range", r"[\[{][^\]\}\n]+\bTO\b[^\]\}\n]+[\]}]"),
@@ -62,8 +61,8 @@ def detect_advanced_syntax(query: str) -> set[str]:
     return matched
 
 
-def get_expanded_query(query: str, field_name: str, prefix: bool, schema: Schema) -> Query:
-    words = default_tokenizer.analyze(query)
+def get_expanded_query(query: str, field_name: str, raw: bool, prefix: bool, schema: Schema) -> Query:
+    words = default_tokenizer.analyze(query) if not raw else query.split()
     subqueries = []
     if len(words) >= 2:
         subqueries.append((Occur.Should, Query.boost_query(Query.phrase_query(schema, field_name, words), 3)))
@@ -81,15 +80,17 @@ def get_expanded_query(query: str, field_name: str, prefix: bool, schema: Schema
     return Query.boolean_query(subqueries)
 
 
-def get_text_query(query: str | None, field_name: str, prefix: bool, index: Index, schema: Schema) -> tuple[Query, Any]:
+def get_text_query(
+    query: str | None, field_name: str, raw: bool, prefix: bool, index: Index, schema: Schema
+) -> tuple[Query, Any]:
     if query is None:
         return Query.all_query(), None
 
     advanced_features = detect_advanced_syntax(query)
     if not advanced_features:
-        return get_expanded_query(query, field_name, prefix, schema), None
+        return get_expanded_query(query, field_name, raw, prefix, schema), None
 
-    if "field_prefix" not in advanced_features:
+    if not re.search(r"\w+:", query):
         query = f"{field_name}:{query}"
 
     return index.parse_query_lenient(
@@ -165,8 +166,9 @@ def get_text_field_query(
     broader: bool,
     errors: "Errors",
     error_key: str | None = None,
+    raw=False,
 ) -> Query:
-    query, err = get_text_query(value, field_name, broader, index(), schema)
+    query, err = get_text_query(value, field_name, raw, broader, index(), schema)
     errors.add(error_key or field_name, err)
     return query
 
@@ -183,14 +185,14 @@ def get_id_query(
 ) -> Query:
     if value is None:
         return Query.all_query()
-    friendly, err = get_text_query(value, text_field, broader, index(), schema)
-    errors.add(error_key or text_field, err)
-    return Query.boolean_query(
-        [
-            (Occur.Should, Query.term_query(schema, raw_field, value)),
-            (Occur.Should, friendly),
-        ]
-    )
+
+    subqueries = []
+    for field, raw in [(text_field, False), (raw_field, True)]:
+        query, err = get_text_query(value, field, raw, broader, index(), schema)
+        errors.add(error_key or raw_field, err)
+        subqueries.append((Occur.Should, query))
+
+    return Query.boolean_query(subqueries)
 
 
 def get_body_query(index: Callable[[], Index], value: str | None, doc_types: list, errors: "Errors") -> Query:
@@ -201,7 +203,7 @@ def get_body_query(index: Callable[[], Index], value: str | None, doc_types: lis
     subqueries = []
     for doc_type in doc_types:
         field_name = f"body_{doc_type}" if doc_type else "body"
-        text = value if "field_prefix" in advanced_features else f"{field_name}:{value}"
+        text = value if not advanced_features or re.match(r"\w+:", value) else f"{field_name}:{value}"
         parsed_query, err = index().parse_query_lenient(
             text, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=False
         )

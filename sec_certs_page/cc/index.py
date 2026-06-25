@@ -24,7 +24,7 @@ cc_schema = (
     .add_text_field("name", stored=True, fast=True)
     .add_text_field("manufacturer", stored=True, fast=True)
     .add_text_field("cert_lab", stored=True, fast=True)
-    .add_text_field("cert_id", stored=True, fast=True, tokenizer_name="raw", index_option="basic")
+    .add_text_field("cert_id", stored=True, fast=True, tokenizer_name="raw")
     .add_text_field("cert_id_tokenized", stored=False)
     .add_text_field("body_cert", stored=True)
     .add_text_field("body_report", stored=True)

@@ -66,7 +66,6 @@ def test_detect_advanced_syntax():
     assert detect_advanced_syntax("simple query") == set()
     assert "boolean_op" in detect_advanced_syntax("foo AND bar")
     assert "phrase" in detect_advanced_syntax('"foo bar"')
-    assert "field_prefix" in detect_advanced_syntax("name:foo")
     assert "range" in detect_advanced_syntax("[2020-01-01 TO 2021-01-01]")
     assert "regex" in detect_advanced_syntax("/foo.*bar/")
 

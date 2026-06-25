@@ -29,7 +29,7 @@ def _fips_cert_id_query(value: str | None, errors: Errors) -> Query:
     if value is None:
         return Query.all_query()
 
-    text = value if "field_prefix" in detect_advanced_syntax(value) else f"cert_id:{value}"
+    text = value if not detect_advanced_syntax(value) else f"cert_id:{value}"
     parsed_query, err = fips_index().parse_query_lenient(
         text, default_field_names=["cert_id"], conjunction_by_default=True, allow_regexes=False
     )

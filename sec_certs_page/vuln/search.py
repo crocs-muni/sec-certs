@@ -13,7 +13,6 @@ from ..common.search.query import (
     get_date_query,
     get_id_query,
     get_number_range_query,
-    get_term_query,
     get_term_set_query,
     get_text_field_query,
     select_by_bitmask,
@@ -89,23 +88,13 @@ class CPESearch(Search):
     def _build_query(cls, args: dict, broader: bool = False, fulltext: bool = False) -> tuple[Query, Errors]:
         errors = Errors()
 
-        uri = args["uri"]
-        if uri and CPE_URI_RE.match(uri):
-            uri_query = Query.term_query(cpe_schema, "uri", uri)
-        elif uri:
-            uri_query = get_id_query(
-                cpe_index, cpe_schema, uri, broader, errors, "uri", "uri_tokenized", error_key="uri"
-            )
-        else:
-            uri_query = None
-
         query = build_must_query(
             get_text_field_query(
                 cpe_index, cpe_schema, args["cpe_title"], "cpe_title", broader, errors, error_key="query"
             ),
-            uri_query,
+            get_id_query(cpe_index, cpe_schema, args["uri"], broader, errors, "uri", "uri_tokenized"),
             get_text_field_query(cpe_index, cpe_schema, args["vendor"], "vendor", broader, errors),
             get_text_field_query(cpe_index, cpe_schema, args["product"], "product", broader, errors),
-            get_term_query(cpe_schema, "version", args["version"]),
+            get_text_field_query(cpe_index, cpe_schema, args["version"], "version", broader, errors, raw=True),
         )
         return query, errors
