@@ -243,50 +243,56 @@ export function initSearch({ searchUrl, networkUrl }) {
 }
 
 export function resultsFetch(onSwap) {
+    let controller = null;
     return async function doFetch(url) {
+        controller?.abort();
+        const { signal } = (controller = new AbortController());
+
         const container = document.getElementById('results');
         container.style.opacity = '0.5';
-        let res;
         try {
-            res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal });
+            if (!res.ok) return;
+
+            const html = await res.text();
+            const parsed = new DOMParser().parseFromString(html, 'text/html');
+            const partial = parsed.getElementById('search-partial');
+            if (!partial) return;
+
+            // Swap only the tbody — colgroup, thead, and column picker stay untouched
+            document.getElementById('results-body').replaceWith(
+                parsed.getElementById('results-body')
+            );
+
+            // Sync pagination top (visibility class + inner content)
+            const newTop = partial.querySelector('#pagination-top-wrapper');
+            const domTop = document.getElementById('pagination-top-wrapper');
+            domTop.className = newTop.className;
+            document.getElementById('pagination-info').innerHTML =
+                newTop.querySelector('#pagination-info').innerHTML;
+            document.getElementById('pagination-links-top').innerHTML =
+                newTop.querySelector('#pagination-links-top').innerHTML;
+
+            // Sync pagination bottom
+            const newBottom = partial.querySelector('#pagination-bottom-wrapper');
+            const domBottom = document.getElementById('pagination-bottom-wrapper');
+            domBottom.className = newBottom.className;
+            document.getElementById('pagination-links-bottom').innerHTML =
+                newBottom.querySelector('#pagination-links-bottom').innerHTML;
+            document.getElementById('pagination-info-bottom').innerHTML =
+                newBottom.querySelector('#pagination-info-bottom').innerHTML;
+
+            container.dataset.errors = partial.dataset.errors;
+            container.dataset.sortBy = partial.dataset.sortBy ?? '';
+            container.dataset.sortDir = partial.dataset.sortDir ?? '';
+
+            history.pushState(null, '', url);
+            onSwap?.();
+        } catch (e) {
+            if (e.name === 'AbortError') return;
+            throw e;
         } finally {
-            container.style.opacity = '1';
+            if (!signal.aborted) container.style.opacity = '1';
         }
-        if (!res.ok) return;
-
-        const html = await res.text();
-        const parsed = new DOMParser().parseFromString(html, 'text/html');
-        const partial = parsed.getElementById('search-partial');
-        if (!partial) return;
-
-        // Swap only the tbody — colgroup, thead, and column picker stay untouched
-        document.getElementById('results-body').replaceWith(
-            parsed.getElementById('results-body')
-        );
-
-        // Sync pagination top (visibility class + inner content)
-        const newTop = partial.querySelector('#pagination-top-wrapper');
-        const domTop = document.getElementById('pagination-top-wrapper');
-        domTop.className = newTop.className;
-        document.getElementById('pagination-info').innerHTML =
-            newTop.querySelector('#pagination-info').innerHTML;
-        document.getElementById('pagination-links-top').innerHTML =
-            newTop.querySelector('#pagination-links-top').innerHTML;
-
-        // Sync pagination bottom
-        const newBottom = partial.querySelector('#pagination-bottom-wrapper');
-        const domBottom = document.getElementById('pagination-bottom-wrapper');
-        domBottom.className = newBottom.className;
-        document.getElementById('pagination-links-bottom').innerHTML =
-            newBottom.querySelector('#pagination-links-bottom').innerHTML;
-        document.getElementById('pagination-info-bottom').innerHTML =
-            newBottom.querySelector('#pagination-info-bottom').innerHTML;
-
-        container.dataset.errors = partial.dataset.errors;
-        container.dataset.sortBy = partial.dataset.sortBy ?? '';
-        container.dataset.sortDir = partial.dataset.sortDir ?? '';
-
-        history.pushState(null, '', url);
-        onSwap?.();
     };
 }
