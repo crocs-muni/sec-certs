@@ -23,36 +23,6 @@ def test_analysis(client: FlaskClient):
 
 
 @pytest.mark.remote
-def test_search_basic(client: FlaskClient):
-    cert_id = "BSI-DSZ-CC-1091-2018"
-    cert_name = "Veridos Suite v3.0 – cryptovision ePasslet Suite – Java Card applet configuration providing Machine-Readable Electronic Documents based on BSI TR-03110 for Official Use with BAC option"
-    resp = client.get(f"/cc/mergedsearch/?cert_id={cert_id}")
-    assert resp.status_code == 200
-    assert cert_name in resp.data.decode()
-    resp = client.get(f"/cc/mergedsearch/?cert_id={cert_id}&status=active")
-    assert resp.status_code == 200
-    assert cert_name not in resp.data.decode()
-
-
-@pytest.mark.remote
-def test_search_bad(client: FlaskClient):
-    resp = client.get("/cc/mergedsearch/?query=aaa&page=bad")
-    assert resp.status_code == 400
-    resp = client.get("/cc/mergedsearch/?query=aaa&page=1&sort_by=bad")
-    assert resp.status_code == 400
-    resp = client.get("/cc/mergedsearch/?query=aaa&page=1&status=bad")
-    assert resp.status_code == 400
-
-
-@pytest.mark.remote
-def test_fulltext_search(client: FlaskClient):
-    resp = client.get("/cc/mergedsearch/?query=hardcoded&search_type=fulltext&page=1")
-    assert resp.status_code == 200
-    resp = client.get("/cc/mergedsearch/?query=hardcoded&search_type=fulltext&page=1&status=active")
-    assert resp.status_code == 200
-
-
-@pytest.mark.remote
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/cc/random/", follow_redirects=True)

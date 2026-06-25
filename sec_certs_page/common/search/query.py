@@ -325,7 +325,7 @@ class Search(ABC):
         for broader in (False, True):
             query, errs = cls._build_query(args, broader, fulltext)
             if errs:
-                return None, None, errs
+                return None, None, errs, broader
 
             order_dir = Order.Desc if sort_dir == "desc" else Order.Asc
             result = searcher.search(
@@ -334,10 +334,10 @@ class Search(ABC):
             if result.count > 0:
                 break
 
-        return query, result, {}
+        return query, result, {}, broader
 
     @classmethod
-    def _search(cls, args: dict) -> tuple[list, int, dict]:
+    def _search(cls, args: dict) -> tuple[list, int, dict, bool]:
         fulltext = args["search_type"] == "fulltext"
         page = args["page"]
         per_page = args["per_page"]
@@ -345,19 +345,21 @@ class Search(ABC):
         sort_dir = args["sort_dir"]
 
         searcher = cls.index().searcher()
-        query, result, errors = cls._search_with_fallback(args, searcher, sort_by, sort_dir, per_page, page, fulltext)
+        query, result, errors, broadened = cls._search_with_fallback(
+            args, searcher, sort_by, sort_dir, per_page, page, fulltext
+        )
         if errors:
-            return [], 0, errors
+            return [], 0, errors, broadened
         snippet_generators = {}
         if fulltext:
             snippet_generators = get_snippet_generators(searcher, query, cls.snippet_fields, cls.schema)
 
-        return get_results_from_hits(searcher, result.hits, snippet_generators), result.count, {}
+        return get_results_from_hits(searcher, result.hits, snippet_generators), result.count, {}, broadened
 
     @classmethod
     def process_search(cls, req, callback=None):
         parsed = cls._parse_args(req.args)
-        result, count, errors = cls._search(parsed)
+        result, count, errors, broadened = cls._search(parsed)
         pagination = Pagination(
             page=parsed["page"],
             per_page=parsed["per_page"],
@@ -374,5 +376,6 @@ class Search(ABC):
             "pagination": pagination,
             "result": result,
             "errors": errors,
+            "broadened": broadened,
             **parsed,
         }

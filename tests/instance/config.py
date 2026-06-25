@@ -141,6 +141,11 @@ DATASET_PATH_FIPS_OUT_ALGORITHMS = "fips_algorithms.json"
 DATASET_PATH_FIPS_DIR = "fips"
 DATASET_PATH_FIPS_ARCHIVE = "fips.tar.gz"
 
+DATASET_PATH_EUCC = "eucc_dataset"
+DATASET_PATH_EUCC_OUT = "eucc.json"
+DATASET_PATH_EUCC_DIR = "eucc"
+DATASET_PATH_EUCC_ARCHIVE = "eucc.tar.gz"
+
 # Path for the sec-certs tool settings file inside the instance directory
 TOOL_SETTINGS_PATH = "settings.yaml"
 
@@ -156,6 +161,7 @@ FIPS_MIP_SKIP_UPDATE = False
 CVE_SKIP_UPDATE = False
 CPE_SKIP_UPDATE = False
 CPE_MATCH_SKIP_UPDATE = False
+EUCC_SKIP_UPDATE = False
 
 # Whether to anonymize the site (for review).
 ANONYMOUS = False

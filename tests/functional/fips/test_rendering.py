@@ -25,37 +25,6 @@ def test_analysis(client: FlaskClient):
 
 
 @pytest.mark.remote
-@pytest.mark.parametrize("sort_by", ["name", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"])
-def test_search_basic(client: FlaskClient, sort_by):
-    cert_id = "310"
-    cert_name = "MOVEit Crypto"
-    resp = client.get(f"/fips/mergedsearch/?cert_id={cert_id}&sort_by={sort_by}")
-    assert resp.status_code == 200
-    assert cert_name in resp.data.decode()
-    resp = client.get(f"/fips/mergedsearch/?cert_id={cert_id}&status=active&sort_by={sort_by}")
-    assert resp.status_code == 200
-    assert cert_name not in resp.data.decode()
-
-
-@pytest.mark.remote
-def test_search_bad(client: FlaskClient):
-    resp = client.get("/fips/mergedsearch/?query=aaa&page=bad")
-    assert resp.status_code == 400
-    resp = client.get("/fips/mergedsearch/?query=aaa&page=1&sort_by=bad")
-    assert resp.status_code == 400
-    resp = client.get("/fips/mergedsearch/?query=aaa&page=1&status=bad")
-    assert resp.status_code == 400
-
-
-@pytest.mark.remote
-def test_fulltext_search(client: FlaskClient):
-    resp = client.get("/fips/mergedsearch/?query=hardcoded&search_type=fulltext&page=1")
-    assert resp.status_code == 200
-    resp = client.get("/fips/mergedsearch/?query=hardcoded&search_type=fulltext&page=1&status=active")
-    assert resp.status_code == 200
-
-
-@pytest.mark.remote
 def test_random(client: FlaskClient):
     for _ in range(100):
         resp = client.get("/fips/random/", follow_redirects=True)

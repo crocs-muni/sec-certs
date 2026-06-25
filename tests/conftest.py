@@ -17,6 +17,8 @@ from sec_certs_page import mongo
 from sec_certs_page.cc.mongo import create as cc_create
 from sec_certs_page.cc.tasks import CCIndexer
 from sec_certs_page.common.mongo import init_collections
+from sec_certs_page.eucc.mongo import create as eucc_create
+from sec_certs_page.eucc.tasks import EUCCIndexer
 from sec_certs_page.fips.mongo import create as fips_create
 from sec_certs_page.fips.tasks import FIPSIndexer
 from sec_certs_page.pp.mongo import create as pp_create
@@ -70,6 +72,7 @@ def mongo_data(app, mongodb):
     cc_create()
     fips_create()
     pp_create()
+    eucc_create()
     # Initialize other collections
     init_collections()
     for file in resources.files("tests.functional.data.mongo").iterdir():
@@ -89,6 +92,7 @@ def search_index(app, mongo_data, tmp_path_factory):
         (CCIndexer, "cc"),
         (FIPSIndexer, "fips"),
         (PPIndexer, "pp"),
+        (EUCCIndexer, "eucc"),
         (CVEIndexer, "cve"),
         (CPEIndexer, "cpe"),
     )
