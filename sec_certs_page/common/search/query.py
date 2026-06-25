@@ -367,7 +367,7 @@ class Search(ABC):
             per_page=parsed["per_page"],
             search=True,
             found=count,
-            total=cls.collection.count_documents({}),
+            total=cls.collection.estimated_document_count(),
             css_framework="bootstrap5",
             alignment="center",
             url_callback=callback,
