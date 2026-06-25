@@ -1119,6 +1119,7 @@ tr.has-snippets > td {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    overflow-wrap: anywhere;
 }
 @media (min-width: 1200px) {
   .results-container {
