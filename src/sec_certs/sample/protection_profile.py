@@ -82,19 +82,17 @@ class ProtectionProfile(
             """
             if is_collaborative:
                 return cls._from_html_row_collaborative(row, category)
-            row_is_collaborative = cls._html_row_is_collaborative(row)
-            return cls._from_html_row_classic_pp(row, status, category, row_is_collaborative)
+            return cls._from_html_row_classic_pp(row, status, category)
 
         @staticmethod
-        def _html_row_is_collaborative(row: Tag) -> bool:
-            # Collaborative PPs embedded in the archived page carry their name in a <p> tag;
-            # the filename-based flag misses them, so detect per row.
-            first_cell = row.find("td")
-            return first_cell is not None and first_cell.find("p") is not None
+        def _html_row_is_collaborative(cell: Tag) -> bool:
+            # A collaborative PP embedded in the active/archived tables carries its name
+            # in a <p> tag in the first cell; the filename-based flag misses these.
+            return cell.find("p") is not None
 
         @classmethod
         def _from_html_row_classic_pp(
-            cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+            cls, row: Tag, status: Literal["active", "archived"], category: str
         ) -> ProtectionProfile.WebData:
             cells = list(row.find_all("td"))
             if status == "active" and len(cells) != 6:
@@ -106,8 +104,17 @@ class ProtectionProfile(
                     f"Unexpected number of <td> elements in PP html row. Expected: 6, actual: {len(cells)}"
                 )
 
-            pp_link = cls._html_row_get_link(cells[0])
-            pp_name = cls._html_row_get_name(cells[0])
+            name_cell = cells[0]
+            is_collaborative = cls._html_row_is_collaborative(name_cell)
+            if is_collaborative:
+                # A collaborative PP listed in the active/archived tables uses the same
+                # first-cell markup as the dedicated collaborative page (name in a <p>,
+                # link labelled "Protection Profile"); the rest of the row stays classic.
+                pp_name = cls._html_row_get_collaborative_name(name_cell)
+                pp_link = cls._html_row_get_collaborative_pp_link(name_cell)
+            else:
+                pp_name = cls._html_row_get_name(name_cell)
+                pp_link = cls._html_row_get_link(name_cell)
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
 
@@ -168,9 +175,6 @@ class ProtectionProfile(
 
         @staticmethod
         def _html_row_get_name(cell: Tag) -> str:
-            p_tag = cell.find("p")
-            if p_tag:
-                return p_tag.get_text().strip()
             return str(cell.find_all("a")[0].string)
 
         @staticmethod
