@@ -166,6 +166,30 @@ def static_hash(filename: str):
         return None
 
 
+@app.template_global("standard_url")
+def standard_url(standard):
+    """Return a canonical URL for a matched standard identifier, or None if unknown."""
+    s = standard.strip()
+
+    m = re.match(r"RFC[ -]?(\d+)", s, re.IGNORECASE)
+    if m:
+        return f"https://www.rfc-editor.org/rfc/rfc{m.group(1)}"
+
+    m = re.match(r"(?:NIST\s+)?SP\s*(\d+)-(\d+)([A-Za-z]?)", s, re.IGNORECASE)
+    if m:
+        series, num, rev = m.group(1), m.group(2), m.group(3).lower()
+        path = f"{series}-{num}{rev}" if rev else f"{series}-{num}"
+        return f"https://csrc.nist.gov/publications/detail/sp/{path}/final"
+
+    m = re.match(r"FIPS\s*(?:PUB\s*)?(\d+)(?:-(\d+))?", s, re.IGNORECASE)
+    if m:
+        base, sub = m.group(1), m.group(2)
+        path = f"{base}/{sub}" if sub else base
+        return f"https://csrc.nist.gov/publications/detail/fips/{path}/final"
+
+    return None
+
+
 @app.template_global("is_github_oauth_enabled")
 def is_github_oauth_enabled():
     """Check if GitHub OAuth is enabled"""
