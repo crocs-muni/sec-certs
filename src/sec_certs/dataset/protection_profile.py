@@ -246,7 +246,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             cert_status: Literal["active", "archived"],
             table_id: str,
             category_string: str,
-            is_collaborative: bool,
+            from_collaborative_page: bool,
         ) -> dict[str, ProtectionProfile]:
             tables = soup.find_all("table", id=table_id)
             if len(tables) > 1:
@@ -261,7 +261,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             table_certs = {}
             for row in body:
                 try:
-                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, is_collaborative)
+                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, from_collaborative_page)
                     table_certs[pp.dgst] = pp
                 except ValueError as e:
                     logger.error(f"Error when creating ProtectionProfile object: {e}")
@@ -269,9 +269,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             return table_certs
 
         cert_status: Literal["active", "archived"] = "active" if "active" in file.name else "archived"
-        is_collaborative = "collaborative" in file.name
+        from_collaborative_page = "collaborative" in file.name
         cc_table_ids = ["tbl" + x for x in constants.CC_CAT_ABBREVIATIONS]
-        if is_collaborative:
+        if from_collaborative_page:
             cc_table_ids = [x + "1" for x in cc_table_ids]
         cat_dict = dict(zip(cc_table_ids, constants.CC_CATEGORIES))
 
@@ -280,7 +280,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         certs = {}
         for key, val in cat_dict.items():
-            certs.update(_parse_table(soup, cert_status, key, val, is_collaborative))
+            certs.update(_parse_table(soup, cert_status, key, val, from_collaborative_page))
 
         return certs
 

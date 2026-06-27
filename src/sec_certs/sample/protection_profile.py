@@ -75,19 +75,19 @@ class ProtectionProfile(
 
         @classmethod
         def from_html_row(
-            cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+            cls, row: Tag, status: Literal["active", "archived"], category: str, from_collaborative_page: bool
         ) -> ProtectionProfile.WebData:
             """
             Given bs4 tag of html row (fetched from cc portal), will build the object.
             """
-            if is_collaborative:
+            if from_collaborative_page:
                 return cls._from_html_row_collaborative(row, category)
             return cls._from_html_row_classic_pp(row, status, category)
 
         @staticmethod
         def _html_row_is_collaborative(cell: Tag) -> bool:
-            # A collaborative PP embedded in the active/archived tables carries its name
-            # in a <p> tag in the first cell; the filename-based flag misses these.
+            # A collaborative PP saved in the active/archived tables has its name
+            # in a <p> tag in the first cell,so the filename-based flag misses it
             return cell.find("p") is not None
 
         @classmethod
@@ -107,9 +107,7 @@ class ProtectionProfile(
             name_cell = cells[0]
             is_collaborative = cls._html_row_is_collaborative(name_cell)
             if is_collaborative:
-                # A collaborative PP listed in the active/archived tables uses the same
-                # first-cell markup as the dedicated collaborative page (name in a <p>,
-                # link labelled "Protection Profile"); the rest of the row stays classic.
+                # A collaborative PP listed in the active/archived tables uses the name in a <p> tag
                 pp_name = cls._html_row_get_collaborative_name(name_cell)
                 pp_link = cls._html_row_get_collaborative_pp_link(name_cell)
             else:
@@ -275,12 +273,12 @@ class ProtectionProfile(
 
     @classmethod
     def from_html_row(
-        cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+        cls, row: Tag, status: Literal["active", "archived"], category: str, from_collaborative_page: bool
     ) -> ProtectionProfile:
         """
         Builds a `ProtectionProfile` object from html row obtained from cc portal html source.
         """
-        return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
+        return cls(ProtectionProfile.WebData.from_html_row(row, status, category, from_collaborative_page))
 
     @classmethod
     def from_scheme_record(cls, entry: PPSchemeRecord) -> ProtectionProfile:
