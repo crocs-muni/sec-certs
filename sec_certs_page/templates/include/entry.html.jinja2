@@ -323,7 +323,9 @@
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, map_funcs) }}
+    {% set _map = {"standard_id": render_standards} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_updates(doc_name, diffs, diff_jsons, diff_renders) %}
@@ -469,6 +471,14 @@
         <abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
     {%- else -%}
         {{ sar }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_standards(standard) %}
+    {%- if standard_url(standard) -%}
+        <a href="{{ standard_url(standard) }}" target="_blank" rel="noopener">{{ standard }}</a>
+    {%- else -%}
+        {{ standard }}
     {%- endif -%}
 {%- endmacro %}
 
