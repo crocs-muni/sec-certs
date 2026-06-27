@@ -1,4 +1,4 @@
-{% from "include/entry.html.jinja2" import keywords_card %}
+{% from "include/entry.html.jinja2" import keywords_card, render_standards %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "symmetric_crypto",
@@ -35,8 +35,10 @@
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
+    {% set _map = {"standard_id": render_standards} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
     {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "standard_id",
-                                                                  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
+                                                                  "Technical reports": "technical_report_id"}, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_status(status) %}
