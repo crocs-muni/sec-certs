@@ -168,7 +168,7 @@ def static_hash(filename: str):
 
 @app.template_global("standard_url")
 def standard_url(standard):
-    """Return a canonical URL for a matched standard identifier, or None if unknown."""
+    # return URL for a matched standard identifier or none if unknown
     s = standard.strip()
 
     m = re.match(r"RFC[ -]?(\d+)", s, re.IGNORECASE)
