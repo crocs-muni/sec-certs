@@ -177,15 +177,15 @@ def standard_url(standard):
 
     m = re.match(r"(?:NIST\s+)?SP\s*(\d+)-(\d+)([A-Za-z]?)", s, re.IGNORECASE)
     if m:
-        series, num, rev = m.group(1), m.group(2), m.group(3).lower()
-        path = f"{series}-{num}{rev}" if rev else f"{series}-{num}"
-        return f"https://csrc.nist.gov/publications/detail/sp/{path}/final"
+        series, num, letter = m.group(1), m.group(2), m.group(3).lower()
+        path = f"{series}/{num}/{letter}" if letter else f"{series}/{num}"
+        return f"https://csrc.nist.gov/pubs/sp/{path}/final"
 
     m = re.match(r"FIPS\s*(?:PUB\s*)?(\d+)(?:-(\d+))?", s, re.IGNORECASE)
     if m:
         base, sub = m.group(1), m.group(2)
-        path = f"{base}/{sub}" if sub else base
-        return f"https://csrc.nist.gov/publications/detail/fips/{path}/final"
+        path = f"{base}-{sub}" if sub else base
+        return f"https://csrc.nist.gov/pubs/fips/{path}/final"
 
     return None
 
