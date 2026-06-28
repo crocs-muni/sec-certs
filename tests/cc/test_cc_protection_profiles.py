@@ -1,16 +1,19 @@
 import json
 import shutil
+import textwrap
 from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.protection_profiles
+from bs4 import BeautifulSoup
 from tests.conftest import compare_to_template, get_converters
 
 from sec_certs import constants
 from sec_certs.converter import PDFConverter
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmp_path: Path):
@@ -200,3 +203,51 @@ def test_get_pp_by_pp_link(toy_pp_dataset: ProtectionProfileDataset):
     assert pp
     assert pp.dgst == "b02ed76d2545326a"
     assert not toy_pp_dataset.get_pp_by_pp_link("https://some-random-url.com")
+
+
+def test_archived_embedded_collaborative_parsing():
+    # Real structure of rows from the active/archived CC portal tables.
+    # Collaborative PPs use a <p> name + "Protection Profile" link in cell[0];
+    # the remaining 6 cells are identical to ordinary archived rows.
+    COLLAB_ROW = textwrap.dedent("""\
+        <tr>
+          <td>
+            <p>collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0</p>
+            <li><a href="/nfs/ccpfiles/files/ppfiles/CPP_FW_V2.0.pdf" target="_blank"
+                   title="Protection Profile: CPP_FW_V2.0.pdf">Protection Profile</a></li>
+          </td>
+          <td>2.0</td>
+          <td>None</td>
+          <td>2017-12-06</td>
+          <td>2018-03-14</td>
+          <td></td>
+          <td><a href="/nfs/ccpfiles/files/ppfiles/CPP_FW_V2.0_report.pdf">Certification Report</a></td>
+        </tr>
+    """)
+    CLASSIC_ROW = textwrap.dedent("""\
+        <tr>
+          <td><a href="/nfs/ccpfiles/files/ppfiles/pp0062b_pdf.pdf">Example Classic PP</a></td>
+          <td>1.0</td>
+          <td>EAL2</td>
+          <td>2010-01-01</td>
+          <td>2020-01-01</td>
+          <td>DE</td>
+          <td><a href="/nfs/ccpfiles/files/ppfiles/pp0062b_report.pdf">Certification Report</a></td>
+        </tr>
+    """)
+
+    def parse(html: str) -> ProtectionProfile.WebData:
+        soup = BeautifulSoup(f"<table>{html}</table>", "html5lib")
+        row = soup.find("tr")
+        return ProtectionProfile.WebData.from_html_row(
+            row, "archived", "Boundary Protection Devices", from_collaborative_page=False
+        )
+
+    collab = parse(COLLAB_ROW)
+    assert collab.is_collaborative is True
+    assert collab.name == "collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0"
+    assert collab.pp_link is not None and collab.pp_link.endswith("CPP_FW_V2.0.pdf")
+
+    classic = parse(CLASSIC_ROW)
+    assert classic.is_collaborative is False
+    assert classic.name == "Example Classic PP"

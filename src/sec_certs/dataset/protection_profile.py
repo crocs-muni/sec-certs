@@ -11,6 +11,8 @@ from sec_certs import constants
 from sec_certs.configuration import config
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.pp_scheme import PPSchemeDataset
+from sec_certs.model.pp_matching import PPSchemeMatcher
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
@@ -188,6 +190,14 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         self.certs = self._get_all_certs_from_html(get_active, get_archived, get_collaborative)
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
+        if to_download:
+            try:
+                self._match_and_enrich_from_scheme(PPSchemeDataset.from_scrapers())
+            except Exception as e:
+                logger.error("Scheme scrape/merge failed; dataset will have no scheme enrichment: %s", e)
+        else:
+            logger.info("Skipping scheme scrape/merge (to_download=False); dataset will have no scheme enrichment.")
+
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
@@ -236,7 +246,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             cert_status: Literal["active", "archived"],
             table_id: str,
             category_string: str,
-            is_collaborative: bool,
+            from_collaborative_page: bool,
         ) -> dict[str, ProtectionProfile]:
             tables = soup.find_all("table", id=table_id)
             if len(tables) > 1:
@@ -251,7 +261,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             table_certs = {}
             for row in body:
                 try:
-                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, is_collaborative)
+                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, from_collaborative_page)
                     table_certs[pp.dgst] = pp
                 except ValueError as e:
                     logger.error(f"Error when creating ProtectionProfile object: {e}")
@@ -259,9 +269,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             return table_certs
 
         cert_status: Literal["active", "archived"] = "active" if "active" in file.name else "archived"
-        is_collaborative = "collaborative" in file.name
+        from_collaborative_page = "collaborative" in file.name
         cc_table_ids = ["tbl" + x for x in constants.CC_CAT_ABBREVIATIONS]
-        if is_collaborative:
+        if from_collaborative_page:
             cc_table_ids = [x + "1" for x in cc_table_ids]
         cat_dict = dict(zip(cc_table_ids, constants.CC_CATEGORIES))
 
@@ -270,7 +280,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         certs = {}
         for key, val in cat_dict.items():
-            certs.update(_parse_table(soup, cert_status, key, val, is_collaborative))
+            certs.update(_parse_table(soup, cert_status, key, val, from_collaborative_page))
 
         return certs
 
@@ -420,18 +430,40 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     def _compute_heuristics_body(self):
         logger.info("Protection profile dataset has no heuristics to compute, skipping.")
 
-    @only_backed()
-    def process_auxiliary_datasets(self, **kwargs) -> None:
+    def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
         """
-        Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.
-        This will just set the state `auxiliary_datasets_processed = True`
+        Matches scraped scheme records against existing PPs (enriching scheme_metadata)
+        and inserts previously unseen records as new ProtectionProfile objects
         """
-        logger.info("Protection Profile dataset has no auxiliary datasets to process, skipping.")
-        self.state.auxiliary_datasets_processed = True
+        for scheme, entries in scheme_dset.schemes.items():
+            scheme_pool_certs = [
+                c
+                for c in self
+                if c.web_data
+                and (c.web_data.scheme == scheme or (c.web_data.scheme is None and c.web_data.is_collaborative))
+            ]
+            matchers = [PPSchemeMatcher(e) for e in entries]
+            matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
+
+            for dgst, record in matched.items():
+                self.certs[dgst].scheme_metadata = record.to_enrichment_dict()
+
+            matched_ids = {id(v) for v in matched.values()}
+            added = 0
+            for entry in entries:
+                if id(entry) not in matched_ids:
+                    pp = ProtectionProfile.from_scheme_record(entry)
+                    if pp.dgst not in self.certs:
+                        self.certs[pp.dgst] = pp
+                        added += 1
+
+            logger.info("Scheme %s: %d matched, %d new PPs added.", scheme, len(matched), added)
+
+        self._set_local_paths()
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
         """
-        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if such exists.
+        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if exists
         """
         for pp in self:
             if pp.web_data.pp_link == pp_link:

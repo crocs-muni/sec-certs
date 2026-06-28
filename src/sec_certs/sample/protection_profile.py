@@ -23,6 +23,7 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
+    from sec_certs.sample.pp_scheme import PPSchemeRecord
 
 
 class ProtectionProfile(
@@ -74,14 +75,20 @@ class ProtectionProfile(
 
         @classmethod
         def from_html_row(
-            cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+            cls, row: Tag, status: Literal["active", "archived"], category: str, from_collaborative_page: bool
         ) -> ProtectionProfile.WebData:
             """
             Given bs4 tag of html row (fetched from cc portal), will build the object.
             """
-            if is_collaborative:
+            if from_collaborative_page:
                 return cls._from_html_row_collaborative(row, category)
             return cls._from_html_row_classic_pp(row, status, category)
+
+        @staticmethod
+        def _html_row_is_collaborative(cell: Tag) -> bool:
+            # A collaborative PP saved in the active/archived tables has its name
+            # in a <p> tag in the first cell,so the filename-based flag misses it
+            return cell.find("p") is not None
 
         @classmethod
         def _from_html_row_classic_pp(
@@ -97,8 +104,15 @@ class ProtectionProfile(
                     f"Unexpected number of <td> elements in PP html row. Expected: 6, actual: {len(cells)}"
                 )
 
-            pp_link = cls._html_row_get_link(cells[0])
-            pp_name = cls._html_row_get_name(cells[0])
+            name_cell = cells[0]
+            is_collaborative = cls._html_row_is_collaborative(name_cell)
+            if is_collaborative:
+                # A collaborative PP listed in the active/archived tables uses the name in a <p> tag
+                pp_name = cls._html_row_get_collaborative_name(name_cell)
+                pp_link = cls._html_row_get_collaborative_pp_link(name_cell)
+            else:
+                pp_name = cls._html_row_get_name(name_cell)
+                pp_link = cls._html_row_get_link(name_cell)
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
 
@@ -111,7 +125,7 @@ class ProtectionProfile(
             return cls(
                 category,
                 status,
-                False,
+                is_collaborative,
                 pp_name,
                 cls._html_row_get_version(cells[1]),
                 cls._html_row_get_security_level(cells[2]),
@@ -203,12 +217,15 @@ class ProtectionProfile(
         pdf_data: PdfData | None = None,
         heuristics: Heuristics | None = None,
         state: InternalState | None = None,
+        scheme_metadata: dict[str, Any] | None = None,
     ):
         super().__init__()
         self.web_data: ProtectionProfile.WebData = web_data
         self.pdf_data: ProtectionProfile.PdfData = pdf_data if pdf_data else ProtectionProfile.PdfData()
         self.heuristics: ProtectionProfile.Heuristics = heuristics if heuristics else ProtectionProfile.Heuristics()
         self.state: ProtectionProfile.InternalState = state if state else ProtectionProfile.InternalState()
+        # Enrichment from national schemes - always serialized (null when not there)
+        self.scheme_metadata: dict[str, Any] | None = scheme_metadata
 
     @property
     def dgst(self) -> str:
@@ -256,12 +273,35 @@ class ProtectionProfile(
 
     @classmethod
     def from_html_row(
-        cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+        cls, row: Tag, status: Literal["active", "archived"], category: str, from_collaborative_page: bool
     ) -> ProtectionProfile:
         """
         Builds a `ProtectionProfile` object from html row obtained from cc portal html source.
         """
-        return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
+        return cls(ProtectionProfile.WebData.from_html_row(row, status, category, from_collaborative_page))
+
+    @classmethod
+    def from_scheme_record(cls, entry: PPSchemeRecord) -> ProtectionProfile:
+        """
+        Builds a `ProtectionProfile` object from a PPSchemeRecord produced by a national scheme scraper.
+        """
+        return cls(
+            ProtectionProfile.WebData(
+                category=entry.category,
+                status=entry.status,
+                is_collaborative=entry.is_collaborative,
+                name=entry.name,
+                version=entry.version,
+                security_level=entry.security_level,
+                not_valid_before=entry.not_valid_before,
+                not_valid_after=entry.not_valid_after,
+                report_link=entry.report_link,
+                pp_link=entry.pp_link,
+                scheme=entry.scheme,
+                maintenances=entry.maintenances,
+            ),
+            scheme_metadata=entry.to_enrichment_dict(),
+        )
 
     @staticmethod
     def download_pdf_report(cert: ProtectionProfile) -> ProtectionProfile:
