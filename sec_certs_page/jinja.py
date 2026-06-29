@@ -194,6 +194,9 @@ def standard_url(standard):
     if re.match(r"X[.．]?509", s, re.IGNORECASE):
         return "https://www.itu.int/rec/T-REC-X.509"
 
+    if re.match(r"ICAO", s, re.IGNORECASE):
+        return "https://www.icao.int/publications/doc-series"
+
     return None
 
 
