@@ -220,14 +220,16 @@ def _register_edit_handler(
             ),
             "y_log_scale": Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
         },
-        inputs={"n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")},
+        inputs={
+            "n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks"),
+            "list_n_clicks": Input(pattern_builder.pattern(ComponentID.LIST_CHART_EDIT, ALL), "n_clicks"),
+        },
         state={
-            "id_list": State(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "id"),
             "chart_configs": State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
         },
         prevent_initial_call=True,
     )
-    def handle_edit_button(n_clicks_list, id_list, chart_configs):
+    def handle_edit_button(n_clicks_list, list_n_clicks, chart_configs):
         no_change = {
             "is_open": no_update,
             "edit_id": no_update,
@@ -246,46 +248,49 @@ def _register_edit_handler(
             "y_log_scale": no_update,
         }
 
-        if not n_clicks_list or not any(n_clicks_list):
+        # The edit button exists both on the chart card and in the charts list.
+        # Use ctx to find which one fired (ignoring the n_clicks=0 burst emitted
+        # when rows/cards first render).
+        if not any(trigger.get("value") for trigger in ctx.triggered):
             return no_change
 
-        for i, n_clicks in enumerate(n_clicks_list):
-            if n_clicks:
-                chart_id = id_list[i]["index"]
-                config_dict = (chart_configs or {}).get(chart_id)
+        triggered_id = ctx.triggered_id
+        if not isinstance(triggered_id, dict) or not triggered_id.get("index"):
+            return no_change
 
-                if not config_dict:
-                    # Try predefined charts (custom charts are always in chart_configs)
-                    chart_instance = chart_registry.get_predefined(chart_id)
-                    if chart_instance:
-                        config_dict = chart_instance.config.to_dict()
+        chart_id = triggered_id["index"]
+        config_dict = (chart_configs or {}).get(chart_id)
 
-                if not config_dict:
-                    return no_change
+        if not config_dict:
+            # Try predefined charts (custom charts are always in chart_configs)
+            chart_instance = chart_registry.get_predefined(chart_id)
+            if chart_instance:
+                config_dict = chart_instance.config.to_dict()
 
-                x_axis = config_dict.get("x_axis", {})
-                y_axis = config_dict.get("y_axis", {})
-                color_axis = config_dict.get("color_axis")
+        if not config_dict:
+            return no_change
 
-                return {
-                    "is_open": True,
-                    "edit_id": chart_id,
-                    "title": config_dict.get("title", ""),
-                    "chart_type": config_dict.get("chart_type"),
-                    "x_field": x_axis.get("field") if x_axis else None,
-                    "x_label": x_axis.get("label", "") if x_axis else "",
-                    "color_field": color_axis.get("field") if color_axis else None,
-                    "aggregation": y_axis.get("aggregation", "count") if y_axis else "count",
-                    "y_field": y_axis.get("field") if y_axis and y_axis.get("field") != "count" else None,
-                    "y_label": y_axis.get("label", "") if y_axis else "",
-                    "show_legend": config_dict.get("show_legend", True),
-                    "show_grid": config_dict.get("show_grid", True),
-                    "color_by_open": color_axis is not None,
-                    "show_zero_values": config_dict.get("show_zero_values", True),
-                    "y_log_scale": y_axis.get("log_scale", False) if y_axis else False,
-                }
+        x_axis = config_dict.get("x_axis", {})
+        y_axis = config_dict.get("y_axis", {})
+        color_axis = config_dict.get("color_axis")
 
-        return no_change
+        return {
+            "is_open": True,
+            "edit_id": chart_id,
+            "title": config_dict.get("title", ""),
+            "chart_type": config_dict.get("chart_type"),
+            "x_field": x_axis.get("field") if x_axis else None,
+            "x_label": x_axis.get("label", "") if x_axis else "",
+            "color_field": color_axis.get("field") if color_axis else None,
+            "aggregation": y_axis.get("aggregation", "count") if y_axis else "count",
+            "y_field": y_axis.get("field") if y_axis and y_axis.get("field") != "count" else None,
+            "y_label": y_axis.get("label", "") if y_axis else "",
+            "show_legend": config_dict.get("show_legend", True),
+            "show_grid": config_dict.get("show_grid", True),
+            "color_by_open": color_axis is not None,
+            "show_zero_values": config_dict.get("show_zero_values", True),
+            "y_log_scale": y_axis.get("log_scale", False) if y_axis else False,
+        }
 
 
 def _register_edit_filter_loader(

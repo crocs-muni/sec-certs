@@ -194,6 +194,7 @@ def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> dbc.Card:
                     section_header("Configure Dashboard", "fas fa-sliders-h"),
                     _create_dashboard_name_row(cid),
                     html.Hr(className="my-3"),
+                    _create_dashboard_charts_list(cid),
                     _create_chart_controls_row(cid),
                 ],
             ),
@@ -239,6 +240,25 @@ def _create_dashboard_name_row(cid: ComponentIDBuilder) -> dbc.Row:
                     ),
                 ],
             ),
+        ],
+    )
+
+
+def _create_dashboard_charts_list(cid: ComponentIDBuilder) -> html.Div:
+    """Create the container for the list of charts added to the dashboard.
+
+    The list itself is populated by a callback that reacts to the chart
+    configs store, so the layout only provides the labelled wrapper and an
+    empty container to render rows into.
+
+    :param cid: Component ID builder
+    :return: Div wrapping the "Dashboard Charts" list
+    """
+    return html.Div(
+        className="mb-4",
+        children=[
+            dbc.Label("Dashboard Charts", className="fw-bold mb-2"),
+            html.Div(id=cid(ComponentID.CHART_LIST)),
         ],
     )
 
