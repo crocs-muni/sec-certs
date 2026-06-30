@@ -279,7 +279,6 @@ def _create_added_charts_header(cid: ComponentIDBuilder) -> html.Div:
                         disabled=True,
                         color="secondary",
                         outline=True,
-                        size="sm",
                         className="refresh-all-btn",
                     ),
                     dbc.Tooltip(
