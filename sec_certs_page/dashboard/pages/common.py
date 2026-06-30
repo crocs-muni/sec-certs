@@ -432,22 +432,20 @@ def _create_modal_header(cid: ComponentIDBuilder) -> dbc.ModalHeader:
                         children=[html.I(className="fas fa-chart-bar me-2"), "Create Custom Chart"],
                         className="text-muted d-block mb-3",
                     ),
-                    html.Div(
-                        className="d-flex align-items-center mb-3",
-                        children=[
-                            dbc.Input(
-                                id=cid(ComponentID.MODAL_CHART_TITLE),
-                                type="text",
-                                placeholder="New chart",
-                                value="",
-                                className="border-0 fs-4 fw-bold p-0 bg-transparent",
-                                style={"outline": "none", "boxShadow": "none"},
-                            ),
-                            html.I(
-                                className="fas fa-pencil-alt ms-2 text-muted",
-                                style={"fontSize": "0.9rem"},
-                            ),
+                    dbc.Label(
+                        [
+                            "Chart title",
+                            html.Span("*", className="text-danger ms-1"),
                         ],
+                        html_for=cid(ComponentID.MODAL_CHART_TITLE),
+                        className="fw-bold mb-1",
+                    ),
+                    dbc.Input(
+                        id=cid(ComponentID.MODAL_CHART_TITLE),
+                        type="text",
+                        placeholder="e.g. Certificates per year",
+                        value="",
+                        className="fs-5 fw-bold mb-3",
                     ),
                     dbc.Alert(
                         id=cid(ComponentID.MODAL_VALIDATION_ALERT),
