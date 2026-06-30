@@ -15,6 +15,9 @@ from ..types.filter import AggregationType
 def section_header(title: str, icon: str, icon_color: str = "text-primary") -> html.Div:
     """Create a section header with icon and title.
 
+    Uses a semantic ``<h2>`` to match section titles used elsewhere on the
+    site (page title is ``<h1>``, sections are ``<h2>``).
+
     :param title: The section title text
     :param icon: Font Awesome icon class (e.g., "fas fa-chart-bar")
     :param icon_color: Bootstrap text color class (default: "text-primary")
@@ -24,13 +27,16 @@ def section_header(title: str, icon: str, icon_color: str = "text-primary") -> h
         className="d-flex align-items-center mb-3",
         children=[
             html.I(className=f"{icon} me-2 {icon_color}"),
-            html.H5(title, className="mb-0 fw-bold"),
+            html.H2(title, className="mb-0 fw-bold"),
         ],
     )
 
 
 def subsection_header(title: str, icon: str, icon_color: str = "text-muted") -> html.Div:
     """Create a subsection header with icon and title.
+
+    Uses a semantic ``<h3>`` so subsections nest correctly under the ``<h2>``
+    section headers.
 
     :param title: The subsection title text
     :param icon: Font Awesome icon class
@@ -41,7 +47,7 @@ def subsection_header(title: str, icon: str, icon_color: str = "text-muted") -> 
         className="d-flex align-items-center mb-2",
         children=[
             html.I(className=f"{icon} me-2 {icon_color}"),
-            html.Span(title, className="fw-bold"),
+            html.H3(title, className="mb-0 fw-bold"),
         ],
     )
 
