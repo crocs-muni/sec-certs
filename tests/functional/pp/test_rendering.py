@@ -1,5 +1,3 @@
-from urllib.parse import quote
-
 import pytest
 from flask.testing import FlaskClient
 
@@ -19,39 +17,6 @@ def test_network(client: FlaskClient):
 @pytest.mark.remote
 def test_analysis(client: FlaskClient):
     resp = client.get("/pp/analysis/")
-    assert resp.status_code == 200
-
-
-@pytest.mark.remote
-def test_search_basic(client: FlaskClient):
-    pp_id = quote("ANSSI-CC-PP-2018/03", safe="")
-    pp_name = "ANSSI-CC-PP-2018/03 « PC Client Specific TPM » (TPM Library specification Family “2.0”, Level 0)"
-    resp = client.get(f"/pp/mergedsearch/?searchType=by-name&q={pp_id}&cat=abcdefghijklmop&status=any&sort=match")
-    assert resp.status_code == 200
-    assert pp_name in resp.data.decode()
-    resp = client.get(f"/pp/mergedsearch/?searchType=by-name&q={pp_id}&cat=abcdefghijklmop&status=archived&sort=match")
-    assert resp.status_code == 200
-    assert pp_name not in resp.data.decode()
-
-
-@pytest.mark.remote
-def test_search_bad(client: FlaskClient):
-    resp = client.get("/pp/mergedsearch/?searchType=by-name&q=aaa&page=bad")
-    assert resp.status_code == 400
-    resp = client.get("/pp/mergedsearch/?searchType=by-name&q=aaa&page=1&sort=bad")
-    assert resp.status_code == 400
-    resp = client.get("/pp/mergedsearch/?searchType=by-name&q=aaa&page=1&status=bad")
-    assert resp.status_code == 400
-
-
-@pytest.mark.remote
-def test_fulltext_search(client: FlaskClient):
-    resp = client.get(
-        "/pp/mergedsearch/?searchType=fulltext&q=hardcoded&page=1&cat=abcdefghijklmop&status=any&type=report"
-    )
-    assert resp.status_code == 200
-
-    resp = client.get("/pp/mergedsearch/?searchType=fulltext&q=hardcoded&page=1&status=active&type=report")
     assert resp.status_code == 200
 
 

@@ -1,6 +1,6 @@
 import logging
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -10,16 +10,18 @@ from flask import current_app
 from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
 from sec_certs.dataset.eucc import EUCCDataset
 from sec_certs.utils.helpers import get_sha256_filepath
+from tantivy import Document
 
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
+from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
-from ..common.tasks.search import Indexer
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
 from ..common.tasks.webui import KBUpdater
+from .index import eucc_index
 
 logger = logging.getLogger(__name__)
 
@@ -67,17 +69,36 @@ def notify(run_id):  # pragma: no cover
 
 
 class EUCCIndexer(Indexer, EUCCMixin):  # pragma: no cover
-    def create_document(self, dgst, document, cert, content):
-        return {
-            "dgst": dgst,
-            "name": cert["name"],
-            "document_type": document,
-            "cert_id": cert["cert_id"],
-            "cert_schema": self.cert_schema,
-            "status": cert["status"],
-            "scheme": cert["scheme"],
-            "content": content,
-        }
+    doc_types = ["cert", "report", "target"]
+
+    def __init__(self):
+        super().__init__()
+        self.index = eucc_index()
+
+    def create_document(self, dgst, cert, content):
+        doc = Document()
+        doc.add_text("dgst", dgst)
+        doc.add_text("scheme", cert["scheme"])
+        doc.add_text("eal", cert["heuristics"].get("eal") or "")
+        doc.add_text("status", cert["status"])
+        nvb = (cert.get("not_valid_before") or {}).get("_value")
+        nva = (cert.get("not_valid_after") or {}).get("_value")
+        if nvb:
+            doc.add_date("not_valid_before", datetime.strptime(nvb, "%Y-%m-%d"))
+        if nva:
+            doc.add_date("not_valid_after", datetime.strptime(nva, "%Y-%m-%d"))
+        doc.add_text("name", cert["name"] or "")
+        doc.add_text("cert_id", cert.get("cert_id") or "")
+        doc.add_text("cert_id_tokenized", cert.get("cert_id") or "")
+        pdf_data = cert.get("pdf_data") or {}
+        add_keyword_paths(doc, "keywords_cert", pdf_data.get("cert_keywords"))
+        add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))
+        add_keyword_paths(doc, "keywords_target", pdf_data.get("st_keywords"))
+        doc.add_text("body_cert", content["cert"])
+        doc.add_text("body_target", content["target"])
+        doc.add_text("body_report", content["report"])
+
+        return doc
 
 
 @actor("eucc_reindex_collection", "eucc_reindex_collection", "updates", timedelta(hours=4))
@@ -89,7 +110,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 @actor("eucc_reindex_all", "eucc_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.eucc.find({}, {"_id": 1})]
-    to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "target", "cert")]
+    to_reindex = list(ids)
     tasks = []
     for i in range(0, len(to_reindex), 1000):
         j = i + 1000
@@ -254,7 +275,7 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
                         dst = paths["report_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
                             cert.state.report.txt_path.replace(dst)
-                            to_reindex.add((cert.dgst, "report"))
+                            to_reindex.add(cert.dgst)
                         # name = f"{cert.dgst}.txt"
                         # if name not in reports_fmap:
                         #    to_update_kb.add((cert.dgst, "report", None))
@@ -268,7 +289,7 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
                             cert.state.st.txt_path.replace(dst)
-                            to_reindex.add((cert.dgst, "target"))
+                            to_reindex.add(cert.dgst)
                         # name = f"{cert.dgst}.txt"
                         # if name not in targets_fmap:
                         #    to_update_kb.add((cert.dgst, "target", None))
@@ -282,7 +303,7 @@ class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
                         dst = paths["cert_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
                             cert.state.cert.txt_path.replace(dst)
-                            to_reindex.add((cert.dgst, "cert"))
+                            to_reindex.add(cert.dgst)
             with sentry_sdk.start_span(op="eucc.old_map", description="Update old digest map"), suppress_child_spans():
                 for cert in dset:
                     if hasattr(cert, "old_dgst"):

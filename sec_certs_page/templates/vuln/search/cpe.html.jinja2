@@ -1,0 +1,198 @@
+{% extends "common/base.html.jinja2" %}
+
+{% block content %}
+    <main>
+        <div class="container-lg px-3 px-md-4 pt-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1>Vulnerabilities</h1>
+                <span class="text-secondary fs-3">Search</span>
+            </div>
+
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('vuln.cve_search') }}">CVEs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('vuln.cpe_search') }}">CPEs</a>
+                </li>
+            </ul>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-3 p-md-4">
+                    <input type="radio" id="nameSearchRadioId" checked hidden>
+
+                    <div class="d-flex gap-2 align-items-center">
+                        <label for="search" class="visually-hidden">Search query</label>
+                        <input id="search"
+                               data-param="query"
+                               data-feedback="query-error"
+                               class="form-control flex-grow-1 {% if errors.query %}is-invalid{% endif %}"
+                               placeholder="Search by title, e.g. Enterprise Linux"
+                               type="search"
+                               aria-describedby="query-error"
+                               value="{{ query|default('', true) }}"/>
+                        <button type="button" id="search-btn" class="btn btn-primary flex-shrink-0">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                        <button id="extended-btn"
+                                class="btn btn-outline-secondary flex-shrink-0 d-inline-flex align-items-center gap-1"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#extended"
+                                aria-controls="extended"
+                                aria-expanded="{% if advanced %}true{% else %}false{% endif %}">
+                            <i class="fas fa-sliders"></i>
+                            <span class="d-none d-sm-inline">Advanced search</span>
+                        </button>
+                    </div>
+                    <div id="query-error" class="invalid-feedback d-block" role="alert" aria-live="polite">
+                        {% for error in errors.query %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div id="extended" class="collapse {% if advanced %}show{% endif %} mt-3">
+                        <hr class="mt-0 mb-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4 col-lg-5">
+                                <label class="form-label fw-semibold mb-1" for="uri">URI</label>
+                                <input id="uri" type="text"
+                                       data-param="uri"
+                                       data-feedback="uri-error"
+                                       class="form-control {% if errors.uri %}is-invalid{% endif %}"
+                                       placeholder="e.g. cpe:2.3:o:redhat:enterprise_linux:8.1:*:*:*:*:*:*:*"
+                                       value="{{ uri|default('', true) }}">
+                                <div id="uri-error" class="invalid-feedback">
+                                    {% for error in errors.uri %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1" for="vendor">Vendor</label>
+                                <input id="vendor" type="text"
+                                       data-param="vendor"
+                                       data-feedback="vendor-error"
+                                       class="form-control {% if errors.vendor %}is-invalid{% endif %}"
+                                       placeholder="e.g. redhat"
+                                       value="{{ vendor|default('', true) }}">
+                                <div id="vendor-error" class="invalid-feedback">
+                                    {% for error in errors.vendor %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1" for="product">Product</label>
+                                <input id="product" type="text"
+                                       data-param="product"
+                                       data-feedback="product-error"
+                                       class="form-control {% if errors.product %}is-invalid{% endif %}"
+                                       placeholder="e.g. linux"
+                                       value="{{ product|default('', true) }}">
+                                <div id="product-error" class="invalid-feedback">
+                                    {% for error in errors.product %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label class="form-label fw-semibold mb-1" for="version">Version</label>
+                                <input id="version" type="text"
+                                       data-param="version"
+                                       class="form-control"
+                                       placeholder="e.g. 10.0"
+                                       value="{{ version|default('', true) }}">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" id="reset-filters-btn"
+                                    class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-rotate-left me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-xl results-container px-3 px-md-5 pb-4">
+            <div id="results" data-sort-by="{{ sort_by or '' }}" data-sort-dir="{{ sort_dir or '' }}">
+                <div class="d-grid mt-3 mb-1" style="grid-template-columns: 1fr auto 1fr; align-items: end;">
+                    <div></div>
+                    <div id="pagination-top-wrapper" class="d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+                        <span id="pagination-info" class="text-muted small">{{ pagination.info }}</span>
+                        <div id="pagination-links-top">{{ pagination.links }}</div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    id="col-picker-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                    aria-expanded="false">
+                                <i class="fas fa-columns me-1"></i>Visible columns
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" id="col-dropdown" style="min-width: 200px;">
+                                <li><h6 class="dropdown-header">Visible columns</h6></li>
+                                <div id="col-list"></div>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="d-flex justify-content-between px-3">
+                                    <button class="btn btn-link btn-sm p-0" id="col-show-all">Show all</button>
+                                    <button class="btn btn-link btn-sm p-0" id="col-hide-all">Hide all</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <colgroup>
+                            <col data-col="cpe_title">
+                            <col data-col="uri">
+                            <col data-col="vendor">
+                            <col data-col="product">
+                            <col data-col="version">
+                            <col data-col="cert_count">
+                        </colgroup>
+                        <thead class="table-light">
+                            <tr>
+                                <th class="sortable" data-col="cpe_title"><span class="th-label">Title</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="uri"><span class="th-label">URI</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="vendor"><span class="th-label">Vendor</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="product"><span class="th-label">Product</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="version"><span class="th-label">Version</span> <span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="cert_count" data-default-sort="true"><span class="th-label">Linked certs</span> <span class="sort-icon"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            {% include "vuln/search/_cpe_rows.html.jinja2" %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagination-bottom-wrapper" class="mt-3 mb-4 d-flex flex-column align-items-center gap-1 {% if not result %}invisible{% endif %}">
+                    <div id="pagination-links-bottom">{{ pagination.links }}</div>
+                    <span id="pagination-info-bottom" class="text-muted small">{{ pagination.info }}</span>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+            import { initSearch } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+            import { initSearchResults } from "{{ url_for('static', filename='search_results.js') }}?{{ static_hash("search_results.js") }}";
+
+            const ENDPOINT = "{{ url_for('vuln.cpe_search') }}";
+            const COLS = [
+                { key: 'uri',        label: 'URI',          locked: true },
+                { key: 'cpe_title',  label: 'Title',        defaultVisible: true },
+                { key: 'vendor',     label: 'Vendor',       defaultVisible: true },
+                { key: 'product',    label: 'Product',      defaultVisible: true },
+                { key: 'version',    label: 'Version',      defaultVisible: true },
+                { key: 'cert_count', label: 'Matched certs', defaultVisible: true },
+            ];
+
+            initSearch({ searchUrl: ENDPOINT, networkUrl: ENDPOINT });
+
+            $(function () {
+                initSearchResults({
+                    endpoint: ENDPOINT,
+                    cols: COLS,
+                    storageKey: 'cpe-col-visibility',
+                    fieldMap: { query: "#search", uri: "#uri", vendor: "#vendor", product: "#product" },
+                    sortBy: "{{ sort_by or '' }}",
+                    sortDir: "{{ sort_dir or '' }}",
+                });
+            });
+        </script>
+    </main>
+{% endblock %}

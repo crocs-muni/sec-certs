@@ -5,8 +5,11 @@ from tqdm import tqdm
 from .. import app, mongo
 from ..cc.tasks import reindex_collection as reindex_cc
 from ..common.mongo import init_collections as init_collections_func
+from ..eucc.tasks import reindex_collection as reindex_eucc
 from ..fips.tasks import reindex_collection as reindex_fips
+from ..pp.tasks import reindex_collection as reindex_pp
 from ..user.models import User, hash_password
+from ..vuln.tasks import cpe_reindex_collection, cve_reindex_collection
 
 user_group = AppGroup("user", help="Manage users.")
 app.cli.add_command(user_group)
@@ -55,17 +58,17 @@ def init_collections():  # pragma: no cover
         click.echo(f"Collections already present: {', '.join(existed)}")
 
 
-@app.cli.command("index-collections", help="Index the CC and FIPS collections with whoosh")
+@app.cli.command("index-collections", help="Index the CC, FIPS, EUCC, PP, CVE and CPE collections into Tantivy.")
 def index_collections():  # pragma: no cover
-    click.echo("Building CC entries to index...")
-    cc_entries = []
-    for id in tqdm(mongo.db.cc.find({}, {"_id": 1})):
-        cc_entries.append((id["_id"], "report"))
-        cc_entries.append((id["_id"], "target"))
-    click.echo("Indexing CC entries...")
-    reindex_cc(cc_entries)
-
-    click.echo("Building FIPS entries to index...")
-    fips_entries = [(id["_id"], "target") for id in tqdm(mongo.db.fips.find({}, {"_id": 1}))]
-    click.echo("Indexing FIPS entries...")
-    reindex_fips(fips_entries)
+    for name, collection, reindex in (
+        ("CC", mongo.db.cc, reindex_cc),
+        ("FIPS", mongo.db.fips, reindex_fips),
+        ("EUCC", mongo.db.eucc, reindex_eucc),
+        ("PP", mongo.db.pp, reindex_pp),
+        ("CVE", mongo.db.cve, cve_reindex_collection),
+        ("CPE", mongo.db.cpe, cpe_reindex_collection),
+    ):
+        click.echo(f"Building {name} entries to index...")
+        entries = [doc["_id"] for doc in tqdm(collection.find({}, {"_id": 1}))]
+        click.echo(f"Indexing {name} entries...")
+        reindex(entries)

@@ -1,5 +1,5 @@
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -12,18 +12,19 @@ from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips_iut import IUTSnapshot
 from sec_certs.sample.fips_mip import MIPSnapshot
 from sec_certs.utils.helpers import get_sha256_filepath
+from tantivy import Document
 
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
 from ..common.objformats import ObjFormat
 from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
+from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
-from ..common.tasks.search import Indexer
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
 from ..common.tasks.webui import KBUpdater
-from . import fips_types
+from .index import fips_index
 
 logger = get_logger(__name__)
 
@@ -85,24 +86,35 @@ def update_mip_data():  # pragma: no cover
     mongo.db.fips_mip.insert_one(snap_data)
 
 
-class FIPSIndexer(Indexer, FIPSMixin):  # pragma: no cover
-    def create_document(self, dgst, document, cert, content):
-        mod_type = cert["web_data"]["module_type"]
-        try:
-            category_id = fips_types[mod_type]["id"]
-        except KeyError:
-            logger.error(f"Could not find FIPS type: {mod_type}.")
-            category_id = None
-        return {
-            "dgst": dgst,
-            "name": cert["web_data"]["module_name"],
-            "document_type": document,
-            "cert_schema": self.cert_schema,
-            "cert_id": str(cert["cert_id"]),
-            "category": category_id,
-            "status": cert["web_data"]["status"],
-            "content": content,
-        }
+class FIPSIndexer(Indexer, FIPSMixin):
+    doc_types = ["target"]
+
+    def __init__(self):
+        super().__init__()
+        self.index = fips_index()
+
+    def create_document(self, dgst, cert, content):
+        web_data = cert["web_data"]
+        doc = Document()
+        doc.add_text("dgst", dgst)
+        doc.add_text("category", web_data["module_type"] or "")
+        doc.add_text("status", web_data["status"] or "")
+        doc.add_text("name", web_data["module_name"] or "")
+        doc.add_text("vendor", web_data["vendor"] or "")
+        doc.add_text("level", str(web_data["level"]))
+        doc.add_integer("cert_id", cert["cert_id"])
+
+        if web_data["date_sunset"]:
+            doc.add_date("sunset_date", datetime.fromisoformat(web_data["date_sunset"]["_value"]))
+
+        for entry in web_data["validation_history"] or []:
+            doc.add_date("validation_date", datetime.fromisoformat(entry["date"]["_value"]))
+
+        pdf_data = cert.get("pdf_data") or {}
+        add_keyword_paths(doc, "keywords_target", pdf_data.get("keywords"))
+        doc.add_text("body", content["target"])
+
+        return doc
 
 
 @actor("fips_reindex_collection", "fips_reindex_collection", "updates", timedelta(hours=4))
@@ -114,7 +126,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 @actor("fips_reindex_all", "fips_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
-    to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "target", "cert")]
+    to_reindex = list(ids)
     tasks = []
     for i in range(0, len(to_reindex), 1000):
         j = i + 1000
@@ -233,7 +245,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                         dst = paths["target_txt"] / f"{cert.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy.txt_hash:
                             cert.state.policy.txt_path.replace(dst)
-                            to_reindex.add((cert.dgst, "target"))
+                            to_reindex.add(cert.dgst)
         return to_reindex, to_update_kb
 
     def dataset_state(self, dset):

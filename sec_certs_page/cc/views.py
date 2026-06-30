@@ -36,7 +36,7 @@ from ..common.views import (
     sitemap_cert_pipeline,
 )
 from . import cc, cc_categories, cc_eals, cc_reference_types, cc_sars, cc_schemes, cc_sfrs, cc_status, get_cc_references
-from .search import CCBasicSearch, CCFulltextSearch
+from .search import CCSearch
 from .tasks import CCRenderer
 
 
@@ -161,25 +161,12 @@ def network():
 def network_graph():
     """Common criteria references data."""
     cc_references = get_cc_references()
-    if "search" in request.args:
+    if request.args.get("search") == "cve":
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
-        if request.args["search"] == "basic":
-            args = CCBasicSearch.parse_args(args)
-            if "page" in args:
-                del args["page"]
-            certs, count, timeline = CCBasicSearch.select_certs(**args)
-        elif request.args["search"] == "fulltext":
-            args = CCFulltextSearch.parse_args(args)
-            if "page" in args:
-                del args["page"]
-            certs, count = CCFulltextSearch.select_certs(**args)
-        elif request.args["search"] == "cve":
-            if "cve" not in args:
-                raise BadRequest("Missing 'cve' parameter for CVE search.")
-            cve_id = args["cve"]
-            certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
-        else:
-            raise BadRequest("Invalid search query.")
+        if "cve" not in args:
+            raise BadRequest("Missing 'cve' parameter for CVE search.")
+        cve_id = args["cve"]
+        certs = list(mongo.db.cc.find({"heuristics.related_cves._value": cve_id}, {"_id": 1}))
         components = {}
         ids = []
         for cert in certs:
@@ -207,37 +194,30 @@ def data():
 @cc.route("/search/")
 @register_breadcrumb(cc, ".search", "Search")
 def search():
-    args = {**request.args, "searchType": "by-name"}
-    return redirect(url_for(".merged_search", **args))
+    return redirect(url_for(".merged_search", **request.args))
 
 
 @cc.route("/mergedsearch/")
 @register_breadcrumb(cc, ".merged_search", "Search")
 def merged_search():
-    search_type = request.args.get("searchType")
-    if search_type != "by-name" and search_type != "fulltext":
-        search_type = "by-name"
-
-    res = {}
-    template = "cc/search/name_search.html.jinja2"
-    if search_type == "by-name":
-        res = CCBasicSearch.process_search(request)
-    elif search_type == "fulltext":
-        res = CCFulltextSearch.process_search(request)
-        template = "cc/search/fulltext_search.html.jinja2"
+    template = "cc/search/search.html.jinja2"
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        template = "cc/search/search_results.html.jinja2"
+    res = CCSearch.process_search(request)
     return render_template(
         template,
         **res,
-        schemes=cc_schemes,
-        title=f"Common Criteria [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        search_type=search_type,
+        all_schemes=cc_schemes,
+        all_eals=cc_eals,
+        title="Common Criteria Search | sec-certs.org",
     )
 
 
 @cc.route("/ftsearch/")
 @register_breadcrumb(cc, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    args = {**request.args, "searchType": "fulltext"}
+    args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
 
 

@@ -1,0 +1,47 @@
+{% from "cc/include.html.jinja2" import render_category, render_status %}
+{% from "pp/include.html.jinja2" import render_document_type %}
+
+{% if result %}
+    {% for cert in result %}
+        {% set name = cert["name"]|default("N/A", true) %}
+        {% set status = cert["status"] %}
+        {% set hashid = cert["dgst"] %}
+        {% set category = cert["category"] %}
+        {% set scheme = cert["scheme"] %}
+        {% set not_valid_before = cert["not_valid_before"] %}
+        {% set not_valid_after = cert["not_valid_after"] %}
+        <tr class="search-result{% if cert.get('snippets') %} has-snippets{% endif %}">
+            <td data-col="name">
+                <div class="d-flex align-items-baseline gap-1">
+                    <span class="result-category flex-shrink-0">{{ render_category(category) }}</span>
+                    <a href="{{ url_for('.entry', hashid=hashid) }}"
+                       class="result-clamp result-link text-decoration-none fw-medium"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top">{{ name }}</a>
+                </div>
+                {% if cert.get("snippets") %}
+                {% set doc_type_labels = {"report": "Certification Report", "profile": "Protection Profile"} %}
+                <div class="d-flex flex-column gap-1">
+                    {% for doc_type, snippet_html in cert["snippets"].items() %}
+                    <div>
+                        <div class="snippet-label">[{{ doc_type_labels.get(doc_type, doc_type) }}]</div>
+                        <div class="snippet-text">{{ snippet_html|safe }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </td>
+            <td data-col="scheme" class="text-nowrap">{{ country_to_flag(scheme) }} {{ scheme }}</td>
+            <td data-col="status">{{ render_status(status) }}</td>
+            <td data-col="not_valid_before" class="text-nowrap">{{ not_valid_before|strftime("%d.%m.%Y") if not_valid_before else "" }}</td>
+            <td data-col="not_valid_after" class="text-nowrap">{{ not_valid_after|strftime("%d.%m.%Y") if not_valid_after else "" }}</td>
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="5" class="text-center text-muted py-5">
+            <i class="fas fa-search fa-2x mb-2 d-block opacity-25"></i>
+            No results found.
+        </td>
+    </tr>
+{% endif %}

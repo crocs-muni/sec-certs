@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from flask import current_app
 from periodiq import cron
 
-from . import sitemap, whoosh_index
+from . import sitemap
 from .cc.tasks import update_data as update_cc_data
 from .common.tasks.utils import task
 from .eucc.tasks import update_data as update_eucc_data
@@ -52,9 +52,3 @@ def update_sitemap():
             location = str(loc.text)
             page = int("".join(filter(str.isdigit, location)))
             sitemap.page(page)
-
-
-@dramatiq.actor(actor_name="optimize_index")
-@task("optimize_index")
-def optimize_index() -> None:
-    whoosh_index.optimize()

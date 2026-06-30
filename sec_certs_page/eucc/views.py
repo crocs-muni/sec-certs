@@ -28,8 +28,8 @@ from ..common.views import (
     send_cacheable_instance_file,
     send_json_attachment,
 )
-from . import eucc, eucc_schemes
-from .search import EUCCBasicSearch, EUCCFulltextSearch
+from . import eucc, eucc_eals, eucc_schemes
+from .search import EUCCSearch
 from .tasks import EUCCRenderer
 
 
@@ -76,37 +76,30 @@ def data():
 @eucc.route("/search/")
 @register_breadcrumb(eucc, ".search", "Search")
 def search():
-    args = {**request.args, "searchType": "by-name"}
-    return redirect(url_for(".merged_search", **args))
+    return redirect(url_for(".merged_search", **request.args))
 
 
 @eucc.route("/mergedsearch/")
 @register_breadcrumb(eucc, ".merged_search", "Search")
 def merged_search():
-    search_type = request.args.get("searchType")
-    if search_type != "by-name" and search_type != "fulltext":
-        search_type = "by-name"
-
-    res = {}
-    template = "eucc/search/name_search.html.jinja2"
-    if search_type == "by-name":
-        res = EUCCBasicSearch.process_search(request)
-    elif search_type == "fulltext":
-        res = EUCCFulltextSearch.process_search(request)
-        template = "eucc/search/fulltext_search.html.jinja2"
+    template = "eucc/search/search.html.jinja2"
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        template = "eucc/search/search_results.html.jinja2"
+    res = EUCCSearch.process_search(request)
     return render_template(
         template,
         **res,
-        schemes=eucc_schemes,
-        title=f"EUCC [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        search_type=search_type,
+        all_schemes=eucc_schemes,
+        all_eals=eucc_eals,
+        title="EUCC search | sec-certs.org",
     )
 
 
 @eucc.route("/ftsearch/")
 @register_breadcrumb(eucc, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    args = {**request.args, "searchType": "fulltext"}
+    args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
 
 

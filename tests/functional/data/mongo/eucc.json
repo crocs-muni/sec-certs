@@ -1,0 +1,122 @@
+[
+  {
+    "_id": "e2a88386bd8e37a6",
+    "_type": "sec_certs.sample.eucc.EUCCCertificate",
+    "dgst": "e2a88386bd8e37a6",
+    "scheme": "DE",
+    "status": "active",
+    "name": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+    "cert_id": "EUCC-3087-2025-0000000001-00000",
+    "heuristics": {
+      "eal": "EAL6"
+    },
+    "not_valid_before": {
+      "_type": "date",
+      "_value": "2025-12-19"
+    },
+    "not_valid_after": {
+      "_type": "date",
+      "_value": "2030-12-19"
+    }
+  },
+  {
+    "_id": "53b64420fca6367c",
+    "_type": "sec_certs.sample.eucc.EUCCCertificate",
+    "dgst": "53b64420fca6367c",
+    "scheme": "DE",
+    "status": "active",
+    "name": "IFX_CCI_00007Ah/8Fh A11, R11, M11 with optional Crypto Suite",
+    "cert_id": "EUCC-3087-2026-0000000001-00000",
+    "heuristics": {
+      "eal": null
+    },
+    "not_valid_before": {
+      "_type": "date",
+      "_value": "2026-02-17"
+    },
+    "not_valid_after": {
+      "_type": "date",
+      "_value": "2031-02-17"
+    }
+  },
+  {
+    "_id": "5c5769d9a7c92821",
+    "_type": "sec_certs.sample.eucc.EUCCCertificate",
+    "dgst": "5c5769d9a7c92821",
+    "scheme": "DE",
+    "status": "active",
+    "name": "Secure Smart Grid Hub (SGH-S)",
+    "cert_id": "EUCC-3087-2026-0000000002-00000",
+    "heuristics": {
+      "eal": null
+    },
+    "not_valid_before": {
+      "_type": "date",
+      "_value": "2026-03-20"
+    },
+    "not_valid_after": {
+      "_type": "date",
+      "_value": "2031-03-20"
+    }
+  },
+  {
+    "_id": "e3bedad9f0d6835b",
+    "_type": "sec_certs.sample.eucc.EUCCCertificate",
+    "dgst": "e3bedad9f0d6835b",
+    "scheme": "DE",
+    "status": "active",
+    "name": "L4Re Secure Separation Kernel CC 1.0.2",
+    "cert_id": "EUCC-3087-2026-0000000003-00000",
+    "heuristics": {
+      "eal": null
+    },
+    "not_valid_before": {
+      "_type": "date",
+      "_value": "2026-04-16"
+    },
+    "not_valid_after": {
+      "_type": "date",
+      "_value": "2031-04-16"
+    }
+  },
+  {
+    "_id": "9482bdc74476354a",
+    "_type": "sec_certs.sample.eucc.EUCCCertificate",
+    "dgst": "9482bdc74476354a",
+    "scheme": "DE",
+    "status": "active",
+    "name": "Infineon Technologies AG Smartcard IC IFX_CCI_0000Fh, CCI_000011h, 00001Bh, 00001Eh, 000025h design step G12",
+    "cert_id": "EUCC-3087-2026-0000000004-00000",
+    "heuristics": {
+      "eal": "EAL6"
+    },
+    "not_valid_before": {
+      "_type": "date",
+      "_value": "2026-04-27"
+    },
+    "not_valid_after": {
+      "_type": "date",
+      "_value": "2031-04-27"
+    }
+  },
+  {
+    "_id": "99e8c5452de28e19",
+    "_type": "sec_certs.sample.eucc.EUCCCertificate",
+    "dgst": "99e8c5452de28e19",
+    "scheme": "FR",
+    "status": "active",
+    "name": "ST54J / ST54K",
+    "cert_id": "EUCC-3090-2025-0000000001-00001",
+    "heuristics": {
+      "eal": "EAL5"
+    },
+    "not_valid_before": {
+      "_type": "date",
+      "_value": "2025-04-02"
+    },
+    "not_valid_after": {
+      "_type": "date",
+      "_value": "2030-04-02"
+    }
+  }
+]

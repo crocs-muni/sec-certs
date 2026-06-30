@@ -1,6 +1,6 @@
 import logging
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -9,16 +9,17 @@ from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset import ProtectionProfileDataset
 from sec_certs.utils.helpers import get_sha256_filepath
+from tantivy import Document
 
 from .. import mongo, runtime_config
-from ..cc import cc_categories
 from ..common.diffs import DiffRenderer
 from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
-from ..common.tasks.search import Indexer
+from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
 from ..common.tasks.webui import KBUpdater
+from .index import pp_index
 
 logger = logging.getLogger(__name__)
 
@@ -52,19 +53,33 @@ class PPRenderer(DiffRenderer, PPMixin):  # pragma: no cover
 
 
 class PPIndexer(Indexer, PPMixin):  # pragma: no cover
-    def create_document(self, dgst, document, cert, content):
-        category_id = cc_categories[cert["web_data"]["category"]]["id"]
-        return {
-            "dgst": dgst,
-            "name": cert["web_data"]["name"],
-            "document_type": document,
-            "cert_id": None,
-            "cert_schema": self.cert_schema,
-            "category": category_id,
-            "status": cert["web_data"]["status"],
-            "scheme": cert["web_data"]["scheme"],
-            "content": content,
-        }
+    doc_types = ["report", "profile"]
+
+    def __init__(self):
+        super().__init__()
+        self.index = pp_index()
+
+    def create_document(self, dgst, cert, content):
+        web_data = cert["web_data"]
+        doc = Document()
+        doc.add_text("dgst", dgst)
+        doc.add_text("category", web_data["category"] or "")
+        doc.add_text("status", web_data["status"] or "")
+        doc.add_text("scheme", web_data["scheme"] or "")
+        doc.add_text("name", web_data["name"] or "")
+
+        if web_data["not_valid_before"]:
+            doc.add_date("not_valid_before", datetime.fromisoformat(web_data["not_valid_before"]["_value"]))
+        if web_data["not_valid_after"]:
+            doc.add_date("not_valid_after", datetime.fromisoformat(web_data["not_valid_after"]["_value"]))
+
+        pdf_data = cert.get("pdf_data") or {}
+        add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))
+        add_keyword_paths(doc, "keywords_profile", pdf_data.get("pp_keywords"))
+        doc.add_text("body_report", content["report"])
+        doc.add_text("body_profile", content["profile"])
+
+        return doc
 
 
 @actor("pp_reindex_collection", "pp_reindex_collection", "updates", timedelta(hours=4))
@@ -76,7 +91,7 @@ def reindex_collection(to_reindex):  # pragma: no cover
 @actor("pp_reindex_all", "pp_reindex_all", "updates", timedelta(hours=1))
 def reindex_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.pp.find({}, {"_id": 1})]
-    to_reindex = [(dgst, doc) for dgst in ids for doc in ("report", "profile")]
+    to_reindex = list(ids)
     tasks = []
     for i in range(0, len(to_reindex), 1000):
         j = i + 1000
@@ -175,7 +190,7 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
                         dst = paths["profile_txt"] / f"{prof.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != prof.state.pp.txt_hash:
                             prof.state.pp.txt_path.replace(dst)
-                            to_reindex.add((prof.dgst, "profile"))
+                            to_reindex.add(prof.dgst)
                     if prof.state.report.source_path and prof.state.report.source_path.exists():
                         dst = paths["report_pdf"] / f"{prof.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.source_hash:
@@ -184,7 +199,7 @@ class PPUpdater(Updater, PPMixin):  # pragma: no cover
                         dst = paths["report_txt"] / f"{prof.dgst}.txt"
                         if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.txt_hash:
                             prof.state.report.txt_path.replace(dst)
-                            to_reindex.add((prof.dgst, "report"))
+                            to_reindex.add(prof.dgst)
         return to_reindex, to_update_kb
 
     def dataset_state(self, dset):

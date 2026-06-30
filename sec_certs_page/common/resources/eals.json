@@ -2,22 +2,43 @@
   "EAL1": {
     "name": "Functionally tested"
   },
+  "EAL1+": {
+    "name": "Functionally tested (augmented)"
+  },
   "EAL2": {
     "name": "Structurally tested"
+  },
+  "EAL2+": {
+    "name": "Structurally tested (augmented)"
   },
   "EAL3": {
     "name": "Methodically tested and checked"
   },
+  "EAL3+": {
+    "name": "Methodically tested and checked (augmented)"
+  },
   "EAL4": {
     "name": "Methodically designed, tested, and reviewed"
+  },
+  "EAL4+": {
+    "name": "Methodically designed, tested, and reviewed (augmented)"
   },
   "EAL5": {
     "name": "Semiformally designed and tested"
   },
+  "EAL5+": {
+    "name": "Semiformally designed and tested (augmented)"
+  },
   "EAL6": {
     "name": "Semiformally verified design and tested"
   },
+  "EAL6+": {
+    "name": "Semiformally verified design and tested (augmented)"
+  },
   "EAL7": {
     "name": "Formally verified design and tested"
+  },
+  "EAL7+": {
+    "name": "Formally verified design and tested (augmented)"
   }
 }

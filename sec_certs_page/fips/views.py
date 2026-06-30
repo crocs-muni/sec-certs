@@ -33,8 +33,9 @@ from ..common.views import (
     send_json_attachment,
     sitemap_cert_pipeline,
 )
+from ..fips import fips_levels
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_references
-from .search import FIPSBasicSearch, FIPSFulltextSearch
+from .search import FIPSSearch
 from .tasks import FIPSRenderer
 
 
@@ -103,25 +104,12 @@ def network():
 @fips.route("/network/graph.json")
 def network_graph():
     fips_references = get_fips_references()
-    if "search" in request.args:
+    if request.args.get("search") == "cve":
         args = {Markup(key).unescape(): Markup(value).unescape() for key, value in request.args.items()}
-        if request.args["search"] == "basic":
-            args = FIPSBasicSearch.parse_args(args)
-            if "page" in args:
-                del args["page"]
-            certs, count, timeline = FIPSBasicSearch.select_certs(**args)
-        elif request.args["search"] == "fulltext":
-            args = FIPSFulltextSearch.parse_args(args)
-            if "page" in args:
-                del args["page"]
-            certs, count = FIPSFulltextSearch.select_certs(**args)
-        elif request.args["search"] == "cve":
-            if "cve" not in args:
-                raise BadRequest("Missing 'cve' parameter for CVE search.")
-            cve_id = args["cve"]
-            certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
-        else:
-            raise BadRequest("Invalid search query.")
+        if "cve" not in args:
+            raise BadRequest("Missing 'cve' parameter for CVE search.")
+        cve_id = args["cve"]
+        certs = list(mongo.db.fips.find({"heuristics.related_cves._value": cve_id}, {"_id": 1}))
         components = {}
         ids = []
         for cert in certs:
@@ -143,37 +131,30 @@ def network_graph():
 @fips.route("/search/")
 @register_breadcrumb(fips, ".search", "Search")
 def search():
-    args = {**request.args, "searchType": "by-name"}
+    args = {**request.args, "search_type": "name"}
     return redirect(url_for(".merged_search", **args))
 
 
 @fips.route("/mergedsearch/")
 @register_breadcrumb(fips, ".merged_search", "Search")
 def merged_search():
-    search_type = request.args.get("searchType")
-    if search_type != "by-name" and search_type != "fulltext":
-        search_type = "by-name"
-
-    res = {}
-    template = "fips/search/name_search.html.jinja2"
-    if search_type == "by-name":
-        res = FIPSBasicSearch.process_search(request)
-    elif search_type == "fulltext":
-        res = FIPSFulltextSearch.process_search(request)
-        template = "fips/search/fulltext_search.html.jinja2"
-
+    template = "fips/search/search.html.jinja2"
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        template = "fips/search/search_results.html.jinja2"
+    res = FIPSSearch.process_search(request)
     return render_template(
         template,
         **res,
-        title=f"FIPS 140 [{res['q'] if res['q'] else ''}] ({res['page']}) | sec-certs.org",
-        search_type=search_type,
+        all_levels=fips_levels,
+        title="FIPS 140 Search | sec-certs.org",
     )
 
 
 @fips.route("/ftsearch/")
 @register_breadcrumb(fips, ".fulltext_search", "Fulltext search")
 def fulltext_search():
-    args = {**request.args, "searchType": "fulltext"}
+    args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
 
 
