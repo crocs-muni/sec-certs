@@ -220,16 +220,13 @@ def _register_edit_handler(
             ),
             "y_log_scale": Output(component_builder(ComponentID.MODAL_Y_LOG_SCALE), "value", allow_duplicate=True),
         },
-        inputs={
-            "n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks"),
-            "list_n_clicks": Input(pattern_builder.pattern(ComponentID.LIST_CHART_EDIT, ALL), "n_clicks"),
-        },
+        inputs={"n_clicks_list": Input(pattern_builder.pattern(ComponentID.CHART_EDIT, ALL), "n_clicks")},
         state={
             "chart_configs": State(component_builder(ComponentID.CHART_CONFIGS_STORE), "data"),
         },
         prevent_initial_call=True,
     )
-    def handle_edit_button(n_clicks_list, list_n_clicks, chart_configs):
+    def handle_edit_button(n_clicks_list, chart_configs):
         no_change = {
             "is_open": no_update,
             "edit_id": no_update,

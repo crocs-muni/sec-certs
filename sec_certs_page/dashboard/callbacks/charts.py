@@ -319,38 +319,27 @@ def _register_chart_list(
             predefined = chart_registry.get_predefined(chart_id)
             if predefined:
                 title = predefined.title
-                is_editable = predefined.config.is_editable if predefined.config else False
             else:
                 config_dict = chart_configs[chart_id]
                 title = config_dict.get("title") or config_dict.get("name") or "Untitled chart"
-                is_editable = config_dict.get("is_editable", False)
-            rows.append(create_chart_list_row(chart_id, title, is_editable))
+            rows.append(create_chart_list_row(chart_id, title))
 
         return {"children": dbc.ListGroup(rows, flush=True)}
 
 
 def _register_update_all(dash_app: "Dash", collection_name: CollectionName) -> None:
     component_builder = ComponentIDBuilder(collection_name)
-    pattern_builder = PatternMatchingComponentID(None)
 
     @dash_app.callback(
         output={"trigger": Output(component_builder(ComponentID.RENDER_TRIGGER), "data")},
-        inputs={
-            "n_clicks": Input(component_builder(ComponentID.UPDATE_ALL_BTN), "n_clicks"),
-            "list_refresh_clicks": Input(pattern_builder.pattern(ComponentID.LIST_CHART_REFRESH, ALL), "n_clicks"),
-        },
+        inputs={"n_clicks": Input(component_builder(ComponentID.UPDATE_ALL_BTN), "n_clicks")},
         state={"current_trigger": State(component_builder(ComponentID.RENDER_TRIGGER), "data")},
         prevent_initial_call=True,
     )
-    def trigger_update_all(n_clicks, list_refresh_clicks, current_trigger):
+    def trigger_update_all(n_clicks, current_trigger):
         """
-        Re-render all charts when the user clicks "Refresh Charts" or a refresh
-        button in the "Dashboard Charts" list.
+        When user clicks the update-all-btn we update all charts.
 
         The `{collection_name}-render-trigger` triggers the render_charts function above.
-        List refresh buttons fire with n_clicks=0 when rows are first rendered, so
-        ignore triggers that have no positive click value.
         """
-        if not any(trigger.get("value") for trigger in ctx.triggered):
-            return {"trigger": no_update}
         return {"trigger": (current_trigger or 0) + 1}

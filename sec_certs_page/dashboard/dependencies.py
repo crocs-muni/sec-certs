@@ -98,10 +98,8 @@ class ComponentID(str, Enum):
     CHART_WRAPPER = "chart-wrapper"
     REMOVE_CHART = "remove-chart"
     CHART_EDIT = "chart-edit"
-    # Row actions in the "Dashboard Charts" list (distinct ids from the grid cards)
-    LIST_CHART_REFRESH = "list-chart-refresh"
+    # Row action in the "Dashboard Charts" list (distinct id from the grid cards)
     LIST_REMOVE_CHART = "list-remove-chart"
-    LIST_CHART_EDIT = "list-chart-edit"
     MODAL_FILTER = "modal-filter"
     CLEAR_FILTER = "clear-filter"
     SELECT_ALL_FILTER = "select-all-filter"
