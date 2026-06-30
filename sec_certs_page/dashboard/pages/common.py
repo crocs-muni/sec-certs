@@ -193,8 +193,6 @@ def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> dbc.Card:
                 children=[
                     section_header("Configure Dashboard", "fas fa-sliders-h"),
                     _create_dashboard_name_row(cid),
-                    html.Hr(className="my-3"),
-                    _create_chart_controls_row(cid),
                 ],
             ),
         ],
@@ -246,18 +244,14 @@ def _create_dashboard_name_row(cid: ComponentIDBuilder) -> dbc.Row:
 def _create_dashboard_charts_list(cid: ComponentIDBuilder) -> html.Div:
     """Create the container for the list of charts added to the dashboard.
 
-    Rendered at the top of the Charts section (under the "Charts" heading), so
-    it needs no heading of its own. The list itself is populated by a callback
-    that reacts to the chart configs store, so the layout only provides an empty
-    container to render rows into.
+    Rendered inside the "Manage Charts" subsection. The list itself is populated
+    by a callback that reacts to the chart configs store, so the layout only
+    provides an empty container to render rows into.
 
     :param cid: Component ID builder
     :return: Div wrapping the dashboard charts list
     """
-    return html.Div(
-        id=cid(ComponentID.CHART_LIST),
-        className="mb-4",
-    )
+    return html.Div(id=cid(ComponentID.CHART_LIST))
 
 
 def _create_chart_controls_row(cid: ComponentIDBuilder) -> dbc.Row:
@@ -366,8 +360,6 @@ def _create_dashboard_content(collection_name: CollectionName) -> html.Div:
         style={"display": "none"},
         children=[
             # Charts toolbar: "Charts" heading on the left, bulk refresh on the right.
-            # Placed next to the chart grid (and the per-chart refresh buttons) so it is
-            # clear the button refreshes the charts, not the dashboard settings above.
             html.Div(
                 className="d-flex align-items-center justify-content-between mb-3",
                 children=[
@@ -394,9 +386,22 @@ def _create_dashboard_content(collection_name: CollectionName) -> html.Div:
                     ),
                 ],
             ),
-            # List of charts on this dashboard, shown at the top of the Charts
-            # section right under the heading (overview before the chart grid).
-            _create_dashboard_charts_list(cid),
+            # "Manage Charts" subsection: add-controls, then the list of charts on
+            # this dashboard. Grouped in a light card so it reads as a sub-block,
+            # with the chart grid rendered full-width beneath it.
+            dbc.Card(
+                className="mb-4 border-0 shadow-sm",
+                children=[
+                    dbc.CardBody(
+                        children=[
+                            subsection_header("Manage Charts", "fas fa-plus-circle"),
+                            _create_chart_controls_row(cid),
+                            html.Hr(className="my-3"),
+                            _create_dashboard_charts_list(cid),
+                        ],
+                    ),
+                ],
+            ),
             # Chart container
             html.Div(id=cid(ComponentID.CHART_CONTAINER)),
             # Chart creation modal
