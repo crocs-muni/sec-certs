@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g fill="none" stroke="#000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="176" y1="32" x2="336" y2="32"/>   <!-- top whisker cap -->
+    <line x1="256" y1="32" x2="256" y2="144"/>  <!-- top whisker -->
+    <rect x="144" y="144" width="224" height="224" rx="8"/>  <!-- box (Q1–Q3) -->
+    <line x1="144" y1="256" x2="368" y2="256"/> <!-- median -->
+    <line x1="256" y1="368" x2="256" y2="480"/> <!-- bottom whisker -->
+    <line x1="176" y1="480" x2="336" y2="480"/> <!-- bottom whisker cap -->
+  </g>
+</svg>

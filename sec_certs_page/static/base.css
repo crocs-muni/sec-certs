@@ -922,6 +922,21 @@ h6 {
     color: white;
 }
 
+/* Custom (non-Font-Awesome) chart-type icons rendered via CSS mask, so they
+   inherit the same primary/white coloring as the Font Awesome glyphs. */
+.chart-type-option .chart-icon-mask {
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    background-color: var(--bs-primary);
+    -webkit-mask: var(--chart-icon-src) no-repeat center / contain;
+    mask: var(--chart-icon-src) no-repeat center / contain;
+}
+
+.chart-type-option.selected .chart-icon-mask {
+    background-color: white;
+}
+
 /* Cursor pointer utility */
 .cursor-pointer {
     cursor: pointer;

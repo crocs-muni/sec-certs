@@ -149,7 +149,7 @@ CHART_TYPE_ICONS = {
     ChartType.LINE: "fas fa-chart-line",
     ChartType.PIE: "fas fa-chart-pie",
     ChartType.SCATTER: "fas fa-braille",
-    ChartType.BOX: "fas fa-box",
+    ChartType.BOX: "/static/img/charts/box.svg",
     ChartType.HISTOGRAM: "fas fa-signal",
 }
 
@@ -182,12 +182,19 @@ def chart_type_card(
     icon = CHART_TYPE_ICONS.get(chart_type, "fas fa-chart-bar")
     label = CHART_TYPE_LABELS.get(chart_type, chart_type.value)
 
+    # Font Awesome glyphs are rendered as <i>; custom icons (image paths) are
+    # rendered via a CSS mask so they inherit the same coloring (see base.css).
+    if icon.endswith((".svg", ".png")):
+        icon_el = html.Span(className="chart-icon-mask mb-2", style={"--chart-icon-src": f"url({icon})"})
+    else:
+        icon_el = html.I(className=f"{icon} fa-2x mb-2")
+
     return html.Div(
         className=class_name,
         id=pattern_builder.pattern(ComponentID.CHART_TYPE_CARD, chart_type.value),
         n_clicks=0,
         children=[
-            html.I(className=f"{icon} fa-2x mb-2"),
+            icon_el,
             html.Div(label, className="small"),
         ],
     )
