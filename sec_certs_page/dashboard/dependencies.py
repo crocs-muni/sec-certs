@@ -41,6 +41,7 @@ class ComponentID(str, Enum):
     ADD_CHART_BTN = "add-chart-btn"
     CHART_SELECTOR = "chart-selector"
     CHART_CONTAINER = "chart-container"
+    CHART_LIST = "chart-list"
     RENDER_TRIGGER = "render-trigger"
     UPDATE_ALL_BTN = "update-all-btn"
     FILTER_STORE = "filter-store"
@@ -97,6 +98,8 @@ class ComponentID(str, Enum):
     CHART_WRAPPER = "chart-wrapper"
     REMOVE_CHART = "remove-chart"
     CHART_EDIT = "chart-edit"
+    # Row action in the "Dashboard Charts" list (distinct id from the grid cards)
+    LIST_REMOVE_CHART = "list-remove-chart"
     MODAL_FILTER = "modal-filter"
     CLEAR_FILTER = "clear-filter"
     SELECT_ALL_FILTER = "select-all-filter"

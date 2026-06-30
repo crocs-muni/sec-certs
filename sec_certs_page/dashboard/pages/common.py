@@ -193,8 +193,6 @@ def _create_dashboard_active_controls(cid: ComponentIDBuilder) -> dbc.Card:
                 children=[
                     section_header("Configure Dashboard", "fas fa-sliders-h"),
                     _create_dashboard_name_row(cid),
-                    html.Hr(className="my-3"),
-                    _create_chart_controls_row(cid),
                 ],
             ),
         ],
@@ -236,6 +234,56 @@ def _create_dashboard_name_row(cid: ComponentIDBuilder) -> dbc.Row:
                         n_clicks=0,
                         disabled=True,
                         color="primary",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+def _create_dashboard_charts_list(cid: ComponentIDBuilder) -> html.Div:
+    """Create the container for the list of charts added to the dashboard.
+
+    Rendered inside the "Manage Charts" subsection. The list itself is populated
+    by a callback that reacts to the chart configs store, so the layout only
+    provides an empty container to render rows into.
+
+    :param cid: Component ID builder
+    :return: Div wrapping the dashboard charts list
+    """
+    return html.Div(id=cid(ComponentID.CHART_LIST))
+
+
+def _create_added_charts_header(cid: ComponentIDBuilder) -> html.Div:
+    """Create the header row above the list of charts already on the dashboard.
+
+    Pairs an "Added charts" label with the bulk "Refresh Charts" button, so the
+    action that re-renders every chart sits with the list of those charts.
+
+    :param cid: Component ID builder
+    :return: Div with the label and the refresh button
+    """
+    return html.Div(
+        className="d-flex align-items-center justify-content-between mb-2",
+        children=[
+            dbc.Label("Added charts", className="fw-bold mb-0"),
+            # Wrap the button and its tooltip so the row has only two flex items
+            # (left label + right button); the tooltip is not a visible layout
+            # element and must not participate in the flex spacing.
+            html.Div(
+                children=[
+                    dbc.Button(
+                        [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
+                        id=cid(ComponentID.UPDATE_ALL_BTN),
+                        n_clicks=0,
+                        disabled=True,
+                        color="secondary",
+                        outline=True,
+                        className="refresh-all-btn",
+                    ),
+                    dbc.Tooltip(
+                        "Reload data and redraw every chart in this dashboard.",
+                        target=cid(ComponentID.UPDATE_ALL_BTN),
                     ),
                 ],
             ),
@@ -348,31 +396,20 @@ def _create_dashboard_content(collection_name: CollectionName) -> html.Div:
         id=cid(ComponentID.DASHBOARD_CONTENT),
         style={"display": "none"},
         children=[
-            # Charts toolbar: "Charts" heading on the left, bulk refresh on the right.
-            # Placed next to the chart grid (and the per-chart refresh buttons) so it is
-            # clear the button refreshes the charts, not the dashboard settings above.
-            html.Div(
-                className="d-flex align-items-center justify-content-between mb-3",
+            section_header("Charts", "fas fa-chart-line", icon_color="text-primary"),
+            # "Manage Charts" subsection: add-controls, then the list of charts on
+            # this dashboard. Grouped in a light card so it reads as a sub-block,
+            # with the chart grid rendered full-width beneath it.
+            dbc.Card(
+                className="mb-4 border-0 shadow-sm",
                 children=[
-                    section_header("Charts", "fas fa-chart-line", icon_color="text-primary"),
-                    # Wrap the button and its tooltip so the toolbar has only two flex
-                    # items (left header + right button group); the tooltip is not a
-                    # visible layout element and must not participate in the flex spacing.
-                    html.Div(
+                    dbc.CardBody(
                         children=[
-                            dbc.Button(
-                                [html.I(className="fas fa-sync-alt me-2"), "Refresh Charts"],
-                                id=cid(ComponentID.UPDATE_ALL_BTN),
-                                n_clicks=0,
-                                disabled=True,
-                                color="secondary",
-                                outline=True,
-                                className="refresh-all-btn",
-                            ),
-                            dbc.Tooltip(
-                                "Reload data and redraw every chart in this dashboard.",
-                                target=cid(ComponentID.UPDATE_ALL_BTN),
-                            ),
+                            subsection_header("Manage Charts", "fas fa-plus-circle"),
+                            _create_chart_controls_row(cid),
+                            html.Hr(className="my-3"),
+                            _create_added_charts_header(cid),
+                            _create_dashboard_charts_list(cid),
                         ],
                     ),
                 ],

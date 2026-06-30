@@ -11,7 +11,7 @@ from ..chart.error import ErrorChart
 from ..chart.factory import ChartFactory
 from ..dependencies import ComponentID, ComponentIDBuilder, PatternMatchingComponentID
 from ..types.common import CollectionName
-from .utils import create_chart_wrapper
+from .utils import create_chart_list_row, create_chart_wrapper
 
 if TYPE_CHECKING:
     from ..base import Dash
@@ -65,6 +65,7 @@ def register_chart_callbacks(
     _register_chart_management(dash_app, collection_name, chart_registry)
     _register_predefined_chart_options(dash_app, collection_name, chart_registry)
     _register_chart_rendering(dash_app, collection_name, chart_registry, data_service)
+    _register_chart_list(dash_app, collection_name, chart_registry)
     _register_update_all(dash_app, collection_name)
 
 
@@ -132,6 +133,7 @@ def _register_chart_management(
         inputs={
             "add_clicks": Input(component_builder(ComponentID.ADD_CHART_BTN), "n_clicks"),
             "remove_clicks": Input(pattern_builder.pattern(ComponentID.REMOVE_CHART, ALL), "n_clicks"),
+            "list_remove_clicks": Input(pattern_builder.pattern(ComponentID.LIST_REMOVE_CHART, ALL), "n_clicks"),
         },
         state={
             "selected_chart_id": State(component_builder(ComponentID.CHART_SELECTOR), "value"),
@@ -139,13 +141,20 @@ def _register_chart_management(
         },
         prevent_initial_call=True,
     )
-    def manage_charts(add_clicks, remove_clicks, selected_chart_id, current_configs):
-        """When user clicks the remove-chart button or the add-chart-btn we handle those."""
+    def manage_charts(add_clicks, remove_clicks, list_remove_clicks, selected_chart_id, current_configs):
+        """When user clicks the remove-chart button or the add-chart-btn we handle those.
+
+        Remove is triggered from two places that share this logic: the per-chart
+        card button (``remove-chart``) and the row in the "Dashboard Charts" list
+        (``list-remove-chart``).
+        """
 
         if current_configs is None:
             current_configs = {}
 
         triggered_id = ctx.triggered_id
+
+        remove_types = {ComponentID.REMOVE_CHART.value, ComponentID.LIST_REMOVE_CHART.value}
 
         if triggered_id == component_builder(ComponentID.ADD_CHART_BTN):
             if selected_chart_id and selected_chart_id not in current_configs:
@@ -157,7 +166,7 @@ def _register_chart_management(
                 else:
                     logger.debug(f"[CHART_MGMT] Chart {selected_chart_id} not found in predefined registry")
 
-        elif isinstance(triggered_id, dict) and triggered_id.get("type") == "remove-chart":
+        elif isinstance(triggered_id, dict) and triggered_id.get("type") in remove_types:
             # Check if this was an actual click (n_clicks > 0) vs just a new component appearing
             # When a new chart is rendered, the pattern-matching callback fires with n_clicks=0
             chart_to_remove = triggered_id.get("index")
@@ -277,6 +286,45 @@ def _register_chart_rendering(
                 )
 
         return {"children": rendered}
+
+
+def _register_chart_list(
+    dash_app: "Dash",
+    collection_name: CollectionName,
+    chart_registry: "ChartRegistry",
+) -> None:
+    component_builder = ComponentIDBuilder(collection_name)
+
+    @dash_app.callback(
+        output={"children": Output(component_builder(ComponentID.CHART_LIST), "children")},
+        inputs={"chart_configs": Input(component_builder(ComponentID.CHART_CONFIGS_STORE), "data")},
+    )
+    def render_chart_list(chart_configs):
+        """Render the "Dashboard Charts" list from the chart configs store.
+
+        Reacts to the same store as the chart grid so the list stays in sync
+        when charts are added or removed.
+        """
+        chart_ids = list((chart_configs or {}).keys())
+        if not chart_ids:
+            return {
+                "children": html.P(
+                    "No charts added yet.",
+                    className="text-muted small mb-0",
+                )
+            }
+
+        rows = []
+        for chart_id in chart_ids:
+            predefined = chart_registry.get_predefined(chart_id)
+            if predefined:
+                title = predefined.title
+            else:
+                config_dict = chart_configs[chart_id]
+                title = config_dict.get("title") or config_dict.get("name") or "Untitled chart"
+            rows.append(create_chart_list_row(chart_id, title))
+
+        return {"children": dbc.ListGroup(rows, flush=True)}
 
 
 def _register_update_all(dash_app: "Dash", collection_name: CollectionName) -> None:
