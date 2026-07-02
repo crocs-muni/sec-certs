@@ -201,7 +201,10 @@ def _register_dashboard_selection(
                 "toast_icon": "info",
             }
 
-        # Check if the selected dashboard is already open
+        # The selected dashboard is already open. This branch is primarily hit as a
+        # re-trigger after saving (save sets selector_value to the saved id), so it
+        # must not emit a toast - doing so would clobber the save-success toast with
+        # a misleading "already open" message. Leave the view and toast untouched.
         if current_dashboard_id and str(dashboard_id) == str(current_dashboard_id):
             logger.debug(f"[DASHBOARD_SELECT] Dashboard {dashboard_id} is already open")
             return {
@@ -212,9 +215,9 @@ def _register_dashboard_selection(
                 "name_input": no_update,
                 "chart_configs": no_update,
                 "selector_value": no_update,
-                "toast_open": True,
-                "toast_children": "This dashboard is already open.",
-                "toast_icon": "info",
+                "toast_open": no_update,
+                "toast_children": no_update,
+                "toast_icon": no_update,
             }
 
         logger.debug(f"[DASHBOARD_SELECT] Loading dashboard {dashboard_id}")
@@ -276,6 +279,9 @@ def _register_save_dashboard(
             "current_dashboard_id": Output(
                 component_builder(ComponentID.CURRENT_DASHBOARD_ID), "data", allow_duplicate=True
             ),
+            "toast_open": Output(component_builder(ComponentID.DASHBOARD_TOAST), "is_open", allow_duplicate=True),
+            "toast_children": Output(component_builder(ComponentID.DASHBOARD_TOAST), "children", allow_duplicate=True),
+            "toast_icon": Output(component_builder(ComponentID.DASHBOARD_TOAST), "icon", allow_duplicate=True),
         },
         inputs={
             "save_clicks": Input(component_builder(ComponentID.SAVE_DASHBOARD_BTN), "n_clicks"),
@@ -330,6 +336,9 @@ def _register_save_dashboard(
                 "selector_options": no_update,
                 "selector_value": no_update,
                 "current_dashboard_id": no_update,
+                "toast_open": no_update,
+                "toast_children": no_update,
+                "toast_icon": no_update,
             }
 
         user_id = get_current_user_id()
@@ -338,6 +347,9 @@ def _register_save_dashboard(
                 "selector_options": no_update,
                 "selector_value": no_update,
                 "current_dashboard_id": no_update,
+                "toast_open": True,
+                "toast_children": "Could not save: you are not signed in.",
+                "toast_icon": "danger",
             }
 
         # Use chart_configs as the sole source of truth
@@ -388,6 +400,9 @@ def _register_save_dashboard(
                     "selector_options": no_update,
                     "selector_value": no_update,
                     "current_dashboard_id": no_update,
+                    "toast_open": True,
+                    "toast_children": "You don't have permission to modify this dashboard.",
+                    "toast_icon": "danger",
                 }
             else:
                 # Dashboard ID exists in client state but not in database - inconsistent state
@@ -398,6 +413,9 @@ def _register_save_dashboard(
                     "selector_options": no_update,
                     "selector_value": no_update,
                     "current_dashboard_id": no_update,
+                    "toast_open": True,
+                    "toast_children": "Could not save: this dashboard no longer exists.",
+                    "toast_icon": "danger",
                 }
         else:
             dashboard = Dashboard(
@@ -426,4 +444,7 @@ def _register_save_dashboard(
             "selector_options": options,
             "selector_value": saved_id if is_new_dashboard else no_update,
             "current_dashboard_id": saved_id,
+            "toast_open": True,
+            "toast_children": f"Dashboard '{dashboard.name}' saved.",
+            "toast_icon": "success",
         }
