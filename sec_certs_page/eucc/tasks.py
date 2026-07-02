@@ -80,17 +80,17 @@ class EUCCIndexer(Indexer, EUCCMixin):  # pragma: no cover
         doc.add_text("dgst", dgst)
         doc.add_text("scheme", cert["scheme"])
         doc.add_text("eal", cert["heuristics"].get("eal") or "")
-        doc.add_text("status", cert["status"])
+        doc.add_text("status", cert["status"] or "")
         nvb = (cert.get("not_valid_before") or {}).get("_value")
         nva = (cert.get("not_valid_after") or {}).get("_value")
         if nvb:
             doc.add_date("not_valid_before", datetime.strptime(nvb, "%Y-%m-%d"))
         if nva:
             doc.add_date("not_valid_after", datetime.strptime(nva, "%Y-%m-%d"))
-        doc.add_text("name", cert["name"] or "")
-        doc.add_text("cert_id", cert.get("cert_id") or "")
-        doc.add_text("cert_id_tokenized", cert.get("cert_id") or "")
-        pdf_data = cert.get("pdf_data") or {}
+        doc.add_text("name", cert["name"])
+        doc.add_text("cert_id", cert["cert_id"])
+        doc.add_text("cert_id_tokenized", cert["cert_id"])
+        pdf_data = cert.get("pdf_data")
         add_keyword_paths(doc, "keywords_cert", pdf_data.get("cert_keywords"))
         add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))
         add_keyword_paths(doc, "keywords_target", pdf_data.get("st_keywords"))

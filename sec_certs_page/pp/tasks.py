@@ -63,17 +63,17 @@ class PPIndexer(Indexer, PPMixin):  # pragma: no cover
         web_data = cert["web_data"]
         doc = Document()
         doc.add_text("dgst", dgst)
-        doc.add_text("category", web_data["category"] or "")
-        doc.add_text("status", web_data["status"] or "")
+        doc.add_text("category", web_data["category"])
+        doc.add_text("status", web_data["status"])
         doc.add_text("scheme", web_data["scheme"] or "")
-        doc.add_text("name", web_data["name"] or "")
+        doc.add_text("name", web_data["name"])
 
         if web_data["not_valid_before"]:
             doc.add_date("not_valid_before", datetime.fromisoformat(web_data["not_valid_before"]["_value"]))
         if web_data["not_valid_after"]:
             doc.add_date("not_valid_after", datetime.fromisoformat(web_data["not_valid_after"]["_value"]))
 
-        pdf_data = cert.get("pdf_data") or {}
+        pdf_data = cert.get("pdf_data")
         add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))
         add_keyword_paths(doc, "keywords_profile", pdf_data.get("pp_keywords"))
         doc.add_text("body_report", content["report"])

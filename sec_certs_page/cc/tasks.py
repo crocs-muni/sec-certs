@@ -87,12 +87,12 @@ class CCIndexer(Indexer, CCMixin):  # pragma: no cover
         if cert["not_valid_after"]:
             doc.add_date("not_valid_after", datetime.fromisoformat(cert["not_valid_after"]["_value"]))
         doc.add_text("name", cert["name"])
-        doc.add_text("manufacturer", cert["manufacturer"])
+        doc.add_text("manufacturer", cert["manufacturer"] or "")
         cert_labs = cert["heuristics"]["cert_lab"]
         doc.add_text("cert_lab", cert_labs[0] if cert_labs else "")
         doc.add_text("cert_id", cert["heuristics"]["cert_id"] or "")
         doc.add_text("cert_id_tokenized", cert["heuristics"]["cert_id"] or "")
-        pdf_data = cert.get("pdf_data") or {}
+        pdf_data = cert.get("pdf_data")
         add_keyword_paths(doc, "keywords_cert", pdf_data.get("cert_keywords"))
         add_keyword_paths(doc, "keywords_report", pdf_data.get("report_keywords"))
         add_keyword_paths(doc, "keywords_target", pdf_data.get("st_keywords"))

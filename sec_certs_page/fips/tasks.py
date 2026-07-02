@@ -110,7 +110,7 @@ class FIPSIndexer(Indexer, FIPSMixin):
         for entry in web_data["validation_history"] or []:
             doc.add_date("validation_date", datetime.fromisoformat(entry["date"]["_value"]))
 
-        pdf_data = cert.get("pdf_data") or {}
+        pdf_data = cert.get("pdf_data")
         add_keyword_paths(doc, "keywords_target", pdf_data.get("keywords"))
         doc.add_text("body", content["target"])
 
