@@ -146,6 +146,7 @@ def _register_chart_management(
             current_configs = {}
 
         triggered_id = ctx.triggered_id
+        changed = False
 
         if triggered_id == component_builder(ComponentID.ADD_CHART_BTN):
             if selected_chart_id and selected_chart_id not in current_configs:
@@ -154,6 +155,7 @@ def _register_chart_management(
                 if predefined and predefined.config:
                     # Use to_client_dict() to exclude query_pipeline (security)
                     current_configs[selected_chart_id] = predefined.config.to_client_dict()
+                    changed = True
                 else:
                     logger.debug(f"[CHART_MGMT] Chart {selected_chart_id} not found in predefined registry")
 
@@ -171,11 +173,18 @@ def _register_chart_management(
 
             if actual_click and chart_to_remove in current_configs:
                 del current_configs[chart_to_remove]
+                changed = True
                 logger.info(f"Removed chart {chart_to_remove}")
             else:
                 logger.debug(
                     f"Ignored remove trigger for chart_id={chart_to_remove}, reason=n_clicks=0 or chart missing"
                 )
+
+        if not changed:
+            # No real add/remove happened (e.g. remove buttons mounting with
+            # n_clicks=0). Skip rewriting the store so render_charts doesn't
+            # re-fire and re-run every aggregation pipeline.
+            return {"chart_configs": no_update}
 
         logger.debug(f"[MANAGE_CHARTS] Chart configs after update: {list(current_configs.keys())}")
 
