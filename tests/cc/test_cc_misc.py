@@ -1,6 +1,9 @@
+import re
+
 import pytest
 
-from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize
+from sec_certs.cert_rules import rules
+from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
 
 
 def canonicalize_n(n, cert_id_str, scheme):
@@ -24,6 +27,21 @@ def test_canonicalize_fr(n):
     assert canonicalize_n(n, "ANSSI-CC 2001/02-R01", "FR") == "ANSSI-CC-2001/02-R01"
     assert canonicalize_n(n, "ANSSI-CC 2001_02-M01", "FR") == "ANSSI-CC-2001/02-M01"
     assert canonicalize_n(n, "ANSSI-CC-PP-2013/58", "FR") == "ANSSI-CC-PP-2013/58"
+
+
+@pytest.mark.parametrize("n", [1, 2])
+def test_canonicalize_fr_eucc(n):
+    # year-month-seq
+    assert canonicalize_n(n, "EUCC-3090-2025-10-04", "FR") == "EUCC-3090-2025-4"
+    # Short form: year-seq
+    assert canonicalize_n(n, "EUCC-3090-2026-36", "FR") == "EUCC-3090-2026-36"
+    assert canonicalize_n(n, "EUCC-3090-2025-10_03", "FR") == "EUCC-3090-2025-3"
+    assert canonicalize_n(n, "EUCC - 3090 - 2025 - 10 - 04", "FR") == "EUCC-3090-2025-4"
+    # ENISA long form
+    assert canonicalize_n(n, "EUCC-3090-2025-0000000004-00002", "FR") == "EUCC-3090-2025-4"
+    # Old ENISA style with month and 4-digit seq
+    assert canonicalize_n(n, "EUCC-3090-2025-10-0004", "FR") == "EUCC-3090-2025-4"
+    assert canonicalize_n(n, "EUCC-ANSSI-2025-03-02", "FR") == "EUCC-ANSSI-2025-03-02"
 
 
 @pytest.mark.parametrize("n", [1, 2])
@@ -129,9 +147,48 @@ def test_canonicalize_nl(n):
     assert canonicalize_n(n, "CC-22-0428888", "NL") == "NSCIB-CC-22-0428888-CR"
 
 
+@pytest.mark.parametrize("n", [1, 2])
+def test_canonicalize_nl_eucc(n):
+    # year-month-seq-revision
+    assert canonicalize_n(n, "EUCC-3110-2025-08-2500052-01", "NL") == "EUCC-3110-2025-2500052"
+    # ENISA long form
+    assert canonicalize_n(n, "EUCC-3110-2025-0002500093-00001", "NL") == "EUCC-3110-2025-2500093"
+    # Form without month
+    assert canonicalize_n(n, "EUCC-3110-2026-2500077-01", "NL") == "EUCC-3110-2026-2500077"
+
+
 def test_certid_compare():
     cid1 = CertificateId("AU", "Certification Report 2007/02")
     cid2 = CertificateId("AU", "Certificate Number: 02/2007")
     cid3 = CertificateId("AU", "Certificate Number: 05/2007")
     assert cid1 == cid2
     assert cid1 != cid3
+
+
+def _filename_cert_id(filename, scheme):
+    for rule in rules["cc_filename_cert_id"][scheme]:
+        if match := re.search(rule, filename):
+            try:
+                return schemes[scheme](match.groupdict())
+            except Exception:
+                continue
+    return None
+
+
+def test_filename_cert_id_fr():
+    assert _filename_cert_id("EUCC-3090-2025_10_04_Rapport.pdf", "FR") == "EUCC-3090-2025-4"
+    assert _filename_cert_id("EUCC-3090-2026-36-rapport.pdf", "FR") == "EUCC-3090-2026-36"
+    assert _filename_cert_id("EUCC-3090-2026_10-rapport.pdf", "FR") == "EUCC-3090-2026-10"
+    # ANSSI filenames keep working through guarded old rule
+    assert _filename_cert_id("ANSSI-CC-2009_42fr.pdf", "FR") == "ANSSI-CC-2009/42"
+    assert _filename_cert_id("2014-01en.pdf", "FR") == "ANSSI-CC-2014/01"
+    assert _filename_cert_id("anssi-cc-2021_45v2.pdf", "FR") == "ANSSI-CC-2021/45v2"
+    # EUCC filename without the CB number cannot be resolved -> none
+    assert _filename_cert_id("EUCC-2025_10_05_Rapport.pdf", "FR") is None
+
+
+def test_filename_cert_id_nl():
+    assert _filename_cert_id("EUCC-3110-2025-08-2500052-01_CR.pdf", "NL") == "EUCC-3110-2025-2500052"
+    assert _filename_cert_id("EUCC-3110-2026-01-2500076-01_CR.pdf", "NL") == "EUCC-3110-2026-2500076"
+    assert _filename_cert_id("NSCIB-CC-22-0428888-CR2.pdf", "NL") == "NSCIB-CC-22-0428888-CR2"
+    assert _filename_cert_id("CC-16-31801-CR4.pdf", "NL") == "NSCIB-CC-16-31801-CR4"
