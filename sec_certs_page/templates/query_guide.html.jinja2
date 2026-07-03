@@ -1,0 +1,142 @@
+{% extends "common/base.html.jinja2" %}
+{% set canonical = True %}
+{% block title %}
+    <title>Query guide | sec-certs.org</title>
+{% endblock %}
+
+{% block content %}
+<div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+    <main>
+        <h1>Query syntax guide</h1>
+       <p>
+            By default, queries are treated as plain text. Multiple terms are combined as a
+            <strong>conjunction</strong> (all terms must match) and the query is automatically
+            expanded to improve recall. For example, <code>smartcard java</code>
+            requires both terms to appear, but documents where they appear together as the exact
+            phrase <code>"smartcard java"</code> are ranked higher. If no documents match the
+            original terms, the query falls back to prefix matching, so <code>smart</code> can
+            also match <code>smartcard</code>.
+        </p>
+        <p>
+            The text search fields also support an advanced query syntax
+            described below. As soon as any advanced operator is used, the query is passed to
+            the search engine as-is, without any automatic expansion or boosting.
+        </p>
+
+        <hr class="my-4">
+        <section class="mb-5">
+            <h3 id="boolean">Boolean operators</h3>
+            <p>
+                Use <code>AND</code>, <code>OR</code> to combine terms explicitly.
+                <code>AND</code> takes precedence over <code>OR</code>.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">smartcard AND java
+TPM OR firmware
+(card OR smartcard) AND java</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="must-exclude">Required and excluded terms</h3>
+            <p>
+                Prefix a term with <code>+</code> to require it or <code>-</code> to exclude
+                it from results. These can be mixed freely. The <code>+</code> and <code>-</code> operators are sufficient on their own to
+                express any boolean query. For instance, <code>x AND y OR z</code> can equivalently
+                be written as <code>(+x +y) z</code>.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">+secure -network
++smartcard +java -applet</pre>
+            <p>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="phrase">Phrase search</h3>
+            <p>
+                Wrap terms in double quotes to require them to appear as an
+                exact consecutive sequence.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">"secure network"</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="phrase-slop">Phrase slop</h3>
+            <p>
+                Append <code>~N</code> to a phrase to allow up to <em>N</em> extra words between
+                the quoted terms. For example, <code>"hardware module"~1</code> matches
+                "hardware security module".
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">"hardware module"~1
+"red linux"~2</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="phrase-prefix">Phrase prefix</h3>
+            <p>
+                Append <code>*</code> (outside the quotes) to treat the last term in a phrase
+                as a prefix — matches any word that starts with it.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">"network access con"*</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="field-prefix">Field targeting</h3>
+            <p>
+                Each search input already targets its own field by default. Field prefixes are
+                only needed if you want to cross-reference multiple fields from a single box.
+            </p>
+            <p>
+                Available fields: <code>name</code>, <code>cert_id</code>, <code>manufacturer</code>,
+                <code>cert_lab</code>, <code>scheme</code>, <code>category</code>, <code>eal</code>,
+                <code>is_active</code> (true/false), <code>not_valid_before</code> and
+                <code>not_valid_after</code> (RFC 3339 dates)
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">manufacturer:qualcomm
+manufacturer:apple AND cert_id:ANSSI
+scheme:DE AND eal:EAL4+
+is_active:true AND manufacturer:qualcomm
+not_valid_before:[2020-01-01T00:00:00Z TO 2023-01-01T00:00:00Z}</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="set">Set terms</h3>
+            <p>
+                Match a field against a set of values using the <code>IN</code> operator.
+                This is more efficient than writing multiple <code>OR</code> clauses.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">IN [Apple Qualcomm Samsung]</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="range">Range search</h3>
+            <p>
+                Specify an inclusive (<code>[</code>, <code>]</code>) or exclusive
+                (<code>{</code>, <code>}</code>) range with <code>TO</code> between bounds.
+                Works on text fields (lexicographic order) and date fields (RFC 3339).
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">
+not_valid_before:[2020-01-01T00:00:00Z TO 2023-01-01T00:00:00Z}
+[a TO m}</pre>
+        </section>
+
+
+        <section class="mb-5">
+            <h3 id="regex">Regular expressions</h3>
+            <p>
+                Wrap a pattern in forward slashes to use a regex. The regex is matched against
+                individual tokens, not the full field value.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">/qual.*/
+</pre>
+        </section>
+
+        <section class="mb-5">
+            <h3 id="boost">Boost</h3>
+            <p>
+                Append <code>^N</code> to a term or phrase to multiply its relevance score.
+                Higher boost values make a match rank higher. Negative boosts are not allowed.
+            </p>
+            <pre class="bg-body-secondary rounded p-3 mb-2">"TPM"^3 OR smartcard
+"secure element"^2 OR "security module"</pre>
+        </section>
+    </main>
+</div>
+{% endblock %}

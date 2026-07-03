@@ -13,6 +13,10 @@ from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
 from . import app, cache, runtime_config
+from .common.keyword_groups import KEYWORD_GROUPS, build_keyword_tree
+
+app.add_template_global(KEYWORD_GROUPS, "KEYWORD_GROUPS")
+app.add_template_global(build_keyword_tree, "keyword_tree")
 
 
 @app.template_global("country_to_flag")

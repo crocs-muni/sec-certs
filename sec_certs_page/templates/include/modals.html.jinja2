@@ -58,7 +58,7 @@
             compare_do,
             chat_files,
             chat
-        } from "/static/modal.js?{{ static_hash("modal.js") }}";
+        } from "{{ url_for('static', filename='modal.js') }}?{{ static_hash("modal.js") }}";
 
         let chat_history = [];
 

@@ -1,0 +1,69 @@
+{% macro keyword_filter(scheme, sources, keywords, selected_kw_sources, kw_mode) %}
+    <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label fw-semibold mb-1 d-block" for="keyword-tree-btn">Extracted keywords</label>
+        <button class="form-select text-start w-100" type="button" id="keyword-tree-btn"
+                data-bs-toggle="modal" data-bs-target="#keyword-tree-modal">
+            <span>Keywords</span>
+            <span id="keywords-badge" class="kw-active-dot ms-1 {% if not keywords %}d-none{% endif %}"
+                  role="img" aria-label="keyword filter active"></span>
+        </button>
+        <input type="hidden" id="kw-keywords" data-param="keywords" value="{{ keywords|default([], true)|join(',') }}">
+        {% if sources %}
+            <input type="hidden" id="kw-sources" data-param="kw_sources"
+                   value="{{ selected_kw_sources|join(',') if selected_kw_sources|length < sources|length else '' }}">
+        {% endif %}
+        <input type="hidden" id="kw-mode" data-param="kw_mode" value="{{ 'and' if kw_mode == 'and' else '' }}">
+    </div>
+
+    <div class="modal fade" id="keyword-tree-modal" tabindex="-1" aria-labelledby="keyword-tree-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="keyword-tree-modal-label">Filter by extracted keywords</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+                        <div class="flex-grow-1" style="min-width: 200px;">
+                            <label class="visually-hidden" for="keyword-tree-search">Filter keywords</label>
+                            <input type="search" id="keyword-tree-search" class="form-control form-control-sm"
+                                   placeholder="Filter keywords…">
+                        </div>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Match mode">
+                            <input type="radio" class="btn-check" name="kw-mode-radio" id="kw-mode-or" value="or"
+                                   autocomplete="off" {% if kw_mode != 'and' %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary" for="kw-mode-or"
+                                   title="Match certificates with ANY selected keyword">Match any</label>
+                            <input type="radio" class="btn-check" name="kw-mode-radio" id="kw-mode-and" value="and"
+                                   autocomplete="off" {% if kw_mode == 'and' %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary" for="kw-mode-and"
+                                   title="Match certificates with ALL selected keywords">Match all</label>
+                        </div>
+                    </div>
+                    {% if sources %}
+                        <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                            <span class="small fw-semibold">Search in:</span>
+                            {% for value, label in sources %}
+                                <div class="form-check form-check-inline mb-0">
+                                    <input type="checkbox" class="form-check-input kw-source" id="kw-source-{{ value }}"
+                                           value="{{ value }}" {% if value in selected_kw_sources %}checked{% endif %}>
+                                    <label class="form-check-label" for="kw-source-{{ value }}">{{ label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <hr class="my-2">
+                    <div id="keyword-tree-container"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="keyword-tree-clear">
+                        <i class="fas fa-rotate-left me-1"></i>Reset
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="keyword-tree-data">{{ keyword_tree(scheme)|tojson }}</script>
+{% endmacro %}

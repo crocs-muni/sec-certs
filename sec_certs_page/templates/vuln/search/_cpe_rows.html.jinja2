@@ -1,0 +1,24 @@
+{% if result %}
+    {% for cpe in result %}
+        <tr class="search-result">
+            <td data-col="cpe_title">
+                <div class="result-clamp" data-bs-toggle="tooltip" data-bs-placement="top">{{ cpe.get("cpe_title") or "" }}</div>
+            </td>
+            <td data-col="uri">
+                <a href="{{ url_for('vuln.cpe', cpe_id=cpe['id']) }}"
+                   class="result-link text-decoration-none fw-medium font-monospace small">{{ cpe.get("uri") }}</a>
+            </td>
+            <td data-col="vendor">{{ cpe.get("vendor") }}</td>
+            <td data-col="product">{{ cpe.get("product") }}</td>
+            <td data-col="version" class="text-nowrap">{{ cpe.get("version") }}</td>
+            <td data-col="cert_count" class="text-nowrap">{{ cpe.get("cert_count") or 0 }}</td>
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="6" class="text-center text-muted py-5">
+            <i class="fas fa-search fa-2x mb-2 d-block opacity-25"></i>
+            No results found.
+        </td>
+    </tr>
+{% endif %}

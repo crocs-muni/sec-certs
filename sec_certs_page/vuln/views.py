@@ -1,12 +1,13 @@
 from operator import itemgetter
 
 import sentry_sdk
-from flask import abort, current_app, render_template, request
+from flask import abort, current_app, redirect, render_template, request, url_for
 
 from .. import mongo, sitemap
 from ..common.objformats import load
 from ..common.views import register_breadcrumb, send_cacheable_instance_file
 from . import vuln
+from .search import CVE_SEVERITIES, CPESearch, CVESearch
 
 
 @vuln.route("/")
@@ -17,7 +18,27 @@ def index():
 
 @vuln.route("/search/")
 def search():
-    return render_template("vuln/search.html.jinja2")
+    return redirect(url_for(".cve_search", **request.args))
+
+
+@vuln.route("/cve/search/")
+@register_breadcrumb(vuln, ".cve_search", "CVE search")
+def cve_search():
+    template = "vuln/search/cve.html.jinja2"
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        template = "vuln/search/cve_results.html.jinja2"
+    res = CVESearch.process_search(request)
+    return render_template(template, **res, all_severities=CVE_SEVERITIES, title="CVE search | sec-certs.org")
+
+
+@vuln.route("/cpe/search/")
+@register_breadcrumb(vuln, ".cpe_search", "CPE search")
+def cpe_search():
+    template = "vuln/search/cpe.html.jinja2"
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        template = "vuln/search/cpe_results.html.jinja2"
+    res = CPESearch.process_search(request)
+    return render_template(template, **res, title="CPE search | sec-certs.org")
 
 
 @vuln.route("/data/")
@@ -164,6 +185,8 @@ def cpe_dset_gz():
 @sitemap.register_generator
 def sitemap_urls():
     yield "vuln.index", {}
+    yield "vuln.cve_search", {}
+    yield "vuln.cpe_search", {}
     yield "vuln.cve_dset", {}
     yield "vuln.cve_dset_gz", {}
     yield "vuln.cpe_dset", {}

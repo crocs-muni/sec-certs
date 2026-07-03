@@ -62,19 +62,19 @@
     </table>
 {%- endmacro %}
 
-{% macro render_cve_impact(cve) %}
-    {% if cve["cvss"]["severity"] == "CRITICAL" %}
+{% macro render_cve_impact(severity) %}
+    {% if severity == "CRITICAL" %}
         <span style="color: var(--bs-red)"><i class="fas fa-fw fa-exclamation-triangle"></i></span>
         CRITICAL
-    {% elif cve["cvss"]["severity"] == "HIGH" %}
+    {% elif severity == "HIGH" %}
         <span style="color: var(--bs-orange)"><i class="fas fa-fw fa-exclamation-circle"></i></span>
         HIGH
-    {% elif cve["cvss"]["severity"] == "MEDIUM" %}
+    {% elif severity == "MEDIUM" %}
         <span style="color: var(--bs-yellow)"><i class="fas fa-fw fa-exclamation"></i></span> MEDIUM
-    {% elif cve["cvss"]["severity"] == "LOW" %}
+    {% elif severity == "LOW" %}
         <span style="color: var(--bs-green)"><i class="fas fa-fw fa-exclamation"></i></span> LOW
     {% else %}
-        {{ cve["cvss"]["severity"] }}
+        {{ severity }}
     {% endif %}
 {% endmacro %}
 
@@ -126,7 +126,7 @@
                         {{ render_cve_links(cve) }}
                     </td>
                     <td>
-                        {{ render_cve_impact(cve) }}
+                        {{ render_cve_impact(cve["cvss"]["severity"]) }}
                     </td>
                     <td>{{ cve["cvss"]["base_score"] }}</td>
                     <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y") }}</td>
@@ -241,7 +241,7 @@
             </div>
         </div>
         <script type="module">
-            import {createNetwork} from "/static/network.js?{{ static_hash("network.js") }}";
+            import {createNetwork} from "{{ url_for('static', filename='network.js') }}?{{ static_hash("network.js") }}";
 
             async function loadNetwork() {
                 return createNetwork('network',
@@ -311,41 +311,19 @@
 
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", {"Symmetric Algorithms": "symmetric_crypto",
-                                                                          "Asymmetric Algorithms": "asymmetric_crypto",
-                                                                          "Post-quantum Algorithms": "pq_crypto",
-                                                                          "Hash functions": "hash_function",
-                                                                          "Schemes": "crypto_scheme",
-                                                                          "Protocols": "crypto_protocol",
-                                                                          "Randomness": "randomness",
-																		  "Engines": "crypto_engine",
-																		  "Libraries": "crypto_library",
-																		  "Elliptic Curves": "ecc_curve",
-																		  "Block cipher modes": "cipher_mode",
-																		  "TLS cipher suites": "tls_cipher_suite"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", {"Device models": "device_model",
-																	"JavaCard versions": "javacard_version",
-																	"JavaCard API constants": "javacard_api_const",
-																	"JavaCard packages": "javacard_package",
-																	"Operating System name": "os_name",
-																	"CPLC": "cplc_data",
-																	"IC data groups": "ic_data_group",
-																	"Trusted Execution Environments": "tee_name",
-																	"Vendor": "vendor"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", {"Side-channel analysis": "side_channel_analysis",
-																		"Vulnerabilities": "vulnerability",
-																		"Certification process": "certification_process"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "security", "Security", KEYWORD_GROUPS.security, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", {"Standards": "standard_id",
-																  "Technical reports": "technical_report_id"}, hidden, map_funcs) }}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro render_updates(doc_name, diffs, diff_jsons, diff_renders) %}

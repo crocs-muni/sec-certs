@@ -1,299 +1,372 @@
-import operator
-import sys
-import time
+import re
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
+from dataclasses import field as dc_field
 from datetime import datetime
-from functools import reduce
-from typing import ClassVar
+from typing import Any, ClassVar
 
-import sentry_sdk
-from flask import Request, current_app
-from pymongo.cursor import Cursor
+from flask import current_app
+from tantivy import (
+    DocAddress,
+    FieldType,
+    Filter,
+    Index,
+    Occur,
+    Order,
+    Query,
+    Schema,
+    Searcher,
+    SnippetGenerator,
+    TextAnalyzerBuilder,
+    Tokenizer,
+)
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
-from whoosh import highlight, query
-from whoosh.qparser import Plugin, RegexTagger, TaggingPlugin, attach, plugins, syntax
-from whoosh.qparser import QueryParser as OriginalQueryParser
-from whoosh.query import Query
-from whoosh.searching import Results, ResultsPage
-from whoosh.util.text import rcompile
 
-from ... import get_searcher
-from ..objformats import load
-from ..sentry import metrics
-from ..views import Pagination, entry_file_path
-from .index import index_schema
+from ..views import Pagination
+from .fields import FieldProtocol, IntField, OptionField, TextField
+
+default_tokenizer = TextAnalyzerBuilder(Tokenizer.simple()).filter(Filter.lowercase()).build()
 
 
-class QueryParser(OriginalQueryParser):
-    """Custom MultiFieldParser with a Verbatim phrase plugin."""
-
-    def __init__(self, fieldnames, schema, fieldboosts=None, **kwargs):
-        plugs = [
-            plugins.WhitespacePlugin(),
-            plugins.SingleQuotePlugin(),
-            plugins.FieldsPlugin(),
-            WildcardPlugin(),
-            VerbatimPhrasePlugin(),
-            plugins.RangePlugin(),
-            plugins.GroupPlugin(),
-            plugins.OperatorsPlugin(),
-            plugins.BoostPlugin(),
-            plugins.EveryPlugin(),
-            plugins.MultifieldPlugin(fieldnames, fieldboosts=fieldboosts),
-        ]
-        super().__init__(None, schema, plugs, **kwargs)
-
-    def term_query(self, fieldname, text, termclass, boost=1.0, tokenize=True, removestops=True):
-        """Returns the appropriate query object for a single term in the query
-        string.
-        """
-
-        if self.schema and fieldname in self.schema:
-            field = self.schema[fieldname]
-
-            # If this field type wants to parse queries itself, let it do so
-            # and return early
-            if field.self_parsing():
-                try:
-                    q = field.parse_query(fieldname, text, boost=boost)
-                    return q
-                except:  # noqa
-                    e = sys.exc_info()[1]
-                    return query.error_query(e)
-
-            # Otherwise, ask the field to process the text into a list of
-            # tokenized strings
-            if termclass in (query.Prefix, query.Wildcard):
-                texts = list(field.process_text(text, mode="phrase", tokenize=tokenize, removestops=removestops))
-            else:
-                texts = list(field.process_text(text, mode="query", tokenize=tokenize, removestops=removestops))
-            # If the analyzer returned more than one token, use the field's
-            # multitoken_query attribute to decide what query class, if any, to
-            # use to put the tokens together
-            if len(texts) > 1:
-                return self.multitoken_query(field.multitoken_query, texts, fieldname, termclass, boost)
-
-            # It's possible field.process_text() will return an empty list (for
-            # example, on a stop word)
-            if not texts:
-                return None
-            text = texts[0]
-
-        return termclass(fieldname, text, boost=boost)
+def select_by_id(selected: str, options: dict) -> dict:
+    return {key: {**val, "selected": (val["id"] in selected) if selected else True} for key, val in options.items()}
 
 
-class VerbatimPhrasePlugin(Plugin):
-    """Adds the ability to specify phrase queries inside double quotes."""
-
-    # Didn't use TaggingPlugin because I need to add slop parsing at some
-    # point
-
-    # Expression used to find words if a schema isn't available
-    wordexpr = rcompile(r"\S+")
-
-    class PhraseNode(syntax.TextNode):
-        def __init__(self, text, textstartchar, slop=1):
-            syntax.TextNode.__init__(self, text)
-            self.textstartchar = textstartchar
-            self.slop = slop
-
-        def r(self):
-            return f"{self.__class__.__name__} {self.text!r}~{self.slop}"
-
-        def apply(self, fn):
-            return self.__class__(self.type, [fn(node) for node in self.nodes], slop=self.slop, boost=self.boost)
-
-        def query(self, parser):
-            text = self.text
-            fieldname = self.fieldname or parser.fieldname
-
-            # We want to process the text of the phrase into "words" (tokens),
-            # and also record the startchar and endchar of each word
-
-            sc = self.textstartchar
-            if parser.schema and fieldname in parser.schema:
-                field = parser.schema[fieldname]
-                if field.analyzer:
-                    # We have a field with an analyzer, so use it to parse
-                    # the phrase into tokens
-                    tokens = field.tokenize(text, mode="phrase", chars=True)
-                    words = []
-                    char_ranges = []
-                    for t in tokens:
-                        words.append(t.text)
-                        char_ranges.append((sc + t.startchar, sc + t.endchar))
-                else:
-                    # We have a field but it doesn't have a format object,
-                    # for some reason (it's self-parsing?), so use process_text
-                    # to get the texts (we won't know the start/end chars)
-                    words = list(field.process_text(text, mode="phrase"))
-                    char_ranges = [(None, None)] * len(words)
-            else:
-                # We're parsing without a schema, so just use the default
-                # regular expression to break the text into words
-                words = []
-                char_ranges = []
-                for match in VerbatimPhrasePlugin.wordexpr.finditer(text):
-                    words.append(match.group(0))
-                    char_ranges.append((sc + match.start(), sc + match.end()))
-
-            qclass = parser.phraseclass
-            q = qclass(fieldname, words, slop=self.slop, boost=self.boost, char_ranges=char_ranges)
-            return attach(q, self)
-
-    class PhraseTagger(RegexTagger):
-        def create(self, parser, match):
-            text = match.group("text")
-            textstartchar = match.start("text")
-            slopstr = match.group("slop")
-            slop = int(slopstr) if slopstr else 1
-            return VerbatimPhrasePlugin.PhraseNode(text, textstartchar, slop)
-
-    def __init__(self, expr='"(?P<text>.*?)"(~(?P<slop>[1-9][0-9]*))?'):
-        self.expr = expr
-
-    def taggers(self, parser):
-        return [(self.PhraseTagger(self.expr), 0)]
+def select_by_bitmask(mask: int | None, options: list) -> list:
+    return [opt for i, opt in enumerate(options) if not mask or (mask >> i & 1)]
 
 
-class WildcardPlugin(TaggingPlugin):
-    # \u055E = Armenian question mark
-    # \u061F = Arabic question mark
-    # \u1367 = Ethiopic question mark
-    qmarks = "?\u055e\u061f\u1367"
-    expr = f"(?P<text>[*{qmarks}])"
-
-    def filters(self, parser):
-        # Run early, but definitely before multifield plugin
-        return [(self.do_wildcards, 50)]
-
-    def do_wildcards(self, parser, group):
-        i = 0
-        while i < len(group):
-            node = group[i]
-            if isinstance(node, self.WildcardNode):
-                if i < len(group) - 1 and group[i + 1].is_text():
-                    nextnode = group.pop(i + 1)
-                    node.text += nextnode.text
-                if i > 0 and group[i - 1].is_text():
-                    prevnode = group.pop(i - 1)
-                    node.text = prevnode.text + node.text
-                else:
-                    i += 1
-            else:
-                if isinstance(node, syntax.GroupNode):
-                    self.do_wildcards(parser, node)
-                i += 1
-
-        for i in range(len(group)):
-            node = group[i]
-            if isinstance(node, self.WildcardNode):
-                text = node.text
-                if len(text) > 1 and not any(qm in text for qm in self.qmarks):
-                    if text.find("*") == len(text) - 1:
-                        newnode = self.PrefixNode(text[:-1])
-                        newnode.startchar = node.startchar
-                        newnode.endchar = node.endchar
-                        group[i] = newnode
-        return group
-
-    class PrefixNode(syntax.TextNode):
-        qclass = query.Prefix
-
-        def r(self):
-            return f"{self.text!r}*"
-
-    class WildcardNode(syntax.TextNode):
-        # Note that this node inherits tokenize = False from TextNode,
-        # so the text in this node will not be analyzed... just passed
-        # straight to the query
-
-        qclass = query.Wildcard
-
-        def r(self):
-            return f"Wild {self.text!r}"
-
-    nodetype = WildcardNode
+def select_by_list(selected: list | None, options: Iterable) -> list:
+    return [opt for opt in options if not selected or opt in selected]
 
 
-class BasicSearch(ABC):
-    status_options: ClassVar[set[str]]
-    status_default: ClassVar[str]
-    sort_options: ClassVar[set[str]]
-    sort_default: ClassVar[str]
-    categories: ClassVar[dict[str, dict]]
-    collection: ClassVar
+def detect_advanced_syntax(query: str) -> set[str]:
+    rules = [
+        ("boolean_op", r"\b(AND|OR)\b"),
+        ("phrase", r'"[^"]*"'),
+        ("must_exclude", r"(^|\s)[+\-]\w"),
+        ("range", r"[\[{][^\]\}\n]+\bTO\b[^\]\}\n]+[\]}]"),
+        ("set", r"\bIN\s*\[[^\]]*\]"),
+        ("boost", r"\^(\d+|\d*\.\d*)"),
+        ("regex", r"/[^/\n]+/"),
+    ]
+
+    matched = set()
+    for name, pattern in rules:
+        if re.search(pattern, query):
+            matched.add(name)
+
+    return matched
+
+
+def get_expanded_query(query: str, field_name: str, raw: bool, prefix: bool, schema: Schema) -> Query:
+    words = default_tokenizer.analyze(query) if not raw else query.split()
+    subqueries = []
+    if len(words) >= 2:
+        subqueries.append((Occur.Should, Query.boost_query(Query.phrase_query(schema, field_name, words), 3)))
+
+    and_query = []
+    prefix_query = []
+    for word in words:
+        and_query.append((Occur.Must, Query.term_query(schema, field_name, word)))
+        prefix_query.append((Occur.Must, Query.fuzzy_term_query(schema, field_name, word, 0, prefix=True)))
+
+    subqueries.append((Occur.Should, Query.boolean_query(and_query)))
+    if prefix:
+        subqueries.append((Occur.Should, Query.boost_query(Query.boolean_query(prefix_query), 0.5)))
+
+    return Query.boolean_query(subqueries)
+
+
+def get_text_query(
+    query: str | None, field_name: str, raw: bool, prefix: bool, index: Index, schema: Schema
+) -> tuple[Query, Any]:
+    if query is None:
+        return Query.all_query(), None
+
+    advanced_features = detect_advanced_syntax(query)
+    if not advanced_features:
+        return get_expanded_query(query, field_name, raw, prefix, schema), None
+
+    if not re.search(r"\w+:", query):
+        query = f"{field_name}:{query}"
+
+    return index.parse_query_lenient(
+        query, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=True
+    )
+
+
+def build_keyword_query(schema: Schema, units: list[list[str]], fields: list[str], mode: str) -> Query:
+    if mode == "and":
+        subqueries = []
+        for unit in units:
+            per_unit = [(Occur.Should, Query.term_query(schema, field, path)) for path in unit for field in fields]
+            subqueries.append((Occur.Must, Query.boolean_query(per_unit)))
+        return Query.boolean_query(subqueries)
+
+    all_paths = [path for unit in units for path in unit]
+    subqueries = [(Occur.Should, Query.term_set_query(schema, field, all_paths)) for field in fields]
+    return Query.boolean_query(subqueries)
+
+
+def get_date_query(lower: datetime | None, upper: datetime | None, field_name: str, schema: Schema) -> Query:
+    if not lower and not upper:
+        return Query.all_query()
+
+    return Query.range_query(schema, field_name, FieldType.Date, lower, upper)
+
+
+def get_number_range_query(
+    lower: float | int | None,
+    upper: float | int | None,
+    field_name: str,
+    schema: Schema,
+    field_type: FieldType = FieldType.Float,
+) -> Query:
+    if lower is None and upper is None:
+        return Query.all_query()
+
+    return Query.range_query(schema, field_name, field_type, lower, upper)
+
+
+class Errors(dict):
+    def add(self, key: str, err) -> None:
+        if err:
+            self[key] = [str(e) for e in err]
+
+
+def get_term_query(schema: Schema, field_name: str, value: str | None) -> Query | None:
+    return Query.term_query(schema, field_name, value) if value else None
+
+
+def get_term_set_query(schema: Schema, field_name: str, selected: list, all_options) -> Query | None:
+    if len(selected) < len(all_options):
+        return Query.term_set_query(schema, field_name, selected)
+    return None
+
+
+def get_selection_query(schema: Schema, field_name: str, selection: dict) -> Query:
+    ids = [key for key, val in selection.items() if val["selected"]]
+    return Query.term_set_query(schema, field_name, ids)
+
+
+def get_keyword_query(schema: Schema, units: list[list[str]] | None, fields: list, mode: str) -> Query | None:
+    if not units or not fields:
+        return None
+    return build_keyword_query(schema, units, fields, mode)
+
+
+def get_text_field_query(
+    index: Callable[[], Index],
+    schema: Schema,
+    value: str | None,
+    field_name: str,
+    broader: bool,
+    errors: "Errors",
+    error_key: str | None = None,
+    raw=False,
+) -> Query:
+    query, err = get_text_query(value, field_name, raw, broader, index(), schema)
+    errors.add(error_key or field_name, err)
+    return query
+
+
+def get_id_query(
+    index: Callable[[], Index],
+    schema: Schema,
+    value: str | None,
+    broader: bool,
+    errors: "Errors",
+    raw_field: str,
+    text_field: str,
+    error_key: str | None = None,
+) -> Query:
+    if value is None:
+        return Query.all_query()
+
+    subqueries = []
+    for field, raw in [(text_field, False), (raw_field, True)]:
+        query, err = get_text_query(value, field, raw, broader, index(), schema)
+        errors.add(error_key or raw_field, err)
+        subqueries.append((Occur.Should, query))
+
+    return Query.boolean_query(subqueries)
+
+
+def get_body_query(index: Callable[[], Index], value: str | None, doc_types: list, errors: "Errors") -> Query:
+    if value is None:
+        return Query.empty_query()
+
+    advanced_features = detect_advanced_syntax(value)
+    subqueries = []
+    for doc_type in doc_types:
+        field_name = f"body_{doc_type}" if doc_type else "body"
+        text = value if not advanced_features or re.match(r"\w+:", value) else f"{field_name}:{value}"
+        parsed_query, err = index().parse_query_lenient(
+            text, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=False
+        )
+        errors.add("query", err)
+        subqueries.append((Occur.Should, parsed_query))
+
+    return Query.boolean_query(subqueries)
+
+
+def build_must_query(*queries: Query | None) -> Query:
+    return Query.boolean_query([(Occur.Must, q) for q in queries if q is not None])
+
+
+def get_snippet_generators(
+    searcher: Searcher, query: Query, snippet_fields: dict[str, str], schema: Schema
+) -> dict[str, SnippetGenerator]:
+    result = {}
+    for doc_type, field in snippet_fields.items():
+        gen = SnippetGenerator.create(searcher, query, schema, field)
+        gen.set_max_num_chars(300)
+        result[doc_type] = gen
+
+    return result
+
+
+def get_results_from_hits(
+    searcher: Searcher, hits: list[tuple[Any, DocAddress]], snippet_generators: dict[str, SnippetGenerator]
+) -> list[dict]:
+    result = []
+    for _, doc_addr in hits:
+        doc = searcher.doc(doc_addr)
+        entry = {key: val[0] if len(val) == 1 else val for key, val in doc.to_dict().items()}
+        snippets = {}
+        for doc_type, gen in snippet_generators.items():
+            html = gen.snippet_from_doc(doc).to_html()
+            if html.strip():
+                snippets[doc_type] = html
+        entry["snippets"] = snippets
+        result.append(entry)
+    return result
+
+
+@dataclass(frozen=True)
+class Facet:
+    out: str
+    fn: Callable
+    src: str
+    options: Any
+
+
+@dataclass(frozen=True)
+class SearchConfig:
+    default_sort_by: str
+    default_sort_dir: str = "desc"
+    query_targets: dict = dc_field(default_factory=dict)
+    facets: tuple = ()
+
+
+class Search(ABC):
+    search_args: ClassVar[dict[str, FieldProtocol]]
+    snippet_fields: ClassVar
+    schema: ClassVar[Schema]
+    index: ClassVar[Callable[[], Index]]
+    config: ClassVar[SearchConfig]
 
     @classmethod
-    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
-        """Parse the request into validated args."""
-        try:
-            page = int(args.get("page", 1))
-        except ValueError:
-            raise BadRequest(description="Invalid page number.")
-        if page < 1:
-            raise BadRequest(description="Invalid page number, must be >= 1.")
-        try:
-            per_page = int(args.get("per_page", current_app.config["SEARCH_ITEMS_PER_PAGE"]))
-        except ValueError:
-            raise BadRequest(description="Invalid per_page value.")
-        q = args.get("q", None)
-        cat = args.get("cat", None)
-        advanced = False
-        categories = cls.categories.copy()
-        if cat:
-            for name, category in categories.items():
-                category["selected"] = category["id"] in cat
-                if category["id"] not in cat:
-                    advanced = True
+    def _enrich_args(cls, parsed: dict) -> dict:
+        cfg = cls.config
+        fulltext = parsed["search_type"] == "fulltext"
+        advanced = any(parsed[a] is not None for a in cls.search_args if a not in ("sort_by", "sort_dir"))
+
+        if not advanced and not parsed["query"]:
+            parsed["sort_by"] = parsed["sort_by"] or cfg.default_sort_by
+            parsed["sort_dir"] = parsed["sort_dir"] or cfg.default_sort_dir
+
+        if "*" in cfg.query_targets:
+            parsed[cfg.query_targets["*"]] = parsed["query"]
         else:
-            for category in categories.values():
-                category["selected"] = True
-        status = args.get("status", cls.status_default)
-        if status not in cls.status_options:
-            raise BadRequest(description="Invalid status.")
-        if status != cls.status_default:
-            advanced = True
-        sort = args.get("sort", cls.sort_default)
-        if sort not in cls.sort_options:
-            raise BadRequest(description="Invalid sort.")
-        if sort != cls.sort_default:
-            advanced = True
-        res = {
-            "q": q,
-            "page": page,
-            "per_page": per_page,
-            "cat": cat,
-            "categories": categories,
-            "sort": sort,
-            "status": status,
-            "advanced": advanced,
-        }
-        return res
+            parsed[cfg.query_targets["fulltext"] if fulltext else cfg.query_targets["name"]] = parsed["query"]
+
+        if "kw_mode" in parsed:
+            parsed["kw_mode"] = parsed["kw_mode"] or "or"
+
+        selected = {f.out: f.fn(parsed[f.src], f.options) for f in cfg.facets}
+        return {"advanced": advanced, **selected, **parsed}
 
     @classmethod
     @abstractmethod
-    def select_certs(
-        cls, q, cat, categories, status, sort, **kwargs
-    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
+    def _build_query(cls, args: dict, broader: bool, fulltext: bool) -> tuple[Query, dict]:
         raise NotImplementedError
 
     @classmethod
+    def _get_args(cls) -> dict[str, FieldProtocol]:
+        return {
+            "query": TextField(),
+            "page": IntField(1, min=1),
+            "per_page": IntField(current_app.config["SEARCH_ITEMS_PER_PAGE"], min=1, max=100),
+            "search_type": OptionField({"name", "fulltext"}, "name"),
+            **cls.search_args,
+        }
+
+    @classmethod
+    def _parse_args(cls, args: dict | MultiDict) -> dict:
+        parsed = {}
+        errors = {}
+        for name, field in cls._get_args().items():
+            result = field.parse(args.get(name))
+            if not result.ok:
+                errors[name] = result.error
+            else:
+                parsed[name] = result.value
+        if errors:
+            raise BadRequest(description=str(errors))
+        return cls._enrich_args(parsed)
+
+    @classmethod
+    def _search_with_fallback(
+        cls, args: dict, searcher: Searcher, sort_by: str, sort_dir: str, per_page: int, page: int, fulltext: bool
+    ):
+        for broader in (False, True):
+            query, errs = cls._build_query(args, broader, fulltext)
+            if errs:
+                return None, None, errs, broader
+
+            order_dir = Order.Desc if sort_dir == "desc" else Order.Asc
+            result = searcher.search(
+                query, order_by_field=sort_by, order=order_dir, limit=per_page, offset=(page - 1) * per_page
+            )
+            if result.count > 0:
+                break
+
+        return query, result, {}, broader
+
+    @classmethod
+    def _search(cls, args: dict) -> tuple[list, int, dict, bool]:
+        fulltext = args["search_type"] == "fulltext"
+        page = args["page"]
+        per_page = args["per_page"]
+        sort_by = args["sort_by"]
+        sort_dir = args["sort_dir"]
+
+        searcher = cls.index().searcher()
+        query, result, errors, broadened = cls._search_with_fallback(
+            args, searcher, sort_by, sort_dir, per_page, page, fulltext
+        )
+        if errors:
+            return [], 0, errors, broadened
+        snippet_generators = {}
+        if fulltext:
+            snippet_generators = get_snippet_generators(searcher, query, cls.snippet_fields, cls.schema)
+
+        return get_results_from_hits(searcher, result.hits, snippet_generators), result.count, {}, broadened
+
+    @classmethod
     def process_search(cls, req, callback=None):
-        parsed = cls.parse_args(req.args)
-        cursor, count, timeline = cls.select_certs(**parsed)
-
-        page = parsed["page"]
-
-        per_page = parsed["per_page"]
+        parsed = cls._parse_args(req.args)
+        result, count, errors, broadened = cls._search(parsed)
         pagination = Pagination(
-            page=page,
-            per_page=per_page,
+            page=parsed["page"],
+            per_page=parsed["per_page"],
             search=True,
             found=count,
-            total=cls.collection.count_documents({}),
+            total=count,
             css_framework="bootstrap5",
             alignment="center",
             url_callback=callback,
@@ -302,193 +375,8 @@ class BasicSearch(ABC):
         )
         return {
             "pagination": pagination,
-            "certs": list(map(load, cursor[(page - 1) * per_page : page * per_page])),
-            "timeline": timeline,
+            "result": result,
+            "errors": errors,
+            "broadened": broadened,
             **parsed,
         }
-
-
-class FulltextSearch(ABC):
-    schema: ClassVar[str]
-    status_options: ClassVar[set[str]]
-    status_default: ClassVar[str]
-    type_options: ClassVar[set[str]]
-    type_default: ClassVar[str]
-    categories: ClassVar[dict[str, dict]]
-    collection: ClassVar
-    doc_dir: ClassVar[str]
-
-    @classmethod
-    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
-        categories = cls.categories.copy()
-        try:
-            page = int(args.get("page", 1))
-        except ValueError:
-            raise BadRequest(description="Invalid page number.")
-        if page < 1:
-            raise BadRequest(description="Invalid page number, must be >= 1.")
-        try:
-            per_page = int(args.get("per_page", current_app.config["SEARCH_ITEMS_PER_PAGE"]))
-        except ValueError:
-            raise BadRequest(description="Invalid per_page value.")
-        q = args.get("q", None)
-        cat = args.get("cat", None)
-        advanced = False
-        if cat:
-            for name, category in categories.items():
-                category["selected"] = category["id"] in cat
-                if category["id"] not in cat:
-                    advanced = True
-        else:
-            for category in categories.values():
-                category["selected"] = True
-
-        document_type = args.get("type", cls.type_default)
-        if document_type not in cls.type_options:
-            raise BadRequest(description="Invalid type.")
-        if document_type != cls.type_default:
-            advanced = True
-
-        status = args.get("status", cls.status_default)
-        if status not in cls.status_options:
-            raise BadRequest(description="Invalid status.")
-        if status != cls.status_default:
-            advanced = True
-        res = {
-            "q": q,
-            "page": page,
-            "per_page": per_page,
-            "cat": cat,
-            "categories": categories,
-            "status": status,
-            "document_type": document_type,
-            "advanced": advanced,
-        }
-        return res
-
-    @classmethod
-    def select_items(
-        cls, q, cat, categories, status, document_type, page=None, **kwargs
-    ) -> tuple[Results | ResultsPage, int, Query]:
-        q_filter = query.Term("cert_schema", cls.schema)
-        cat_terms = []
-        for name, category in categories.items():
-            if category["selected"]:
-                cat_terms.append(query.Term("category", category["id"]))
-        if cat_terms:
-            q_filter &= reduce(operator.or_, cat_terms)
-        if document_type != "any":
-            q_filter &= query.Term("document_type", document_type)
-        if status.lower() != "any":
-            q_filter &= query.Term("status", status)
-        if "scheme" in kwargs and kwargs["scheme"] != "any":
-            q_filter &= query.Term("scheme", kwargs["scheme"])
-
-        per_page = kwargs["per_page"]
-
-        parser = QueryParser(
-            fieldnames=["name", "cert_id", "content"],
-            schema=index_schema,
-            fieldboosts={"name": 2, "cert_id": 4, "content": 1},
-        )
-        qr = parser.parse(q)
-        with sentry_sdk.start_span(op="whoosh.get_searcher", name="Get whoosh searcher"):
-            searcher = get_searcher()
-        with (
-            metrics.timing("search.latency", attributes={"collection": cls.schema, "type": "fulltext"}),
-            sentry_sdk.start_span(op="whoosh.search", name="Search"),
-        ):
-            if page is None:
-                res = searcher.search(qr, filter=q_filter, limit=None, scored=False)
-            else:
-                res = searcher.search_page(qr, pagenum=page, filter=q_filter, pagelen=per_page)
-        metrics.distribution(
-            "search.results_count", len(res), attributes={"collection": cls.schema, "type": "fulltext"}
-        )
-        return res, len(res), qr
-
-    @classmethod
-    def select_certs(cls, q, cat, categories, status, document_type, **kwargs) -> tuple[Iterable[Mapping], int]:
-        res, count, qr = cls.select_items(q, cat, categories, status, document_type, **kwargs)
-        dgsts = set(map(operator.itemgetter("dgst"), res))
-        certs = [load(cls.collection.find_one({"_id": dgst})) for dgst in dgsts]
-        return certs, len(certs)
-
-    @classmethod
-    def process_search(cls, req: Request):
-        parsed = cls.parse_args(req.args)
-        if parsed["q"] is None:
-            return {"pagination": None, "results": [], **parsed}
-        res, count, qr = cls.select_items(**parsed)
-
-        page = parsed["page"]
-        per_page = parsed["per_page"]
-
-        res.results.fragmenter.charlimit = None
-        res.results.fragmenter.maxchars = 300
-        res.results.fragmenter.surround = 40
-        res.results.order = highlight.SCORE
-        hf = Formatter()
-        res.results.formatter = hf
-        runtime = res.results.runtime
-        results = []
-        highlite_start = time.perf_counter()
-        with sentry_sdk.start_span(op="whoosh.highlight", name="Highlight results"):
-            for hit in res:
-                dgst = hit["dgst"]
-                cert = cls.collection.find_one({"_id": dgst})
-                entry = {"hit": hit, "cert": cert}
-                fpath = entry_file_path(dgst, current_app.config[cls.doc_dir], hit["document_type"], "txt")
-                try:
-                    with fpath.open(encoding="utf-8") as f:
-                        contents = f.read()
-                    with sentry_sdk.start_span(op="whoosh.highlight_one", name="Highlight one hit."):
-                        hlt = hit.highlights("content", text=contents)
-                    entry["highlights"] = hlt
-                except FileNotFoundError:
-                    pass
-                results.append(entry)
-        highlite_runtime = time.perf_counter() - highlite_start
-
-        pagination = Pagination(
-            page=page,
-            per_page=per_page,
-            search=True,
-            found=count,
-            total=cls.collection.count_documents({}),
-            css_framework="bootstrap5",
-            alignment="center",
-            next_rel="next",
-            prev_rel="prev",
-        )
-        return {
-            "pagination": pagination,
-            "results": results,
-            "runtime": runtime,
-            "highlight_runtime": highlite_runtime,
-            **parsed,
-            "query": qr,
-        }
-
-
-class Formatter(highlight.HtmlFormatter):
-    """Custom HTML formatter for highlighting search results."""
-
-    def __init__(self):
-        super().__init__(between="<br/>")
-        self.wrap_tag = "span"
-        self.wrap_class = "result-fragment"
-        self.surround = '<span class="text-muted">...</span>'
-
-    def format(self, fragments, replace=False):
-        """Returns a formatted version of the given text, using a list of
-        :class:`Fragment` objects.
-        """
-
-        formatted = [self.format_fragment(f, replace=replace) for f in fragments]
-        wrapped = [
-            f'<{self.wrap_tag} class="{self.wrap_class}" data-start="{frag.startchar}" data-end="{frag.endchar}">{text}</{self.wrap_tag}>'
-            for frag, text in zip(fragments, formatted)
-        ]
-        surrounded = [f"{self.surround}{text}{self.surround}" for text in wrapped]
-        return self.between.join(surrounded)

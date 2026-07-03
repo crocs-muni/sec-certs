@@ -1,116 +1,84 @@
-from collections.abc import Mapping
-from datetime import datetime
+from tantivy import Occur, Query
 
-import pymongo
-import sentry_sdk
-from pymongo.cursor import Cursor
-from werkzeug.datastructures import MultiDict
+from ..cc import cc_categories, cc_schemes
+from ..common.keyword_groups import keyword_units
+from ..common.search.fields import DateField, IntField, ListField, OptionField, TextField
+from ..common.search.query import (
+    Errors,
+    Facet,
+    Search,
+    SearchConfig,
+    build_must_query,
+    get_body_query,
+    get_date_query,
+    get_keyword_query,
+    get_selection_query,
+    get_term_query,
+    get_term_set_query,
+    get_text_field_query,
+    select_by_bitmask,
+    select_by_id,
+    select_by_list,
+)
+from .index import pp_index, pp_schema
 
-from .. import mongo
-from ..cc import cc_categories
-from ..common.search.query import BasicSearch, FulltextSearch
-from ..common.sentry import metrics
 
+class PPSearch(Search):
+    search_args = {
+        "name": TextField(),
+        "body": TextField(),
+        "cat": TextField(),
+        "status": OptionField({"active", "archived"}),
+        "sort_by": OptionField({"name", "not_valid_before", "not_valid_after", "scheme", "status"}),
+        "sort_dir": OptionField({"desc", "asc"}),
+        "schemes": IntField(base=16),
+        "cert_date_from": DateField(),
+        "cert_date_to": DateField(),
+        "archive_date_from": DateField(),
+        "archive_date_to": DateField(),
+        "keywords": ListField(),
+        "kw_sources": ListField(),
+        "kw_mode": OptionField({"and", "or"}),
+    }
+    snippet_fields = {"report": "body_report", "profile": "body_profile"}
+    kw_source_fields = {"report": "keywords_report", "profile": "keywords_profile"}
+    schema = pp_schema
+    index = pp_index
+    sorted_schemes = sorted(cc_schemes)
 
-class PPBasicSearch(BasicSearch):
-    status_options = {"any", "active", "archived"}
-    status_default = "any"
-    sort_options = {"match", "name", "cert_date", "archive_date"}
-    sort_default = "match"
-    categories = cc_categories  # type: ignore
-    collection = mongo.db.pp
+    config = SearchConfig(
+        default_sort_by="not_valid_before",
+        query_targets={"fulltext": "body", "name": "name"},
+        facets=(
+            Facet("selected_categories", select_by_id, "cat", cc_categories),
+            Facet("selected_schemes", select_by_bitmask, "schemes", sorted_schemes),
+            Facet("selected_kw_sources", select_by_list, "kw_sources", kw_source_fields),
+        ),
+    )
 
     @classmethod
-    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
-        res = super().parse_args(args)
-        scheme = args.get("scheme", "any")
-        res["scheme"] = scheme
-        if scheme != "any":
-            res["advanced"] = True
-        return res
+    def _build_query(cls, args: dict, broader: bool = False, fulltext: bool = False) -> tuple[Query, Errors]:
+        errors = Errors()
 
-    @classmethod
-    def select_certs(
-        cls, q, cat, categories, status, sort, **kwargs
-    ) -> tuple[Cursor[Mapping], int, list[datetime | None]]:
-        """Take parsed args and get the certs as: cursor and count."""
-        query = {}
-        projection = {
-            "_id": 1,
-            "web_data.name": 1,
-            "web_data.status": 1,
-            "web_data.scheme": 1,
-            "web_data.security_level._value": 1,
-            "web_data.not_valid_before": 1,
-            "web_data.not_valid_after": 1,
-            "web_data.category": 1,
-        }
-
-        if q is not None and q != "":
-            projection["score"] = {"$meta": "textScore"}  # type: ignore
-            query["$text"] = {"$search": q}
-
-        if cat is not None:
-            selected_cats = []
-            for name, category in categories.items():
-                if category["selected"]:
-                    selected_cats.append(name)
-            query["web_data.category"] = {"$in": selected_cats}
-
-        if status is not None and status != "any":
-            query["web_data.status"] = status
-
-        if "scheme" in kwargs and kwargs["scheme"] != "any":
-            query["web_data.scheme"] = kwargs["scheme"]
-
-        if "eal" in kwargs and kwargs["eal"] != "any":
-            query["web_data.security_level._value"] = kwargs["eal"]
-
-        with (
-            metrics.timing("search.latency", attributes={"collection": "pp", "type": "basic"}),
-            sentry_sdk.start_span(op="mongo", name="Find certs."),
-        ):
-            cursor: Cursor[Mapping] = cls.collection.find(query, projection)
-            count: int = cls.collection.count_documents(query)
-
-        metrics.distribution("search.results_count", count, attributes={"collection": "pp"})
-
-        timeline = [
+        text = [
             (
-                datetime.strptime(cert["web_data"]["not_valid_before"]["_value"], "%Y-%m-%d")
-                if cert["web_data"]["not_valid_before"]
-                else None
-            )
-            for cert in cursor.clone()
+                Occur.Must,
+                get_text_field_query(
+                    pp_index, pp_schema, args["name"], "name", broader, errors, error_key=None if fulltext else "query"
+                ),
+            ),
         ]
+        if fulltext:
+            text.append((Occur.Must, get_body_query(pp_index, args["body"], ["report", "profile"], errors)))
 
-        if sort == "match" and q is not None and q != "":
-            cursor.sort([("score", {"$meta": "textScore"}), ("name", pymongo.ASCENDING)])
-        elif sort == "cert_date":
-            cursor.sort([("web_data.not_valid_before._value", pymongo.ASCENDING)])
-        elif sort == "archive_date":
-            cursor.sort([("web_data.not_valid_after._value", pymongo.ASCENDING)])
-        else:
-            cursor.sort([("web_data.name", pymongo.ASCENDING)])
-
-        return cursor, count, timeline
-
-
-class PPFulltextSearch(FulltextSearch):
-    schema = "pp"
-    status_options = {"any", "active", "archived"}
-    status_default = "any"
-    type_options = {"any", "report", "profile"}
-    type_default = "any"
-    categories = cc_categories  # type: ignore
-    collection = mongo.db.pp
-    doc_dir = "DATASET_PATH_PP_DIR"
-
-    @classmethod
-    def parse_args(cls, args: dict | MultiDict) -> dict[str, int | str | None]:
-        res = super().parse_args(args)
-        scheme = args.get("scheme", "any")
-        res["scheme"] = scheme
-        if scheme != "any":
-            res["advanced"] = True
-        return res
+        kw_fields = [cls.kw_source_fields[s] for s in args["selected_kw_sources"]]
+        query = build_must_query(
+            Query.boolean_query(text),
+            get_term_query(pp_schema, "status", args["status"]),
+            get_term_set_query(pp_schema, "scheme", args["selected_schemes"], cc_schemes),
+            get_date_query(args["cert_date_from"], args["cert_date_to"], "not_valid_before", pp_schema),
+            get_date_query(args["archive_date_from"], args["archive_date_to"], "not_valid_after", pp_schema),
+            get_selection_query(pp_schema, "category", args["selected_categories"]),
+            get_keyword_query(pp_schema, keyword_units(args["keywords"], "pp"), kw_fields, args["kw_mode"]),
+        )
+        return query, errors
