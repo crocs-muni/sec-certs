@@ -1,9 +1,7 @@
-import re
-
 import pytest
 
-from sec_certs.cert_rules import rules
-from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, schemes
+from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize
+from sec_certs.sample.cc_eucc_common import PdfData
 
 
 def canonicalize_n(n, cert_id_str, scheme):
@@ -165,30 +163,28 @@ def test_certid_compare():
     assert cid1 != cid3
 
 
-def _filename_cert_id(filename, scheme):
-    for rule in rules["cc_filename_cert_id"][scheme]:
-        if match := re.search(rule, filename):
-            try:
-                return schemes[scheme](match.groupdict())
-            except Exception:
-                continue
-    return None
-
-
 def test_filename_cert_id_fr():
-    assert _filename_cert_id("EUCC-3090-2025_10_04_Rapport.pdf", "FR") == "EUCC-3090-2025-4"
-    assert _filename_cert_id("EUCC-3090-2026-36-rapport.pdf", "FR") == "EUCC-3090-2026-36"
-    assert _filename_cert_id("EUCC-3090-2026_10-rapport.pdf", "FR") == "EUCC-3090-2026-10"
+    def get_id(fname):
+        res = PdfData(report_filename=fname).filename_cert_id("FR")
+        return list(res.keys())[0] if res else None
+
+    assert get_id("EUCC-3090-2025_10_04_Rapport.pdf") == "EUCC-3090-2025-4"
+    assert get_id("EUCC-3090-2026-36-rapport.pdf") == "EUCC-3090-2026-36"
+    assert get_id("EUCC-3090-2026_10-rapport.pdf") == "EUCC-3090-2026-10"
     # ANSSI filenames keep working through guarded old rule
-    assert _filename_cert_id("ANSSI-CC-2009_42fr.pdf", "FR") == "ANSSI-CC-2009/42"
-    assert _filename_cert_id("2014-01en.pdf", "FR") == "ANSSI-CC-2014/01"
-    assert _filename_cert_id("anssi-cc-2021_45v2.pdf", "FR") == "ANSSI-CC-2021/45v2"
+    assert get_id("ANSSI-CC-2009_42fr.pdf") == "ANSSI-CC-2009/42"
+    assert get_id("2014-01en.pdf") == "ANSSI-CC-2014/01"
+    assert get_id("anssi-cc-2021_45v2.pdf") == "ANSSI-CC-2021/45v2"
     # EUCC filename without the CB number cannot be resolved -> none
-    assert _filename_cert_id("EUCC-2025_10_05_Rapport.pdf", "FR") is None
+    assert get_id("EUCC-2025_10_05_Rapport.pdf") is None
 
 
 def test_filename_cert_id_nl():
-    assert _filename_cert_id("EUCC-3110-2025-08-2500052-01_CR.pdf", "NL") == "EUCC-3110-2025-2500052"
-    assert _filename_cert_id("EUCC-3110-2026-01-2500076-01_CR.pdf", "NL") == "EUCC-3110-2026-2500076"
-    assert _filename_cert_id("NSCIB-CC-22-0428888-CR2.pdf", "NL") == "NSCIB-CC-22-0428888-CR2"
-    assert _filename_cert_id("CC-16-31801-CR4.pdf", "NL") == "NSCIB-CC-16-31801-CR4"
+    def get_id(fname):
+        res = PdfData(report_filename=fname).filename_cert_id("NL")
+        return list(res.keys())[0] if res else None
+
+    assert get_id("EUCC-3110-2025-08-2500052-01_CR.pdf") == "EUCC-3110-2025-2500052"
+    assert get_id("EUCC-3110-2026-01-2500076-01_CR.pdf") == "EUCC-3110-2026-2500076"
+    assert get_id("NSCIB-CC-22-0428888-CR2.pdf") == "NSCIB-CC-22-0428888-CR2"
+    assert get_id("CC-16-31801-CR4.pdf") == "NSCIB-CC-16-31801-CR4"
