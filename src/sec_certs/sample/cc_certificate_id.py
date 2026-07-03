@@ -161,6 +161,15 @@ def NO(meta) -> str:
 
 
 def NL(meta) -> str:
+    # New EUCC form EUCC-3110-2025-08-2500052-01 → EUCC-3110-2025-2500052
+    if seq := meta.get("eucc_seq"):
+        return f"EUCC-3110-{meta['year']}-{int(seq)}"
+    # EUCC 4-group pattern
+    if rid2 := meta.get("id2"):
+        return f"EUCC-3110-{meta['year']}-{int(rid2)}"
+    # ENISA long form
+    if rid := meta.get("id"):
+        return f"EUCC-3110-{meta['year']}-{int(rid)}"
     core = meta["core"]
     doc = meta.get("doc")
     if doc is None:
