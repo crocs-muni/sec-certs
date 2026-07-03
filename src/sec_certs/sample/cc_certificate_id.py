@@ -20,6 +20,14 @@ def _parse_year(year: str | None) -> int | None:
 
 
 def FR(meta) -> str:
+    # new form EUCC-3090-2025-10-04 → EUCC-3090-2025-4
+    if seq := meta.get("eucc_seq"):
+        return f"EUCC-3090-{meta['year']}-{int(seq)}"
+    if meta.get("month") and meta.get("day"):
+        return f"EUCC-ANSSI-{meta['year']}-{meta['month']}-{meta['day']}"
+    # Enisa long form: EUCC-3090-2025-0000000004-00002 → EUCC-3090-2025-4
+    if rid := meta.get("id"):
+        return f"EUCC-3090-{meta['year']}-{int(rid)}"
     year = _parse_year(meta["year"])
     counter = meta["counter"]
     doc = meta.get("doc")
