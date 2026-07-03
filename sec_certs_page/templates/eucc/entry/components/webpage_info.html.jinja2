@@ -124,6 +124,7 @@
             <tr data-cs-name="Package">
                 <th scope="row">Package</th>
                 <td>
+                {% if cert["other_metadata"]["package"] %}
                     {% for level, components in cert["other_metadata"]["package"].items() %}
                         {% if level == "COMP" %}
                             <abbr title="Composite evaluation package">COMP</abbr>
@@ -150,6 +151,9 @@
                         {% endif %}
                         {% if not loop.last %}<br>{% endif %}
                     {% endfor %}
+                {% else %}
+                    N/A
+                {% endif %}
                 </td>
             </tr>
             </tbody>
