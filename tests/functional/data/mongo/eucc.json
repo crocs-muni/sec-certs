@@ -3,12 +3,17 @@
     "_id": "e2a88386bd8e37a6",
     "_type": "sec_certs.sample.eucc.EUCCCertificate",
     "dgst": "e2a88386bd8e37a6",
-    "scheme": "DE",
-    "status": "active",
-    "name": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
     "cert_id": "EUCC-3087-2025-0000000001-00000",
-    "heuristics": {
-      "eal": "EAL6"
+    "category": "SMARTCARD CONTROLLER",
+    "name": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+    "status": "active",
+    "manufacturer": "Infineon Technologies AG",
+    "scheme": "DE",
+    "security_level": {
+      "_type": "set",
+      "_value": [
+        "EAL6"
+      ]
     },
     "not_valid_before": {
       "_type": "date",
@@ -17,18 +22,1116 @@
     "not_valid_after": {
       "_type": "date",
       "_value": "2030-12-19"
+    },
+    "report_link": "https://certification.enisa.europa.eu/document/download/39c71b1a-27f0-49d9-bd39-ac950ba8795c_en?filename=EUCC-3087-2025-12-0001%20Certificate%20Report.pdf",
+    "st_link": "https://certification.enisa.europa.eu/document/download/cd6b4c5a-4f26-452d-9ced-b7eb0683ef7c_en?filename=EUCC-3087-2025-12-0001%20Security.pdf",
+    "cert_link": "https://certification.enisa.europa.eu/document/download/110c73bb-359a-40af-9e59-612f085a0fc9_en?filename=EUCC-3087-2025-12-0001%20Certificate.pdf",
+    "manufacturer_web": "https://www.infineon.com/product-information/cybersecurity-information",
+    "protection_profile_links": null,
+    "state": {
+      "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+      "report": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "421d0abbdab50f2e38761e990a6e8d3e9901bd1ac148ad45b0c9b3ae5edc649e",
+        "txt_hash": "f8c08af0ee0e0c6d7fc8064791979fb4fd1b031d01bc04b4350fcb4641c99ba5",
+        "json_hash": null
+      },
+      "st": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "603eb7c8e8096bfea2964fc3fbf9cb0e5e34cfab1693dec890ee5aa2cec54526",
+        "txt_hash": "e51b2c4e58235b73067cf11f2c52349f09e1b5d14429f7d296a537f7982e32e9",
+        "json_hash": null
+      },
+      "cert": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "3dff483163aa864ff84d95e150503693c111eec2b8126a19753ae3b8f0812304",
+        "txt_hash": "5293e6b7abd5bb1bc6f40869b6bb468fb4e9d8cbf372770f2e317086b3d78ded",
+        "json_hash": null
+      }
+    },
+    "pdf_data": {
+      "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+      "report_metadata": {
+        "pdf_file_size_bytes": 598364,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 33,
+        "/Title": "ETR EUCC-3087-2025-12-0001 7 BSI-DSZ-CC-1079-V6-2025",
+        "/Subject": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+        "/Keywords": "Common Criteria, Certification, Zertifizierung, EUCC, Multiassurance",
+        "/Creator": "Writer",
+        "/Producer": "LibreOffice 24.8.7.2 (X86_64) / LibreOffice Community",
+        "/CreationDate": "D:20251223124905+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "https://www.iso.org/standard/72913.html",
+            "https://www.iso.org/standard/72891.html",
+            "http://www.commoncriteriaportal.org/",
+            "https://www.iso.org/standard/72889.html",
+            "https://www.bsi.bund.de/AIS",
+            "https://www.bsi.bund.de/zertifizierungsreporte",
+            "https://www.iso.org/standard/72906.html",
+            "https://certification.enisa.europa.eu/publications/eucc-state-art-documents_en",
+            "https://www.iso.org/standard/72892.html",
+            "https://www.bsi.bund.de/zertifizierung",
+            "https://www.commoncriteriaportal.org/",
+            "https://eur-lex.europa.eu/eli/reg_impl/2025/2462/oj",
+            "https://www.bsi.bund.de/",
+            "https://www.iso.org/standard/72917.html"
+          ]
+        }
+      },
+      "st_metadata": {
+        "pdf_file_size_bytes": 1620440,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 139,
+        "/Producer": "Microsoft® Word 2019",
+        "/Creator": "Microsoft® Word 2019",
+        "/CreationDate": "D:20251223110653+01'00'",
+        "/ModDate": "D:20251223110653+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "http://www.ietf.org/rfc/rfc5639.txt",
+            "https://www.bsi.bund.de/",
+            "mailto:erratum@infineon.com;ctdd@infineon.com?subject=Document%20question%20",
+            "http://www.infineon.com/",
+            "mailto:Crypto@2304T%20User%20Manual%20(CUM)"
+          ]
+        }
+      },
+      "cert_metadata": {
+        "pdf_file_size_bytes": 126286,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 2,
+        "/Title": "SBSI000210125121916000",
+        "/Creator": "BSI00021019",
+        "/Producer": "KONICA MINOLTA bizhub C308",
+        "/CreationDate": "D:20251219160125+01'00'",
+        "/ModDate": "D:20251219160125+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": []
+        }
+      },
+      "report_frontpage": {
+        "DE": {
+          "match_rules": [
+            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+          ],
+          "cert_id": "BSI-DSZ-CC-1079-V6-2025",
+          "cert_item": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+          "developer": "Infineon Technologies AG",
+          "cert_lab": "BSI"
+        }
+      },
+      "st_frontpage": null,
+      "cert_frontpage": null,
+      "report_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1079-V6-2025": 35,
+            "BSI-DSZ-CC-1079-V5-2024": 3
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-": 1,
+            "BSI-CC-PP-0084-2014": 2
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL 2": 2,
+            "EAL 5": 1,
+            "EAL6": 4,
+            "EAL5+": 1,
+            "EAL5": 1,
+            "EAL6+": 1,
+            "EAL6 augmented": 3,
+            "EAL5 augmented": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_IMP．2": 2,
+            "ADV_INT．3": 2,
+            "ADV_TDS．5": 2,
+            "ADV_ARC": 1,
+            "ADV_SPM．1": 1
+          },
+          "ALC": {
+            "ALC_FLR": 2,
+            "ALC_CMC．5": 2,
+            "ALC_DVS．2": 2,
+            "ALC_FLR．3": 4,
+            "ALC_TAT．3": 2
+          },
+          "ATE": {
+            "ATE_FUN．2": 2,
+            "ATE_COV．3": 2
+          },
+          "AVA": {
+            "AVA_VAN．5": 3,
+            "AVA_VAN．4": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {
+          "Infineon": {
+            "Infineon": 13,
+            "Infineon Technologies AG": 24,
+            "Infineon Technologies": 1
+          }
+        },
+        "eval_facility": {
+          "TUV": {
+            "TÜV Informationstechnik": 10
+          }
+        },
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 9
+            }
+          },
+          "DES": {
+            "DES": {
+              "DES": 2
+            },
+            "3DES": {
+              "Triple-DES": 2,
+              "TDES": 1,
+              "TDEA": 1
+            }
+          },
+          "constructions": {
+            "MAC": {
+              "CBC-MAC": 1,
+              "CMAC": 2
+            }
+          }
+        },
+        "asymmetric_crypto": {
+          "RSA": {
+            "RSA2048": 1,
+            "RSA4096": 1
+          },
+          "ECC": {
+            "ECDH": {
+              "ECDH": 1
+            },
+            "ECDSA": {
+              "ECDSA": 4
+            },
+            "ECC": {
+              "ECC": 4
+            }
+          }
+        },
+        "pq_crypto": {},
+        "hash_function": {
+          "SHA": {
+            "SHA1": {
+              "SHA-1": 1,
+              "SHA1": 1
+            },
+            "SHA2": {
+              "SHA256": 2,
+              "SHA-2": 1,
+              "SHA2": 2
+            }
+          }
+        },
+        "crypto_scheme": {
+          "KA": {
+            "Key Agreement": 4
+          }
+        },
+        "crypto_protocol": {},
+        "randomness": {
+          "RNG": {
+            "RNG": 2
+          }
+        },
+        "cipher_mode": {
+          "ECB": {
+            "ECB": 1
+          },
+          "CBC": {
+            "CBC": 1
+          },
+          "CTR": {
+            "CTR": 1
+          },
+          "CFB": {
+            "CFB": 1
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "physical probing": 1,
+            "SPA": 3,
+            "DPA": 3
+          },
+          "FI": {
+            "physical tampering": 1,
+            "DFA": 3
+          }
+        },
+        "technical_report_id": {
+          "BSI": {
+            "BSI TR-02102": 1
+          }
+        },
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS186-5": 3,
+            "FIPS186-4": 2,
+            "FIPS197": 5,
+            "FIPS180-4": 1
+          },
+          "NIST": {
+            "NIST SP 800-38B": 1
+          },
+          "PKCS": {
+            "PKCS #1": 2
+          },
+          "BSI": {
+            "AIS 1": 1,
+            "AIS 14": 1,
+            "AIS 19": 1,
+            "AIS 20": 1,
+            "AIS 23": 1,
+            "AIS 26": 1,
+            "AIS 31": 2,
+            "AIS 34": 1,
+            "AIS 35": 1,
+            "AIS 36": 1,
+            "AIS 37": 1,
+            "AIS 38": 1,
+            "AIS 39": 1,
+            "AIS 41": 1,
+            "AIS 46": 1,
+            "AIS 47": 1,
+            "AIS31": 5,
+            "AIS 30": 1
+          },
+          "RFC": {
+            "RFC5639": 8
+          },
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2,
+            "ISO/IEC 17065": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "ConfidentialDocument": {
+            "IFX_CCI_000029h IFX_CCI_00002Ah IFX_CCI_00002Bh IFX_CCI_00002Ch G12, Infineon Technologies AG (confidential document) Security Target lite, Version 3．7, 2025-11-28, Public Security Target IFX_CCI_00000Fh": 1,
+            "5 and sub-TSF assurance level EAL6 augmented with ALC_FLR．3), TÜV Informationstechnik GmbH, (confidential document) [ETRfCOMP] ETR for composite evaluation for the Product IFX_CCI_00000Fh IFX_CCI_000010h": 1,
+            "for Composite Evaluation (ETR COMP) for the IFX_CCI_00000Fh G12, TÜV Informationstechnik GmbH (confidential document) [ConfList] Life Cycle Support Configuration Management for Common Criteria with Evaluation": 1,
+            "– 3x ACL – 2xHSL –2x SCL HCL - – CCL – NRG, Version 1．0, 2025-09-18, Infineon Technologies AG (confidential document) [HRM] 16-bit Security Controller Family – V05, Hardware Reference Manual, Version 5．0, 2019-06-14": 1,
+            "Standards Compliance Verification, Version 1, 2024-09- 12, TÜV Informationstechnik GmbH (confidential document) [STAR Dresden] „Site Technical Audit Report (STAR) Infineon Technologies GmbH & Co． KG, Dresden“": 1,
+            "2, 2025-12-15, TÜV Informationstechnik GmbH (confidential document) [STAR München] „Site Technical Audit Report (STAR) Infineon Technologies AG, Munich“, Version 5": 1,
+            "TÜV Informationstechnik GmbH (confidential document) 31 / 33 Certification Report EUCC-3087-2025-12-0001 BSI-DSZ-CC-1079-V6-2025 C． Annexes List of": 1
+          }
+        }
+      },
+      "st_keywords": {
+        "cc_cert_id": {},
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 1,
+            "BSI-CC-PP-0084-": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL5": 144,
+            "EAL6": 143,
+            "EAL6 augmented": 142,
+            "EAL5 augmented": 6
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_SPM": 4,
+            "ADV_IMP．2": 4,
+            "ADV_INT．3": 3,
+            "ADV_TDS．5": 3,
+            "ADV_SPM．1": 5,
+            "ADV_COMP．1": 1,
+            "ADV_ARC．1": 1,
+            "ADV_FSP．5": 3,
+            "ADV_IMP": 1,
+            "ADV_IMP．1": 2,
+            "ADV_FSP": 1,
+            "ADV_FSP．4": 3,
+            "ADV_CMC．5": 1
+          },
+          "AGD": {
+            "AGD_OPE．1": 1,
+            "AGD_PRE．1": 1
+          },
+          "ALC": {
+            "ALC_DVS": 2,
+            "ALC_CMC．5": 4,
+            "ALC_DVS．2": 5,
+            "ALC_FLR．3": 6,
+            "ALC_TAT．3": 3,
+            "ALC_TAT": 1,
+            "ALC_CMS．5": 3,
+            "ALC_DEL．1": 1,
+            "ALC_LCD．1": 1,
+            "ALC_CMS": 2,
+            "ALC_CMS．4": 3,
+            "ALC_CMC": 1,
+            "ALC_CMC．4": 1,
+            "ALC_DVS．1": 2
+          },
+          "ATE": {
+            "ATE_FUN．2": 3,
+            "ATE_COV．3": 6,
+            "ATE_DPT．3": 1,
+            "ATE_IND．2": 1,
+            "ATE_COV": 1,
+            "ATE_COV．2": 3
+          },
+          "AVA": {
+            "AVA_VAN．5": 4,
+            "AVA_VAN": 3
+          },
+          "ASE": {
+            "ASE_INT": 20,
+            "ASE_CCL": 5,
+            "ASE_SPD": 8,
+            "ASE_OBJ": 13,
+            "ASE_ECD": 4,
+            "ASE_REQ": 50,
+            "ASE_TSS": 22,
+            "ASE_CCL．1": 1,
+            "ASE_ECD．1": 1,
+            "ASE_INT．1": 1,
+            "ASE_OBJ．2": 1,
+            "ASE_REQ．2": 1,
+            "ASE_SPD．1": 1,
+            "ASE_TSS．1": 1
+          }
+        },
+        "cc_sfr": {
+          "FAU": {
+            "FAU_SAS．1": 9,
+            "FAU_SAS": 4,
+            "FAU_GEN": 1,
+            "FAU_SAS．1．1": 1
+          },
+          "FCS": {
+            "FCS_COP": 181,
+            "FCS_CKM．4": 3,
+            "FCS_CKM．6": 54,
+            "FCS_CKM．5": 46,
+            "FCS_CKM": 119,
+            "FCS_CKM．2": 7,
+            "FCS_COP．1": 35,
+            "FCS_CKM．1": 42,
+            "FCS_RNG．1": 17,
+            "FCS_RBG．1": 7,
+            "FCS_RNG": 28,
+            "FCS_CKM．6．1": 7
+          },
+          "FDP": {
+            "FDP_SDI": 2,
+            "FDP_SDC": 3,
+            "FDP_ITC．1": 37,
+            "FDP_ITC．2": 37,
+            "FDP_ACC．1": 28,
+            "FDP_ACF．1": 25,
+            "FDP_ACC．1．1": 1,
+            "FDP_ACF．1．1": 1,
+            "FDP_ACF．1．2": 1,
+            "FDP_ACF．1．3": 1,
+            "FDP_ACF．1．4": 1,
+            "FDP_IFC．1": 18,
+            "FDP_SDI．2": 19,
+            "FDP_SDI．1": 1,
+            "FDP_SDI．2．1": 1,
+            "FDP_SDI．2．2": 1,
+            "FDP_SDC．1": 7,
+            "FDP_SDC．1．1": 1,
+            "FDP_UCT．1": 10,
+            "FDP_UIT．1": 10,
+            "FDP_ACC": 12,
+            "FDP_ACF": 12,
+            "FDP_UCT．1．1": 1,
+            "FDP_UIT．1．1": 1,
+            "FDP_ITT．1": 20
+          },
+          "FIA": {
+            "FIA_API": 2,
+            "FIA_API．1": 9,
+            "FIA_API．1．1": 1
+          },
+          "FMT": {
+            "FMT_LIM．1": 14,
+            "FMT_LIM．2": 10,
+            "FMT_MSA．3": 21,
+            "FMT_MSA．1": 17,
+            "FMT_SMR．1": 6,
+            "FMT_MSA．3．1": 1,
+            "FMT_MSA．3．2": 1,
+            "FMT_SMF．1": 15,
+            "FMT_MSA．1．1": 1,
+            "FMT_SMF．1．1": 1,
+            "FMT_LIM": 28,
+            "FMT_LIM．1．1": 1,
+            "FMT_LIM．2．1": 1
+          },
+          "FPT": {
+            "FPT_TST．2": 29,
+            "FPT_TST": 5,
+            "FPT_FLS．1": 31,
+            "FPT_TST．1": 8,
+            "FPT_TST．2．1": 1,
+            "FPT_PHP．3": 30,
+            "FPT_ITT．1": 21
+          },
+          "FRU": {
+            "FRU_FLT．2": 7
+          },
+          "FTP": {
+            "FTP_ITC．1": 15,
+            "FTP_ITC．1．1": 1,
+            "FTP_ITC．1．2": 1,
+            "FTP_ITC．1．3": 1,
+            "FTP_TRP．1": 3,
+            "FTP_ACF": 1
+          }
+        },
+        "cc_claims": {
+          "O": {
+            "O．RND": 4,
+            "O．TDES": 6,
+            "O．AES": 5
+          },
+          "T": {
+            "T．RND": 1
+          }
+        },
+        "vendor": {
+          "Infineon": {
+            "Infineon Technologies AG": 20,
+            "Infineon": 17,
+            "Infineon Technologies": 23
+          }
+        },
+        "eval_facility": {},
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 71,
+              "AES-128": 3
+            }
+          },
+          "DES": {
+            "DES": {
+              "DES": 24
+            },
+            "3DES": {
+              "TDES": 50,
+              "3DES": 7,
+              "TDEA": 3,
+              "TripleDES": 2,
+              "Triple-DES": 3
+            }
+          },
+          "constructions": {
+            "MAC": {
+              "CMAC": 35,
+              "CBC-MAC": 6
+            }
+          }
+        },
+        "asymmetric_crypto": {
+          "RSA": {
+            "RSA2048": 1,
+            "RSA4096": 1
+          },
+          "ECC": {
+            "ECDH": {
+              "ECDH": 7
+            },
+            "ECDSA": {
+              "ECDSA": 17
+            },
+            "ECC": {
+              "ECC": 14
+            }
+          },
+          "FF": {
+            "DH": {
+              "Diffie-Hellman": 7
+            },
+            "DSA": {
+              "DSA": 1
+            }
+          }
+        },
+        "pq_crypto": {},
+        "hash_function": {
+          "SHA": {
+            "SHA1": {
+              "SHA-1": 24,
+              "SHA1": 7
+            },
+            "SHA2": {
+              "SHA256": 7,
+              "SHA-256": 23,
+              "SHA-2": 1
+            }
+          },
+          "MD": {
+            "MD5": {
+              "MD5": 30
+            }
+          }
+        },
+        "crypto_scheme": {
+          "MAC": {
+            "MAC": 8
+          },
+          "KA": {
+            "Key agreement": 1,
+            "Key Agreement": 2
+          }
+        },
+        "crypto_protocol": {},
+        "randomness": {
+          "TRNG": {
+            "TRNG": 2,
+            "DTRNG": 1
+          },
+          "PRNG": {
+            "PRNG": 1
+          },
+          "RNG": {
+            "RND": 5,
+            "RNG": 24
+          }
+        },
+        "cipher_mode": {
+          "ECB": {
+            "ECB": 17
+          },
+          "CBC": {
+            "CBC": 14
+          },
+          "CTR": {
+            "CTR": 8
+          },
+          "CFB": {
+            "CFB": 8
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "Leak-Inherent": 13,
+            "Physical Probing": 2,
+            "physical probing": 1,
+            "side channel": 14,
+            "DPA": 2,
+            "SPA": 1
+          },
+          "FI": {
+            "Malfunction": 13,
+            "malfunction": 1,
+            "DFA": 3,
+            "fault induction": 1,
+            "fault injection": 5
+          },
+          "other": {
+            "reverse engineering": 1
+          }
+        },
+        "technical_report_id": {
+          "BSI": {
+            "BSI TR-03111": 1
+          }
+        },
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS PUB 197": 2,
+            "FIPS PUB 180-4": 2,
+            "FIPS 197": 2,
+            "FIPS PUB 186-4": 1
+          },
+          "NIST": {
+            "SP 800-38A": 16,
+            "SP 800-67": 4,
+            "SP 800-38B": 4,
+            "SP 800-22": 1
+          },
+          "PKCS": {
+            "PKCS#1": 1,
+            "PKCS #1": 2
+          },
+          "BSI": {
+            "AIS31": 23,
+            "AIS 31": 1
+          },
+          "RFC": {
+            "RFC 5639": 2
+          },
+          "ISO": {
+            "ISO/IEC 14443-3": 5,
+            "ISO/IEC 14443-4": 3,
+            "ISO/IEC 18092": 2,
+            "ISO/IEC 18033-3": 8,
+            "ISO/IEC 9797-1": 7,
+            "ISO/IEC 14888-3": 1,
+            "ISO/IEC 11770-3": 1,
+            "ISO/IEC 18033": 2,
+            "ISO/IEC 9798-2": 1
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "OutOfScope": {
+            "out of scope": 2,
+            "certification． The user operating system and further applications implemented on the TOE are also out of scope of this certification． To summarize, if used with the PCD software the certification view equals to": 1,
+            "is enabled to communicate via the selected interfaces． The surrounding environment is in both cases out of scope． The CIPURSE™ CL is delivered as object code and in this way integrated in the user software． CC": 1
+          }
+        }
+      },
+      "cert_keywords": {
+        "cc_cert_id": {},
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL 5": 1,
+            "EAL6": 1,
+            "EAL6 augmented": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_IMP．2": 1,
+            "ADV_INT．3": 1,
+            "ADV_TDS．5": 1
+          },
+          "ALC": {
+            "ALC_CMC．5": 1,
+            "ALC_DVS．2": 1,
+            "ALC_FLR．3": 2,
+            "ALC_TAT．3": 1
+          },
+          "ATE": {
+            "ATE_FUN．2": 1,
+            "ATE_COV．3": 1
+          },
+          "AVA": {
+            "AVA_VAN．5": 2,
+            "AVA_VAN": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {
+          "Infineon": {
+            "Infineon": 1,
+            "Infineon Technologies AG": 1
+          }
+        },
+        "eval_facility": {
+          "TUV": {
+            "TUV Informationstechnik": 1
+          }
+        },
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {},
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {
+          "IBM": {
+            "SE": 1
+          }
+        },
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "report_filename": "39c71b1a-27f0-49d9-bd39-ac950ba8795c_en",
+      "st_filename": "cd6b4c5a-4f26-452d-9ced-b7eb0683ef7c_en",
+      "cert_filename": "110c73bb-359a-40af-9e59-612f085a0fc9_en"
+    },
+    "heuristics": {
+      "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+      "extracted_versions": {
+        "_type": "set",
+        "_value": [
+          "-"
+        ]
+      },
+      "cpe_matches": null,
+      "verified_cpe_matches": null,
+      "related_cves": null,
+      "cert_lab": [
+        "BSI"
+      ],
+      "cert_id": null,
+      "prev_certificates": null,
+      "next_certificates": null,
+      "st_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "report_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "annotated_references": null,
+      "extracted_sars": {
+        "_type": "set",
+        "_value": [
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_OPE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AVA_VAN",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_LCD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_OBJ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_TSS",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_ECD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_DPT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_TDS",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_ARC",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMC",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_COMP",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_TAT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMS",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_FLR",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DVS",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_FUN",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_INT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_FSP",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_COV",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_CCL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_SPM",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_INT",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_PRE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DEL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_REQ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_SPD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_IMP",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_CMC",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_IND",
+            "level": 2
+          }
+        ]
+      },
+      "direct_transitive_cves": null,
+      "indirect_transitive_cves": null,
+      "scheme_data": {
+        "cert_id": "EUCC-3087-2025-12-0001",
+        "product": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, …",
+        "vendor": "Infineon Technologies AG",
+        "certification_date": {
+          "_type": "date",
+          "_value": "2025-12-19"
+        },
+        "category": "Smart Cards and similar devices",
+        "url": "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/SmartCards_IC_Cryptolib/1079.html",
+        "enhanced": {
+          "product": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+          "applicant": "Infineon Technologies AG Am Campeon 1-15 85579 Neubiberg",
+          "evaluation_facility": "TÜV Informationstechnik GmbH",
+          "assurance_level": "EAL5+,ADV_IMP.1,ADV_INT.3,ADV_TDS.5,ALC_CMC.5,ALC_DVS.2,ALC_FLR.3,ALC_TAT.3,ATE_FUN.2,ATE_COV.3,AVA_VAN.5,EAL6+,ALC_FLR.3",
+          "protection_profile": "Security IC Platform Protection Profile with Augmentation Packages Version 1.0, 13 January 2014, BSI-CC-PP-0084-2014",
+          "certification_date": {
+            "_type": "date",
+            "_value": "2025-12-19"
+          },
+          "expiration_date": {
+            "_type": "date",
+            "_value": "2030-12-18"
+          },
+          "entries": [
+            {
+              "id": "EUCC",
+              "description": "The new process followed the EUCC standard and uses the CC:2022 documents. Additionally, compared to the previous product, the scope of software libraries was changed and modifications were made to various documents."
+            },
+            {
+              "id": "BSI-DSZ-CC-1079-V5-2024 (Ausstellungsdatum / Certification Date 08.10.2024, gültig bis / valid until 12.07.2028) Zertifizierungsreport / Certification Report",
+              "description": "documentation were conducted."
+            },
+            {
+              "id": "BSI-DSZ-CC-1079-V4-2023 (Ausstellungsdatum / Certification Date 13.07.2023, gültig bis / valid until 12.07.2028) Zertifizierungsreport / Certification Report",
+              "description": "forerunner, the documentation was changed also a variety of improved Penetration Tests has been conducted, leading to restrictions in the guidance."
+            },
+            {
+              "id": "BSI-DSZ-CC-1079-V3-2021 (Ausstellungsdatum / Certification Date 12.11.2021, gültig bis / valid until 11.11.2026)",
+              "description": "Software"
+            },
+            {
+              "id": "BSI-DSZ-CC-1079-V2-2020 (Ausstellungsdatum / Certification Date 16.06.2020, gültig bis / valid until 15.06.2025)",
+              "description": "Software"
+            },
+            {
+              "id": "BSI-DSZ-CC-1079-2018-MA-01 (Ausstellungsdatum / Certification Date 03.12.2018)",
+              "description": "Prüfergebnis"
+            },
+            {
+              "id": "BSI-DSZ-CC-1079-2018 (Ausstellungsdatum / Certification Date 26.09.2018, gültig bis / valid until 25.09.2023)",
+              "description": "Certificate"
+            }
+          ],
+          "description": "The TOE provides a real 16-bit CPU-architecture and is compatible to the Intel 80251 architecture. The major components of the core system are the two CPUs (Central Processing Units), the MMU (Memory Management Unit) and MED (Memory Encryption/Decryption Unit). The dual interface controller is able to communicate using either the contact based or the contactless interface. This TOE is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems. The term smartcard embedded software is used in the following for all operating systems and applications stored and executed on the TOE. The TOE is the platform for the smartcard embedded software. Depending on the blocking configuration a product can have e.g. different user available memory sizes and can come with or without individual accessible cryptographic coprocessors. All products are identical in regard to module design, layout and footprint."
+        },
+        "subcategory": "ICs, Cryptolib"
+      },
+      "protection_profiles": null,
+      "eal": "EAL6"
+    },
+    "other_metadata": {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate.EnisaMetadata",
+      "certificate_id": "EUCC-3087-2025-0000000001-00000",
+      "product_name": "Infineon Security Controller IFX_CCI_00000Fh, IFX_CCI_000010h, IFX_CCI_000026h, IFX_CCI_000027h, IFX_CCI_000028h, IFX_CCI_000029h, IFX_CCI_00002Ah, IFX_CCI_00002Bh, IFX_CCI_00002Ch in the design step G12",
+      "product_type": "Smartcard Controller",
+      "product_version": "See table 1 of Security Target for TOE version.",
+      "product_description": "The TOE provides a real 16-bit CPU-architecture and is compatible to the Intel 80251 architecture. The major components of the core system are the two CPUs (Central Processing Units), the MMU (Memory Management Unit), and the MED (Memory Encryption/Decryption Unit). The dual interface controller is able to communicate using either the contact based or the contactless interface. This TOE is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems.",
+      "holder_name": "Infineon Technologies AG",
+      "holder_address": "Am Campeon 1-15, 85579 Neubiberg",
+      "holder_contact": "psirt@infineon.com",
+      "holder_website": "https://www.infineon.com/product-information/cybersecurity-information",
+      "certification_body": "Bundesamt für Sicherheit in der Informationstechnik, EUCC Zertifizierungsstelle",
+      "nando_id": "3087",
+      "certification_body_address": "Postfach 200363\\n53133 Bonn, Bonn",
+      "certification_body_contact": "zertdokus@bsi.bund.de Phone: +49 228 99 9582-0",
+      "itsef": "TÜV Informationstechnik GmbH",
+      "responsible_ncca": "Bundesamt für Sicherheit in der Informationstechnik",
+      "scheme": "(UE) 2024/482 - EUCC",
+      "report_reference": "EUCC-3087-2025-12-0001 Certification Report Target",
+      "assurance_level": "High",
+      "cc_version": "CC:2022 Revision 1",
+      "cem_version": "CEM:2022 Revision 1",
+      "ava_van_level": "5",
+      "package": {
+        "EAL5": [
+          "ADV_IMP.2",
+          "ADV_INT.3",
+          "ADV_TDS.5",
+          "ALC_CMC.5",
+          "ALC_DVS.2",
+          "ALC_FLR.3",
+          "ALC_TAT.3",
+          "ATE_FUN.2",
+          "ATE_COV.3",
+          "AVA_VAN.5"
+        ],
+        "EAL6": [
+          "ALC_FLR.3"
+        ]
+      },
+      "protection_profile": "Security IC Platform Protection Profile with Augmentation Packages Version 1.0, 13 January 2014, BSI-CC-PP-0084-2014",
+      "issuance_year": "2025",
+      "issuance_month": "12",
+      "issuance_date_full": "19/12/2025",
+      "certificate_yearly_number": "1",
+      "modification_or_reassurance": null,
+      "validity_period_years": "5 years"
     }
   },
   {
     "_id": "53b64420fca6367c",
     "_type": "sec_certs.sample.eucc.EUCCCertificate",
     "dgst": "53b64420fca6367c",
-    "scheme": "DE",
-    "status": "active",
-    "name": "IFX_CCI_00007Ah/8Fh A11, R11, M11 with optional Crypto Suite",
     "cert_id": "EUCC-3087-2026-0000000001-00000",
-    "heuristics": {
-      "eal": null
+    "category": "SMARTCARD CONTROLLER",
+    "name": "IFX_CCI_00007Ah/8Fh A11, R11, M11 with optional Crypto Suite",
+    "status": "active",
+    "manufacturer": "Infineon Technologies AG",
+    "scheme": "DE",
+    "security_level": {
+      "_type": "set",
+      "_value": []
     },
     "not_valid_before": {
       "_type": "date",
@@ -37,18 +1140,185 @@
     "not_valid_after": {
       "_type": "date",
       "_value": "2031-02-17"
+    },
+    "report_link": null,
+    "st_link": null,
+    "cert_link": null,
+    "manufacturer_web": "https://www.infineon.com/product-information/cybersecurity-information",
+    "protection_profile_links": null,
+    "state": {
+      "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+      "report": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": false,
+        "convert_ok": false,
+        "extract_ok": false,
+        "source_hash": null,
+        "txt_hash": null,
+        "json_hash": null
+      },
+      "st": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": false,
+        "convert_ok": false,
+        "extract_ok": false,
+        "source_hash": null,
+        "txt_hash": null,
+        "json_hash": null
+      },
+      "cert": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": false,
+        "convert_ok": false,
+        "extract_ok": false,
+        "source_hash": null,
+        "txt_hash": null,
+        "json_hash": null
+      }
+    },
+    "pdf_data": {
+      "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+      "report_metadata": null,
+      "st_metadata": null,
+      "cert_metadata": null,
+      "report_frontpage": null,
+      "st_frontpage": null,
+      "cert_frontpage": null,
+      "report_keywords": null,
+      "st_keywords": null,
+      "cert_keywords": null,
+      "report_filename": null,
+      "st_filename": null,
+      "cert_filename": null
+    },
+    "heuristics": {
+      "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+      "extracted_versions": {
+        "_type": "set",
+        "_value": [
+          "-"
+        ]
+      },
+      "cpe_matches": null,
+      "verified_cpe_matches": null,
+      "related_cves": null,
+      "cert_lab": null,
+      "cert_id": null,
+      "prev_certificates": null,
+      "next_certificates": null,
+      "st_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "report_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "annotated_references": null,
+      "extracted_sars": null,
+      "direct_transitive_cves": null,
+      "indirect_transitive_cves": null,
+      "scheme_data": {
+        "cert_id": "BSI-DSZ-CC-1252-V2-2025",
+        "product": "IFX_CCI_00007Ch/88h/89h/8Ah/8Bh G12 with firmware version 80.512.03.0 or 80.512.03.1, optional Crypto Suite 5.02.002 and user …",
+        "vendor": "Infineon Technologies AG",
+        "certification_date": {
+          "_type": "date",
+          "_value": "2025-10-01"
+        },
+        "category": "Smart Cards and similar devices",
+        "url": "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/SmartCards_IC_Cryptolib/1252.html",
+        "enhanced": {
+          "product": "IFX_CCI_00007Ch/88h/89h/8Ah/8Bh G12 with firmware version 80.512.03.0 or 80.512.03.1, optional Crypto Suite 5.02.002 and user guidance documents",
+          "applicant": "Infineon Technologies AG Melli-Beese-Str. 9 86159 Augsburg",
+          "evaluation_facility": "TÜV Informationstechnik GmbH",
+          "assurance_level": "EAL6+,ALC_FLR.1,ATE_SDP.1",
+          "protection_profile": "Security IC Platform Protection Profile with Augmentation Packages Version 1.0, 13 January 2014, BSI-CC-PP-0084-2014",
+          "certification_date": {
+            "_type": "date",
+            "_value": "2025-10-01"
+          },
+          "expiration_date": {
+            "_type": "date",
+            "_value": "2030-09-30"
+          },
+          "entries": [
+            {
+              "id": "BSI",
+              "description": "The Target of Evaluation (TOE) is the Infineon Security Controller FX_CCI_00007Ch/88h/89h/8Ah/8Bh G12 with firmware version 80.512.03.0 oder 80.512.03.1, optional CryptoSuite 5.02.002 and user guidance documents. The IC is based on a 32-bit ARMv8-M CPU architecture. It is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems."
+            },
+            {
+              "id": "BSI",
+              "description": "Certificate"
+            }
+          ],
+          "report_link": "https://www.bsi.bund.de/SharedDocs/Downloads/DE/BSI/Zertifizierung/Reporte/Reporte1200/1252V2a_pdf.pdf?__blob=publicationFile&v=2",
+          "target_link": "https://www.bsi.bund.de/SharedDocs/Downloads/DE/BSI/Zertifizierung/Reporte/Reporte1200/1252V2b_pdf.pdf?__blob=publicationFile&v=2",
+          "cert_link": "https://www.bsi.bund.de/SharedDocs/Downloads/DE/BSI/Zertifizierung/Reporte/Reporte1200/1252V2c_pdf.pdf?__blob=publicationFile&v=2",
+          "description": "The Target of Evaluation (TOE) is the Infineon Security Controller IFX_CCI_00007Ch/88h/89h/8Ah G12 with firmware version 80.512.03.0 or 80.512.03.1, optional Crypto Suite 5.02.002 and user guidance documents. The IC is based on a 32-bit ARMv8-M CPU architecture. It is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems."
+        },
+        "subcategory": "ICs, Cryptolib"
+      },
+      "protection_profiles": null,
+      "eal": null
+    },
+    "other_metadata": {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate.EnisaMetadata",
+      "certificate_id": "EUCC-3087-2026-0000000001-00000",
+      "product_name": "IFX_CCI_00007Ah/8Fh A11, R11, M11 with optional Crypto Suite",
+      "product_type": "Smartcard Controller",
+      "product_version": "See table 1 of Security Target for TOE version.",
+      "product_description": "The Target of Evaluation (TOE) is the Infineon Security Controller IFX_CCI_00007Ah A11 / R11 / M11, IFX_CCI_00008Fh R11 / M11 with firmware, optional Crypto Suite and user guidance documents. The TOE can communicate using contact-based and contactless interfaces. The TOE provides a 32-bit Armv8-M CPU architecture. This TOE is intended to be used in smart cards for particular security relevant applications and as a developing platform for smart card operating systems.",
+      "holder_name": "Infineon Technologies AG",
+      "holder_address": "Am Campeon 1-15, 85579 Neubiberg",
+      "holder_contact": "psirt@infineon.com",
+      "holder_website": "https://www.infineon.com/product-information/cybersecurity-information",
+      "certification_body": "Bundesamt für Sicherheit in der Informationstechnik, EUCC Zertifizierungsstelle",
+      "nando_id": "3087",
+      "certification_body_address": "Postfach 200363\\n53133 Bonn, Bonn",
+      "certification_body_contact": "zertdokus@bsi.bund.de Phone: +49 228 99 9582-0",
+      "itsef": "TÜV Informationstechnik GmbH",
+      "responsible_ncca": "Bundesamt für Sicherheit in der Informationstechnik",
+      "scheme": "(UE) 2024/482 - EUCC",
+      "report_reference": "EUCC-3087-2026-02-0001 Certification Report Target",
+      "assurance_level": "Substantial",
+      "cc_version": "CC 3.1 Revision 5",
+      "cem_version": "CEM 3.1 Revision 5",
+      "ava_van_level": "5",
+      "package": {
+        "EAL6": [
+          "ALC_FLR.1",
+          "ATE_SDP.1"
+        ]
+      },
+      "protection_profile": "BSI-CC-PP-0084-2014",
+      "issuance_year": "2026",
+      "issuance_month": "2",
+      "issuance_date_full": "17/02/2026",
+      "certificate_yearly_number": "1",
+      "modification_or_reassurance": null,
+      "validity_period_years": "5 years"
     }
   },
   {
     "_id": "5c5769d9a7c92821",
     "_type": "sec_certs.sample.eucc.EUCCCertificate",
     "dgst": "5c5769d9a7c92821",
-    "scheme": "DE",
-    "status": "active",
-    "name": "Secure Smart Grid Hub (SGH-S)",
     "cert_id": "EUCC-3087-2026-0000000002-00000",
-    "heuristics": {
-      "eal": null
+    "category": "SMART METER GATEWAY",
+    "name": "Secure Smart Grid Hub (SGH-S)",
+    "status": "active",
+    "manufacturer": "EFR GmbH",
+    "scheme": "DE",
+    "security_level": {
+      "_type": "set",
+      "_value": []
     },
     "not_valid_before": {
       "_type": "date",
@@ -57,18 +1327,912 @@
     "not_valid_after": {
       "_type": "date",
       "_value": "2031-03-20"
+    },
+    "report_link": "https://certification.enisa.europa.eu/document/download/eaf7c79f-8bdf-4648-8fb1-6f153ad15f3d_en?filename=EUCC-3087-2026-03-0002%20Certification%20Report.pdf",
+    "st_link": "https://certification.enisa.europa.eu/document/download/07d159b4-0f31-4827-9098-397160240a2b_en?filename=EUCC-3087-2026-03-0002_Security_Target.pdf",
+    "cert_link": "https://certification.enisa.europa.eu/document/download/89b12bcf-1c0f-4ff9-9e36-d234dcd2df43_en?filename=EUCC-3087-2026-03-0002%20Certificate.pdf",
+    "manufacturer_web": "https://www.efr.de/en/contact/cybersecurity/",
+    "protection_profile_links": null,
+    "state": {
+      "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+      "report": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "0e7c4ba5ee9fa8fb8f4819e2660a187e2c0279c9b0a2a6237bdf221b66b78fcb",
+        "txt_hash": "41c8716d17ba58fe7b9c20c86e91f5be88d36c319a8dd390ca5e058d40e61209",
+        "json_hash": null
+      },
+      "st": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "b1230c6308d909e52b534eee85775611241ed5f2aa09c52f9b4fceab2360cbe4",
+        "txt_hash": "d61a78adfba49bb2a28d4da55c6235c06099c5b427250efa5c842d04b3c663d7",
+        "json_hash": null
+      },
+      "cert": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "959314ffdc970821d84646d24a41eac952ef4c9297c405b124ae6fd6774b5429",
+        "txt_hash": "336f11a4467883b034b6b1739ee6fc30376fbd6c7a53fb1dc18f93498a60496a",
+        "json_hash": null
+      }
+    },
+    "pdf_data": {
+      "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+      "report_metadata": {
+        "pdf_file_size_bytes": 455766,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 22,
+        "/Subject": "Certification Report BSI-DSZ-CC-1000-V2-2025",
+        "/Keywords": "\"Common Criteria, Certification, Zertifizierung, SMGW, Smart Meter Gateway, efr, BSI-DSZ-CC-1000-V2-2025\"",
+        "/CreationDate": "D:20260323084222+01'00'",
+        "/Producer": "LibreOffice 5.3",
+        "/Creator": "Writer",
+        "/Title": "Certification Report BSI-DSZ-CC-1000-V2-2025",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "http://www.commoncriteriaportal.org/",
+            "https://www.efr.de/kontakt/cybersecurity/",
+            "https://www.bsi.bund.de/AIS",
+            "https://www.efr.de/en/contact/cybersecurity/",
+            "https://www.bsi.bund.de/zertifizierungsreporte",
+            "https://certification.enisa.europa.eu/publications/eucc-state-art-documents_en",
+            "https://www.bsi.bund.de/zertifizierung",
+            "https://www.commoncriteriaportal.org/",
+            "https://eur-lex.europa.eu/eli/reg_impl/2025/2462/oj",
+            "https://euvd.enisa.europa.eu/"
+          ]
+        }
+      },
+      "st_metadata": {
+        "pdf_file_size_bytes": 2906907,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 94,
+        "/Title": "Security Target EFR SGH-S",
+        "/Author": "EFR GmbH",
+        "/Subject": "Common Criteria Evaluation",
+        "/Creator": "Microsoft® Word für Microsoft 365",
+        "/CreationDate": "D:20260130094246+01'00'",
+        "/ModDate": "D:20260130094246+01'00'",
+        "/Producer": "Microsoft® Word für Microsoft 365",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": []
+        }
+      },
+      "cert_metadata": {
+        "pdf_file_size_bytes": 120471,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 2,
+        "/Title": "SBSI000210126032308270",
+        "/Creator": "BSI00021016",
+        "/Producer": "KONICA MINOLTA bizhub C308",
+        "/CreationDate": "D:20260323082746+01'00'",
+        "/ModDate": "D:20260323082746+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": []
+        }
+      },
+      "report_frontpage": {
+        "DE": {
+          "match_rules": [
+            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+          ],
+          "cert_id": "BSI-DSZ-CC-1000-V3-2026",
+          "cert_item": "Secure Smart Grid Hub (SGH-S) Version 2.00",
+          "developer": "EFR GmbH",
+          "cert_lab": "BSI"
+        }
+      },
+      "st_frontpage": null,
+      "cert_frontpage": null,
+      "report_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1000-V3-2026": 22,
+            "BSI-DSZ-CC-1000-V2-2025": 2,
+            "BSI-DSZ-CC-1000-V3-": 1
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0073-2014": 4,
+            "BSI-CC-PP-0077-V2": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL 2": 2,
+            "EAL 4": 1,
+            "EAL 5+": 1,
+            "EAL 6": 1
+          }
+        },
+        "cc_sar": {
+          "AGD": {
+            "AGD_PRE": 2,
+            "AGD_OPE": 2,
+            "AGD_CON": 1
+          },
+          "ALC": {
+            "ALC_FLR": 2,
+            "ALC_FLR．2": 1
+          },
+          "AVA": {
+            "AVA_VAN．5": 2
+          }
+        },
+        "cc_sfr": {
+          "FCS": {
+            "FCS_CKM．1": 1
+          }
+        },
+        "cc_claims": {},
+        "vendor": {},
+        "eval_facility": {
+          "SRC": {
+            "SRC Security Research & Consulting": 6
+          }
+        },
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 8,
+              "AES-": 1
+            }
+          },
+          "constructions": {
+            "MAC": {
+              "HMAC": 2,
+              "CMAC": 1
+            }
+          }
+        },
+        "asymmetric_crypto": {
+          "ECC": {
+            "ECC": {
+              "ECC": 3
+            }
+          }
+        },
+        "pq_crypto": {},
+        "hash_function": {
+          "SHA": {
+            "SHA2": {
+              "SHA256": 4,
+              "SHA-256": 2,
+              "SHA-384": 1,
+              "SHA-512": 1
+            }
+          }
+        },
+        "crypto_scheme": {
+          "MAC": {
+            "MAC": 1
+          },
+          "KA": {
+            "Key agreement": 1,
+            "Key Agreement": 2
+          }
+        },
+        "crypto_protocol": {
+          "SSH": {
+            "SSH": 1
+          },
+          "TLS": {
+            "TLS": {
+              "TLS": 5
+            }
+          }
+        },
+        "randomness": {
+          "TRNG": {
+            "TRNG": 3
+          }
+        },
+        "cipher_mode": {
+          "CBC": {
+            "CBC": 1
+          },
+          "GCM": {
+            "GCM": 3
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "other": {
+            "JIL": 2
+          }
+        },
+        "technical_report_id": {
+          "BSI": {
+            "BSI TR-02102": 1,
+            "BSI TR-03109": 1,
+            "BSI TR-03109-1": 1,
+            "BSI TR-03109-2": 1,
+            "BSI TR-03109-4": 1,
+            "BSI TR-03116": 1,
+            "BSI TR-03111": 1
+          }
+        },
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS 197": 3,
+            "FIPS 180-4": 1
+          },
+          "BSI": {
+            "AIS 1": 1,
+            "AIS 32": 1,
+            "AIS 34": 1,
+            "AIS 38": 1,
+            "AIS 46": 1,
+            "AIS 48": 1
+          },
+          "RFC": {
+            "RFC 5289": 4,
+            "RFC-2104": 1,
+            "RFC-3394": 1,
+            "RFC 5084": 3,
+            "RFC 5652": 3,
+            "RFC 4493": 3,
+            "RFC4493": 1,
+            "RFC 2104": 2,
+            "RFC 3394": 2,
+            "RFC5246": 1,
+            "RFC 5246": 1
+          },
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2,
+            "ISO/IEC 17065": 2,
+            "ISO/IEC 18033-": 1
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "ConfidentialDocument": {
+            "Technical Report Summary, Version 3．0．1, 11．03．2026, SRC Security Research & Consulting GmbH (confidential document) [IAR] Impact Analysis Report, v1．20, 21．01．2026, EFR GmbH [ConfList": 1,
+            "Konfigurationsliste, v2．01_e, 30．01．2026, EFR GmbH (confidential document) [DEL] Auslieferungsprozess, v1．41_d, 19．10．2022, EFR GmbH [MSB_DEL] Ergänzungen bzw． Änderungen am": 1
+          }
+        }
+      },
+      "st_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1217-2024": 1,
+            "BSI-DSZ-CC-1217-": 1
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0077-2015": 2,
+            "BSI-CC-PP-0073-2014": 5,
+            "BSI-CC-PP-0073-": 1,
+            "BSI-CC-PP-0077-": 1,
+            "BSI-CC-PP-0077-V2-2015": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL4": 1,
+            "EAL 4": 4,
+            "EAL4 augmented": 1,
+            "EAL 4 augmented": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_ARC．1": 1,
+            "ADV_IMP．1": 1
+          },
+          "AGD": {
+            "AGD_OPE．1": 1
+          },
+          "ALC": {
+            "ALC_DEL．1": 5,
+            "ALC_FLR．2": 5,
+            "ALC_CMC．4": 1,
+            "ALC_LCD．1": 1
+          },
+          "ATE": {
+            "ATE_COV．2": 1,
+            "ATE_FUN．1": 1
+          },
+          "AVA": {
+            "AVA_VAN．5": 6
+          },
+          "ASE": {
+            "ASE_CCL": 2,
+            "ASE_SPD": 3,
+            "ASE_OBJ": 2,
+            "ASE_CCL．1": 1,
+            "ASE_ECD．1": 1,
+            "ASE_OBJ．2": 1,
+            "ASE_SPD．1": 1
+          }
+        },
+        "cc_sfr": {
+          "FAU": {
+            "FAU_ARP": 9,
+            "FAU_GEN": 30,
+            "FAU_SAA": 9,
+            "FAU_SAR": 21,
+            "FAU_STG": 23,
+            "FAU_GEN．2": 6,
+            "FAU_STG．2": 10,
+            "FAU_GEN．1": 22,
+            "FAU_SAA．1": 5,
+            "FAU_SAR．1": 9,
+            "FAU_STG．4": 3,
+            "FAU_STG．3": 3,
+            "FAU_STG．1": 8,
+            "FAU_GEN．2．1": 1,
+            "FAU_STG．2．1": 1,
+            "FAU_STG．2．2": 1,
+            "FAU_STG．2．3": 2,
+            "FAU_STG．4．1": 1
+          },
+          "FCO": {
+            "FCO_NRO": 3,
+            "FCO_NRO．2": 8,
+            "FCO_NRO．2．1": 1,
+            "FCO_NRO．2．2": 1,
+            "FCO_NRO．2．3": 1,
+            "FCO_NRO．1": 1
+          },
+          "FCS": {
+            "FCS_CKM": 48,
+            "FCS_COP": 49,
+            "FCS_CKM．4": 28,
+            "FCS_CKM．1": 6,
+            "FCS_CKM．2": 5,
+            "FCS_COP．1": 10,
+            "FCS_CKM．4．1": 2
+          },
+          "FDP": {
+            "FDP_IFC": 24,
+            "FDP_ACC．2": 8,
+            "FDP_ACF．1": 7,
+            "FDP_IFF": 20,
+            "FDP_RIP．2": 7,
+            "FDP_SDI．2": 5,
+            "FDP_ITC．1": 12,
+            "FDP_ITC．2": 12,
+            "FDP_ACC": 2,
+            "FDP_ACC．2．1": 1,
+            "FDP_ACC．2．2": 1,
+            "FDP_ACC．1": 9,
+            "FDP_ACF": 1,
+            "FDP_ACF．1．1": 1,
+            "FDP_ACF．1．2": 1,
+            "FDP_ACF．1．3": 1,
+            "FDP_ACF．1．4": 1,
+            "FDP_IFC．2": 4,
+            "FDP_IFC．1": 12,
+            "FDP_IFF．1": 22,
+            "FDP_IFF．1．3": 1,
+            "FDP_RIP": 2,
+            "FDP_RIP．2．1": 1,
+            "FDP_RIP．1": 1,
+            "FDP_SDI": 2,
+            "FDP_SDI．2．1": 1,
+            "FDP_SDI．2．2": 2,
+            "FDP_SDI．1": 1
+          },
+          "FIA": {
+            "FIA_ATD": 3,
+            "FIA_AFL": 3,
+            "FIA_UAU": 5,
+            "FIA_UID": 3,
+            "FIA_USB": 3,
+            "FIA_ATD．1": 11,
+            "FIA_AFL．1": 6,
+            "FIA_UAU．2": 6,
+            "FIA_UAU．5": 5,
+            "FIA_UAU．6": 6,
+            "FIA_UID．2": 10,
+            "FIA_USB．1": 6,
+            "FIA_UID．1": 8,
+            "FIA_ATD．1．1": 1,
+            "FIA_AFL．1．1": 1,
+            "FIA_AFL．1．2": 1,
+            "FIA_UAU．1": 2,
+            "FIA_UAU．2．1": 1,
+            "FIA_UAU．5．1": 1,
+            "FIA_UAU．5．2": 1,
+            "FIA_UAU．6．1": 1,
+            "FIA_UID．2．1": 1,
+            "FIA_USB．1．1": 1,
+            "FIA_USB．1．2": 1,
+            "FIA_USB．1．3": 1
+          },
+          "FMT": {
+            "FMT_SMR": 3,
+            "FMT_MOF．1": 6,
+            "FMT_SMF．1": 18,
+            "FMT_SMR．1": 25,
+            "FMT_MSA": 45,
+            "FMT_MSA．3": 11,
+            "FMT_MOF": 1,
+            "FMT_MOF．1．1": 1,
+            "FMT_SMF": 2,
+            "FMT_SMF．1．1": 1,
+            "FMT_SMR．1．1": 1,
+            "FMT_SMR．1．2": 1,
+            "FMT_MSA．1": 10
+          },
+          "FPR": {
+            "FPR_CON": 6,
+            "FPR_CON．1": 9,
+            "FPR_PSE": 2,
+            "FPR_CON．1．2": 4,
+            "FPR_CON．1．1": 2,
+            "FPR_PSE．1": 7,
+            "FPR_PSE．1．1": 1,
+            "FPR_PSE．1．2": 1,
+            "FPR_PSE．1．3": 1
+          },
+          "FPT": {
+            "FPT_FLS": 3,
+            "FPT_RPL": 3,
+            "FPT_STM": 3,
+            "FPT_TST": 3,
+            "FPT_FLS．1": 10,
+            "FPT_RPL．1": 6,
+            "FPT_STM．1": 18,
+            "FPT_TST．1": 8,
+            "FPT_PHP．1": 6,
+            "FPT_FLS．1．1": 1,
+            "FPT_RPL．1．1": 1,
+            "FPT_RPL．1．2": 1,
+            "FPT_STM．1．1": 1,
+            "FPT_TST．1．1": 1,
+            "FPT_TST．1．2": 1,
+            "FPT_TST．1．3": 1,
+            "FPT_PHP": 1,
+            "FPT_PHP．1．1": 1,
+            "FPT_PHP．1．2": 1
+          },
+          "FTP": {
+            "FTP_ITC": 23,
+            "FTP_ITC．1": 8
+          }
+        },
+        "cc_claims": {
+          "OE": {
+            "OE．SM": 3
+          },
+          "OSP": {
+            "OSP．SM": 4
+          }
+        },
+        "vendor": {},
+        "eval_facility": {},
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 16,
+              "AES-": 1
+            }
+          },
+          "constructions": {
+            "MAC": {
+              "HMAC": 2,
+              "CMAC": 1
+            }
+          }
+        },
+        "asymmetric_crypto": {
+          "ECC": {
+            "ECDSA": {
+              "ECDSA": 1
+            },
+            "ECC": {
+              "ECC": 2
+            }
+          },
+          "FF": {
+            "DH": {
+              "Diffie-Hellman": 1
+            }
+          }
+        },
+        "pq_crypto": {},
+        "hash_function": {
+          "SHA": {
+            "SHA2": {
+              "SHA-256": 2,
+              "SHA-384": 2,
+              "SHA-512": 1,
+              "SHA-2": 3
+            }
+          },
+          "JH": {
+            "JH": 1
+          }
+        },
+        "crypto_scheme": {
+          "MAC": {
+            "MAC": 8
+          },
+          "KA": {
+            "Key agreement": 2,
+            "Key Agreement": 3
+          }
+        },
+        "crypto_protocol": {
+          "TLS": {
+            "TLS": {
+              "TLS": 44,
+              "TLSv1．2": 2
+            }
+          },
+          "PACE": {
+            "PACE": 1
+          },
+          "VPN": {
+            "VPN": 1
+          }
+        },
+        "randomness": {
+          "TRNG": {
+            "TRNG": 3
+          }
+        },
+        "cipher_mode": {
+          "GCM": {
+            "GCM": 3
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {
+          "TLS": {
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256": 3,
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384": 3,
+            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": 3,
+            "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": 3
+          }
+        },
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "FI": {
+            "physical tampering": 3,
+            "malfunction": 3
+          }
+        },
+        "technical_report_id": {
+          "BSI": {
+            "BSI TR-03109-1": 2,
+            "BSI TR-03111": 1,
+            "BSI TR-03116-3": 1
+          }
+        },
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS 180-4": 1,
+            "FIPS 197": 1
+          },
+          "NIST": {
+            "SP 800-38A": 1,
+            "NIST SP 800-38D": 1
+          },
+          "RFC": {
+            "RFC-5289": 3,
+            "RFC-5246": 3,
+            "RFC-2104": 2,
+            "RFC-3394": 2,
+            "RFC-5084": 2,
+            "RFC-5652": 3,
+            "RFC-4493": 3,
+            "RFC 2104": 1,
+            "RFC 3394": 1,
+            "RFC 4493": 1,
+            "RFC 5084": 1,
+            "RFC 5246": 1,
+            "RFC 5289": 1,
+            "RFC 5652": 1
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "cert_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1000-V3-2026": 1
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0073-2014": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL 4": 1
+          }
+        },
+        "cc_sar": {
+          "ALC": {
+            "ALC_FLR": 1,
+            "ALC_FLR．2": 1
+          },
+          "AVA": {
+            "AVA_VAN": 2,
+            "AVA_VAN．5": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {},
+        "eval_facility": {
+          "SRC": {
+            "SRC Security Research & Consulting": 1
+          }
+        },
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {},
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "report_filename": "eaf7c79f-8bdf-4648-8fb1-6f153ad15f3d_en",
+      "st_filename": "07d159b4-0f31-4827-9098-397160240a2b_en",
+      "cert_filename": "89b12bcf-1c0f-4ff9-9e36-d234dcd2df43_en"
+    },
+    "heuristics": {
+      "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+      "extracted_versions": {
+        "_type": "set",
+        "_value": [
+          "-"
+        ]
+      },
+      "cpe_matches": null,
+      "verified_cpe_matches": null,
+      "related_cves": null,
+      "cert_lab": [
+        "BSI"
+      ],
+      "cert_id": null,
+      "prev_certificates": null,
+      "next_certificates": null,
+      "st_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "report_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "annotated_references": null,
+      "extracted_sars": {
+        "_type": "set",
+        "_value": [
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_SPD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_ECD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_CCL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_ARC",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_FLR",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMC",
+            "level": 4
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_COV",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DEL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_OPE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_IMP",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AVA_VAN",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_FUN",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_LCD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_OBJ",
+            "level": 2
+          }
+        ]
+      },
+      "direct_transitive_cves": null,
+      "indirect_transitive_cves": null,
+      "scheme_data": {
+        "cert_id": "EUCC-3087-2026-03-0002",
+        "product": "Secure Smart Grid Hub (SGH-S), V2.00",
+        "vendor": "EFR GmbH",
+        "certification_date": {
+          "_type": "date",
+          "_value": "2026-03-20"
+        },
+        "category": "Intelligent measuring systems",
+        "url": "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/SmartMeter_Gateway/1000.html",
+        "enhanced": {
+          "product": "Secure Smart Grid Hub (SGH-S), V2.00",
+          "applicant": "EFR GmbH Nymphenburger Straße 20b 80335 München",
+          "evaluation_facility": "SRC Security Research & Consulting GmbH",
+          "assurance_level": "EAL4+,ALC_FLR.2,AVA_VAN.5",
+          "protection_profile": "Protection Profile for the Gateway of a Smart Metering System, Version 1.3, 31 March 2014, BSI-CC-PP-0073-2014",
+          "certification_date": {
+            "_type": "date",
+            "_value": "2026-03-20"
+          },
+          "expiration_date": {
+            "_type": "date",
+            "_value": "2034-03-19"
+          },
+          "entries": [
+            {
+              "id": "EUCC",
+              "description": "The TOE is the security functionality of a Smart Meter Gateway that serves as the communication unit between devices of private and commercial consumers and commodity industry service providers (e.g., electricity, gas, water, etc.). It also collects, processes and stores Meter Data and is responsible for the distribution of this data to external entities."
+            },
+            {
+              "id": "BSI-DSZ-CC-1000-V2-2025",
+              "description": "This re-certification was necessary because of the re-location of IT infrastructure in the development Environment and a changed delivery method due to enable delivery chains according to [MSB-LK, see: https://www.bsi.bund.de/DE/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Smart-metering/Smart-Meter- Gateway/MSB/MSB_node.html ]. Also, the developer updated third-party components of the TOE and corrected defects in the implementation. There were no changes to the TOE's security functionality."
+            },
+            {
+              "id": "BSI-DSZ-CC-1000-2023-MA-01",
+              "description": "(National Metrology Institute) requirements."
+            }
+          ],
+          "description": "The TOE is the security functionality of a Smart Meter Gateway that serves as the communi-cation unit between devices of private and commercial consumers and commodity industry service providers (e.g., electricity, gas, water, etc.). It also collects, processes and stores Meter Data and is responsible for the distribution of this data to external entities"
+        },
+        "subcategory": "(Smart Meter Gateway)"
+      },
+      "protection_profiles": null,
+      "eal": null
+    },
+    "other_metadata": {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate.EnisaMetadata",
+      "certificate_id": "EUCC-3087-2026-0000000002-00000",
+      "product_name": "Secure Smart Grid Hub (SGH-S)",
+      "product_type": "Smart Meter Gateway",
+      "product_version": "SGH-S V2.00",
+      "product_description": "The TOE is the security functionality of a Smart Meter Gateway that serves as the communication unit between devices of private and commercial consumers and commodity industry service providers (e.g., electricity, gas, water, etc.). It also collects, processes and stores Meter Data and is responsible for the distribution of this data to external entities.",
+      "holder_name": "EFR GmbH",
+      "holder_address": "Nymphenburger Straße 20b, 80335 Munich",
+      "holder_contact": "info@efr.de",
+      "holder_website": "https://www.efr.de/en/contact/cybersecurity/",
+      "certification_body": "Bundesamt für Sicherheit in der Informationstechnik, EUCC Zertifizierungsstelle",
+      "nando_id": "3087",
+      "certification_body_address": "Postfach 200363\\n53133 Bonn, Bonn",
+      "certification_body_contact": "zertdokus@bsi.bund.de Phone: +49 228 99 9582-0",
+      "itsef": "SRC Security Research & Consulting GmbH",
+      "responsible_ncca": "Bundesamt für Sicherheit in der Informationstechnik",
+      "scheme": "(UE) 2024/482 - EUCC",
+      "report_reference": "EUCC-3087-2026-03-0002",
+      "assurance_level": "High",
+      "cc_version": "CC 3.1 Revision 5",
+      "cem_version": "CEM 3.1 Revision 5",
+      "ava_van_level": "5",
+      "package": {},
+      "protection_profile": "BSI-CC-PP-0073-2014",
+      "issuance_year": "2026",
+      "issuance_month": "3",
+      "issuance_date_full": "20/03/2026",
+      "certificate_yearly_number": "2",
+      "modification_or_reassurance": null,
+      "validity_period_years": "8 years"
     }
   },
   {
     "_id": "e3bedad9f0d6835b",
     "_type": "sec_certs.sample.eucc.EUCCCertificate",
     "dgst": "e3bedad9f0d6835b",
-    "scheme": "DE",
-    "status": "active",
-    "name": "L4Re Secure Separation Kernel CC 1.0.2",
     "cert_id": "EUCC-3087-2026-0000000003-00000",
-    "heuristics": {
-      "eal": null
+    "category": "OPERATING SYSTEM",
+    "name": "L4Re Secure Separation Kernel CC 1.0.2",
+    "status": "active",
+    "manufacturer": "Kernkonzept GmbH",
+    "scheme": "DE",
+    "security_level": {
+      "_type": "set",
+      "_value": []
     },
     "not_valid_before": {
       "_type": "date",
@@ -77,18 +2241,670 @@
     "not_valid_after": {
       "_type": "date",
       "_value": "2031-04-16"
+    },
+    "report_link": "https://certification.enisa.europa.eu/document/download/84c17d68-a07a-4bc0-aaec-d2f61fab6021_en?filename=EUCC-3087-2026-04-0003%20Report.pdf",
+    "st_link": "https://certification.enisa.europa.eu/document/download/6fe6d82e-e79f-47ea-8c84-4e11a0f4a001_en?filename=EUCC-3087-2026-04-0003%20Security%20Target.pdf",
+    "cert_link": "https://certification.enisa.europa.eu/document/download/30e7853a-3d42-4f12-bfea-8f349819b040_en?filename=EUCC-3087-2026-04-0003%20Certificate.pdf",
+    "manufacturer_web": "https://www.kernkonzept.com/cybersecurity-information/",
+    "protection_profile_links": null,
+    "state": {
+      "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+      "report": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "0fe633b6922de665cf1c5dfe90c6d8f6eb5b12d8d234cfec06dc1fc3d450eb69",
+        "txt_hash": "a30cf2fbb0e0f0e6d6dbe0926468fd0329782347ddd5982bf6631799bb29053c",
+        "json_hash": null
+      },
+      "st": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "cb763e64dac9d0c62d69e87212e77f2134eef9cd7961458cbd75c3b9723c851c",
+        "txt_hash": "bb5b1be53eaeab4cd50c2f0d147b9d03656e7dfe26ceea1625bbd713ba9b88c3",
+        "json_hash": null
+      },
+      "cert": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "1d66a280fe463062cf9c8d13cccb172915c6840931a6df09cbe2d49b08099f05",
+        "txt_hash": "73615ab3e2f69b8e4c109011752b29db91dbecfadeb28dfe7dc93ff84b6e03ed",
+        "json_hash": null
+      }
+    },
+    "pdf_data": {
+      "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+      "report_metadata": {
+        "pdf_file_size_bytes": 343571,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 18,
+        "/Keywords": "Common Criteria, Certification, Zertifizierung, L4Re, Kernkonzept, Mikrokernel",
+        "/CreationDate": "D:20260420085327+02'00'",
+        "/Producer": "LibreOffice 5.3",
+        "/Creator": "Writer",
+        "/Title": "Certification Report EUCC-3087-2026-04-0003 ;BSI-DSZ-CC-1177-V2-2026",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "http://www.commoncriteriaportal.org/",
+            "https://certification.enisa.europa.eu/publications/eucc-state-art-documents_en",
+            "https://www.bsi.bund.de/zertifizierungsreporte",
+            "https://www.kernkonzept.com/cybersecurity-information/",
+            "https://www.bsi.bund.de/AIS",
+            "https://www.bsi.bund.de/zertifizierung",
+            "https://eur-lex.europa.eu/eli/reg_impl/2025/2462/oj",
+            "https://www.commoncriteriaportal.org/",
+            "https://euvd.enisa.europa.eu/"
+          ]
+        }
+      },
+      "st_metadata": {
+        "pdf_file_size_bytes": 1209582,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 61,
+        "/Title": "Security Target for L4Re Secure Separation Kernel CC 1.0.2",
+        "/Author": "Kernkonzept GmbH",
+        "/Subject": "L4Re SSK",
+        "/Keywords": "L4Re Operating System Framework, L4Re Hypervisor, Microkernel, Operating system",
+        "/Creator": "Writer",
+        "/Producer": "LibreOffice 25.8.4.2 (X86_64) / LibreOffice Community",
+        "/CreationDate": "D:20260126154027+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "https://l4re.org/doc/group__l4__icu__api.html"
+          ]
+        }
+      },
+      "cert_metadata": {
+        "pdf_file_size_bytes": 113837,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 2,
+        "/Title": "SBSI000210126042008390",
+        "/Creator": "BSI00021016",
+        "/Producer": "KONICA MINOLTA bizhub C308",
+        "/CreationDate": "D:20260420083932+01'00'",
+        "/ModDate": "D:20260420083932+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": []
+        }
+      },
+      "report_frontpage": {
+        "DE": {
+          "match_rules": [
+            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+          ],
+          "cert_id": "BSI-DSZ-CC-1177-V2-2026",
+          "cert_item": "L4Re Secure Separation Kernel, Version CC 1.0.2",
+          "developer": "Kernkonzept GmbH",
+          "cert_lab": "BSI"
+        }
+      },
+      "st_frontpage": null,
+      "cert_frontpage": null,
+      "report_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1177-V2-2026": 18,
+            "BSI-DSZ-CC-1177-2025": 2,
+            "BSI-DSZ-CC-1177-": 1
+          }
+        },
+        "cc_protection_profile_id": {},
+        "cc_security_level": {
+          "EAL": {
+            "EAL 2": 2,
+            "EAL 4+": 1
+          }
+        },
+        "cc_sar": {
+          "ALC": {
+            "ALC_FLR": 2,
+            "ALC_FLR．3": 1
+          },
+          "AVA": {
+            "AVA_VAN．3": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {
+          "OE": {
+            "OE．HARDWARE": 1,
+            "OE．PHYSICAL": 1,
+            "OE．NOEVIL": 1
+          }
+        },
+        "vendor": {
+          "NXP": {
+            "NXP": 1
+          }
+        },
+        "eval_facility": {
+          "atsec": {
+            "atsec": 6
+          }
+        },
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {},
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "BSI": {
+            "AIS 1": 1,
+            "AIS 14": 1,
+            "AIS 19": 1,
+            "AIS 23": 1,
+            "AIS 32": 1,
+            "AIS 38": 1,
+            "AIS 17": 1
+          },
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2,
+            "ISO/IEC 17065": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "ConfidentialDocument": {
+            "ETR] Final Evaluation Technical Report, Version 1．1, 24．03．2026, atsec information security GmbH, (confidential document) [ConfList] L4Re Secure Separation Kernel CC 1．0．2 Konfigurationsliste, Version 1．2, 2026-01-26": 1,
+            "GmbH (confidential document) [ConfGuide] L4Re Configuration Guidance, Version 15, 2025-11-28, Kernkonzept GmbH [DevGuide": 1
+          }
+        }
+      },
+      "st_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1177-v2-2026": 2
+          }
+        },
+        "cc_protection_profile_id": {},
+        "cc_security_level": {
+          "EAL": {
+            "EAL4": 2,
+            "EAL 4": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_ARC．1": 1,
+            "ADV_FSP．4": 1,
+            "ADV_IMP．1": 1,
+            "ADV_TDS．3": 1
+          },
+          "AGD": {
+            "AGD_OPE．1": 1,
+            "AGD_PRE．1": 1
+          },
+          "ALC": {
+            "ALC_FLR．3": 6,
+            "ALC_CMC．4": 1,
+            "ALC_CMS．4": 1,
+            "ALC_DEL．1": 1,
+            "ALC_DVS．1": 1,
+            "ALC_LCD．1": 1,
+            "ALC_TAT．1": 1
+          },
+          "ATE": {
+            "ATE_COV．2": 1,
+            "ATE_DPT．1": 1,
+            "ATE_FUN．1": 1,
+            "ATE_IND．2": 1
+          },
+          "AVA": {
+            "AVA_VAN．3": 1
+          },
+          "ASE": {
+            "ASE_CCL．1": 1,
+            "ASE_ECD．1": 1,
+            "ASE_INT．1": 1,
+            "ASE_OBJ．2": 1,
+            "ASE_REQ．2": 1,
+            "ASE_SPD．1": 1,
+            "ASE_TSS．1": 1
+          }
+        },
+        "cc_sfr": {
+          "FDP": {
+            "FDP_ACC": 30,
+            "FDP_ACC．2": 8,
+            "FDP_ACF": 30,
+            "FDP_ACF．1": 20,
+            "FDP_IFC．2": 7,
+            "FDP_IFC．2．1": 1,
+            "FDP_IFC．2．2": 1,
+            "FDP_IFF．1": 6,
+            "FDP_IFF．1．1": 1,
+            "FDP_IFF．1．2": 1,
+            "FDP_IFF．1．3": 1,
+            "FDP_IFF．1．4": 1,
+            "FDP_IFF．1．5": 1,
+            "FDP_RIP．1": 5,
+            "FDP_RIP．1．1": 1,
+            "FDP_ACC．1": 4
+          },
+          "FIA": {
+            "FIA_UID．2": 6,
+            "FIA_UID．2．1": 1
+          },
+          "FMT": {
+            "FMT_MSA": 39,
+            "FMT_MSA．3": 15,
+            "FMT_MTD": 5,
+            "FMT_MTD．1": 1,
+            "FMT_SMF．1": 5,
+            "FMT_SMF．1．1": 1,
+            "FMT_MSA．1": 5,
+            "FMT_SMR": 6,
+            "FMT_SMR．1": 6,
+            "FMT_SMF": 1
+          },
+          "FPR": {
+            "FPR_UNO．1": 5,
+            "FPR_UNO．1．1": 1
+          }
+        },
+        "cc_claims": {
+          "O": {
+            "O．CONFIDENTIALITY": 19,
+            "O．INTEGRITY": 5,
+            "O．AVAILABILITY": 11
+          },
+          "T": {
+            "T．DISCLOSURE": 2,
+            "T．MODIFICATION": 2,
+            "T．DEPLETION": 2
+          },
+          "A": {
+            "A．ENVIRONMENT": 2,
+            "A．PHYSICAL": 2,
+            "A．NOEVIL": 2
+          },
+          "OE": {
+            "OE．HARDWARE": 2,
+            "OE．PHYSICAL": 2,
+            "OE．NOEVIL": 2
+          }
+        },
+        "vendor": {
+          "NXP": {
+            "NXP": 1
+          }
+        },
+        "eval_facility": {},
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {
+          "VPN": {
+            "VPN": 1
+          }
+        },
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "side channels": 3
+          }
+        },
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {},
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "cert_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1177-V2-2026": 1
+          }
+        },
+        "cc_protection_profile_id": {},
+        "cc_security_level": {
+          "EAL": {
+            "EAL 4+": 1
+          }
+        },
+        "cc_sar": {
+          "ALC": {
+            "ALC_FLR": 1,
+            "ALC_FLR．3": 1
+          },
+          "AVA": {
+            "AVA_VAN．3": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {},
+        "eval_facility": {
+          "atsec": {
+            "atsec": 1
+          }
+        },
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {},
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "report_filename": "84c17d68-a07a-4bc0-aaec-d2f61fab6021_en",
+      "st_filename": "6fe6d82e-e79f-47ea-8c84-4e11a0f4a001_en",
+      "cert_filename": "30e7853a-3d42-4f12-bfea-8f349819b040_en"
+    },
+    "heuristics": {
+      "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+      "extracted_versions": {
+        "_type": "set",
+        "_value": [
+          "1.0.2"
+        ]
+      },
+      "cpe_matches": null,
+      "verified_cpe_matches": null,
+      "related_cves": null,
+      "cert_lab": [
+        "BSI"
+      ],
+      "cert_id": null,
+      "prev_certificates": null,
+      "next_certificates": null,
+      "st_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "report_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "annotated_references": null,
+      "extracted_sars": {
+        "_type": "set",
+        "_value": [
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_FSP",
+            "level": 4
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_TAT",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_OPE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMS",
+            "level": 4
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_LCD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_OBJ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_TSS",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_ECD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_ARC",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_FLR",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_COV",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_IMP",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DVS",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_CCL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AVA_VAN",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_INT",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_PRE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DEL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_TDS",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_REQ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_DPT",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_SPD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMC",
+            "level": 4
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_IND",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_FUN",
+            "level": 1
+          }
+        ]
+      },
+      "direct_transitive_cves": null,
+      "indirect_transitive_cves": null,
+      "scheme_data": {
+        "cert_id": "EUCC-3087-2026-04-0003",
+        "product": "L4Re Secure Separation Kernel, Version CC 1.0.2",
+        "vendor": "Kernkonzept GmbH",
+        "certification_date": {
+          "_type": "date",
+          "_value": "2026-04-16"
+        },
+        "category": "Operating systems",
+        "url": "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/Betriebssysteme/1177_1177V2.html",
+        "enhanced": {
+          "product": "L4Re Secure Separation Kernel, Version CC 1.0.2",
+          "applicant": "Kernkonzept GmbH Buchenstraße 16 b 01097 Dresden Deutschland",
+          "evaluation_facility": "atsec information security GmbH",
+          "assurance_level": "EAL4+,ALC_FLR.3",
+          "certification_date": {
+            "_type": "date",
+            "_value": "2026-04-16"
+          },
+          "expiration_date": {
+            "_type": "date",
+            "_value": "2031-04-15"
+          },
+          "entries": [
+            {
+              "id": "EUCC",
+              "description": "L4Re SSK is configured to act as a separation kernel, to provide the security features claimed by the ST. The TOE supports native applications as well as virtual machines (VMs). Access to every resource including but not limited to memory, hardware devices and CPU cores is protected by capabilities. Applications and VMs can only access a resource if they possess a capability with suitable permissions for that resource."
+            },
+            {
+              "id": "BSI",
+              "description": "Certificate"
+            }
+          ],
+          "description": "The TOE is the L4Re Secure Separation Kernel CC 1.0.1 (L4Re SSK). L4Re SSK is a distribution of the open-source L4Re Operating System Framework. As such it is based on the L4Re Microkernel. The L4Re Microkernel is a 3rd-generation microkernel with a state-of-the-art capability-based mandatory access control security model. It allows the separation of applications into different security domains, information flow control, and, subject to access control, dynamic assignment of resources and communication channels. Further the L4Re Microkernel supports static workloads alongside dynamic workloads, which allows to start, restart and shutdown applications during runtime. L4Re SSK is configured to act as a separation kernel, to provide the security features claimed by the ST. The TOE supports native applications as well as virtual machines (VMs). Access to every resource including but not limited to memory, hardware devices and CPU cores is protected by capabilities. Applications and VMs can only access a resource if they possess a capability with suitable permissions for that resource."
+        }
+      },
+      "protection_profiles": null,
+      "eal": null
+    },
+    "other_metadata": {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate.EnisaMetadata",
+      "certificate_id": "EUCC-3087-2026-0000000003-00000",
+      "product_name": "L4Re Secure Separation Kernel CC 1.0.2",
+      "product_type": "Operating System",
+      "product_version": "1.0.2",
+      "product_description": "L4Re SSK is a distribution of the open-source L4Re Operating System Framework. As such it is based on the L4Re Microkernel. The L4Re Microkernel is a 3rd-generation microkernel with a state-of-the-art capability-based mandatory access control security model.",
+      "holder_name": "Kernkonzept GmbH",
+      "holder_address": "Buchenstr. 16b 01097 Dresden",
+      "holder_contact": "contact@kernkonzept.com",
+      "holder_website": "https://www.kernkonzept.com/cybersecurity-information/",
+      "certification_body": "Bundesamt für Sicherheit in der Informationstechnik, EUCC Zertifizierungsstelle",
+      "nando_id": "3087",
+      "certification_body_address": "Postfach 200363\\n53133 Bonn, Bonn",
+      "certification_body_contact": "zertdokus@bsi.bund.de Phone: +49 228 99 9582-0",
+      "itsef": "atsec information security GmbH",
+      "responsible_ncca": "Bundesamt für Sicherheit in der Informationstechnik",
+      "scheme": "(UE) 2024/482 - EUCC",
+      "report_reference": "EUCC-3087-2026-04-0003",
+      "assurance_level": "High",
+      "cc_version": "CC 3.1 Revision 5",
+      "cem_version": "CEM 3.1 Revision 5",
+      "ava_van_level": "3",
+      "package": {},
+      "protection_profile": "None",
+      "issuance_year": "2026",
+      "issuance_month": "4",
+      "issuance_date_full": "16/04/2026",
+      "certificate_yearly_number": "3",
+      "modification_or_reassurance": null,
+      "validity_period_years": "5 years"
     }
   },
   {
     "_id": "9482bdc74476354a",
     "_type": "sec_certs.sample.eucc.EUCCCertificate",
     "dgst": "9482bdc74476354a",
-    "scheme": "DE",
-    "status": "active",
-    "name": "Infineon Technologies AG Smartcard IC IFX_CCI_0000Fh, CCI_000011h, 00001Bh, 00001Eh, 000025h design step G12",
     "cert_id": "EUCC-3087-2026-0000000004-00000",
-    "heuristics": {
-      "eal": "EAL6"
+    "category": "SMARTCARDS AND SIMILAR DEVICES",
+    "name": "Infineon Technologies AG Smartcard IC IFX_CCI_0000Fh, CCI_000011h, 00001Bh, 00001Eh, 000025h design step G12",
+    "status": "active",
+    "manufacturer": "Infineon Technologies AG",
+    "scheme": "DE",
+    "security_level": {
+      "_type": "set",
+      "_value": [
+        "EAL6"
+      ]
     },
     "not_valid_before": {
       "_type": "date",
@@ -97,18 +2913,1115 @@
     "not_valid_after": {
       "_type": "date",
       "_value": "2031-04-27"
+    },
+    "report_link": "https://certification.enisa.europa.eu/document/download/7258fc7b-e2f5-41c8-9abd-99cdbac6d614_en?filename=EUCC-3087-2026-04-0004%20Certificate%20Report.pdf",
+    "st_link": "https://certification.enisa.europa.eu/document/download/bf03c706-514b-42d9-ad2f-3324b50ff7b0_en?filename=EUCC-3087-2026-04-0004%20Security.pdf",
+    "cert_link": "https://certification.enisa.europa.eu/document/download/d23ed3e0-a664-4ce0-b5b4-e0750d1d39b2_en?filename=EUCC-3087-2026-04-0004%20Certificate.pdf",
+    "manufacturer_web": "https://www.infineon.com/product-information/cybersecurity-information",
+    "protection_profile_links": null,
+    "state": {
+      "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+      "report": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "193d50af281e6f3f372887d963f0b4993e6f6cc99646d34707a10830aa0081cc",
+        "txt_hash": "5a884d3db2b4bf88b0dba09302119667495c2208f9639bcc389b8394a5d52baf",
+        "json_hash": null
+      },
+      "st": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "dbe9dc80fe38012950ad326aeb3d3218f3b5fac5ba5de9919046688af88ba393",
+        "txt_hash": "b2c71f124669c66b6590983b86f25d02eade01d7ceabdd3410376d4841bfd6de",
+        "json_hash": null
+      },
+      "cert": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "44b2ff65c3b699b70a2941c4112ddaa326c6ded60bf6f62f01ce12c087af6184",
+        "txt_hash": "713b0734d1e6734d808287c7321f50e3fec06e7fc5b314949888d8637032b6c1",
+        "json_hash": null
+      }
+    },
+    "pdf_data": {
+      "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+      "report_metadata": {
+        "pdf_file_size_bytes": 667266,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 32,
+        "/Subject": "IFX",
+        "/Keywords": "Common Criteria, Certification, Zertifizierung",
+        "/CreationDate": "D:20260511144921+02'00'",
+        "/Producer": "LibreOffice 5.3",
+        "/Creator": "Writer",
+        "/Title": "EUCC-3087-2026-04-0004",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "https://www.iso.org/standard/72913.html",
+            "https://www.iso.org/standard/72891.html",
+            "http://www.commoncriteriaportal.org/",
+            "https://www.bsi.bund.de/zertifizierungsreporte",
+            "https://www.bsi.bund.de/AIS",
+            "https://certification.enisa.europa.eu/publications/eucc-state-art-documents_en",
+            "https://www.iso.org/standard/72889.html",
+            "https://www.iso.org/standard/72906.html",
+            "https://www.iso.org/standard/72892.html",
+            "https://www.bsi.bund.de/zertifizierung",
+            "https://eur-lex.europa.eu/eli/reg_impl/2025/2462/oj",
+            "https://www.commoncriteriaportal.org/",
+            "https://www.bsi.bund.de/",
+            "https://www.iso.org/standard/72917.html"
+          ]
+        }
+      },
+      "st_metadata": {
+        "pdf_file_size_bytes": 1791344,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 118,
+        "/Title": "Public Security Target IFX_CCI_11h",
+        "/Author": "Urian Rainer (CSS S CERT)",
+        "/Keywords": "Infineon",
+        "/Creator": "Microsoft® Word 2016",
+        "/CreationDate": "D:20260415082417+02'00'",
+        "/ModDate": "D:20260415082417+02'00'",
+        "/Producer": "Microsoft® Word 2016",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "http://csrc.nist.gov/groups/ST/toolkit/rng/documentation_software.html",
+            "http://www.osptalliance.org/resources/documentation",
+            "http://www.ietf.org/rfc/rfc5639.txt",
+            "mailto:erratum@infineon.com;ctdd@infineon.com?subject=Document%20question%20",
+            "http://www.infineon.com/"
+          ]
+        }
+      },
+      "cert_metadata": {
+        "pdf_file_size_bytes": 116579,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 2,
+        "/Title": "SBSI000210126050708310",
+        "/Creator": "BSI00021016",
+        "/Producer": "KONICA MINOLTA bizhub C308",
+        "/CreationDate": "D:20260507083140+01'00'",
+        "/ModDate": "D:20260507083140+01'00'",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": []
+        }
+      },
+      "report_frontpage": {
+        "DE": {
+          "match_rules": [
+            "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)"
+          ],
+          "cert_id": "BSI-DSZ-CC-1025-V7-2026",
+          "cert_item": "Infineon Technologies AG Smartcard IC IFX_CCI_000011h IFX_CCI_00001Bh IFX_CCI_00001Eh IFX_CCI_000025h G12",
+          "developer": "Infineon Technologies AG",
+          "cert_lab": "BSI"
+        }
+      },
+      "st_frontpage": null,
+      "cert_frontpage": null,
+      "report_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1025-V7-2026": 34,
+            "BSI-DSZ-CC-1025-V6-2024": 3
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 3
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL 2": 2,
+            "EAL 5": 1,
+            "EAL6": 3,
+            "EAL5+": 1,
+            "EAL5": 1,
+            "EAL6 augmented": 1,
+            "EAL5 augmented": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_IMP．2": 2,
+            "ADV_INT．3": 2,
+            "ADV_TDS．5": 2,
+            "ADV_ARC": 1,
+            "ADV_SPM．1": 1
+          },
+          "AGD": {
+            "AGD_HRM": 3,
+            "AGD_ARM": 3,
+            "AGD_PPUM": 7,
+            "AGD_PRM": 3,
+            "AGD_HSL": 3,
+            "AGD_SCL": 3,
+            "AGD_CCL": 3,
+            "AGD_ACL": 2
+          },
+          "ALC": {
+            "ALC_FLR": 2,
+            "ALC_CMC．5": 2,
+            "ALC_DVS．2": 2,
+            "ALC_FLR．3": 4,
+            "ALC_TAT．3": 2
+          },
+          "ATE": {
+            "ATE_FUN．2": 2,
+            "ATE_COV．3": 2
+          },
+          "AVA": {
+            "AVA_VAN．5": 3,
+            "AVA_VAN．4": 1
+          }
+        },
+        "cc_sfr": {
+          "FCS": {
+            "FCS_RNG": 1
+          }
+        },
+        "cc_claims": {},
+        "vendor": {
+          "Infineon": {
+            "Infineon Technologies AG": 32,
+            "Infineon": 5,
+            "Infineon Technologies": 4
+          }
+        },
+        "eval_facility": {
+          "TUV": {
+            "TÜV Informationstechnik": 15
+          }
+        },
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 9
+            }
+          },
+          "DES": {
+            "3DES": {
+              "Triple-DES": 2,
+              "TDES": 2,
+              "TDEA": 1
+            }
+          },
+          "constructions": {
+            "MAC": {
+              "CBC-MAC": 2,
+              "CMAC": 2
+            }
+          }
+        },
+        "asymmetric_crypto": {
+          "RSA": {
+            "RSA2048": 2,
+            "RSA4096": 2
+          },
+          "ECC": {
+            "ECDH": {
+              "ECDH": 1
+            },
+            "ECDSA": {
+              "ECDSA": 3
+            },
+            "ECC": {
+              "ECC": 2
+            }
+          }
+        },
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {
+          "MAC": {
+            "MAC": 1
+          },
+          "KA": {
+            "Key Agreement": 2
+          }
+        },
+        "crypto_protocol": {},
+        "randomness": {
+          "RNG": {
+            "RNG": 2
+          }
+        },
+        "cipher_mode": {
+          "ECB": {
+            "ECB": 2
+          },
+          "CBC": {
+            "CBC": 3
+          },
+          "CTR": {
+            "CTR": 3
+          },
+          "CFB": {
+            "CFB": 2
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "physical probing": 1,
+            "SPA": 2,
+            "DPA": 2
+          },
+          "FI": {
+            "DFA": 2
+          }
+        },
+        "technical_report_id": {
+          "BSI": {
+            "BSI TR-02102": 1
+          }
+        },
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS186-4": 4,
+            "FIPS197": 2,
+            "FIPS PUB 186-4": 1
+          },
+          "PKCS": {
+            "PKCS1": 2,
+            "PKCS #1": 2
+          },
+          "BSI": {
+            "AIS 1": 1,
+            "AIS 14": 1,
+            "AIS 19": 1,
+            "AIS 20": 1,
+            "AIS 23": 1,
+            "AIS 26": 1,
+            "AIS 31": 2,
+            "AIS 34": 1,
+            "AIS 35": 1,
+            "AIS 36": 1,
+            "AIS 37": 1,
+            "AIS 38": 1,
+            "AIS 39": 1,
+            "AIS 41": 1,
+            "AIS 46": 1,
+            "AIS 47": 1,
+            "AIS31": 5,
+            "AIS 28": 1
+          },
+          "RFC": {
+            "RFC5639": 3,
+            "RFC563": 1,
+            "RFC 5639": 1
+          },
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2,
+            "ISO/IEC 17065": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "ConfidentialDocument": {
+            "IFX_CCI_000011h IFX_CCI_00001Bh IFX_CCI_00001Eh IFX_CCI_000025h G12, Infineon Technologies AG (confidential document) Security Target lite, Version 2．9, Date 2026-04-14, Public Security Target IFX_CCI_000011h": 1,
+            "augmented with ALC_FLR．3), File Name: 1025- V7_ETR_260319_v4．docx, TÜV Informationstechnik GmbH (confidential document) [ETRfCOMP] Evaluation Technical for Composite Evaluation (ETR COMP) for the IFX_CCI_000011h": 1,
+            "IFX_CCI_00001Eh, IFX_CCI_000025h G12, Version 6, Date 2026-04-21, TÜV Informationstechnik GmbH (confidential document) [ConfList] Configuration list for the TOE, Version 1．0, Date 2026-02-02, Life Cycle Support": 1,
+            "optional Software Libraries Flash Loader – ACL – HSL –SCL – HCL, Infineon Technologies AG (confidential document) [AGD_Sec] 32-bit Security Controller – V07 Security Guidelines, Version 1．01-3117, 2025-09-02": 1,
+            "Technologies Americas Corp．, San Jose, CA, USA,Version 1, 2025-11-19, TÜV Informationstechnik GmbH (confidential document) [STAR_IFX_Morgan] Site Technical Audit Report (STAR) Infineon Technologies AG, Morgan Hill, CA": 1,
+            "Version 1, 2025-11-19, TÜV Informationstechnik GmbH (confidential document) [STAR_IFX_Bgl] Site Technical Audit Report (STAR) Infineon Technologies India Pvt． Ltd, Bangalore": 1,
+            "Version 4, 2025-10-29, TÜV Informationstechnik GmbH (confidential document) [STAR_KWE_Sha] Site Technical Audit Report (STAR), KWE Kintetsu World Express (China) Co．,Ltd": 1,
+            "2, 2026-03-12, TÜV Informationstechnik GmbH (confidential document) 29 / 32 Certification Report EUCC-3087-2026-04-0004 BSI-DSZ-CC-1025-V7-2026 [STAR_IFX_Wuxi] Site": 1,
+            " Infineon Technologies Co． Ltd, Wuxi, China, Version 1, 2025-11-18, TÜV Informationstechnik GmbH (confidential document) [STAR_K&N_GrOs] Site Technical Audit Report (STAR) Kuehne & Nagel, Großostheim, Version 1": 1,
+            "TÜV Informationstechnik GmbH (confidential document) [STAR_ATP_Manila] Site Technical Audit Report (STAR) Amkor Technologies Inc．, Philippines, Version": 1,
+            "2025-11-19, TÜV Informationstechnik GmbH (confidential document) [AGD_HSL] SLxx7–C65 Hardware Support Library (v2．01．6198), Version 1．3, 2019- 07-05,Infineon": 1
+          }
+        }
+      },
+      "st_keywords": {
+        "cc_cert_id": {},
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 2
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL5": 9,
+            "EAL6": 8,
+            "EAL5 augmented": 6,
+            "EAL6 augmented": 7
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_SPM": 4,
+            "ADV_IMP．2": 4,
+            "ADV_INT．3": 3,
+            "ADV_TDS．5": 3,
+            "ADV_SPM．1": 3,
+            "ADV_COMP．1": 1,
+            "ADV_ARC．1": 1,
+            "ADV_FSP．5": 3,
+            "ADV_IMP": 1,
+            "ADV_IMP．1": 2,
+            "ADV_FSP": 1,
+            "ADV_FSP．4": 3,
+            "ADV_CMC．5": 1
+          },
+          "AGD": {
+            "AGD_OPE．1": 1,
+            "AGD_PRE．1": 1
+          },
+          "ALC": {
+            "ALC_DVS": 2,
+            "ALC_CMC．5": 4,
+            "ALC_DVS．2": 5,
+            "ALC_FLR．3": 6,
+            "ALC_TAT．3": 3,
+            "ALC_TAT": 1,
+            "ALC_CMS．5": 3,
+            "ALC_DEL．1": 1,
+            "ALC_LCD．1": 1,
+            "ALC_CMS": 2,
+            "ALC_CMS．4": 2,
+            "ALC_CMC": 1,
+            "ALC_CMC．4": 3,
+            "ALC_DVS．1": 2
+          },
+          "ATE": {
+            "ATE_FUN．2": 3,
+            "ATE_COV．3": 6,
+            "ATE_DPT．3": 1,
+            "ATE_IND．2": 1,
+            "ATE_COV": 1,
+            "ATE_COV．2": 3
+          },
+          "AVA": {
+            "AVA_VAN．5": 4,
+            "AVA_VAN": 1
+          },
+          "ASE": {
+            "ASE_INT": 19,
+            "ASE_CCL": 5,
+            "ASE_SPD": 8,
+            "ASE_OBJ": 8,
+            "ASE_ECD": 4,
+            "ASE_REQ": 48,
+            "ASE_TSS": 13,
+            "ASE_CCL．1": 1,
+            "ASE_ECD．1": 1,
+            "ASE_INT．1": 1,
+            "ASE_OBJ．2": 1,
+            "ASE_REQ．2": 1,
+            "ASE_SPD．1": 1,
+            "ASE_TSS．1": 1
+          }
+        },
+        "cc_sfr": {
+          "FAU": {
+            "FAU_SAS．1": 9,
+            "FAU_SAS": 4,
+            "FAU_GEN": 1,
+            "FAU_SAS．1．1": 1
+          },
+          "FCS": {
+            "FCS_COP": 181,
+            "FCS_CKM．4": 3,
+            "FCS_CKM．6": 52,
+            "FCS_CKM．5": 46,
+            "FCS_CKM": 123,
+            "FCS_CKM．2": 7,
+            "FCS_COP．1": 33,
+            "FCS_CKM．1": 49,
+            "FCS_RNG．1": 19,
+            "FCS_RBG．1": 7,
+            "FCS_RNG": 29,
+            "FCS_CKM．6．1": 7
+          },
+          "FDP": {
+            "FDP_SDC": 1,
+            "FDP_ITC．1": 38,
+            "FDP_ITC．2": 38,
+            "FDP_ACC．1": 25,
+            "FDP_ACF．1": 21,
+            "FDP_ACC．1．1": 1,
+            "FDP_ACF．1．1": 1,
+            "FDP_ACF．1．2": 1,
+            "FDP_ACF．1．3": 1,
+            "FDP_ACF．1．4": 1,
+            "FDP_IFC．1": 14,
+            "FDP_SDI．2": 10,
+            "FDP_SDI．1": 1,
+            "FDP_SDI．2．1": 1,
+            "FDP_SDI．2．2": 1,
+            "FDP_SDC．1": 10,
+            "FDP_SDC．1．1": 1,
+            "FDP_UCT．1": 13,
+            "FDP_UIT．1": 13,
+            "FDP_ACC": 15,
+            "FDP_ACF": 14,
+            "FDP_UCT．1．1": 1,
+            "FDP_UIT．1．1": 1,
+            "FDP_UIT．1．2": 1,
+            "FDP_ITT．1": 12,
+            "FDP_AFC": 1,
+            "FDP_PHP．3": 1
+          },
+          "FIA": {
+            "FIA_API": 2,
+            "FIA_API．1": 10,
+            "FIA_API．1．1": 1,
+            "FIA_SOS．2": 2,
+            "FIA_SOS．2．1": 1,
+            "FIA_SOS．2．2": 1
+          },
+          "FMT": {
+            "FMT_LIM．1": 16,
+            "FMT_LIM．2": 12,
+            "FMT_MSA．3": 18,
+            "FMT_MSA．1": 15,
+            "FMT_SMR．1": 6,
+            "FMT_MSA．3．1": 1,
+            "FMT_MSA．3．2": 1,
+            "FMT_SMF．1": 13,
+            "FMT_MSA．1．1": 1,
+            "FMT_SMF．1．1": 1,
+            "FMT_LIM": 24,
+            "FMT_LIM．1．1": 1,
+            "FMT_LIM．2．1": 1,
+            "FMT_ACF": 1
+          },
+          "FPT": {
+            "FPT_TST．2": 29,
+            "FPT_TST": 5,
+            "FPT_TST．1": 8,
+            "FPT_FLS．1": 20,
+            "FPT_TST．2．1": 1,
+            "FPT_ITT．1": 13,
+            "FPT_PHP．3": 15,
+            "FPT_ITC．1": 2
+          },
+          "FRU": {
+            "FRU_FLT．2": 8
+          },
+          "FTP": {
+            "FTP_ITC．1": 18,
+            "FTP_ITC．1．1": 1,
+            "FTP_ITC．1．2": 1,
+            "FTP_ITC．1．3": 1,
+            "FTP_TRP．1": 4
+          }
+        },
+        "cc_claims": {
+          "O": {
+            "O．RND": 4,
+            "O．TDES": 3,
+            "O．AES": 3
+          },
+          "T": {
+            "T．RND": 1
+          }
+        },
+        "vendor": {
+          "Infineon": {
+            "Infineon Technologies AG": 33,
+            "Infineon": 16,
+            "Infineon Technologies": 20
+          }
+        },
+        "eval_facility": {},
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 45,
+              "AES-128": 3
+            }
+          },
+          "DES": {
+            "DES": {
+              "DES": 18
+            },
+            "3DES": {
+              "Triple-DES": 4,
+              "TDEA": 3,
+              "TripleDES": 2,
+              "TDES": 26
+            }
+          },
+          "constructions": {
+            "MAC": {
+              "CMAC": 11,
+              "CBC-MAC": 8
+            }
+          }
+        },
+        "asymmetric_crypto": {
+          "RSA": {
+            "RSA2048": 5,
+            "RSA4096": 5
+          },
+          "ECC": {
+            "ECDH": {
+              "ECDH": 3
+            },
+            "ECDSA": {
+              "ECDSA": 14
+            },
+            "ECC": {
+              "ECC": 14
+            }
+          },
+          "FF": {
+            "DH": {
+              "Diffie-Hellman": 5
+            },
+            "DSA": {
+              "DSA": 1
+            }
+          }
+        },
+        "pq_crypto": {},
+        "hash_function": {
+          "SHA": {
+            "SHA1": {
+              "SHA1": 25
+            },
+            "SHA2": {
+              "SHA256": 13
+            }
+          },
+          "MD": {
+            "MD5": {
+              "MD5": 25
+            }
+          }
+        },
+        "crypto_scheme": {
+          "MAC": {
+            "MAC": 9
+          },
+          "KA": {
+            "Key agreement": 1,
+            "Key Agreement": 1
+          }
+        },
+        "crypto_protocol": {},
+        "randomness": {
+          "TRNG": {
+            "TRNG": 2
+          },
+          "PRNG": {
+            "PRNG": 1
+          },
+          "RNG": {
+            "RND": 5,
+            "RNG": 25
+          }
+        },
+        "cipher_mode": {
+          "ECB": {
+            "ECB": 17
+          },
+          "CBC": {
+            "CBC": 14
+          },
+          "CTR": {
+            "CTR": 8
+          },
+          "CFB": {
+            "CFB": 6
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "Leak-Inherent": 14,
+            "Physical Probing": 2,
+            "physical probing": 1,
+            "side channel": 8,
+            "Side-channel": 1,
+            "side-channel": 1,
+            "SPA": 6,
+            "DPA": 7,
+            "Timing Attack": 1
+          },
+          "FI": {
+            "Malfunction": 13,
+            "malfunction": 1,
+            "DFA": 7,
+            "fault injection": 2
+          },
+          "other": {
+            "reverse engineering": 1
+          }
+        },
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS 197": 4,
+            "FIPS PUB 140-2": 1
+          },
+          "NIST": {
+            "SP 800-67": 6,
+            "SP 800-38A": 11,
+            "SP 800-38B": 3,
+            "SP 800-108": 1
+          },
+          "PKCS": {
+            "PKCS#1": 2,
+            "PKCS #1": 2
+          },
+          "BSI": {
+            "AIS31": 11
+          },
+          "RFC": {
+            "RFC 5639": 1
+          },
+          "ISO": {
+            "ISO/IEC 14443-4": 3,
+            "ISO/IEC 7816-3": 1,
+            "ISO/IEC 9797-1": 2,
+            "ISO/IEC 14888-3": 2,
+            "ISO/IEC 14888-": 1,
+            "ISO/IEC 11770-3": 1,
+            "ISO/IEC 15946-1": 1
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "OutOfScope": {
+            "out of scope": 2,
+            "certification． The user operating system and further applications implemented on the TOE are also out of scope of this certification． To summarize, if used with the PCD software the certification view equals to": 1,
+            "is enabled to communicate via the selected interfaces． The surrounding environment is in both cases out of scope． Note 1: The cryptographic libraries RSA, EC and Toolbox are delivery options． Therefore the TOE": 1
+          }
+        }
+      },
+      "cert_keywords": {
+        "cc_cert_id": {
+          "DE": {
+            "BSI-DSZ-CC-1025-V7-2026": 1
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL 5": 1,
+            "EAL6": 1,
+            "EAL6 augmented": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_IMP．2": 1,
+            "ADV_INT．3": 1,
+            "ADV_TDS．5": 1
+          },
+          "ALC": {
+            "ALC_CMC．5": 1,
+            "ALC_DVS．2": 1,
+            "ALC_FLR．3": 2,
+            "ALC_TAT．3": 1
+          },
+          "ATE": {
+            "ATE_FUN．2": 1,
+            "ATE_COV．3": 1
+          },
+          "AVA": {
+            "AVA_VAN．5": 2,
+            "AVA_VAN": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {
+          "Infineon": {
+            "Infineon Technologies AG": 2
+          }
+        },
+        "eval_facility": {
+          "TUV": {
+            "TUV Informationstechnik": 1
+          }
+        },
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {},
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "ISO": {
+            "ISO/IEC 15408": 2,
+            "ISO/IEC 18045": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "report_filename": "7258fc7b-e2f5-41c8-9abd-99cdbac6d614_en",
+      "st_filename": "bf03c706-514b-42d9-ad2f-3324b50ff7b0_en",
+      "cert_filename": "d23ed3e0-a664-4ce0-b5b4-e0750d1d39b2_en"
+    },
+    "heuristics": {
+      "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+      "extracted_versions": {
+        "_type": "set",
+        "_value": [
+          "-"
+        ]
+      },
+      "cpe_matches": null,
+      "verified_cpe_matches": null,
+      "related_cves": null,
+      "cert_lab": [
+        "BSI"
+      ],
+      "cert_id": null,
+      "prev_certificates": null,
+      "next_certificates": null,
+      "st_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "report_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "annotated_references": null,
+      "extracted_sars": {
+        "_type": "set",
+        "_value": [
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_OPE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AVA_VAN",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_LCD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_OBJ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_TSS",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_ECD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_DPT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_TDS",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_ARC",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMC",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_COMP",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_TAT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMS",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_FLR",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DVS",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_FUN",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_INT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_FSP",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_COV",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_CCL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_SPM",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_INT",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_PRE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DEL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_REQ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_SPD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_IMP",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_CMC",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_IND",
+            "level": 2
+          }
+        ]
+      },
+      "direct_transitive_cves": null,
+      "indirect_transitive_cves": null,
+      "scheme_data": {
+        "cert_id": "EUCC-3087-2026-04-0004",
+        "product": "Infineon Technologies AG Smartcard IC IFX_CCI_000011h IFX_CCI_00001Bh IFX_CCI_00001Eh IFX_CCI_000025h G12",
+        "vendor": "Infineon Technologies AG",
+        "certification_date": {
+          "_type": "date",
+          "_value": "2026-04-27"
+        },
+        "category": "Smart Cards and similar devices",
+        "url": "https://www.bsi.bund.de/SharedDocs/Zertifikate_CC/CC/SmartCards_IC_Cryptolib/1025.html",
+        "enhanced": {
+          "product": "Infineon Technologies AG Smartcard IC IFX_CCI_000011h IFX_CCI_00001Bh IFX_CCI_00001Eh IFX_CCI_000025h G12",
+          "applicant": "Infineon Technologies AG Am Campeon 1-15 85579 Neubiberg",
+          "evaluation_facility": "TÜV Informationstechnik GmbH",
+          "assurance_level": "EAL 5+,ADV_IMP.2,ADV_INT.3,ADV_TDS.5,ALC_CMC.5,ALC_DVS.2,ALC_FLR.3,ALC_TAT.3,ATE_FUN.2,ATE_COV.3,AVA_VAN.5,EAL6+,ALC_FLR.3",
+          "protection_profile": "Security IC Platform Protection Profile with Augmentation Packages Version 1.0, 13 January 2014, BSI-CC-PP-0084-2014",
+          "certification_date": {
+            "_type": "date",
+            "_value": "2026-04-27"
+          },
+          "expiration_date": {
+            "_type": "date",
+            "_value": "2031-04-26"
+          },
+          "entries": [
+            {
+              "id": "EUCC",
+              "description": "The new process followed the EUCC standard and uses the CC:2022 documents. Additionally, compared to the previous product, the scope of software libraries was changed and modifications were made to various documents."
+            },
+            {
+              "id": "BSI-DSZ-CC-1025-V6-2024",
+              "description": "The changes, compared to the preceding certification, consist of changes in the guidance, in the Security Guidelines and the removing the ACL v2.08.006 and adding the ACL v.3.05.002."
+            },
+            {
+              "id": "BSI-DSZ-CC-1025-V5-2023",
+              "description": "Certificate"
+            },
+            {
+              "id": "BSI-DSZ-CC-1025-V4-2021",
+              "description": "Certificate"
+            },
+            {
+              "id": "BSI-DSZ-CC-1025-V3-2020",
+              "description": "to certification scope."
+            },
+            {
+              "id": "BSI-DSZ-CC-1025-V2-2019",
+              "description": "and Toolbox)."
+            },
+            {
+              "id": "BSI-DSZ-CC-1025-2018",
+              "description": "Certificate"
+            }
+          ],
+          "description": "The TOE is named \"Infineon smart card IC (Security Controller) IFX_CCI_000011h, 00001Bh, 00001Eh, 000025h, design step G12 with optional libraries CCL V02.00.0005, RSA2048/4096 V2.07.003, EC V2.07.003, Toolbox V2.07.003, HSL V2.01.6198, SCL V2.04.002 and with specific IC dedicated software\" and is an integrated circuit (IC), providing a platform for an operating system and application software used in smartcards but also in any other device or form factor requiring a high level of resistance against attackers."
+        },
+        "subcategory": "ICs, Cryptolib"
+      },
+      "protection_profiles": null,
+      "eal": "EAL6"
+    },
+    "other_metadata": {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate.EnisaMetadata",
+      "certificate_id": "EUCC-3087-2026-0000000004-00000",
+      "product_name": "Infineon Technologies AG Smartcard IC IFX_CCI_0000Fh, CCI_000011h, 00001Bh, 00001Eh, 000025h design step G12",
+      "product_type": "Smartcards and similar devices",
+      "product_version": "See table 1 of Security Target for TOE version.",
+      "product_description": "Infineon Technologies AG Smartcard IC IFX_CCI_0000Fh, CCI_000011h, 00001Bh, 00001Eh, 000025h design step G12",
+      "holder_name": "Infineon Technologies AG",
+      "holder_address": "Am Campeon 1-15, 85579 Neubiberg",
+      "holder_contact": "psirt@infineon.com",
+      "holder_website": "https://www.infineon.com/product-information/cybersecurity-information",
+      "certification_body": "Bundesamt für Sicherheit in der Informationstechnik, EUCC Zertifizierungsstelle",
+      "nando_id": "3087",
+      "certification_body_address": "Postfach 200363\\n53133 Bonn, Bonn",
+      "certification_body_contact": "zertdokus@bsi.bund.de Phone: +49 228 99 9582-0",
+      "itsef": "TÜV Informationstechnik GmbH",
+      "responsible_ncca": "Bundesamt für Sicherheit in der Informationstechnik",
+      "scheme": "(UE) 2024/482 - EUCC",
+      "report_reference": "EUCC-3087-2026-04-0004 Certificate Report",
+      "assurance_level": "High",
+      "cc_version": "CC:2022 Revision 1",
+      "cem_version": "CEM:2022 Revision 1",
+      "ava_van_level": "5",
+      "package": {
+        "EAL5": [
+          "ADV_IMP.2",
+          "ADV_INT.3",
+          "ADV_TDS.5",
+          "ALC_CMC.5",
+          "ALC_DVS.2",
+          "ALC_FLR.3",
+          "ALC_TAT.3",
+          "ATE_FUN.2",
+          "ATE_COV.3",
+          "AVA_VAN.5"
+        ],
+        "EAL6": [
+          "ALC_FLR.3"
+        ]
+      },
+      "protection_profile": "Security IC Platform Protection Profile with Augmentation Packages Version 1.0, 13 January 2014, BSI-CC-PP-0084-2014",
+      "issuance_year": "2026",
+      "issuance_month": "4",
+      "issuance_date_full": "27/04/2026",
+      "certificate_yearly_number": "4",
+      "modification_or_reassurance": null,
+      "validity_period_years": "5 years"
     }
   },
   {
     "_id": "99e8c5452de28e19",
     "_type": "sec_certs.sample.eucc.EUCCCertificate",
     "dgst": "99e8c5452de28e19",
-    "scheme": "FR",
-    "status": "active",
-    "name": "ST54J / ST54K",
     "cert_id": "EUCC-3090-2025-0000000001-00001",
-    "heuristics": {
-      "eal": "EAL5"
+    "category": "SMARTCARDS AND SIMILAR DEVICES",
+    "name": "ST54J / ST54K",
+    "status": "active",
+    "manufacturer": "STMICROELECTRONICS",
+    "scheme": "FR",
+    "security_level": {
+      "_type": "set",
+      "_value": [
+        "EAL5"
+      ]
     },
     "not_valid_before": {
       "_type": "date",
@@ -117,6 +4030,796 @@
     "not_valid_after": {
       "_type": "date",
       "_value": "2030-04-02"
+    },
+    "report_link": "https://certification.enisa.europa.eu/document/download/e0c979aa-051b-438f-86eb-746528808a75_en?filename=EUCC-ANSSI-2025_03_01fr.pdf",
+    "st_link": "https://certification.enisa.europa.eu/document/download/0ccef0fc-c34f-4cd4-817f-113437d7f6bc_en?filename=Cible-EUCC-ANSSI-2025_01en.pdf",
+    "cert_link": "https://certification.enisa.europa.eu/document/download/3c85f0d4-da88-4e7f-a86d-9c5e7e8f32ae_en?filename=Certificat_EUCC_2025_03_01fr_1.pdf",
+    "manufacturer_web": null,
+    "protection_profile_links": null,
+    "state": {
+      "_type": "sec_certs.sample.cc_eucc_common.InternalState",
+      "report": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "3361f2776ab42658770f4aef13e3555ab5fc2b983fdb07ecc6ede0c067a2c492",
+        "txt_hash": "279002fa2853f16229ed8d097c278133755713b1caa02318eb8a003c0d953d29",
+        "json_hash": null
+      },
+      "st": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "6df1aff5b7ea67cf22e796661037f13c0baff6dad3756f3b48dac73a71d2148d",
+        "txt_hash": "26bf1ec4a2dee92e548da139281500d50fd8c50acc32014eef0684eac5a7abda",
+        "json_hash": null
+      },
+      "cert": {
+        "_type": "sec_certs.sample.document_state.DocumentState",
+        "download_ok": true,
+        "convert_ok": true,
+        "extract_ok": true,
+        "source_hash": "d2a5c93ee54412c7253803fe6db806437c2f7cfc1763e633138ef6371f4dd7f1",
+        "txt_hash": "c2bfca669a48c343c7771e7c1b6ec587eaa4295ef53aa7fd1f7ad415a9f973dc",
+        "json_hash": null
+      }
+    },
+    "pdf_data": {
+      "_type": "sec_certs.sample.cc_eucc_common.PdfData",
+      "report_metadata": {
+        "pdf_file_size_bytes": 372376,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 17,
+        "/CreationDate": "D:20250401102541+02'00'",
+        "/Creator": "Acrobat PDFMaker 23 pour Word",
+        "/Keywords": "",
+        "/ModDate": "D:20250401102632+02'00'",
+        "/Producer": "Adobe PDF Library 23.1.175",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "https://www.st.com/en/secure-mcus/st54j.html",
+            "https://www.st.com/content/st_com/en/about/security-and-privacy/psirt.html",
+            "http://www.commoncriteriaportal.org/",
+            "mailto:certification@ssi.gouv.fr",
+            "https://www.st.com/en/secure-mcus/st54k.html",
+            "https://cyber.gouv.fr/cybersecurity-act",
+            "http://www.cyber.gouv.fr/",
+            "mailto:psirt@st.com"
+          ]
+        }
+      },
+      "st_metadata": {
+        "pdf_file_size_bytes": 1623496,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 80,
+        "/CreationDate": "D:20250401102813+02'00'",
+        "/Creator": "FrameMaker 17.0.1",
+        "/Keywords": "",
+        "/ModDate": "D:20250401102813+02'00'",
+        "/Producer": "Adobe PDF Library 17.0",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "http://www.st.com"
+          ]
+        }
+      },
+      "cert_metadata": {
+        "pdf_file_size_bytes": 236678,
+        "pdf_is_encrypted": false,
+        "pdf_number_of_pages": 2,
+        "/CreationDate": "D:20250401102302+02'00'",
+        "/Creator": "Acrobat PDFMaker 23 pour Word",
+        "/Keywords": "",
+        "/ModDate": "D:20250401102352+02'00'",
+        "/Producer": "Adobe PDF Library 23.1.175",
+        "pdf_hyperlinks": {
+          "_type": "set",
+          "_value": [
+            "https://www.st.com/en/secure-mcus/st54j.html",
+            "https://www.st.com/content/st_com/en/about/security-and-privacy/psirt.html",
+            "https://www.st.com/en/secure-mcus/st54k.html",
+            "https://cyber.gouv.fr/cybersecurity-act",
+            "https://cyber.gouv.fr/voir-les-centres-devaluation",
+            "mailto:psirt@st.com"
+          ]
+        }
+      },
+      "report_frontpage": {
+        "FR": {
+          "match_rules": [
+            "Référence du rapport de certification(.+)Nom du produit(.+)Référence/version du produit(.+)Conformité à un profil de protection(.+)Critères d’évaluation et version(.+)Niveau d’évaluation(.+)Développeur (.+)Centre d’évaluation(.+)Accords de reconnaissance applicables"
+          ],
+          "cert_id": "EUCC-ANSSI-2025-03-01",
+          "cert_item": "ST54J / ST54K",
+          "cert_item_version": "A07 Type de produit Cartes à puce et dispositifs similaires",
+          "ref_protection_profiles": "Security IC Platform Protection Profile with Augmentation Packages, version 1.0 certifié BSI-CC-PP-0084-2014 le 19 février 2014 avec conformité aux packages : “Authentication of the security IC” “Loader dedicated for usage in Secured Environment only” “Loader dedicated for usage by authorized users only",
+          "cc_version": "ISO/IEC 15408-1:2009, 15408-2:2008 15408-3:2008 (Critères Communs version 3.1 révision 5) ISO/IEC 18045:2008 (CEM version 3.1 révision 5",
+          "cc_security_level": "Elevé / EAL5 augmenté ALC_DVS.2, ALC_FLR.2, AVA_VAN.5 Référence du rapport d’évaluation Evaluation Technical Report PEACOCK A07 Project référence PEACOCK_A07_2024_ETR_v1.1 version 1.1 11 février 2025. Fonctionnalité de sécurité du produit voir 2.2.2 Services de sécurité Résumé des menaces Inherent Information Leakage Physical Probing Malfunction due to Environmental Stress Physical Manipulation Forced Information Leakage R a p p o r t d e c e r t i f i c a t i o n E U C C - A N S S I - 2 0 2 5 - 0 3 - 0 1 S T 5 4 J / S T 5 4 K ( A 0 7 ) A N S S I - C C - C E R - F - 0 7 _ v 3 1 . 9 P a g e 6 s u r 1 7 Abuse of Functionality Deficiency of Random Numbers Masquerade the TOE Memory Access Violation Diffusion of open samples (voir chapitre 3 [ST]) Exigences de configuration du produit voir 4.2 Restrictions d’usage Hypothèses liées à l’environnement d’exploitation voir 4.2 Restrictions d’usage",
+          "developer": "STMICROELECTRONICS 190 Avenue Celestin Coq, 13106 Rousset, France Commanditaire STMICROELECTRONICS 190 Avenue Celestin Coq, 13106 Rousset, France",
+          "cert_lab": "SERMA SAFETY & SECURITY 14 rue Galilée, CS 10071, 33608 Pessac Cedex, France Marque EUCC"
+        }
+      },
+      "st_frontpage": null,
+      "cert_frontpage": null,
+      "report_keywords": {
+        "cc_cert_id": {
+          "FR": {
+            "EUCC-ANSSI-2025-03-01": 3
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 1,
+            "BSI-PP-0084-2014": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL5": 1,
+            "EAL2": 2
+          }
+        },
+        "cc_sar": {
+          "ALC": {
+            "ALC_DVS．2": 1,
+            "ALC_FLR．2": 2,
+            "ALC_FLR": 1
+          },
+          "AVA": {
+            "AVA_VAN．5": 1,
+            "AVA_VAN": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {
+          "STMicroelectronics": {
+            "STMicroelectronics": 3
+          }
+        },
+        "eval_facility": {
+          "Serma": {
+            "SERMA": 1
+          },
+          "CESTI": {
+            "CESTI": 1
+          }
+        },
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 1
+            }
+          },
+          "DES": {
+            "DES": {
+              "DES": 2
+            }
+          }
+        },
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {
+          "NesCrypt": {
+            "Nescrypt": 1
+          }
+        },
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "Physical Probing": 1
+          },
+          "FI": {
+            "Malfunction": 1
+          }
+        },
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {
+          "IBM": {
+            "SE": 3
+          }
+        },
+        "os_name": {},
+        "cplc_data": {
+          "ICVersion": {
+            "IC Version": 1
+          }
+        },
+        "ic_data_group": {},
+        "standard_id": {
+          "BSI": {
+            "AIS31": 1
+          },
+          "ISO": {
+            "ISO/IEC 18045:2008": 2
+          },
+          "CC": {
+            "CCMB-2017-04-001": 1,
+            "CCMB-2017-04-003": 1,
+            "CCMB-2017-04-004": 1
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "st_keywords": {
+        "cc_cert_id": {},
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 64,
+            "BSI-CC-PP- 0084-2014": 10,
+            "BSI-CC-PP-0084-": 2
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL5": 17,
+            "EAL 5": 1,
+            "EAL5+": 1,
+            "EAL4": 1,
+            "EAL5 augmented": 1,
+            "EAL 5 augmented": 1
+          }
+        },
+        "cc_sar": {
+          "ADV": {
+            "ADV_FSP": 4,
+            "ADV_ARC．1": 2,
+            "ADV_FSP．5": 3,
+            "ADV_IMP．1": 1,
+            "ADV_INT．2": 1,
+            "ADV_TDS．4": 1,
+            "ADV_ARC": 2,
+            "ADV_IMP": 1
+          },
+          "AGD": {
+            "AGD_PRE": 3,
+            "AGD_OPE．1": 1,
+            "AGD_PRE．1": 1,
+            "AGD_OPE": 1
+          },
+          "ALC": {
+            "ALC_DEL": 3,
+            "ALC_DVS．2": 4,
+            "ALC_FLR．2": 6,
+            "ALC_CMC．4": 1,
+            "ALC_CMS．5": 1,
+            "ALC_DEL．1": 1,
+            "ALC_LCD．1": 1,
+            "ALC_TAT．2": 1,
+            "ALC_DVS": 1,
+            "ALC_CMS": 1,
+            "ALC_CMC": 1
+          },
+          "ATE": {
+            "ATE_COV": 3,
+            "ATE_COV．2": 1,
+            "ATE_DPT．3": 1,
+            "ATE_FUN．1": 1,
+            "ATE_IND．2": 1
+          },
+          "AVA": {
+            "AVA_VAN．5": 4,
+            "AVA_VAN": 1
+          },
+          "ASE": {
+            "ASE_INT": 2,
+            "ASE_CCL": 4,
+            "ASE_ECD": 4,
+            "ASE_SPD": 8,
+            "ASE_OBJ": 11,
+            "ASE_REQ": 30,
+            "ASE_TSS": 7,
+            "ASE_CCL．1": 1,
+            "ASE_ECD．1": 1,
+            "ASE_INT．1": 1,
+            "ASE_OBJ．2": 1,
+            "ASE_REQ．2": 1,
+            "ASE_SPD．1": 1,
+            "ASE_TSS．1": 1
+          }
+        },
+        "cc_sfr": {
+          "FAU": {
+            "FAU_SAR．1": 25,
+            "FAU_SAS．1": 28,
+            "FAU_SAS": 2,
+            "FAU_GEN．1": 8
+          },
+          "FCS": {
+            "FCS_RNG．1": 6,
+            "FCS_COP．1": 17,
+            "FCS_RNG": 2,
+            "FCS_CKM．4": 4,
+            "FCS_CKM．1": 2
+          },
+          "FDP": {
+            "FDP_SDC．1": 8,
+            "FDP_SDI．2": 14,
+            "FDP_ITT．1": 10,
+            "FDP_IFC．1": 17,
+            "FDP_ACC．2": 12,
+            "FDP_ACF．1": 28,
+            "FDP_UCT．1": 16,
+            "FDP_UIT．1": 16,
+            "FDP_ACC．1": 23,
+            "FDP_SDC": 2,
+            "FDP_ACF": 1,
+            "FDP_ITC．1": 2,
+            "FDP_ITC．2": 2,
+            "FDP_SMF．1": 2,
+            "FDP_SMR．1": 1
+          },
+          "FIA": {
+            "FIA_API．1": 6,
+            "FIA_UID．1": 16,
+            "FIA_UAU．1": 14,
+            "FIA_API": 2
+          },
+          "FMT": {
+            "FMT_LIM．1": 29,
+            "FMT_LIM．2": 30,
+            "FMT_MSA．3": 26,
+            "FMT_MSA．1": 26,
+            "FMT_SMF．1": 21,
+            "FMT_SMR．1": 17,
+            "FMT_LIM": 2
+          },
+          "FPT": {
+            "FPT_FLS．1": 22,
+            "FPT_PHP．3": 11,
+            "FPT_ITT．1": 9
+          },
+          "FRU": {
+            "FRU_FLT．2": 11
+          },
+          "FTP": {
+            "FTP_ITC．1": 27,
+            "FTP_TRP．1": 2
+          }
+        },
+        "cc_claims": {
+          "O": {
+            "O．RND": 4,
+            "O．TOE-": 1,
+            "O．C": 4
+          },
+          "T": {
+            "T．RND": 3
+          },
+          "R": {
+            "R．O": 4
+          }
+        },
+        "vendor": {
+          "Infineon": {
+            "Infineon Technologies": 1
+          },
+          "Samsung": {
+            "Samsung": 3
+          },
+          "STMicroelectronics": {
+            "STMicroelectronics": 24
+          },
+          "Philips": {
+            "Philips": 1
+          }
+        },
+        "eval_facility": {},
+        "symmetric_crypto": {
+          "AES_competition": {
+            "AES": {
+              "AES": 17,
+              "AES-128": 1,
+              "AES-192": 1,
+              "AES-256": 1
+            }
+          },
+          "DES": {
+            "DES": {
+              "DES": 18
+            },
+            "3DES": {
+              "TDES": 7,
+              "TDEA": 1
+            }
+          }
+        },
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {
+          "TRNG": {
+            "TRNG": 2
+          },
+          "RNG": {
+            "RND": 7,
+            "RNG": 6
+          }
+        },
+        "cipher_mode": {
+          "ECB": {
+            "ECB": 7
+          },
+          "CBC": {
+            "CBC": 8
+          }
+        },
+        "ecc_curve": {},
+        "crypto_engine": {
+          "NesCrypt": {
+            "Nescrypt": 7,
+            "NESCRYPT": 1
+          }
+        },
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {
+          "SCA": {
+            "Leak-Inherent": 14,
+            "Physical Probing": 4,
+            "physical probing": 3,
+            "side channel": 2
+          },
+          "FI": {
+            "physical tampering": 1,
+            "Malfunction": 13,
+            "malfunction": 2
+          },
+          "other": {
+            "JIL": 53
+          }
+        },
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {
+          "IBM": {
+            "SE": 4
+          },
+          "other": {
+            "T6": 1
+          }
+        },
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {
+          "FIPS": {
+            "FIPS PUB 197": 3
+          },
+          "NIST": {
+            "NIST SP 800-67": 3,
+            "SP 800-38A": 2,
+            "NIST SP 800-38A": 2,
+            "SP 800-67": 1
+          },
+          "PKCS": {
+            "PKCS #1": 2
+          },
+          "BSI": {
+            "AIS31": 2
+          },
+          "ISO": {
+            "ISO/IEC 7816-3": 1,
+            "ISO/IEC 9796-2": 1,
+            "ISO/IEC 14888": 2,
+            "ISO/IEC 9796": 1
+          },
+          "CC": {
+            "CCMB-2017-04-002": 23,
+            "CCMB-2017-04-003": 2,
+            "CCMB-2017-04-001": 2
+          }
+        },
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {
+          "OutOfScope": {
+            "out of scope": 2,
+            " The ST54J_SE is in the scope of this evaluation, while the ST54J_CLF and the ST54J_IOs are out of scope of this evaluation": 1,
+            "ES) is in User NVM． 45 Note: The ES is not part of the TOE and is out of scope of the evaluation": 1,
+            " The ST54J_SE is in the scope of this evaluation, while the ST54J_CLF and the ST54J_IOs are out of scope of this evaluation． 19 In the following, the TOE is denoted by “ST54J/K A07” or “TOE”． 20 Figure 1": 1,
+            "Security IC Embedded Software (ES) is in User NVM． 45 Note: The ES is not part of the TOE and is out of scope of the evaluation． 1．6．3 TOE documentation 46 The user guidance documentation, part of the TOE": 1
+          }
+        }
+      },
+      "cert_keywords": {
+        "cc_cert_id": {
+          "FR": {
+            "EUCC-ANSSI-2025-03-01": 2
+          }
+        },
+        "cc_protection_profile_id": {
+          "BSI": {
+            "BSI-CC-PP-0084-2014": 1
+          }
+        },
+        "cc_security_level": {
+          "EAL": {
+            "EAL5": 1,
+            "EAL2": 1
+          }
+        },
+        "cc_sar": {
+          "ALC": {
+            "ALC_DVS．2": 1,
+            "ALC_FLR．2": 2
+          },
+          "AVA": {
+            "AVA_VAN．5": 1
+          }
+        },
+        "cc_sfr": {},
+        "cc_claims": {},
+        "vendor": {
+          "STMicroelectronics": {
+            "STMicroelectronics": 3
+          }
+        },
+        "eval_facility": {
+          "Serma": {
+            "SERMA": 2
+          }
+        },
+        "symmetric_crypto": {},
+        "asymmetric_crypto": {},
+        "pq_crypto": {},
+        "hash_function": {},
+        "crypto_scheme": {},
+        "crypto_protocol": {},
+        "randomness": {},
+        "cipher_mode": {},
+        "ecc_curve": {},
+        "crypto_engine": {},
+        "tls_cipher_suite": {},
+        "crypto_library": {},
+        "vulnerability": {},
+        "side_channel_analysis": {},
+        "technical_report_id": {},
+        "device_model": {},
+        "tee_name": {},
+        "os_name": {},
+        "cplc_data": {},
+        "ic_data_group": {},
+        "standard_id": {},
+        "javacard_version": {},
+        "javacard_api_const": {},
+        "javacard_packages": {},
+        "certification_process": {}
+      },
+      "report_filename": "e0c979aa-051b-438f-86eb-746528808a75_en",
+      "st_filename": "0ccef0fc-c34f-4cd4-817f-113437d7f6bc_en",
+      "cert_filename": "3c85f0d4-da88-4e7f-a86d-9c5e7e8f32ae_en"
+    },
+    "heuristics": {
+      "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
+      "extracted_versions": {
+        "_type": "set",
+        "_value": [
+          "-"
+        ]
+      },
+      "cpe_matches": null,
+      "verified_cpe_matches": null,
+      "related_cves": null,
+      "cert_lab": [
+        "SERMA"
+      ],
+      "cert_id": null,
+      "prev_certificates": null,
+      "next_certificates": null,
+      "st_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "report_references": {
+        "_type": "sec_certs.sample.certificate.References",
+        "directly_referenced_by": null,
+        "indirectly_referenced_by": null,
+        "directly_referencing": null,
+        "indirectly_referencing": null
+      },
+      "annotated_references": null,
+      "extracted_sars": {
+        "_type": "set",
+        "_value": [
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_LCD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_CCL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_PRE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_TAT",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_COV",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_FSP",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMS",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_TSS",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_FUN",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DEL",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_ECD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_IMP",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_OBJ",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_DPT",
+            "level": 3
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_ARC",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_INT",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AGD_OPE",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_INT",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ATE_IND",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "AVA_VAN",
+            "level": 5
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_CMC",
+            "level": 4
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_DVS",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ADV_TDS",
+            "level": 4
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ALC_FLR",
+            "level": 2
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_SPD",
+            "level": 1
+          },
+          {
+            "_type": "sec_certs.sample.sar.SAR",
+            "family": "ASE_REQ",
+            "level": 2
+          }
+        ]
+      },
+      "direct_transitive_cves": null,
+      "indirect_transitive_cves": null,
+      "scheme_data": null,
+      "protection_profiles": null,
+      "eal": "EAL5"
+    },
+    "other_metadata": {
+      "_type": "sec_certs.sample.eucc.EUCCCertificate.EnisaMetadata",
+      "certificate_id": "EUCC-3090-2025-0000000001-00001",
+      "product_name": "ST54J / ST54K",
+      "product_type": "Smartcards and similar devices",
+      "product_version": "A07",
+      "product_description": "The evaluated product is “ST54J / ST54K, A07” developed by STMICROELECTRONICS. The microcontroller alone is not a usable product in itself. It is intended to host one or more applications. It can be inserted into a plastic holder to create a smart card. The possible uses of this card are multiple (secure identity documents, banking applications, pay TV, transportation, healthcare, etc.) depending on the application software that will be embedded. These software are not part of this evaluation.",
+      "holder_name": "STMICROELECTRONICS",
+      "holder_address": "190 Avenue Celestin Coq, 13106 Rousset",
+      "holder_contact": "Psirt@st.com",
+      "holder_website": "ST54J : ST54J - NFC controller and Secure Element single die - STMicroelectroni… ST54K : ST54K - NFC controller and Secure Element single die and a UWB secure, …",
+      "certification_body": "ANSSI",
+      "nando_id": "3090",
+      "certification_body_address": "Tour Mercure 31 Quai de Grenelle, 75015 Paris",
+      "certification_body_contact": "certification@ssi.gouv.fr Phone: +33 (0)1 71 75 82 82",
+      "itsef": "Serma Safety and Security SAS",
+      "responsible_ncca": "Agence nationale de la sécurité des systèmes d’information",
+      "scheme": "(UE) 2024/482 - EUCC",
+      "report_reference": "certificate associated with the report EUCC-ANSSI-2025-03-01 also published on the certification website.",
+      "assurance_level": "High",
+      "cc_version": "ISO/IEC 15408-1:2009 ISO/IEC 15408-2:2008 ISO/IEC 15408-3:2008",
+      "cem_version": "CEM 3.1 Revision 5",
+      "ava_van_level": "5",
+      "package": {
+        "EAL5": [
+          "ALC_DVS.2",
+          "ALC_FLR.2",
+          "AVA_VAN.5"
+        ]
+      },
+      "protection_profile": "Security IC Platform Protection Profile with Augmentation Packages version 1.0, BSI-CC-PP-0084-2014",
+      "issuance_year": "2025",
+      "issuance_month": "4",
+      "issuance_date_full": "02/04/2025",
+      "certificate_yearly_number": "1",
+      "modification_or_reassurance": null,
+      "validity_period_years": "5 years"
     }
   }
 ]
