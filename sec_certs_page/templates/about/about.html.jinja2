@@ -239,7 +239,8 @@
                         <h3>Student members</h3>
                         <p>Several students extended or used the functionality of the sec-certs project in their
                             Bachelor's or Master's thesis.</p>
-                        {{ render_student("Tadeáš Kachyňa", "<i class=\"fas fa-rotate\"></i> Master's thesis ongoing", "2025-now") }}
+                        {{ render_student("Lyubov Laurenyuk", "Bachelor's thesis on <a href=\"https://is.muni.cz/th/fn0j6/\" class=\"fst-italic\">Analysis and search for problematic certificates in Common Criteria</a>", "2025-2026") }}
+                        {{ render_student("Tadeáš Kachyňa", "Master's thesis on <a href=\"https://is.muni.cz/th/haedu/\" class=\"fst-italic\">Adding support for European Cybersecurity Certifications in sec-certs</a>", "2025-2026") }}
                         {{ render_student("Jakub Borský", "Bachelor's thesis on <a href=\"https://is.muni.cz/th/fqtn0/\" class=\"fst-italic\">Improving text and certification metadata extraction in sec-certs</a>", "2025-2026") }}
                         {{ render_student("Nikola Davidová", "Bachelor's thesis on <a href=\"https://is.muni.cz/th/wsh38/\" class=\"fst-italic\">Improving certification metadata parsing for FIPS 140 in sec-certs</a>", "2025-2026") }}
                         {{ render_student("Vladimír Peňáz", "Master's thesis on <a href=\"https://is.muni.cz/th/acmzd/\" class=\"fst-italic\">Gaining insights in the security certifications ecosystem using sec-certs</a>", "2025-2026") }}
@@ -259,6 +260,28 @@
                     <p class="lead pe-lg-3">We greatly appreciate the support we have received over the years. This
                         included direct financial support as well as computing infrastructure, networking and
                         dissemination opportunities.</p>
+                    <div class="row my-5 gx-0 border rounded">
+                        <div class="col-4 px-2 pt-1">
+                            <a
+                                    href="https://ccat.fi.muni.cz/" target="_blank" rel="noopener">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/ccat_logo.png") }}" alt="CCAT"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/ccat_logo_light.png") }}"
+                                     alt="CHESS"/>
+                            </a>
+                            <div class="my-1">
+                                <img class="hide-dark w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/eu_logo.svg") }}" alt="EU"/>
+                                <img class="hide-light w-100"
+                                     src="{{ url_for("static", filename="img/sponsors/eu_logo_light.svg") }}" alt="EU"/>
+                            </div>
+                        </div>
+                        <div class="col-8 d-flex ps-3 align-items-center text-break">
+                            <span>This work is supported by the European Cybersecurity Competence Centre under Grant Agreement No. 101225878:
+                                <a href="https://ccat.fi.muni.cz/" target="_blank" rel="noopener">Cybersecurity Certification and Assessment Tools (CCAT)</a>.</span>
+                        </div>
+                    </div>
                     <div class="row my-5 gx-0 border rounded">
                         <div class="col-4 px-2 pt-1">
                             <a
