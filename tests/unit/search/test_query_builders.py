@@ -4,6 +4,7 @@ import pytest
 from sec_certs_page.cc.index import cc_schema
 from sec_certs_page.common.search.query import (
     Errors,
+    detect_advanced_syntax,
     get_body_query,
     get_date_query,
     get_id_query,
@@ -12,6 +13,9 @@ from sec_certs_page.common.search.query import (
     get_term_query,
     get_term_set_query,
     get_text_field_query,
+    need_field_targeting,
+    select_by_bitmask,
+    select_by_id,
 )
 from sec_certs_page.vuln.index import cve_schema
 
@@ -47,6 +51,52 @@ def cc_body_index(make_index):
             {"dgst": "B", "body_report": "no findings of note"},
         ],
     )
+
+
+def test_detect_advanced_syntax():
+    assert detect_advanced_syntax("simple query") == set()
+    assert "boolean_op" in detect_advanced_syntax("foo AND bar")
+    assert "phrase" in detect_advanced_syntax('"foo bar"')
+    assert "must_exclude" in detect_advanced_syntax("foo -bar")
+    assert "range" in detect_advanced_syntax("[2020-01-01 TO 2021-01-01]")
+    assert "set" in detect_advanced_syntax("IN [1 2 3]")
+    assert "regex" in detect_advanced_syntax("/foo.*bar/")
+    assert "boost" in detect_advanced_syntax("foo^2")
+    assert "match_all" in detect_advanced_syntax("*")
+
+
+def test_need_field_targeting():
+    assert need_field_targeting("[1 TO 2]", {"range"})
+    assert need_field_targeting("IN [1 2 3]", {"set"})
+    assert need_field_targeting("/foo.*/", {"regex"})
+    assert need_field_targeting("[2020-01-01T00:00:00 TO 2021-01-01T00:00:00]", {"range"})
+    assert need_field_targeting("/host:.*/", {"regex"})
+
+    assert not need_field_targeting("field:[1 TO 2]", {"range"})
+    assert not need_field_targeting("field:[2020-01-01T00:00:00 TO 2021-01-01T00:00:00]", {"range"})
+    assert not need_field_targeting("foo AND bar", {"boolean_op"})
+    assert not need_field_targeting('"redhat"', {"phrase"})
+    assert not need_field_targeting("+apple", {"must_exclude"})
+    assert not need_field_targeting("foo^2", {"boost"})
+    assert not need_field_targeting("*", {"match_all"})
+    assert not need_field_targeting("simple", set())
+
+
+def test_select_by_bitmask():
+    options = ["a", "b", "c", "d"]
+    assert select_by_bitmask(None, options) == options
+    assert select_by_bitmask(0, options) == options
+    assert select_by_bitmask(0b1010, options) == ["b", "d"]
+    assert select_by_bitmask(0b0001, options) == ["a"]
+
+
+def test_select_by_id():
+    options = {"x": {"id": "a"}, "y": {"id": "b"}}
+    selected = select_by_id("a", options)
+    assert selected["x"]["selected"] is True
+    assert selected["y"]["selected"] is False
+    assert all(val["selected"] for val in select_by_id("", options).values())
+    assert all(val["selected"] for val in select_by_id(None, options).values())
 
 
 def test_id_query_exact_raw_match(cc_id_index, hits):

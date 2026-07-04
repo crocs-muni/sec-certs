@@ -51,6 +51,7 @@ def detect_advanced_syntax(query: str) -> set[str]:
         ("set", r"\bIN\s*\[[^\]]*\]"),
         ("boost", r"\^(\d+|\d*\.\d*)"),
         ("regex", r"/[^/\n]+/"),
+        ("match_all", r"^\s*\*\s*$"),
     ]
 
     matched = set()
@@ -59,6 +60,22 @@ def detect_advanced_syntax(query: str) -> set[str]:
             matched.add(name)
 
     return matched
+
+
+_HAS_FIELD_PREFIX = re.compile(r"^\s*[+\-(]*\w+:")
+
+
+def need_field_targeting(query: str, advanced_features: set[str]) -> bool:
+    is_needed = {"range", "set", "regex"} & advanced_features
+    return bool(is_needed) and not _HAS_FIELD_PREFIX.match(query)
+
+
+def parse_field_query(index: Index, value: str, field_name: str, allow_regexes: bool) -> tuple[Query, Any]:
+    advanced_features = detect_advanced_syntax(value)
+    text = f"{field_name}:{value}" if need_field_targeting(value, advanced_features) else value
+    return index.parse_query_lenient(
+        text, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=allow_regexes
+    )
 
 
 def get_expanded_query(query: str, field_name: str, raw: bool, prefix: bool, schema: Schema) -> Query:
@@ -86,16 +103,10 @@ def get_text_query(
     if query is None:
         return Query.all_query(), None
 
-    advanced_features = detect_advanced_syntax(query)
-    if not advanced_features:
+    if not detect_advanced_syntax(query):
         return get_expanded_query(query, field_name, raw, prefix, schema), None
 
-    if not re.search(r"\w+:", query):
-        query = f"{field_name}:{query}"
-
-    return index.parse_query_lenient(
-        query, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=True
-    )
+    return parse_field_query(index, query, field_name, allow_regexes=True)
 
 
 def build_keyword_query(schema: Schema, units: list[list[str]], fields: list[str], mode: str) -> Query:
@@ -199,14 +210,11 @@ def get_body_query(index: Callable[[], Index], value: str | None, doc_types: lis
     if value is None:
         return Query.empty_query()
 
-    advanced_features = detect_advanced_syntax(value)
+    idx = index()
     subqueries = []
     for doc_type in doc_types:
         field_name = f"body_{doc_type}" if doc_type else "body"
-        text = value if not advanced_features or re.match(r"\w+:", value) else f"{field_name}:{value}"
-        parsed_query, err = index().parse_query_lenient(
-            text, default_field_names=[field_name], conjunction_by_default=True, allow_regexes=False
-        )
+        parsed_query, err = parse_field_query(idx, value, field_name, allow_regexes=False)
         errors.add("query", err)
         subqueries.append((Occur.Should, parsed_query))
 
