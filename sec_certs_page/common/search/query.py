@@ -51,6 +51,7 @@ def detect_advanced_syntax(query: str) -> set[str]:
         ("set", r"\bIN\s*\[[^\]]*\]"),
         ("boost", r"\^(\d+|\d*\.\d*)"),
         ("regex", r"/[^/\n]+/"),
+        ("match_all", r"^\s*\*\s*$"),
     ]
 
     matched = set()
