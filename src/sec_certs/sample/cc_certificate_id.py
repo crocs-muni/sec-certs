@@ -19,15 +19,24 @@ def _parse_year(year: str | None) -> int | None:
         return y
 
 
+def _eucc_id(cb: str, meta) -> str | None:
+    # Makes an EUCC id "EUCC-3090-2025-4" from the year + sequence
+    # number. The sequence number can come from different groups depending
+    # on which regex rule matched, so we try them in order
+    # returns none if this is not EUCC match
+    for key in ("eucc_seq", "id2", "id"):
+        if val := meta.get(key):
+            return f"EUCC-{cb}-{meta['year']}-{int(val)}"
+    return None
+
+
 def FR(meta) -> str:
-    # new form EUCC-3090-2025-10-04 → EUCC-3090-2025-4
-    if seq := meta.get("eucc_seq"):
-        return f"EUCC-3090-{meta['year']}-{int(seq)}"
+    # EUCC formsEUCC-3090-2025-10-04 → EUCC-3090-2025-4
+    if eucc := _eucc_id("3090", meta):
+        return eucc
+    # EUCC-ANSSI form
     if meta.get("month") and meta.get("day"):
         return f"EUCC-ANSSI-{meta['year']}-{meta['month']}-{meta['day']}"
-    # Enisa long form: EUCC-3090-2025-0000000004-00002 → EUCC-3090-2025-4
-    if rid := meta.get("id"):
-        return f"EUCC-3090-{meta['year']}-{int(rid)}"
     year = _parse_year(meta["year"])
     counter = meta["counter"]
     doc = meta.get("doc")
@@ -161,15 +170,9 @@ def NO(meta) -> str:
 
 
 def NL(meta) -> str:
-    # New EUCC form EUCC-3110-2025-08-2500052-01 → EUCC-3110-2025-2500052
-    if seq := meta.get("eucc_seq"):
-        return f"EUCC-3110-{meta['year']}-{int(seq)}"
-    # EUCC 4-group pattern
-    if rid2 := meta.get("id2"):
-        return f"EUCC-3110-{meta['year']}-{int(rid2)}"
-    # ENISA long form
-    if rid := meta.get("id"):
-        return f"EUCC-3110-{meta['year']}-{int(rid)}"
+    # EUCC forms EUCC-3110-2025-08-2500052-01 → EUCC-3110-2025-2500052
+    if eucc := _eucc_id("3110", meta):
+        return eucc
     core = meta["core"]
     doc = meta.get("doc")
     if doc is None:
