@@ -8,7 +8,6 @@ from ..common.search.query import (
     Search,
     SearchConfig,
     build_must_query,
-    detect_advanced_syntax,
     get_body_query,
     get_date_query,
     get_keyword_query,
@@ -16,6 +15,7 @@ from ..common.search.query import (
     get_term_query,
     get_term_set_query,
     get_text_field_query,
+    parse_field_query,
     select_by_bitmask,
     select_by_id,
 )
@@ -28,10 +28,7 @@ def _fips_cert_id_query(value: str | None, errors: Errors) -> Query:
     if value is None:
         return Query.all_query()
 
-    text = value if not detect_advanced_syntax(value) else f"cert_id:{value}"
-    parsed_query, err = fips_index().parse_query_lenient(
-        text, default_field_names=["cert_id"], conjunction_by_default=True, allow_regexes=False
-    )
+    parsed_query, err = parse_field_query(fips_index(), value, "cert_id", allow_regexes=False)
     errors.add("cert_id", err)
     return parsed_query
 
