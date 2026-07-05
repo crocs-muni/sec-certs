@@ -1,26 +1,17 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Mapping
-from pathlib import Path
 
-from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.sample.pp_scheme import PP_SCHEME_SCRAPERS, PPSchemeRecord, PPScraper
-from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
 
-class PPSchemeDataset(JSONPathDataset, ComplexSerializableType):
+class PPSchemeDataset:
     # Dataset of PPSchemeRecord objects scraped from national scheme portals
 
-    def __init__(self, schemes: dict[str, list[PPSchemeRecord]], json_path: str | Path | None = None):
-        super().__init__(json_path)
+    def __init__(self, schemes: dict[str, list[PPSchemeRecord]]):
         self.schemes = schemes
-
-    @property
-    def serialized_attributes(self) -> list[str]:
-        return ["schemes"]
 
     def __iter__(self):
         for records in self.schemes.values():
@@ -29,19 +20,8 @@ class PPSchemeDataset(JSONPathDataset, ComplexSerializableType):
     def __len__(self) -> int:
         return sum(len(v) for v in self.schemes.values())
 
-    def to_dict(self):
-        return {"schemes": self.schemes}
-
     @classmethod
-    def from_dict(cls, dct: Mapping) -> PPSchemeDataset:
-        return cls(dct["schemes"])
-
-    @classmethod
-    def from_scrapers(
-        cls,
-        scrapers: list[PPScraper] | None = None,
-        json_path: str | Path | None = None,
-    ) -> PPSchemeDataset:
+    def from_scrapers(cls, scrapers: list[PPScraper] | None = None) -> PPSchemeDataset:
         """Scrape all national scheme portals and return a PPSchemeDataset."""
         if scrapers is None:
             scrapers = PP_SCHEME_SCRAPERS
@@ -53,4 +33,4 @@ class PPSchemeDataset(JSONPathDataset, ComplexSerializableType):
                 logger.info("Scraped %d records from scheme %s.", len(records), scraper.scheme)
             except Exception as e:
                 logger.warning("Failed to scrape scheme %s: %s", scraper.scheme, e)
-        return cls(schemes, json_path=json_path)
+        return cls(schemes)
