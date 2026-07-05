@@ -9,13 +9,12 @@ from typing import Any, ClassVar, Literal, Protocol
 import requests
 
 from sec_certs.constants import REQUEST_TIMEOUT
-from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class PPSchemeRecord(ComplexSerializableType):
+class PPSchemeRecord:
     """
     Intermediate data class representing a Protection Profile scraped from a national scheme.
     Mirrors the fields of ProtectionProfile.WebData.
@@ -34,16 +33,6 @@ class PPSchemeRecord(ComplexSerializableType):
     scheme: str | None
     maintenances: list[tuple[Any, ...]] = field(default_factory=list)
     extra: dict[str, Any] = field(default_factory=dict)
-
-    @classmethod
-    def from_dict(cls, dct: dict) -> PPSchemeRecord:
-        dct = dct.copy()
-        if isinstance(dct.get("not_valid_before"), str):
-            dct["not_valid_before"] = date.fromisoformat(dct["not_valid_before"])
-        if isinstance(dct.get("not_valid_after"), str):
-            dct["not_valid_after"] = date.fromisoformat(dct["not_valid_after"])
-        dct["maintenances"] = [tuple(m) for m in dct.get("maintenances", [])]
-        return cls(**dct)
 
     def to_enrichment_dict(self) -> dict[str, Any]:
         # Return the scheme-specific enrichment carried into ProtectionProfile.scheme_metadata.

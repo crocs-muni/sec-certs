@@ -98,29 +98,6 @@ def test_to_enrichment_dict():
     }
 
 
-def test_record_from_dict_parses_dates_and_maintenances():
-    dct = {
-        "category": "C",
-        "status": "archived",
-        "is_collaborative": True,
-        "name": "N",
-        "version": "1.0",
-        "security_level": set(),
-        "not_valid_before": "2020-01-06",
-        "not_valid_after": "2021-02-07",
-        "report_link": None,
-        "pp_link": None,
-        "scheme": "US",
-        "maintenances": [["2020-05-05", "maint", "http://x"]],
-        "extra": {"k": "v"},
-    }
-    rec = PPSchemeRecord.from_dict(dct)
-    assert rec.not_valid_before == date(2020, 1, 6)
-    assert rec.not_valid_after == date(2021, 2, 7)
-    assert rec.maintenances == [("2020-05-05", "maint", "http://x")]
-    assert rec.extra == {"k": "v"}
-
-
 def _make_pp(**overrides) -> ProtectionProfile:
     fields: dict[str, Any] = {
         "category": "C",
