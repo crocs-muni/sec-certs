@@ -184,7 +184,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         """
         Fetches list of protection profiles together with metadata from commoncriteriaportal.org
 
-        :param get_schemes: whether to also scrape and merge national scheme data
+        :param get_schemes: whether to also scrape and merge national scheme data; defaults to `to_download`.
         """
         if get_schemes is None:
             get_schemes = to_download
