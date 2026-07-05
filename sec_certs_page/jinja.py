@@ -206,6 +206,9 @@ def standard_url(standard):
             "anwendungshinweise-und-interpretationen_node.html"
         )
 
+    if re.match(r"PKCS", s, re.IGNORECASE):
+        return "https://en.wikipedia.org/wiki/PKCS"
+
     return None
 
 
