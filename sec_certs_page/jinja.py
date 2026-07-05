@@ -215,6 +215,10 @@ def standard_url(standard):
     if re.match(r"CCI?MB", s, re.IGNORECASE):
         return "https://www.commoncriteriaportal.org/cc/"
 
+    m = re.match(r"ISO(?:/IEC)?\s*(\d+)", s, re.IGNORECASE)
+    if m:
+        return f"https://www.iso.org/search.html?q={m.group(1)}"
+
     return None
 
 
