@@ -197,6 +197,15 @@ def standard_url(standard):
     if re.match(r"ICAO", s, re.IGNORECASE):
         return "https://www.icao.int/publications/doc-series"
 
+    if re.match(r"(?:BSI[- ]?)?AIS", s, re.IGNORECASE):
+        return (
+            "https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/"
+            "Standards-und-Zertifizierung/Zertifizierung-und-Anerkennung/"
+            "Zertifizierung-von-Produkten/Zertifizierung-nach-CC/"
+            "Anwendungshinweise-und-Interpretationen/"
+            "anwendungshinweise-und-interpretationen_node.html"
+        )
+
     return None
 
 
