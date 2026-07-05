@@ -9,6 +9,7 @@ from typing import Any, ClassVar, Literal, Protocol
 import requests
 
 from sec_certs.constants import REQUEST_TIMEOUT
+from sec_certs.utils.parallel_processing import process_parallel
 
 logger = logging.getLogger(__name__)
 
@@ -212,6 +213,25 @@ class NIAPScraper:
             },
         )
 
+    @staticmethod
+    def _scrape_single(raw: dict[str, Any]) -> PPSchemeRecord | None:
+        try:
+            pp_id = raw["pp_id"]
+            try:
+                files = NIAPScraper._fetch_niap_pp_files(pp_id)
+            except Exception as file_err:
+                logger.warning("Failed to fetch files for NIAP PP %s: %s", pp_id, file_err)
+                files = None
+            try:
+                detail = NIAPScraper._fetch_niap_pp_detail(pp_id)
+            except Exception as detail_err:
+                logger.warning("Failed to fetch detail for NIAP PP %s: %s", pp_id, detail_err)
+                detail = None
+            return NIAPScraper._niap_entry_to_scheme_entry(raw, files=files, detail=detail)
+        except Exception as e:
+            logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
+            return None
+
     def scrape(self) -> list[PPSchemeRecord]:
         """Fetch all public Protection Profiles from the NIAP API and return as PPSchemeRecord list."""
         try:
@@ -220,23 +240,12 @@ class NIAPScraper:
             logger.error("Failed to fetch NIAP PPs: %s", e)
             return []
 
-        entries: list[PPSchemeRecord] = []
-        for raw in raw_entries:
-            try:
-                pp_id = raw["pp_id"]
-                try:
-                    files = self._fetch_niap_pp_files(pp_id)
-                except Exception as file_err:
-                    logger.warning("Failed to fetch files for NIAP PP %s: %s", pp_id, file_err)
-                    files = None
-                try:
-                    detail = self._fetch_niap_pp_detail(pp_id)
-                except Exception as detail_err:
-                    logger.warning("Failed to fetch detail for NIAP PP %s: %s", pp_id, detail_err)
-                    detail = None
-                entries.append(self._niap_entry_to_scheme_entry(raw, files=files, detail=detail))
-            except Exception as e:
-                logger.error("Error processing NIAP PP entry %s: %s", raw.get("pp_name", "?"), e)
+        results = process_parallel(
+            self._scrape_single,
+            raw_entries,
+            progress_bar_desc="Scraping NIAP PP details",
+        )
+        entries = [r for r in results if r is not None]
 
         logger.info("Parsed %d PPSchemeRecord objects from NIAP.", len(entries))
         return entries
