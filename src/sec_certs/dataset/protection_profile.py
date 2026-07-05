@@ -179,10 +179,16 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         get_active: bool = True,
         get_archived: bool = True,
         get_collaborative: bool = True,
+        get_schemes: bool | None = None,
     ) -> None:
         """
         Fetches list of protection profiles together with metadata from commoncriteriaportal.org
+
+        :param get_schemes: whether to also scrape and merge national scheme data
         """
+        if get_schemes is None:
+            get_schemes = to_download
+
         if to_download:
             self._download_html_resources(get_active, get_archived, get_collaborative)
 
@@ -190,13 +196,13 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         self.certs = self._get_all_certs_from_html(get_active, get_archived, get_collaborative)
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
-        if to_download:
+        if get_schemes:
             try:
                 self._match_and_enrich_from_scheme(PPSchemeDataset.from_scrapers())
             except Exception as e:
                 logger.error("Scheme scrape/merge failed; dataset will have no scheme enrichment: %s", e)
         else:
-            logger.info("Skipping scheme scrape/merge (to_download=False); dataset will have no scheme enrichment.")
+            logger.info("Skipping scheme scrape/merge (get_schemes=False); dataset will have no scheme enrichment.")
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
