@@ -151,7 +151,7 @@ class NIAPScraper:
     @staticmethod
     def _niap_status_process(status: str, sunset: date | None) -> Literal["active", "archived"]:
         # The list endpoint's status is almost always Publishing while NIAP treats a PP as archived
-        if status.lower() == "archived" or (sunset is not None and sunset < date.today()):
+        if status.lower() == "archived" or (sunset is not None and sunset <= date.today()):
             return "archived"
         return "active"
 

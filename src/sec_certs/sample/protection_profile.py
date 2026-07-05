@@ -16,6 +16,7 @@ from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
+from sec_certs.sample.pp_scheme import PPSchemeRecord
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
@@ -23,7 +24,6 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
-    from sec_certs.sample.pp_scheme import PPSchemeRecord
 
 
 class ProtectionProfile(
@@ -224,7 +224,6 @@ class ProtectionProfile(
         self.pdf_data: ProtectionProfile.PdfData = pdf_data if pdf_data else ProtectionProfile.PdfData()
         self.heuristics: ProtectionProfile.Heuristics = heuristics if heuristics else ProtectionProfile.Heuristics()
         self.state: ProtectionProfile.InternalState = state if state else ProtectionProfile.InternalState()
-        # Enrichment from national schemes - always serialized (null when not there)
         self.scheme_metadata: dict[str, Any] | None = scheme_metadata
 
     @property
