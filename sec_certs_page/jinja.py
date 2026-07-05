@@ -222,6 +222,37 @@ def standard_url(standard):
     return None
 
 
+@app.template_global("curve_url")
+def curve_url(curve):
+    # return URL of a named elliptic curve in the Standard Curve Database or none
+    c = re.sub(r"^(?:NIST|ANSSI|Curve)\s+", "", curve.strip(), flags=re.IGNORECASE)
+    base = "https://neuromancer.sk/std"
+
+    if re.fullmatch(r"P-\d+", c, re.IGNORECASE):
+        return f"{base}/nist/{c.upper()}"
+
+    m = re.fullmatch(r"([BK])-(\d+)", c, re.IGNORECASE)
+    if m:
+        return f"{base}/nist/{m.group(1).upper()}-{m.group(2)}"
+
+    if re.fullmatch(r"sec[pt]\d+[rk]\d", c, re.IGNORECASE):
+        return f"{base}/secg/{c}"
+
+    if re.fullmatch(r"brainpoolP\d+[rt]\d", c, re.IGNORECASE):
+        return f"{base}/brainpool/{c}"
+
+    if re.fullmatch(r"prime\d+v\d|c2[a-z]+\d+[vw]\d", c, re.IGNORECASE):
+        return f"{base}/x962/{c}"
+
+    if re.fullmatch(r"FRP\d+v\d", c, re.IGNORECASE):
+        return f"{base}/anssi/{c}"
+
+    if re.fullmatch(r"Curve25519|Curve448|Ed25519|Ed448", c, re.IGNORECASE):
+        return f"{base}/other/{c}"
+
+    return None
+
+
 @app.template_global("is_github_oauth_enabled")
 def is_github_oauth_enabled():
     """Check if GitHub OAuth is enabled"""

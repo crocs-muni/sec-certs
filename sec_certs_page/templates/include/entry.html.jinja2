@@ -311,7 +311,9 @@
 
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, map_funcs) }}
+    {% set _map = {"ecc_curve": render_curves} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, _map) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
@@ -479,6 +481,14 @@
         <a href="{{ standard_url(standard) }}" target="_blank" rel="noopener">{{ standard }}</a>
     {%- else -%}
         {{ standard }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_curves(curve) %}
+    {%- if curve_url(curve) -%}
+        <a href="{{ curve_url(curve) }}" target="_blank" rel="noopener">{{ curve }}</a>
+    {%- else -%}
+        {{ curve }}
     {%- endif -%}
 {%- endmacro %}
 
