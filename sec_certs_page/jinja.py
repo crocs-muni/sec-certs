@@ -212,6 +212,9 @@ def standard_url(standard):
     if re.match(r"SCP", s, re.IGNORECASE):
         return "https://globalplatform.org/specs-library/"
 
+    if re.match(r"CCI?MB", s, re.IGNORECASE):
+        return "https://www.commoncriteriaportal.org/cc/"
+
     return None
 
 
