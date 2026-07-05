@@ -209,6 +209,9 @@ def standard_url(standard):
     if re.match(r"PKCS", s, re.IGNORECASE):
         return "https://en.wikipedia.org/wiki/PKCS"
 
+    if re.match(r"SCP", s, re.IGNORECASE):
+        return "https://globalplatform.org/specs-library/"
+
     return None
 
 
