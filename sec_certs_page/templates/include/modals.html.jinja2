@@ -56,7 +56,6 @@
             add_current_cert,
             update_state,
             compare_do,
-            chat_files,
             chat
         } from "{{ url_for('static', filename='modal.js') }}?{{ static_hash("modal.js") }}";
 
@@ -72,32 +71,19 @@
                     switch ($("#chat-about").val()) {
                         case "full-both":
                             $("#chat-info").text("The context includes both the certification report and the security target.");
-                            $("#chat-files").addClass("d-none");
                             break;
                         case "full-report":
                             $("#chat-info").text("The context includes only the certification report.");
-                            $("#chat-files").addClass("d-none");
                             break;
                         case "full-target":
                             $("#chat-info").text("The context includes only the security target.");
-                            $("#chat-files").addClass("d-none");
-                            break;
-                        case "rag-this":
-                            $("#chat-info").text("The certificate's content is used as context for Retrieval-Augmented Generation (RAG).");
-                            $("#chat-files").removeClass("d-none");
                             break;
                     }
                 })
-                $("#chat-modal").on("show.bs.modal", async function () {
-                    let token = "{{ csrf_token() }}";
-                    let files_url = "{{ url_for("chat.files") }}"
-                    chat_files(files_url, token, window.certificate_data);
-                });
                 $("#chat-send").click(function () {
-                    let rag_url = "{{ url_for("chat.query_rag") }}";
                     let full_url = "{{ url_for("chat.query_full") }}";
                     let token = "{{ csrf_token() }}";
-                    chat(rag_url, full_url, token, chat_history, window.certificate_data);
+                    chat(full_url, token, chat_history, window.certificate_data);
                 });
                 $("#chat-reset").click(function () {
                     chat_history = [];
@@ -176,7 +162,6 @@
                                             <option value="full-both" selected>Full context (both)</option>
                                             <option value="full-report">Full context (report)</option>
                                             <option value="full-target">Full context (target)</option>
-                                            <option value="rag-this">(RAG) This certificate</option>
                                         </select>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
@@ -190,8 +175,7 @@
                                     </div>
                                 </div>
                                 <i class="fas fa-info-circle text-muted"></i> <span id="chat-info"
-                                                                                    class="text-muted"></span> <span
-                                    id="chat-files" class="text-muted d-none"></span>
+                                                                                    class="text-muted"></span>
                             </div>
                             <div id="chat-window" class="position-relative">
                                 <span class="position-absolute btn btn-secondary opacity-50" style="right: 0em; top: 0em;" id="chat-reset" title="Reset chat"><i

@@ -141,7 +141,7 @@ export function compare_do(cc_url, fips_url, eucc_url) {
     window.location.href = url;
 }
 
-export function chat(rag_url, full_url, token, chat_history, certificate_data) {
+export function chat(full_url, token, chat_history, certificate_data) {
     let message = $("#chat-input").val().trim();
     if (message) {
         // Append the message to the chat history and display it
@@ -156,14 +156,6 @@ export function chat(rag_url, full_url, token, chat_history, certificate_data) {
         let about = $("#chat-about").val();
         let url;
         switch (about) {
-            case "rag-this":
-                url = rag_url;
-                data.about = "entry";
-                break;
-            case "rag-both":
-                url = rag_url;
-                data.about = "both";
-                break;
             case "full-report":
                 url = full_url;
                 data.context = "report";
@@ -233,42 +225,4 @@ export function chat(rag_url, full_url, token, chat_history, certificate_data) {
             }
         );
     }
-}
-
-export function chat_files(files_url, token, certificate_data) {
-    let hashid = certificate_data?.hashid;
-    let collection = certificate_data?.type;
-    if ($("#chat-files").data("done") || !hashid || !collection) {
-        // If files have already been loaded or no hashid/collection, do nothing
-        return;
-    }
-    $.ajax({
-        url: files_url,
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({
-            collection: collection,
-            hashid: hashid
-        }),
-        headers: {
-            "X-CSRFToken": token
-        },
-        success: function (data) {
-            if (data.files && data.files.length > 0) {
-                $("#chat-files").html(
-                    `Files available: <span class="badge bg-secondary">${data.files.join(", ")}</span>.`
-                );
-            } else {
-                $("#chat-files").text("No files available for RAG. This wil not work!");
-            }
-            $("#chat-files").data("done", true);
-        },
-        error: function (xhr) {
-            let error_message = "An error occurred while fetching files.";
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                error_message = xhr.responseJSON.message;
-            }
-            $("#chat-files").text(error_message).addClass("text-danger");
-        }
-    })
 }

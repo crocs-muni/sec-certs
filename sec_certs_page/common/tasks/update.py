@@ -326,7 +326,7 @@ class Updater:  # pragma: no cover
 
             self.notify(update_result.inserted_id)
             self.reindex(to_reindex)
-            self.update_kb(to_update_kb)
+            # self.update_kb(to_update_kb)
             self.archive(all_ids, {name: str(path) for name, path in paths.items()})
         except Exception as e:
             logger.info("Run errored.")

@@ -27,8 +27,8 @@ def chat_api(func):
     return wrapper
 
 
-@chat.route("/files/", methods=["POST"])
-@chat_api
+# @chat.route("/files/", methods=["POST"])
+# @chat_api
 def files():
     """Query which files are available for a given hashid."""
     data = request.get_json()
@@ -50,9 +50,9 @@ def files():
     return {"status": "ok", "files": resp}
 
 
-@chat.route("/rag/", methods=["POST"])
-@chat_api
-@accounting("daily", 100, json=True)
+# @chat.route("/rag/", methods=["POST"])
+# @chat_api
+# @accounting("daily", 100, json=True)
 def query_rag():
     """Chat with the model."""
     data = request.get_json()
