@@ -63,17 +63,6 @@
     right: 0.7rem;
 }
 
-#chat {
-    font-size: small !important;
-    position: fixed;
-    bottom: 0.7rem;
-    right: 3.7rem;
-}
-
-#chat-icon {
-    padding: 0.175rem 0.5rem;
-}
-
 #chat-modal .modal-lg,
 #chat-modal .modal-xl {
     height: 90vh;

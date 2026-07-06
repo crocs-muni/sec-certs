@@ -1,10 +1,10 @@
 {% macro compare_icon() %}
     <span id="compare" class="position-relative d-inline-block">
-        <button id="compare-icon" class="btn btn-secondary text-nowrap" title="Compare certificates"
+        <button id="compare-icon" class="btn btn-primary text-nowrap" title="Compare certificates"
                 data-bs-toggle="modal" data-bs-target="#compare-modal">
             <i class="fas fa-fw fa-scale-balanced" aria-hidden="true"></i>
             <span id="compare-pill"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 &nbsp;
                     <span class="visually-hidden">selected certificates for comparison</span>
             </span>
@@ -68,7 +68,11 @@
                     chatModal.show();
                 }
                 function chatToggleSend() {
-                    $("#chat-send").prop("disabled", $("#chat-input").val().trim() === "");
+                    let input = $("#chat-input");
+                    if (!input.length) {
+                        return;
+                    }
+                    $("#chat-send").prop("disabled", input.val().trim() === "");
                 }
                 function chatResize(el) {
                     el.style.height = "auto";
@@ -146,12 +150,11 @@
 {% endmacro %}
 
 {% macro chat_icon() %}
-    <div id="chat">
-        <button id="chat-icon" class="btn btn-primary text-nowrap z-3" title="Chat"
-                data-bs-toggle="modal" data-bs-target="#chat-modal">
-            <i class="fas fa-fw fa-message" aria-hidden="true"></i>
-        </button>
-    </div>
+    <button id="chat-icon" class="btn btn-primary text-nowrap" title="Ask AI about this certificate"
+            data-bs-toggle="modal" data-bs-target="#chat-modal">
+        <i class="fas fa-fw fa-message" aria-hidden="true"></i>
+        Ask AI
+    </button>
 {% endmacro %}
 {% macro chat_modal() %}
     <div class="modal fade" id="chat-modal" tabindex="-1" aria-labelledby="chat-modal-label"
