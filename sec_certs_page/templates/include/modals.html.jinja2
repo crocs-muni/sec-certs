@@ -67,19 +67,42 @@
                     let chatModal = new bootstrap.Modal(document.getElementById("chat-modal"));
                     chatModal.show();
                 }
-                $("#chat-about").change(function () {
-                    switch ($("#chat-about").val()) {
-                        case "full-both":
-                            $("#chat-info").text("The context includes both the certification report and the security target.");
-                            break;
-                        case "full-report":
-                            $("#chat-info").text("The context includes only the certification report.");
-                            break;
-                        case "full-target":
-                            $("#chat-info").text("The context includes only the security target.");
-                            break;
+                function chatToggleSend() {
+                    $("#chat-send").prop("disabled", $("#chat-input").val().trim() === "");
+                }
+                function chatResize(el) {
+                    el.style.height = "auto";
+                    el.style.height = Math.min(el.scrollHeight, 160) + "px";
+                    el.style.overflowY = el.scrollHeight > 160 ? "auto" : "hidden";
+                }
+                $("#chat-input").on("input", function () {
+                    chatResize(this);
+                    chatToggleSend();
+                });
+                $("#chat-modal").on("shown.bs.modal", function () {
+                    let el = document.getElementById("chat-input");
+                    if (el) {
+                        chatResize(el);
+                        el.focus();
                     }
-                })
+                });
+                $(document).on("click", ".chat-sug", function () {
+                    $("#chat-input").val($(this).text()).trigger("input").focus();
+                });
+                $(document).on("click", ".chat-about-item", function () {
+                    $("#chat-about").val($(this).data("value"));
+                    $("#chat-about-label").text($(this).data("label"));
+                    $(".chat-about-item").removeClass("active");
+                    $(this).addClass("active");
+                    bootstrap.Dropdown.getOrCreateInstance(document.getElementById("chat-about-btn")).hide();
+                });
+                $(document).on("click", ".chat-model-item", function () {
+                    $("#chat-model").val($(this).data("value"));
+                    $("#chat-model-label").text($(this).data("value"));
+                    $(".chat-model-item").removeClass("active");
+                    $(this).addClass("active");
+                    bootstrap.Dropdown.getOrCreateInstance(document.getElementById("chat-model-btn")).hide();
+                });
                 $("#chat-send").click(function () {
                     let full_url = "{{ url_for("chat.query_full") }}";
                     let token = "{{ csrf_token() }}";
@@ -88,14 +111,14 @@
                 $("#chat-reset").click(function () {
                     chat_history = [];
                     $("#chat-messages").empty();
+                    $("#chat-empty").removeClass("d-none");
                     $("#chat-error").hide();
+                    $("#chat-input").val("").trigger("input");
                 });
                 $("#chat-input").keypress(function (event) {
                     if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
                         event.preventDefault();
-                        if ($("#chat-send").prop("disabled")) {
-                            return;
-                        } else {
+                        if (!$("#chat-send").prop("disabled")) {
                             $("#chat-send").click();
                         }
                     }
@@ -103,7 +126,7 @@
                 $("#chat-fullscreen-btn").click(function () {
                     $("#chat-modal .modal-dialog").toggleClass("modal-xl").toggleClass("modal-fullscreen");
                 });
-                $("#chat-about").change();
+                chatToggleSend();
             {% endif %}
             $("#compare-modal").on("show.bs.modal", function () {
                 update_state();
@@ -137,7 +160,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chat-modal-label">Chat</h5>
-                    <div class="ms-auto d-flex align-items-center">
+                    <div class="ms-auto d-flex align-items-center gap-1">
+                        {% if current_user.is_authenticated %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="chat-reset"
+                                    title="Start a new chat">
+                                <i class="fas fa-pen-to-square me-1"></i>New
+                            </button>
+                        {% endif %}
                         <button type="button" class="btn bg-body text-secondary" id="chat-fullscreen-btn"
                                 title="Toggle fullscreen">
                             <i class="fas fa-expand"></i>
@@ -153,60 +182,84 @@
                             Chat is available to authorized users only. Please log in to use this feature.
                         </div>
                     {% else %}
+                        {% set placeholders = ["Describe this certificate.",
+                                           "What is the certificate ID of this certificate?",
+                                           "What other certified products are referenced by this certificate?",
+                                           "Which evaluation facility performed the evaluation of this certificate?",
+                                           "When was this product certified?"] %}
                         <div id="chat-skeleton">
-                            <div class="mb-3">
-                                <div class="mb-1 d-flex align-items-center gap-2 justify-content-between">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <label for="chat-about" class="form-label mb-0">Chat context</label>
-                                        <select id="chat-about" class="form-select w-auto">
-                                            <option value="full-both" selected>Full context (both)</option>
-                                            <option value="full-report">Full context (report)</option>
-                                            <option value="full-target">Full context (target)</option>
-                                        </select>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <label for="chat-model" class="form-label mb-0">Model</label>
-                                        <select id="chat-model" class="form-select w-auto">
-                                            {% for model in config["WEBUI_MODELS"] %}
-                                                <option value="{{ model }}"
-                                                        {% if model == config["WEBUI_DEFAULT_MODEL"] %}selected{% endif %}>{{ model }}</option>
-                                            {% endfor %}
-                                        </select>
+                            <div id="chat-window">
+                                <div id="chat-empty" class="chat-empty">
+                                    <span class="chat-empty-glyph"><i class="fas fa-message"></i></span>
+                                    <h2 class="chat-empty-title">Ask about this certificate</h2>
+                                    <p class="small text-secondary mb-0">Answers come from the certification report and
+                                        security target only. Try one of these:</p>
+                                    <div class="chat-sugs">
+                                        {% for placeholder in placeholders %}
+                                            <button type="button" class="chat-sug small">{{ placeholder }}</button>
+                                        {% endfor %}
                                     </div>
                                 </div>
-                                <i class="fas fa-info-circle text-muted"></i> <span id="chat-info"
-                                                                                    class="text-muted"></span>
+                                <div id="chat-messages"></div>
                             </div>
-                            <div id="chat-window" class="position-relative">
-                                <span class="position-absolute btn btn-secondary opacity-50" style="right: 0em; top: 0em;" id="chat-reset" title="Reset chat"><i
-                                    class="fas fa-arrows-rotate"></i></span>
-                                <div id="chat-messages" class="pt-3">
-                                    <!-- Messages will appear here -->
+                            <div class="chat-composer">
+                                <textarea id="chat-input" class="chat-textarea" rows="1"
+                                          placeholder="Ask about this certificate…"></textarea>
+                                <div class="chat-composer-tools">
+                                    <div class="chat-tool-opts">
+                                        <span class="small fw-semibold text-secondary text-nowrap">Chat context:</span>
+                                        <div class="dropdown dropup">
+                                            <button class="form-select text-start w-auto chat-tool-select"
+                                                    type="button" id="chat-about-btn" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" aria-label="Chat context">
+                                                <span id="chat-about-label">All documents</span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="chat-about-btn">
+                                                <li><button type="button" class="dropdown-item chat-about-item active"
+                                                            data-value="full-both" data-label="All documents">
+                                                    All documents
+                                                    <span class="chat-item-desc">Certification report + security target</span></button></li>
+                                                <li><button type="button" class="dropdown-item chat-about-item"
+                                                            data-value="full-report" data-label="Certification report">
+                                                    Certification report
+                                                    <span class="chat-item-desc">Certification report</span></button></li>
+                                                <li><button type="button" class="dropdown-item chat-about-item"
+                                                            data-value="full-target" data-label="Security target">
+                                                    Security target
+                                                    <span class="chat-item-desc">Security target</span></button></li>
+                                            </ul>
+                                        </div>
+                                        <input type="hidden" id="chat-about" value="full-both">
+                                        <span class="small fw-semibold text-secondary text-nowrap">Model:</span>
+                                        <div class="dropdown dropup">
+                                            <button class="form-select text-start w-auto chat-tool-select"
+                                                    type="button" id="chat-model-btn" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" aria-label="Model">
+                                                <span id="chat-model-label">{{ config["WEBUI_DEFAULT_MODEL"] }}</span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="chat-model-btn">
+                                                {% for model in config["WEBUI_MODELS"] %}
+                                                    <li><button type="button"
+                                                                class="dropdown-item chat-model-item{% if model == config['WEBUI_DEFAULT_MODEL'] %} active{% endif %}"
+                                                                data-value="{{ model }}">{{ model }}</button></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <input type="hidden" id="chat-model" value="{{ config['WEBUI_DEFAULT_MODEL'] }}">
+                                    </div>
+                                    <button id="chat-send" class="chat-send" type="button" disabled aria-label="Send">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="chat-input-group input-group">
-                            <textarea id="chat-input" class="form-control" rows="2"
-                                      placeholder="Type your message..."></textarea>
-                                <button id="chat-send" class="btn btn-primary px-3" type="button">Send</button>
-
+                            <div class="d-flex justify-content-end mt-2">
+                                <span class="small text-secondary">Chat uses AI. Check for mistakes. Powered
+                                    by <a href="https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai" target="_blank"
+                                          rel="noopener">e-Infra</a>.</span>
                             </div>
-                            {% set placeholders = ["Describe this certificate.",
-                                               "What is the certificate ID of this certificate?",
-                                               "What other certified products are referenced by this certificate?",
-                                               "Which evaluation facility performed the evaluation of this certificate?",
-                                               "When was this product certified?"] %}
-                            <span class="text-muted mt-2">
-                                <i class="fas fa-question-circle"></i> For example, try:<br/><span
-                                    class="border rounded"
-                                    onclick="window.getSelection().selectAllChildren(this)">{{ placeholders|random }}</span>
-                        </span>
                         </div>
                     {% endif %}
                     <!-- Chat skeleton end -->
-                </div>
-                <div class="modal-footer">
-                    <span class="text-muted small mt-0 mb-0">Chat uses AI. Check for mistakes. Powered by <a
-                            href="https://docs.cerit.io/en/docs/ai-as-a-service/chat-ai" target="_blank" rel="noopener">e-Infra</a>.</span>
                 </div>
             </div>
         </div>

@@ -141,6 +141,13 @@ export function compare_do(cc_url, fips_url, eucc_url) {
     window.location.href = url;
 }
 
+function scrollChatToBottom() {
+    let win = document.getElementById("chat-window");
+    if (win) {
+        win.scrollTop = win.scrollHeight;
+    }
+}
+
 export function chat(full_url, token, chat_history, certificate_data) {
     let message = $("#chat-input").val().trim();
     if (message) {
@@ -181,12 +188,21 @@ export function chat(full_url, token, chat_history, certificate_data) {
             data.hashid = hashid;
             data.collection = collection;
         }
-        $("#chat-messages").append(`<div class="chat-message-user">${message}</div>`);
-        $("#chat-input").val(""); // Clear input after sending
-        // Disable the send button to prevent multiple clicks
+        // Hide the empty state and render the user's turn
+        $("#chat-empty").addClass("d-none");
+        let userTurn = $('<div class="chat-turn user"><div class="chat-bubble"></div></div>');
+        userTurn.find(".chat-bubble").text(message);
+        $("#chat-messages").append(userTurn);
+        $("#chat-input").val("").trigger("input"); // Clear input (also resets autogrow + send state)
         $("#chat-send").prop("disabled", true);
-        // Show the loading indicator
-        $("#chat-messages").append(`<div class="chat-message-loading"><i class="fas fa-spinner fa-spin"></i></div>`);
+        // Show the typing indicator
+        let loading = $(
+            '<div class="chat-turn assistant chat-loading">' +
+            '<span class="chat-avatar"><i class="fas fa-wand-magic-sparkles"></i></span>' +
+            '<div class="chat-turn-body"><span class="chat-dots"><i></i><i></i><i></i></span></div></div>'
+        );
+        $("#chat-messages").append(loading);
+        scrollChatToBottom();
         // Send the chat history to the server
         $.ajax(url, {
                 method: "POST",
@@ -196,31 +212,39 @@ export function chat(full_url, token, chat_history, certificate_data) {
                     "X-CSRFToken": token
                 },
                 success: function (response) {
-                    // Remove the loading indicator
-                    $("#chat-messages .chat-message-loading").remove();
-                    // Enable the send button again
-                    $("#chat-send").prop("disabled", false);
-                    // Append the response from the server
-                    $("#chat-messages").append(`<div class="chat-message-assistant">${response.response}</div>`);
+                    $("#chat-messages .chat-loading").remove();
+                    let botTurn = $(
+                        '<div class="chat-turn assistant">' +
+                        '<span class="chat-avatar"><i class="fas fa-wand-magic-sparkles"></i></span>' +
+                        '<div class="chat-turn-body"><div class="chat-md"></div></div></div>'
+                    );
+                    botTurn.find(".chat-md").html(response.response);
+                    $("#chat-messages").append(botTurn);
                     chat_history.push({
                         role: "assistant",
                         content: response.raw
                     });
-                    // Hide any previous error messages
                     $("#chat-error").hide();
+                    // Re-enable send based on the current input state
+                    $("#chat-send").prop("disabled", $("#chat-input").val().trim() === "");
+                    scrollChatToBottom();
                 },
                 error: function (xhr) {
-                    // Remove the loading indicator
-                    $("#chat-messages .chat-message-loading").remove();
-                    // Enable the send button again
-                    $("#chat-send").prop("disabled", false);
-                    // Handle error, parse the response as JSON
+                    $("#chat-messages .chat-loading").remove();
                     let error_message = "An error occurred while sending your message.";
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         error_message = xhr.responseJSON.message;
                     }
-                    // Display the error message
-                    $("#chat-error").text(error_message).show();
+                    let noticeTurn = $(
+                        '<div class="chat-turn assistant chat-notice-turn">' +
+                        '<span class="chat-avatar"><i class="fas fa-triangle-exclamation"></i></span>' +
+                        '<div class="chat-turn-body"><div class="chat-md"></div></div></div>'
+                    );
+                    noticeTurn.find(".chat-md").text(error_message);
+                    $("#chat-messages").append(noticeTurn);
+                    $("#chat-error").hide();
+                    $("#chat-send").prop("disabled", $("#chat-input").val().trim() === "");
+                    scrollChatToBottom();
                 }
             }
         );

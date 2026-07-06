@@ -116,7 +116,13 @@ def chat_full(queries, model: str, collection: str, hashid: str, document: str =
             with fpath.open() as file:
                 doc_map[doc] = file.read()
     if not doc_map:
-        raise ValueError("No documents found.")
+        doc_names = {"report": "certification report", "target": "security target"}
+        if document == "both":
+            raise ValueError("No documents are available for this certificate, so there's nothing to chat about.")
+        raise ValueError(
+            f"The {doc_names.get(document, 'document')} isn't available for this certificate, so this "
+            "context can't be used. Pick a different context."
+        )
     cert = mongo.db[collection].find_one({"_id": hashid})
     system_addition = render_template_string(
         current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT_FULL"), cert_name=cert_name(cert), **doc_map
