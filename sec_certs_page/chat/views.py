@@ -164,7 +164,7 @@ def query_full():
             return {"status": "error", "message": "Invalid role in query."}, 400
         query.append({"role": message["role"], "content": message["content"]})
     collection = data["collection"]
-    if collection not in ("cc", "fips", "pp"):
+    if collection not in ("cc", "eucc", "fips", "pp"):
         return {"status": "error", "message": "Invalid collection specified."}, 400
     model = data["model"]
     if model not in current_app.config["WEBUI_MODELS"]:

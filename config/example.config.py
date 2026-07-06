@@ -70,6 +70,7 @@ WEBUI_PROMPT_PP_ALL = "You are answering questions about Common Criteria Protect
 WEBUI_PROMPT_PP_CERT = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'."
 WEBUI_PROMPT_PP_CERT_FULL = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'.\n {% if report %}Here is the certification report of the certificate: <document>{{ report }}</document>{% endif %}\n {% if target %}Here is the security target of the certificate: <document>{{ target }}</document>{% endif %}"
 WEBUI_PROMPT_PP_BOTH = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'. In your context, you have relevant information extracted from Protection Profiles and their certification reports."
+WEBUI_PROMPT_EUCC_CERT_FULL = "You are answering questions about an EUCC certificate '{{ cert_name }}'.\n {% if report %}Here is the certification report of the certificate: <document>{{ report }}</document>{% endif %}\n {% if target %}Here is the security target of the certificate: <document>{{ target }}</document>{% endif %}"
 WEBUI_COLLECTION_CC_REPORTS = ""  # The ID of the knowledge base of Common Criteria certification reports
 WEBUI_COLLECTION_CC_TARGETS = ""  # The ID of the knowledge base of Common Criteria security targets
 WEBUI_COLLECTION_FIPS_TARGETS = ""  # The ID of the knowledge base of FIPS 140 security policies
