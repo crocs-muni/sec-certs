@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import re
-
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.pp_scheme import PPSchemeRecord
 from sec_certs.sample.protection_profile import ProtectionProfile
-
-_EAL_RE = re.compile(r"^EAL\d")
 
 
 class PPSchemeMatcher(AbstractMatcher["ProtectionProfile"]):
@@ -36,8 +32,4 @@ class PPSchemeMatcher(AbstractMatcher["ProtectionProfile"]):
             if entry.not_valid_before.day == cert.web_data.not_valid_before.day:
                 date_score += 34.0
 
-        entry_eals = {x for x in entry.security_level if _EAL_RE.match(x)}
-        cert_eals = {x for x in (cert.web_data.security_level or set()) if _EAL_RE.match(x)}
-        eal_score = (100.0 if entry_eals == cert_eals else 0.0) if entry_eals and cert_eals else 0.0
-
-        return (6 * name_score + 2 * date_score + 2 * eal_score) / 10
+        return (6 * name_score + 2 * date_score) / 10
