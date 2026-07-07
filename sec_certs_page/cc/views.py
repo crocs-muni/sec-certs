@@ -43,7 +43,7 @@ from .tasks import CCRenderer
 @cc.app_template_global("get_cc_sar")
 def get_cc_sar(sar):
     """Get the long name for a SAR."""
-    return cc_sars.get(sar, None)
+    return cc_sars.get(sar) or cc_sars.get(sar.replace("．", "."))
 
 
 @cc.route("/sars.json")
@@ -57,7 +57,7 @@ def sars():
 @cc.app_template_global("get_cc_sfr")
 def get_cc_sfr(sfr):
     """Get the long name for a SFR."""
-    return cc_sfrs.get(sfr, None)
+    return cc_sfrs.get(sfr) or cc_sfrs.get(sfr.replace("．", "."))
 
 
 @cc.route("/sfrs.json")
@@ -66,6 +66,38 @@ def get_cc_sfr(sfr):
 def sfrs():
     """Endpoint with CC SFR JSON."""
     return send_json_attachment(cc_sfrs)
+
+
+CC_CLASSES = {
+    "ACE": "PP Module conformance",
+    "ACM": "Configuration management",
+    "ACO": "Composition",
+    "ADO": "Delivery and operation",
+    "ADV": "Development",
+    "AGD": "Guidance documents",
+    "ALC": "Life-cycle support",
+    "APE": "Protection Profile evaluation",
+    "ASE": "Security Target evaluation",
+    "ATE": "Tests",
+    "AVA": "Vulnerability assessment",
+    "FAU": "Security audit",
+    "FCO": "Communication",
+    "FCS": "Cryptographic support",
+    "FDP": "User data protection",
+    "FIA": "Identification and authentication",
+    "FMT": "Security management",
+    "FPR": "Privacy",
+    "FPT": "Protection of the TSF",
+    "FRU": "Resource utilisation",
+    "FTA": "TOE access",
+    "FTP": "Trusted path/channels",
+}
+
+
+@cc.app_template_global("cc_class_name")
+def cc_class_name(code):
+    """Get the long name of the CC class a SAR/SFR code belongs to."""
+    return CC_CLASSES.get(code[:3])
 
 
 @cc.app_template_global("get_cc_category")
@@ -371,8 +403,9 @@ def entry(hashid):
             exact = list(mongo.db.cc.find({"$or": exact_queries}, similar_projection)) if exact_queries else []
             doc_hash_queries = []
             for doctype in ("cert", "report", "st"):
-                if doc["state"][doctype]["source_hash"]:
-                    doc_hash_queries.append({f"state.{doctype}.source_hash": doc["state"][doctype]["source_hash"]})
+                source_hash = doc["state"].get(doctype, {}).get("source_hash")
+                if source_hash:
+                    doc_hash_queries.append({f"state.{doctype}.source_hash": source_hash})
             doc_hash_match = (
                 list(mongo.db.cc.find({"$or": doc_hash_queries}, similar_projection)) if doc_hash_queries else []
             )
@@ -403,9 +436,8 @@ def entry(hashid):
                 if (cert_id := doc["heuristics"]["cert_id"]) and other["heuristics"]["cert_id"] == cert_id:
                     score += 1
                 for doctype in ("cert", "report", "st"):
-                    if (pdf_hash := doc["state"][doctype]["source_hash"]) and other["state"][doctype][
-                        "source_hash"
-                    ] == pdf_hash:
+                    pdf_hash = doc["state"].get(doctype, {}).get("source_hash")
+                    if pdf_hash and other["state"].get(doctype, {}).get("source_hash") == pdf_hash:
                         score += 1
                 if score >= 2:
                     same.append(other)

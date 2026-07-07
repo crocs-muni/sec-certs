@@ -317,7 +317,9 @@
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, map_funcs) }}
+    {% set _map = {"javacard_packages": render_packages} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, _map) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
@@ -462,7 +464,8 @@
 
 {% macro render_sfrs(sfr) %}
     {%- if get_cc_sfr(sfr) -%}
-        <abbr title="{{ get_cc_sfr(sfr) }}">{{ sfr }}</abbr>
+        <a href="https://www.commoncriteriaportal.org/cc/" target="_blank" rel="noopener"
+           title="{% if cc_class_name(sfr) %}{{ cc_class_name(sfr) }} — {% endif %}{{ get_cc_sfr(sfr) }}">{{ sfr }}</a>
     {%- else -%}
         {{ sfr }}
     {%- endif -%}
@@ -470,7 +473,8 @@
 
 {% macro render_sars(sar) %}
     {%- if get_cc_sar(sar) -%}
-        <abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
+        <a href="https://www.commoncriteriaportal.org/cc/" target="_blank" rel="noopener"
+           title="{% if cc_class_name(sar) %}{{ cc_class_name(sar) }} — {% endif %}{{ get_cc_sar(sar) }}">{{ sar }}</a>
     {%- else -%}
         {{ sar }}
     {%- endif -%}
@@ -489,6 +493,14 @@
         <a href="{{ curve_url(curve) }}" target="_blank" rel="noopener">{{ curve }}</a>
     {%- else -%}
         {{ curve }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_packages(package) %}
+    {%- if package_url(package) -%}
+        <a href="{{ package_url(package) }}" target="_blank" rel="noopener">{{ package }}</a>
+    {%- else -%}
+        {{ package }}
     {%- endif -%}
 {%- endmacro %}
 
