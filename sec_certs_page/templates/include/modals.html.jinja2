@@ -267,17 +267,17 @@
                                             <button class="form-select text-start w-auto chat-tool-select"
                                                     type="button" id="chat-model-btn" data-bs-toggle="dropdown"
                                                     aria-expanded="false" aria-label="Model">
-                                                <span id="chat-model-label">{{ config["WEBUI_DEFAULT_MODEL"] }}</span>
+                                                <span id="chat-model-label">{{ config["LLM_DEFAULT_MODEL"] }}</span>
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="chat-model-btn">
-                                                {% for model in config["WEBUI_MODELS"] %}
+                                                {% for model in config["LLM_MODELS"] %}
                                                     <li><button type="button"
-                                                                class="dropdown-item chat-model-item{% if model == config['WEBUI_DEFAULT_MODEL'] %} active{% endif %}"
+                                                                class="dropdown-item chat-model-item{% if model == config['LLM_DEFAULT_MODEL'] %} active{% endif %}"
                                                                 data-value="{{ model }}">{{ model }}</button></li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
-                                        <input type="hidden" id="chat-model" value="{{ config['WEBUI_DEFAULT_MODEL'] }}">
+                                        <input type="hidden" id="chat-model" value="{{ config['LLM_DEFAULT_MODEL'] }}">
                                     </div>
                                     <button id="chat-send" class="chat-send" type="button" disabled aria-label="Send">
                                         <i class="fas fa-arrow-up"></i>

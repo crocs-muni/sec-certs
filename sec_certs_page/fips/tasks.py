@@ -23,7 +23,6 @@ from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
-from ..common.tasks.webui import KBUpdater
 from .index import fips_index
 
 logger = get_logger(__name__)
@@ -134,16 +133,6 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
-class FIPSKBUpdater(KBUpdater, FIPSMixin):  # pragma: no cover
-    pass
-
-
-@actor("fips_update_kb", "fips_update_kb", "updates", timedelta(hours=12))
-def update_kb(to_update):  # pragma: no cover
-    updater = FIPSKBUpdater()
-    updater.update(to_update)
-
-
 class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
     """
     FIPS Dataset
@@ -199,11 +188,8 @@ def archive_all():  # pragma: no cover
 
 
 class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
-    def process(
-        self, dset: FIPSDataset, paths: dict[str, Path]
-    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
-        to_reindex = set()
-        to_update_kb: set[tuple[str, str, str | None]] = set()
+    def process(self, dset: FIPSDataset, paths: dict[str, Path]) -> set[str]:
+        to_reindex: set[str] = set()
 
         with sentry_sdk.start_span(op="fips.all", name="Get full FIPS dataset"):
             if not self.skip_update or not paths["output_path"].exists():
@@ -246,7 +232,7 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.policy.txt_hash:
                             cert.state.policy.txt_path.replace(dst)
                             to_reindex.add(cert.dgst)
-        return to_reindex, to_update_kb
+        return to_reindex
 
     def dataset_state(self, dset):
         return dset.state.to_dict()
@@ -256,9 +242,6 @@ class FIPSUpdater(Updater, FIPSMixin):  # pragma: no cover
 
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
-
-    def update_kb(self, to_update):
-        update_kb.send(list(to_update))
 
     def archive(self, ids, paths):
         archive.send(ids, paths)

@@ -8,7 +8,6 @@ from . import pp
 from .mongo import create as create_collection
 from .mongo import drop as drop_collection
 from .mongo import query as query_collection
-from .tasks import update_kb as update_kb_core
 
 
 @pp.cli.command("create", help="Create the DB of protection profiles.")
@@ -33,11 +32,3 @@ def query(query, projection):  # pragma: no cover
 @pp.cli.command("status", help="Print status information for the MongoDB collection.")
 def status():  # pragma: no cover
     collection_status(mongo.db.pp)
-
-
-@pp.cli.command("update-kb", help="Update the KB of PP certs.")
-def update_kb():
-    ids = [doc["_id"] for doc in mongo.db.pp.find({}, {"_id": 1})]
-    reports = [(dgst, "report", None) for dgst in ids]
-    targets = [(dgst, "target", None) for dgst in ids]
-    update_kb_core(reports + targets)

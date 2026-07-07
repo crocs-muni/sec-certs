@@ -33,20 +33,20 @@ MAIL_PASSWORD = ""  # The password to use for auth
 MAIL_DEFAULT_SENDER = "seccerts@example.com"  # The sender address
 # MAIL_SUPPRESS_SEND = True                     # Whether to suppress all sending (for testing)
 
-# WebUI
-CHAT_ENABLED = False  # Whether to enable the WebUI chat feature
-WEBUI_URL = ""  # The URL of the WebUI API
-WEBUI_KEY = ""  # Your WebUI API key
-WEBUI_MODELS = [
-    "deepseek",
-    "gpt-oss-120b",
+# AI chat
+CHAT_ENABLED = False  # Whether to enable the AI chat feature
+LLM_API_URL = ""  # The URL of the OpenAI API
+LLM_API_KEY = ""  # Your OpenAI API key
+LLM_MODELS = [
     "glm",
+    "gpt-oss-120b",
     "kimi",
+    "deepseek",
     "gemma4",
     "mistral-medium-3.5",
-]  # The models to allow for the WebUI
-WEBUI_DEFAULT_MODEL = "deepseek"  # The default model to use
-WEBUI_SYSTEM_PROMPT = """
+]  # The models to allow for the chat
+LLM_DEFAULT_MODEL = "glm"  # The default model to use
+LLM_SYSTEM_PROMPT = """
 You are the sec-certs assistant, an expert helper on the sec-certs website, which aggregates and
 analyzes security certifications (Common Criteria, EUCC, and FIPS 140). Your task is to help users
 understand a specific certified product, for which you have been provided the certification
@@ -84,27 +84,11 @@ specific evaluated requirements in a defined configuration at a point in time; i
 guarantee of security. Summarize what was actually evaluated (scope, assurance level, tested
 mechanisms) rather than issuing a verdict.
 """
-WEBUI_PROMPT_CC_ALL = "You are answering questions about Common Criteria certificates. In your context, you have relevant information extracted from Common Criteria certification reports and security targets."
-WEBUI_PROMPT_CC_CERT = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'."
-WEBUI_PROMPT_CC_CERT_FULL = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'.\n {% if report %}Here is the certification report of the certificate: <document>{{ report }}</document>{% endif %}\n {% if target %}Here is the security target of the certificate: <document>{{ target }}</document>{% endif %}"
-WEBUI_PROMPT_CC_BOTH = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'. In your context, you have relevant information extracted from Common Criteria certification reports and security targets."
-WEBUI_PROMPT_FIPS_ALL = "You are answering questions about FIPS 140 certificates. In your context, you have relevant information extracted from FIPS 140 security policies."
-WEBUI_PROMPT_FIPS_CERT = "You are answering questions about a FIPS 140 certificate '{{ cert_name }}'."
-WEBUI_PROMPT_FIPS_CERT_FULL = "You are answering questions about a FIPS 140 certificate '{{ cert_name }}'.\n {% if target %}Here is the security policy of the certificate: <document>{{ target }}</document>{% endif %}"
-WEBUI_PROMPT_FIPS_BOTH = "You are answering questions about a FIPS 140 certificate '{{ cert_name }}'. In your context, you have relevant information extracted from FIPS 140 security policies."
-WEBUI_PROMPT_PP_ALL = "You are answering questions about Common Criteria Protection Profiles. In your context, you have relevant information extracted from Protection Profiles and their certification reports."
-WEBUI_PROMPT_PP_CERT = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'."
-WEBUI_PROMPT_PP_CERT_FULL = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'.\n {% if profile %}Here is the protection profile document: <document>{{ profile }}</document>{% endif %}\n {% if report %}Here is the certification report of the protection profile: <document>{{ report }}</document>{% endif %}"
-WEBUI_PROMPT_PP_BOTH = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'. In your context, you have relevant information extracted from Protection Profiles and their certification reports."
-WEBUI_PROMPT_EUCC_CERT_FULL = "You are answering questions about an EUCC certificate '{{ cert_name }}'.\n {% if report %}Here is the certification report of the certificate: <document>{{ report }}</document>{% endif %}\n {% if target %}Here is the security target of the certificate: <document>{{ target }}</document>{% endif %}"
-WEBUI_PROMPT_NO_DOCS = "\nImportant exception for this conversation: no certification documents for this item are available, so your context contains only its name, not its documents. This overrides the guidelines above as follows. You cannot ground product-specific claims: if the user asks about the specifics of this item, state plainly that its documents are unavailable and that you cannot answer reliably; do not guess, and do not present general knowledge as facts about this item. The guideline on absence does not apply: absence of information here says nothing about the product, so never conclude that a mechanism is or is not used. You may still explain concepts, standards, algorithms, and the certification process from general knowledge, even without being explicitly asked, making clear it is general background."
-WEBUI_COLLECTION_CC_REPORTS = ""  # The ID of the knowledge base of Common Criteria certification reports
-WEBUI_COLLECTION_CC_TARGETS = ""  # The ID of the knowledge base of Common Criteria security targets
-WEBUI_COLLECTION_FIPS_TARGETS = ""  # The ID of the knowledge base of FIPS 140 security policies
-WEBUI_COLLECTION_PP_REPORTS = (
-    ""  # The ID of the knowledge base of Common Criteria Protection Profile certification reports
-)
-WEBUI_COLLECTION_PP_TARGETS = ""  # The ID of the knowledge base of Common Criteria Protection Profile security targets
+LLM_PROMPT_CC_CERT = "You are answering questions about a Common Criteria certificate '{{ cert_name }}'.\n {% if report %}Here is the certification report of the certificate: <document>{{ report }}</document>{% endif %}\n {% if target %}Here is the security target of the certificate: <document>{{ target }}</document>{% endif %}"
+LLM_PROMPT_FIPS_CERT = "You are answering questions about a FIPS 140 certificate '{{ cert_name }}'.\n {% if target %}Here is the security policy of the certificate: <document>{{ target }}</document>{% endif %}"
+LLM_PROMPT_PP_CERT = "You are answering questions about a Common Criteria Protection Profile '{{ cert_name }}'.\n {% if profile %}Here is the protection profile document: <document>{{ profile }}</document>{% endif %}\n {% if report %}Here is the certification report of the protection profile: <document>{{ report }}</document>{% endif %}"
+LLM_PROMPT_EUCC_CERT = "You are answering questions about an EUCC certificate '{{ cert_name }}'.\n {% if report %}Here is the certification report of the certificate: <document>{{ report }}</document>{% endif %}\n {% if target %}Here is the security target of the certificate: <document>{{ target }}</document>{% endif %}"
+LLM_PROMPT_NO_DOCS = "\nImportant exception for this conversation: no certification documents for this item are available, so your context contains only its name, not its documents. This overrides the guidelines above as follows. You cannot ground product-specific claims: if the user asks about the specifics of this item, state plainly that its documents are unavailable and that you cannot answer reliably; do not guess, and do not present general knowledge as facts about this item. The guideline on absence does not apply: absence of information here says nothing about the product, so never conclude that a mechanism is or is not used. You may still explain concepts, standards, algorithms, and the certification process from general knowledge, even without being explicitly asked, making clear it is general background."
 
 # MongoDB
 MONGO_URI = "mongodb://localhost:27017/seccerts"
