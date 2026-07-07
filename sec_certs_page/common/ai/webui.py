@@ -23,7 +23,7 @@ def get(url: str, query=None):
     return response
 
 
-def post(url: str, data=None, files=None):
+def post(url: str, data=None, files=None, stream=False):
     """Send a POST request to the WebUI API."""
     headers = _get_headers()
     full_url = _resolve_url(url)
@@ -31,11 +31,11 @@ def post(url: str, data=None, files=None):
         raise ValueError("Cannot send both data and files in the same request.")
     if files is not None:
         headers.pop("Content-Type", None)
-        response = requests.post(full_url, headers=headers, files=files)
+        response = requests.post(full_url, headers=headers, files=files, stream=stream)
     elif data is not None:
-        response = requests.post(full_url, headers=headers, json=data)
+        response = requests.post(full_url, headers=headers, json=data, stream=stream)
     else:
-        response = requests.post(full_url, headers=headers)
+        response = requests.post(full_url, headers=headers, stream=stream)
     return response
 
 

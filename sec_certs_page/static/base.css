@@ -199,6 +199,27 @@
     margin-bottom: 0;
 }
 
+.chat-md table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+
+.chat-md th,
+.chat-md td {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--bs-border-color);
+    text-align: left;
+}
+
+.chat-md thead th {
+    background: rgba(var(--bs-emphasis-color-rgb), 0.05);
+}
+
+.chat-md pre {
+    overflow-x: auto;
+}
+
 .chat-notice-turn .chat-avatar {
     color: var(--bs-danger);
     background: rgba(var(--bs-danger-rgb), 0.15);

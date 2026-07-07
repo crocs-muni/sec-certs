@@ -148,105 +148,161 @@ function scrollChatToBottom() {
     }
 }
 
-export function chat(full_url, token, chat_history, certificate_data) {
-    let message = $("#chat-input").val().trim();
-    if (message) {
-        // Append the message to the chat history and display it
-        let full_message = {
-            role: "user",
-            content: message
-        };
-        chat_history.push(full_message);
-        let data = {
-            query: chat_history,
-        };
-        let about = $("#chat-about").val();
-        let url;
-        switch (about) {
-            case "full-report":
-                url = full_url;
-                data.context = "report";
-                break;
-            case "full-target":
-                url = full_url;
-                data.context = "target";
-                break;
-            case "full-both":
-                url = full_url;
-                data.context = "both";
-                break;
-            default:
-                // Error out
-                return;
-        }
-        // Get the model
-        data.model = $("#chat-model").val();
-        // Extract hashid from certificate_data if available
-        let hashid = certificate_data?.hashid;
-        let collection = certificate_data?.type;
-        if (hashid !== undefined) {
-            data.hashid = hashid;
-            data.collection = collection;
-        }
-        // Hide the empty state and render the user's turn
-        $("#chat-empty").addClass("d-none");
-        let userTurn = $('<div class="chat-turn user"><div class="chat-bubble"></div></div>');
-        userTurn.find(".chat-bubble").text(message);
-        $("#chat-messages").append(userTurn);
-        $("#chat-input").val("").trigger("input"); // Clear input (also resets autogrow + send state)
-        $("#chat-send").prop("disabled", true);
-        // Show the typing indicator
-        let loading = $(
-            '<div class="chat-turn assistant chat-loading">' +
-            '<span class="chat-avatar"><i class="fas fa-wand-magic-sparkles"></i></span>' +
-            '<div class="chat-turn-body"><span class="chat-dots"><i></i><i></i><i></i></span></div></div>'
-        );
-        $("#chat-messages").append(loading);
-        scrollChatToBottom();
-        // Send the chat history to the server
-        $.ajax(url, {
-                method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(data),
-                headers: {
-                    "X-CSRFToken": token
-                },
-                success: function (response) {
-                    $("#chat-messages .chat-loading").remove();
-                    let botTurn = $(
-                        '<div class="chat-turn assistant">' +
-                        '<span class="chat-avatar"><i class="fas fa-wand-magic-sparkles"></i></span>' +
-                        '<div class="chat-turn-body"><div class="chat-md"></div></div></div>'
-                    );
-                    botTurn.find(".chat-md").html(response.response);
-                    $("#chat-messages").append(botTurn);
-                    chat_history.push({
-                        role: "assistant",
-                        content: response.raw
-                    });
-                    $("#chat-error").hide();
-                    // Re-enable send based on the current input state
-                    $("#chat-send").prop("disabled", $("#chat-input").val().trim() === "");
-                    scrollChatToBottom();
-                },
-                error: function (xhr) {
-                    $("#chat-messages .chat-loading").remove();
-                    let error_message = "An error occurred while sending your message.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        error_message = xhr.responseJSON.message;
-                    }
-                    let noticeTurn = $(
-                        '<div class="chat-turn assistant chat-notice-turn">' +
-                        '<span class="chat-avatar"><i class="fas fa-triangle-exclamation"></i></span>' +
-                        '<div class="chat-turn-body"><div class="chat-md"></div></div></div>'
-                    );
-                    noticeTurn.find(".chat-md").text(error_message);
-                    $("#chat-messages").append(noticeTurn);
-                    $("#chat-error").hide();
-                    $("#chat-send").prop("disabled", $("#chat-input").val().trim() === "");
-                    scrollChatToBottom();
-                }
-            }
-        );
+function buildChatRequest(chat_history, certificate_data) {
+    let context = $("#chat-about").val();
+    if (!["report", "target", "both"].includes(context)) return null;
+    let data = {query: chat_history, context: context, model: $("#chat-model").val()};
+    if (certificate_data?.hashid !== undefined) {
+        data.hashid = certificate_data.hashid;
+        data.collection = certificate_data.type;
     }
+    return data;
+}
+
+function assistantTurn(iconClass, bodyHtml, extraClass) {
+    return $(
+        `<div class="chat-turn assistant${extraClass ? " " + extraClass : ""}">` +
+        `<span class="chat-avatar"><i class="fas ${iconClass}"></i></span>` +
+        `<div class="chat-turn-body">${bodyHtml}</div></div>`
+    );
+}
+
+function appendUserTurn(message) {
+    let turn = $('<div class="chat-turn user"><div class="chat-bubble"></div></div>');
+    turn.find(".chat-bubble").text(message);
+    $("#chat-messages").append(turn);
+}
+
+function appendLoadingTurn() {
+    $("#chat-messages").append(assistantTurn("fa-wand-magic-sparkles", '<span class="chat-dots"><i></i><i></i><i></i></span>', "chat-loading"));
+}
+
+function appendAssistantTurn() {
+    $("#chat-messages .chat-loading").remove();
+    let turn = assistantTurn("fa-wand-magic-sparkles", '<div class="chat-md"></div>');
+    $("#chat-messages").append(turn);
+    return turn.find(".chat-md");
+}
+
+function appendErrorTurn(message) {
+    $("#chat-messages .chat-loading").remove();
+    let turn = assistantTurn("fa-triangle-exclamation", '<div class="chat-md"></div>', "chat-notice-turn");
+    turn.find(".chat-md").text(message || "An error occurred while sending your message.");
+    $("#chat-messages").append(turn);
+    $("#chat-error").hide();
+    reenableSend();
+    scrollChatToBottom();
+}
+
+function reenableSend() {
+    $("#chat-send").removeClass("chat-pending").prop("disabled", $("#chat-input").val().trim() === "");
+}
+
+function renderMarkdown($md, text) {
+    $md.html(DOMPurify.sanitize(marked.parse(text)));
+    $md.find("a").attr({target: "_blank", rel: "noopener noreferrer"});
+}
+
+async function* readSSEFrames(response) {
+    let reader = response.body.getReader();
+    let decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+        let {value, done} = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, {stream: true});
+        let idx;
+        while ((idx = buffer.indexOf("\n\n")) !== -1) {
+            yield parseSSEFrame(buffer.slice(0, idx));
+            buffer = buffer.slice(idx + 2);
+        }
+    }
+}
+
+function parseSSEFrame(frame) {
+    let event = "message";
+    let dataStr = "";
+    for (let line of frame.split("\n")) {
+        if (line.startsWith("event:")) event = line.slice(6).trim();
+        else if (line.startsWith("data:")) dataStr += line.slice(5).trim();
+    }
+    let data = {};
+    try {
+        if (dataStr) data = JSON.parse(dataStr);
+    } catch (e) {
+        // leave data as {}
+    }
+    return {event, data};
+}
+
+async function errorMessage(response) {
+    try {
+        return (await response.json())?.message;
+    } catch (e) {
+        return undefined;
+    }
+}
+
+async function streamReply(url, token, data, chat_history) {
+    let response;
+    try {
+        response = await fetch(url, {
+            method: "POST",
+            headers: {"Content-Type": "application/json", "X-CSRFToken": token},
+            body: JSON.stringify(data)
+        });
+    } catch (e) {
+        appendErrorTurn();
+        return;
+    }
+    if (!response.ok) {
+        appendErrorTurn(await errorMessage(response));
+        return;
+    }
+
+    let botMd = appendAssistantTurn();
+    let raw = "";
+    try {
+        for await (let {event, data: payload} of readSSEFrames(response)) {
+            if (event === "error") {
+                botMd.closest(".chat-turn").remove();
+                appendErrorTurn(payload.message);
+                return;
+            }
+            if (event === "done") break;
+            if (payload.delta) {
+                raw += payload.delta;
+                renderMarkdown(botMd, raw);
+                scrollChatToBottom();
+            }
+        }
+    } catch (e) {
+        botMd.closest(".chat-turn").remove();
+        appendErrorTurn();
+        return;
+    }
+
+    renderMarkdown(botMd, raw);
+    if (raw) chat_history.push({role: "assistant", content: raw});
+    $("#chat-error").hide();
+    reenableSend();
+    scrollChatToBottom();
+}
+
+export async function chat(full_url, token, chat_history, certificate_data) {
+    let message = $("#chat-input").val().trim();
+    if (!message) return;
+
+    let data = buildChatRequest(chat_history, certificate_data);
+    if (!data) return;
+    chat_history.push({role: "user", content: message});
+
+    $("#chat-empty").addClass("d-none");
+    appendUserTurn(message);
+    $("#chat-input").val("").trigger("input");
+    $("#chat-send").prop("disabled", true).addClass("chat-pending");
+    appendLoadingTurn();
+    scrollChatToBottom();
+
+    await streamReply(full_url, token, data, chat_history);
 }

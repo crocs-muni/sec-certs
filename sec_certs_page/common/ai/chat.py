@@ -25,6 +25,7 @@ def chat_with_model(model: str, queries, system_addition: str = "", kbs: list | 
             {"role": "system", "content": current_app.config["WEBUI_SYSTEM_PROMPT"] + system_addition},
             *queries,
         ],
+        "stream": True,
     }
 
     file_attr = None
@@ -34,7 +35,7 @@ def chat_with_model(model: str, queries, system_addition: str = "", kbs: list | 
         file_attr = [{"type": "file", "id": file} for file in files]
     if file_attr is not None:
         data["files"] = file_attr
-    response = post(url, data)
+    response = post(url, data, stream=True)
     return response
 
 

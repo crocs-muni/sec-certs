@@ -72,6 +72,9 @@
                     if (!input.length) {
                         return;
                     }
+                    if ($("#chat-send").hasClass("chat-pending")) {
+                        return;  // a request is in flight; keep Send disabled
+                    }
                     $("#chat-send").prop("disabled", input.val().trim() === "");
                 }
                 function chatResize(el) {
@@ -219,20 +222,20 @@
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="chat-about-btn">
                                                 <li><button type="button" class="dropdown-item chat-about-item active"
-                                                            data-value="full-both" data-label="All documents">
+                                                            data-value="both" data-label="All documents">
                                                     All documents
                                                     <span class="chat-item-desc">Certification report + security target</span></button></li>
                                                 <li><button type="button" class="dropdown-item chat-about-item"
-                                                            data-value="full-report" data-label="Certification report">
+                                                            data-value="report" data-label="Certification report">
                                                     Certification report
                                                     <span class="chat-item-desc">Certification report</span></button></li>
                                                 <li><button type="button" class="dropdown-item chat-about-item"
-                                                            data-value="full-target" data-label="Security target">
+                                                            data-value="target" data-label="Security target">
                                                     Security target
                                                     <span class="chat-item-desc">Security target</span></button></li>
                                             </ul>
                                         </div>
-                                        <input type="hidden" id="chat-about" value="full-both">
+                                        <input type="hidden" id="chat-about" value="both">
                                         <span class="small fw-semibold text-secondary text-nowrap">Model:</span>
                                         <div class="dropdown dropup">
                                             <button class="form-select text-start w-auto chat-tool-select"
