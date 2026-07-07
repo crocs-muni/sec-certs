@@ -79,10 +79,9 @@
                         </div>
                     {% endif %}
 
-                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                    <div class="d-flex gap-3 flex-wrap align-items-center pt-3">
                         {% if config["CHAT_ENABLED"] %}{{ chat_icon() }}{% endif %}
                         {{ compare_icon() }}
-                        <div class="vr d-none d-sm-block"></div>
                         {{ notification_icon(current_user, subscribed) }}
                         {{ render_share_buttons(hashid, cert_id=cert["heuristics"]["cert_id"], name=cert["name"]) }}
                     </div>
