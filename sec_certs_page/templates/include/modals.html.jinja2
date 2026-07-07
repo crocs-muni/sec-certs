@@ -152,14 +152,17 @@
     </script>
 {% endmacro %}
 
-{% macro chat_icon() %}
-    <button id="chat-icon" class="btn btn-primary text-nowrap" title="Ask AI about this certificate"
+{% macro chat_icon(subject="certificate") %}
+    <button id="chat-icon" class="btn btn-primary text-nowrap" title="Ask AI about this {{ subject }}"
             data-bs-toggle="modal" data-bs-target="#chat-modal">
         <i class="fas fa-fw fa-message" aria-hidden="true"></i>
         Ask AI
     </button>
 {% endmacro %}
-{% macro chat_modal() %}
+{% macro chat_modal(chat_documents, placeholders=none, subject="certificate") %}
+    {% set chat_available = chat_documents | selectattr("available") | list %}
+    {% set chat_default_value = chat_available | map(attribute="value") | join(",") %}
+    {% set chat_default_label = "All documents" if chat_available | length > 1 else (chat_available[0].label if chat_available else "") %}
     <div class="modal fade" id="chat-modal" tabindex="-1" aria-labelledby="chat-modal-label"
          aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -182,13 +185,12 @@
                 </div>
                 <div class="modal-body" id="chat-body">
                     <p class="invalid-feedback" id="chat-error" style="display: none"></p>
-                    <!-- Chat skeleton start -->
                     {% if not current_user.is_authenticated %}
                         <div class="alert alert-info" role="alert">
                             Chat is available to authorized users only. Please log in to use this feature.
                         </div>
                     {% else %}
-                        {% set placeholders = ["Describe this certificate.",
+                        {% set placeholders = placeholders or ["Describe this certificate.",
                                            "What is the certificate ID of this certificate?",
                                            "What other certified products are referenced by this certificate?",
                                            "Which evaluation facility performed the evaluation of this certificate?",
@@ -197,44 +199,67 @@
                             <div id="chat-window">
                                 <div id="chat-empty" class="chat-empty">
                                     <span class="chat-empty-glyph"><i class="fas fa-message"></i></span>
-                                    <h2 class="chat-empty-title">Ask about this certificate</h2>
-                                    <p class="small text-secondary mb-0">Try one of these:</p>
-                                    <div class="chat-sugs">
-                                        {% for placeholder in placeholders %}
-                                            <button type="button" class="chat-sug small">{{ placeholder }}</button>
-                                        {% endfor %}
-                                    </div>
+                                    <h2 class="chat-empty-title">Ask about this {{ subject }}</h2>
+                                    {% if chat_available %}
+                                        <p class="small text-secondary mb-0">Try one of these:</p>
+                                        <div class="chat-sugs">
+                                            {% for placeholder in placeholders %}
+                                                <button type="button" class="chat-sug small">{{ placeholder }}</button>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning" role="alert">
+                                            <i class="fas fa-triangle-exclamation me-1"></i>
+                                            No documents are available for this {{ subject }}. You can ask general
+                                            questions about security certifications, but questions about this
+                                            specific {{ subject }} cannot be answered reliably.
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div id="chat-messages"></div>
                             </div>
                             <div class="chat-composer">
                                 <textarea id="chat-input" class="chat-textarea" rows="1" spellcheck="false"
-                                          placeholder="Ask about this certificate…"></textarea>
+                                          placeholder="Ask about this {{ subject }}…"></textarea>
                                 <div class="chat-composer-tools">
                                     <div class="chat-tool-opts">
                                         <span class="small fw-semibold text-secondary text-nowrap">Chat context:</span>
-                                        <div class="dropdown dropup">
-                                            <button class="form-select text-start w-auto chat-tool-select"
-                                                    type="button" id="chat-about-btn" data-bs-toggle="dropdown"
-                                                    aria-expanded="false" aria-label="Chat context">
-                                                <span id="chat-about-label">All documents</span>
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="chat-about-btn">
-                                                <li><button type="button" class="dropdown-item chat-about-item active"
-                                                            data-value="both" data-label="All documents">
-                                                    All documents
-                                                    <span class="chat-item-desc">Certification report + security target</span></button></li>
-                                                <li><button type="button" class="dropdown-item chat-about-item"
-                                                            data-value="report" data-label="Certification report">
-                                                    Certification report
-                                                    <span class="chat-item-desc">Certification report</span></button></li>
-                                                <li><button type="button" class="dropdown-item chat-about-item"
-                                                            data-value="target" data-label="Security target">
-                                                    Security target
-                                                    <span class="chat-item-desc">Security target</span></button></li>
-                                            </ul>
-                                        </div>
-                                        <input type="hidden" id="chat-about" value="both">
+                                        {% if not chat_available %}
+                                            <span class="small text-secondary text-nowrap"
+                                                  id="chat-about-label">No documents available</span>
+                                        {% elif chat_documents | length == 1 %}
+                                            <span class="small text-secondary text-nowrap"
+                                                  id="chat-about-label">{{ chat_default_label }}</span>
+                                        {% else %}
+                                            <div class="dropdown dropup">
+                                                <button class="form-select text-start w-auto chat-tool-select"
+                                                        type="button" id="chat-about-btn" data-bs-toggle="dropdown"
+                                                        aria-expanded="false" aria-label="Chat context">
+                                                    <span id="chat-about-label">{{ chat_default_label }}</span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="chat-about-btn">
+                                                    {% if chat_available | length > 1 %}
+                                                        <li><button type="button" class="dropdown-item chat-about-item active"
+                                                                    data-value="{{ chat_default_value }}" data-label="All documents">
+                                                            All documents
+                                                            <span class="chat-item-desc">{{ chat_available | map(attribute="label") | join(" + ") }}</span></button></li>
+                                                    {% endif %}
+                                                    {% for document in chat_documents %}
+                                                        {% if document.available %}
+                                                            <li><button type="button" class="dropdown-item chat-about-item{% if chat_available | length == 1 %} active{% endif %}"
+                                                                        data-value="{{ document.value }}" data-label="{{ document.label }}">
+                                                                {{ document.label }}
+                                                                <span class="chat-item-desc">{{ document.label }}</span></button></li>
+                                                        {% else %}
+                                                            <li><button type="button" class="dropdown-item chat-about-item disabled" disabled>
+                                                                {{ document.label }}
+                                                                <span class="chat-item-desc">Not available for this {{ subject }}</span></button></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                        <input type="hidden" id="chat-about" value="{{ chat_default_value }}">
                                         <span class="small fw-semibold text-secondary text-nowrap">Model:</span>
                                         <div class="dropdown dropup">
                                             <button class="form-select text-start w-auto chat-tool-select"
@@ -264,7 +289,6 @@
                             </div>
                         </div>
                     {% endif %}
-                    <!-- Chat skeleton end -->
                 </div>
             </div>
         </div>

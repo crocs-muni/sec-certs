@@ -103,29 +103,19 @@ def chat_rag(
     return chat_with_model(model, queries, system_addition, kbs=kbs, files=files)
 
 
-def chat_full(queries, model: str, collection: str, hashid: str, document: str = "both") -> requests.Response:
-    if document == "both":
-        docs = ["report", "target"]
-    elif document in ("report", "target"):
-        docs = [document]
-    else:
-        raise ValueError("Invalid document type specified.")
+def chat_full(queries, model: str, collection: str, hashid: str, documents: set[str]) -> requests.Response:
+    cert = mongo.db[collection].find_one({"_id": hashid})
+    if not cert:
+        raise ValueError("Invalid hashid.")
     doc_map = {}
-    for doc in docs:
+    for doc in documents:
         fpath = entry_file_path(hashid, current_app.config[f"DATASET_PATH_{collection.upper()}_DIR"], doc, "txt")
         if fpath.exists():
             with fpath.open() as file:
                 doc_map[doc] = file.read()
-    if not doc_map:
-        doc_names = {"report": "certification report", "target": "security target"}
-        if document == "both":
-            raise ValueError("No documents are available for this certificate, so there's nothing to chat about.")
-        raise ValueError(
-            f"The {doc_names.get(document, 'document')} isn't available for this certificate, so this "
-            "context can't be used. Pick a different context."
-        )
-    cert = mongo.db[collection].find_one({"_id": hashid})
     system_addition = render_template_string(
         current_app.config.get(f"WEBUI_PROMPT_{collection.upper()}_CERT_FULL"), cert_name=cert_name(cert), **doc_map
     )
+    if not doc_map:
+        system_addition += current_app.config.get("WEBUI_PROMPT_NO_DOCS", "")
     return chat_with_model(model, queries, system_addition)

@@ -175,7 +175,7 @@ def stream_completion(result):
 def query_full():
     """Stream a chat completion about a certificate's full documents."""
     data = request.get_json()
-    for field in ("query", "context", "collection", "hashid"):
+    for field in ("query", "documents", "collection", "hashid"):
         if field not in data:
             return {"status": "error", "message": f"Missing '{field}' in request."}, 400
 
@@ -189,16 +189,20 @@ def query_full():
 
     model = data.get("model") or current_app.config["WEBUI_DEFAULT_MODEL"]
     collection = data["collection"]
-    context = data["context"]
     if model not in current_app.config["WEBUI_MODELS"]:
         return {"status": "error", "message": "Invalid model specified."}, 400
     if collection not in ("cc", "eucc", "fips", "pp"):
         return {"status": "error", "message": "Invalid collection specified."}, 400
-    if context not in ("report", "target", "both"):
-        return {"status": "error", "message": "Invalid context specified."}, 400
+    if not isinstance(data["documents"], list):
+        return {"status": "error", "message": "Invalid documents specified."}, 400
+    documents = set()
+    for document in data["documents"]:
+        if document not in ("report", "target", "profile"):
+            return {"status": "error", "message": "Invalid documents specified."}, 400
 
+        documents.add(document)
     try:
-        result = chat_full(query, model, collection, data["hashid"], context)
+        result = chat_full(query, model, collection, data["hashid"], documents)
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
     metrics.count("ai.query", 1, attributes={"model": model, "type": "full", "collection": collection})

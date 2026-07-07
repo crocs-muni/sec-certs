@@ -46,7 +46,7 @@ def test_chat_full(logged_in: FlaskClient, mocker, clean_mongo):
         "/chat/full/",
         json={
             "query": [{"role": "user", "content": "What is this a certificate of?"}],
-            "context": "both",
+            "documents": ["report", "target"],
             "collection": "cc",
             "hashid": "3d1b01ce576f605d",
         },
@@ -59,6 +59,80 @@ def test_chat_full(logged_in: FlaskClient, mocker, clean_mongo):
     assert "event: done" in body
 
 
+def test_chat_full_profile(logged_in: FlaskClient, mocker, clean_mongo):
+    mocker.patch(
+        "sec_certs_page.chat.views.chat_full",
+        side_effect=lambda *a, **k: _sse_stream("This is a test response."),
+    )
+    resp = logged_in.post(
+        "/chat/full/",
+        json={
+            "query": [{"role": "user", "content": "What is this a profile of?"}],
+            "documents": ["profile"],
+            "collection": "pp",
+            "hashid": "3d1b01ce576f605d",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.mimetype == "text/event-stream"
+
+
+def test_chat_full_invalid_documents(logged_in: FlaskClient, mocker, clean_mongo):
+    mocker.patch(
+        "sec_certs_page.chat.views.chat_full",
+        side_effect=lambda *a, **k: _sse_stream("This is a test response."),
+    )
+    for documents in ("report", ["../../secret"], ["report", "bad"]):
+        resp = logged_in.post(
+            "/chat/full/",
+            json={
+                "query": [{"role": "user", "content": "What is this a certificate of?"}],
+                "documents": documents,
+                "collection": "cc",
+                "hashid": "3d1b01ce576f605d",
+            },
+        )
+        assert resp.status_code == 400
+        assert resp.json["status"] == "error"
+        assert "Invalid documents" in resp.json["message"]
+
+
+def test_chat_full_no_documents(logged_in: FlaskClient, mocker, clean_mongo):
+    chat_mock = mocker.patch(
+        "sec_certs_page.common.ai.chat.chat_with_model",
+        side_effect=lambda *a, **k: _sse_stream("A general answer."),
+    )
+    resp = logged_in.post(
+        "/chat/full/",
+        json={
+            "query": [{"role": "user", "content": "What is Common Criteria?"}],
+            "documents": [],
+            "collection": "cc",
+            "hashid": "3d1b01ce576f605d",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.mimetype == "text/event-stream"
+    assert "A general answer." in resp.get_data(as_text=True)
+    system_addition = chat_mock.call_args.args[2]
+    assert "no certification documents for this item are available" in system_addition.lower()
+
+
+def test_chat_full_invalid_hashid(logged_in: FlaskClient, clean_mongo):
+    resp = logged_in.post(
+        "/chat/full/",
+        json={
+            "query": [{"role": "user", "content": "What is this a certificate of?"}],
+            "documents": ["report", "target"],
+            "collection": "cc",
+            "hashid": "0000000000000000",
+        },
+    )
+    assert resp.status_code == 400
+    assert resp.json["status"] == "error"
+    assert "Invalid hashid" in resp.json["message"]
+
+
 def test_chat_limit(logged_in: FlaskClient, mocker, clean_mongo):
     mocker.patch(
         "sec_certs_page.chat.views.chat_full",
@@ -69,7 +143,7 @@ def test_chat_limit(logged_in: FlaskClient, mocker, clean_mongo):
             "/chat/full/",
             json={
                 "query": [{"role": "user", "content": "What is this a certificate of?"}],
-                "context": "both",
+                "documents": ["report", "target"],
                 "collection": "cc",
                 "hashid": "3d1b01ce576f605d",
             },

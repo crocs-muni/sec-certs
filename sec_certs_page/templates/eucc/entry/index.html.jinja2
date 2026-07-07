@@ -7,6 +7,10 @@
 {% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
 {% from "eucc/include.html.jinja2" import render_ava_van_level, render_assurance_level %}
 {% from "cc/include.html.jinja2" import  cc_keywords, render_status %}
+{% set chat_documents = [
+    {"value": "report", "label": "Certification report", "available": local_files.get(("report", "txt"), false)},
+    {"value": "target", "label": "Security target", "available": local_files.get(("target", "txt"), false)},
+] %}
 
 {% block metadata %}
     <meta property="description" content="EUCC certificate {{ cert["name"]|default("", true) }}"/>
@@ -91,7 +95,7 @@
     </main>
 
     {% if config["CHAT_ENABLED"] %}
-        {{ chat_modal() }}
+        {{ chat_modal(chat_documents) }}
     {% endif %}
 {% endblock %}
 

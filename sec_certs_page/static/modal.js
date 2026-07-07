@@ -149,9 +149,9 @@ function scrollChatToBottom() {
 }
 
 function buildChatRequest(chat_history, certificate_data) {
-    let context = $("#chat-about").val();
-    if (!["report", "target", "both"].includes(context)) return null;
-    let data = {query: chat_history, context: context, model: $("#chat-model").val()};
+    let about = $("#chat-about").val();
+    let documents = about ? about.split(",").filter(Boolean) : [];
+    let data = {query: chat_history, documents: documents, model: $("#chat-model").val()};
     if (certificate_data?.hashid !== undefined) {
         data.hashid = certificate_data.hashid;
         data.collection = certificate_data.type;

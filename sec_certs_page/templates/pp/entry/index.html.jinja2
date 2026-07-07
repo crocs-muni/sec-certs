@@ -5,6 +5,10 @@
 {% from "cc/include.html.jinja2" import cc_keywords, render_eal, render_status, render_sars, render_sfrs, render_category %}
 {% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
 {% from "include/legal.html.jinja2" import certificate_note %}
+{% set chat_documents = [
+    {"value": "profile", "label": "Protection profile", "available": local_files.get(("profile", "txt"), false)},
+    {"value": "report", "label": "Certification report", "available": local_files.get(("report", "txt"), false)},
+] %}
 
 {% block title %}
     <title>
@@ -50,10 +54,9 @@
                 </div>
                 <div>
                     <h1>{{ profile["web_data"]["name"]|default("") }}</h1>
-                    <div class="d-flex gap-3 flex-wrap align-items-center">
-                        {% if config["CHAT_ENABLED"] %}{{ chat_icon() }}{% endif %}
+                    <div class="d-flex gap-3 flex-wrap align-items-center pt-3">
+                        {% if config["CHAT_ENABLED"] %}{{ chat_icon(subject="protection profile") }}{% endif %}
                         {{ compare_icon() }}
-                        <div class="vr d-none d-sm-block"></div>
                         {{ notification_icon(current_user, subscribed) }}
                         {{ render_share_buttons(hashid, cert_id=None, name=profile["web_data"]["name"]) }}
                     </div>
@@ -216,7 +219,13 @@
         {{ notification_script(csrf_token) }}
     </main>
     {% if config["CHAT_ENABLED"] %}
-        {{ chat_modal() }}
+        {{ chat_modal(chat_documents,
+                      placeholders=["Describe this protection profile.",
+                                    "What type of product does this protection profile cover?",
+                                    "What assurance requirements does this protection profile mandate?",
+                                    "What security functional requirements does this protection profile contain?",
+                                    "When was this protection profile certified?"],
+                      subject="protection profile") }}
     {% endif %}
 {% endblock %}
 
