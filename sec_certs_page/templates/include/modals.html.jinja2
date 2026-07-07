@@ -56,7 +56,8 @@
             add_current_cert,
             update_state,
             compare_do,
-            chat
+            chat,
+            stopChat
         } from "{{ url_for('static', filename='modal.js') }}?{{ static_hash("modal.js") }}";
 
         let chat_history = [];
@@ -73,7 +74,7 @@
                         return;
                     }
                     if ($("#chat-send").hasClass("chat-pending")) {
-                        return;  // a request is in flight; keep Send disabled
+                        return;  // a request is in flight; the button acts as Stop and stays enabled
                     }
                     $("#chat-send").prop("disabled", input.val().trim() === "");
                 }
@@ -116,6 +117,7 @@
                     chat(full_url, token, chat_history, window.certificate_data);
                 });
                 $("#chat-reset").click(function () {
+                    stopChat();
                     chat_history = [];
                     $("#chat-messages").empty();
                     $("#chat-empty").removeClass("d-none");
@@ -125,7 +127,7 @@
                 $("#chat-input").keypress(function (event) {
                     if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
                         event.preventDefault();
-                        if (!$("#chat-send").prop("disabled")) {
+                        if (!$("#chat-send").prop("disabled") && !$("#chat-send").hasClass("chat-pending")) {
                             $("#chat-send").click();
                         }
                     }
@@ -279,6 +281,7 @@
                                     </div>
                                     <button id="chat-send" class="chat-send" type="button" disabled aria-label="Send">
                                         <i class="fas fa-arrow-up"></i>
+                                        <i class="fas fa-stop"></i>
                                     </button>
                                 </div>
                             </div>

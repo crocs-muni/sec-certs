@@ -194,8 +194,15 @@ function appendErrorTurn(message) {
     scrollChatToBottom();
 }
 
+let chatAbortController = null;
+
+export function stopChat() {
+    if (chatAbortController) chatAbortController.abort();
+}
+
 function reenableSend() {
-    $("#chat-send").removeClass("chat-pending").prop("disabled", $("#chat-input").val().trim() === "");
+    $("#chat-send").removeClass("chat-pending").attr("aria-label", "Send")
+        .prop("disabled", $("#chat-input").val().trim() === "");
 }
 
 function renderMarkdown($md, text) {
@@ -244,52 +251,76 @@ async function errorMessage(response) {
 }
 
 async function streamReply(url, token, data, chat_history) {
-    let response;
+    chatAbortController = new AbortController();
+    let signal = chatAbortController.signal;
     try {
-        response = await fetch(url, {
-            method: "POST",
-            headers: {"Content-Type": "application/json", "X-CSRFToken": token},
-            body: JSON.stringify(data)
-        });
-    } catch (e) {
-        appendErrorTurn();
-        return;
-    }
-    if (!response.ok) {
-        appendErrorTurn(await errorMessage(response));
-        return;
-    }
+        let response;
+        try {
+            response = await fetch(url, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": token},
+                body: JSON.stringify(data),
+                signal: signal
+            });
+        } catch (e) {
+            if (signal.aborted) {  // stopped by the user before anything arrived
+                $("#chat-messages .chat-loading").remove();
+                reenableSend();
+            } else {
+                appendErrorTurn();
+            }
+            return;
+        }
+        if (!response.ok) {
+            appendErrorTurn(await errorMessage(response));
+            return;
+        }
 
-    let botMd = appendAssistantTurn();
-    let raw = "";
-    try {
-        for await (let {event, data: payload} of readSSEFrames(response)) {
-            if (event === "error") {
+        let botMd = appendAssistantTurn();
+        let raw = "";
+        try {
+            for await (let {event, data: payload} of readSSEFrames(response)) {
+                if (event === "error") {
+                    botMd.closest(".chat-turn").remove();
+                    appendErrorTurn(payload.message);
+                    return;
+                }
+                if (event === "done") break;
+                if (payload.delta) {
+                    raw += payload.delta;
+                    renderMarkdown(botMd, raw);
+                    scrollChatToBottom();
+                }
+            }
+        } catch (e) {
+            if (!signal.aborted) {
                 botMd.closest(".chat-turn").remove();
-                appendErrorTurn(payload.message);
+                appendErrorTurn();
                 return;
             }
-            if (event === "done") break;
-            if (payload.delta) {
-                raw += payload.delta;
-                renderMarkdown(botMd, raw);
-                scrollChatToBottom();
-            }
+            // stopped by the user mid-stream: keep the partial reply
         }
-    } catch (e) {
-        botMd.closest(".chat-turn").remove();
-        appendErrorTurn();
-        return;
-    }
 
-    renderMarkdown(botMd, raw);
-    if (raw) chat_history.push({role: "assistant", content: raw});
-    $("#chat-error").hide();
-    reenableSend();
-    scrollChatToBottom();
+        if (raw) {
+            renderMarkdown(botMd, raw);
+            chat_history.push({role: "assistant", content: raw});
+        } else {
+            botMd.closest(".chat-turn").remove();
+        }
+        $("#chat-error").hide();
+        reenableSend();
+        scrollChatToBottom();
+    } finally {
+        chatAbortController = null;
+    }
 }
 
 export async function chat(full_url, token, chat_history, certificate_data) {
+    if (chatAbortController) {  // a request is in flight; the button acts as Stop
+        chatAbortController.abort();
+        return;
+    }
+
     let message = $("#chat-input").val().trim();
     if (!message) return;
 
@@ -299,8 +330,8 @@ export async function chat(full_url, token, chat_history, certificate_data) {
 
     $("#chat-empty").addClass("d-none");
     appendUserTurn(message);
+    $("#chat-send").addClass("chat-pending").attr("aria-label", "Stop generating").prop("disabled", false);
     $("#chat-input").val("").trigger("input");
-    $("#chat-send").prop("disabled", true).addClass("chat-pending");
     appendLoadingTurn();
     scrollChatToBottom();
 

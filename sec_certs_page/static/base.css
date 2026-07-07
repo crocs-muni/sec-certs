@@ -345,6 +345,18 @@
     cursor: default;
 }
 
+.chat-send .fa-stop {
+    display: none;
+}
+
+.chat-send.chat-pending .fa-arrow-up {
+    display: none;
+}
+
+.chat-send.chat-pending .fa-stop {
+    display: block;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .chat-dots i,
     .chat-sug {
