@@ -462,19 +462,21 @@
     {% endif %}
 {% endmacro %}
 
+{% macro cc_tooltip(code, name) %}{% if cc_class_name(code) %}{{ cc_class_name(code) }}{% if name %} — {% endif %}{% endif %}{{ name or "" }}{% endmacro %}
+
 {% macro render_sfrs(sfr) %}
-    {%- if get_cc_sfr(sfr) -%}
-        <a href="https://www.commoncriteriaportal.org/files/ccfiles/CC2022PART2R1.pdf" target="_blank" rel="noopener"
-           title="{% if cc_class_name(sfr) %}{{ cc_class_name(sfr) }} — {% endif %}{{ get_cc_sfr(sfr) }}">{{ sfr }}</a>
+    {%- set tip = cc_tooltip(sfr, get_cc_sfr(sfr)) | trim -%}
+    {%- if tip -%}
+        <abbr title="{{ tip }}">{{ sfr }}</abbr>
     {%- else -%}
         {{ sfr }}
     {%- endif -%}
 {%- endmacro %}
 
 {% macro render_sars(sar) %}
-    {%- if get_cc_sar(sar) -%}
-        <a href="https://www.commoncriteriaportal.org/files/ccfiles/CC2022PART3R1.pdf" target="_blank" rel="noopener"
-           title="{% if cc_class_name(sar) %}{{ cc_class_name(sar) }} — {% endif %}{{ get_cc_sar(sar) }}">{{ sar }}</a>
+    {%- set tip = cc_tooltip(sar, get_cc_sar(sar)) | trim -%}
+    {%- if tip -%}
+        <abbr title="{{ tip }}">{{ sar }}</abbr>
     {%- else -%}
         {{ sar }}
     {%- endif -%}
