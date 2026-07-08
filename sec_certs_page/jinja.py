@@ -253,7 +253,7 @@ def curve_url(curve):
     return None
 
 
-# Java Card API, Classic Edition 3.2 - https://docs.oracle.com/en/java/javacard/3.2/jcapi/api_classic/allpackages-index.html
+# Java Card API - https://docs.oracle.com/en/java/javacard/3.2/jcapi/api_classic/allpackages-index.html
 JAVACARD_PACKAGES = [
     "java.io",
     "java.lang",
@@ -287,7 +287,7 @@ _JAVACARD_PACKAGES_LOOKUP = {name.lower(): name for name in JAVACARD_PACKAGES}
 
 @app.template_global("package_url")
 def package_url(package):
-    # return URL of a JavaCard API package in the official Oracle docs or none if unknown
+    # return URL of a JavaCard API package in the official Oracle docs or none
     name = package.strip().replace("．", ".").lower()
     canonical = _JAVACARD_PACKAGES_LOOKUP.get(name)
     if not canonical:
