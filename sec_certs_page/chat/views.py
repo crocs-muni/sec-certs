@@ -42,6 +42,11 @@ def stream_completion(result):
                 chunk = jsonlib.loads(payload)
             except ValueError:
                 continue
+            if "error" in chunk:
+                error = chunk["error"]
+                message = error.get("message") if isinstance(error, dict) else str(error)
+                yield sse("error", message=message or "Chat request failed.")
+                return
             delta = (chunk.get("choices") or [{}])[0].get("delta", {}).get("content")
             if delta:
                 yield sse(delta=delta)
