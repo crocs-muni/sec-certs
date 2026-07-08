@@ -42,7 +42,8 @@
                 </div>
             {% endif %}
 
-            <div class="d-flex gap-3 flex-wrap">
+            <div class="d-flex gap-3 flex-wrap align-items-center pt-3">
+                {% if config["CHAT_ENABLED"] %}{{ chat_icon() }}{% endif %}
                 {{ compare_icon() }}
                 {{ notification_icon(current_user, subscribed) }}
                 {{ render_share_buttons(hashid, cert_id=cert["other_metadata"]["certificate_id"], name=cert["name"]) }}

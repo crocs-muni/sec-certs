@@ -141,134 +141,205 @@ export function compare_do(cc_url, fips_url, eucc_url) {
     window.location.href = url;
 }
 
-export function chat(rag_url, full_url, token, chat_history, certificate_data) {
-    let message = $("#chat-input").val().trim();
-    if (message) {
-        // Append the message to the chat history and display it
-        let full_message = {
-            role: "user",
-            content: message
-        };
-        chat_history.push(full_message);
-        let data = {
-            query: chat_history,
-        };
-        let about = $("#chat-about").val();
-        let url;
-        switch (about) {
-            case "rag-this":
-                url = rag_url;
-                data.about = "entry";
-                break;
-            case "rag-both":
-                url = rag_url;
-                data.about = "both";
-                break;
-            case "full-report":
-                url = full_url;
-                data.context = "report";
-                break;
-            case "full-target":
-                url = full_url;
-                data.context = "target";
-                break;
-            case "full-both":
-                url = full_url;
-                data.context = "both";
-                break;
-            default:
-                // Error out
-                return;
-        }
-        // Get the model
-        data.model = $("#chat-model").val();
-        // Extract hashid from certificate_data if available
-        let hashid = certificate_data?.hashid;
-        let collection = certificate_data?.type;
-        if (hashid !== undefined) {
-            data.hashid = hashid;
-            data.collection = collection;
-        }
-        $("#chat-messages").append(`<div class="chat-message-user">${message}</div>`);
-        $("#chat-input").val(""); // Clear input after sending
-        // Disable the send button to prevent multiple clicks
-        $("#chat-send").prop("disabled", true);
-        // Show the loading indicator
-        $("#chat-messages").append(`<div class="chat-message-loading"><i class="fas fa-spinner fa-spin"></i></div>`);
-        // Send the chat history to the server
-        $.ajax(url, {
-                method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(data),
-                headers: {
-                    "X-CSRFToken": token
-                },
-                success: function (response) {
-                    // Remove the loading indicator
-                    $("#chat-messages .chat-message-loading").remove();
-                    // Enable the send button again
-                    $("#chat-send").prop("disabled", false);
-                    // Append the response from the server
-                    $("#chat-messages").append(`<div class="chat-message-assistant">${response.response}</div>`);
-                    chat_history.push({
-                        role: "assistant",
-                        content: response.raw
-                    });
-                    // Hide any previous error messages
-                    $("#chat-error").hide();
-                },
-                error: function (xhr) {
-                    // Remove the loading indicator
-                    $("#chat-messages .chat-message-loading").remove();
-                    // Enable the send button again
-                    $("#chat-send").prop("disabled", false);
-                    // Handle error, parse the response as JSON
-                    let error_message = "An error occurred while sending your message.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        error_message = xhr.responseJSON.message;
-                    }
-                    // Display the error message
-                    $("#chat-error").text(error_message).show();
-                }
-            }
-        );
+function scrollChatToBottom() {
+    let win = document.getElementById("chat-window");
+    if (win) {
+        win.scrollTop = win.scrollHeight;
     }
 }
 
-export function chat_files(files_url, token, certificate_data) {
-    let hashid = certificate_data?.hashid;
-    let collection = certificate_data?.type;
-    if ($("#chat-files").data("done") || !hashid || !collection) {
-        // If files have already been loaded or no hashid/collection, do nothing
+function buildChatRequest(chat_history, certificate_data) {
+    let about = $("#chat-about").val();
+    let documents = about ? about.split(",").filter(Boolean) : [];
+    let data = {query: chat_history, documents: documents, model: $("#chat-model").val()};
+    if (certificate_data?.hashid !== undefined) {
+        data.hashid = certificate_data.hashid;
+        data.collection = certificate_data.type;
+    }
+    return data;
+}
+
+function assistantTurn(iconClass, bodyHtml, extraClass) {
+    return $(
+        `<div class="chat-turn assistant${extraClass ? " " + extraClass : ""}">` +
+        `<span class="chat-avatar"><i class="fas ${iconClass}"></i></span>` +
+        `<div class="chat-turn-body">${bodyHtml}</div></div>`
+    );
+}
+
+function appendUserTurn(message) {
+    let turn = $('<div class="chat-turn user"><div class="chat-bubble"></div></div>');
+    turn.find(".chat-bubble").text(message);
+    $("#chat-messages").append(turn);
+}
+
+function appendLoadingTurn() {
+    $("#chat-messages").append(assistantTurn("fa-wand-magic-sparkles", '<span class="chat-dots"><i></i><i></i><i></i></span>', "chat-loading"));
+}
+
+function appendAssistantTurn() {
+    $("#chat-messages .chat-loading").remove();
+    let turn = assistantTurn("fa-wand-magic-sparkles", '<div class="chat-md"></div>');
+    $("#chat-messages").append(turn);
+    return turn.find(".chat-md");
+}
+
+function appendErrorTurn(message) {
+    $("#chat-messages .chat-loading").remove();
+    let turn = assistantTurn("fa-triangle-exclamation", '<div class="chat-md"></div>', "chat-notice-turn");
+    turn.find(".chat-md").text(message || "An error occurred while sending your message.");
+    $("#chat-messages").append(turn);
+    $("#chat-error").hide();
+    reenableSend();
+    scrollChatToBottom();
+}
+
+let chatAbortController = null;
+
+export function stopChat() {
+    if (chatAbortController) chatAbortController.abort();
+}
+
+function reenableSend() {
+    $("#chat-send").removeClass("chat-pending").attr("aria-label", "Send")
+        .prop("disabled", $("#chat-input").val().trim() === "");
+}
+
+function renderMarkdown($md, text) {
+    $md.html(DOMPurify.sanitize(marked.parse(text)));
+    $md.find("a").attr({target: "_blank", rel: "noopener noreferrer"});
+}
+
+async function* readSSEFrames(response) {
+    let reader = response.body.getReader();
+    let decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+        let {value, done} = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, {stream: true});
+        let idx;
+        while ((idx = buffer.indexOf("\n\n")) !== -1) {
+            yield parseSSEFrame(buffer.slice(0, idx));
+            buffer = buffer.slice(idx + 2);
+        }
+    }
+}
+
+function parseSSEFrame(frame) {
+    let event = "message";
+    let dataStr = "";
+    for (let line of frame.split("\n")) {
+        if (line.startsWith("event:")) event = line.slice(6).trim();
+        else if (line.startsWith("data:")) dataStr += line.slice(5).trim();
+    }
+    let data = {};
+    try {
+        if (dataStr) data = JSON.parse(dataStr);
+    } catch (e) {
+        // leave data as {}
+    }
+    return {event, data};
+}
+
+async function errorMessage(response) {
+    try {
+        return (await response.json())?.message;
+    } catch (e) {
+        return undefined;
+    }
+}
+
+async function streamReply(url, token, data, chat_history) {
+    chatAbortController = new AbortController();
+    let signal = chatAbortController.signal;
+    try {
+        let response;
+        try {
+            response = await fetch(url, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": token},
+                body: JSON.stringify(data),
+                signal: signal
+            });
+        } catch (e) {
+            if (signal.aborted) {  // stopped by the user before anything arrived
+                $("#chat-messages .chat-loading").remove();
+                reenableSend();
+            } else {
+                appendErrorTurn();
+            }
+            return;
+        }
+        if (!response.ok) {
+            appendErrorTurn(await errorMessage(response));
+            return;
+        }
+
+        let botMd = appendAssistantTurn();
+        let raw = "";
+        let renderScheduled = false;
+        try {
+            for await (let {event, data: payload} of readSSEFrames(response)) {
+                if (event === "error") {
+                    botMd.closest(".chat-turn").remove();
+                    appendErrorTurn(payload.message);
+                    return;
+                }
+                if (event === "done") break;
+                if (payload.delta) {
+                    raw += payload.delta;
+                    if (!renderScheduled) {
+                        renderScheduled = true;
+                        requestAnimationFrame(() => {
+                            renderScheduled = false;
+                            renderMarkdown(botMd, raw);
+                            scrollChatToBottom();
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            if (!signal.aborted) {
+                botMd.closest(".chat-turn").remove();
+                appendErrorTurn();
+                return;
+            }
+            // stopped by the user mid-stream: keep the partial reply
+        }
+
+        if (raw) {
+            renderMarkdown(botMd, raw);
+            chat_history.push({role: "assistant", content: raw});
+        } else {
+            botMd.closest(".chat-turn").remove();
+        }
+        $("#chat-error").hide();
+        reenableSend();
+        scrollChatToBottom();
+    } finally {
+        chatAbortController = null;
+    }
+}
+
+export async function chat(full_url, token, chat_history, certificate_data) {
+    if (chatAbortController) {  // a request is in flight; the button acts as Stop
+        chatAbortController.abort();
         return;
     }
-    $.ajax({
-        url: files_url,
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({
-            collection: collection,
-            hashid: hashid
-        }),
-        headers: {
-            "X-CSRFToken": token
-        },
-        success: function (data) {
-            if (data.files && data.files.length > 0) {
-                $("#chat-files").html(
-                    `Files available: <span class="badge bg-secondary">${data.files.join(", ")}</span>.`
-                );
-            } else {
-                $("#chat-files").text("No files available for RAG. This wil not work!");
-            }
-            $("#chat-files").data("done", true);
-        },
-        error: function (xhr) {
-            let error_message = "An error occurred while fetching files.";
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                error_message = xhr.responseJSON.message;
-            }
-            $("#chat-files").text(error_message).addClass("text-danger");
-        }
-    })
+
+    let message = $("#chat-input").val().trim();
+    if (!message) return;
+
+    chat_history.push({role: "user", content: message});
+    let data = buildChatRequest(chat_history, certificate_data);
+
+    $("#chat-empty").addClass("d-none");
+    appendUserTurn(message);
+    $("#chat-send").addClass("chat-pending").attr("aria-label", "Stop generating").prop("disabled", false);
+    $("#chat-input").val("").trigger("input");
+    appendLoadingTurn();
+    scrollChatToBottom();
+
+    await streamReply(full_url, token, data, chat_history);
 }

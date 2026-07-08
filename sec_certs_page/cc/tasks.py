@@ -20,7 +20,6 @@ from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
 from ..common.tasks.update import Updater
 from ..common.tasks.utils import actor
-from ..common.tasks.webui import KBUpdater
 from .index import cc_index
 
 logger = logging.getLogger(__name__)
@@ -120,16 +119,6 @@ def reindex_all():  # pragma: no cover
     pipeline(tasks).run()
 
 
-class CCKBUpdater(KBUpdater, CCMixin):  # pragma: no cover
-    pass
-
-
-@actor("cc_update_kb", "cc_update_kb", "updates", timedelta(hours=12))
-def update_kb(to_update):  # pragma: no cover
-    updater = CCKBUpdater()
-    updater.update(to_update)
-
-
 class CCArchiver(Archiver, CCMixin):  # pragma: no cover
     """
     CC Dataset
@@ -216,26 +205,8 @@ def archive_all():  # pragma: no cover
 
 
 class CCUpdater(Updater, CCMixin):  # pragma: no cover
-    def process(
-        self, dset: CCDataset, paths: dict[str, Path]
-    ) -> tuple[set[tuple[str, str]], set[tuple[str, str, str | None]]]:
-        to_reindex = set()
-        to_update_kb: set[tuple[str, str, str | None]] = set()
-
-        # reports_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_REPORTS"])
-        # targets_kb = get_knowledge_base(current_app.config["WEBUI_COLLECTION_CC_TARGETS"])
-        # reports_fmap = {}
-        # for file in reports_kb["files"]:
-        #    id = file["id"]
-        #    name = file["meta"]["name"]
-        #    updated = file["updated_at"]
-        #    reports_fmap[name] = (id, updated)
-        # targets_fmap = {}
-        # for file in targets_kb["files"]:
-        #    id = file["id"]
-        #    name = file["meta"]["name"]
-        #    updated = file["updated_at"]
-        #     targets_fmap[name] = (id, updated)
+    def process(self, dset: CCDataset, paths: dict[str, Path]) -> set[str]:
+        to_reindex: set[str] = set()
 
         with sentry_sdk.start_span(op="cc.all", name="Get full CC dataset"):
             if not self.skip_update or not paths["output_path"].exists():
@@ -273,11 +244,6 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
                             cert.state.report.txt_path.replace(dst)
                             to_reindex.add(cert.dgst)
-                        # name = f"{cert.dgst}.txt"
-                        # if name not in reports_fmap:
-                        #    to_update_kb.add((cert.dgst, "report", None))
-                        # elif reports_fmap[name][1] < dst.stat().st_mtime:
-                        #    to_update_kb.add((cert.dgst, "report", reports_fmap[name][0]))
                     if cert.state.st.source_path and cert.state.st.source_path.exists():
                         dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.source_hash:
@@ -287,11 +253,6 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
                             cert.state.st.txt_path.replace(dst)
                             to_reindex.add(cert.dgst)
-                        # name = f"{cert.dgst}.txt"
-                        # if name not in targets_fmap:
-                        #    to_update_kb.add((cert.dgst, "target", None))
-                        # elif targets_fmap[name][1] < dst.stat().st_mtime:
-                        #    to_update_kb.add((cert.dgst, "target", targets_fmap[name][0]))
                     if cert.state.cert.source_path and cert.state.cert.source_path.exists():
                         dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
                         if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.source_hash:
@@ -311,7 +272,7 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
                         mongo.db.cc_old.replace_one(
                             {"_id": cert.older_dgst}, {"_id": cert.older_dgst, "hashid": cert.dgst}, upsert=True
                         )
-        return to_reindex, to_update_kb
+        return to_reindex
 
     def dataset_state(self, dset):
         return dset.state.to_dict()
@@ -321,9 +282,6 @@ class CCUpdater(Updater, CCMixin):  # pragma: no cover
 
     def reindex(self, to_reindex):
         reindex_collection.send(list(to_reindex))
-
-    def update_kb(self, to_update):
-        update_kb.send(list(to_update))
 
     def archive(self, ids, paths):
         archive.send(ids, paths)
