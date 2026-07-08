@@ -278,6 +278,7 @@ async function streamReply(url, token, data, chat_history) {
 
         let botMd = appendAssistantTurn();
         let raw = "";
+        let renderScheduled = false;
         try {
             for await (let {event, data: payload} of readSSEFrames(response)) {
                 if (event === "error") {
@@ -288,8 +289,14 @@ async function streamReply(url, token, data, chat_history) {
                 if (event === "done") break;
                 if (payload.delta) {
                     raw += payload.delta;
-                    renderMarkdown(botMd, raw);
-                    scrollChatToBottom();
+                    if (!renderScheduled) {
+                        renderScheduled = true;
+                        requestAnimationFrame(() => {
+                            renderScheduled = false;
+                            renderMarkdown(botMd, raw);
+                            scrollChatToBottom();
+                        });
+                    }
                 }
             }
         } catch (e) {
