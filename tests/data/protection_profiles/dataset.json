@@ -70,7 +70,8 @@
                     "txt_hash": null,
                     "json_hash": null
                 }
-            }
+            },
+            "scheme_metadata": null
         },
         {
             "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
@@ -127,7 +128,8 @@
                     "txt_hash": null,
                     "json_hash": null
                 }
-            }
+            },
+            "scheme_metadata": null
         },
         {
             "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
@@ -185,7 +187,8 @@
                     "txt_hash": null,
                     "json_hash": null
                 }
-            }
+            },
+            "scheme_metadata": null
         }
     ]
 }
