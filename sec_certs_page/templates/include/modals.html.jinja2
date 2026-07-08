@@ -192,6 +192,9 @@
                             Chat is available to authorized users only. Please log in to use this feature.
                         </div>
                     {% else %}
+                        {% assets output="gen/chat.js", "lib/marked.min.js", "lib/purify.min.js" %}
+                            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+                        {% endassets %}
                         {% set placeholders = placeholders or ["Describe this certificate.",
                                            "What is the certificate ID of this certificate?",
                                            "What other certified products are referenced by this certificate?",
