@@ -52,6 +52,7 @@ def main(model: str, document: str):
                     collection="cc",
                     hashid=hashid,
                     documents=documents,
+                    stream=False,
                 )
                 j = resp.json()
                 if "choices" not in j or not j["choices"]:

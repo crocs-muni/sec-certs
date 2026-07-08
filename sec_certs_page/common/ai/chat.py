@@ -7,13 +7,14 @@ from ..views import entry_file_path
 from .api import post
 
 
-def chat_with_model(model: str, queries, system_addition: str = ""):
+def chat_with_model(model: str, queries, system_addition: str = "", stream: bool = True):
     """
     Chat with the model using the OpenAI API.
 
     :param model: Model name.
     :param queries: List of message dictionaries.
     :param system_addition: Additional system prompt content.
+    :param stream: Whether to request a streaming (SSE) response.
     :return: Response from the API.
     """
     url = "chat/completions"
@@ -23,13 +24,15 @@ def chat_with_model(model: str, queries, system_addition: str = ""):
             {"role": "system", "content": current_app.config["LLM_SYSTEM_PROMPT"] + system_addition},
             *queries,
         ],
-        "stream": True,
+        "stream": stream,
     }
-    response = post(url, data, stream=True)
+    response = post(url, data, stream=stream)
     return response
 
 
-def chat_full(queries, model: str, collection: str, hashid: str, documents: set[str]) -> requests.Response:
+def chat_full(
+    queries, model: str, collection: str, hashid: str, documents: set[str], stream: bool = True
+) -> requests.Response:
     cert = mongo.db[collection].find_one({"_id": hashid})
     if not cert:
         raise ValueError("Invalid hashid.")
@@ -45,4 +48,4 @@ def chat_full(queries, model: str, collection: str, hashid: str, documents: set[
     )
     if not documents:
         system_addition += current_app.config.get("LLM_PROMPT_NO_DOCS", "")
-    return chat_with_model(model, queries, system_addition)
+    return chat_with_model(model, queries, system_addition, stream=stream)
