@@ -324,9 +324,8 @@ export async function chat(full_url, token, chat_history, certificate_data) {
     let message = $("#chat-input").val().trim();
     if (!message) return;
 
-    let data = buildChatRequest(chat_history, certificate_data);
-    if (!data) return;
     chat_history.push({role: "user", content: message});
+    let data = buildChatRequest(chat_history, certificate_data);
 
     $("#chat-empty").addClass("d-none");
     appendUserTurn(message);
