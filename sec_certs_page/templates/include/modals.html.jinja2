@@ -250,8 +250,7 @@
                                                         {% if document.available %}
                                                             <li><button type="button" class="dropdown-item chat-about-item{% if chat_available | length == 1 %} active{% endif %}"
                                                                         data-value="{{ document.value }}" data-label="{{ document.label }}">
-                                                                {{ document.label }}
-                                                                <span class="chat-item-desc">{{ document.label }}</span></button></li>
+                                                                {{ document.label }}</button></li>
                                                         {% else %}
                                                             <li><button type="button" class="dropdown-item chat-about-item disabled" disabled>
                                                                 {{ document.label }}
