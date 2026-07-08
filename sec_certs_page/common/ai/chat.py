@@ -36,12 +36,13 @@ def chat_full(queries, model: str, collection: str, hashid: str, documents: set[
     doc_map = {}
     for doc in documents:
         fpath = entry_file_path(hashid, current_app.config[f"DATASET_PATH_{collection.upper()}_DIR"], doc, "txt")
-        if fpath.exists():
-            with fpath.open() as file:
-                doc_map[doc] = file.read()
+        if not fpath.exists():
+            raise ValueError(f"Document '{doc}' is not available for this entry.")
+        with fpath.open() as file:
+            doc_map[doc] = file.read()
     system_addition = render_template_string(
         current_app.config.get(f"LLM_PROMPT_{collection.upper()}_CERT"), cert_name=cert_name(cert), **doc_map
     )
-    if not doc_map:
+    if not documents:
         system_addition += current_app.config.get("LLM_PROMPT_NO_DOCS", "")
     return chat_with_model(model, queries, system_addition)
