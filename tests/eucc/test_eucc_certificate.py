@@ -89,6 +89,8 @@ def test_parse_package(input_text, expected_output):
         ("EUCC-3110-2025-08-2500052-01", "NL"),
         ("EUCC-3110-2025-0002500052-00001", "NL"),
         ("EUCC-3090-2025-0000000006-00000", "FR"),
+        ("EUCC-3135-2026-0000000001-00000", "SE"),
+        ("EUCC-3100-2026-0007001701-00000", "NL")
     ],
 )
 def test_get_scheme_from_cert_id(cert_id, expected_output):
