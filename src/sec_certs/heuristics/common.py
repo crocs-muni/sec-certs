@@ -193,8 +193,7 @@ def compute_references(certs: dict[str, CCCertificate | EUCCCertificate]) -> Non
 @staged(logger, "Computing heuristics: Deriving information about certificate ids from artifacts.")
 def compute_normalized_cert_ids(certs: Iterable[CCCertificate | EUCCCertificate]) -> None:
     for cert in certs:
-        if isinstance(cert, CCCertificate):
-            cert.compute_heuristics_cert_id()
+        cert.compute_heuristics_cert_id()
 
 
 @staged(logger, "Computing heuristics: Matching scheme data.")
