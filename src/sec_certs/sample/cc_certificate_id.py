@@ -292,3 +292,20 @@ class CertificateId:
 
 def canonicalize(cert_id_str: str, scheme: str) -> str:
     return CertificateId(scheme, cert_id_str).canonical
+
+
+# Matches any EUCC id form and pulls out the certification body, year and the yearly sequence number
+EUCC_CERT_ID_RE = re.compile(
+    r"(?:CERTIFICATE[- ])?"
+    r"EUCC[-_](?P<cb>[0-9]{4})[-_](?P<year>20[0-9]{2})"
+    r"(?:[-_](?P<month>0[1-9]|1[0-2]))?"
+    r"[-_](?P<seq>[0-9]+)"
+    r"(?:[-_][0-9]+)*"
+)
+
+
+def canonicalize_eucc(cert_id: str) -> str | None:
+    # Canonicalizes any EUCC id into "EUCC-<CB>-<year>-<seq>"
+    if match := EUCC_CERT_ID_RE.fullmatch(cert_id.strip()):
+        return f"EUCC-{match['cb']}-{match['year']}-{int(match['seq'])}"
+    return None

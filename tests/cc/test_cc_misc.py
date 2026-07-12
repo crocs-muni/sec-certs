@@ -1,6 +1,6 @@
 import pytest
 
-from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize
+from sec_certs.sample.cc_certificate_id import CertificateId, canonicalize, canonicalize_eucc
 from sec_certs.sample.cc_eucc_common import PdfData
 
 
@@ -153,6 +153,46 @@ def test_canonicalize_nl_eucc(n):
     assert canonicalize_n(n, "EUCC-3110-2025-0002500093-00001", "NL") == "EUCC-3110-2025-2500093"
     # Form without month
     assert canonicalize_n(n, "EUCC-3110-2026-2500077-01", "NL") == "EUCC-3110-2026-2500077"
+
+
+@pytest.mark.parametrize("n", [1, 2])
+def test_canonicalize_eucc_generic(n):
+    def canon_n(cert_id):
+        for _ in range(n):
+            new = canonicalize_eucc(cert_id)
+            assert new is not None
+            cert_id = new
+        return cert_id
+
+    # Real ENISA long forms
+    assert canon_n("EUCC-3090-2025-0000000001-00002") == "EUCC-3090-2025-1"
+    assert canon_n("EUCC-3110-2025-2500051-01-00000") == "EUCC-3110-2025-2500051"
+    assert canon_n("EUCC-3087-2026-0000000004-00000") == "EUCC-3087-2026-4"
+    assert canon_n("EUCC-3095-2026-0000000005-00000") == "EUCC-3095-2026-5"
+    # Bodies with no dedicated scheme rules
+    assert canon_n("EUCC-3100-2026-0007001701-00000") == "EUCC-3100-2026-7001701"
+    assert canon_n("EUCC-3135-2026-0000000001-00000") == "EUCC-3135-2026-1"
+
+
+def test_canonicalize_eucc_non_eucc_returns_none():
+    # Non-numeric body
+    assert canonicalize_eucc("EUCC-ANSSI-2025-03-02") is None
+    assert canonicalize_eucc("ANSSI-CC-2014/01") is None
+    assert canonicalize_eucc("NSCIB-CC-22-0428888-CR2") is None
+    assert canonicalize_eucc("not an id") is None
+
+
+def test_canonicalize_eucc_matches_scheme_canonicalization():
+    # if EUCC section and the CC section produce identical ids
+    for cert_id, scheme in [
+        ("EUCC-3090-2025-0000000004-00002", "FR"),
+        ("EUCC-3090-2025-10-04", "FR"),
+        ("EUCC-3090-2026-36", "FR"),
+        ("EUCC-3110-2025-08-2500052-01", "NL"),
+        ("EUCC-3110-2025-0002500093-00001", "NL"),
+        ("EUCC-3110-2026-2500077-01", "NL"),
+    ]:
+        assert canonicalize_eucc(cert_id) == canonicalize(cert_id, scheme)
 
 
 def test_certid_compare():
