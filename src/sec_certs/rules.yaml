@@ -34,8 +34,6 @@ cc_cert_id:
   NL:
     - "(?:NSCIB-|CC-|NSCIB-CC-)(?P<core>((?P<year>[0-9]{2})-)?(?:-?[0-9]+)+)(?:-?(?P<doc>(?:CR|MA|MR)(?P<version>[0-9]*)))?"
     - "EUCC[ ]?[-_][ ]?3110[ ]?[-_][ ]?(?P<year>20[0-9]{2})(?:[ ]?[-_][ ]?(?P<month>0[1-9]|1[0-2]))?[ ]?[-_][ ]?(?P<eucc_seq>[0-9]{5,})(?:[ ]?[-_][ ]?(?P<eucc_rev>[0-9]{1,2})(?![0-9]))?"
-    - "EUCC-3110-(?P<year>[0-9]{4})-(?P<id>[0-9]+)-(?P<revision_number>[0-9]+)$"
-    - "EUCC-3110-(?P<year>[0-9]{4})-(?P<id>[0-9]+)-(?P<id2>[0-9]+)-(?P<revision_number>[0-9]+)$"
     - "EUCC-(?:3110|3100)-(?P<year>[0-9]{4})-(?P<id>[0-9]+)-(?P<revision_number>[0-9]+)$"
     - "EUCC-(?:3110|3100)-(?P<year>[0-9]{4})-(?P<id>[0-9]+)-(?P<id2>[0-9]+)-(?P<revision_number>[0-9]+)$"
     # Examples:
