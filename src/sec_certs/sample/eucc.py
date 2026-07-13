@@ -20,7 +20,7 @@ from sec_certs.sample.cc_eucc_common import (
     dgst,
     set_local_paths,
 )
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers, sanitization
@@ -388,8 +388,13 @@ class EUCCCertificate(
         Canonicalizes the ENISA cert id into the short EUCC form used across the
         library. The original ENISA id is kept in self.cert_id
         """
-        if self.cert_id:
-            self.heuristics.cert_id = canonicalize_eucc(self.cert_id)
+        if not self.cert_id:
+            return
+        canonical = canonicalize_eucc(self.cert_id)
+        if canonical is None:
+            logger.warning(f"Could not canonicalize EUCC cert id {self.cert_id!r}; leaving heuristics.cert_id unset")
+            return
+        self.heuristics.cert_id = canonical
 
     def compute_heuristics_cert_lab(self):
         compute_heuristics_cert_lab(self)
