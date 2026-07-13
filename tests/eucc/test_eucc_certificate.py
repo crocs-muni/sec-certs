@@ -96,6 +96,58 @@ def test_get_scheme_from_cert_id(cert_id, expected_output):
     assert result == expected_output
 
 
+def _make_eucc_cert(cert_id: str) -> EUCCCertificate:
+    scheme = EUCCCertificate._get_scheme_from_cert_id(cert_id)
+    return EUCCCertificate(
+        cert_id,
+        "category",
+        "name",
+        None,
+        None,
+        scheme,
+        set(),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+
+
+@pytest.mark.parametrize(
+    "cert_id, expected",
+    [
+        ("EUCC-3090-2025-0000000004-00002", "EUCC-3090-2025-4"),
+        ("EUCC-3110-2025-2500051-01-00000", "EUCC-3110-2025-2500051"),
+        ("EUCC-3087-2026-0000000004-00000", "EUCC-3087-2026-4"),
+        # body with no dedicated scheme rules is still canonicalized
+        ("EUCC-3100-2026-0007001701-00000", "EUCC-3100-2026-7001701"),
+    ],
+)
+def test_compute_heuristics_cert_id(cert_id, expected):
+    cert = _make_eucc_cert(cert_id)
+    assert cert.heuristics.cert_id is None
+    cert.compute_heuristics_cert_id()
+    # canonical short form is in heuristics, original ENISA id is saved
+    assert cert.heuristics.cert_id == expected
+    assert cert.cert_id == cert_id
+
+
+def test_compute_heuristics_cert_id_from_metadata(data_dir):
+    metadata = load_scraped_metadata(data_dir)
+    links = load_scraped_links(data_dir)
+    cert = EUCCCertificate._from_metadata_dict(metadata["certificate_id"], metadata, links)
+
+    cert.compute_heuristics_cert_id()
+    assert cert.heuristics.cert_id == "EUCC-3087-2025-1"
+    assert cert.cert_id == metadata["certificate_id"]
+
+
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
