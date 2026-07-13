@@ -48,6 +48,7 @@ class PPRenderer(DiffRenderer, PPMixin):  # pragma: no cover
             "pdf_data": ("PDF extraction data", False),
             "state": ("state of the protection profile object", False),
             "heuristics": ("computed heuristics", True),
+            "scheme_metadata": ("national scheme metadata", False),
         }
 
 

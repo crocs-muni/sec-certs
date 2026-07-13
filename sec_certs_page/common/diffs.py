@@ -91,6 +91,7 @@ class DiffRenderer:
     templates: Mapping[str, str]
     k2map: Mapping[str, tuple[str, bool]]
 
+    # [TODO] need refactor
     def render_diff(self, hashid, cert, diff, **kwargs) -> Markup:
         """
         Render a diff into HTML.
@@ -193,6 +194,16 @@ class DiffRenderer:
                             details.append(render_code_template("The new value is <code>{vjson}</code>.", v2))
                         # Add the rendered change into the list.
                         changes.append((self.k2map.get(k2, (k2, False)), details))
+                elif k1 == symbols.insert:
+                    for k2, v2 in v1.items():
+                        if has_symbols(v2):
+                            logger.error(f"Should not happen, top-level ins: {k2}, {v2}")
+                            continue
+                        details = [render_code_template("This property was added with value <code>{vjson}</code>.", v2)]
+                        changes.append((self.k2map.get(k2, (k2, False)), details))
+                elif k1 == symbols.delete:
+                    for k2 in v1:
+                        changes.append((self.k2map.get(k2, (k2, False)), [Markup("This property was removed.")]))
             return Markup(
                 render_template(self.templates["change"], cert=cert, changes=changes, hashid=hashid, **kwargs)
             )
