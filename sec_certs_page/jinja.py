@@ -179,12 +179,6 @@ def standard_url(standard):
     if m:
         return f"https://www.rfc-editor.org/rfc/rfc{m.group(1)}"
 
-    m = re.match(r"(?:NIST\s+)?SP\s*(\d+)-(\d+)([A-Za-z]?)", s, re.IGNORECASE)
-    if m:
-        series, num, letter = m.group(1), m.group(2), m.group(3).lower()
-        path = f"{series}/{num}/{letter}" if letter else f"{series}/{num}"
-        return f"https://csrc.nist.gov/pubs/sp/{path}/final"
-
     m = re.match(r"FIPS\s*(?:PUB\s*)?(\d+)(?:-(\d+))?", s, re.IGNORECASE)
     if m:
         base, sub = m.group(1), m.group(2)
