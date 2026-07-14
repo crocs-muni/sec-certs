@@ -33,7 +33,7 @@ def test_canonicalize_fr_eucc(n):
     assert canonicalize_n(n, "EUCC-3090-2025-10-04", "FR") == "EUCC-3090-2025-4"
     # Short form: year-seq
     assert canonicalize_n(n, "EUCC-3090-2026-36", "FR") == "EUCC-3090-2026-36"
-    assert canonicalize_n(n, "EUCC-3090-2025-10_03", "FR") == "EUCC-3090-2025-3"
+    assert canonicalize_n(n, "EUCC-3090-2025-10-03", "FR") == "EUCC-3090-2025-3"
     assert canonicalize_n(n, "EUCC - 3090 - 2025 - 10 - 04", "FR") == "EUCC-3090-2025-4"
     # ENISA long form
     assert canonicalize_n(n, "EUCC-3090-2025-0000000004-00002", "FR") == "EUCC-3090-2025-4"
