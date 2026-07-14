@@ -19,24 +19,15 @@ def _parse_year(year: str | None) -> int | None:
         return y
 
 
-def _eucc_id(cb: str, meta) -> str | None:
-    # Makes an EUCC id "EUCC-3090-2025-4" from the year + sequence
-    # number. The sequence number can come from different groups depending
-    # on which regex rule matched, so we try them in order
-    # returns none if this is not EUCC match
-    for key in ("eucc_seq", "id2", "id"):
-        if val := meta.get(key):
-            return f"EUCC-{cb}-{meta['year']}-{int(val)}"
-    return None
+def _eucc_id(meta) -> str | None:
+    if not meta.get("eucc"):
+        return None
+    if meta.get("anssi"):
+        return f"EUCC-ANSSI-{meta['year']}-{meta['month']}-{meta['day']}"
+    return f"EUCC-{meta['cb']}-{meta['year']}-{int(meta['seq'])}"
 
 
 def FR(meta) -> str:
-    # EUCC formsEUCC-3090-2025-10-04 → EUCC-3090-2025-4
-    if eucc := _eucc_id("3090", meta):
-        return eucc
-    # EUCC-ANSSI form
-    if meta.get("month") and meta.get("day"):
-        return f"EUCC-ANSSI-{meta['year']}-{meta['month']}-{meta['day']}"
     year = _parse_year(meta["year"])
     counter = meta["counter"]
     doc = meta.get("doc")
@@ -170,9 +161,6 @@ def NO(meta) -> str:
 
 
 def NL(meta) -> str:
-    # EUCC forms EUCC-3110-2025-08-2500052-01 → EUCC-3110-2025-2500052
-    if eucc := _eucc_id("3110", meta):
-        return eucc
     core = meta["core"]
     doc = meta.get("doc")
     if doc is None:
@@ -269,12 +257,12 @@ class CertificateId:
         """
         The canonical version of this certificate id.
         """
-        clean = self.clean
-
+        if (eucc_id := _eucc_id(self.meta)) is not None:
+            return eucc_id
         if self.scheme in schemes:
             return schemes[self.scheme](self.meta)
         else:
-            return clean
+            return self.clean
 
     def __str__(self):
         return self.canonical
@@ -294,18 +282,7 @@ def canonicalize(cert_id_str: str, scheme: str) -> str:
     return CertificateId(scheme, cert_id_str).canonical
 
 
-# Matches any EUCC id form and pulls out the certification body, year and the yearly sequence number
-EUCC_CERT_ID_RE = re.compile(
-    r"(?:CERTIFICATE[- ])?"
-    r"EUCC[-_](?P<cb>[0-9]{4})[-_](?P<year>20[0-9]{2})"
-    r"(?:[-_](?P<month>0[1-9]|1[0-2]))?"
-    r"[-_](?P<seq>[0-9]+)"
-    r"(?:[-_][0-9]+)*"
-)
-
-
 def canonicalize_eucc(cert_id: str) -> str | None:
-    # Canonicalizes any EUCC id into "EUCC-<CB>-<year>-<seq>"
-    if match := EUCC_CERT_ID_RE.fullmatch(cert_id.strip()):
-        return f"EUCC-{match['cb']}-{match['year']}-{int(match['seq'])}"
+    if match := re.match(rules["eucc_cert_id"], cert_id.strip()):
+        return _eucc_id(match.groupdict())
     return None
