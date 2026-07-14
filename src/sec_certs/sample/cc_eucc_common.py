@@ -27,7 +27,7 @@ import requests
 
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
-from sec_certs.sample.cc_certificate_id import canonicalize, schemes
+from sec_certs.sample.cc_certificate_id import _eucc_id, canonicalize, schemes
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.certificate import References, logger
@@ -162,7 +162,7 @@ class PdfData(BasePdfData, ComplexSerializableType):
                 if match:
                     try:
                         meta = match.groupdict()
-                        cert_id = scheme_meta(meta)
+                        cert_id = _eucc_id(meta) or scheme_meta(meta)
                         matches[cert_id] += 1
                     except Exception:
                         continue
