@@ -268,7 +268,7 @@ def _create_added_charts_header(cid: ComponentIDBuilder) -> html.Div:
     return html.Div(
         className="d-flex align-items-center justify-content-between mb-2",
         children=[
-            dbc.Label("Added charts", className="fw-bold mb-0"),
+            html.H3("Added charts", className="fw-bold mb-0 fs-6"),
             # Wrap the button and its tooltip so the row has only two flex items
             # (left label + right button); the tooltip is not a visible layout
             # element and must not participate in the flex spacing.

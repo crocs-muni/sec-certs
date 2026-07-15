@@ -88,7 +88,7 @@ def create_chart_wrapper(
             dbc.CardHeader(
                 className="d-flex justify-content-between align-items-center",
                 children=[
-                    html.H5(title, className="mb-0"),
+                    html.H3(title, className="mb-0 h5"),
                     dbc.ButtonGroup(size="sm", children=buttons),
                 ],
             ),
