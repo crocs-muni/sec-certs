@@ -245,9 +245,8 @@ def _register_edit_handler(
             "y_log_scale": no_update,
         }
 
-        # The edit button exists both on the chart card and in the charts list.
-        # Use ctx to find which one fired (ignoring the n_clicks=0 burst emitted
-        # when rows/cards first render).
+        # Only react to an actual click on a card's edit button, ignoring the
+        # n_clicks=0 burst emitted when chart cards first render.
         if not any(trigger.get("value") for trigger in ctx.triggered):
             return no_change
 
