@@ -229,6 +229,14 @@ schemes = {
 }
 
 
+def canonical_from_meta(scheme: str, meta: dict) -> str | None:
+    if (eucc_id := _eucc_id(meta)) is not None:
+        return eucc_id
+    if scheme in schemes:
+        return schemes[scheme](meta)
+    return None
+
+
 @dataclass(frozen=True)
 class CertificateId:
     """
@@ -257,12 +265,7 @@ class CertificateId:
         """
         The canonical version of this certificate id.
         """
-        if (eucc_id := _eucc_id(self.meta)) is not None:
-            return eucc_id
-        if self.scheme in schemes:
-            return schemes[self.scheme](self.meta)
-        else:
-            return self.clean
+        return canonical_from_meta(self.scheme, self.meta) or self.clean
 
     def __str__(self):
         return self.canonical

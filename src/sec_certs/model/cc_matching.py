@@ -10,7 +10,7 @@ from sec_certs.cert_rules import rules
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cc_certificate_id import CertificateId, _eucc_id, schemes
+from sec_certs.sample.cc_certificate_id import CertificateId, canonical_from_meta
 from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.utils.sanitization import sanitize_link_fname
 from sec_certs.utils.strings import fully_sanitize_string
@@ -79,7 +79,6 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate | EUCCCertificate]):
             self._level = self._level.upper().replace("AUGMENTED", "").replace("WITH", "")
 
         filename_rules = rules["cc_filename_cert_id"][self.scheme]
-        scheme_meta = schemes[self.scheme]
         if filename_rules and self._canonical_cert_id is None:
             cert_link = self._get_from_entry("cert_link")
             if cert_link:
@@ -88,7 +87,7 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate | EUCCCertificate]):
                     if match := re.match(rule, cert_fname):
                         with contextlib.suppress(Exception):
                             meta = match.groupdict()
-                            self._canonical_cert_id = _eucc_id(meta) or scheme_meta(meta)
+                            self._canonical_cert_id = canonical_from_meta(self.scheme, meta)
                             break
 
             report_link = self._get_from_entry("report_link")
@@ -98,7 +97,7 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate | EUCCCertificate]):
                     if match := re.match(rule, report_fname):
                         with contextlib.suppress(Exception):
                             meta = match.groupdict()
-                            self._canonical_cert_id = _eucc_id(meta) or scheme_meta(meta)
+                            self._canonical_cert_id = canonical_from_meta(self.scheme, meta)
                             break
 
         self._report_hash = self._get_from_entry("report_hash")
