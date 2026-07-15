@@ -1,12 +1,10 @@
+import json as jsonlib
 from functools import wraps
 
-from flask import current_app, request, url_for
-from markdown2 import markdown
-from nh3 import nh3
+import requests
+from flask import Response, current_app, request, stream_with_context
 
-from .. import mongo
-from ..common.ai.chat import chat_full, chat_rag
-from ..common.ai.webui import file_name, file_type, resolve_files
+from ..common.ai.chat import chat_full
 from ..common.permissions import chat_permission
 from ..common.sentry import metrics
 from ..common.views import accounting
@@ -27,134 +25,48 @@ def chat_api(func):
     return wrapper
 
 
-@chat.route("/files/", methods=["POST"])
-@chat_api
-def files():
-    """Query which files are available for a given hashid."""
-    data = request.get_json()
-    if "hashid" not in data:
-        return {"status": "error", "message": "Missing 'hashid' in request."}, 400
-    if "collection" not in data:
-        return {"status": "error", "message": "Missing 'collection' in request."}, 400
-    hashid = data["hashid"]
-    collection = data["collection"]
-    if collection not in ("cc", "fips", "pp"):
-        return {"status": "error", "message": "Invalid collection specified."}, 400
-    cert = mongo.db[collection].find_one({"_id": hashid})
-    if not cert:
-        return {"status": "error", "message": "Invalid hashid."}, 404
+def sse(event=None, **payload):
+    head = f"event: {event}\n" if event else ""
+    return f"{head}data: {jsonlib.dumps(payload)}\n\n"
+
+
+def stream_completion(result):
     try:
-        resp = resolve_files(collection, hashid)
-    except ValueError as e:
-        return {"status": "error", "message": str(e)}, 400
-    return {"status": "ok", "files": resp}
-
-
-@chat.route("/rag/", methods=["POST"])
-@chat_api
-@accounting("daily", 100, json=True)
-def query_rag():
-    """Chat with the model."""
-    data = request.get_json()
-    if "query" not in data:
-        return {"status": "error", "message": "Missing 'query' in request."}, 400
-    if "about" not in data:
-        return {"status": "error", "message": "Missing 'about' in request."}, 400
-    if "collection" not in data:
-        return {"status": "error", "message": "Missing 'collection' in request."}, 400
-    if "model" not in data:
-        data["model"] = current_app.config["WEBUI_DEFAULT_MODEL"]
-
-    query = []
-    for message in data["query"]:
-        if "role" not in message or "content" not in message:
-            return {"status": "error", "message": "Invalid query format."}, 400
-        if message["role"] not in ("user", "assistant"):
-            return {"status": "error", "message": "Invalid role in query."}, 400
-        query.append({"role": message["role"], "content": message["content"]})
-    collection = data["collection"]
-    if collection not in ("cc", "fips", "pp"):
-        return {"status": "error", "message": "Invalid collection specified."}, 400
-    model = data["model"]
-    if model not in current_app.config["WEBUI_MODELS"]:
-        return {"status": "error", "message": "Invalid model specified."}, 400
-
-    about = data["about"]
-    hashid = data.get("hashid", None)
-
-    try:
-        with metrics.timing("ai.api_latency", attributes={"model": model, "type": "rag"}):
-            result = chat_rag(query, model, collection, hashid, about)
-        metrics.count("ai.query", 1, attributes={"model": model, "type": "rag", "collection": collection})
-    except ValueError as e:
-        return {"status": "error", "message": str(e)}, 400
-
-    if result.status_code != 200:
-        return {"status": "error", "message": "Chat request failed."}, result.status_code
-    json = result.json()
-    choices = json.get("choices", [])
-    if not choices:
-        return {"status": "error", "message": "No response from the model."}, 500
-    choice = choices[0]
-    if "message" not in choice or "content" not in choice["message"]:
-        return {"status": "error", "message": "Invalid response format from the model."}, 500
-    response = choice["message"]["content"]
-    if not response:
-        return {"status": "error", "message": "Empty response from the model."}, 500
-
-    rendered = markdown(
-        response,
-        extras={"cuddled-lists": None, "code-friendly": None, "tables": None, "html-classes": {"table": "table"}},
-    )
-
-    def attribute_filter(tag, name, value):
-        if tag == "table" and name == "class":
-            return "table table-light"
-        return None
-
-    cleaned = nh3.clean(rendered, attributes={"table": {"class"}}, attribute_filter=attribute_filter).strip()
-
-    sources = []
-    if "sources" in json:
-        for source in json["sources"]:
-            file_id = source["source"]["id"]
-            fname = file_name(file_id)
-            ftype = file_type(file_id, collection)
-            sources.append(
-                {
-                    "id": file_id,
-                    "name": fname,
-                    "type": ftype,
-                    "url": url_for(f"{collection}.entry_{ftype}_txt", hashid=hashid) if ftype else None,
-                }
-            )
-        for i, source in enumerate(sources):
-            tag = f"[{i + 1}]"
-            if tag in cleaned:
-                cleaned = cleaned.replace(
-                    tag,
-                    f'<a href="{source["url"]}" target="_blank" title="Model used document.">[{source["type"]}]</a>',
-                )
-
-    return {"status": "ok", "response": cleaned, "raw": response, "sources": sources, "model": model}, 200
+        for line in result.iter_lines(decode_unicode=True):
+            if not line or not line.startswith("data:"):
+                continue
+            payload = line[len("data:") :].strip()
+            if payload == "[DONE]":
+                break
+            try:
+                chunk = jsonlib.loads(payload)
+            except ValueError:
+                continue
+            if "error" in chunk:
+                error = chunk["error"]
+                message = error.get("message") if isinstance(error, dict) else str(error)
+                yield sse("error", message=message or "Chat request failed.")
+                return
+            delta = (chunk.get("choices") or [{}])[0].get("delta", {}).get("content")
+            if delta:
+                yield sse(delta=delta)
+    except requests.RequestException as e:
+        yield sse("error", message=str(e))
+        return
+    finally:
+        result.close()
+    yield sse("done")
 
 
 @chat.route("/full/", methods=["POST"])
 @chat_api
 @accounting("daily", 100, json=True)
 def query_full():
-    """Chat with the model."""
+    """Stream a chat completion about a certificate's full documents."""
     data = request.get_json()
-    if "query" not in data:
-        return {"status": "error", "message": "Missing 'query' in request."}, 400
-    if "context" not in data:
-        return {"status": "error", "message": "Missing 'context' in request."}, 400
-    if "collection" not in data:
-        return {"status": "error", "message": "Missing 'collection' in request."}, 400
-    if "hashid" not in data:
-        return {"status": "error", "message": "Missing 'hashid' in request."}, 400
-    if "model" not in data:
-        data["model"] = current_app.config["WEBUI_DEFAULT_MODEL"]
+    for field in ("query", "documents", "collection", "hashid"):
+        if field not in data:
+            return {"status": "error", "message": f"Missing '{field}' in request."}, 400
 
     query = []
     for message in data["query"]:
@@ -163,48 +75,33 @@ def query_full():
         if message["role"] not in ("user", "assistant"):
             return {"status": "error", "message": "Invalid role in query."}, 400
         query.append({"role": message["role"], "content": message["content"]})
+
+    model = data.get("model") or current_app.config["LLM_DEFAULT_MODEL"]
     collection = data["collection"]
-    if collection not in ("cc", "fips", "pp"):
-        return {"status": "error", "message": "Invalid collection specified."}, 400
-    model = data["model"]
-    if model not in current_app.config["WEBUI_MODELS"]:
+    if model not in current_app.config["LLM_MODELS"]:
         return {"status": "error", "message": "Invalid model specified."}, 400
+    if collection not in ("cc", "eucc", "fips", "pp"):
+        return {"status": "error", "message": "Invalid collection specified."}, 400
+    if not isinstance(data["documents"], list):
+        return {"status": "error", "message": "Invalid documents specified."}, 400
+    documents = set()
+    for document in data["documents"]:
+        if document not in ("report", "target", "profile"):
+            return {"status": "error", "message": "Invalid documents specified."}, 400
 
-    hashid = data["hashid"]
-    context = data["context"]
-    if context not in ("report", "target", "both"):
-        return {"status": "error", "message": "Invalid context specified."}, 400
-
+        documents.add(document)
     try:
-        with metrics.timing("ai.api_latency", attributes={"model": model, "type": "full"}):
-            result = chat_full(query, model, collection, hashid, context)
-        metrics.count("ai.query", 1, attributes={"model": model, "type": "full", "collection": collection})
+        result = chat_full(query, model, collection, data["hashid"], documents)
     except ValueError as e:
         return {"status": "error", "message": str(e)}, 400
+    metrics.count("ai.query", 1, attributes={"model": model, "type": "full", "collection": collection})
 
     if result.status_code != 200:
+        result.close()
         return {"status": "error", "message": "Chat request failed."}, result.status_code
-    json = result.json()
-    choices = json.get("choices", [])
-    if not choices:
-        return {"status": "error", "message": "No response from the model."}, 500
-    choice = choices[0]
-    if "message" not in choice or "content" not in choice["message"]:
-        return {"status": "error", "message": "Invalid response format from the model."}, 500
-    response = choice["message"]["content"]
-    if not response:
-        return {"status": "error", "message": "Empty response from the model."}, 500
 
-    rendered = markdown(
-        response,
-        extras={"cuddled-lists": None, "code-friendly": None, "tables": None, "html-classes": {"table": "table"}},
+    return Response(
+        stream_with_context(stream_completion(result)),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
-
-    def attribute_filter(tag, name, value):
-        if tag == "table" and name == "class":
-            return "table table-light"
-        return None
-
-    cleaned = nh3.clean(rendered, attributes={"table": {"class"}}, attribute_filter=attribute_filter).strip()
-
-    return {"status": "ok", "response": cleaned, "raw": response, "sources": [], "model": model}, 200

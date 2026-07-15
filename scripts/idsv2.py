@@ -34,6 +34,7 @@ def main(model: str, document: str):
     This replaces the previous ad-hoc script with a Click CLI exposing
     --model and --context options.
     """
+    documents = {"report", "target"} if document == "both" else {document}
     with app.app_context():
         # Iterate over all certificates in the 'cc' collection
         certs = list(mongo.db.cc.find({}, {"_id": 1, "heuristics": 1}))
@@ -50,7 +51,8 @@ def main(model: str, document: str):
                     model=model,
                     collection="cc",
                     hashid=hashid,
-                    document=document,
+                    documents=documents,
+                    stream=False,
                 )
                 j = resp.json()
                 if "choices" not in j or not j["choices"]:
