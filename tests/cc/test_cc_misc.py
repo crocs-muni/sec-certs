@@ -153,6 +153,8 @@ def test_canonicalize_nl_eucc(n):
     assert canonicalize_n(n, "EUCC-3110-2025-0002500093-00001", "NL") == "EUCC-3110-2025-2500093"
     # Form without month
     assert canonicalize_n(n, "EUCC-3110-2026-2500077-01", "NL") == "EUCC-3110-2026-2500077"
+    # ENISA NL form: seq + scheme revision + ENISA revision
+    assert canonicalize_n(n, "EUCC-3110-2025-2500051-01-00000", "NL") == "EUCC-3110-2025-2500051"
 
 
 @pytest.mark.parametrize("n", [1, 2])
