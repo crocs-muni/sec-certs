@@ -10,6 +10,7 @@ from typing import Any
 import yaml
 from dateutil.relativedelta import relativedelta
 
+from sec_certs.sample.cc_certificate_id import canonicalize_eucc
 from sec_certs.sample.cc_eucc_common import (
     Heuristics,
     InternalState,
@@ -19,7 +20,7 @@ from sec_certs.sample.cc_eucc_common import (
     dgst,
     set_local_paths,
 )
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers, sanitization
@@ -381,6 +382,19 @@ class EUCCCertificate(
             else dct["not_valid_after"]
         )
         return super(cls, EUCCCertificate).from_dict(new_dct)
+
+    def compute_heuristics_cert_id(self) -> None:
+        """
+        Canonicalizes the ENISA cert id into the short EUCC form used across the
+        library. The original ENISA id is kept in self.cert_id
+        """
+        if not self.cert_id:
+            return
+        canonical = canonicalize_eucc(self.cert_id)
+        if canonical is None:
+            logger.warning(f"Could not canonicalize EUCC cert id {self.cert_id!r}; leaving heuristics.cert_id unset")
+            return
+        self.heuristics.cert_id = canonical
 
     def compute_heuristics_cert_lab(self):
         compute_heuristics_cert_lab(self)
