@@ -383,17 +383,26 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
     @serialize
     @staged(logger, "Downloading and processing metadata from ENISA EUCC page.")
     @only_backed()
-    def get_certs_from_web(self, to_download: bool = True) -> None:
+    def get_certs_from_web(self, to_download: bool = True, carry_processing_results: bool = False) -> None:
         """
         Downloads certificate metadata from the ENISA website, parses the downloaded files, and constructs EUCC objects to
         populate the dataset.
 
         :param bool to_download: If fresh data shall be downloaded (or existing files utilized), defaults to True
+        :param bool carry_processing_results: If the dataset already holds certificates, carry their
+            already computed processing results over onto the freshly scraped certificates. So only certificates that are new,
+            changed or if files for them are missing can get reprocessed,
+            not the whole dataset. Defaults to False.
         """
+
+        old_certs = self.certs
         if to_download is True:
             self._download_metadata()
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
+
+        if carry_processing_results:
+            self._carry_processing_results(old_certs)
 
         self.root_dir.mkdir(parents=True, exist_ok=True)
         self._set_local_paths()

@@ -487,6 +487,20 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             logger.warning("Updating dataset with certificates outside of the dataset!")
         self.certs.update({x.dgst: x for x in certs})
 
+    def _carry_processing_results(self, previous: dict[str, CertSubType]) -> None:
+        logger.info("Carrying over processing results from the previous run onto the freshly scraped certificates.")
+
+        count = 0
+        for dgst, cert in self.certs.items():
+            if (prev := previous.get(dgst)) is not None:
+                cert.state = prev.state
+                cert.pdf_data = prev.pdf_data
+                cert.heuristics = prev.heuristics
+                count += 1
+
+        logger.info(f"Carried processing results for {count} certificates")
+        self.reconcile_document_states()
+
     def reconcile_document_states(self):
         """
         Reconciles the recorded documents flags with the files in dataset directories.

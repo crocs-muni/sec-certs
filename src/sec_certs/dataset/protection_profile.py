@@ -180,6 +180,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         get_archived: bool = True,
         get_collaborative: bool = True,
         get_schemes: bool | None = None,
+        carry_processing_results: bool = False,
     ) -> None:
         """
         Fetches list of protection profiles together with metadata from commoncriteriaportal.org
@@ -191,6 +192,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         if to_download:
             self._download_html_resources(get_active, get_archived, get_collaborative)
+
+        old_certs = self.certs
 
         logger.info("Adding HTML certificates to ProtectionProfile dataset.")
         self.certs = self._get_all_certs_from_html(get_active, get_archived, get_collaborative)
@@ -206,6 +209,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
+
+        if carry_processing_results:
+            self._carry_processing_results(old_certs)
 
         self._set_local_paths()
         self.state.meta_sources_parsed = True

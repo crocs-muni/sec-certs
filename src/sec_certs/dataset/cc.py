@@ -386,6 +386,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         keep_metadata: bool = True,
         get_active: bool = True,
         get_archived: bool = True,
+        carry_processing_results: bool = False,
     ) -> None:
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
@@ -395,9 +396,16 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
         :param bool get_active: If active certificates shall be parsed, defaults to True
         :param bool get_archived: If archived certificates shall be parsed, defaults to True
+        :param bool carry_processing_results: If the dataset already holds certificates, carry their
+            already computed processing results over onto the freshly scraped certificates. So only certificates that are new,
+            changed or if files for them are missing can get reprocessed,
+            not the whole dataset. Defaults to False.
         """
         if to_download is True:
             self._download_csv_html_resources(get_active, get_archived)
+
+        old_certs = self.certs
+        self.certs = {}
 
         logger.info("Adding CSV certificates to CommonCriteria dataset.")
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
@@ -412,6 +420,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
+
+        if carry_processing_results:
+            self._carry_processing_results(old_certs)
 
         self._set_local_paths()
         self.state.meta_sources_parsed = True

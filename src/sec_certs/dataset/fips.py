@@ -268,17 +268,23 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
     @serialize
     @staged(logger, "Downloading and processing certificates.")
     @only_backed()
-    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
+    def get_certs_from_web(
+        self, to_download: bool = True, keep_metadata: bool = True, carry_processing_results: bool = False
+    ) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download:
             self._download_html_resources()
 
+        old_certs = self.certs
         self.certs = {x.dgst: x for x in self._get_all_certs_from_html_sources()}
         logger.info(f"The dataset now contains {len(self)} certificates.")
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
+
+        if carry_processing_results:
+            self._carry_processing_results(old_certs)
 
         self._set_local_paths()
         self.state.meta_sources_parsed = True
