@@ -28,7 +28,7 @@ from sec_certs.utils import helpers, sanitization
 
 
 class CCCertificate(
-    Certificate["CCCertificate", "Heuristics", "PdfData"],
+    Certificate["CCCertificate", "Heuristics", "PdfData", "InternalState"],
     PandasSerializableType,
     ComplexSerializableType,
 ):

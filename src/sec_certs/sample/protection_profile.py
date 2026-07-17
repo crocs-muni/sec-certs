@@ -14,6 +14,7 @@ from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.sample.pp_scheme import PPSchemeRecord
@@ -27,7 +28,12 @@ if TYPE_CHECKING:
 
 
 class ProtectionProfile(
-    Certificate["ProtectionProfile", "ProtectionProfile.Heuristics", "ProtectionProfile.PdfData"],
+    Certificate[
+        "ProtectionProfile",
+        "ProtectionProfile.Heuristics",
+        "ProtectionProfile.PdfData",
+        "ProtectionProfile.InternalState",
+    ],
     ComplexSerializableType,
 ):
     @dataclass
@@ -203,7 +209,7 @@ class ProtectionProfile(
             )
 
     @dataclass
-    class InternalState(ComplexSerializableType):
+    class InternalState(BaseInternalState):
         """
         Class to hold internal state for each of the documents.
         """

@@ -31,7 +31,7 @@ with (Path(__file__).parent.parent / "rules.yaml").open(encoding="utf-8") as f:
 
 @dataclass
 class EUCCCertificate(
-    Certificate["EUCCCertificate", "Heuristics", "PdfData"],
+    Certificate["EUCCCertificate", "Heuristics", "PdfData", "InternalState"],
     ComplexSerializableType,
 ):
     """

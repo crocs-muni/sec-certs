@@ -19,6 +19,7 @@ from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.document_state import DocumentState
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalState(ComplexSerializableType):
+class InternalState(BaseInternalState):
     module: DocumentState = field(default_factory=DocumentState)
     policy: DocumentState = field(default_factory=DocumentState)
 
@@ -214,7 +215,7 @@ DETAILS_KEY_TO_NORMALIZATION_FUNCTION: dict[str, Callable] = {
 
 
 class FIPSCertificate(
-    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics", "FIPSCertificate.PdfData"],
+    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics", "FIPSCertificate.PdfData", "InternalState"],
     PandasSerializableType,
     ComplexSerializableType,
 ):

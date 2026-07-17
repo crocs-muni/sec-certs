@@ -29,6 +29,7 @@ from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
 from sec_certs.sample.cc_certificate_id import canonical_from_meta, canonicalize
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.document_state import DocumentState
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalState(ComplexSerializableType):
+class InternalState(BaseInternalState):
     """
     Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
     holds information about errors and paths to the files.

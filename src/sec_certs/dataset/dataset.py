@@ -428,11 +428,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @serialize
     @only_backed()
-    def analyze_certificates(self) -> None:
+    def analyze_certificates(self, fresh: bool = True) -> None:
         """
         Does two things:
             - Extracts data from certificates (keywords, etc.)
             - Computes various heuristics on the certificates.
+
+        :param fresh: If False, only certificates whose extraction has not yet succeeded are analyzed.
         """
         if not self.state.pdfs_converted:
             logger.info(
@@ -445,17 +447,17 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             )
 
         logger.info("Analyzing certificates.")
-        self._analyze_certificates_body()
+        self._analyze_certificates_body(fresh)
         self.state.certs_analyzed = True
 
-    def _analyze_certificates_body(self) -> None:
+    def _analyze_certificates_body(self, fresh: bool = True) -> None:
         logger.info("Extracting data and heuristics.")
-        self.extract_data()
+        self.extract_data(fresh)
         self.compute_heuristics()
 
     @abstractmethod
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
@@ -484,3 +486,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         if any(x not in self for x in certs):
             logger.warning("Updating dataset with certificates outside of the dataset!")
         self.certs.update({x.dgst: x for x in certs})
+
+    def reconcile_document_states(self):
+        """
+        Reconciles the recorded documents flags with the files in dataset directories.
+        A missing document, or one whose content no longer matches the hash recorded when it was processed,
+        invalidates according processing stage and everything derived from it.
+        """
+        self._set_local_paths()
+        for cert in self:
+            cert.state.reconcile_document_states()
