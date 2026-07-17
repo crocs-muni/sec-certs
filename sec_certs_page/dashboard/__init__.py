@@ -4,11 +4,10 @@ from logging import Logger
 import dash
 import dash_bootstrap_components as dbc
 from dash import html
-from flask import Flask, abort, redirect, request, url_for
+from flask import Flask, flash, redirect, request, url_for
 from flask_login import current_user
 from flask_wtf import CSRFProtect
 
-from ..common.permissions import dashboard_permission
 from .base import Dash
 from .callbacks import register_all_callbacks
 from .data import DataService
@@ -72,7 +71,7 @@ def init_dashboard(dash_app: Dash, flask_app: Flask, csrf: CSRFProtect):
 
 def _register_dashboard_protection(dash_app: Dash, url_base_pathname: str) -> None:
     """
-    Protect dashboard routes with role-based authentication.
+    Protect dashboard routes: require an authenticated user.
 
     This registers a before_request handler scoped to dashboard URLs only.
     Uses the Dash app's url_base_pathname to determine which routes to protect.
@@ -84,11 +83,15 @@ def _register_dashboard_protection(dash_app: Dash, url_base_pathname: str) -> No
         if not request.path.startswith(url_base_pathname):
             return None
 
-        if not current_user.is_authenticated:
-            return redirect(url_for("user.login", next=request.url))
+        if current_user.is_authenticated:
+            return None
 
-        if not dashboard_permission.can():
-            return abort(403)
+        protected_paths = {
+            page["relative_path"].rstrip("/") for page in dash.page_registry.values() if page["path"] != "/"
+        }
+        if request.path.rstrip("/") in protected_paths:
+            flash("Dashboards are available to authorized users only. Please log in to use this feature.", "info")
+            return redirect(url_for("user.login", next=request.url))
 
 
 def _exempt_all_dash_endpoints(app: Flask, csrf: CSRFProtect, url_base_pathname: str) -> None:

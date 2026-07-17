@@ -90,13 +90,6 @@ def is_admin():
     return Permission(RoleNeed("admin")).can()
 
 
-@app.template_global("can_access_dashboard")
-def can_access_dashboard():
-    from .common.permissions import dashboard_permission
-
-    return dashboard_permission.can()
-
-
 @app.template_global("sentry_traceparent")
 def sentry_traceparent():
     if sentry_sdk.is_initialized():

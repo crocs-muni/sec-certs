@@ -54,7 +54,7 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
             dbc.Button(
                 ["Open Dashboard", html.I(className="fas fa-arrow-right ms-2")],
                 href=f"{DASHBOARD_URL_BASE_PATHNAME}{collection_name.value}",
-                external_link=False,
+                external_link=True,
             ),
         ],
     )
