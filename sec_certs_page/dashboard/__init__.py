@@ -83,7 +83,13 @@ def _register_dashboard_protection(dash_app: Dash, url_base_pathname: str) -> No
         if not request.path.startswith(url_base_pathname):
             return None
 
-        if not current_user.is_authenticated:
+        if current_user.is_authenticated:
+            return None
+
+        protected_paths = {
+            page["relative_path"].rstrip("/") for page in dash.page_registry.values() if page["path"] != "/"
+        }
+        if request.path.rstrip("/") in protected_paths:
             return redirect(url_for("user.login", next=request.url))
 
 
