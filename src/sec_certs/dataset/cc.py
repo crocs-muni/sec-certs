@@ -345,7 +345,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
         super().process_auxiliary_datasets(download_fresh, **kwargs)
 
-    def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
+    def _merge_certs_from_other_source(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
@@ -354,7 +354,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self.certs.update(new_certs)
 
         for crt in certs_to_merge:
-            self[crt.dgst].merge(crt, cert_source)
+            self[crt.dgst].merge_from_other_source(crt, cert_source)
 
         logger.info(f"Added {len(new_certs)} new and merged further {len(certs_to_merge)} certificates to the dataset.")
 
@@ -401,12 +401,12 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         logger.info("Adding CSV certificates to CommonCriteria dataset.")
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
-        self._merge_certs(csv_certs, cert_source="csv")
+        self._merge_certs_from_other_source(csv_certs, cert_source="csv")
 
         # Someway along the way, 3 certificates get lost.
         logger.info("Adding HTML certificates to CommonCriteria dataset.")
         html_certs = self._get_all_certs_from_html(get_active, get_archived)
-        self._merge_certs(html_certs, cert_source="html")
+        self._merge_certs_from_other_source(html_certs, cert_source="html")
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
