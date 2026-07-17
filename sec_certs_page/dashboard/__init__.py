@@ -4,7 +4,7 @@ from logging import Logger
 import dash
 import dash_bootstrap_components as dbc
 from dash import html
-from flask import Flask, redirect, request, url_for
+from flask import Flask, flash, redirect, request, url_for
 from flask_login import current_user
 from flask_wtf import CSRFProtect
 
@@ -90,6 +90,7 @@ def _register_dashboard_protection(dash_app: Dash, url_base_pathname: str) -> No
             page["relative_path"].rstrip("/") for page in dash.page_registry.values() if page["path"] != "/"
         }
         if request.path.rstrip("/") in protected_paths:
+            flash("Dashboards are available to authorized users only. Please log in to use this feature.", "info")
             return redirect(url_for("user.login", next=request.url))
 
 
