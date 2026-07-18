@@ -271,6 +271,8 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def from_dict(cls, dct: dict) -> Dataset:
         certs = {x.dgst: x for x in dct["certs"]}
         dset = cls(certs, name=dct["name"], description=dct["description"], state=dct["state"])
+        if ts := dct.get("timestamp"):
+            dset.timestamp = ts if isinstance(ts, datetime) else datetime.fromisoformat(ts)
         if len(dset) != (claimed := dct["n_certs"]):
             logger.error(
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
