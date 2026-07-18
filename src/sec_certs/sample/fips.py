@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalState(BaseInternalState):
+class InternalState(BaseInternalState, ComplexSerializableType):
     module: DocumentState = field(default_factory=DocumentState)
     policy: DocumentState = field(default_factory=DocumentState)
 

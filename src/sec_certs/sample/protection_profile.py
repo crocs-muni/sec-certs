@@ -209,7 +209,7 @@ class ProtectionProfile(
             )
 
     @dataclass
-    class InternalState(BaseInternalState):
+    class InternalState(BaseInternalState, ComplexSerializableType):
         """
         Class to hold internal state for each of the documents.
         """

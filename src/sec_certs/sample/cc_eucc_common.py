@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalState(BaseInternalState):
+class InternalState(BaseInternalState, ComplexSerializableType):
     """
     Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
     holds information about errors and paths to the files.

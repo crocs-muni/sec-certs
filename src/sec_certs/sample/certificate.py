@@ -49,7 +49,7 @@ class PdfData:
         )
 
 
-class InternalState(ComplexSerializableType):
+class InternalState:
     def document_states(self) -> Iterator[DocumentState]:
         for value in vars(self).values():
             if isinstance(value, DocumentState):
