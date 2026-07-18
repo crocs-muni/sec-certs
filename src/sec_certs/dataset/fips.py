@@ -136,6 +136,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.update_with_certs(processed_certs)
 
     def _compute_heuristics_body(self):
+        for cert in self:
+            cert.heuristics.algorithms = cert.pdf_data.module_algorithms | cert.pdf_data.policy_algorithms
         compute_cpe_heuristics(self.aux_handlers[CPEDatasetHandler].dset, self.certs.values())
         compute_related_cves(
             self.aux_handlers[CPEDatasetHandler].dset,

@@ -323,6 +323,8 @@ class FIPSCertificate(
 
         keywords: dict = field(default_factory=dict)
         policy_metadata: dict[str, Any] = field(default_factory=dict)
+        module_algorithms: set[str] = field(default_factory=set)
+        policy_algorithms: set[str] = field(default_factory=set)
 
         @property
         def certlike_algorithm_numbers(self) -> set[str]:
@@ -458,7 +460,7 @@ class FIPSCertificate(
 
         parser = FIPSHTMLParser(soup)
         algorithms, cert.web_data = parser.get_web_data_and_algorithms()
-        cert.heuristics.algorithms |= algorithms
+        cert.pdf_data.module_algorithms = algorithms
         cert.state.module.extract_ok = True
 
         return cert
@@ -558,7 +560,7 @@ class FIPSCertificate(
             repair_pdf(cert.state.policy.source_path)
             try:
                 tabular_data = read_pdf(cert.state.policy.source_path, pages=list(table_rich_page_numbers), silent=True)
-                cert.heuristics.algorithms |= set(
+                cert.pdf_data.policy_algorithms = set(
                     itertools.chain.from_iterable(
                         tables.get_algs_from_table(df.to_string())
                         for df in tabular_data
