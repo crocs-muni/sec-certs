@@ -382,6 +382,38 @@
           "$ref": "base.json#/definitions/document_metadata",
           "title": "Security Policy Metadata",
           "description": "Metadata extracted from the security policy document."
+        },
+        "module_algorithms": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "title": "Module Algorithms",
+          "description": "Algorithms extracted from the HTML module page."
+        },
+        "policy_algorithms": {
+          "type": "object",
+          "properties": {
+            "_type": {
+              "const": "Set"
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "title": "Policy Algorithms",
+          "description": "Algorithms extracted from the security policy PDF tables."
         }
       },
       "title": "Extracted PDF Data",

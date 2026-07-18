@@ -465,16 +465,22 @@ class FIPSCertificate(
 
     @staticmethod
     def download_module(cert: FIPSCertificate) -> FIPSCertificate:
+        doc_state = cert.state.module
         if (
-            exit_code := helpers.download_file(
-                cert.module_html_url, cert.state.module.source_path, proxy=config.fips_use_proxy
-            )
+            exit_code := helpers.download_file(cert.module_html_url, doc_state.source_path, proxy=config.fips_use_proxy)
         ) != requests.codes.ok:
             error_msg = f"failed to download html module from {cert.module_html_url}, code {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.module.download_ok = False
         else:
             cert.state.module.download_ok = True
+            raw = doc_state.source_path.read_text(encoding="utf-8")
+            doc_state.source_path.write_text(helpers.normalize_cloudflare_html(raw), encoding="utf-8")
+
+            source_hash = helpers.get_sha256_filepath(doc_state.source_path)
+            if source_hash != doc_state.source_hash:
+                doc_state.reset_extraction()
+            doc_state.source_hash = source_hash
             cert.state.module.convert_ok = True  # No conversion needed for html, so we set it to True
 
         return cert

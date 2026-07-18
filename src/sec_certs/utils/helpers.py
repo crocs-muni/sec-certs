@@ -182,6 +182,17 @@ def get_sha256_filepath(filepath: str | Path) -> str:
     return hash_sha256.hexdigest()
 
 
+def normalize_cloudflare_html(html: str) -> str:
+    """
+    Strip the tokens Cloudflare rewrites on every response, so the same page has the same hash across runs.
+    The stripped tokens (email obfuscation, injected challenge script) are not read when parsing the module.
+    """
+    html = re.sub(r"(/cdn-cgi/l/email-protection)#[0-9a-fA-F]+", r"\1", html)
+    html = re.sub(r'data-cfemail="[0-9a-fA-F]+"', 'data-cfemail=""', html)
+    html = re.sub(r"(__CF\$cv\$params=\{r:')[^']*(',t:')[^']*('\})", r"\1\2\3", html)
+    return html
+
+
 def to_utc(timestamp: datetime) -> datetime:
     offset = timestamp.utcoffset()
     if offset is None:

@@ -294,6 +294,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self._set_local_paths()
         self.state.meta_sources_parsed = True
 
+    def _carry_processing_results(self, previous: dict[str, FIPSCertificate]) -> None:
+        super()._carry_processing_results(previous)
+        for dgst, cert in self.certs.items():
+            if (prev := previous.get(dgst)) is not None:
+                cert.web_data = prev.web_data
+
     @staged(logger, "Extracting Algorithms from policy tables.")
     def _extract_algorithms_from_policy_tables(self, dgsts: set[str]):
         certs_to_process = [self[dgst] for dgst in dgsts]

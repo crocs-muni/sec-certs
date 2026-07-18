@@ -30,7 +30,15 @@
     "pdf_data": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
         "keywords": {},
-        "policy_metadata": {}
+        "policy_metadata": {},
+        "module_algorithms": {
+            "_type": "Set",
+            "elements": []
+        },
+        "policy_algorithms": {
+            "_type": "Set",
+            "elements": []
+        }
     },
     "heuristics": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
@@ -77,7 +85,7 @@
             "download_ok": true,
             "convert_ok": true,
             "extract_ok": false,
-            "source_hash": null,
+            "source_hash": "93d46d9439fe8a6d09ec9d5e29001ff5389769b0490f8c0ed743ac9885f0c9d3",
             "txt_hash": null,
             "json_hash": null
         },

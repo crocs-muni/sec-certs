@@ -47,10 +47,14 @@ class DocumentState(ComplexSerializableType):
             self.reset_download()
             return
 
-        if self.convert_ok and (
-            self._is_artifact_stale(self._txt_path, self.txt_hash)
-            or self.json_hash is not None
-            and self._is_artifact_stale(self._json_path, self.json_hash)
+        # Assuming paths are set before this, so _txt_path is None means no conversion artifact (e.g. FIPS module html).
+        if (
+            self.convert_ok
+            and self._txt_path is not None
+            and (
+                self._is_artifact_stale(self._txt_path, self.txt_hash)
+                or (self.json_hash is not None and self._is_artifact_stale(self._json_path, self.json_hash))
+            )
         ):
             self.reset_conversion()
 
