@@ -170,6 +170,20 @@ def static_hash(filename: str):
         return None
 
 
+# PKCS number -> RFC definition; unmapped numbers go to Wikipedia overview
+PKCS_RFC = {
+    1: 8017,
+    3: 2631,
+    5: 8018,
+    7: 2315,
+    8: 5958,
+    9: 2985,
+    10: 2986,
+    11: 7512,
+    12: 7292,
+}
+
+
 @app.template_global("standard_url")
 def standard_url(standard):
     # return URL for a matched standard identifier or none if unknown
@@ -202,6 +216,13 @@ def standard_url(standard):
             "Anwendungshinweise-und-Interpretationen/"
             "anwendungshinweise-und-interpretationen_node.html"
         )
+
+    m = re.match(r"PKCS\s*#?\s*(\d+)", s, re.IGNORECASE)
+    if m:
+        rfc = PKCS_RFC.get(int(m.group(1)))
+        if rfc:
+            return f"https://www.rfc-editor.org/rfc/rfc{rfc}"
+        return "https://en.wikipedia.org/wiki/PKCS"
 
     if re.match(r"PKCS", s, re.IGNORECASE):
         return "https://en.wikipedia.org/wiki/PKCS"
