@@ -1,6 +1,7 @@
 """Common Criteria views."""
 
 import random
+import re
 from functools import wraps
 from operator import itemgetter
 from urllib.parse import urlencode
@@ -116,8 +117,10 @@ def categories():
 
 @cc.app_template_global("get_cc_eal")
 def get_cc_eal(name):
-    """Get the long name for the CC EAL."""
-    return cc_eals.get(name, None)
+    """Get the long name for the CC EAL"""
+    key = re.sub(r"\s*augmented\s*", "", name, flags=re.IGNORECASE)
+    key = re.sub(r"EAL\s+(\d)", r"EAL\1", key, flags=re.IGNORECASE).strip()
+    return cc_eals.get(key, None)
 
 
 @cc.route("/eals.json")
