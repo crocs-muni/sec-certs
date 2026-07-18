@@ -495,7 +495,6 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             if (prev := previous.get(dgst)) is not None:
                 cert.state = prev.state
                 cert.pdf_data = prev.pdf_data
-                cert.heuristics = prev.heuristics
                 count += 1
 
         logger.info(f"Carried processing results for {count} certificates")
