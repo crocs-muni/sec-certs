@@ -511,3 +511,25 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         self._set_local_paths()
         for cert in self:
             cert.state.reconcile_document_states()
+
+    @only_backed()
+    @staged(logger, "Updating the dataset")
+    def update(self, update_aux: bool = True):
+        """
+        Update the dataset by running the whole pipeline over it.
+
+        Processing results already computed for a certificate are carried over, so work that depends on an artifact
+        that hasn't changed is not repeated. Concretely, fresh metadata is scraped, auxiliary datasets are
+        optionally refreshed, and all artifacts are re-downloaded (to check whether their hash changed)
+        but only new, changed or previously failed artifacts are converted and extracted. Heuristics are
+        always recomputed, since they depend on the whole dataset and the auxiliary datasets.
+
+        :param update_aux: whether to re-download the auxiliary datasets.
+        """
+        self.timestamp = datetime.now()
+        self.state.sec_certs_version = __version__
+        self.get_certs_from_web(carry_processing_results=True)
+        self.process_auxiliary_datasets(download_fresh=update_aux)
+        self.download_all_artifacts(fresh=True)
+        self.convert_all_pdfs(fresh=False)
+        self.analyze_certificates(fresh=False)
