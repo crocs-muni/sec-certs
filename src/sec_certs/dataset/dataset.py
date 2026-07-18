@@ -355,7 +355,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return {crt for crt in self if crt.name and crt.name == name}
 
     @abstractmethod
-    def get_certs_from_web(self) -> None:
+    def get_certs_from_web(self, carry_processing_results: bool = False) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @staged(logger, "Processing auxiliary datasets.")
