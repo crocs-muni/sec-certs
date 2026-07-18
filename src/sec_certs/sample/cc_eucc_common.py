@@ -271,7 +271,6 @@ def extract_pdf_metadata_(cert: CCCertificate | EUCCCertificate, doc_type: DocTy
     try:
         metadata = extract_pdf_metadata(doc_state.source_path)
         setattr(cert.pdf_data, f"{doc_type.short}_metadata", metadata)
-        doc_state.extract_ok = True
     except ValueError:
         doc_state.extract_ok = False
     return cert

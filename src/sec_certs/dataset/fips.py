@@ -121,12 +121,12 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         except KeyError:
             return super().__getitem__(fips_dgst(item))
 
-    def _extract_data_from_html_modules(self) -> None:
+    def _extract_data_from_html_modules(self, dgsts: set[str]) -> None:
         """
         Extracts data from html module file
         """
         logger.info("Extracting data from html modules.")
-        certs_to_process = [x for x in self if x.state.module.is_ok_to_analyze()]
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.parse_html_module,
             certs_to_process,
@@ -148,16 +148,21 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
 
     @serialize
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         logger.info("Extracting various data from certification artifacts.")
-        self._extract_data_from_html_modules()
-        self._extract_policy_pdf_metadata()
-        self._extract_policy_pdf_keywords()
-        self._extract_algorithms_from_policy_tables()
+        module_dgsts = {x.dgst for x in self if x.state.module.is_ok_to_extract(fresh)}
+        policy_dgsts = {x.dgst for x in self if x.state.policy.is_ok_to_extract(fresh)}
+        for dgst in policy_dgsts:
+            self[dgst].state.policy.extract_ok = True
 
-    def _extract_policy_pdf_keywords(self) -> None:
+        self._extract_data_from_html_modules(module_dgsts)
+        self._extract_policy_pdf_metadata(policy_dgsts)
+        self._extract_policy_pdf_keywords(policy_dgsts)
+        self._extract_algorithms_from_policy_tables(policy_dgsts)
+
+    def _extract_policy_pdf_keywords(self, dgsts: set[str]) -> None:
         logger.info("Extracting keywords from policy pdfs.")
-        certs_to_process = [x for x in self if x.state.policy.is_ok_to_analyze()]
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_keywords,
             certs_to_process,
@@ -290,8 +295,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.state.meta_sources_parsed = True
 
     @staged(logger, "Extracting Algorithms from policy tables.")
-    def _extract_algorithms_from_policy_tables(self):
-        certs_to_process = [x for x in self if x.state.policy.is_ok_to_analyze()]
+    def _extract_algorithms_from_policy_tables(self, dgsts: set[str]):
+        certs_to_process = [self[dgst] for dgst in dgsts]
         cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
             certs_to_process,
@@ -300,8 +305,8 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         )
 
     @staged(logger, "Extracting security policy metadata from the pdfs.")
-    def _extract_policy_pdf_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.policy.is_ok_to_analyze()]
+    def _extract_policy_pdf_metadata(self, dgsts: set[str]) -> None:
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             FIPSCertificate.extract_policy_pdf_metadata,
             certs_to_process,

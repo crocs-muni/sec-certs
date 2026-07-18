@@ -60,7 +60,7 @@ class DocumentState(ComplexSerializableType):
     def is_ok_to_convert(self, fresh: bool = True) -> bool:
         return self.download_ok if fresh else self.download_ok and not self.convert_ok
 
-    def is_ok_to_analyze(self, fresh: bool = True) -> bool:
+    def is_ok_to_extract(self, fresh: bool = True) -> bool:
         if fresh:
             return self.download_ok and self.convert_ok
         else:

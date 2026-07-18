@@ -22,9 +22,7 @@ from sec_certs.dataset.cc_eucc_common import (
     compute_heuristics_body,
     convert_all_pdfs_body,
     download_all_artifacts_body,
-    extract_all_frontpages,
-    extract_all_keywords,
-    extract_all_metadata,
+    extract_all_data,
 )
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.eucc import EUCCCertificate
@@ -441,11 +439,9 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         logger.info("Extracting various data from certification artifacts.")
-        extract_all_metadata(self)
-        extract_all_frontpages(self)
-        extract_all_keywords(self)
+        extract_all_data(self, fresh)
 
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
         compute_heuristics_body(self, skip_schemes)

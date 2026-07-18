@@ -524,7 +524,6 @@ class FIPSCertificate(
         """
         try:
             cert.pdf_data.policy_metadata = extract_pdf_metadata(cert.state.policy.source_path)
-            cert.state.policy.extract_ok = True
         except ValueError:
             cert.state.policy.extract_ok = False
         return cert
