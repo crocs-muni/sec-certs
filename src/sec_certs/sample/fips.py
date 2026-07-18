@@ -491,7 +491,10 @@ class FIPSCertificate(
             cert.state.policy.download_ok = False
         else:
             cert.state.policy.download_ok = True
-            cert.state.policy.source_hash = helpers.get_sha256_filepath(cert.state.policy.source_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.policy.source_path)
+            if source_hash != cert.state.policy.source_hash:
+                cert.state.policy.reset_conversion()
+            cert.state.policy.source_hash = source_hash
         return cert
 
     @staticmethod

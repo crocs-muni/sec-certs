@@ -326,7 +326,10 @@ class ProtectionProfile(
             cert.state.report.download_ok = False
         else:
             cert.state.report.download_ok = True
-            cert.state.report.source_hash = helpers.get_sha256_filepath(cert.state.report.source_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.report.source_path)
+            if source_hash != cert.state.report.source_hash:
+                cert.state.report.reset_conversion()
+            cert.state.report.source_hash = source_hash
             cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.web_data.report_link).path).split("/")[-1])
         return cert
 
@@ -348,7 +351,10 @@ class ProtectionProfile(
             cert.state.pp.download_ok = False
         else:
             cert.state.pp.download_ok = True
-            cert.state.pp.source_hash = helpers.get_sha256_filepath(cert.state.pp.source_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.pp.source_path)
+            if source_hash != cert.state.pp.source_hash:
+                cert.state.pp.reset_conversion()
+            cert.state.pp.source_hash = source_hash
             cert.pdf_data.pp_filename = unquote_plus(str(urlparse(cert.web_data.pp_link).path).split("/")[-1])
         return cert
 
