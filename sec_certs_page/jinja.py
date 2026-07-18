@@ -185,6 +185,9 @@ def standard_url(standard):
         path = f"{base}-{sub}" if sub else base
         return f"https://csrc.nist.gov/pubs/fips/{path}/final"
 
+    if re.match(r"(?:NIST\s+)?SP[\s-]*\d", s, re.IGNORECASE):
+        return "https://csrc.nist.gov/publications/sp"
+
     if re.match(r"X[.．]?509", s, re.IGNORECASE):
         return "https://www.itu.int/rec/T-REC-X.509"
 
