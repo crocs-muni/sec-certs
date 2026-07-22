@@ -2,6 +2,64 @@
 {% set canonical = True %}
 {% block content %}
     <main>
+        <section class="hero-search" role="search">
+            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                <h1>Search security certificates</h1>
+                <p class="lead fw-light pt-2">
+                    Explore Common Criteria, EUCC and FIPS 140 certificates in one place — no PDF downloads needed.
+                </p>
+                <form method="get" action="{{ url_for("cc.merged_search") }}" id="hero-search-form" class="mt-3">
+                    <label for="hero-search-input" class="visually-hidden">Search query</label>
+                    <div class="d-flex gap-2 align-items-center flex-wrap flex-sm-nowrap">
+                        <input type="search" name="query" id="hero-search-input"
+                               class="form-control form-control-lg flex-grow-1"
+                               placeholder="Product name, vendor, certificate ID, certificate title or keyword…">
+                        <button type="submit" class="btn btn-primary btn-lg flex-shrink-0">
+                            <i class="fas fa-search me-1" aria-hidden="true"></i>Search
+                        </button>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                        <span class="small fw-semibold text-secondary">Search in:</span>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Search category">
+                            <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-cc"
+                                   value="cc" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary" for="hero-cat-cc">Common Criteria</label>
+
+                            <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-pp"
+                                   value="pp" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="hero-cat-pp">Protection Profiles</label>
+
+                            <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-eucc"
+                                   value="eucc" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="hero-cat-eucc">EUCC</label>
+
+                            <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-fips"
+                                   value="fips" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="hero-cat-fips">FIPS 140</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <script>
+            (() => {
+                const form = document.getElementById("hero-search-form");
+                if (!form) return;
+                const urls = {
+                    cc: "{{ url_for("cc.merged_search") }}",
+                    pp: "{{ url_for("pp.merged_search") }}",
+                    eucc: "{{ url_for("eucc.merged_search") }}",
+                    fips: "{{ url_for("fips.merged_search") }}",
+                };
+                form.addEventListener("submit", () => {
+                    const checked = form.querySelector('input[name="hero-search-cat"]:checked');
+                    if (checked && urls[checked.value]) {
+                        form.action = urls[checked.value];
+                    }
+                });
+            })();
+        </script>
+
         <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
             <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
                 <div class="col-12 col-sm-7 order-1 order-sm-0">

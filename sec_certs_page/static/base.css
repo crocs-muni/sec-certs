@@ -700,6 +700,14 @@ h6 {
     background-color: #454545;
 }
 
+[data-bs-theme="light"] .hero-search {
+    background-color: #f0f4ff;
+}
+
+[data-bs-theme="dark"] .hero-search {
+    background-color: #182337;
+}
+
 .flex-basis-0 {
     flex-basis: 0px;
 }
