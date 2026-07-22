@@ -60,71 +60,6 @@
             })();
         </script>
 
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
-                <div class="col-12 col-sm-7 order-1 order-sm-0">
-                    <h1>About sec-certs</h1>
-                    <p class="lead fw-light pt-2">
-                        We want to become the one-stop shop to explore the Common Criteria / EUCC / FIPS 140
-                        certification ecosystem. We aggregate and annotate certification data, enabling you to perform
-                        unified searches,
-                        investigate vulnerabilities, analyze trends, compare products side-by-side, subscribe to
-                        certificate changes,
-                        and take other actions on certified products.
-                    </p>
-                    <p class="lead fw-light pt-2">
-                        The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
-                        and Security. Learn more about our
-                        <a href="{{ url_for("about.index") }}">team</a>
-                        and
-                        <a href="{{ url_for("about.research") }}">research</a>.
-                    </p>
-                </div>
-                <div class="col-12 col-sm-5 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
-                    <img src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
-                         class="d-none d-xl-block mw-100"
-                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); margin: 2em;"/>
-                    <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="sec-certs"
-                         class="d-xl-none mw-100"
-                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
-                </div>
-            </div>
-        </div>
-
-        <div class="row p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row g-4 py-4 row-cols-1 row-cols-lg-2">
-                    <div class="feature col mt-0">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-comments fa-fw"></i>
-                        </div>
-                        <span class="fw-bold fs-2 ms-3 text-primary" style="">New!</span>
-                        <h2 class="fs-3">Explore certificates with AI</h2>
-                        <p>Use our AI assistant to help you explore and understand
-                            Common Criteria, EUCC and FIPS 140 certificates. Ask questions about a certificate
-                            and let the AI guide you through the complex certification documents.
-                        </p>
-                        <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                            CC
-                        </a>
-                        <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                            EUCC
-                        </a>
-                        <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a protection profile">
-                            PP
-                        </a>
-                        <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                            FIPS
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
                 <h2 class="pt-2">Main features</h2>
@@ -305,6 +240,71 @@
                         </p>
                      #}
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row g-4 py-4 row-cols-1 row-cols-lg-2">
+                    <div class="feature col mt-0">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-comments fa-fw"></i>
+                        </div>
+                        <span class="fw-bold fs-2 ms-3 text-primary" style="">New!</span>
+                        <h2 class="fs-3">Explore certificates with AI</h2>
+                        <p>Use our AI assistant to help you explore and understand
+                            Common Criteria, EUCC and FIPS 140 certificates. Ask questions about a certificate
+                            and let the AI guide you through the complex certification documents.
+                        </p>
+                        <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                            CC
+                        </a>
+                        <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                            EUCC
+                        </a>
+                        <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Pick a protection profile">
+                            PP
+                        </a>
+                        <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                            FIPS
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+            <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
+                <div class="col-12 col-sm-7 order-1 order-sm-0">
+                    <h2>About sec-certs</h2>
+                    <p class="lead fw-light pt-2">
+                        We want to become the one-stop shop to explore the Common Criteria / EUCC / FIPS 140
+                        certification ecosystem. We aggregate and annotate certification data, enabling you to perform
+                        unified searches,
+                        investigate vulnerabilities, analyze trends, compare products side-by-side, subscribe to
+                        certificate changes,
+                        and take other actions on certified products.
+                    </p>
+                    <p class="lead fw-light pt-2">
+                        The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
+                        and Security. Learn more about our
+                        <a href="{{ url_for("about.index") }}">team</a>
+                        and
+                        <a href="{{ url_for("about.research") }}">research</a>.
+                    </p>
+                </div>
+                <div class="col-12 col-sm-5 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
+                    <img src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
+                         class="d-none d-xl-block mw-100"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); margin: 2em;"/>
+                    <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="sec-certs"
+                         class="d-xl-none mw-100"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
                 </div>
             </div>
         </div>
