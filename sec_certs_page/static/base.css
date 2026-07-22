@@ -708,6 +708,18 @@ h6 {
     background-color: #182337;
 }
 
+[data-bs-theme="light"] .hero-search .btn-check:checked + .btn-primary {
+    background-color: #fff;
+    border-color: var(--bs-gray-400);
+    color: var(--bs-gray-600);
+}
+
+[data-bs-theme="dark"] .hero-search .btn-check:checked + .btn-primary {
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-gray-600);
+    color: var(--bs-gray-400);
+}
+
 .flex-basis-0 {
     flex-basis: 0px;
 }
