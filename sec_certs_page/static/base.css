@@ -712,12 +712,28 @@ h6 {
     background-color: #454545;
 }
 
-[data-bs-theme="light"] .hero-search {
+[data-bs-theme="light"] .hero-search,
+[data-bs-theme="light"] .bg-accent-light {
     background-color: #f0f4ff;
 }
 
-[data-bs-theme="dark"] .hero-search {
+[data-bs-theme="dark"] .hero-search,
+[data-bs-theme="dark"] .bg-accent-light {
     background-color: #182337;
+}
+
+[data-bs-theme="light"] .status-pills .btn {
+    background-color: #fff;
+}
+
+[data-bs-theme="dark"] .status-pills .btn {
+    background-color: var(--bs-body-bg);
+}
+
+.status-pills .btn-check:checked + .btn {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
 }
 
 [data-bs-theme="light"] .hero-search .btn-check:checked + .btn-primary {
