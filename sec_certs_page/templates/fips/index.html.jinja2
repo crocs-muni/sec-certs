@@ -3,26 +3,74 @@
 
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
-                <div class="col-sm-10 col-md-5 order-1 order-md-0">
-                    <h1>FIPS 140</h1>
-                    <p class="lead">All of the certificates are sourced from the NIST CMVP (Cryptographic Module
-                        Validation Program) portal
-                        at
-                        <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
-                           target="_blank" rel="noopener">csrc.nist.gov</a>.
-                        The site provides a search and HTML listing of the certified products with some metadata.
-                        These listings were crawled (along with the certificates and security targets themselves) to
-                        gather the data provided here.</p>
-                </div>
-                <div class="col-5 d-flex justify-content-md-center align-items-md-center order-0 order-md-1">
-                    <img src="{{ url_for("static", filename="img/fips_logo.svg") }}" alt="FIPS-140"
-                         class="part-logo"
-                         style="width: 10em"/>
-                </div>
+        <section class="hero-search">
+            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+                <h1>FIPS 140</h1>
+                <p class="lead fw-light pt-2">
+                    All of the certificates are sourced from the NIST CMVP (Cryptographic Module Validation Program) portal at
+                    <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
+                       target="_blank" rel="noopener">csrc.nist.gov</a>.
+                    The site provides a search and HTML listing of the certified products with some metadata.
+                    These listings were crawled (along with the certificates and security targets themselves) to gather the data provided here.
+                </p>
             </div>
-        </div>
+        </section>
+        <section class="hero-search" role="search">
+            <div class="col-12 col-sm-10 mx-auto p-3 py-md-3">
+                <h2 class="h5">Search FIPS 140 certificates</h2>
+                <form method="get" action="{{ url_for('.merged_search') }}" id="fips-hero-search-form" class="mt-2">
+                    <label for="fips-hero-search-input" class="visually-hidden">Search query</label>
+                    <div class="d-flex gap-2 align-items-center flex-wrap flex-sm-nowrap">
+                        <div class="position-relative flex-grow-1">
+                            <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"
+                               aria-hidden="true"></i>
+                            <input type="search" name="query" id="fips-hero-search-input"
+                                   class="form-control form-control-lg ps-5"
+                                   placeholder="Module name, vendor, certificate number...">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg flex-shrink-0">
+                            Search
+                        </button>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                        <span class="small fw-semibold text-secondary">Status:</span>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Status filter">
+                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-all"
+                                   value="" autocomplete="off" checked>
+                            <label class="btn btn-primary" for="fips-status-all">All</label>
+
+                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-active"
+                                   value="active" autocomplete="off">
+                            <label class="btn btn-primary" for="fips-status-active">Active</label>
+
+                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-historical"
+                                   value="historical" autocomplete="off">
+                            <label class="btn btn-primary" for="fips-status-historical">Historical</label>
+
+                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-revoked"
+                                   value="revoked" autocomplete="off">
+                            <label class="btn btn-primary" for="fips-status-revoked">Revoked</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <script>
+            (() => {
+                const form = document.getElementById("fips-hero-search-form");
+                if (!form) return;
+                form.addEventListener("submit", () => {
+                    const checked = form.querySelector('input[name="fips-hero-status"]:checked');
+                    if (checked && checked.value) {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "status";
+                        input.value = checked.value;
+                        form.appendChild(input);
+                    }
+                });
+            })();
+        </script>
 
         <div class="row bg-darker-light p-3">
             <div class="col-12 col-sm-10 mx-auto">
