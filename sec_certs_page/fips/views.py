@@ -71,20 +71,22 @@ def reference_types():
     return send_json_attachment(fips_reference_types)
 
 
+@cache.memoize(timeout=60 * 60)
+def latest_snapshot(collection):
+    """Metadata of the newest MIP/IUT snapshot"""
+    return mongo.db[collection].find_one(
+        {}, sort=[("timestamp", pymongo.DESCENDING)], projection={"total": 1, "last_updated": 1}
+    )
+
+
 @fips.route("/")
 @register_breadcrumb(fips, ".", "FIPS 140")
 def index():
-    fips_mip = mongo.db.fips_mip.find_one(
-        {}, sort=[("timestamp", pymongo.DESCENDING)], projection={"total": 1, "last_updated": 1}
-    )
-    fips_iut = mongo.db.fips_iut.find_one(
-        {}, sort=[("timestamp", pymongo.DESCENDING)], projection={"total": 1, "last_updated": 1}
-    )
     return render_template(
         "fips/index.html.jinja2",
         title="FIPS 140 | sec-certs.org",
-        fips_mip=fips_mip,
-        fips_iut=fips_iut,
+        fips_mip=latest_snapshot("fips_mip"),
+        fips_iut=latest_snapshot("fips_iut"),
     )
 
 

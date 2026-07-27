@@ -35,19 +35,19 @@
                     <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
                         <span class="small fw-semibold text-secondary">Status:</span>
                         <div class="status-pills d-flex flex-wrap gap-2" role="group" aria-label="Status filter">
-                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-all"
+                            <input type="radio" class="btn-check" name="status" id="fips-status-all"
                                    value="" autocomplete="off" checked>
                             <label class="btn btn-outline-secondary btn-sm" for="fips-status-all">All</label>
 
-                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-active"
+                            <input type="radio" class="btn-check" name="status" id="fips-status-active"
                                    value="active" autocomplete="off">
                             <label class="btn btn-outline-secondary btn-sm" for="fips-status-active">Active</label>
 
-                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-historical"
+                            <input type="radio" class="btn-check" name="status" id="fips-status-historical"
                                    value="historical" autocomplete="off">
                             <label class="btn btn-outline-secondary btn-sm" for="fips-status-historical">Historical</label>
 
-                            <input type="radio" class="btn-check" name="fips-hero-status" id="fips-status-revoked"
+                            <input type="radio" class="btn-check" name="status" id="fips-status-revoked"
                                    value="revoked" autocomplete="off">
                             <label class="btn btn-outline-secondary btn-sm" for="fips-status-revoked">Revoked</label>
                         </div>
@@ -55,23 +55,6 @@
                 </form>
             </div>
         </section>
-        <script>
-            (() => {
-                const form = document.getElementById("fips-hero-search-form");
-                if (!form) return;
-                form.addEventListener("submit", () => {
-                    const checked = form.querySelector('input[name="fips-hero-status"]:checked');
-                    if (checked && checked.value) {
-                        const input = document.createElement("input");
-                        input.type = "hidden";
-                        input.name = "status";
-                        input.value = checked.value;
-                        form.appendChild(input);
-                    }
-                });
-            })();
-        </script>
-
         <div class="row p-3">
             <div class="col-12 col-sm-10 mx-auto">
                 <div class="row g-4 py-4 row-cols-1 row-cols-lg-2">
@@ -145,8 +128,10 @@
                         <p>Use the overview to track which modules are in the evaluation pipeline, monitor status changes over
                             time, and spot new entries before they become full certificates.</p>
                         <div class="mt-2">
-                            <a href="{{ url_for('.mip_index') }}" class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
-                            <a href="{{ url_for('.iut_index') }}" class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
+                            <a href="{{ url_for('.mip_snapshot', id=fips_mip['_id']) if fips_mip else url_for('.mip_index') }}"
+                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
+                            <a href="{{ url_for('.iut_snapshot', id=fips_iut['_id']) if fips_iut else url_for('.iut_index') }}"
+                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
                             <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary btn-sm">Overview →</a>
                         </div>
                     </div>
