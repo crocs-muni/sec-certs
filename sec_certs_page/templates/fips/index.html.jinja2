@@ -129,38 +129,64 @@
             </div>
         </div>
 
-        <div class="row bg-darker-light p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5">
-                    <div class="col-12 col-md-6">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-tools fa-fw"></i>
-                        </div>
-                        <h2 class="anchor" id="mip-iut">MIP and IUT</h2>
-                        <p>The FIPS 140 Modules In Process (MIP) and Implementations Under Test (IUT) lists provide
-                            information about modules currently undergoing NIST CMVP evaluation. We process these lists
-                            daily and provide a log of snapshots.</p>
-                        <a href="{{ url_for(".mip_index") }}" role="button" class="mt-1 btn btn-primary"><i
-                                class="fas fa-fw fa-list"></i>
-                            MIP</a>
-                        <a href="{{ url_for(".iut_index") }}" role="button" class="mt-1 btn btn-primary"><i
-                                class="fas fa-fw fa-list"></i>
-                            IUT
-                        </a>
+
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+            <div class="row g-4">
+                <div class="col-12 col-md-8">
+                    <div class="feature-icon bg-primary bg-gradient">
+                        <i class="fas fa-wrench fa-fw"></i>
                     </div>
-                    <div class="col-12 col-md-6 mt-4 mt-md-0">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-file-alt fa-fw"></i>
-                        </div>
-                        <h2>Data</h2>
-                        <p>Want to process all FIPS 140 data on your own? Download our prepared datasets and analyse them.</p>
-                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
-                            Learn more <i class="fa-solid fa-arrow-right"></i>
-                        </a>
+                    <h2 class="anchor" id="mip-iut">MIP and IUT</h2>
+                    <p>The FIPS 140 <b>Modules in Process (MIP)</b> and <b>Implementations Under Test (IUT)</b> lists provide
+                        information about modules currently undergoing NIST CMVP evaluation. We process these lists
+                        daily and provide a log of snapshots.</p>
+                    <p>Use the overview to track which modules are in the evaluation pipeline, monitor status changes over
+                        time, and spot new entries before they become full certificates.</p>
+                    <div class="mt-2">
+                        <a href="{{ url_for('.mip_index') }}" class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
+                        <a href="{{ url_for('.iut_index') }}" class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
+                        <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary btn-sm">Overview →</a>
                     </div>
                 </div>
+                <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
+                    {% if fips_mip %}
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold text-primary">{{ fips_mip.total }}</div>
+                            <div class="small text-muted">Modules in Process</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if fips_iut %}
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold text-primary">{{ fips_iut.total }}</div>
+                            <div class="small text-muted">Under Test</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if fips_mip and fips_mip.last_updated %}
+                    <div class="card text-center">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold text-primary">{{ fips_mip.last_updated|fromisoformat|strftime("%d.%m.%Y") }}</div>
+                            <div class="small text-muted">Last updated</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-        </div>       
-        
+        </div>
+
+        <div class="row bg-darker-light p-3">
+            <div class="col-12 col-sm-10 mx-auto pb-3">
+                <div class="feature-icon bg-primary bg-gradient">
+                    <i class="fas fa-file-alt fa-fw"></i>
+                </div>
+                <h2>Data</h2>
+                <p class="lead fw-light pt-2">Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
+                <a href="{{ url_for('.data') }}" class="btn btn-primary btn-sm">Download datasets →</a>
+            </div>
+        </div>
+
     </main>
 {% endblock %}
