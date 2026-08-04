@@ -64,5 +64,9 @@ class DocumentState(ComplexSerializableType):
         self._json_path = Path(pth) if pth else None
 
     @property
+    def has_json_path(self) -> bool:
+        return self._json_path is not None
+
+    @property
     def serialized_attributes(self) -> list[str]:
         return ["download_ok", "convert_ok", "extract_ok", "source_hash", "txt_hash", "json_hash"]

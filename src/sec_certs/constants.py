@@ -99,6 +99,13 @@ TAG_CERT_ITEM_VERSION = "cert_item_version"
 TAG_DEVELOPER = "developer"
 TAG_REFERENCED_PROTECTION_PROFILES = "ref_protection_profiles"
 TAG_HEADER_MATCH_RULES = "match_rules"
+TAG_EVAL_FACILITY = "eval_facility"
+TAG_SPONSOR = "sponsor"
+TAG_PARSE_STRATEGY = "parse_strategy"
+TAG_REPORT_VERSION = "report_version"
+TAG_PROJECT_NUMBER = "project_number"
+TAG_AUTHOR = "author"
+TAG_REPORT_DATE = "report_date"
 
 FILE_ERRORS_STRATEGY = "surrogateescape"
 MAX_ALLOWED_MATCH_LENGTH = 300
