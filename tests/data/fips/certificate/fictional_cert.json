@@ -85,7 +85,7 @@
             "download_ok": true,
             "convert_ok": true,
             "extract_ok": false,
-            "source_hash": "227f1c1a0bb52da88ba0ba03d2a35ec8ce38ac2c8d48fa6b2621eae8ebe62a4a",
+            "source_hash": null,
             "txt_hash": null,
             "json_hash": null
         },

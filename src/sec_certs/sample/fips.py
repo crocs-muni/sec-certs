@@ -478,11 +478,6 @@ class FIPSCertificate(
             cert.state.module.download_ok = True
             raw = doc_state.source_path.read_text(encoding="utf-8")
             doc_state.source_path.write_text(helpers.normalize_cloudflare_html(raw), encoding="utf-8")
-
-            source_hash = helpers.get_sha256_filepath(doc_state.source_path)
-            if source_hash != doc_state.source_hash:
-                doc_state.reset_extraction()
-            doc_state.source_hash = source_hash
             cert.state.module.convert_ok = True  # No conversion needed for html, so we set it to True
 
         return cert
