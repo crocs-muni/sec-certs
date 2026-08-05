@@ -12,7 +12,8 @@ from docling.datamodel.pipeline_options import (
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
 from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
-from docling_core.types.doc import ContentLayer, ImageRefMode
+from docling_core.types.doc.base import ImageRefMode
+from docling_core.types.doc.common.content_layer import ContentLayer
 
 from sec_certs.converter import PDFConverter
 
