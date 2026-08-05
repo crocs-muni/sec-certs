@@ -13,7 +13,7 @@ from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
 from . import app, cache, runtime_config
-from .common.constants import PKCS_RFC
+from .common.constants import JAVACARD_PACKAGES_LOOKUP, PKCS_RFC
 from .common.keyword_groups import KEYWORD_GROUPS, build_keyword_tree
 
 app.add_template_global(KEYWORD_GROUPS, "KEYWORD_GROUPS")
@@ -255,43 +255,11 @@ def curve_url(curve):
     return None
 
 
-# Java Card API - https://docs.oracle.com/en/java/javacard/3.2/jcapi/api_classic/allpackages-index.html
-JAVACARD_PACKAGES = [
-    "java.io",
-    "java.lang",
-    "java.rmi",
-    "javacard.framework",
-    "javacard.framework.service",
-    "javacard.security",
-    "javacardx.annotations",
-    "javacardx.apdu",
-    "javacardx.apdu.util",
-    "javacardx.biometry",
-    "javacardx.biometry1toN",
-    "javacardx.crypto",
-    "javacardx.external",
-    "javacardx.framework.event",
-    "javacardx.framework.math",
-    "javacardx.framework.nio",
-    "javacardx.framework.string",
-    "javacardx.framework.time",
-    "javacardx.framework.tlv",
-    "javacardx.framework.util",
-    "javacardx.framework.util.intx",
-    "javacardx.security",
-    "javacardx.security.bdh",
-    "javacardx.security.cert",
-    "javacardx.security.derivation",
-    "javacardx.security.util",
-]
-_JAVACARD_PACKAGES_LOOKUP = {name.lower(): name for name in JAVACARD_PACKAGES}
-
-
 @app.template_global("package_url")
 def package_url(package):
     # return URL of a JavaCard API package in the official Oracle docs or none
     name = package.strip().replace("．", ".").lower()
-    canonical = _JAVACARD_PACKAGES_LOOKUP.get(name)
+    canonical = JAVACARD_PACKAGES_LOOKUP.get(name)
     if not canonical:
         return None
     path = canonical.replace(".", "/")

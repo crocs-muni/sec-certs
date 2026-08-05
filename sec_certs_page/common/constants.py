@@ -10,3 +10,33 @@ PKCS_RFC = {
     11: 7512,
     12: 7292,
 }
+
+JAVACARD_PACKAGES = [
+    "java.io",
+    "java.lang",
+    "java.rmi",
+    "javacard.framework",
+    "javacard.framework.service",
+    "javacard.security",
+    "javacardx.annotations",
+    "javacardx.apdu",
+    "javacardx.apdu.util",
+    "javacardx.biometry",
+    "javacardx.biometry1toN",
+    "javacardx.crypto",
+    "javacardx.external",
+    "javacardx.framework.event",
+    "javacardx.framework.math",
+    "javacardx.framework.nio",
+    "javacardx.framework.string",
+    "javacardx.framework.time",
+    "javacardx.framework.tlv",
+    "javacardx.framework.util",
+    "javacardx.framework.util.intx",
+    "javacardx.security",
+    "javacardx.security.bdh",
+    "javacardx.security.cert",
+    "javacardx.security.derivation",
+    "javacardx.security.util",
+]
+JAVACARD_PACKAGES_LOOKUP = {name.lower(): name for name in JAVACARD_PACKAGES}
