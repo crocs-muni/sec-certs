@@ -13,6 +13,7 @@ from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
 from . import app, cache, runtime_config
+from .common.constants import PKCS_RFC
 from .common.keyword_groups import KEYWORD_GROUPS, build_keyword_tree
 
 app.add_template_global(KEYWORD_GROUPS, "KEYWORD_GROUPS")
@@ -168,20 +169,6 @@ def static_hash(filename: str):
             return blake2b_hash.hexdigest()
     except FileNotFoundError:
         return None
-
-
-# PKCS number -> RFC definition; unmapped numbers go to Wikipedia overview
-PKCS_RFC = {
-    1: 8017,
-    3: 2631,
-    5: 8018,
-    7: 2315,
-    8: 5958,
-    9: 2985,
-    10: 2986,
-    11: 7512,
-    12: 7292,
-}
 
 
 @app.template_global("standard_url")
