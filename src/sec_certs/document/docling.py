@@ -1,53 +1,64 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
-from pathlib import Path
+import sys
 
-from docling_core.types.doc.document import (
-    ContentLayer,
-    DoclingDocument,
-    SectionHeaderItem,
-    TableItem,
-    TextItem,
+from docling_core.transforms.serializer.markdown import MarkdownTableSerializer
+from docling_core.transforms.serializer.plain_text import (
+    PlainTextDocSerializer,
+    PlainTextParams,
 )
+from docling_core.types.doc.common.content_layer import ContentLayer
+from docling_core.types.doc.document import DoclingDocument
+from typing_extensions import override
 
-from sec_certs.document.segment import DocumentSegment
-
-_LAYERS = {ContentLayer.BODY, ContentLayer.FURNITURE}
-
-
-def iter_docling_segments(doc: DoclingDocument) -> Iterator[DocumentSegment]:
-    section_stack: list[tuple[int, str]] = []
-    for item, _ in doc.iterate_items(included_content_layers=_LAYERS):
-        if isinstance(item, SectionHeaderItem):
-            while section_stack and section_stack[-1][0] >= item.level:
-                section_stack.pop()
-
-        section_path = tuple(t for _, t in section_stack)
-        if isinstance(item, TableItem):
-            for cell in item.data.table_cells:
-                yield DocumentSegment(
-                    text=cell.text,
-                    label="table_cell",
-                    section_path=section_path,
-                    page=item.prov[0].page_no,
-                    layer=str(item.content_layer),
-                    table_id=item.self_ref,
-                    table_coord=(cell.start_row_offset_idx, cell.start_col_offset_idx),
-                )
-        elif isinstance(item, TextItem):
-            yield DocumentSegment(
-                text=item.text,
-                label=str(item.label),
-                section_path=section_path,
-                page=item.prov[0].page_no,
-                layer=str(item.content_layer),
-            )
-
-        if isinstance(item, SectionHeaderItem):
-            section_stack.append((item.level, item.text))
+from sec_certs.document import DocumentLayer
 
 
-def iter_segments_from_json(path: Path) -> Iterator[DocumentSegment]:
-    doc = DoclingDocument.load_from_json(path)
-    yield from iter_docling_segments(doc)
+class CustomTableSerializer(MarkdownTableSerializer):
+    @override
+    @staticmethod
+    def _compact_table(table_text: str) -> str:
+        lines = table_text.split("\n")
+        compact_lines = []
+
+        for i, line in enumerate(lines):
+            if not line:
+                continue
+
+            parts = line.split("|")[1:-1]
+
+            if i == 1:
+                continue
+
+            compact_parts = [part.strip() for part in parts]
+
+            compact_lines.append(" ".join(compact_parts))
+
+        return "\n".join(compact_lines)
+
+
+class DoclingView:
+    def __init__(self, json_path):
+        self.doc: DoclingDocument = DoclingDocument.load_from_json(json_path)
+
+    def _translate_layers(self, layers: set[DocumentLayer]) -> set[ContentLayer]:
+        return {ContentLayer(layer) for layer in layers}
+
+    def get_full_text(self, layers: set[DocumentLayer] | None = None) -> str:
+        if layers is None:
+            layers = {DocumentLayer.BODY, DocumentLayer.FURNITURE}
+
+        serializer = PlainTextDocSerializer(
+            doc=self.doc,
+            table_serializer=CustomTableSerializer(),
+            params=PlainTextParams(
+                layers=self._translate_layers(layers),
+                pages=None,
+                start_idx=0,
+                stop_idx=sys.maxsize,
+                page_break_placeholder=None,
+                traverse_pictures=False,
+                compact_tables=True,
+            ),
+        )
+        return serializer.serialize().text
