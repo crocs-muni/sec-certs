@@ -36,9 +36,8 @@
 {%- endmacro %}
 
 {% macro render_eal(eal) %}
-    {% set ealm = eal.replace("+", "") %}
-    {%- if get_cc_eal(ealm) -%}
-        <abbr title="{{ get_cc_eal(ealm)["name"] }}">{{ eal }}</abbr>
+    {%- if get_cc_eal(eal) -%}
+        <abbr title="{{ get_cc_eal(eal)["name"] }}">{{ eal }}</abbr>
     {%- elif get_cc_sar(eal) -%}
         <abbr title="{{ get_cc_sar(eal) }}">{{ eal }}</abbr>
     {%- else -%}
