@@ -40,3 +40,29 @@ JAVACARD_PACKAGES = [
     "javacardx.security.util",
 ]
 JAVACARD_PACKAGES_LOOKUP = {name.lower(): name for name in JAVACARD_PACKAGES}
+
+# CC long name
+CC_CLASSES = {
+    "ACE": "PP Module conformance",
+    "ACM": "Configuration management",
+    "ACO": "Composition",
+    "ADO": "Delivery and operation",
+    "ADV": "Development",
+    "AGD": "Guidance documents",
+    "ALC": "Life-cycle support",
+    "APE": "Protection Profile evaluation",
+    "ASE": "Security Target evaluation",
+    "ATE": "Tests",
+    "AVA": "Vulnerability assessment",
+    "FAU": "Security audit",
+    "FCO": "Communication",
+    "FCS": "Cryptographic support",
+    "FDP": "User data protection",
+    "FIA": "Identification and authentication",
+    "FMT": "Security management",
+    "FPR": "Privacy",
+    "FPT": "Protection of the TSF",
+    "FRU": "Resource utilisation",
+    "FTA": "TOE access",
+    "FTP": "Trusted path/channels",
+}

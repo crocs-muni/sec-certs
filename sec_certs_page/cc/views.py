@@ -18,6 +18,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
+from ..common.constants import CC_CLASSES
 from ..common.diffs import cc_diff_method, render_compare
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
@@ -67,32 +68,6 @@ def get_cc_sfr(sfr):
 def sfrs():
     """Endpoint with CC SFR JSON."""
     return send_json_attachment(cc_sfrs)
-
-
-CC_CLASSES = {
-    "ACE": "PP Module conformance",
-    "ACM": "Configuration management",
-    "ACO": "Composition",
-    "ADO": "Delivery and operation",
-    "ADV": "Development",
-    "AGD": "Guidance documents",
-    "ALC": "Life-cycle support",
-    "APE": "Protection Profile evaluation",
-    "ASE": "Security Target evaluation",
-    "ATE": "Tests",
-    "AVA": "Vulnerability assessment",
-    "FAU": "Security audit",
-    "FCO": "Communication",
-    "FCS": "Cryptographic support",
-    "FDP": "User data protection",
-    "FIA": "Identification and authentication",
-    "FMT": "Security management",
-    "FPR": "Privacy",
-    "FPT": "Protection of the TSF",
-    "FRU": "Resource utilisation",
-    "FTA": "TOE access",
-    "FTP": "Trusted path/channels",
-}
 
 
 @cc.app_template_global("cc_class_name")
