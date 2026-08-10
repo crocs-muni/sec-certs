@@ -723,8 +723,12 @@ h6 {
 }
 
 [data-bs-theme="dark"] .fips-home .card {
-    background-color: #2b3035;
+    background-color: #343a40;
     border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .fips-home .fips-panel {
+    background-color: #454545;
 }
 
 [data-bs-theme="light"] .status-pills .btn {
