@@ -730,6 +730,10 @@ h6 {
     background-color: #343a40;
 }
 
+[data-bs-theme="dark"] .main-home .bg-darker-light {
+    background-color: var(--bs-dark);
+}
+
 [data-bs-theme="dark"] .fips-home .card {
     background-color: #343a40;
     border-color: var(--bs-border-color);
