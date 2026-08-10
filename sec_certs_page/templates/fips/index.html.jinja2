@@ -15,7 +15,7 @@
                 </p>
             </div>
         </section>
-        <section class="bg-accent-light" role="search">
+        <section class="bg-accent-light fips-panel" role="search">
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-3">
                 <h2 class="h6">Search FIPS 140 certificates</h2>
                 <form method="get" action="{{ url_for('.merged_search') }}" id="fips-hero-search-form" class="mt-2">
@@ -78,7 +78,7 @@
                                 <p class="flex-grow-1">No more talking, have a look at the example certificate we have chosen for you. Discover extracted metadata and much more. Don't forget to search for your own certificates later!</p>
                                 <div>
                                     <a href="{{ url_for('.entry', hashid='1625f9db144171f7') }}" class="btn btn-primary btn-sm">View example →</a>
-                                    <a href="{{ url_for('fips.rand') }}" class="btn btn-outline-primary btn-sm">Random certificate</a>
+                                    <a href="{{ url_for('fips.rand') }}" class="btn btn-outline-secondary btn-sm">Random certificate</a>
                                 </div>
                             </div>
                         </div>
@@ -129,10 +129,10 @@
                             time, and spot new entries before they become full certificates.</p>
                         <div class="mt-2">
                             <a href="{{ url_for('.mip_snapshot', id=fips_mip['_id']) if fips_mip else url_for('.mip_index') }}"
-                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
+                               class="btn btn-outline-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
                             <a href="{{ url_for('.iut_snapshot', id=fips_iut['_id']) if fips_iut else url_for('.iut_index') }}"
-                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
-                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary btn-sm">Overview →</a>
+                               class="btn btn-outline-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
+                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-secondary btn-sm">Overview →</a>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
