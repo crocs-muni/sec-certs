@@ -129,9 +129,9 @@
                             time, and spot new entries before they become full certificates.</p>
                         <div class="mt-2">
                             <a href="{{ url_for('.mip_snapshot', id=fips_mip['_id']) if fips_mip else url_for('.mip_index') }}"
-                               class="btn btn-outline-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
+                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
                             <a href="{{ url_for('.iut_snapshot', id=fips_iut['_id']) if fips_iut else url_for('.iut_index') }}"
-                               class="btn btn-outline-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
+                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
                             <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary btn-sm">Overview →</a>
                         </div>
                     </div>
