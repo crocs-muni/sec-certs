@@ -712,6 +712,14 @@ h6 {
     background-color: #454545;
 }
 
+/* extend the background to the sides */
+.hero-search {
+    margin-left: calc(-.5 * var(--bs-gutter-x));
+    margin-right: calc(-.5 * var(--bs-gutter-x));
+    padding-left: calc(.5 * var(--bs-gutter-x));
+    padding-right: calc(.5 * var(--bs-gutter-x));
+}
+
 [data-bs-theme="light"] .hero-search,
 [data-bs-theme="light"] .bg-accent-light {
     background-color: #f0f4ff;
