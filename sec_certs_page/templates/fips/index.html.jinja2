@@ -78,7 +78,7 @@
                                 <p class="flex-grow-1">No more talking, have a look at the example certificate we have chosen for you. Discover extracted metadata and much more. Don't forget to search for your own certificates later!</p>
                                 <div>
                                     <a href="{{ url_for('.entry', hashid='1625f9db144171f7') }}" class="btn btn-primary btn-sm">View example →</a>
-                                    <a href="{{ url_for('fips.rand') }}" class="btn btn-outline-secondary btn-sm">Random certificate</a>
+                                    <a href="{{ url_for('fips.rand') }}" class="btn btn-primary btn-sm">Random certificate</a>
                                 </div>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
                                class="btn btn-outline-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
                             <a href="{{ url_for('.iut_snapshot', id=fips_iut['_id']) if fips_iut else url_for('.iut_index') }}"
                                class="btn btn-outline-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
-                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-secondary btn-sm">Overview →</a>
+                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary btn-sm">Overview →</a>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
