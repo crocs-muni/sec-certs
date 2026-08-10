@@ -719,7 +719,12 @@ h6 {
 
 [data-bs-theme="dark"] .hero-search,
 [data-bs-theme="dark"] .bg-accent-light {
-    background-color: #182337;
+    background-color: #343a40;
+}
+
+[data-bs-theme="dark"] .fips-home .card {
+    background-color: #2b3035;
+    border-color: var(--bs-border-color);
 }
 
 [data-bs-theme="light"] .status-pills .btn {
