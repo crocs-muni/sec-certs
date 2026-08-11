@@ -13,6 +13,7 @@ from sec_certs.utils.extract import flatten_matches as dict_flatten
 from sentry_sdk.utils import get_default_release
 
 from . import app, cache, runtime_config
+from .common.constants import JAVACARD_PACKAGES_LOOKUP, PKCS_RFC
 from .common.keyword_groups import KEYWORD_GROUPS, build_keyword_tree
 
 app.add_template_global(KEYWORD_GROUPS, "KEYWORD_GROUPS")
@@ -161,6 +162,101 @@ def static_hash(filename: str):
             return blake2b_hash.hexdigest()
     except FileNotFoundError:
         return None
+
+
+@app.template_global("standard_url")
+def standard_url(standard):
+    # return URL for a matched standard identifier or none if unknown
+    s = standard.strip()
+
+    m = re.match(r"RFC[ -]?(\d+)", s, re.IGNORECASE)
+    if m:
+        return f"https://www.rfc-editor.org/rfc/rfc{m.group(1)}"
+
+    m = re.match(r"FIPS\s*(?:PUB\s*)?(\d+)(?:-(\d+))?", s, re.IGNORECASE)
+    if m:
+        base, sub = m.group(1), m.group(2)
+        path = f"{base}-{sub}" if sub else base
+        return f"https://csrc.nist.gov/pubs/fips/{path}/final"
+
+    if re.match(r"(?:NIST\s+)?SP[\s-]*\d", s, re.IGNORECASE):
+        return "https://csrc.nist.gov/publications/sp"
+
+    if re.match(r"X[.．]?509", s, re.IGNORECASE):
+        return "https://www.itu.int/rec/T-REC-X.509"
+
+    if re.match(r"ICAO", s, re.IGNORECASE):
+        return "https://www.icao.int/publications/doc-series"
+
+    if re.match(r"(?:BSI[- ]?)?AIS", s, re.IGNORECASE):
+        return (
+            "https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/"
+            "Standards-und-Zertifizierung/Zertifizierung-und-Anerkennung/"
+            "Zertifizierung-von-Produkten/Zertifizierung-nach-CC/"
+            "Anwendungshinweise-und-Interpretationen/"
+            "anwendungshinweise-und-interpretationen_node.html"
+        )
+
+    m = re.match(r"PKCS\s*#?\s*(\d+)", s, re.IGNORECASE)
+    if m:
+        rfc = PKCS_RFC.get(int(m.group(1)))
+        if rfc:
+            return f"https://www.rfc-editor.org/rfc/rfc{rfc}"
+        return "https://en.wikipedia.org/wiki/PKCS"
+
+    if re.match(r"PKCS", s, re.IGNORECASE):
+        return "https://en.wikipedia.org/wiki/PKCS"
+
+    if re.match(r"SCP", s, re.IGNORECASE):
+        return "https://globalplatform.org/specs-library/"
+
+    m = re.match(r"ISO(?:/IEC)?\s*(\d+)", s, re.IGNORECASE)
+    if m:
+        return f"https://www.iso.org/search.html?q={m.group(1)}"
+
+    return None
+
+
+@app.template_global("curve_url")
+def curve_url(curve):
+    # return URL of a named elliptic curve in the Standard Curve Database or none
+    c = re.sub(r"^(?:NIST|ANSSI|Curve)\s+", "", curve.strip(), flags=re.IGNORECASE)
+    base = "https://neuromancer.sk/std"
+
+    if re.fullmatch(r"P-\d+", c, re.IGNORECASE):
+        return f"{base}/nist/{c.upper()}"
+
+    m = re.fullmatch(r"([BK])-(\d+)", c, re.IGNORECASE)
+    if m:
+        return f"{base}/nist/{m.group(1).upper()}-{m.group(2)}"
+
+    if re.fullmatch(r"sec[pt]\d+[rk]\d", c, re.IGNORECASE):
+        return f"{base}/secg/{c}"
+
+    if re.fullmatch(r"brainpoolP\d+[rt]\d", c, re.IGNORECASE):
+        return f"{base}/brainpool/{c}"
+
+    if re.fullmatch(r"prime\d+v\d|c2[a-z]+\d+[vw]\d", c, re.IGNORECASE):
+        return f"{base}/x962/{c}"
+
+    if re.fullmatch(r"FRP\d+v\d", c, re.IGNORECASE):
+        return f"{base}/anssi/{c}"
+
+    if re.fullmatch(r"Curve25519|Curve448|Ed25519|Ed448", c, re.IGNORECASE):
+        return f"{base}/other/{c}"
+
+    return None
+
+
+@app.template_global("package_url")
+def package_url(package):
+    # return URL of a JavaCard API package in the official Oracle docs or none
+    name = package.strip().replace("．", ".").lower()
+    canonical = JAVACARD_PACKAGES_LOOKUP.get(name)
+    if not canonical:
+        return None
+    path = canonical.replace(".", "/")
+    return f"https://docs.oracle.com/en/java/javacard/3.2/jcapi/api_classic/{path}/package-summary.html"
 
 
 @app.template_global("is_github_oauth_enabled")

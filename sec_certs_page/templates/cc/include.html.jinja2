@@ -1,7 +1,9 @@
 {% from "include/entry.html.jinja2" import keywords_card, opt_line %}
 
 {% macro cc_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "common-criteria", "Common Criteria", KEYWORD_GROUPS.cc, hidden, map_funcs) }}
+    {% set _map = {"cc_security_level": render_eal} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "common-criteria", "Common Criteria", KEYWORD_GROUPS.cc, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_status(status) %}
@@ -34,9 +36,8 @@
 {%- endmacro %}
 
 {% macro render_eal(eal) %}
-    {% set ealm = eal.replace("+", "") %}
-    {%- if get_cc_eal(ealm) -%}
-        <abbr title="{{ get_cc_eal(ealm)["name"] }}">{{ eal }}</abbr>
+    {%- if get_cc_eal(eal) -%}
+        <abbr title="{{ get_cc_eal(eal)["name"] }}">{{ eal }}</abbr>
     {%- elif get_cc_sar(eal) -%}
         <abbr title="{{ get_cc_sar(eal) }}">{{ eal }}</abbr>
     {%- else -%}
