@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
-class DocumentLayer(StrEnum):
+class DocumentLayer(str, Enum):
     BODY = "body"
     FURNITURE = "furniture"
 
