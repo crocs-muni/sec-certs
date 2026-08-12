@@ -1,3 +1,18 @@
+{% macro entry_card(id=None, title=None, icon=None, level=2, heading_extra=None) %}
+    <section class="entry-card col-12 col-sm-10 my-4 ms-sm-1 p-4 bg-darker-light rounded-3"
+             {% if id %}id="{{ id }}"{% endif %}>
+        {% if title %}
+            <h{{ level }}>
+                {%- if icon %}<i class="fas {{ icon }} fa-fw me-2 opacity-75" aria-hidden="true"></i>{% endif -%}
+                {{ title }}{% if heading_extra %}{{ heading_extra }}{% endif %}
+            </h{{ level }}>
+        {% endif %}
+        <div class="d-flex flex-column gap-1 pt-1">
+            {{ caller() }}
+        </div>
+    </section>
+{%- endmacro %}
+
 {% macro render_local_file(hashid, link_content, link, local_files, document, primary_style, secondary_style) %}
     <div class="btn-group">
         {% if link %}

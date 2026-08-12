@@ -472,6 +472,10 @@
     margin-top: -57px;
 }
 
+.entry-card {
+    scroll-margin-top: 57px;
+}
+
 .outgoing-list {
     list-style: none;
 }

@@ -26,11 +26,10 @@
                     <table class="table table-secondary table-borderless mt-3 ms-3">
                         {% for other in same %}
                             <tr>
-                                <td class="py-2" class="align-middle">
+                                <td class="py-2 align-middle">
                                     <a href="{{ url_for("eucc.entry", hashid=other["_id"]) }}">{{ other["name"] }}</a>
                                 </td>
-                                <td class="py-2"
-                                    class="align-middle">{{ other["cert_id"] }}</td>
+                                <td class="py-2 align-middle">{{ other["cert_id"] }}</td>
                                 <td class="py-2">
                                     <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
                                        class="btn btn-outline-secondary">Compare</a></td>
