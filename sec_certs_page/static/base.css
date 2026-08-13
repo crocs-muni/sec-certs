@@ -740,7 +740,7 @@ h6 {
     background-color: var(--bs-body-bg);
 }
 
-[data-bs-theme="dark"] .fips-home .card {
+[data-bs-theme="dark"] .scheme-home .card {
     background-color: #343a40;
     border-color: var(--bs-border-color);
 }
