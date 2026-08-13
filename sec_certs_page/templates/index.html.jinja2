@@ -270,30 +270,27 @@
                         </p>
                      #}
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-10 mx-auto">
-            <div class="row p-3 py-md-5">
-                <div class="col-12 col-lg-6 gy-3">
-                    <h3>Deploy it yourself!</h3>
-                    <p>The tools used to create the datasets on this website as well as the datasets themselves are
-                        open-source and available on our GitHub. Documentation, including a quick-start guide,
-                        can be found on below.
-                    </p>
-                    <a class="btn btn-outline-primary m-1 ms-0"
-                       href="https://github.com/crocs-muni/sec-certs">GitHub</a>
-                    <a class="btn btn-outline-primary m-1" href="{{ url_for("docs.serve_docs", path="index.html") }}">Docs</a>
-                    <a class="btn btn-outline-primary m-1" href="{{ url_for("about.changelog") }}">Changelog</a>
-                </div>
-                <div class="col-12 col-lg-6 gy-3">
-                    <h3>About</h3>
-                    <p>Want to Learn more about our research? More information, including our publications and
-                        the privacy policy of this site can be found on our about page.</p>
-                    <a class="btn btn-outline-primary m-1 ms-0" href="{{ url_for(".about.index") }}">Project</a>
-                    <a class="btn btn-outline-primary m-1" href="{{ url_for(".about.research") }}">Research</a>
-
+                    <div class="feature col">
+                        <div class="feature-icon bg-primary bg-gradient">
+                            <i class="fas fa-code fa-fw"></i>
+                        </div>
+                        <h3>Python library</h3>
+                        <p>Everything on this site is built with our open-source Python library. Install it to
+                            reproduce the datasets yourself, or plug the certification data straight into your own
+                            analysis. The documentation includes a quick-start guide.</p>
+                        <a href="https://github.com/crocs-muni/sec-certs" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Show project source code">
+                            GitHub
+                        </a>
+                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Show documentation">
+                            Docs
+                        </a>
+                        <a href="{{ url_for("about.changelog") }}" class="btn btn-outline-primary btn-sm"
+                           data-bs-toggle="tooltip" data-bs-title="Show changelog">
+                            Changelog
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
