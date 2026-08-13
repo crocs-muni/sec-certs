@@ -757,6 +757,12 @@ h6 {
     color: var(--bs-gray-400);
 }
 
+/* Shorten category pills under search bar */
+.hero-search .btn-check + .btn {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .flex-basis-0 {
     flex-basis: 0px;
 }
