@@ -6,7 +6,7 @@
         <section>
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
                 <h1>FIPS 140</h1>
-                <p class="lead fw-light pt-2">
+                <p class="pt-2">
                     All of the certificates are sourced from the NIST CMVP (Cryptographic Module Validation Program) portal at
                     <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
                        target="_blank" rel="noopener">csrc.nist.gov</a>.
@@ -33,23 +33,23 @@
                         </button>
                     </div>
                     <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                        <span class="small fw-semibold text-secondary">Status:</span>
+                        <span class="fw-semibold text-secondary">Status:</span>
                         <div class="status-pills d-flex flex-wrap gap-2" role="group" aria-label="Status filter">
                             <input type="radio" class="btn-check" name="status" id="fips-status-all"
                                    value="" autocomplete="off" checked>
-                            <label class="btn btn-outline-secondary btn-sm" for="fips-status-all">All</label>
+                            <label class="btn btn-outline-secondary" for="fips-status-all">All</label>
 
                             <input type="radio" class="btn-check" name="status" id="fips-status-active"
                                    value="active" autocomplete="off">
-                            <label class="btn btn-outline-secondary btn-sm" for="fips-status-active">Active</label>
+                            <label class="btn btn-outline-secondary" for="fips-status-active">Active</label>
 
                             <input type="radio" class="btn-check" name="status" id="fips-status-historical"
                                    value="historical" autocomplete="off">
-                            <label class="btn btn-outline-secondary btn-sm" for="fips-status-historical">Historical</label>
+                            <label class="btn btn-outline-secondary" for="fips-status-historical">Historical</label>
 
                             <input type="radio" class="btn-check" name="status" id="fips-status-revoked"
                                    value="revoked" autocomplete="off">
-                            <label class="btn btn-outline-secondary btn-sm" for="fips-status-revoked">Revoked</label>
+                            <label class="btn btn-outline-secondary" for="fips-status-revoked">Revoked</label>
                         </div>
                     </div>
                 </form>
@@ -65,7 +65,7 @@
                                 <h3>Search</h3>
                                 <p class="flex-grow-1">We are converting all FIPS 140 certificates from PDFs into machine readable formats. You can use this website to search in our database for any FIPS 140 certificate, discover its extracted metadata, filter them and do much more.</p>
                                 <div>
-                                    <a href="{{ url_for('.merged_search') }}" class="btn btn-primary btn-sm">Search certificates →</a>
+                                    <a href="{{ url_for('.merged_search') }}" class="btn btn-primary">Search certificates →</a>
                                 </div>
                             </div>
                         </div>
@@ -77,8 +77,8 @@
                                 <h3>Example</h3>
                                 <p class="flex-grow-1">No more talking, have a look at the example certificate we have chosen for you. Discover extracted metadata and much more. Don't forget to search for your own certificates later!</p>
                                 <div>
-                                    <a href="{{ url_for('.entry', hashid='1625f9db144171f7') }}" class="btn btn-primary btn-sm">View example →</a>
-                                    <a href="{{ url_for('fips.rand') }}" class="btn btn-primary btn-sm">Random certificate</a>
+                                    <a href="{{ url_for('.entry', hashid='1625f9db144171f7') }}" class="btn btn-primary">View example →</a>
+                                    <a href="{{ url_for('fips.rand') }}" class="btn btn-primary">Random certificate</a>
                                 </div>
                             </div>
                         </div>
@@ -90,7 +90,7 @@
                                 <h3>Statistics Analysis</h3>
                                 <p class="flex-grow-1">Which scheme is issuing certificates the most? Which certificate category is the most common? You can find answers here and you can also make your own statistics with our prepared datasets.</p>
                                 <div>
-                                    <a href="{{ url_for('.analysis') }}" class="btn btn-primary btn-sm">Explore statistics →</a>
+                                    <a href="{{ url_for('.analysis') }}" class="btn btn-primary">Explore statistics →</a>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                                 <h3>Cross-references</h3>
                                 <p class="flex-grow-1">Wanted to know, what certificates are referencing yours and vice versa? We got you covered. We are automatically adding references between certificates, which then creates big graph of references. You can also see smaller reference graphs in certificate details.</p>
                                 <div>
-                                    <a href="{{ url_for('.network') }}" class="btn btn-primary btn-sm">View reference graph →</a>
+                                    <a href="{{ url_for('.network') }}" class="btn btn-primary">View reference graph →</a>
                                 </div>
                             </div>
                         </div>
@@ -129,10 +129,10 @@
                             time, and spot new entries before they become full certificates.</p>
                         <div class="mt-2">
                             <a href="{{ url_for('.mip_snapshot', id=fips_mip['_id']) if fips_mip else url_for('.mip_index') }}"
-                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
+                               class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
                             <a href="{{ url_for('.iut_snapshot', id=fips_iut['_id']) if fips_iut else url_for('.iut_index') }}"
-                               class="btn btn-primary btn-sm"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
-                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary btn-sm">Overview →</a>
+                               class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
+                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary">Overview →</a>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
@@ -140,7 +140,7 @@
                         <div class="card text-center">
                             <div class="card-body py-3">
                                 <div class="fs-2 fw-bold text-primary">{{ fips_mip.total }}</div>
-                                <div class="small text-muted">Modules In Process</div>
+                                <div class="text-muted">Modules In Process</div>
                             </div>
                         </div>
                         {% endif %}
@@ -148,7 +148,7 @@
                         <div class="card text-center">
                             <div class="card-body py-3">
                                 <div class="fs-2 fw-bold text-primary">{{ fips_iut.total }}</div>
-                                <div class="small text-muted">Under Test</div>
+                                <div class="text-muted">Under Test</div>
                             </div>
                         </div>
                         {% endif %}
@@ -156,7 +156,7 @@
                         <div class="card text-center">
                             <div class="card-body py-3">
                                 <div class="fs-2 fw-bold text-primary">{{ fips_mip.last_updated|fromisoformat|strftime("%d.%m.%Y") }}</div>
-                                <div class="small text-muted">Last updated</div>
+                                <div class="text-muted">Last updated</div>
                             </div>
                         </div>
                         {% endif %}
@@ -175,7 +175,7 @@
                         <h2 class="mb-0">Data</h2>
                     </div>
                     <p>Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
-                    <a href="{{ url_for('.data') }}" class="btn btn-primary btn-sm">Download datasets →</a>
+                    <a href="{{ url_for('.data') }}" class="btn btn-primary">Download datasets →</a>
                 </div>
             </div>
         </div>
