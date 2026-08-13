@@ -476,6 +476,26 @@
     scroll-margin-top: 57px;
 }
 
+.entry-title {
+    font-size: 1.375rem;
+}
+
+.entry-card h2 {
+    font-size: 1.375rem;
+}
+
+.entry-card h3 {
+    font-size: 1.25rem;
+}
+
+.entry-card h4 {
+    font-size: 1.125rem;
+}
+
+.entry-card h5 {
+    font-size: 1rem;
+}
+
 .outgoing-list {
     list-style: none;
 }

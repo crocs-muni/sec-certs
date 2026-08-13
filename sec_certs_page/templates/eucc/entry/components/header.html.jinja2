@@ -6,7 +6,7 @@
         </div>
 
         <div>
-            <h1>{{ cert["name"]|default("", true) }}</h1>
+            <h1 class="entry-title">{{ cert["name"]|default("", true) }}</h1>
 
             {% if cves %}
                 {{ certificate_vuln_note() }}
