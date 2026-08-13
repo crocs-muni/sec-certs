@@ -42,11 +42,7 @@
 {% endblock %}
 
 {% block content %}
-    <main data-bs-spy="scroll"
-          data-bs-target="#left-navigation"
-          data-bs-smooth-scroll="false"
-          tabindex="0"
-          class="shifted-section">
+    <main tabindex="0" class="shifted-section">
 
         {% include 'eucc/entry/components/header.html.jinja2' %}
 
@@ -70,6 +66,8 @@
 
         <script type="module">
             import {copyLinkToClipboard} from "/static/clipboard.js?{{ static_hash("clipboard.js") }}";
+            import {initSectionNav} from "/static/section_nav.js?{{ static_hash("section_nav.js") }}";
+            initSectionNav();
             // Necessary because of the share buttons.
             $(".copy-on-click").on("click", function (e) {
                 e.preventDefault();
