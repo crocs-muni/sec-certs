@@ -171,51 +171,6 @@
                             FIPS
                         </a>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
-                <div class="col-12 col-sm-7 order-1 order-sm-0">
-                    <h2>About sec-certs</h2>
-                    <p class="lead fw-light pt-2">
-                        We want to become the one-stop shop to explore the
-                        <a href="{{ url_for("cc.index") }}">Common Criteria</a> /
-                        <a href="{{ url_for("eucc.index") }}">EUCC</a> /
-                        <a href="{{ url_for("fips.index") }}">FIPS 140</a>
-                        certification ecosystem. We aggregate and annotate certification data, enabling you to perform
-                        unified searches,
-                        investigate <a href="{{ url_for("vuln.index") }}">vulnerabilities</a>,
-                        analyze <a href="/dashboard/">trends</a>,
-                        compare
-                        <a href="{{ url_for("cc.compare", one_hashid="a5171efab0a32451", other_hashid="0b0b999b8665313b") }}">products</a>
-                        side-by-side, subscribe to
-                        certificate changes,
-                        and take other actions on certified products.
-                    </p>
-                    <p class="lead fw-light pt-2">
-                        The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
-                        and Security. Learn more about our
-                        <a href="{{ url_for("about.index") }}">team</a>
-                        and
-                        <a href="{{ url_for("about.research") }}">research</a>.
-                    </p>
-                </div>
-                <div class="col-12 col-sm-5 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
-                    <img src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
-                         class="d-none d-xl-block mw-100"
-                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); margin: 2em;"/>
-                    <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="sec-certs"
-                         class="d-xl-none mw-100"
-                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
-                </div>
-            </div>
-        </div>
-
-        <div class="row p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
                             <i class="fas fa-chart-line fa-fw"></i>
@@ -339,6 +294,44 @@
                     <a class="btn btn-outline-primary m-1 ms-0" href="{{ url_for(".about.index") }}">Project</a>
                     <a class="btn btn-outline-primary m-1" href="{{ url_for(".about.research") }}">Research</a>
 
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+            <div class="row mb-3 g-4 justify-content-between row-cols-1 row-cols-lg-2">
+                <div class="col-12 col-sm-7 order-1 order-sm-0">
+                    <h2>About sec-certs</h2>
+                    <p class="lead fw-light pt-2">
+                        We want to become the one-stop shop to explore the
+                        <a href="{{ url_for("cc.index") }}">Common Criteria</a> /
+                        <a href="{{ url_for("eucc.index") }}">EUCC</a> /
+                        <a href="{{ url_for("fips.index") }}">FIPS 140</a>
+                        certification ecosystem. We aggregate and annotate certification data, enabling you to perform
+                        unified searches,
+                        investigate <a href="{{ url_for("vuln.index") }}">vulnerabilities</a>,
+                        analyze <a href="/dashboard/">trends</a>,
+                        compare
+                        <a href="{{ url_for("cc.compare", one_hashid="a5171efab0a32451", other_hashid="0b0b999b8665313b") }}">products</a>
+                        side-by-side, subscribe to
+                        certificate changes,
+                        and take other actions on certified products.
+                    </p>
+                    <p class="lead fw-light pt-2">
+                        The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
+                        and Security. Learn more about our
+                        <a href="{{ url_for("about.index") }}">team</a>
+                        and
+                        <a href="{{ url_for("about.research") }}">research</a>.
+                    </p>
+                </div>
+                <div class="col-12 col-sm-5 order-0 order-sm-1 justify-content-center justify-content-sm-start d-flex">
+                    <img src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
+                         class="d-none d-xl-block mw-100"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); margin: 2em;"/>
+                    <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="sec-certs"
+                         class="d-xl-none mw-100"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
                 </div>
             </div>
         </div>
