@@ -745,20 +745,6 @@ h6 {
     border-color: var(--bs-border-color);
 }
 
-[data-bs-theme="light"] .status-pills .btn {
-    background-color: #fff;
-}
-
-[data-bs-theme="dark"] .status-pills .btn {
-    background-color: var(--bs-body-bg);
-}
-
-.status-pills .btn-check:checked + .btn {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-    color: #fff;
-}
-
 [data-bs-theme="light"] .hero-search .btn-check:checked + .btn-primary {
     background-color: #fff;
     border-color: var(--bs-gray-400);
