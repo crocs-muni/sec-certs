@@ -479,6 +479,11 @@
     border-radius: 0.5rem;
 }
 
+.main-home .feature {
+    display: flex;
+    flex-direction: column;
+}
+
 .anchor {
     padding-top: 57px;
     margin-top: -57px;

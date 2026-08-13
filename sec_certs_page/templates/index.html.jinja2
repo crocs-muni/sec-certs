@@ -82,22 +82,24 @@
                             <a href="{{ url_for("cc.data") }}">weekly</a>, allowing you to search for your favorite Common
                             Criteria, EUCC and FIPS 140 products.
                         </p>
-                        <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Search in Common Criteria">
-                            CC
-                        </a>
-                        <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Search in EUCC">
-                            EUCC
-                        </a>
-                        <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Search in Protection Profiles">
-                            PP
-                        </a>
-                        <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Search in FIPS 140">
-                            FIPS
-                        </a>
+                        <div class="mt-auto">
+                            <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Search in Common Criteria">
+                                CC
+                            </a>
+                            <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Search in EUCC">
+                                EUCC
+                            </a>
+                            <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Search in Protection Profiles">
+                                PP
+                            </a>
+                            <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Search in FIPS 140">
+                                FIPS
+                            </a>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -110,14 +112,16 @@
                             product.</p>
                         <p>We use regular expressions to create references between certificates, making it easy for you
                             to find relationships in our reference graphs or certificate details.</p>
-                        <a href="{{ url_for("cc.network") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Show Common Criteria references graph">
-                            CC
-                        </a>
-                        <a href="{{ url_for("fips.network") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Show FIPS 140 references graph">
-                            FIPS
-                        </a>
+                        <div class="mt-auto">
+                            <a href="{{ url_for("cc.network") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Show Common Criteria references graph">
+                                CC
+                            </a>
+                            <a href="{{ url_for("fips.network") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Show FIPS 140 references graph">
+                                FIPS
+                            </a>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -134,16 +138,18 @@
                             The information on relevant CVEs is displayed in the appropriate heuristics section
                             on pages of the affected certificates.
                         </p>
-                        <a href="{{ url_for("vuln.index", _anchor="cve") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Search vulnerable certificates by CVE">
-                            CVE
-                        </a>
-                        <a href="{{ url_for("vuln.index", _anchor="cpe") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Search vulnerable certificates by CPE">
-                            CPE
-                        </a>
+                        <div class="mt-auto">
+                            <a href="{{ url_for("vuln.index", _anchor="cve") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Search vulnerable certificates by CVE">
+                                CVE
+                            </a>
+                            <a href="{{ url_for("vuln.index", _anchor="cpe") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Search vulnerable certificates by CPE">
+                                CPE
+                            </a>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -154,22 +160,24 @@
                             Common Criteria, EUCC and FIPS 140 certificates. Ask questions about a certificate
                             and let the AI guide you through the complex certification documents.
                         </p>
-                        <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                            CC
-                        </a>
-                        <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                            EUCC
-                        </a>
-                        <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a protection profile">
-                            PP
-                        </a>
-                        <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                            FIPS
-                        </a>
+                        <div class="mt-auto">
+                            <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                                CC
+                            </a>
+                            <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                                EUCC
+                            </a>
+                            <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Pick a protection profile">
+                                PP
+                            </a>
+                            <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
+                                FIPS
+                            </a>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -188,16 +196,18 @@
                             for a more detailed analysis.
 
                         </p>
-                        <a href="{{ url_for("cc.analysis") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show Common Criteria analysis">
-                            CC
-                        </a>
-                        <a href="{{ url_for("fips.analysis") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show FIPS 140 analysis">
-                            FIPS
-                        </a>
+                        <div class="mt-auto">
+                            <a href="{{ url_for("cc.analysis") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show Common Criteria analysis">
+                                CC
+                            </a>
+                            <a href="{{ url_for("fips.analysis") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show FIPS 140 analysis">
+                                FIPS
+                            </a>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -214,31 +224,33 @@
                             individual certificate
                             data can be accessed on each certificate's page.
                         </p>
-                        <a href="https://github.com/crocs-muni/sec-certs"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show project source code">
-                            GitHub
-                        </a>
-                        <a href="{{ url_for("cc.data") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show Common Criteria datasets">
-                            CC
-                        </a>
-                        <a href="{{ url_for("eucc.data") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show EUCC datasets">
-                            EUCC
-                        </a>
-                        <a href="{{ url_for("pp.data") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show Protection Profile datasets">
-                            PP
-                        </a>
-                        <a href="{{ url_for("fips.data") }}"
-                           class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                           data-bs-title="Show FIPS 140 datasets">
-                            FIPS
-                        </a>
+                        <div class="mt-auto">
+                            <a href="https://github.com/crocs-muni/sec-certs"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show project source code">
+                                GitHub
+                            </a>
+                            <a href="{{ url_for("cc.data") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show Common Criteria datasets">
+                                CC
+                            </a>
+                            <a href="{{ url_for("eucc.data") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show EUCC datasets">
+                                EUCC
+                            </a>
+                            <a href="{{ url_for("pp.data") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show Protection Profile datasets">
+                                PP
+                            </a>
+                            <a href="{{ url_for("fips.data") }}"
+                               class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
+                               data-bs-title="Show FIPS 140 datasets">
+                                FIPS
+                            </a>
+                        </div>
                     </div>
                     <div class="feature col">
                         <div class="feature-icon bg-primary bg-gradient">
@@ -278,18 +290,20 @@
                         <p>Everything on this site is built with our open-source Python library. Install it to
                             reproduce the datasets yourself, or plug the certification data straight into your own
                             analysis. The documentation includes a quick-start guide.</p>
-                        <a href="https://github.com/crocs-muni/sec-certs" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Show project source code">
-                            GitHub
-                        </a>
-                        <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Show documentation">
-                            Docs
-                        </a>
-                        <a href="{{ url_for("about.changelog") }}" class="btn btn-outline-primary btn-sm"
-                           data-bs-toggle="tooltip" data-bs-title="Show changelog">
-                            Changelog
-                        </a>
+                        <div class="mt-auto">
+                            <a href="https://github.com/crocs-muni/sec-certs" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Show project source code">
+                                GitHub
+                            </a>
+                            <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Show documentation">
+                                Docs
+                            </a>
+                            <a href="{{ url_for("about.changelog") }}" class="btn btn-outline-primary btn-sm"
+                               data-bs-toggle="tooltip" data-bs-title="Show changelog">
+                                Changelog
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
