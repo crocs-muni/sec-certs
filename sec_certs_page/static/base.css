@@ -476,6 +476,14 @@
     scroll-margin-top: 57px;
 }
 
+.entry-card td {
+    overflow-wrap: anywhere;
+}
+
+.entry-card tbody th {
+    vertical-align: top;
+}
+
 .entry-title {
     font-size: 1.375rem;
 }
