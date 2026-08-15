@@ -1,0 +1,42 @@
+TÜV Rheinland Nederland B.V.
+Headoffice:
+Westervoortsedijk 73
+NL-6827 AV Arnhem
+P.O. Box 2220
+NL-6802 CE Arnhem
+The Netherlands
+Location Leek:
+Eiberkamp 10
+NL-9351 VT Leek
+P.O. Box 37
+NL-9350 AA Leek
+The Netherlands
+info@nl.tuv.com
+www.tuv.com/nl
+Tel. +31 (0)88 888 7 888
+Fax +31 (0)88 888 7 879
+TÜV Rheinland Nederland B.V. is a
+registered company at the Dutch
+Chamber of Commerce under
+number 27288788
+VAT number: NL815820380B01
+IBAN: NL61DEUT0265155096
+Version 2019-1 ® TÜV, TUEV and TUV are registered trademarks. Any use or application requires prior approval.
+Certification Report
+TrustWare 3.0 (v3.0.5)
+Sponsor and developer: Samsung Electronics Co., Ltd.
+129 Samsung-ro, Yeonggtong-gu,
+Suwon-si, Gyeonggi-do, 443-742
+Korea
+Evaluation facility: Brightsight
+Brassersplein 2
+2612 CT Delft
+The Netherlands
+Report number: NSCIB-CC-234008-CR
+Report version: 1
+Project number: 234008
+Author(s): Denise Cater
+Date: 9 October 2019
+Number of pages: 13
+Number of appendices: 0
+Reproduction of this report is authorized provided the report is reproduced in its entirety.

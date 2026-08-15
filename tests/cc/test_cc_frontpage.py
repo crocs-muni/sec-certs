@@ -44,10 +44,6 @@ NSCIB_TUV_EXPECTED = {
     constants.TAG_REPORT_DATE: "9 October 2019",
 }
 
-# Docling's text layer reads a rendering gap in the TrustCB PDF's "NSCIB-2400046-01" as a word
-# space, where pdftotext does not. This is a genuine difference in what the two converters read off
-# the source PDF, not a parsing bug, so this one field is expected to differ between converters for
-# this one report -- see test_nscib_project_number_source_pdf_quirk.
 _DOCLING_PROJECT_NUMBER_OVERRIDES = {"nscib_report_trustcb": "NSCIB- 2400046-01"}
 
 
@@ -70,7 +66,6 @@ def nscib_parser() -> NSCIBFrontpageParser:
 def test_nscib_text(
     nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str], converter: str
 ):
-    """The same fields must come out of pdftotext plain text and Docling markdown alike."""
     items = nscib_parser.parse(frontpage_dir / converter / f"{name}.txt")
 
     assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
@@ -89,13 +84,6 @@ def test_nscib_structured(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Pat
 
 
 def test_nscib_project_number_source_pdf_quirk(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
-    """
-    Documents a real converter difference rather than papering over it in the main equality tests.
-
-    pdftotext and Docling extract different raw text for the same glyphs in the TrustCB report's
-    project number -- Docling's text layer reads a rendering gap as a word space. This is a source
-    PDF/converter quirk, not something the frontpage parser can or should normalize away.
-    """
     pdftotext = nscib_parser.parse(frontpage_dir / "pdftotext" / "nscib_report_trustcb.txt")
     docling = nscib_parser.parse(frontpage_dir / "docling" / "nscib_report_trustcb.txt")
 
@@ -128,13 +116,6 @@ def test_nscib_further_templates(
 
 
 def test_nscib_cert_lab_has_no_leading_whitespace(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
-    """
-    Guards the bug this refactor fixed.
-
-    The previous implementation stored `cert_lab` unnormalized, so it kept the space after the
-    label. `PdfData.cert_lab` then did `.split(" ")[0].upper()`, which yielded an empty string for
-    every NL certificate -- the scheme reported no evaluation lab at all.
-    """
     for name in ("nscib_report_trustcb", "nscib_report_tuv"):
         cert_lab = nscib_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")[constants.TAG_CERT_LAB]
         assert cert_lab == cert_lab.strip()
@@ -142,7 +123,6 @@ def test_nscib_cert_lab_has_no_leading_whitespace(nscib_parser: NSCIBFrontpagePa
 
 
 def test_nscib_ignores_letterhead_labels(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
-    """The certification body letterhead above the title carries its own `Label:` lines."""
     items = nscib_parser.parse(frontpage_dir / "pdftotext" / "nscib_report_tuv.txt")
 
     assert "Westervoortsedijk" not in items[constants.TAG_CERT_ITEM]
