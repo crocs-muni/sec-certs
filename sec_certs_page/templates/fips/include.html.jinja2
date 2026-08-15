@@ -1,11 +1,13 @@
-{% from "include/entry.html.jinja2" import keywords_card %}
+{% from "include/entry.html.jinja2" import keywords_card, render_standards, render_packages %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, map_funcs) }}
+    {% set _map = {"javacard_packages": render_packages} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, _map) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
@@ -13,7 +15,9 @@
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, map_funcs) }}
+    {% set _map = {"standard_id": render_standards} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_status(status) %}

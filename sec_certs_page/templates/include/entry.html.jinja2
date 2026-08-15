@@ -349,11 +349,15 @@
 
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, map_funcs) }}
+    {% set _map = {"ecc_curve": render_curves} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, _map) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, map_funcs) }}
+    {% set _map = {"javacard_packages": render_packages} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, _map) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
@@ -361,7 +365,9 @@
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, map_funcs) }}
+    {% set _map = {"standard_id": render_standards} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_updates(doc_name, diffs, diff_jsons, diff_renders) %}
@@ -494,19 +500,47 @@
     {% endif %}
 {% endmacro %}
 
+{% macro cc_tooltip(code, name) %}{% if cc_class_name(code) %}{{ cc_class_name(code) }}{% if name %} — {% endif %}{% endif %}{{ name or "" }}{% endmacro %}
+
 {% macro render_sfrs(sfr) %}
-    {%- if get_cc_sfr(sfr) -%}
-        <abbr title="{{ get_cc_sfr(sfr) }}">{{ sfr }}</abbr>
+    {%- set tip = cc_tooltip(sfr, get_cc_sfr(sfr)) | trim -%}
+    {%- if tip -%}
+        <abbr title="{{ tip }}">{{ sfr }}</abbr>
     {%- else -%}
         {{ sfr }}
     {%- endif -%}
 {%- endmacro %}
 
 {% macro render_sars(sar) %}
-    {%- if get_cc_sar(sar) -%}
-        <abbr title="{{ get_cc_sar(sar) }}">{{ sar }}</abbr>
+    {%- set tip = cc_tooltip(sar, get_cc_sar(sar)) | trim -%}
+    {%- if tip -%}
+        <abbr title="{{ tip }}">{{ sar }}</abbr>
     {%- else -%}
         {{ sar }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_standards(standard) %}
+    {%- if standard_url(standard) -%}
+        <a href="{{ standard_url(standard) }}" target="_blank" rel="noopener">{{ standard }}</a>
+    {%- else -%}
+        {{ standard }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_curves(curve) %}
+    {%- if curve_url(curve) -%}
+        <a href="{{ curve_url(curve) }}" target="_blank" rel="noopener">{{ curve }}</a>
+    {%- else -%}
+        {{ curve }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_packages(package) %}
+    {%- if package_url(package) -%}
+        <a href="{{ package_url(package) }}" target="_blank" rel="noopener">{{ package }}</a>
+    {%- else -%}
+        {{ package }}
     {%- endif -%}
 {%- endmacro %}
 
