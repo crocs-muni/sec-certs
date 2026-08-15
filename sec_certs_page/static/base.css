@@ -468,8 +468,7 @@
 }
 
 .anchor {
-    padding-top: 57px;
-    margin-top: -57px;
+    scroll-margin-top: 57px;
 }
 
 .entry-card {
@@ -486,6 +485,17 @@
 
 .entry-card tbody th {
     vertical-align: top;
+}
+
+.scroll-table {
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+.scroll-table thead tr:only-child th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bs-body-bg);
 }
 
 .entry-title {

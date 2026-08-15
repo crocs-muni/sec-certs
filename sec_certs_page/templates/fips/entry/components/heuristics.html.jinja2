@@ -1,7 +1,7 @@
-{% call entry_card(id="heuristics-info", title="Heuristics", icon="fa-lightbulb") %}
+{% call entry_card(id="heuristics-info", title="Automated analysis", icon="fa-lightbulb") %}
     <div>
-        {% if not cpes and not cves %}
-            <p>No heuristics are available for this certificate.</p>
+        {% if not cpes and not cves and (not network or network|length <= 1) %}
+            <p>No derived data is available for this certificate.</p>
         {% else %}
             {{ certificate_note() }}
         {% endif %}
@@ -16,10 +16,17 @@
 
     {% if cves %}
         <div data-cs-name="Related CVEs">
-            <h4 class="anchor" id="cves">Related <abbr
-                    title="Common Vulnerability Enumeration">CVEs</abbr>
+            <h4 class="anchor" id="cves"><abbr title="Common Vulnerabilities and Exposures">CVE</abbr> matches
+                {{ info_tooltip("CVEs affecting the NVD products this certificate was matched to. A listed CVE may not affect the certified configuration, and an empty list does not mean the product is unaffected.") }}
             </h4>
             {{ render_cves(cves) }}
         </div>
+    {% endif %}
+    
+    {% if network and network|length > 1%}
+    <div data-cs-name="Cross-references">
+        <h4 class="anchor" id="reference-graph">Cross-references {{ info_tooltip("Certificates mentioned in this certificate's documents, and certificates mentioning it. The reason for a mention (reused component, earlier version, …) is not inferred.") }}</h4>
+        {{ render_reference_network(cert, network, hashid, categories=".types") }}
+    </div>
     {% endif %}
 {% endcall %}

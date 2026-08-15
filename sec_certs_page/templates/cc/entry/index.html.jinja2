@@ -4,7 +4,7 @@
 {% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script %}
 {% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "cc/include.html.jinja2" import cc_keywords, render_category, render_eal, render_status %}
-{% from "include/entry.html.jinja2" import entry_card, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_file_metadata, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button, render_frontpage, render_sfrs, render_sars %}
+{% from "include/entry.html.jinja2" import entry_card, info_tooltip, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_cert, render_local_report, render_local_target, render_file_metadata, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button, render_frontpage, render_sfrs, render_sars %}
 {% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
 {% set chat_documents = [
     {"value": "report", "label": "Certification report", "available": local_files.get(("report", "txt"), false)},
@@ -33,8 +33,7 @@
         <a class="list-group-item list-group-item-action rounded" href="#cert-info">Certificate</a>
         <a class="list-group-item list-group-item-action rounded" href="#report-info">Certification report</a>
         <a class="list-group-item list-group-item-action rounded" href="#st-info">Security target</a>
-        <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Heuristics</a>
-        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References</a>
+        <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Automated analysis</a>
         <a class="list-group-item list-group-item-action rounded" href="#updates">Updates</a>
         <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
     </div>
@@ -54,8 +53,6 @@
         {% include 'cc/entry/components/security_target_doc.html.jinja2' %}
 
         {% include 'cc/entry/components/heuristics.html.jinja2' %}
-
-        {% include 'cc/entry/components/references.html.jinja2' %}
 
         {% call entry_card(id="updates", title="Updates", icon="fa-clock-rotate-left", heading_extra=render_update_feed_button(hashid)) %}
             {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}

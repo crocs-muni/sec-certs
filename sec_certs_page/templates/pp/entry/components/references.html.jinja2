@@ -1,4 +1,5 @@
-{% call entry_card(id="reference-graph", title="References", icon="fa-diagram-project") %}
+{% call entry_card(id="reference-graph", title="References", icon="fa-diagram-project",
+                   tooltip="Certificates evaluated against this profile, matched by the profile links published with them.") %}
     <div>
         {% if certs %}
             {{ certificate_note() }}

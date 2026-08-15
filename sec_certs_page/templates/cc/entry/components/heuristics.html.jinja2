@@ -1,11 +1,10 @@
-{% call entry_card(id="heuristics-info", title="Heuristics", icon="fa-lightbulb") %}
-    {% if not cert["heuristics"]["cert_id"] and not cpes and not cves %}
-        <p>No heuristics are available for this certificate.</p>
-    {% else %}
-        {{ certificate_note() }}
-    {% endif %}
 
+{% call entry_card(id="heuristics-info", title="Heuristics", icon="fa-lightbulb") %}
+    {% set has_content = false %}
+    
+    {{ certificate_note() }}
     {% if cert["heuristics"]["cert_id"] %}
+        {% set has_content = true %}
         <div data-cs-name="Certificate ID" class="my-3 pt-2">
             <h4>Certificate ID</h4>
             {{ cert["heuristics"]["cert_id"] }}
@@ -13,6 +12,7 @@
     {% endif %}
 
     {% if cert["heuristics"]["extracted_sars"] %}
+        {% set has_content = true %}
         <div data-cs-name="Extracted SARs" class="my-3 pt-2">
             <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
             {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
@@ -24,6 +24,7 @@
     {% endif %}
 
     {% if cpes %}
+        {% set has_content = true %}
         <div data-cs-name="CPE matches" class="my-3 pt-2">
             <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
             {{ render_cpes(cert, cpes) }}
@@ -31,15 +32,17 @@
     {% endif %}
 
     {% if cves %}
+        {% set has_content = true %}
         <div data-cs-name="Related CVEs" class="my-3 pt-2">
-            <h4 class="anchor" id="cves">Related <abbr
-                    title="Common Vulnerability Enumeration">CVEs</abbr>
+            <h4 class="anchor" id="cves"><abbr title="Common Vulnerabilities and Exposures">CVE</abbr> matches
+                {{ info_tooltip("CVEs affecting the NVD products this certificate was matched to. A listed CVE may not affect the certified configuration, and an empty list does not mean the product is unaffected.") }}
             </h4>
             {{ render_cves(cves) }}
         </div>
     {% endif %}
 
     {% if previous or next %}
+        {% set has_content = true %}
         <div data-cs-name="Certificate versions" class="my-3 pt-2">
             <h4 class="anchor" id="versions">Certificate versions</h4>
             <table class="table table-striped my-2">
@@ -115,69 +118,72 @@
     {% endif %}
 
     {% if similar %}
+        {% set has_content = true %}
         <div data-cs-name="Similar certificates" class="my-3 pt-2">
-            <h4 class="anchor" id="similar">Similar certificates</h4>
-            <table class="table table-striped my-2">
-                <colgroup>
-                    <col style="width: 80%"/>
-                    <col style="width: 15%"/>
-                    <col style="width: 5%"/>
-                </colgroup>
-                <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Certificate ID</th>
-                    <th scope="col"><span class="visually-hidden">Actions</span></th>
-                </tr>
-                </thead>
-                {% for similar_cert in similar %}
-                    <tr {% if similar|length > 5 and loop.index0 >= 5 %}
-                        class="collapse similarity-collapse" {% endif %}>
-                        <td style="max-width: 70%">
-                            <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}"
-                               title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
-                            {% if similar_cert["name"] == cert["name"] and cert["name"] %}
-                                <span class="badge rounded-pill bg-info text-dark" role="img"
-                                      aria-label="Certificate name matches exactly."
-                                      data-bs-toggle="tooltip" title="Certificate name matches exactly."><i
-                                        class="fas fa-equals" aria-hidden="true"></i></span>
-                            {% endif %}
-                            {% if "state" in similar_cert %}
-                                {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["source_hash"] == cert["state"]["cert"]["source_hash"] and cert["state"]["cert"]["source_hash"] %}
-                                    <span class="badge rounded-pill bg-info text-dark" role="img"
-                                          aria-label="Certificate PDF file matches exactly."
-                                          data-bs-toggle="tooltip" title="Certificate PDF file matches exactly."><i
-                                            class="fas fa-file-alt" aria-hidden="true"></i></span>
-                                {% endif %}
-                                {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["source_hash"] == cert["state"]["report"]["source_hash"] and cert["state"]["report"]["source_hash"] %}
-                                    <span class="badge rounded-pill bg-info text-dark" role="img"
-                                          aria-label="Certification report PDF file matches exactly."
-                                          data-bs-toggle="tooltip" title="Certification report PDF file matches exactly."><i
-                                            class="fas fa-file-alt" aria-hidden="true"></i></span>
-                                {% endif %}
-                                {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["source_hash"] == cert["state"]["st"]["source_hash"] and cert["state"]["st"]["source_hash"] %}
-                                    <span class="badge rounded-pill bg-info text-dark" role="img"
-                                          aria-label="Security target PDF file matches exactly."
-                                          data-bs-toggle="tooltip" title="Security target PDF file matches exactly."><i
-                                            class="fas fa-file-alt" aria-hidden="true"></i></span>
-                                {% endif %}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ similar_cert["heuristics"]["cert_id"] }}
-                            {% if similar_cert["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
-                                <span class="badge rounded-pill bg-info text-dark" role="img"
-                                      aria-label="Certificate ID matches exactly."
-                                      data-bs-toggle="tooltip" title="Certificate ID matches exactly."><i
-                                        class="fas fa-equals" aria-hidden="true"></i></span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end">
-                            <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
-                               class="btn btn-outline-primary">Compare</a></td>
+            <h4 class="anchor" id="similar">Similar certificates {{info_tooltip("Certificates related to this one by matching name, certificate ID, or identical source PDF (certificate report, or security target). Entries flagged as likely duplicates share two or more of these matches and may represent the same certification listed multiple times." )}}</h4>
+            <div class="scroll-table">
+                <table class="table table-striped my-2">
+                    <colgroup>
+                        <col style="width: 80%"/>
+                        <col style="width: 15%"/>
+                        <col style="width: 5%"/>
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Certificate ID</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
-                {% endfor %}
-            </table>
+                    </thead>
+                    {% for similar_cert in similar %}
+                        <tr {% if similar|length > 5 and loop.index0 >= 5 %}
+                            class="collapse similarity-collapse" {% endif %}>
+                            <td style="max-width: 70%">
+                                <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}"
+                                   title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
+                                {% if similar_cert["name"] == cert["name"] and cert["name"] %}
+                                    <span class="badge rounded-pill bg-info text-dark" role="img"
+                                          aria-label="Certificate name matches exactly."
+                                          data-bs-toggle="tooltip" title="Certificate name matches exactly."><i
+                                            class="fas fa-equals" aria-hidden="true"></i></span>
+                                {% endif %}
+                                {% if "state" in similar_cert %}
+                                    {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["source_hash"] == cert["state"]["cert"]["source_hash"] and cert["state"]["cert"]["source_hash"] %}
+                                        <span class="badge rounded-pill bg-info text-dark" role="img"
+                                              aria-label="Certificate PDF file matches exactly."
+                                              data-bs-toggle="tooltip" title="Certificate PDF file matches exactly."><i
+                                                class="fas fa-file-alt" aria-hidden="true"></i></span>
+                                    {% endif %}
+                                    {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["source_hash"] == cert["state"]["report"]["source_hash"] and cert["state"]["report"]["source_hash"] %}
+                                        <span class="badge rounded-pill bg-info text-dark" role="img"
+                                              aria-label="Certification report PDF file matches exactly."
+                                              data-bs-toggle="tooltip" title="Certification report PDF file matches exactly."><i
+                                                class="fas fa-file-alt" aria-hidden="true"></i></span>
+                                    {% endif %}
+                                    {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["source_hash"] == cert["state"]["st"]["source_hash"] and cert["state"]["st"]["source_hash"] %}
+                                        <span class="badge rounded-pill bg-info text-dark" role="img"
+                                              aria-label="Security target PDF file matches exactly."
+                                              data-bs-toggle="tooltip" title="Security target PDF file matches exactly."><i
+                                                class="fas fa-file-alt" aria-hidden="true"></i></span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ similar_cert["heuristics"]["cert_id"] }}
+                                {% if similar_cert["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
+                                    <span class="badge rounded-pill bg-info text-dark" role="img"
+                                          aria-label="Certificate ID matches exactly."
+                                          data-bs-toggle="tooltip" title="Certificate ID matches exactly."><i
+                                            class="fas fa-equals" aria-hidden="true"></i></span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
+                                   class="btn btn-outline-primary">Compare</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
             {% if similar|length > 5 %}
                 <div id="similarity-toggle" class="d-flex justify-content-center">
                     <div class="d-inline-flex flex-column">
@@ -194,6 +200,7 @@
     {% endif %}
 
     {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
+        {% set has_content = true %}
         <div data-cs-name="Scheme data" class="my-3">
             <h4>Scheme data</h4>
             <table class="table-sm table-borderless w-100">
@@ -251,4 +258,15 @@
             </table>
         </div>
     {% endif %}
+    {% if network and network|length > 1%}
+        {% set has_content = true %}
+        <div data-cs-name="Cross-references">
+            <h4 class="anchor" id="reference-graph">Cross-references {{ info_tooltip("Certificates mentioned in this certificate's documents, and certificates mentioning it. The reason for a mention (reused component, earlier version, …) is not inferred.") }}</h4>
+            {{ render_reference_network(cert, network, hashid) }}
+        </div>
+    {% endif %}
+
+{% if not has_content %}
+    <p>No automatically derived data are available for this certificate.</p>
+{% endif %}
 {% endcall %}
