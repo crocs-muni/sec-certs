@@ -6,7 +6,7 @@ import pytest
 import tests.data.cc.frontpage
 
 from sec_certs import constants
-from sec_certs.utils.frontpage import NSCIBFrontpageParser
+from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
 
 
 @pytest.fixture(scope="module")
@@ -278,3 +278,88 @@ def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
 
     assert nscib_parser.parse(not_a_report) == {}
+
+
+@pytest.fixture(scope="module")
+def canada_parser() -> CanadaFrontpageParser:
+    return CanadaFrontpageParser()
+
+
+CANADA_HSL_EXPECTED = {
+    constants.TAG_CERT_ID: "544-EWA",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: (
+        "High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 "
+        "Firmware Version 44404-E7E7 Peripheral Sharing Devices"
+    ),
+    constants.TAG_REPORT_DATE: "20 November 2023",
+}
+
+CANADA_THYCOTIC_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-445",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "Thycotic Secret Server Government Edition v10.0",
+    constants.TAG_REPORT_DATE: "23 October 2018",
+}
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [("canada_report_hsl", CANADA_HSL_EXPECTED), ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED)],
+)
+def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    """The same fields must come out of pdftotext plain text and Docling JSON alike."""
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == expected
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [("canada_report_hsl", CANADA_HSL_EXPECTED), ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED)],
+)
+def test_canada_structured(
+    canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]
+):
+    items = canada_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == expected
+
+
+def test_canada_further_template(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    """
+    A third, older report template where the certification id and date swap places relative to the
+    other two fixtures (id before date here, after it in canada_report_thycotic) -- guards that the
+    product-name cut point checks both, not just whichever came first in the other samples.
+    """
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_mcafee.txt")
+
+    assert items[constants.TAG_CERT_ID] == "383-4-396"
+    assert items[constants.TAG_CERT_LAB] == "CANADA"
+    assert items[constants.TAG_CERT_ITEM] == (
+        "McAfee Threat Intelligence Exchange 2.0.0 and Data Exchange Layer 3.0.0 with ePolicy Orchestrator 5.3.2"
+    )
+    assert items[constants.TAG_REPORT_DATE] == "30 November 2016"
+
+
+def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    """
+    Documents a real converter limitation rather than papering over it.
+
+    Docling's markdown export drops the frontpage banner (certification id, product name) for
+    this scheme's report layout entirely -- it isn't reachable from `save_as_markdown` output, only
+    from the full serialized JSON document. Since `DoclingConverter.convert` always writes both
+    files, this only affects the text-only fallback path, not real extraction.
+    """
+    items = canada_parser.parse(frontpage_dir / "docling" / "canada_report_hsl.txt")
+
+    assert items == {}
+
+
+def test_canada_non_report_yields_nothing(canada_parser: CanadaFrontpageParser, tmp_path: Path):
+    not_a_report = tmp_path / "empty.txt"
+    not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
+
+    assert canada_parser.parse(not_a_report) == {}
