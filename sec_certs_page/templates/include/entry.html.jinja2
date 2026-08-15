@@ -1,4 +1,4 @@
-{% macro entry_card(id=None, title=None, icon=None, level=2, heading_extra=None) %}
+{% macro entry_card(id=None, title=None, icon=None, level=2, heading_extra=None, tooltip=None) %}
     <section class="entry-card col-12 col-sm-10 mb-4 ms-sm-1 p-3 p-md-4 bg-darker-light rounded-3"
              {% if id %}id="{{ id }}"{% endif %}>
         {% if title %}
@@ -7,6 +7,18 @@
                     <i class="fas {{ icon }} fa-fw text-secondary" aria-hidden="true"></i>
                 {% endif %}
                 <h{{ level }} class="mb-0">{{ title }}</h{{ level }}>
+                {%- if tooltip %}
+                    <span class="text-muted d-inline-flex align-items-center"
+                          style="cursor: help;"
+                          role="img"
+                          tabindex="0"
+                          aria-label="{{ tooltip }}"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="right"
+                          title="{{ tooltip }}">
+                        <i class="fas fa-info-circle fa-xs"></i>
+                    </span>
+                {% endif %}
                 {%- if heading_extra %}
                     <span class="ms-auto">{{ heading_extra }}</span>
                 {% endif %}

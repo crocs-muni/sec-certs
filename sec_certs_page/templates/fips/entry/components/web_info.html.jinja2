@@ -1,7 +1,7 @@
 {% set table_styles = "table-sm table-borderless w-100" %}
 
 {% if "web_data" in cert %}
-    {% call entry_card(id="web-info", title="Webpage information", icon="fa-globe") %}
+    {% call entry_card(id="web-info", title="Certificate details", icon="fa-globe", tooltip="As listed on the NIST CMVP website.") %}
         <table class="{{ table_styles }}">
             <colgroup>
                 <col style="width: 30%"/>
