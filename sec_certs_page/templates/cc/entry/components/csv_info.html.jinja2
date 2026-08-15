@@ -1,0 +1,109 @@
+{% call entry_card(id="csv-info", title="CSV information", icon="fa-globe") %}
+    <table class="table-sm table-borderless w-100">
+        <colgroup>
+            <col style="width: 30%"/>
+            <col style="width: 70%"/>
+        </colgroup>
+        <tbody>
+        <tr data-cs-name="Certificate status">
+            <th scope="row">Status</th>
+            <td>{{ render_status(cert["status"]) }}</td>
+        </tr>
+        <tr data-cs-name="Valid from">
+            <th scope="row">Valid from</th>
+            <td>{{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}</td>
+        </tr>
+        {% if cert["not_valid_after"] %}
+            <tr data-cs-name="Valid until">
+                <th scope="row">Valid until</th>
+                <td>{{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</td>
+            </tr>
+        {% endif %}
+        <tr data-cs-name="Certification scheme">
+            <th scope="row">Scheme</th>
+            <td>{{ country_to_flag(cert["scheme"]) }} {{ cert['scheme'] }}</td>
+        </tr>
+        <tr data-cs-name="Manufacturer">
+            <th scope="row">Manufacturer</th>
+            <td>
+                {% if cert["manufacturer_web"] %}
+                    <a href="{{ cert["manufacturer_web"] }}" target="_blank"
+                       rel="noopener">{{ cert["manufacturer"] }}</a>
+                {% else %}
+                    {{ cert["manufacturer"] }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr data-cs-name="Category">
+            <th scope="row">Category</th>
+            <td>{{ render_category(cert["category"]) }} {{ cert["category"] }}</td>
+        </tr>
+        <tr data-cs-name="Security level">
+            <th scope="row">Security level</th>
+            <td>
+                {% for level in cert["security_level"] %}
+                    {{ render_eal(level) }}{%- if not loop.last -%}, {%- endif -%}
+                {% endfor %}
+            </td>
+        </tr>
+        {% if profiles %}
+            <tr data-cs-name="Protection profiles">
+                <th scope="row">Protection profiles</th>
+                <td>
+                    <ul>
+                        {% for id, profile in profiles.items() %}
+                            <li>
+                                <a href="{{ url_for("pp.entry", hashid=profile["_id"]) }}">{{ profile["web_data"]["name"] }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        {% endif %}
+        {% if cert["maintenance_updates"] %}
+            <tr data-cs-name="Maintenance updates">
+                <th scope="row" rowspan="{{ cert["maintenance_updates"] | length }}">Maintenance
+                    updates
+                </th>
+                {% set update = cert["maintenance_updates"].pop() %}
+                <td>
+                    {{ update["maintenance_title"] }}
+                    ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
+                    {% if update["maintenance_report_link"] %}
+                        <a href="{{ update["maintenance_report_link"] }}"
+                           target="_blank"
+                           rel="noopener"><i class="fas fa-file-contract"></i>
+                            Certification
+                            report</a>
+                    {% endif %}
+                    {% if update["maintenance_st_link"] %}
+                        <a href="{{ update["maintenance_st_link"] }}" target="_blank"
+                           rel="noopener"><i class="fas fa-file-alt"></i> Security
+                            target</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% for update in cert["maintenance_updates"] %}
+                <tr>
+                    <td>
+                        {{ update["maintenance_title"] }}
+                        ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
+                        {% if update["maintenance_report_link"] %}
+                            <a href="{{ update["maintenance_report_link"] }}"
+                               target="_blank"
+                               rel="noopener"><i class="fas fa-file-contract"></i>
+                                Certification
+                                report</a>
+                        {% endif %}
+                        {% if update["maintenance_st_link"] %}
+                            <a href="{{ update["maintenance_st_link"] }}" target="_blank"
+                               rel="noopener"><i class="fas fa-file-alt"></i> Security
+                                target</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+{% endcall %}

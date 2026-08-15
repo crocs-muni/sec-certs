@@ -1,0 +1,24 @@
+{% call entry_card(id="st-info", title="Security target", icon="fa-file-alt") %}
+    {{ render_process_state(cert["state"], cert["st_link"], "st", "security target") }}
+
+
+    {% if cert["st_link"] %}
+        <div class="mt-3 mb-3">
+            {{ render_local_target(hashid, local_files, cert['st_link'], primary_style="btn-primary", secondary_style="btn-secondary") }}
+        </div>
+    {% endif %}
+
+    {% if cert["pdf_data"]["st_keywords"] %}
+        <h4 class="mt-3">Extracted keywords</h4>
+        {{ cryptography_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+        {{ device_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+        {{ cc_keywords(cert["pdf_data"]["st_keywords"], "target", map_funcs={"cc_sar": render_sars,
+                                                                            "cc_sfr": render_sfrs}) }}
+        {{ security_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+        {{ other_keywords(cert["pdf_data"]["st_keywords"], "target") }}
+    {% endif %}
+
+    {{ render_references(network, hashid, "st", render_status) }}
+
+    {{ render_file_metadata(cert["pdf_data"]["st_metadata"], "Security target", "st") }}
+{% endcall %}

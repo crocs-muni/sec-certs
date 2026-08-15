@@ -1,0 +1,17 @@
+{% call entry_card(id="reference-graph", title="References", icon="fa-diagram-project") %}
+    <div>
+        {% if certs %}
+            {{ certificate_note() }}
+            <ul>
+                {% for cert in certs %}
+                    <li>
+                        <a href="{{ url_for('cc.entry', hashid=cert['_id']) }}">{{ cert['name'] }}</a>
+                        {{ render_status(cert["status"]) }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No references are available for this protection profile.</p>
+        {% endif %}
+    </div>
+{% endcall %}

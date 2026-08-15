@@ -480,12 +480,16 @@
     overflow-wrap: anywhere;
 }
 
+.entry-card td .btn {
+    white-space: nowrap;
+}
+
 .entry-card tbody th {
     vertical-align: top;
 }
 
 .entry-title {
-    font-size: 1.375rem;
+    font-size: 1.5rem;
 }
 
 .entry-card h2 {
@@ -677,7 +681,6 @@ h6 {
 [data-bs-theme="dark"] #left-navigation {
     background-color: var(--bs-dark);
 }
-
 
 .shifted-section {
     margin-left: var(--sidebar-width);

@@ -1,0 +1,25 @@
+{% call entry_card(id="heuristics-info", title="Heuristics", icon="fa-lightbulb") %}
+    <div>
+        {% if not cpes and not cves %}
+            <p>No heuristics are available for this certificate.</p>
+        {% else %}
+            {{ certificate_note() }}
+        {% endif %}
+    </div>
+
+    {% if cpes %}
+        <div data-cs-name="CPE matches">
+            <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
+            {{ render_cpes(cert, cpes) }}
+        </div>
+    {% endif %}
+
+    {% if cves %}
+        <div data-cs-name="Related CVEs">
+            <h4 class="anchor" id="cves">Related <abbr
+                    title="Common Vulnerability Enumeration">CVEs</abbr>
+            </h4>
+            {{ render_cves(cves) }}
+        </div>
+    {% endif %}
+{% endcall %}

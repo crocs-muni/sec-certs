@@ -1,0 +1,27 @@
+{% call entry_card(id="doc-info", title="Security policy", icon="fa-file-alt") %}
+    <div>
+        {{ render_process_state(cert["state"], policy_link, "policy", "policy") }}
+    </div>
+
+    <div>
+        {{ render_local_target(hashid, local_files, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
+    </div>
+
+    {% if cert["pdf_data"]["keywords"] %}
+        <div>
+            <h4 class="mt-3">Extracted keywords</h4>
+            {{ cryptography_keywords(cert["pdf_data"]["keywords"], "policy") }}
+            {{ device_keywords(cert["pdf_data"]["keywords"], "policy") }}
+            {{ security_keywords(cert["pdf_data"]["keywords"], "policy") }}
+            {{ other_keywords(cert["pdf_data"]["keywords"], "policy") }}
+        </div>
+    {% endif %}
+
+    <div>
+        {{ render_file_metadata(cert["pdf_data"]["policy_metadata"], "Security policy", "policy") }}
+    </div>
+
+    <div>
+        {{ render_references(network, hashid, "st", render_status) }}
+    </div>
+{% endcall %}

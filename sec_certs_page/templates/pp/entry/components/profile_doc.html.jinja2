@@ -1,0 +1,27 @@
+{% call entry_card(id="profile-info", title="Protection profile", icon="fa-file-alt") %}
+    <div>
+        {{ render_process_state(profile["state"], profile["web_data"]["pp_link"], "pp", "protection profile") }}
+    </div>
+
+    {% if profile["web_data"]["pp_link"] %}
+        <div>
+            {{ render_local_profile(hashid, local_files, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
+        </div>
+    {% endif %}
+
+    {% if profile["pdf_data"]["pp_keywords"] %}
+        <div>
+            <h4 class="mt-3">Extracted keywords</h4>
+            {{ cryptography_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+            {{ device_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+            {{ cc_keywords(profile["pdf_data"]["pp_keywords"], "profile", map_funcs={"cc_sar": render_sars,
+                                                                                    "cc_sfr": render_sfrs}) }}
+            {{ security_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+            {{ other_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+        </div>
+    {% endif %}
+
+    <div>
+        {{ render_file_metadata(profile["pdf_data"]["pp_metadata"], "Protection profile", "pp") }}
+    </div>
+{% endcall %}

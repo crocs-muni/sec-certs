@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-12 col-sm-10 p-3 pt-md-5">
+        <div class="alert alert-warning d-sm-none" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            This page was not yet optimized for use on mobile devices.
+        </div>
+
+        <div>
+            <h1 class="entry-title">{{ profile["web_data"]["name"]|default("", true) }}</h1>
+
+            <div class="d-flex gap-3 flex-wrap align-items-center pt-3 pb-3">
+                {% if config["CHAT_ENABLED"] %}{{ chat_icon(subject="protection profile") }}{% endif %}
+                {{ compare_icon() }}
+                {{ notification_icon(current_user, subscribed) }}
+                {{ render_share_buttons(hashid, cert_id=None, name=profile["web_data"]["name"]) }}
+            </div>
+        </div>
+    </div>
+</div>
