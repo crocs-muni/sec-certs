@@ -4,7 +4,7 @@
 {% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
 {% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
 {% from "fips/include.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "include/entry.html.jinja2" import entry_card, info_tooltip, render_local_cert, render_local_target, render_file_metadata, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
+{% from "include/entry.html.jinja2" import entry_card, info_tooltip, render_local_cert, render_local_file, render_file_metadata, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
 {% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
 {% set chat_documents = [
     {"value": "target", "label": "Security policy", "available": local_files.get(("target", "txt"), false)},

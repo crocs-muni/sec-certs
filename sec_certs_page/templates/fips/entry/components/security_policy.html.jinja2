@@ -4,7 +4,7 @@
     </div>
 
     <div>
-        {{ render_local_target(hashid, local_files, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
+        {{ render_local_file(hashid, '<i class="fas fa-file-alt"></i> Security policy', policy_link, local_files, "target", "btn-primary", "btn-secondary") }}
     </div>
 
     {% if cert["pdf_data"]["keywords"] %}
