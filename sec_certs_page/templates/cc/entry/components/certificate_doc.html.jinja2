@@ -1,4 +1,4 @@
-{% call entry_card(id="cert-info", title="Certificate", icon="fa-certificate") %}
+{% call entry_card(id="cert-info", title="Certificate", icon="fa-file-contract") %}
     {{ render_process_state(cert["state"], cert["cert_link"], "cert", "certificate") }}
 
     {% if cert["cert_link"] %}
