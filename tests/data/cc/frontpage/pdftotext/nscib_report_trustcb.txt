@@ -1,0 +1,30 @@
+TrustCB B.V.
+Registered address:
+Van den Berghlaan 48, 2132 AT
+Hoofddorp, The Netherlands
+nscib@trustcb.com
+https://trustcb.com/common-criteria/nscib/
+https://nscib.nl
+TrustCB B.V. is a registered company at the
+Netherlands Chamber of Commerce (KVK),
+under number 858360275.
+Version 2024-12 ® TrustCB is a registered trademark. Any use or application requires prior approval.
+Certification Report
+Cisco Secure Firewall Threat Defense (FTD) 7.4 with Secure
+Firewall Management Center (FMC) 7.4 and Secure Client 5.1
+Sponsor and developer: Cisco Systems, Inc.
+170 West Tasman Drive
+95134 San Jose, CA
+USA
+Evaluation facility: SGS Brightsight B.V.
+Brassersplein 2
+2612 CT Delft
+The Netherlands
+Report number: NSCIB-CC-2400046-01-CR
+Report version: 1
+Project number: NSCIB-2400046-01
+Author(s): Kjartan Jæger Kvassnes
+Date: 23 March 2025
+Number of pages: 11
+Number of appendices: 0
+Reproduction of this report is authorised only if the report is reproduced in its entirety.
