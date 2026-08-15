@@ -8,6 +8,10 @@
                 <col style="width: 70%"/>
             </colgroup>
             <tbody>
+            <tr data-cs-name="Certificate ID">
+                <th scope="row">Certificate ID</th>
+                <td>#{{ cert["cert_id"] }}</td>
+            </tr>
             <tr data-cs-name="Certificate status">
                 <th scope="row">Status</th>
                 <td>{{ render_status(cert["web_data"]["status"]) }}</td>

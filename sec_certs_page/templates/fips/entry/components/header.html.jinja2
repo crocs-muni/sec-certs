@@ -7,7 +7,6 @@
 
         <div>
             <h1 class="entry-title">{{ cert|fips_name|default("", true) }}</h1>
-            <p class="text-muted mb-0">Certificate #{{ cert["cert_id"] }}</p>
 
             {% if cves %}
                 {{ certificate_vuln_note() }}
