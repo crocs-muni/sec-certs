@@ -727,7 +727,7 @@ h6 {
 
 [data-bs-theme="light"] .hero-search,
 [data-bs-theme="light"] .bg-accent-light {
-    background-color: #f0f4ff;
+    background-color: #f0f0f0;
 }
 
 [data-bs-theme="dark"] .hero-search,
