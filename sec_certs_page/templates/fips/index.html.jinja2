@@ -2,7 +2,7 @@
 {% set canonical = True %}
 
 {% block content %}
-    <main class="scheme-home">
+    <main class="scheme-home fips-home">
         <section>
             <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
                 <h1>FIPS 140</h1>
@@ -16,23 +16,21 @@
             </div>
         </section>
         <section class="col-12 col-sm-10 mx-auto p-3" role="search">
-            <div class="bg-accent-light border rounded-3 p-3">
-                <h2 class="h6">Search FIPS 140 certificates</h2>
-                <form method="get" action="{{ url_for('.merged_search') }}" id="fips-hero-search-form" class="mt-2">
-                    <label for="fips-hero-search-input" class="visually-hidden">Search query</label>
-                    <div class="d-flex gap-2 align-items-center flex-wrap flex-sm-nowrap">
-                        <div class="position-relative flex-grow-1">
-                            <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"
-                               aria-hidden="true"></i>
+            <div class="card shadow-sm">
+                <div class="card-body p-3 p-md-4">
+                    <h2 class="h6">Search FIPS 140 certificates</h2>
+                    <form method="get" action="{{ url_for('.merged_search') }}" id="fips-hero-search-form" class="mt-2">
+                        <label for="fips-hero-search-input" class="visually-hidden">Search query</label>
+                        <div class="d-flex gap-2 align-items-center">
                             <input type="search" name="query" id="fips-hero-search-input"
-                                   class="form-control ps-5"
+                                   class="form-control flex-grow-1"
                                    placeholder="Module name">
+                            <button type="submit" class="btn btn-primary flex-shrink-0">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
                         </div>
-                        <button type="submit" class="btn btn-primary flex-shrink-0">
-                            <i class="fas fa-search me-1"></i>Search
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </section>
         <div class="row p-3">
@@ -112,7 +110,6 @@
                                class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
                             <a href="{{ url_for('.iut_snapshot', id=fips_iut['_id']) if fips_iut else url_for('.iut_index') }}"
                                class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
-                            <a href="{{ url_for('.mip_index') }}" class="btn btn-outline-primary">Overview →</a>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
@@ -145,7 +142,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-10 mx-auto p-3 pb-md-5">
+        <div class="col-12 col-sm-10 mx-auto p-3 pb-md-5 feature">
             <div class="card">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3 mb-3">

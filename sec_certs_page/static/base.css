@@ -745,6 +745,18 @@ h6 {
     border-color: var(--bs-border-color);
 }
 
+[data-bs-theme="light"] .fips-home section[role="search"] .bg-accent-light {
+    background-color: var(--bs-body-bg);
+}
+
+[data-bs-theme="dark"] .fips-home section[role="search"] .card {
+    background-color: var(--bs-body-bg);
+}
+
+[data-bs-theme="light"] .fips-home .feature .card {
+    background-color: #f0f0f0;
+}
+
 [data-bs-theme="light"] .hero-search .btn-check:checked + .btn-primary {
     background-color: #fff;
     border-color: var(--bs-gray-400);
