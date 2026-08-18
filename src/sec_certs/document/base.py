@@ -63,26 +63,18 @@ class DocumentTable:
         """
         Column names flattened out of the header rows, or None when the table has no header.
 
-        Multi-row headers are dot-joined the same way Docling flattens them, so that a two-row header
-        `[("Algorithm", "Cert."), ("", "#")]` yields `["Algorithm", "Cert..#"]`. Header rows of unequal
-        length are padded rather than truncated, so the result always covers every column.
+        Rows of unequal length are padded rather than truncated, so the result always covers every column.
         """
         if not self.header:
             return None
         return [".".join(part for part in parts if part) for parts in itertools.zip_longest(*self.header, fillvalue="")]
 
     def to_dataframe(self) -> pd.DataFrame:
-        """
-        Body rows as a dataframe, with the flattened header as columns.
-        """
         import pandas as pd
 
         return pd.DataFrame(list(self.rows), columns=self.column_names())
 
     def to_text(self, cell_sep: str = " ", row_sep: str = "\n", include_header: bool = True) -> str:
-        """
-        Flat text of the table.
-        """
         source = (self.header + self.rows) if include_header else self.rows
         return row_sep.join(cell_sep.join(cell.strip() for cell in row) for row in source)
 
@@ -95,7 +87,6 @@ class TablesNotSupportedError(NotImplementedError):
 
 class DocumentView(ABC):
     supports_tables: ClassVar[bool] = False
-    """Whether this view's backend can recover table structure."""
 
     @property
     @abstractmethod
