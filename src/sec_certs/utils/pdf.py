@@ -24,18 +24,6 @@ logger = logging.getLogger(__name__)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 
-def repair_pdf(file: Path) -> None:
-    """
-    Some pdfs can't be opened by PyPDF2 - opening them with pikepdf and then saving them fixes this issue.
-    By opening this file in a pdf reader, we can already extract number of pages.
-
-    :param file: file name
-    :return: number of pages in pdf file
-    """
-    pdf = pikepdf.Pdf.open(file, allow_overwriting_input=True)
-    pdf.save(file)
-
-
 def ocr_pdf_file(pdf_path: Path) -> str:
     """
     OCR a PDF file and return its text contents, uses `pdftoppm` and `tesseract`.
