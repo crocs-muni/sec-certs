@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -10,13 +9,13 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 
 import dateutil
 import numpy as np
-import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
 
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
+from sec_certs.document.base import TablesNotSupportedError
 from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -26,9 +25,9 @@ from sec_certs.sample.cpe import CPE
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.serialization.pandas import PandasSerializableType
-from sec_certs.utils import extract, helpers, tables
+from sec_certs.utils import extract, fips_tables, helpers
 from sec_certs.utils.helpers import fips_dgst
-from sec_certs.utils.pdf import extract_pdf_metadata, repair_pdf
+from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
@@ -545,27 +544,31 @@ class FIPSCertificate(
         return cert
 
     @staticmethod
-    def get_algorithms_from_policy_tables(cert: FIPSCertificate):
+    def get_algorithms_from_policy_tables(cert: FIPSCertificate) -> FIPSCertificate:
         """
-        Retrieves IDs of algorithms from tables inside security policy pdfs.
-        External library is used to handle this.
+        Retrieves IDs of algorithms from tables inside the security policy document.
         """
-        from tabula import read_pdf
+        try:
+            result = fips_tables.extract_algorithms_from_view(get_view(cert.state.policy))
+        except TablesNotSupportedError:
+            # A converter that cannot recover tables is a configuration property, not a failure of this
+            # document, so the extraction state is deliberately left alone.
+            logger.warning(
+                f"Cert dgst: {cert.dgst} skipping algorithms from policy tables, the configured PDF converter "
+                f"({config.pdf_converter}) provides none."
+            )
+            return cert
+        except Exception as e:
+            logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")
+            cert.state.policy.extract_ok = False
+            return cert
 
-        if table_rich_page_numbers := tables.find_pages_with_tables(cert.state.policy.txt_path):
-            repair_pdf(cert.state.policy.source_path)
-            try:
-                tabular_data = read_pdf(cert.state.policy.source_path, pages=list(table_rich_page_numbers), silent=True)
-                cert.pdf_data.policy_algorithms = set(
-                    itertools.chain.from_iterable(
-                        tables.get_algs_from_table(df.to_string())
-                        for df in tabular_data
-                        if isinstance(df, pd.DataFrame)
-                    )
-                )
-            except Exception as e:
-                logger.warning(f"Error when parsing tables from {cert.dgst}: {e}")
-                cert.state.policy.extract_ok = False
+        cert.pdf_data.policy_algorithms = result.algorithms
+        logger.debug(
+            f"Cert dgst: {cert.dgst} found {len(result.algorithms)} algorithm ids in "
+            f"{len(result.hits)}/{result.n_tables} tables (fallback={result.used_fallback})."
+        )
+        return cert
 
     def prune_referenced_cert_ids(self) -> None:
         """
