@@ -106,7 +106,7 @@ def stitch_fragments(
 def _continues(prev: TableFragment, nxt: TableFragment, blockers: Sequence[PageSpan], params: StitchParams) -> bool:
     if nxt.table.caption is not None:
         return False  # a caption of its own starts a new table
-    if nxt.table.is_index != prev.table.is_index or nxt.table.layer is not prev.table.layer:
+    if nxt.table.is_index != prev.table.is_index:
         return False
     if prev.table.n_cols == 0:
         return False

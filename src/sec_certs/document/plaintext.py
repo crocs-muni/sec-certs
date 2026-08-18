@@ -32,13 +32,7 @@ class PlainTextView(DocumentView):
         return whole_text
 
     @override
-    def get_tables(
-        self,
-        layers: set[DocumentLayer] | None = None,
-        pages: set[int] | None = None,
-        include_index: bool = False,
-        stitch: bool = True,
-    ) -> list[DocumentTable]:
+    def get_tables(self, include_index: bool = False, stitch: bool = True) -> list[DocumentTable]:
         # Deliberately not an empty list: that would make a misconfigured run indistinguishable from a
         # corpus of documents that genuinely contain no tables.
         raise TablesNotSupportedError(

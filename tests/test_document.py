@@ -4,7 +4,7 @@ import pytest
 
 import sec_certs.configuration as config_module
 from sec_certs.converter import has_docling
-from sec_certs.document.base import DocumentLayer, DocumentTable, TablesNotSupportedError
+from sec_certs.document.base import DocumentTable, TablesNotSupportedError
 from sec_certs.document.plaintext import PlainTextView
 
 if has_docling:
@@ -24,7 +24,6 @@ def fragment(
     top: float | None = None,
     bottom: float | None = None,
     is_index: bool = False,
-    layer: DocumentLayer = DocumentLayer.BODY,
     with_span: bool = True,
 ) -> TableFragment:
     """A fragment that by default sits flush at the bottom of its page, i.e. looks continuable."""
@@ -34,7 +33,6 @@ def fragment(
         caption=caption,
         pages=(page,),
         is_index=is_index,
-        layer=layer,
     )
     span = PageSpan(page=page, top=0.5 if top is None else top, bottom=0.9 if bottom is None else bottom)
     return TableFragment(table=table, span=span if with_span else None)
@@ -178,12 +176,6 @@ class TestStitching:
     def test_index_and_data_tables_do_not_merge(self):
         head = fragment(4, (("AES", "#1"),))
         tail = continuation(5, (("SHA", "#2"),), is_index=True)
-
-        assert len(stitch_fragments([head, tail])) == 2
-
-    def test_layers_must_match(self):
-        head = fragment(4, (("AES", "#1"),))
-        tail = continuation(5, (("SHA", "#2"),), layer=DocumentLayer.FURNITURE)
 
         assert len(stitch_fragments([head, tail])) == 2
 
