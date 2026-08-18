@@ -43,9 +43,6 @@ class DocumentTable:
     is_index: bool = False
     """Whether this is a table-of-contents-like block (list of tables, list of figures) rather than data."""
 
-    layer: DocumentLayer = DocumentLayer.BODY
-    """Content layer the table was found in."""
-
     n_fragments: int = 1
     """Number of per-page fragments this table was stitched from. 1 means it was not split across pages."""
 
@@ -117,21 +114,11 @@ class DocumentView(ABC):
         """
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
-    def get_tables(
-        self,
-        layers: set[DocumentLayer] | None = None,
-        pages: set[int] | None = None,
-        include_index: bool = False,
-        stitch: bool = True,
-    ) -> list[DocumentTable]:
+    def get_tables(self, include_index: bool = False, stitch: bool = True) -> list[DocumentTable]:
         """
-        Get the structured tables of the document, in reading order.
+        Get the structured tables of the document body, in reading order.
 
-        :param layers: content layers to include, all of them when None.
-        :param pages: 1-based page numbers; a table is kept when it covers any of them, all pages when
-            None. Note this filters whole tables rather than restricting extraction to those pages, so a
-            table spanning pages 4 and 5 is returned in full when only page 5 is requested.
-        :param include_index: whether to also return table-of-contents-like blocks (`is_index`).
+        :param include_index: whether to also return table-of-contents-like blocks.
         :param stitch: whether to merge fragments of a table split across a page boundary into one table.
         :raises TablesNotSupportedError: when the backend cannot recover table structure.
         """
