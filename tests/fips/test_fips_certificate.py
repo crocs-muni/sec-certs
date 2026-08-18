@@ -10,6 +10,7 @@ import pytest
 import tests.data.fips.certificate
 import tests.data.fips.dataset
 
+from sec_certs.configuration import config
 from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.sample.fips import FIPSCertificate
 from sec_certs.serialization.schemas import validator
@@ -38,22 +39,35 @@ def certificate(tmp_path_factory) -> FIPSCertificate:
     return crt
 
 
-def test_extract_metadata(certificate: FIPSCertificate):
-    pass
-
-
 def test_extract_module(certificate: FIPSCertificate):
     certificate.state.module.extract_ok = True
     FIPSCertificate.parse_html_module(certificate)
     assert certificate.state.module.extract_ok
 
 
-def test_extract_frontpage():
-    pass
+def test_prune_reference_ids_drops_algorithms_and_certlike(monkeypatch):
+    """The contract the extracted algorithm ids exist to serve: they remove false cert references."""
+    monkeypatch.setattr(config, "always_false_positive_fips_cert_id_threshold", 40)
+    cert = FIPSCertificate(3095)
+    cert.heuristics.algorithms = {"#3093", "AES#3094"}
+    cert.pdf_data.keywords = {"fips_certlike": {"Certlike": {"Cert. #3096": 1}}}
+
+    pruned = cert._prune_reference_ids_variable({"3093", "3094", "3096", "3097", "12", "3095"})
+
+    # 3093/3094 are algorithms, 3096 is certlike, 12 is below the threshold, 3095 is the cert itself.
+    assert pruned == {"3097"}
 
 
-def test_keyword_extraction():
-    pass
+def test_algorithm_numbers_ignore_ids_without_a_hash():
+    """Why extracted ids are canonicalized to '#<number>': without the hash they never reach pruning."""
+    cert = FIPSCertificate(3095)
+    cert.heuristics.algorithms = {"3093", "Cert. 3094"}
+
+    assert cert.heuristics.algorithm_numbers == set()
+
+    cert.heuristics.algorithms = {"#3093", "#A3094"}
+
+    assert cert.heuristics.algorithm_numbers == {"3093", "3094"}
 
 
 def test_cert_to_json(certificate: FIPSCertificate, tmp_path: Path, data_dir: Path):
