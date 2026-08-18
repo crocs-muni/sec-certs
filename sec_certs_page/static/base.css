@@ -717,6 +717,10 @@ h6 {
     background-color: #454545;
 }
 
+/*two surfaces per theme*/
+[data-bs-theme="light"] { --surface-box: #f0f0f0; }
+[data-bs-theme="dark"]  { --surface-box: #343a40; }
+
 /* extend the background to the sides */
 .hero-search {
     margin-left: calc(-.5 * var(--bs-gutter-x));
@@ -725,14 +729,9 @@ h6 {
     padding-right: calc(.5 * var(--bs-gutter-x));
 }
 
-[data-bs-theme="light"] .hero-search,
-[data-bs-theme="light"] .bg-accent-light {
-    background-color: #f0f0f0;
-}
-
-[data-bs-theme="dark"] .hero-search,
-[data-bs-theme="dark"] .bg-accent-light {
-    background-color: #343a40;
+.hero-search,
+.bg-accent-light {
+    background-color: var(--surface-box);
 }
 
 [data-bs-theme="light"] .main-home .bg-darker-light,
@@ -740,21 +739,16 @@ h6 {
     background-color: var(--bs-body-bg);
 }
 
+[data-bs-theme="light"] .scheme-home .card,
 [data-bs-theme="dark"] .scheme-home .card {
-    background-color: #343a40;
-    border-color: var(--bs-border-color);
+    background-color: var(--surface-box);
 }
 
-[data-bs-theme="light"] .fips-home section[role="search"] .bg-accent-light {
+[data-bs-theme="light"] .scheme-home [role="search"] .card,
+[data-bs-theme="dark"] .scheme-home [role="search"] .card,
+[data-bs-theme="light"] .scheme-home .bg-accent-light .card,
+[data-bs-theme="dark"] .scheme-home .bg-accent-light .card {
     background-color: var(--bs-body-bg);
-}
-
-[data-bs-theme="dark"] .fips-home section[role="search"] .card {
-    background-color: var(--bs-body-bg);
-}
-
-[data-bs-theme="light"] .fips-home .feature .card {
-    background-color: #f0f0f0;
 }
 
 [data-bs-theme="light"] .hero-search .btn-check:checked + .btn-primary {
@@ -1525,20 +1519,24 @@ tr.has-snippets > td {
     color: #85B6FF;
 }
 
-/* Higher contrast links on .bg-darker-light background*/
-[data-bs-theme="dark"] .bg-darker-light a:not(.btn) {
+/* Higher contrast links on .bg-darker-light / scheme-home card backgrounds */
+[data-bs-theme="dark"] .bg-darker-light a:not(.btn),
+[data-bs-theme="dark"] .scheme-home .card a:not(.btn) {
     color: #9EC5FE;
 }
-[data-bs-theme="dark"] .bg-darker-light .btn-link {
+[data-bs-theme="dark"] .bg-darker-light .btn-link,
+[data-bs-theme="dark"] .scheme-home .card .btn-link {
     --bs-btn-color: #9EC5FE;
     --bs-btn-hover-color: #cfe2ff;
     --bs-btn-active-color: #cfe2ff;
 }
 
-[data-bs-theme="light"] .bg-darker-light a:not(.btn) {
+[data-bs-theme="light"] .bg-darker-light a:not(.btn),
+[data-bs-theme="light"] .scheme-home .card a:not(.btn) {
     color: #1A6BCC;
 }
-[data-bs-theme="light"] .bg-darker-light .btn-link {
+[data-bs-theme="light"] .bg-darker-light .btn-link,
+[data-bs-theme="light"] .scheme-home .card .btn-link {
     --bs-btn-color: #1A6BCC;
     --bs-btn-hover-color: #0056B3;
     --bs-btn-active-color: #0056B3;
