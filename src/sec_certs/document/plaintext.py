@@ -36,6 +36,6 @@ class PlainTextView(DocumentView):
         # Deliberately not an empty list: that would make a misconfigured run indistinguishable from a
         # corpus of documents that genuinely contain no tables.
         raise TablesNotSupportedError(
-            f"pdftotext output has no table structure ({self}). "
+            f"No table structure in {self}. "
             "Set the pdf_converter configuration option to 'docling' and re-convert to extract tables."
         )

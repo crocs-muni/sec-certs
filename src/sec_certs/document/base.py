@@ -114,8 +114,7 @@ class DocumentView(ABC):
         :raises TablesNotSupportedError: when the backend cannot recover table structure.
         """
         raise TablesNotSupportedError(
-            f"{type(self).__name__} cannot extract tables from {self}. "
-            "Table extraction requires the docling PDF converter."
+            f"Cannot extract tables from {self}. Table extraction requires the docling PDF converter."
         )
 
     def __str__(self) -> str:
