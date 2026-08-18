@@ -93,34 +93,22 @@ class DoclingView(DocumentView):
         return serializer.serialize().text
 
     @override
-    def get_tables(
-        self,
-        layers: set[DocumentLayer] | None = None,
-        pages: set[int] | None = None,
-        include_index: bool = False,
-        stitch: bool = True,
-    ) -> list[DocumentTable]:
-        content_layers = self._translate_layers(layers if layers is not None else set(DocumentLayer))
+    def get_tables(self, include_index: bool = False, stitch: bool = True) -> list[DocumentTable]:
         fragments: list[TableFragment] = []
         blockers: list[PageSpan] = []
 
-        # Body is always walked, even when not requested, because blockers are only meaningful there: the
-        # running header and footer of every page would otherwise sit in every gap and block all merges.
-        for item, _ in self.doc.iterate_items(included_content_layers=content_layers | {ContentLayer.BODY}):
-            if isinstance(item, TableItem) and item.content_layer in content_layers:
+        for item, _ in self.doc.iterate_items(included_content_layers={ContentLayer.BODY}):
+            if isinstance(item, TableItem):
                 is_index = item.label == DocItemLabel.DOCUMENT_INDEX
                 if include_index or not is_index:
                     fragments.append(self._to_fragment(item, is_index))
                     continue
-            if item.content_layer is ContentLayer.BODY and getattr(item, "label", None) not in _NON_BLOCKING_LABELS:
+            if getattr(item, "label", None) not in _NON_BLOCKING_LABELS:
                 blockers.extend(self._page_spans(item))
 
-        tables = stitch_fragments(fragments, blockers) if stitch else [fragment.table for fragment in fragments]
-
-        # Filtered after stitching, so that asking for one page of a table still yields the whole table.
-        if pages is not None:
-            tables = [table for table in tables if pages.intersection(table.pages)]
-        return tables
+        if not stitch:
+            return [fragment.table for fragment in fragments]
+        return stitch_fragments(fragments, blockers)
 
     def _to_fragment(self, item: TableItem, is_index: bool) -> TableFragment:
         grid = item.data.grid
@@ -132,7 +120,6 @@ class DoclingView(DocumentView):
             caption=item.caption_text(self.doc).strip() or None,
             pages=tuple(sorted({span.page for span in spans})),
             is_index=is_index,
-            layer=self._translate_layer_back(item.content_layer),
         )
         # A fragment is compared as a tail by where it starts and as a head by where it ends, which differ
         # when the backend reports provenance for more than one page.
@@ -167,14 +154,6 @@ class DoclingView(DocumentView):
                 break
             n += 1
         return min(n, max(len(grid) - 1, 0))
-
-    @staticmethod
-    def _translate_layer_back(layer: ContentLayer) -> DocumentLayer:
-        try:
-            return DocumentLayer(layer.value)
-        except ValueError:
-            # Docling knows layers we do not model, e.g. background or invisible content.
-            return DocumentLayer.BODY
 
     def _page_spans(self, item: NodeItem) -> list[PageSpan]:
         spans = []
