@@ -52,6 +52,8 @@ class DoclingView(DocumentView):
 
     @cached_property
     def doc(self) -> DoclingDocument:
+        if not self.json_path.is_file():
+            raise FileNotFoundError(f"No converted document at {self.json_path}")
         return DoclingDocument.load_from_json(self.json_path)
 
     def _translate_layers(self, layers: set[DocumentLayer]) -> set[ContentLayer]:
