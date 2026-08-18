@@ -21,6 +21,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     FIPSAlgorithmDatasetHandler,
 )
 from sec_certs.dataset.dataset import Dataset
+from sec_certs.document.utils import get_view_cls
 from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
 from sec_certs.heuristics.fips import compute_references
 from sec_certs.sample.fips import FIPSCertificate
@@ -304,14 +305,22 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
                 cert.web_data = prev.web_data
 
     @staged(logger, "Extracting Algorithms from policy tables.")
-    def _extract_algorithms_from_policy_tables(self, dgsts: set[str]):
+    def _extract_algorithms_from_policy_tables(self, dgsts: set[str]) -> None:
+        if not get_view_cls().supports_tables:
+            logger.warning(
+                f"Skipping algorithms from policy tables: the configured PDF converter "
+                f"({config.pdf_converter}) provides none. Re-convert with the docling converter to enable it."
+            )
+            return
+
         certs_to_process = [self[dgst] for dgst in dgsts]
-        cert_processing.process_parallel(
+        processed_certs = cert_processing.process_parallel(
             FIPSCertificate.get_algorithms_from_policy_tables,
             certs_to_process,
             use_threading=False,
             progress_bar_desc="Extracting Algorithms from policy tables",
         )
+        self.update_with_certs(processed_certs)
 
     @staged(logger, "Extracting security policy metadata from the pdfs.")
     def _extract_policy_pdf_metadata(self, dgsts: set[str]) -> None:
