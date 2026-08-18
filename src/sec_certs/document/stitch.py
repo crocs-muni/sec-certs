@@ -64,7 +64,6 @@ class StitchParams:
     """
 
     require_equal_columns: bool = True
-    """Whether fragments must agree on column count to be merged."""
 
     use_blockers: bool = True
     """

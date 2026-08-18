@@ -22,7 +22,7 @@ from sec_certs.document.stitch import PageSpan, TableFragment, stitch_fragments
 
 logger = logging.getLogger(__name__)
 
-"""Labels that never count as content separating two fragments of the same table."""
+# Captions and page furniture sit between two fragments of the same table without separating them.
 _NON_BLOCKING_LABELS = {
     DocItemLabel.CAPTION,
     DocItemLabel.PAGE_HEADER,
@@ -133,8 +133,7 @@ class DoclingView(DocumentView):
         return tuple(tuple(self._cell_text(cell) for cell in row) for row in rows)
 
     def _cell_text(self, cell: TableCell) -> str:
-        # A rich cell holds a reference to a document node rather than plain text; its own `text` may be
-        # empty, and resolving it without the document yields a placeholder comment.
+        # A rich cell holds a reference to a document node rather than text of its own.
         if isinstance(cell, RichTableCell):
             resolved = cell.ref.resolve(self.doc)
             return getattr(resolved, "text", "") or cell.text
