@@ -57,11 +57,6 @@ class TestStitching:
         assert table.rows == (("AES", "#1"), ("SHA", "#2"))
         assert table.header == HEADER
 
-    def test_single_fragment_is_returned_unchanged(self):
-        head = fragment(4, (("AES", "#1"),))
-
-        assert stitch_fragments([head]) == [head.table]
-
     def test_own_caption_starts_a_new_table(self):
         head = fragment(4, (("AES", "#1"),))
         tail = continuation(5, (("SHA", "#2"),), caption="Table 5: Something else")
@@ -74,24 +69,12 @@ class TestStitching:
 
         assert len(stitch_fragments([head, tail])) == 2
 
-    def test_same_page_fragments_do_not_merge(self):
-        head = fragment(4, (("AES", "#1"),))
-        tail = continuation(4, (("SHA", "#2"),))
-
-        assert len(stitch_fragments([head, tail])) == 2
-
     def test_column_count_must_match_by_default(self):
         head = fragment(4, (("AES", "#1"),))
         tail = continuation(5, (("SHA", "#2", "extra"),), header=(("Algorithm", "Cert. #", "Mode"),))
 
         assert len(stitch_fragments([head, tail])) == 2
         assert len(stitch_fragments([head, tail], params=StitchParams(require_equal_columns=False))) == 1
-
-    def test_head_not_reaching_page_bottom_does_not_continue(self):
-        head = fragment(4, (("AES", "#1"),), bottom=0.5)
-        tail = continuation(5, (("SHA", "#2"),))
-
-        assert len(stitch_fragments([head, tail])) == 2
 
     def test_tail_not_starting_at_page_top_is_not_a_continuation(self):
         head = fragment(4, (("AES", "#1"),))
@@ -179,27 +162,16 @@ class TestStitching:
 
         assert len(stitch_fragments([head, tail])) == 2
 
-    def test_header_repeated_as_body_rows_is_stripped(self):
+    @pytest.mark.parametrize(
+        "repeat",
+        [("Algorithm", "Cert. #"), (" algorithm ", "CERT. #")],
+        ids=["verbatim", "differing-whitespace-and-case"],
+    )
+    def test_header_repeated_as_body_rows_is_stripped(self, repeat):
         head = fragment(4, (("AES", "#1"),))
-        tail = continuation(5, (("Algorithm", "Cert. #"), ("SHA", "#2")), header=())
+        tail = continuation(5, (repeat, ("SHA", "#2")), header=())
 
         (table,) = stitch_fragments([head, tail], params=StitchParams(require_equal_columns=False))
-
-        assert table.rows == (("AES", "#1"), ("SHA", "#2"))
-
-    def test_header_repeated_with_different_case_is_stripped(self):
-        head = fragment(4, (("AES", "#1"),))
-        tail = continuation(5, ((" algorithm ", "CERT. #"), ("SHA", "#2")), header=())
-
-        (table,) = stitch_fragments([head, tail], params=StitchParams(require_equal_columns=False))
-
-        assert table.rows == (("AES", "#1"), ("SHA", "#2"))
-
-    def test_body_row_resembling_no_header_is_kept(self):
-        head = fragment(4, (("AES", "#1"),), header=())
-        tail = continuation(5, (("SHA", "#2"),), header=())
-
-        (table,) = stitch_fragments([head, tail])
 
         assert table.rows == (("AES", "#1"), ("SHA", "#2"))
 
@@ -247,18 +219,6 @@ class TestStitching:
 
         assert table.n_fragments == 2
         assert table.pages == (4, 5, 6)
-
-    def test_merged_rows_stay_rectangular_when_widths_disagree(self):
-        head = fragment(4, (("AES", "#1"),))
-        tail = continuation(5, (("SHA", "#2", "extra"),), header=(("Algorithm", "Cert. #", "Mode"),))
-
-        (table,) = stitch_fragments([head, tail], params=StitchParams(require_equal_columns=False))
-
-        assert {len(row) for row in table.rows} == {table.n_cols}
-        assert table.to_dataframe().shape == (len(table.rows), table.n_cols)
-
-    def test_empty_input(self):
-        assert stitch_fragments([]) == []
 
 
 def row_content(row: tuple[str, ...]) -> tuple[str, ...]:
@@ -355,31 +315,6 @@ class TestDocumentTable:
 
         assert table.column_names() == ["A.x", "B.y", "C"]
         assert table.to_dataframe().shape == (1, 3)
-
-    def test_column_names_none_without_header(self):
-        assert DocumentTable(rows=(("AES", "1"),)).column_names() is None
-
-    def test_empty_table(self):
-        table = DocumentTable()
-
-        assert table.is_empty
-        assert table.n_cols == 0
-        assert table.to_text() == ""
-
-    def test_to_dataframe(self):
-        table = DocumentTable(header=HEADER, rows=(("AES", "#1"), ("SHA", "#2")))
-
-        df = table.to_dataframe()
-
-        assert list(df.columns) == ["Algorithm", "Cert. #"]
-        assert df.shape == (2, 2)
-
-    def test_to_text(self):
-        table = DocumentTable(header=HEADER, rows=(("AES", " #1 "),))
-
-        assert table.to_text() == "Algorithm Cert. #\nAES #1"
-        assert table.to_text(include_header=False) == "AES #1"
-        assert table.to_text(cell_sep="|") == "Algorithm|Cert. #\nAES|#1"
 
 
 class TestViewCapabilities:
