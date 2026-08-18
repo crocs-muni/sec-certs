@@ -9,7 +9,7 @@ from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
 from typing import Any
 
-from sec_certs.configuration import config
+from sec_certs.configuration import Configuration, config
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -17,8 +17,20 @@ logger = logging.getLogger(__name__)
 _worker_instance: Any = None
 
 
-def _init_worker_instance(instance_cls: type, instance_args: tuple) -> None:
+def _restore_config(parent_config: Configuration) -> None:
+    """
+    Re-apply the parent's configuration inside a worker process.
+
+    Workers started with the `spawn` method (the default on macOS, and on Windows) re-import
+    `sec_certs.configuration` from scratch, so they see the field defaults rather than whatever the parent
+    loaded from yaml or set at runtime. Anything a worker reads off `config` would silently differ.
+    """
+    config._set_attrs_from_cfg(parent_config, parent_config._get_nondefault_keys())
+
+
+def _init_worker_instance(instance_cls: type, instance_args: tuple, parent_config: Configuration) -> None:
     global _worker_instance
+    _restore_config(parent_config)
     _worker_instance = instance_cls(*instance_args)
 
 
@@ -53,7 +65,10 @@ def process_parallel_with_instance(
             chunk = items[i : i + chunk_size]
             ctx = get_context("spawn")
             pool = ProcessPoolExecutor(
-                max_workers, ctx, initializer=_init_worker_instance, initargs=(instance_cls, instance_args)
+                max_workers,
+                ctx,
+                initializer=_init_worker_instance,
+                initargs=(instance_cls, instance_args, config),
             )
             with pool:
                 wrapper = partial(_worker_wrapper, func=func)
@@ -102,7 +117,9 @@ def process_parallel(
         max_workers = cpu_count()
 
     kwds = kwargs or {}
-    pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
+    pool: Pool | ThreadPool = (
+        ThreadPool(max_workers) if use_threading else Pool(max_workers, initializer=_restore_config, initargs=(config,))
+    )
     results = (
         [pool.apply_async(func, args=(*i,), kwds=kwds, callback=callback) for i in items]
         if unpack
