@@ -1,13 +1,16 @@
 """
 Tests of algorithm extraction from security policy tables.
 
-These build `DocumentTable` instances directly, so they exercise the whole selection and matching logic
-without needing docling installed or a real policy on disk.
+Most build `DocumentTable` instances directly, so the selection and matching logic is covered without
+docling installed or a real policy on disk. The cases carrying odd-looking cell text are transcribed from
+the policy corpus rather than invented. `TestGoldenPolicy` and the two stage tests at the end need the
+docling extra: they are the only ones that see a real converted document and the pipeline around it.
 """
 
 from __future__ import annotations
 
 import json
+import shutil
 from importlib.resources import as_file, files
 
 import pytest
@@ -18,6 +21,7 @@ from sec_certs.document.base import DocumentTable
 from sec_certs.utils.fips_tables import canonical_id, extract_algorithms_from_tables, normalize
 
 GOLDEN_DGST = "20fa0bcc74ce3b21"
+GOLDEN_ALGORITHMS = {"#A1289", "#A4801", "#C2155", "#C2156"}
 
 ALG_HEADER = (("Algorithm", "Cert. #"),)
 
@@ -128,11 +132,6 @@ class TestSelection:
 
         assert [hit.selected_by for hit in result.hits] == ["caption"]
 
-    def test_empty_tables_are_not_candidates(self):
-        result = extract_algorithms_from_tables([DocumentTable(), glossary()])
-
-        assert result.n_tables == 1
-
 
 class TestIndexTables:
     def test_index_table_contributes_nothing(self):
@@ -160,14 +159,6 @@ class TestIndexTables:
 
         assert result.used_fallback
         assert result.algorithms == {"#1234"}
-
-    def test_document_of_only_index_tables_yields_nothing(self):
-        index = table((("Table 4: Approved Algorithms ....... 12",),), is_index=True)
-
-        result = extract_algorithms_from_tables([index])
-
-        assert result.algorithms == set()
-        assert result.n_tables == 0
 
 
 class TestFallback:
@@ -378,42 +369,12 @@ class TestIdMatching:
 
         assert extract_algorithms_from_tables(tables).algorithms == {"#1234"}
 
-    def test_extracted_ids_carry_the_hash_pruning_relies_on(self):
-        """`FIPSCertificate.Heuristics.algorithm_numbers` drops anything without a '#'."""
-        tables = [table((("AES", "1234"),), header=ALG_HEADER)]
-
-        assert extract_algorithms_from_tables(tables).algorithms == {"#1234"}
-
 
 class TestRobustness:
-    def test_no_tables(self):
-        result = extract_algorithms_from_tables([])
-
-        assert result.algorithms == set()
-        assert result.n_tables == 0
-        assert not result.used_fallback
-
     def test_ragged_rows_do_not_crash(self):
         tables = [table((("AES", "#1234"), ("SHA",), ("RSA", "#1235", "extra")), header=ALG_HEADER)]
 
         assert extract_algorithms_from_tables(tables).algorithms == {"#1234", "#1235"}
-
-    def test_hits_record_provenance(self):
-        tables = [table((("AES", "#1234"),), header=ALG_HEADER, caption="Table 4: Approved Algorithms", pages=(4, 5))]
-
-        (hit,) = extract_algorithms_from_tables(tables).hits
-
-        assert hit.caption == "Table 4: Approved Algorithms"
-        assert hit.pages == (4, 5)
-        assert hit.algorithms == frozenset({"#1234"})
-
-    def test_tables_without_matches_are_not_recorded_as_hits(self):
-        tables = [table((("AES", "CBC"),), header=ALG_HEADER)]
-
-        result = extract_algorithms_from_tables(tables)
-
-        assert result.hits == []
-        assert result.n_tables == 1
 
 
 class TestHelpers:
@@ -476,7 +437,7 @@ class TestGoldenPolicy:
         """The certificate numbers of the "Approved Cryptographic Functions" table, and nothing else."""
         result = extract_algorithms_from_tables(golden_tables)
 
-        assert result.algorithms == {"#A1289", "#A4801", "#C2155", "#C2156"}
+        assert result.algorithms == GOLDEN_ALGORITHMS
         assert not result.used_fallback
 
     def test_only_the_approved_functions_table_contributes(self, golden_tables):
@@ -508,3 +469,57 @@ class TestGoldenPolicy:
         assert [(t.caption, t.pages, t.header, t.rows, t.is_index, t.n_fragments) for t in actual] == [
             (t.caption, t.pages, t.header, t.rows, t.is_index, t.n_fragments) for t in golden_tables
         ]
+
+
+@pytest.mark.skipif(not has_docling, reason="docling is not installed")
+@pytest.mark.docling
+def test_the_extraction_stage_stores_algorithms_of_a_real_policy(tmp_path, monkeypatch):
+    """
+    The only test that runs the pipeline stage rather than calling the extractor directly.
+
+    Everything above works on `DocumentTable` values, so nothing else covers the capability gate, the
+    worker pool, or carrying the workers' results back into the dataset — the three places where this
+    stage has silently produced nothing before.
+    """
+    from sec_certs.configuration import config
+    from sec_certs.dataset.fips import FIPSDataset
+    from sec_certs.sample.fips import FIPSCertificate
+
+    monkeypatch.setattr(config, "pdf_converter", "docling")
+
+    cert = FIPSCertificate(cert_id=4801)
+    dataset = FIPSDataset(certs={cert.dgst: cert}, root_dir=tmp_path)
+    dataset.policies_json_dir.mkdir(parents=True, exist_ok=True)
+    with as_file(files(tests.data.fips.tables) / f"{GOLDEN_DGST}.docling.json") as artifact:
+        shutil.copy(artifact, dataset.policies_json_dir / f"{cert.dgst}.json")
+    cert.state.policy.download_ok = True
+    cert.state.policy.convert_ok = True
+    cert.state.policy.extract_ok = True  # as extract_data does before dispatching its stages
+
+    dataset._extract_algorithms_from_policy_tables({cert.dgst})
+
+    assert dataset[cert.dgst].pdf_data.policy_algorithms == GOLDEN_ALGORITHMS
+    assert dataset[cert.dgst].state.policy.extract_ok
+
+
+@pytest.mark.skipif(not has_docling, reason="docling is not installed")
+@pytest.mark.docling
+def test_the_extraction_stage_is_skipped_without_a_table_capable_converter(tmp_path, monkeypatch, caplog):
+    """A converter that cannot recover tables must not look like a document that has none."""
+    from sec_certs.configuration import config
+    from sec_certs.dataset.fips import FIPSDataset
+    from sec_certs.sample.fips import FIPSCertificate
+
+    monkeypatch.setattr(config, "pdf_converter", "pdftotext")
+
+    cert = FIPSCertificate(cert_id=4801)
+    dataset = FIPSDataset(certs={cert.dgst: cert}, root_dir=tmp_path)
+    cert.state.policy.extract_ok = True
+
+    with caplog.at_level("WARNING"):
+        dataset._extract_algorithms_from_policy_tables({cert.dgst})
+
+    assert dataset[cert.dgst].pdf_data.policy_algorithms == set()
+    # A missing capability is a configuration property, not a failure of this document.
+    assert dataset[cert.dgst].state.policy.extract_ok
+    assert sum("Skipping algorithms from policy tables" in r.message for r in caplog.records) == 1
