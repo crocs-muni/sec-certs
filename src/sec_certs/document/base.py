@@ -32,4 +32,4 @@ class DocumentView(ABC):
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     def __str__(self) -> str:
-        return "/".join(self.artifact_path.parts[-4:])
+        return f"{type(self).__name__}({self.artifact_path})"
