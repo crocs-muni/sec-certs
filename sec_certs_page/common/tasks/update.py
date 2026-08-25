@@ -5,7 +5,6 @@ from collections import Counter
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
-from shutil import rmtree
 
 import sec_certs
 import sentry_sdk
@@ -74,7 +73,7 @@ class Updater:  # pragma: no cover
             return
 
         paths = self.make_dataset_paths()
-        dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
+        dset = self.get_dataset(paths["dset_path"])
         self.prepare_dataset_paths(dset, paths)
 
         run = self.create_run()
@@ -106,7 +105,6 @@ class Updater:  # pragma: no cover
             run["error"] = str(e)
             raise
         finally:
-            rmtree(paths["dset_path"], ignore_errors=True)
             run |= {"end_time": datetime.now(), "length": len(dset)}
             if dset_state := self.dataset_state(dset):
                 run["state"] = dset_state
@@ -178,6 +176,13 @@ class Updater:  # pragma: no cover
             pp_dset_parent.mkdir(parents=True, exist_ok=True)
             pp_dset_path.symlink_to(paths["output_path_pp"])
 
+    def get_dataset(self, path: Path) -> Dataset:
+        dset_json = path / "dataset.json"
+        if dset_json.exists():
+            return self.dset_class.from_json(dset_json)
+
+        return self.dset_class(root_dir=path, name="dataset")
+
     def process(self, dset: Dataset, paths: dict[str, Path]) -> None:
         collection = self.collection
         with sentry_sdk.start_span(op=f"{collection}.all", name=f"Get full {collection.upper()} dataset"):
@@ -191,7 +196,7 @@ class Updater:  # pragma: no cover
     def run_pipeline(self, dset: Dataset) -> None:
         collection = self.collection
         with sentry_sdk.start_span(op=f"{collection}.get_certs", name="Get certs from web"), suppress_child_spans():
-            dset.get_certs_from_web(update_json=False)
+            dset.get_certs_from_web(update_json=False, carry_processing_results=True)
         with (
             sentry_sdk.start_span(op=f"{collection}.auxiliary_datasets", name="Process auxiliary datasets"),
             suppress_child_spans(),
@@ -201,11 +206,13 @@ class Updater:  # pragma: no cover
             sentry_sdk.start_span(op=f"{collection}.download_artifacts", name="Download artifacts"),
             suppress_child_spans(),
         ):
-            dset.download_all_artifacts(update_json=False)
+            dset.download_all_artifacts(update_json=False, fresh=True)
         with sentry_sdk.start_span(op=f"{collection}.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
-            dset.convert_all_pdfs(update_json=False)
+            dset.convert_all_pdfs(update_json=False, fresh=False)
         with sentry_sdk.start_span(op=f"{collection}.analyze", name="Analyze certificates"), suppress_child_spans():
-            dset.analyze_certificates(update_json=False)
+            dset.analyze_certificates(update_json=False, fresh=False)
+        with sentry_sdk.start_span(op=f"{collection}.write_dataset", name="Write dataset"), suppress_child_spans():
+            dset.to_json()
 
     def publish_artifacts(self, dset: Dataset, paths: dict[str, Path]) -> None:
         for folder, document in self.dset_folders.items():
