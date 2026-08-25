@@ -102,7 +102,7 @@ class DoclingConverter(PDFConverter):
             }
         )
 
-    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
+    def _convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
         """
         Convert a PDF file and save the result as a text file to `txt_path`
         alongisde with a serialized DoclingDocument as JSON to `json_path`.

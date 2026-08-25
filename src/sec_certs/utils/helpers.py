@@ -136,11 +136,13 @@ def download_file(  # noqa: C901
             ctx = nullcontext
 
         if r.status_code == requests.codes.ok:
-            with ctx() as pbar, output.open("wb") as f:
+            tmp = output.with_name(f"{output.name}.tmp")
+            with ctx() as pbar, tmp.open("wb") as f:
                 for data in r.iter_content(1024):
                     f.write(data)
                     if show_progress_bar:
                         pbar.update(len(data))
+            tmp.replace(output)
 
         return r.status_code
     except requests.exceptions.Timeout:
