@@ -22,8 +22,21 @@ from sec_certs.dataset.dataset import Dataset
 
 from ... import mongo
 from ..objformats import ObjFormat, StorageFormat, WorkingFormat
+from ..sentry import suppress_child_spans
 
 logger = logging.getLogger(__name__)
+
+
+def tool_version() -> str:
+    try:
+        from setuptools_scm import get_version
+
+        return get_version(str(Path(sec_certs.__file__).parent.parent))
+    except Exception:
+        try:
+            return version("sec-certs")
+        except Exception:
+            return ""
 
 
 class Updater:  # pragma: no cover
@@ -38,6 +51,66 @@ class Updater:  # pragma: no cover
     log_collection: str
     skip_update: bool
     dset_class: type[Dataset]
+    dset_folders: dict[str, str]
+
+    @abstractmethod
+    def write_auxiliary_json(self, dset: Dataset, paths: dict[str, Path]) -> None: ...
+
+    @abstractmethod
+    def dataset_state(self, dset): ...
+
+    @abstractmethod
+    def notify(self, run_id): ...
+
+    @abstractmethod
+    def reindex(self, to_reindex): ...
+
+    @abstractmethod
+    def archive(self, ids, paths): ...
+
+    def update(self):
+        if self.skip_update:
+            logger.info("Skipping weekly update due to config.")
+            return
+
+        paths = self.make_dataset_paths()
+        dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
+        self.prepare_dataset_paths(dset, paths)
+
+        run = self.create_run()
+        try:
+            self.process(dset, paths)
+
+            ids = self.sort_ids(dset)
+            changed_ids = self.store_certs(dset, ids, run["_id"], run["start_time"])
+            run |= {
+                "stats": {
+                    "new_certs": len(ids["new"]),
+                    "removed_ids": len(ids["removed"]),
+                    "updated_ids": len(ids["updated"]),
+                    "changed_ids": len(changed_ids),
+                    "cert_states": dict(self.count_cert_states(dset)),
+                },
+            }
+
+            self.notify(run["_id"])
+            self.reindex(ids["new"] | changed_ids)
+            self.archive(
+                list(map(itemgetter("_id"), mongo.db[self.collection].find({}, {"_id": 1}))),
+                {name: str(path) for name, path in paths.items()},
+            )
+            run["ok"] = True
+            logger.info(f"Finished run {run['_id']}.")
+        except Exception as e:
+            logger.info("Run errored.")
+            run["error"] = str(e)
+            raise
+        finally:
+            rmtree(paths["dset_path"], ignore_errors=True)
+            run |= {"end_time": datetime.now(), "length": len(dset)}
+            if dset_state := self.dataset_state(dset):
+                run["state"] = dset_state
+            self.log_run(run)
 
     def make_dataset_paths(self) -> dict[str, Path]:
         """Setup paths from the config for the particular updater (CC, FIPS, PP)."""
@@ -58,7 +131,7 @@ class Updater:  # pragma: no cover
                 suffix = key[len(out_prefix) :]
                 res[f"output_path{suffix}"] = instance_path / value
 
-        for document in ("report", "target", "cert", "profile"):
+        for document in self.dset_folders:
             doc_path = res["dir_path"] / document
             doc_path.mkdir(parents=True, exist_ok=True)
             res[document] = doc_path
@@ -105,6 +178,73 @@ class Updater:  # pragma: no cover
             pp_dset_parent.mkdir(parents=True, exist_ok=True)
             pp_dset_path.symlink_to(paths["output_path_pp"])
 
+    def process(self, dset: Dataset, paths: dict[str, Path]) -> None:
+        collection = self.collection
+        with sentry_sdk.start_span(op=f"{collection}.all", name=f"Get full {collection.upper()} dataset"):
+            self.run_pipeline(dset)
+            with sentry_sdk.start_span(op=f"{collection}.publish", name="Publish artifacts"), suppress_child_spans():
+                self.publish_artifacts(dset, paths)
+            with sentry_sdk.start_span(op=f"{collection}.write_json", name="Write JSON"), suppress_child_spans():
+                dset.to_json(paths["output_path"])
+                self.write_auxiliary_json(dset, paths)
+
+    def run_pipeline(self, dset: Dataset) -> None:
+        collection = self.collection
+        with sentry_sdk.start_span(op=f"{collection}.get_certs", name="Get certs from web"), suppress_child_spans():
+            dset.get_certs_from_web(update_json=False)
+        with (
+            sentry_sdk.start_span(op=f"{collection}.auxiliary_datasets", name="Process auxiliary datasets"),
+            suppress_child_spans(),
+        ):
+            dset.process_auxiliary_datasets(update_json=False)
+        with (
+            sentry_sdk.start_span(op=f"{collection}.download_artifacts", name="Download artifacts"),
+            suppress_child_spans(),
+        ):
+            dset.download_all_artifacts(update_json=False)
+        with sentry_sdk.start_span(op=f"{collection}.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
+            dset.convert_all_pdfs(update_json=False)
+        with sentry_sdk.start_span(op=f"{collection}.analyze", name="Analyze certificates"), suppress_child_spans():
+            dset.analyze_certificates(update_json=False)
+
+    def publish_artifacts(self, dset: Dataset, paths: dict[str, Path]) -> None:
+        for folder, document in self.dset_folders.items():
+            for format in ("pdf", "txt"):
+                dset_dir = getattr(dset, f"{document}_{format}_dir")
+                if not dset_dir.exists():
+                    continue
+                page_dir = paths[f"{folder}_{format}"]
+                for artifact in dset_dir.glob(f"*.{format}"):
+                    published_artifact = page_dir / artifact.name
+                    tmp = published_artifact.with_name(f"{artifact.name}.tmp")
+                    tmp.unlink(missing_ok=True)
+                    tmp.hardlink_to(artifact)
+                    tmp.replace(published_artifact)
+
+    def sort_ids(self, dset: Dataset) -> dict[str, set[str]]:
+        stored_ids = set(map(itemgetter("_id"), mongo.db[self.collection].find({}, projection={"_id": 1})))
+        current_ids = set(dset.certs.keys())
+        return {
+            "new": current_ids - stored_ids,
+            "updated": current_ids & stored_ids,
+            "removed": stored_ids - current_ids,
+        }
+
+    def store_certs(self, dset: Dataset, ids: dict[str, set[str]], run_id, timestamp: datetime) -> set[str]:
+        with sentry_sdk.start_span(op=f"{self.collection}.db", name="Process certs into DB."):
+            res, res_diff = self.process_new_certs(dset, ids["new"], run_id, timestamp)
+            self.insert_certs(self.collection, res)
+            self.insert_certs(self.diff_collection, res_diff)
+
+            res, res_diff, changed_ids = self.process_updated_certs(dset, ids["updated"], run_id, timestamp)
+            self.insert_certs(self.collection, res)
+            self.insert_certs(self.diff_collection, res_diff)
+
+            res_diff = self.process_removed_certs(dset, ids["removed"], run_id, timestamp)
+            self.insert_certs(self.diff_collection, res_diff)
+
+        return changed_ids
+
     def process_new_certs(
         self, dset: Dataset, new_ids: set[str], run_id, timestamp: datetime
     ) -> tuple[list[object], list[object]]:
@@ -132,12 +272,12 @@ class Updater:  # pragma: no cover
 
     def process_updated_certs(
         self, dset: Dataset, updated_ids: set[str], run_id, timestamp: datetime
-    ) -> tuple[list[object], list[object]]:
+    ) -> tuple[list[object], list[object], set[str]]:
         res_col = []
         res_diff_col = []
+        changed_ids: set[str] = set()
         with sentry_sdk.start_span(op=f"{self.collection}.db.updated", name="Process updated certs."):
             logger.info(f"Processing {len(updated_ids)} updated certificates.")
-            diffs = 0
             appearances = 0
             for id in updated_ids:
                 # Process an updated cert, it can also be that a "removed" cert reappeared
@@ -165,7 +305,7 @@ class Updater:  # pragma: no cover
                             }
                         )
                     )
-                    diffs += 1
+                    changed_ids.add(id)
                 elif last_diff and last_diff["type"] == "remove":
                     # The cert did not change but came back from being marked removed
                     res_diff_col.append(
@@ -180,9 +320,9 @@ class Updater:  # pragma: no cover
                     )
                     appearances += 1
             logger.info(
-                f"Processed {diffs} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids) - diffs - appearances} unchanged."
+                f"Processed {len(changed_ids)} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids) - len(changed_ids) - appearances} unchanged."
             )
-        return res_col, res_diff_col
+        return res_col, res_diff_col, changed_ids
 
     def process_removed_certs(self, dset: Dataset, removed_ids: set[str], run_id, timestamp: datetime) -> list[object]:
         res_diff_col = []
@@ -210,6 +350,14 @@ class Updater:  # pragma: no cover
         if requests:
             mongo.db[collection].bulk_write(requests, ordered=ordered)
 
+    def create_run(self) -> dict:
+        run = {"start_time": datetime.now(), "tool_version": tool_version(), "ok": False}
+        run["_id"] = mongo.db[self.log_collection].insert_one(run).inserted_id
+        return run
+
+    def log_run(self, run: dict) -> None:
+        mongo.db[self.log_collection].replace_one({"_id": run["_id"]}, run)
+
     def count_cert_states(self, dset: Dataset) -> Counter[str]:
         cert_states: Counter[str] = Counter()
         for cert in dset:
@@ -223,125 +371,3 @@ class Updater:  # pragma: no cover
                         if isinstance(other_val, bool):
                             cert_states[attr + "_" + other_attr] += other_val
         return cert_states
-
-    @abstractmethod
-    def process(self, dset: Dataset, paths: dict[str, Path]) -> set[str]:
-        """Process the dataset and return the set of cert IDs to reindex."""
-        ...
-
-    @abstractmethod
-    def dataset_state(self, dset): ...
-
-    @abstractmethod
-    def notify(self, run_id): ...
-
-    @abstractmethod
-    def reindex(self, to_reindex): ...
-
-    @abstractmethod
-    def archive(self, ids, paths): ...
-
-    def update(self):
-        try:
-            from setuptools_scm import get_version
-
-            tool_version = get_version(str(Path(sec_certs.__file__).parent.parent))
-        except Exception:
-            try:
-                tool_version = version("sec-certs")
-            except Exception:
-                tool_version = ""
-        start = datetime.now()
-        paths = self.make_dataset_paths()
-
-        if self.skip_update:
-            logger.info("Skipping update due to config.")
-            return
-        else:
-            dset = self.dset_class({}, paths["dset_path"], "dataset", "Description")
-
-        self.prepare_dataset_paths(dset, paths)
-
-        update_result = None
-        run_doc = None
-        try:
-            # Process the certs
-            to_reindex = self.process(dset, paths)
-
-            old_ids = set(map(itemgetter("_id"), mongo.db[self.collection].find({}, projection={"_id": 1})))
-            current_ids = set(dset.certs.keys())
-
-            new_ids = current_ids.difference(old_ids)
-            removed_ids = old_ids.difference(current_ids)
-            updated_ids = current_ids.intersection(old_ids)
-
-            cert_states = self.count_cert_states(dset)
-
-            # Store the success in the update log
-            end = datetime.now()
-            run_doc = {
-                "start_time": start,
-                "end_time": end,
-                "tool_version": tool_version,
-                "length": len(dset),
-                "ok": True,
-                "stats": {
-                    "new_certs": len(new_ids),
-                    "removed_ids": len(removed_ids),
-                    "updated_ids": len(updated_ids),
-                    "cert_states": dict(cert_states),
-                },
-            }
-            if dset_state := self.dataset_state(dset):
-                run_doc["state"] = dset_state
-            update_result = mongo.db[self.log_collection].insert_one(run_doc)
-            logger.info(f"Finished run {update_result.inserted_id}.")
-
-            # TODO: Take dataset and certificate state into account when processing into DB.
-
-            with sentry_sdk.start_span(op=f"{self.collection}.db", name="Process certs into DB."):
-                res, res_diff = self.process_new_certs(dset, new_ids, update_result.inserted_id, start)
-                self.insert_certs(self.collection, res, ordered=False)
-                self.insert_certs(self.diff_collection, res_diff, ordered=False)
-
-                res, res_diff = self.process_updated_certs(dset, updated_ids, update_result.inserted_id, start)
-                self.insert_certs(self.collection, res, ordered=False)
-                self.insert_certs(self.diff_collection, res_diff, ordered=False)
-
-                res_diff = self.process_removed_certs(dset, removed_ids, update_result.inserted_id, start)
-                self.insert_certs(self.diff_collection, res_diff, ordered=False)
-
-            changed_ids = mongo.db[self.diff_collection].count_documents(
-                {"run_id": update_result.inserted_id, "type": "change"}
-            )
-            mongo.db[self.log_collection].update_one(
-                {"_id": update_result.inserted_id}, {"$set": {"stats.changed_ids": changed_ids}}
-            )
-            all_ids = list(map(itemgetter("_id"), mongo.db[self.collection].find({}, {"_id": 1})))
-
-            self.notify(update_result.inserted_id)
-            self.reindex(to_reindex)
-            self.archive(all_ids, {name: str(path) for name, path in paths.items()})
-        except Exception as e:
-            logger.info("Run errored.")
-            # Store the failure in the update log
-            end = datetime.now()
-            result = {
-                "start_time": start,
-                "end_time": end,
-                "tool_version": tool_version,
-                "length": len(dset),
-                "ok": False,
-                "error": str(e),
-            }
-            if dset_state := self.dataset_state(dset):
-                result["state"] = dset_state
-
-            if update_result is None:
-                mongo.db[self.log_collection].insert_one(result)
-            else:
-                result["stats"] = run_doc["stats"]
-                mongo.db[self.log_collection].replace_one({"_id": update_result.inserted_id}, result)
-            raise e
-        finally:
-            rmtree(paths["dset_path"], ignore_errors=True)
