@@ -291,9 +291,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
             shutil.rmtree(self.web_dir)
 
         if carry_processing_results:
+            # Reconciling the carried results sets the local paths already.
             self._carry_processing_results(old_certs)
-
-        self._set_local_paths()
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def _carry_processing_results(self, previous: dict[str, FIPSCertificate]) -> None:

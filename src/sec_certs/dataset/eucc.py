@@ -399,11 +399,12 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
-        if carry_processing_results:
-            self._carry_processing_results(old_certs)
-
         self.root_dir.mkdir(parents=True, exist_ok=True)
-        self._set_local_paths()
+        if carry_processing_results:
+            # Reconciling the carried results sets the local paths already.
+            self._carry_processing_results(old_certs)
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def process_auxiliary_datasets(self, download_fresh: bool = False, skip_schemes: bool = False, **kwargs) -> None:
