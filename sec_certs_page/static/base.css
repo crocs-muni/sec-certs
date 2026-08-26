@@ -487,7 +487,7 @@
     vertical-align: top;
 }
 
-.entry-card h4.field-group-title {
+.entry-card .field-group-title {
     display: flex;
     align-items: center;
     gap: .5rem;

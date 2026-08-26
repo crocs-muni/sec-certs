@@ -585,3 +585,61 @@
         {% endfor %}
     {% endif %}
 {% endmacro %}
+
+{% set scheme_field_labels = {
+    "cert_id": "Certificate ID",
+    "cc_version": "CC version",
+    "url": "URL",
+    "entries": "Certification history",
+} %}
+
+{% set scheme_field_tooltips = {
+    "entries": "The original certification and every later recertification or maintenance step the scheme lists for this product. Both the identifier and the note are parsed from that list and can be incomplete.",
+} %}
+
+{% macro scheme_field_header(key) %}
+    {{- scheme_field_labels.get(key, key|replace("_", " ")|title) -}}
+    {%- if key in scheme_field_tooltips %} {{ info_tooltip(scheme_field_tooltips[key]) }}{% endif -%}
+{%- endmacro %}
+
+{% macro render_scheme_value(key, value) %}
+    {%- if value is none -%}
+        <span class="text-muted">&mdash;</span>
+    {%- elif key.endswith("link") or key.endswith("url") -%}
+        <a href="{{ value }}" target="_blank" rel="noopener">{{ value }}</a>
+    {%- elif value is date -%}
+        {{ value|strftime("%d.%m.%Y") }}
+    {%- elif key == "entries" -%}
+        <table class="table-sm table-borderless w-100 mb-0">
+            <tbody>
+            {% for entry in value %}
+                <tr>
+                    <th scope="row" class="fw-normal text-nowrap pe-3">
+                        {%- if entry["id"] %}{{ entry["id"] }}{% else %}<span class="text-muted">&mdash;</span>{% endif -%}
+                    </th>
+                    <td>{{ entry["description"]|default("", true) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {%- elif value is mapping -%}
+        <table class="table-sm table-borderless w-100 mb-0">
+            <tbody>
+            {% for k, v in value.items() %}
+                <tr>
+                    <th scope="row" class="fw-normal text-secondary">{{ k|replace("_", " ")|title }}</th>
+                    <td>{{ render_scheme_value(k, v) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {%- elif value is sequence and value is not string -%}
+        <ul class="mb-0 ps-3">
+            {% for item in value %}
+                <li>{{ render_scheme_value(key, item) }}</li>
+            {% endfor %}
+        </ul>
+    {%- else -%}
+        {{ value }}
+    {%- endif -%}
+{%- endmacro %}

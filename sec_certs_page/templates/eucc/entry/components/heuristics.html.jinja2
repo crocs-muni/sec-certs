@@ -192,61 +192,48 @@
 
     {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
         {% set has_content = true %}
+        {% set scheme_data = cert["heuristics"]["scheme_data"] %}
         <div data-cs-name="Scheme data" class="my-3">
-            <h4>Scheme data</h4>
+            <h4>Scheme data
+                {{ info_tooltip("This certificate's entry as published by the national scheme that issued it, taken from that scheme's own website. Which fields appear differs from scheme to scheme.") }}
+            </h4>
             <table class="table-sm table-borderless w-100">
                 <colgroup>
-                    <col style="width: 20%"/>
-                    <col style="width: 20%"/>
-                    <col style="width: 60%"/>
+                    <col style="width: 30%"/>
+                    <col style="width: 70%"/>
                 </colgroup>
                 <tbody>
-                {% for key, value in cert["heuristics"]["scheme_data"].items() %}
+                {% for key, value in scheme_data.items() if key != "enhanced" %}
                     {% set name = key|replace("_", " ")|title %}
-                    {% if key.endswith("link") or key.endswith("url") %}
-                        <tr data-cs-name="Scheme data - {{ name }}">
-                            <th scope="row">{{ name }}</th>
-                            <td colspan="2">
-                                <a href="{{ value }}" target="_blank" rel="noopener">{{ value }}</a>
-                            </td>
-                        </tr>
-                    {% elif key == "enhanced" %}
-                        <tr>
-                            <th rowspan="{{ value|length + 1 }}">{{ name }}</th>
-                        </tr>
-
-                        {% for k, v in value.items() %}
-                            {% set kname = k|replace("_", " ")|title %}
-                            <tr data-cs-name="Scheme data - Enhanced - {{ kname }}">
-                                <th scope="row">{{ kname }}</th>
-                                <td>
-                                    {% if k.endswith("link") or k.endswith("url") %}
-                                        <a href="{{ v }}" target="_blank" rel="noopener">{{ v }}</a>
-                                    {% else %}
-                                        {% if v is date %}
-                                            {{ v|strftime("%d.%m.%Y") }}
-                                        {% else %}
-                                            {{ v }}
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr data-cs-name="Scheme data - {{ name }}">
-                            <th scope="row">{{ name }}</th>
-                            <td colspan="2">
-                                {% if value is date %}
-                                    {{ value|strftime("%d.%m.%Y") }}
-                                {% else %}
-                                    {{ value }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
+                    <tr data-cs-name="Scheme data - {{ name }}">
+                        <th scope="row">{{ scheme_field_header(key) }}</th>
+                        <td>{{ render_scheme_value(key, value) }}</td>
+                    </tr>
                 {% endfor %}
                 </tbody>
             </table>
+
+            {% if scheme_data["enhanced"] %}
+                <h5 class="field-group-title">
+                    Enhanced
+                    {{ info_tooltip("Fields read from this certificate's own detail page on the scheme's website, which we follow from its row in the scheme's listing. Only the schemes we parse to that depth have them.") }}
+                </h5>
+                <table class="table-sm table-borderless w-100">
+                    <colgroup>
+                        <col style="width: 30%"/>
+                        <col style="width: 70%"/>
+                    </colgroup>
+                    <tbody>
+                    {% for key, value in scheme_data["enhanced"].items() %}
+                        {% set name = key|replace("_", " ")|title %}
+                        <tr data-cs-name="Scheme data - Enhanced - {{ name }}">
+                            <th scope="row">{{ scheme_field_header(key) }}</th>
+                            <td>{{ render_scheme_value(key, value) }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     {% endif %}
 
