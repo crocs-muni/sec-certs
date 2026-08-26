@@ -1,3 +1,6 @@
+{% from "include/entry.html.jinja2" import entry_card, info_tooltip, collapse_toggle, match_badge, render_cpes, render_cves, render_sars, scheme_field_header, render_scheme_value %}
+{% from "include/legal.html.jinja2" import certificate_note %}
+
 {% call entry_card(id="heuristics-info", title="Automated analysis", icon="fa-lightbulb") %}
     {% set has_content = false %}
 
@@ -54,19 +57,13 @@
                         <td>
                             <a href="{{ url_for("eucc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                             {% if other["name"] == cert["name"] and cert["name"] %}
-                                <span class="badge rounded-pill bg-info text-dark"
-                                      title="Certificate name matches exactly."
-                                      data-bs-toggle="tooltip"><i
-                                        class="fas fa-equals"></i></span>
+                                {{ match_badge("Certificate name matches exactly.") }}
                             {% endif %}
                         </td>
                         <td>
                             {{ other["heuristics"]["cert_id"] }}
                             {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
-                                <span class="badge rounded-pill bg-info text-dark"
-                                      title="Certificate ID matches exactly."
-                                      data-bs-toggle="tooltip"><i
-                                        class="fas fa-equals"></i></span>
+                                {{ match_badge("Certificate ID matches exactly.") }}
                             {% endif %}
                         </td>
                         <td class="text-end">
@@ -84,19 +81,13 @@
                         <td>
                             <a href="{{ url_for("eucc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                             {% if other["name"] == cert["name"] and cert["name"] %}
-                                <span class="badge rounded-pill bg-info text-dark"
-                                      title="Certificate name matches exactly."
-                                      data-bs-toggle="tooltip"><i
-                                        class="fas fa-equals"></i></span>
+                                {{ match_badge("Certificate name matches exactly.") }}
                             {% endif %}
                         </td>
                         <td>
                             {{ other["heuristics"]["cert_id"] }}
                             {% if other["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
-                                <span class="badge rounded-pill bg-info text-dark"
-                                      title="Certificate ID matches exactly."
-                                      data-bs-toggle="tooltip"><i
-                                        class="fas fa-equals"></i></span>
+                                {{ match_badge("Certificate ID matches exactly.") }}
                             {% endif %}
                         </td>
                         <td class="text-end">
@@ -133,39 +124,24 @@
                                 <a href="{{ url_for("eucc.entry", hashid=similar_cert['_id']) }}"
                                    title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
                                 {% if similar_cert["name"] == cert["name"] and cert["name"] %}
-                                    <span class="badge rounded-pill bg-info text-dark"
-                                          title="Certificate name matches exactly."
-                                          data-bs-toggle="tooltip"><i
-                                            class="fas fa-equals"></i></span>
+                                    {{ match_badge("Certificate name matches exactly.") }}
                                 {% endif %}
                                 {% if "state" in similar_cert %}
                                     {% if "cert" in similar_cert["state"] and similar_cert["state"]["cert"]["source_hash"] == cert["state"]["cert"]["source_hash"] and cert["state"]["cert"]["source_hash"] %}
-                                        <span class="badge rounded-pill bg-info text-dark"
-                                              title="Certificate PDF file matches exactly."
-                                              data-bs-toggle="tooltip"><i
-                                                class="fas fa-file-alt"></i></span>
+                                        {{ match_badge("Certificate PDF file matches exactly.", icon="fa-file-alt") }}
                                     {% endif %}
                                     {% if "report" in similar_cert["state"] and similar_cert["state"]["report"]["source_hash"] == cert["state"]["report"]["source_hash"] and cert["state"]["report"]["source_hash"] %}
-                                        <span class="badge rounded-pill bg-info text-dark"
-                                              title="Certification report PDF file matches exactly."
-                                              data-bs-toggle="tooltip"><i
-                                                class="fas fa-file-alt"></i></span>
+                                        {{ match_badge("Certification report PDF file matches exactly.", icon="fa-file-alt") }}
                                     {% endif %}
                                     {% if "st" in similar_cert["state"] and similar_cert["state"]["st"]["source_hash"] == cert["state"]["st"]["source_hash"] and cert["state"]["st"]["source_hash"] %}
-                                        <span class="badge rounded-pill bg-info text-dark"
-                                              title="Security target PDF file matches exactly."
-                                              data-bs-toggle="tooltip"><i
-                                                class="fas fa-file-alt"></i></span>
+                                        {{ match_badge("Security target PDF file matches exactly.", icon="fa-file-alt") }}
                                     {% endif %}
                                 {% endif %}
                             </td>
                             <td>
                                 {{ similar_cert["cert_id"] }}
                                 {% if similar_cert["cert_id"] == cert["cert_id"] and cert["cert_id"] %}
-                                    <span class="badge rounded-pill bg-info text-dark"
-                                          title="Certificate ID matches exactly."
-                                          data-bs-toggle="tooltip"><i
-                                            class="fas fa-equals"></i></span>
+                                    {{ match_badge("Certificate ID matches exactly.") }}
                                 {% endif %}
                             </td>
                             <td class="text-end">
@@ -176,16 +152,7 @@
                 </table>
             </div>
             {% if similar|length > 5 %}
-                <div id="similarity-toggle" class="d-flex justify-content-center">
-                    <div class="d-inline-flex flex-column">
-                        <span class="text-muted">Showing 5 out of {{ similar|length }}.</span>
-                        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
-                                data-bs-target=".similarity-collapse" aria-expanded="false"
-                                aria-controls=".similarity-collapse"
-                                onclick="$('#similarity-toggle').toggleClass('d-flex').hide()">Show all
-                        </button>
-                    </div>
-                </div>
+                {{ collapse_toggle("similarity-toggle", "similarity-collapse", 5, similar|length) }}
             {% endif %}
         </div>
     {% endif %}

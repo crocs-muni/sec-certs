@@ -34,6 +34,58 @@
     </section>
 {%- endmacro %}
 
+{% macro collapse_toggle(toggle_id, target_class, shown, total) %}
+    <div id="{{ toggle_id }}" class="d-flex justify-content-center">
+        <div class="d-inline-flex flex-column">
+            <span class="text-muted">Showing {{ shown }} out of {{ total }}.</span>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+                    data-bs-target=".{{ target_class }}" aria-expanded="false"
+                    aria-controls=".{{ target_class }}"
+                    onclick="$('#{{ toggle_id }}').toggleClass('d-flex').hide()">Show all
+            </button>
+        </div>
+    </div>
+{%- endmacro %}
+
+{% macro match_badge(label, icon="fa-equals") %}
+    <span class="badge rounded-pill bg-info text-dark" role="img"
+          aria-label="{{ label }}"
+          data-bs-toggle="tooltip" title="{{ label }}"><i
+            class="fas {{ icon }}" aria-hidden="true"></i></span>
+{%- endmacro %}
+
+{% macro mobile_warning() %}
+    <div class="alert alert-warning d-sm-none" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        This page was not yet optimized for use on mobile devices.
+    </div>
+{%- endmacro %}
+
+{% macro removed_cert_alert(same, hashid, portal, entry_endpoint, compare_endpoint) %}
+    <div class="alert alert-secondary mt-4">
+        <i class="fas fa-exclamation-triangle"></i>
+        This certificate has disappeared from the {{ portal }} listing<sup
+            title="Likely due to the certifying scheme updating some of its fields."
+            data-bs-toggle="tooltip">*</sup>.
+        However, there {% if same|length > 1 %}are certificates that match{% else %}is a certificate
+        that matches{% endif %} this one in the current listing:
+        <table class="table table-secondary table-borderless mt-3 ms-3">
+            {% for other in same %}
+                <tr>
+                    <td class="py-2 align-middle">
+                        <a href="{{ url_for(entry_endpoint, hashid=other["_id"]) }}">{{ other["name"] }}</a>
+                    </td>
+                    <td class="py-2 align-middle">{{ caller(other) }}</td>
+                    <td class="py-2">
+                        <a href="{{ url_for(compare_endpoint, one_hashid=hashid, other_hashid=other["_id"]) }}"
+                           class="btn btn-outline-secondary">Compare</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <span class="ms-4">You can also examine other <a href="#similar">similar certificates</a> below.</span>
+    </div>
+{%- endmacro %}
+
 {% macro render_local_file(hashid, link_content, link, local_files, document, primary_style, secondary_style) %}
     <div class="btn-group">
         {% if link %}
@@ -175,16 +227,7 @@
             </table>
         </div>
         {% if cves|length > 5 %}
-            <div id="cve-toggle" class="d-flex justify-content-center">
-                <div class="d-inline-flex flex-column">
-                    <span class="text-muted">Showing 5 out of {{ cves|length }}.</span>
-                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
-                            data-bs-target=".cve-collapse" aria-expanded="false"
-                            aria-controls=".cve-collapse"
-                            onclick="$('#cve-toggle').toggleClass('d-flex').hide()">Show all
-                    </button>
-                </div>
-            </div>
+            {{ collapse_toggle("cve-toggle", "cve-collapse", 5, cves|length) }}
         {% endif %}
     </div>
 {%- endmacro %}
@@ -642,4 +685,20 @@
     {%- else -%}
         {{ value }}
     {%- endif -%}
+{%- endmacro %}
+
+
+{% macro updates_card(hashid, subject, diffs, diff_jsons, diff_renders) %}
+    {% call entry_card(id="updates", title="Processing updates", icon="fa-clock-rotate-left",
+                       heading_extra=render_update_feed_button(hashid),
+                       tooltip="A log of how this entry's data changed across our periodic updates. Changes may reflect updates to the source listing or improvements in our own data extraction.") %}
+        {{ render_updates(subject, diffs, diff_jsons, diff_renders) }}
+    {% endcall %}
+{%- endmacro %}
+
+{% macro raw_data_card(hashid, json) %}
+    {% call entry_card(id="raw-data-head", title="Raw data", icon="fa-code",
+                       heading_extra=render_raw_data_button(hashid)) %}
+        {{ render_raw_data(json) }}
+    {% endcall %}
 {%- endmacro %}

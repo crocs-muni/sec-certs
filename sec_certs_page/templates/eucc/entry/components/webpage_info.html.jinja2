@@ -1,3 +1,7 @@
+{% from "include/entry.html.jinja2" import entry_card, render_local_cert, clickable_contact, render_sars, render_sfrs %}
+{% from "eucc/include.html.jinja2" import render_assurance_level, render_ava_van_level %}
+{% from "cc/include.html.jinja2" import render_status %}
+
 {% set sar_prefixes = ['ADV_', 'AGD_', 'ALC_', 'ASE_', 'ATE_', 'AVA_'] %}
 {% set sfr_prefixes = ['FAU_', 'FCS_', 'FDP_', 'FIA_', 'FMT_', 'FPR_', 'FPT_', 'FRU_', 'FTA_', 'FTP_'] %}
 

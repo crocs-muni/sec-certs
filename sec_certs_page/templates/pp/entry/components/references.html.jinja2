@@ -1,3 +1,7 @@
+{% from "include/entry.html.jinja2" import entry_card %}
+{% from "cc/include.html.jinja2" import render_status %}
+{% from "include/legal.html.jinja2" import certificate_note %}
+
 {% call entry_card(id="reference-graph", title="References", icon="fa-diagram-project",
                    tooltip="Certificates evaluated against this profile, matched by the profile links published with them.") %}
     <div>

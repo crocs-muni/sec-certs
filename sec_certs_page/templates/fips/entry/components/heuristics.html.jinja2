@@ -1,3 +1,6 @@
+{% from "include/entry.html.jinja2" import entry_card, info_tooltip, render_cpes, render_cves %}
+{% from "include/legal.html.jinja2" import certificate_note %}
+
 {% call entry_card(id="heuristics-info", title="Automated analysis", icon="fa-lightbulb") %}
     {% set has_references = network and network|length > 1 %}
 

@@ -1,10 +1,8 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
-{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
-{% from "include/entry.html.jinja2" import entry_card, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_local_report, render_local_profile, render_file_metadata, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button, render_sars, render_sfrs %}
-{% from "cc/include.html.jinja2" import cc_keywords, render_eal, render_status, render_category %}
-{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
-{% from "include/legal.html.jinja2" import certificate_note %}
+{% from "include/entry.html.jinja2" import updates_card, raw_data_card %}
+{% from "include/utils.html.jinja2" import notification_script with context %}
+{% from "include/modals.html.jinja2" import chat_modal with context %}
 {% set chat_documents = [
     {"value": "profile", "label": "Protection profile", "available": local_files.get(("profile", "txt"), false)},
     {"value": "report", "label": "Certification report", "available": local_files.get(("report", "txt"), false)},
@@ -55,13 +53,9 @@
 
         {% include 'pp/entry/components/references.html.jinja2' %}
 
-        {% call entry_card(id="updates", title="Processing updates", icon="fa-clock-rotate-left", heading_extra=render_update_feed_button(hashid), tooltip="A log of how this entry's data changed across our periodic updates. Changes may reflect updates to the source listing or improvements in our own data extraction.") %}
-            {{ render_updates("protection profile", diffs, diff_jsons, diff_renders) }}
-        {% endcall %}
+        {{ updates_card(hashid, "protection profile", diffs, diff_jsons, diff_renders) }}
 
-        {% call entry_card(id="raw-data-head", title="Raw data", icon="fa-code", heading_extra=render_raw_data_button(hashid)) %}
-            {{ render_raw_data(json) }}
-        {% endcall %}
+        {{ raw_data_card(hashid, json) }}
         <script type="module">
             import {copyLinkToClipboard} from "{{ url_for('static', filename='clipboard.js') }}?{{ static_hash("clipboard.js") }}";
             import {initSectionNav} from "{{ url_for('static', filename='section_nav.js') }}?{{ static_hash("section_nav.js") }}";

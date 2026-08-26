@@ -1,11 +1,9 @@
 {% extends "common/base.html.jinja2" %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
-{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
-{% from "fips/include.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "include/entry.html.jinja2" import entry_card, info_tooltip, render_local_cert, render_local_file, render_file_metadata, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
-{% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
+{% from "include/entry.html.jinja2" import updates_card, raw_data_card %}
+{% from "include/utils.html.jinja2" import notification_script with context %}
+{% from "include/modals.html.jinja2" import chat_modal with context %}
 {% set chat_documents = [
     {"value": "target", "label": "Security policy", "available": local_files.get(("target", "txt"), false)},
 ] %}
@@ -59,13 +57,9 @@
 
         {% include 'fips/entry/components/references.html.jinja2' %}
 
-        {% call entry_card(id="updates", title="Processing updates", icon="fa-clock-rotate-left", heading_extra=render_update_feed_button(hashid), tooltip="A log of how this entry's data changed across our periodic updates. Changes may reflect updates to the source listing or improvements in our own data extraction.") %}
-            {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
-        {% endcall %}
+        {{ updates_card(hashid, "certificate", diffs, diff_jsons, diff_renders) }}
 
-        {% call entry_card(id="raw-data-head", title="Raw data", icon="fa-code", heading_extra=render_raw_data_button(hashid)) %}
-            {{ render_raw_data(json) }}
-        {% endcall %}
+        {{ raw_data_card(hashid, json) }}
 
         <script type="module">
             import {copyLinkToClipboard} from "{{ url_for('static', filename='clipboard.js') }}?{{ static_hash("clipboard.js") }}";

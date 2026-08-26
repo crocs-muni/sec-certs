@@ -1,3 +1,6 @@
+{% from "include/entry.html.jinja2" import entry_card, render_local_cert %}
+{% from "fips/include.html.jinja2" import render_status, render_type %}
+
 {% set table_styles = "table-sm table-borderless w-100" %}
 
 {% if "web_data" in cert %}

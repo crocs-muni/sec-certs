@@ -1,3 +1,6 @@
+{% from "include/entry.html.jinja2" import entry_card %}
+{% from "cc/include.html.jinja2" import render_category, render_eal, render_status %}
+
 {% call entry_card(id="csv-info", title="Certificate details", icon="fa-globe", tooltip="As listed on the Common Criteria portal.") %}
     <table class="table-sm table-borderless w-100">
         <colgroup>
@@ -61,44 +64,23 @@
             </tr>
         {% endif %}
         {% if cert["maintenance_updates"] %}
-            <tr data-cs-name="Maintenance updates">
-                <th scope="row" rowspan="{{ cert["maintenance_updates"] | length }}">Maintenance
-                    updates
-                </th>
-                {% set update = cert["maintenance_updates"].pop() %}
-                <td>
-                    {{ update["maintenance_title"] }}
-                    ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
-                    {% if update["maintenance_report_link"] %}
-                        <a href="{{ update["maintenance_report_link"] }}"
-                           target="_blank"
-                           rel="noopener"><i class="fas fa-file-contract"></i>
-                            Certification
-                            report</a>
+            {# A set upstream, so it has no inherent order: sort newest first. #}
+            {% set updates = cert["maintenance_updates"]|sort(attribute="maintenance_date", reverse=true) %}
+            {% for update in updates %}
+                <tr {% if loop.first %}data-cs-name="Maintenance updates"{% endif %}>
+                    {% if loop.first %}
+                        <th scope="row" rowspan="{{ updates|length }}">Maintenance updates</th>
                     {% endif %}
-                    {% if update["maintenance_st_link"] %}
-                        <a href="{{ update["maintenance_st_link"] }}" target="_blank"
-                           rel="noopener"><i class="fas fa-file-alt"></i> Security
-                            target</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% for update in cert["maintenance_updates"] %}
-                <tr>
                     <td>
                         {{ update["maintenance_title"] }}
                         ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
                         {% if update["maintenance_report_link"] %}
-                            <a href="{{ update["maintenance_report_link"] }}"
-                               target="_blank"
-                               rel="noopener"><i class="fas fa-file-contract"></i>
-                                Certification
-                                report</a>
+                            <a href="{{ update["maintenance_report_link"] }}" target="_blank"
+                               rel="noopener"><i class="fas fa-file-contract"></i> Certification report</a>
                         {% endif %}
                         {% if update["maintenance_st_link"] %}
                             <a href="{{ update["maintenance_st_link"] }}" target="_blank"
-                               rel="noopener"><i class="fas fa-file-alt"></i> Security
-                                target</a>
+                               rel="noopener"><i class="fas fa-file-alt"></i> Security target</a>
                         {% endif %}
                     </td>
                 </tr>
