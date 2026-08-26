@@ -2,12 +2,9 @@
 {% from "include/legal.html.jinja2" import certificate_note %}
 
 {% call entry_card(id="heuristics-info", title="Automated analysis", icon="fa-lightbulb") %}
-    {% set has_references = network and network|length > 1 %}
-
     <div>
-        {% if cpes or cves or has_references %}
-            {{ certificate_note(covers_references=true) }}
-        {% endif %}
+        {# Always shown, even with nothing below it: it carries the link to the documentation. #}
+        {{ certificate_note(covers_references=true) }}
         {% if not cpes and not cves %}
             <p>No automatically derived data are available in this section.</p>
         {% endif %}

@@ -5,11 +5,9 @@
     {# Computed up front rather than accumulated, so that the note can be gated on it. #}
     {% set has_content = cert["heuristics"]["cert_id"] or cert["heuristics"]["extracted_sars"] or cpes or cves
                          or previous or next or similar or cert["heuristics"]["scheme_data"] %}
-    {% set has_references = network and network|length > 1 and cert["heuristics"].get("cert_id", true) %}
 
-    {% if has_content or has_references %}
-        {{ certificate_note(covers_references=true) }}
-    {% endif %}
+    {# Always shown, even with nothing below it: it carries the link to the documentation. #}
+    {{ certificate_note(covers_references=true) }}
     {% if cert["heuristics"]["cert_id"] %}
         <div data-cs-name="Certificate ID" class="my-3 pt-2">
             <h4>Certificate ID</h4>
