@@ -11,6 +11,8 @@ const NAVBAR_HEIGHT = 57;
 const SETTLE_DELAY = 150;
 const TOLERANCE = 1;
 const TAIL_GAP = 60;
+const RELEASE_RATIO = 0.35;
+const RELEASE_SPAN_RATIO = 0.6;
 const FOOTER_GAP = 16;
 
 /**
@@ -85,29 +87,72 @@ export function initSectionNav(navSelector = "#left-navigation", offset = NAVBAR
      * activating where their heading actually arrives.
      * @returns {number[]} - One scroll position per section, ascending.
      */
+    const maxScrollTop = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
     const activationPoints = () => {
-        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const maxScroll = maxScrollTop();
         const points = items.map((item) => item.section.getBoundingClientRect().top + window.scrollY - offset);
         const tail = points.findIndex((point) => point > maxScroll);
         if (tail !== -1) {
             const start = tail === 0 ? 0 : points[tail - 1];
-            const gap = Math.min(TAIL_GAP, (maxScroll - start) / (points.length - tail));
+            // One gap more than there are tail sections, so the last one activates a gap
+            // before the end of the document rather than exactly at it -- otherwise it holds
+            // only while pinned at the bottom and gives it up on the first pixel scrolled up.
+            const gap = Math.min(TAIL_GAP, (maxScroll - start) / (points.length - tail + 1));
             for (let i = tail; i < points.length; i++) {
-                points[i] = Math.min(points[i], maxScroll - gap * (points.length - 1 - i));
+                points[i] = Math.min(points[i], maxScroll - gap * (points.length - i));
             }
         }
         return points;
     };
 
-    const currentIndex = () => {
-        const scrollY = window.scrollY;
+    /**
+     * The section the scroll position falls in, taking each section's own activation point at
+     * face value.
+     * @param {number[]} points - Activation points, ascending.
+     * @param {number} scrollY - Current scroll position.
+     * @returns {number} - Index of the section owning that position.
+     */
+    const positionIndex = (points, scrollY) => {
         let index = 0;
-        activationPoints().forEach((point, i) => {
+        points.forEach((point, i) => {
             if (scrollY >= point - TOLERANCE) {
                 index = i;
             }
         });
         return index;
+    };
+
+    /**
+     * Which section to highlight, asymmetrically.
+     *
+     * Downwards a section takes over as its heading comes to rest under the navbar, which is
+     * the moment it starts being read. Upwards that same line would hand back the instant the
+     * heading dips below the navbar, when the previous section is only a sliver at the top of
+     * the screen and the one being left still fills it — so a section holds the highlight
+     * until the previous one is genuinely back on screen. It is then given back one section at
+     * a time, never two, however fast the page is moving; update() keeps asking until the
+     * highlight has caught up with the scroll position.
+     * @returns {number} - Index of the section to highlight.
+     */
+    const currentIndex = () => {
+        // Nothing to scroll means every section is on screen at once and every activation
+        // point collapses to 0, which would otherwise pick the last one.
+        if (maxScrollTop() === 0) {
+            return 0;
+        }
+        const scrollY = window.scrollY;
+        const points = activationPoints();
+        const index = positionIndex(points, scrollY);
+        if (index >= activeIndex || activeIndex < 1) {
+            return index;
+        }
+        const span = points[activeIndex] - points[activeIndex - 1];
+        const release = Math.min(RELEASE_RATIO * window.innerHeight, span * RELEASE_SPAN_RATIO);
+        if (scrollY > points[activeIndex] - release) {
+            return activeIndex;
+        }
+        return activeIndex - 1;
     };
 
     /**
@@ -138,8 +183,14 @@ export function initSectionNav(navSelector = "#left-navigation", offset = NAVBAR
     const update = () => {
         queued = false;
         clearFooter();
-        if (!pinned) {
-            activate(currentIndex());
+        if (pinned) {
+            return;
+        }
+        activate(currentIndex());
+        // Giving the highlight back one section per frame can lag a fast scroll, and the
+        // scroll may stop before it has caught up, so drive the remaining steps ourselves.
+        if (activeIndex !== positionIndex(activationPoints(), window.scrollY)) {
+            onScroll();
         }
     };
 
@@ -167,5 +218,10 @@ export function initSectionNav(navSelector = "#left-navigation", offset = NAVBAR
 
     window.addEventListener("scroll", onScroll, {passive: true});
     window.addEventListener("resize", onScroll, {passive: true});
+    // Expanding a collapsed list or loading the reference graph changes the document height
+    // without either event, which would leave the footer offset and activation points stale.
+    if (typeof ResizeObserver !== "undefined") {
+        new ResizeObserver(onScroll).observe(document.body);
+    }
     update();
 }
