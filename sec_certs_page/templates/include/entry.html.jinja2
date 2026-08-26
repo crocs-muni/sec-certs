@@ -260,7 +260,7 @@
         {% endfor %}
 
         {% if refs.incoming or refs.outgoing %}
-            <h4 class="mt-3">Cross-references {{ info_tooltip("Certificates whose identifiers appear in this document. The full graph is in the Automated analysis section.") }}</h4>
+            <h4 class="mt-3">Cross-references {{ info_tooltip("Certificates whose identifiers were found in this document by our automated analysis.") }}</h4>
             {% if refs.outgoing %}
                 <b>Outgoing</b>
                 <ul class="outgoing-list">
