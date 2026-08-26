@@ -507,6 +507,11 @@
     overflow-y: auto;
 }
 
+/* Table margins inside the scroll box become dead space the scrollbar spans. */
+.scroll-table > table {
+    margin: 0;
+}
+
 .scroll-table thead tr:only-child th {
     position: sticky;
     top: 0;
