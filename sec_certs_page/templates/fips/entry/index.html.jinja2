@@ -40,6 +40,7 @@
         <a class="list-group-item list-group-item-action rounded" href="#web-info">Certificate details</a>
         <a class="list-group-item list-group-item-action rounded" href="#doc-info">Security Policy</a>
         <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Automated analysis</a>
+        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">Cross-references</a>
         <a class="list-group-item list-group-item-action rounded" href="#updates">Processing updates</a>
         <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
     </div>
@@ -55,6 +56,8 @@
         {% include 'fips/entry/components/security_policy.html.jinja2' %}
 
         {% include 'fips/entry/components/heuristics.html.jinja2' %}
+
+        {% include 'fips/entry/components/references.html.jinja2' %}
 
         {% call entry_card(id="updates", title="Processing updates", icon="fa-clock-rotate-left", heading_extra=render_update_feed_button(hashid), tooltip="A log of how this entry's data changed across our periodic updates. Changes may reflect updates to the source listing or improvements in our own data extraction.") %}
             {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}

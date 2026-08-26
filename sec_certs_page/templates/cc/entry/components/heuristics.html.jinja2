@@ -1,10 +1,14 @@
 
 {% call entry_card(id="heuristics-info", title="Automated analysis", icon="fa-lightbulb") %}
-    {% set has_content = false %}
-    
-    {{ certificate_note() }}
+    {# Computed up front rather than accumulated, so that the note can be gated on it. #}
+    {% set has_content = cert["heuristics"]["cert_id"] or cert["heuristics"]["extracted_sars"] or cpes or cves
+                         or previous or next or similar or cert["heuristics"]["scheme_data"] %}
+    {% set has_references = network and network|length > 1 and cert["heuristics"].get("cert_id", true) %}
+
+    {% if has_content or has_references %}
+        {{ certificate_note(covers_references=true) }}
+    {% endif %}
     {% if cert["heuristics"]["cert_id"] %}
-        {% set has_content = true %}
         <div data-cs-name="Certificate ID" class="my-3 pt-2">
             <h4>Certificate ID</h4>
             {{ cert["heuristics"]["cert_id"] }}
@@ -12,7 +16,6 @@
     {% endif %}
 
     {% if cert["heuristics"]["extracted_sars"] %}
-        {% set has_content = true %}
         <div data-cs-name="Extracted SARs" class="my-3 pt-2">
             <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
             {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
@@ -24,7 +27,6 @@
     {% endif %}
 
     {% if cpes %}
-        {% set has_content = true %}
         <div data-cs-name="CPE matches" class="my-3 pt-2">
             <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
             {{ render_cpes(cert, cpes) }}
@@ -32,7 +34,6 @@
     {% endif %}
 
     {% if cves %}
-        {% set has_content = true %}
         <div data-cs-name="Related CVEs" class="my-3 pt-2">
             <h4 class="anchor" id="cves"><abbr title="Common Vulnerabilities and Exposures">CVE</abbr> matches
                 {{ info_tooltip("CVEs affecting the NVD products this certificate was matched to. A listed CVE may not affect the certified configuration, and an empty list does not mean the product is unaffected.") }}
@@ -42,7 +43,6 @@
     {% endif %}
 
     {% if previous or next %}
-        {% set has_content = true %}
         <div data-cs-name="Certificate versions" class="my-3 pt-2">
             <h4 class="anchor" id="versions">Certificate versions</h4>
             <table class="table table-striped my-2">
@@ -118,7 +118,6 @@
     {% endif %}
 
     {% if similar %}
-        {% set has_content = true %}
         <div data-cs-name="Similar certificates" class="my-3 pt-2">
             <h4 class="anchor" id="similar">Similar certificates {{info_tooltip("Certificates related to this one by matching name, certificate ID, or identical source PDF (certificate report, or security target). Entries flagged as likely duplicates share two or more of these matches and may represent the same certification listed multiple times." )}}</h4>
             <div class="scroll-table">
@@ -200,7 +199,6 @@
     {% endif %}
 
     {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
-        {% set has_content = true %}
         <div data-cs-name="Scheme data" class="my-3">
             <h4>Scheme data</h4>
             <table class="table-sm table-borderless w-100">
@@ -258,15 +256,7 @@
             </table>
         </div>
     {% endif %}
-    {% if network and network|length > 1%}
-        {% set has_content = true %}
-        <div data-cs-name="Cross-references">
-            <h4 class="anchor" id="reference-graph">Cross-references {{ info_tooltip("Certificates mentioned in this certificate's documents, and certificates mentioning it. The reason for a mention (reused component, earlier version, …) is not inferred.") }}</h4>
-            {{ render_reference_network(cert, network, hashid) }}
-        </div>
+    {% if not has_content %}
+        <p>No automatically derived data are available in this section.</p>
     {% endif %}
-
-{% if not has_content %}
-    <p>No automatically derived data are available for this certificate.</p>
-{% endif %}
 {% endcall %}
