@@ -64,8 +64,10 @@
             </tr>
         {% endif %}
         {% if cert["maintenance_updates"] %}
-            {# A set upstream, so it has no inherent order: sort newest first. #}
-            {% set updates = cert["maintenance_updates"]|sort(attribute="maintenance_date", reverse=true) %}
+            {# A set upstream, so it has no inherent order: sort newest first. The date can be
+               missing, and those are not comparable, so they go last rather than blowing up. #}
+            {% set dated = cert["maintenance_updates"]|selectattr("maintenance_date")|sort(attribute="maintenance_date", reverse=true)|list %}
+            {% set updates = dated + cert["maintenance_updates"]|rejectattr("maintenance_date")|list %}
             {% for update in updates %}
                 <tr {% if loop.first %}data-cs-name="Maintenance updates"{% endif %}>
                     {% if loop.first %}
