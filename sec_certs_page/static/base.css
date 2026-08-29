@@ -716,7 +716,7 @@ h6 {
     padding-right: calc(.5 * var(--bs-gutter-x));
 }
 
-/* the search sits at page colour, same as the search bar on the other homepages */
+/* search same as page color*/
 .hero-search {
     background-color: var(--bs-body-bg);
 }
@@ -742,6 +742,11 @@ h6 {
 [role="search"] .btn-check + .btn {
     padding-top: 0;
     padding-bottom: 0;
+}
+
+/* "search in" darkmode */
+[data-bs-theme="dark"] [role="search"] .text-secondary {
+    color: #adb5bd !important;
 }
 
 .flex-basis-0 {
