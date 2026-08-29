@@ -716,7 +716,11 @@ h6 {
     padding-right: calc(.5 * var(--bs-gutter-x));
 }
 
-.hero-search,
+/* the search sits at page colour, same as the search bar on the other homepages */
+.hero-search {
+    background-color: var(--bs-body-bg);
+}
+
 .bg-accent-light {
     background-color: var(--surface-box);
 }
@@ -735,20 +739,7 @@ h6 {
     background-color: var(--bs-body-bg);
 }
 
-[data-bs-theme="light"] .hero-search .btn-check:checked + .btn-primary {
-    background-color: #fff;
-    border-color: var(--bs-gray-400);
-    color: var(--bs-gray-600);
-}
-
-[data-bs-theme="dark"] .hero-search .btn-check:checked + .btn-primary {
-    background-color: var(--bs-body-bg);
-    border-color: var(--bs-gray-600);
-    color: var(--bs-gray-400);
-}
-
-/* Shorten category pills under search bar */
-.hero-search .btn-check + .btn {
+[role="search"] .btn-check + .btn {
     padding-top: 0;
     padding-bottom: 0;
 }
@@ -1470,8 +1461,10 @@ tr.has-snippets > td {
 [data-bs-theme="dark"] .btn-outline-primary {
     --bs-btn-color: #85B6FF;
     --bs-btn-border-color: #85B6FF;
+    --bs-btn-hover-color: #212529;
     --bs-btn-hover-bg: #85B6FF;
     --bs-btn-hover-border-color: #85B6FF;
+    --bs-btn-active-color: #212529;
     --bs-btn-active-bg: #85B6FF;
     --bs-btn-active-border-color: #85B6FF;
 }
