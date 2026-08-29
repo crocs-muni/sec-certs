@@ -50,8 +50,10 @@
                     <div class="col">
                         <div class="card h-100">
                             <div class="card-body d-flex flex-column">
-                                <div class="feature-icon-sm bg-primary bg-gradient"><i class="fas fa-chart-bar fa-fw"></i></div>
-                                <h3>Statistics Analysis</h3>
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="feature-icon-sm bg-primary bg-gradient mb-0"><i class="fas fa-chart-bar fa-fw"></i></div>
+                                    <h3 class="h5 mb-0">Statistics Analysis</h3>
+                                </div>
                                 <p class="flex-grow-1">Which scheme is issuing certificates the most? Which certificate category is the most numerous? You can find answers here and you can also make your own statistics with our prepared datasets.</p>
                                 <div>
                                     <a href="{{ url_for('.analysis') }}" class="btn btn-primary">Explore statistics →</a>
@@ -62,8 +64,10 @@
                     <div class="col">
                         <div class="card h-100">
                             <div class="card-body d-flex flex-column">
-                                <div class="feature-icon-sm bg-primary bg-gradient"><i class="fas fa-project-diagram fa-fw"></i></div>
-                                <h3>Cross-references</h3>
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="feature-icon-sm bg-primary bg-gradient mb-0"><i class="fas fa-project-diagram fa-fw"></i></div>
+                                    <h3 class="h5 mb-0">Cross-references</h3>
+                                </div>
                                 <p class="flex-grow-1">Are you curious about which certificates reference yours - and vice versa? We automatically link references between certificates to form an extensive network. You can also view detailed reference networks within each certificate's information.</p>
                                 <div>
                                     <a href="{{ url_for('.network') }}" class="btn btn-primary">View reference graph →</a>
