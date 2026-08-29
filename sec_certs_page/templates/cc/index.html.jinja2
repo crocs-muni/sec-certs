@@ -13,8 +13,12 @@
                     All of the certificates are sourced from the Common Criteria portal at
                     <a href="https://www.commoncriteriaportal.org/" target="_blank" rel="noopener">www.commoncriteriaportal.org</a>.
                     The site provides a CSV file and a HTML listing of the certified products with some metadata.
-                    These listings were crawled (along with the certificates and security targets themselves) to
+                    These listings were crawled (along with PDFs of the certificates and security targets) to
                     gather the data provided here.
+                </p>
+                <p class="pt-2">
+                    Search our database for Common Criteria certificates, discover the extracted metadata and
+                    keywords, filter them and use other advanced filtering.
                 </p>
             </div>
         </section>
@@ -22,9 +26,6 @@
             <div class="card shadow-sm">
                 <div class="card-body p-3 p-md-4">
                     <h2 class="h5">Search Common Criteria certificates</h2>
-                    <p class="mb-0">We are converting all Common Criteria certificates from PDFs into machine
-                        readable format. Search our database for any Common Criteria certificate, discover its
-                        extracted metadata, filter them and do much more.</p>
                     <form method="get" action="{{ url_for('.merged_search') }}" id="cc-hero-search-form" class="mt-2">
                         <label for="cc-hero-search-input" class="visually-hidden">Search query</label>
                         <div class="d-flex gap-2 align-items-center">
@@ -37,9 +38,8 @@
                         </div>
                     </form>
                     <p class="text-body-secondary small mt-3 mb-0">
-                        Nothing specific in mind? Have a look at an
-                        <a href="{{ url_for('cc.entry', hashid='b906b2e8d7617202') }}">example certificate</a>
-                        or open a <a href="{{ url_for('cc.rand') }}">random one</a>.
+                        Nothing specific in mind? Have a look at a
+                        <a href="{{ url_for('cc.rand') }}">random certificate</a>.
                     </p>
                 </div>
             </div>
