@@ -18,14 +18,14 @@ from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, ProcessingMode
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, InternalState
 from sec_certs.serialization.json import (
     ComplexSerializableType,
     get_class_fullname,
     only_backed,
     serialize,
 )
-from sec_certs.utils import helpers
+from sec_certs.utils import helpers, parallel_processing
 from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
@@ -514,8 +514,12 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         invalidates according processing stage and everything derived from it.
         """
         self._set_local_paths()
-        for cert in self:
-            cert.state.reconcile_document_states()
+        parallel_processing.process_parallel(
+            InternalState.reconcile_document_states,
+            [cert.state for cert in self],
+            use_threading=True,
+            progress_bar_desc=f"Reconciling document states of {self.name}",
+        )
 
     @only_backed()
     @staged(logger, "Updating the dataset")
