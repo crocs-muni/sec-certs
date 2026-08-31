@@ -15,6 +15,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
     CVEDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
 from sec_certs.dataset.dataset import Dataset
@@ -199,21 +200,21 @@ class Updater:  # pragma: no cover
     def run_pipeline(self, dset: Dataset) -> None:
         collection = self.collection
         with sentry_sdk.start_span(op=f"{collection}.get_certs", name="Get certs from web"), suppress_child_spans():
-            dset.get_certs_from_web(update_json=False, carry_processing_results=True)
+            dset.get_certs_from_web(carry_processing_results=True)
         with (
             sentry_sdk.start_span(op=f"{collection}.auxiliary_datasets", name="Process auxiliary datasets"),
             suppress_child_spans(),
         ):
-            dset.process_auxiliary_datasets(update_json=False)
+            dset.process_auxiliary_datasets(ProcessingMode.LOAD)
         with (
             sentry_sdk.start_span(op=f"{collection}.download_artifacts", name="Download artifacts"),
             suppress_child_spans(),
         ):
-            dset.download_all_artifacts(update_json=False, fresh=True)
+            dset.download_all_artifacts(fresh=True)
         with sentry_sdk.start_span(op=f"{collection}.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
-            dset.convert_all_pdfs(update_json=False, fresh=False)
+            dset.convert_all_pdfs(fresh=False)
         with sentry_sdk.start_span(op=f"{collection}.analyze", name="Analyze certificates"), suppress_child_spans():
-            dset.analyze_certificates(update_json=False, fresh=False)
+            dset.analyze_certificates(fresh=False)
         with sentry_sdk.start_span(op=f"{collection}.write_dataset", name="Write dataset"), suppress_child_spans():
             dset.to_json()
 
