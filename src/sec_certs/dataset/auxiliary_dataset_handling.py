@@ -89,7 +89,7 @@ class CPEDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CPE dataset")
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CPEDataset from json.")
             self.load_dataset()
             return
@@ -116,7 +116,7 @@ class CVEDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CVE dataset")
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CVEDataset from json.")
             self.load_dataset()
             return
@@ -143,7 +143,7 @@ class CPEMatchDictHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CPE Match dictionary")
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CPE Match feed from json.")
             self.load_dataset()
             return
@@ -186,7 +186,7 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing FIPS Algorithms")
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing FIPSAlgorithmDataset from json.")
             self.load_dataset()
             return
@@ -212,7 +212,7 @@ class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
 
     @staged(logger, "Processing CC Schemes")
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CCSchemeDataset from json.")
             self.load_dataset()
             return
@@ -254,7 +254,7 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD):
         from sec_certs.dataset.cc import CCDatasetMaintenanceUpdates
 
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CCDatasetMaintenanceUpdates from json.")
             self.load_dataset()
             return
@@ -272,7 +272,7 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
 
         # The updates are derived from the CC certificates rather than scraped, so there is no
         # get_certs_from_web to carry the results over for us.
-        updating = mode is ProcessingMode.UPDATE and self.dset_path.exists()
+        updating = mode == ProcessingMode.UPDATE and self.dset_path.exists()
         if updating:
             logger.info("Carrying processing results of the maintenance updates from the previous run.")
             self.dset._carry_processing_results(CCDatasetMaintenanceUpdates.from_json(self.dset_path).certs)
@@ -299,12 +299,12 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD):
         from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
-        if mode is ProcessingMode.LOAD and self.dset_path.exists():
+        if mode == ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing ProtectionProfileDataset from json.")
             self.load_dataset()
             return
 
-        if mode is ProcessingMode.UPDATE and self.dset_path.exists():
+        if mode == ProcessingMode.UPDATE and self.dset_path.exists():
             logger.info("Updating ProtectionProfileDataset from json.")
             self.load_dataset()
             self.dset.update()
