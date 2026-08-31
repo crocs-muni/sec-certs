@@ -179,7 +179,7 @@ def get_first_16_bytes_sha256(string: str) -> str:
 def get_sha256_filepath(filepath: str | Path) -> str:
     hash_sha256 = hashlib.sha256()
     with Path(filepath).open("rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
             hash_sha256.update(chunk)
     return hash_sha256.hexdigest()
 
