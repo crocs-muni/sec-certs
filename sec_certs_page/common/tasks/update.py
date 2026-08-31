@@ -179,9 +179,12 @@ class Updater:  # pragma: no cover
     def get_dataset(self, path: Path) -> Dataset:
         dset_json = path / "dataset.json"
         if dset_json.exists():
-            return self.dset_class.from_json(dset_json)
+            dset = self.dset_class.from_json(dset_json)
+            dset.name = "dataset"
+        else:
+            dset = self.dset_class(root_dir=path, name="dataset")
 
-        return self.dset_class(root_dir=path, name="dataset")
+        return dset
 
     def process(self, dset: Dataset, paths: dict[str, Path]) -> None:
         collection = self.collection
