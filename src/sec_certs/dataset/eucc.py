@@ -16,6 +16,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
     CVEDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
 from sec_certs.dataset.cc_eucc_common import (
@@ -407,13 +408,15 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
             self._set_local_paths()
         self.state.meta_sources_parsed = True
 
-    def process_auxiliary_datasets(self, download_fresh: bool = False, skip_schemes: bool = False, **kwargs) -> None:
+    def process_auxiliary_datasets(
+        self, mode: ProcessingMode = ProcessingMode.LOAD, skip_schemes: bool = False, **kwargs
+    ) -> None:
         if CCSchemeDatasetHandler in self.aux_handlers:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {x.scheme for x in self}  # type: ignore
 
         if skip_schemes:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
-        super().process_auxiliary_datasets(download_fresh, **kwargs)
+        super().process_auxiliary_datasets(mode, **kwargs)
 
     def _set_local_paths(self):
         super()._set_local_paths()

@@ -7,6 +7,7 @@ import logging
 import tempfile
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from enum import Enum
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -24,6 +25,19 @@ from sec_certs.utils.nvd_dataset_builder import CpeMatchNvdDatasetBuilder, CpeNv
 from sec_certs.utils.profiling import staged
 
 logger = logging.getLogger(__name__)
+
+
+class ProcessingMode(str, Enum):
+    """
+    How an auxiliary dataset shall be obtained when it is processed.
+    """
+
+    LOAD = "load"
+    """Use the dataset that is already on disk, do not reach out to the web."""
+    UPDATE = "update"
+    """Refresh the dataset from the web, carrying already computed processing results over."""
+    REBUILD = "rebuild"
+    """Discard whatever is on disk and build the dataset from scratch."""
 
 
 class AuxiliaryDatasetHandler(ABC):
@@ -55,16 +69,16 @@ class AuxiliaryDatasetHandler(ABC):
     def set_local_paths(self, aux_datasets_dir: str | Path | None) -> None:
         self.aux_datasets_dir = Path(aux_datasets_dir) if aux_datasets_dir is not None else None  # type: ignore
 
-    def process_dataset(self, download_fresh: bool = False) -> None:
+    def process_dataset(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
         self.root_dir.mkdir(parents=True, exist_ok=True)
-        self._process_dataset_body(download_fresh)
+        self._process_dataset_body(mode)
 
     @abstractmethod
     def load_dataset(self) -> None:
         raise NotImplementedError("Not meant to be implemented by base class")
 
     @abstractmethod
-    def _process_dataset_body(self, download_fresh: bool = False) -> None:
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
         raise NotImplementedError("Not meant to be implemented by base class")
 
 
@@ -74,8 +88,8 @@ class CPEDatasetHandler(AuxiliaryDatasetHandler):
         return self.root_dir / "cpe_dataset.json"
 
     @staged(logger, "Processing CPE dataset")
-    def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not download_fresh and self.dset_path.exists():
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CPEDataset from json.")
             self.load_dataset()
             return
@@ -101,8 +115,8 @@ class CVEDatasetHandler(AuxiliaryDatasetHandler):
         return self.root_dir / "cve_dataset.json"
 
     @staged(logger, "Processing CVE dataset")
-    def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not download_fresh and self.dset_path.exists():
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CVEDataset from json.")
             self.load_dataset()
             return
@@ -128,8 +142,8 @@ class CPEMatchDictHandler(AuxiliaryDatasetHandler):
         return self.root_dir / "cpe_match.json"
 
     @staged(logger, "Processing CPE Match dictionary")
-    def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not download_fresh and self.dset_path.exists():
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CPE Match feed from json.")
             self.load_dataset()
             return
@@ -171,8 +185,8 @@ class FIPSAlgorithmDatasetHandler(AuxiliaryDatasetHandler):
         return self.root_dir / FIPSAlgorithmDataset.JSON_FILENAME
 
     @staged(logger, "Processing FIPS Algorithms")
-    def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not download_fresh and self.dset_path.exists():
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing FIPSAlgorithmDataset from json.")
             self.load_dataset()
             return
@@ -197,8 +211,8 @@ class CCSchemeDatasetHandler(AuxiliaryDatasetHandler):
         return self.root_dir / "cc_scheme.json"
 
     @staged(logger, "Processing CC Schemes")
-    def _process_dataset_body(self, download_fresh: bool = False) -> None:
-        if not download_fresh and self.dset_path.exists():
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CCSchemeDataset from json.")
             self.load_dataset()
             return
@@ -237,10 +251,10 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
         self.dset = CCDatasetMaintenanceUpdates.from_json(self.dset_path)
 
     @staged(logger, "Processing CC Maintenance updates")
-    def _process_dataset_body(self, download_fresh: bool = False):
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD):
         from sec_certs.dataset.cc import CCDatasetMaintenanceUpdates
 
-        if not download_fresh and self.dset_path.exists():
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing CCDatasetMaintenanceUpdates from json.")
             self.load_dataset()
             return
@@ -255,9 +269,17 @@ class CCMaintenanceUpdateDatasetHandler(AuxiliaryDatasetHandler):
             root_dir=self.dset_path.parent,
             name="maintenance_updates",
         )
-        self.dset.download_all_artifacts()
-        self.dset.convert_all_pdfs()
-        self.dset.extract_data()
+
+        # The updates are derived from the CC certificates rather than scraped, so there is no
+        # get_certs_from_web to carry the results over for us.
+        updating = mode is ProcessingMode.UPDATE and self.dset_path.exists()
+        if updating:
+            logger.info("Carrying processing results of the maintenance updates from the previous run.")
+            self.dset._carry_processing_results(CCDatasetMaintenanceUpdates.from_json(self.dset_path).certs)
+
+        self.dset.download_all_artifacts(fresh=True)
+        self.dset.convert_all_pdfs(fresh=not updating)
+        self.dset.extract_data(fresh=not updating)
         self.dset.to_json()
 
 
@@ -274,12 +296,18 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
         self.dset = ProtectionProfileDataset.from_json(self.dset_path)
 
     @staged(logger, "Processing Protection profiles")
-    def _process_dataset_body(self, download_fresh: bool = False):
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD):
         from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
-        if not download_fresh and self.dset_path.exists():
+        if mode is ProcessingMode.LOAD and self.dset_path.exists():
             logger.info("Preparing ProtectionProfileDataset from json.")
             self.load_dataset()
+            return
+
+        if mode is ProcessingMode.UPDATE and self.dset_path.exists():
+            logger.info("Updating ProtectionProfileDataset from json.")
+            self.load_dataset()
+            self.dset.update()
             return
 
         self.dset_path.parent.mkdir(exist_ok=True, parents=True)

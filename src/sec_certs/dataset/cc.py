@@ -21,6 +21,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
     CVEDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
 from sec_certs.dataset.cc_eucc_common import (
@@ -328,8 +329,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     @only_backed()
     def process_auxiliary_datasets(
         self,
-        download_fresh: bool = False,
-        skip_schemes: bool = False,
+        mode: ProcessingMode = ProcessingMode.LOAD,
+        skip_schemes: bool = True,
         **kwargs,
     ) -> None:
         if CCMaintenanceUpdateDatasetHandler in self.aux_handlers:
@@ -341,7 +342,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         if skip_schemes:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
-        super().process_auxiliary_datasets(download_fresh, **kwargs)
+        super().process_auxiliary_datasets(mode, **kwargs)
 
     def _merge_certs_from_other_source(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
@@ -679,7 +680,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
     def process_auxiliary_datasets(
         self,
-        download_fresh: bool = False,
+        mode: ProcessingMode = ProcessingMode.LOAD,
         skip_schemes: bool = False,
         **kwargs,
     ) -> None:

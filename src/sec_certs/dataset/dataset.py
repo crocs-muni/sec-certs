@@ -17,7 +17,7 @@ from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
-from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
+from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, ProcessingMode
 from sec_certs.sample.certificate import Certificate
 from sec_certs.serialization.json import (
     ComplexSerializableType,
@@ -237,7 +237,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     tar.extractall(str(path))
                 dset = cls.from_json(path / "dataset.json")  # type: ignore
                 if auxiliary_datasets:
-                    dset.process_auxiliary_datasets(download_fresh=False)
+                    dset.process_auxiliary_datasets(mode=ProcessingMode.LOAD)
         else:
             with tempfile.TemporaryDirectory() as tmp_dir:
                 dset_path = Path(tmp_dir) / "dataset.json"
@@ -254,7 +254,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     # Clear the path, as it points to temporary file
                     dset._root_dir = None
             if auxiliary_datasets:
-                dset.process_auxiliary_datasets(download_fresh=True)
+                dset.process_auxiliary_datasets(mode=ProcessingMode.REBUILD)
         return dset
 
     def to_dict(self) -> dict[str, Any]:
@@ -363,13 +363,18 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @staged(logger, "Processing auxiliary datasets.")
     @serialize
     @only_backed()
-    def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
+    def process_auxiliary_datasets(self, mode: ProcessingMode = ProcessingMode.LOAD, **kwargs) -> None:
         """
         Processes all auxiliary datasets (CPE, CVE, ...) that are required during computation.
+
+        :param mode: Whether to use the datasets on disk, refresh them while carrying already computed
+            processing results over, or rebuild them from scratch. Only the auxiliary datasets that are
+            themselves processed (protection profiles, maintenance updates) can be updated incrementally,
+            the rest are simply re-fetched.
         """
         logger.info("Processing auxiliary datasets.")
         for handler in self.aux_handlers.values():
-            handler.process_dataset(download_fresh)
+            handler.process_dataset(mode)
         self.state.auxiliary_datasets_processed = True
 
     @only_backed()
@@ -514,22 +519,24 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @only_backed()
     @staged(logger, "Updating the dataset")
-    def update(self, update_aux: bool = True):
+    def update(self, aux_mode: ProcessingMode = ProcessingMode.UPDATE):
         """
         Update the dataset by running the whole pipeline over it.
 
         Processing results already computed for a certificate are carried over, so work that depends on an artifact
         that hasn't changed is not repeated. Concretely, fresh metadata is scraped, auxiliary datasets are
-        optionally refreshed, and all artifacts are re-downloaded (to check whether their hash changed)
+        refreshed, and all artifacts are re-downloaded (to check whether their hash changed)
         but only new, changed or previously failed artifacts are converted and extracted. Heuristics are
         always recomputed, since they depend on the whole dataset and the auxiliary datasets.
 
-        :param update_aux: whether to re-download the auxiliary datasets.
+        :param aux_mode: how to process the auxiliary datasets, see
+            :meth:`~sec_certs.dataset.dataset.Dataset.process_auxiliary_datasets`. Pass
+            :attr:`~sec_certs.dataset.auxiliary_dataset_handling.ProcessingMode.LOAD` to keep the ones on disk.
         """
         self.timestamp = datetime.now()
         self.state.sec_certs_version = __version__
         self.get_certs_from_web(carry_processing_results=True)
-        self.process_auxiliary_datasets(download_fresh=update_aux)
+        self.process_auxiliary_datasets(mode=aux_mode)
         self.download_all_artifacts(fresh=True)
         self.convert_all_pdfs(fresh=False)
         self.analyze_certificates(fresh=False)
