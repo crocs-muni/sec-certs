@@ -33,6 +33,7 @@ quickstart.md
 configuration.md
 user_guide.md
 search_examples.md
+Automated analysis (heuristics) <heuristics.md>
 ```
 
 ```{toctree}
