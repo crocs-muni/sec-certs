@@ -1,0 +1,47 @@
+{% from "include/entry.html.jinja2" import entry_card %}
+{% from "cc/include.html.jinja2" import render_category, render_eal, render_status %}
+
+{% set table_styles = "table-sm table-borderless w-100" %}
+
+{% if "web_data" in profile %}
+    {% call entry_card(id="web-info", title="Profile details", icon="fa-globe", tooltip="As listed on the Common Criteria portal.") %}
+        <table class="{{ table_styles }}">
+            <colgroup>
+                <col style="width: 30%"/>
+                <col style="width: 70%"/>
+            </colgroup>
+            <tbody>
+            <tr data-cs-name="Certificate status">
+                <th scope="row">Status</th>
+                <td>{{ render_status(profile["web_data"]["status"]) }}</td>
+            </tr>
+            <tr data-cs-name="Valid from">
+                <th scope="row">Valid from</th>
+                <td>{{ profile["web_data"]["not_valid_before"]|strftime("%d.%m.%Y") }}</td>
+            </tr>
+            {% if profile["web_data"]["not_valid_after"] %}
+                <tr data-cs-name="Valid until">
+                    <th scope="row">Valid until</th>
+                    <td>{{ profile["web_data"]["not_valid_after"]|strftime("%d.%m.%Y") }}</td>
+                </tr>
+            {% endif %}
+            <tr data-cs-name="Certification scheme">
+                <th scope="row">Scheme</th>
+                <td>{{ country_to_flag(profile['web_data']["scheme"]) }} {{ profile['web_data']['scheme'] }}</td>
+            </tr>
+            <tr data-cs-name="Category">
+                <th scope="row">Category</th>
+                <td>{{ render_category((profile["web_data"]["category"])) }} {{ profile["web_data"]["category"] }}</td>
+            </tr>
+            <tr data-cs-name="Security level">
+                <th scope="row">Security level</th>
+                <td>
+                    {% for level in profile["web_data"]["security_level"] %}
+                        {{ render_eal(level) }}{%- if not loop.last -%}, {%- endif -%}
+                    {% endfor %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    {% endcall %}
+{% endif %}

@@ -15,8 +15,8 @@
             {% endif %}
 
             {% if removed and same %}
-                {% call(other) removed_cert_alert(same, hashid, "EUCC portal", "eucc.entry", "eucc.compare") %}
-                    {{ other["cert_id"] }}
+                {% call(other) removed_cert_alert(same, hashid, "Common Criteria portal", "cc.entry", "cc.compare") %}
+                    {{ other["heuristics"]["cert_id"] }}
                 {% endcall %}
             {% endif %}
 
@@ -24,7 +24,7 @@
                 {% if config["CHAT_ENABLED"] %}{{ chat_icon() }}{% endif %}
                 {{ compare_icon() }}
                 {{ notification_icon(current_user, subscribed) }}
-                {{ render_share_buttons(hashid, cert_id=cert["cert_id"], name=cert["name"]) }}
+                {{ render_share_buttons(hashid, cert_id=cert["heuristics"]["cert_id"], name=cert["name"]) }}
             </div>
         </div>
     </div>

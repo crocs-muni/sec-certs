@@ -118,3 +118,13 @@
         renderTimeline(certsData);
     </script>
 {%- endmacro %}
+
+{% macro render_keywords(keywords, kind) %}
+    {% if keywords %}
+        <h4 class="mt-3">Extracted keywords</h4>
+        {{ cryptography_keywords(keywords, kind) }}
+        {{ device_keywords(keywords, kind) }}
+        {{ security_keywords(keywords, kind) }}
+        {{ other_keywords(keywords, kind) }}
+    {% endif %}
+{%- endmacro %}

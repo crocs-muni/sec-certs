@@ -1,3 +1,91 @@
+{% macro info_tooltip(text, placement="right") %}
+    <span class="text-muted d-inline-flex align-items-center"
+          style="cursor: help;"
+          role="img"
+          tabindex="0"
+          aria-label="{{ text }}"
+          data-bs-toggle="tooltip"
+          data-bs-placement="{{ placement }}"
+          title="{{ text }}">
+        <i class="fas fa-info-circle fa-xs"></i>
+    </span>
+{%- endmacro %}
+
+{% macro entry_card(id=None, title=None, icon=None, level=2, heading_extra=None, tooltip=None) %}
+    <section class="entry-card col-12 col-sm-10 mb-4 ms-sm-1 p-3 p-md-4 bg-darker-light rounded-3"
+             {% if id %}id="{{ id }}"{% endif %}>
+        {% if title %}
+            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                {%- if icon %}
+                    <i class="fas {{ icon }} fa-fw text-secondary" aria-hidden="true"></i>
+                {% endif %}
+                <h{{ level }} class="mb-0">{{ title }}</h{{ level }}>
+                {%- if tooltip %}
+                    {{ info_tooltip(tooltip) }}
+                {% endif %}
+                {%- if heading_extra %}
+                    <span class="ms-auto">{{ heading_extra }}</span>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="d-flex flex-column gap-1">
+            {{ caller() }}
+        </div>
+    </section>
+{%- endmacro %}
+
+{% macro collapse_toggle(toggle_id, target_class, shown, total) %}
+    <div id="{{ toggle_id }}" class="d-flex justify-content-center">
+        <div class="d-inline-flex flex-column">
+            <span class="text-muted">Showing {{ shown }} out of {{ total }}.</span>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+                    data-bs-target=".{{ target_class }}" aria-expanded="false"
+                    aria-controls=".{{ target_class }}"
+                    onclick="$('#{{ toggle_id }}').toggleClass('d-flex').hide()">Show all
+            </button>
+        </div>
+    </div>
+{%- endmacro %}
+
+{% macro match_badge(label, icon="fa-equals") %}
+    <span class="badge rounded-pill bg-info text-dark" role="img"
+          aria-label="{{ label }}"
+          data-bs-toggle="tooltip" title="{{ label }}"><i
+            class="fas {{ icon }}" aria-hidden="true"></i></span>
+{%- endmacro %}
+
+{% macro mobile_warning() %}
+    <div class="alert alert-warning d-sm-none" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        This page was not yet optimized for use on mobile devices.
+    </div>
+{%- endmacro %}
+
+{% macro removed_cert_alert(same, hashid, portal, entry_endpoint, compare_endpoint) %}
+    <div class="alert alert-secondary mt-4">
+        <i class="fas fa-exclamation-triangle"></i>
+        This certificate has disappeared from the {{ portal }} listing<sup
+            title="Likely due to the certifying scheme updating some of its fields."
+            data-bs-toggle="tooltip">*</sup>.
+        However, there {% if same|length > 1 %}are certificates that match{% else %}is a certificate
+        that matches{% endif %} this one in the current listing:
+        <table class="table table-secondary table-borderless mt-3 ms-3">
+            {% for other in same %}
+                <tr>
+                    <td class="py-2 align-middle">
+                        <a href="{{ url_for(entry_endpoint, hashid=other["_id"]) }}">{{ other["name"] }}</a>
+                    </td>
+                    <td class="py-2 align-middle">{{ caller(other) }}</td>
+                    <td class="py-2">
+                        <a href="{{ url_for(compare_endpoint, one_hashid=hashid, other_hashid=other["_id"]) }}"
+                           class="btn btn-outline-secondary">Compare</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <span class="ms-4">You can also examine other <a href="#similar">similar certificates</a> below.</span>
+    </div>
+{%- endmacro %}
+
 {% macro render_local_file(hashid, link_content, link, local_files, document, primary_style, secondary_style) %}
     <div class="btn-group">
         {% if link %}
@@ -91,62 +179,55 @@
 
 {% macro render_cves(cves) %}
     <div class="my-1">
-        <table class="table table-striped">
-            <colgroup>
-                <col style="width:15%">
-                <col style="width:10%">
-                <col style="width:20%">
-                <col style="width:10%">
-                <col style="width:10%">
-            </colgroup>
-            <thead>
-            <tr>
-                <th scope="col" colspan="1" rowspan="2">ID</th>
-                <th scope="col" colspan="1" rowspan="2">Links</th>
-                <th scope="col" colspan="1" rowspan="2">Severity</th>
-                <th scope="col" colspan="1" class="text-center pb-0"><abbr title="Common Vulnerability Scoring System">CVSS</abbr>
-                    Score
-                </th>
-                <th scope="col" colspan="1" rowspan="2">Published on</th>
-            </tr>
-            <tr>
-                <th scope="col">Base score</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% set years = namespace(cve=None, current=None) %}
-            {% for cve in cves %}
-                {% set years.current = cve["cve_id"].split("-")[1] %}
-                <tr {% if years.current != years.cve and years.cve %}
-                    style="border-top: 2px solid var(--bs-dark)"{% endif %}
-                        {% if cves|length > 5 and loop.index0 >= 5 %}
-                    class="collapse cve-collapse" {% endif %}>
-                    <td><a href="{{ url_for("vuln.cve", cve_id=cve["cve_id"]) }}">{{ cve["cve_id"] }}</a></td>
-                    <td>
-                        {{ render_cve_links(cve) }}
-                    </td>
-                    <td>
-                        {{ render_cve_impact(cve["cvss"]["severity"]) }}
-                    </td>
-                    <td>{{ cve["cvss"]["base_score"] }}</td>
-                    <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y") }}</td>
-
+        <div class="scroll-table">
+            <table class="table table-striped">
+                <colgroup>
+                    <col style="width:15%">
+                    <col style="width:10%">
+                    <col style="width:20%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                </colgroup>
+                <thead>
+                <tr>
+                    <th scope="col" colspan="1" rowspan="2">ID</th>
+                    <th scope="col" colspan="1" rowspan="2">Links</th>
+                    <th scope="col" colspan="1" rowspan="2">Severity</th>
+                    <th scope="col" colspan="1" class="text-center pb-0"><abbr title="Common Vulnerability Scoring System">CVSS</abbr>
+                        Score
+                    </th>
+                    <th scope="col" colspan="1" rowspan="2">Published on</th>
                 </tr>
-                {% set years.cve = years.current %}
-            {% endfor %}
-            </tbody>
-        </table>
+                <tr>
+                    <th scope="col">Base score</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set years = namespace(cve=None, current=None) %}
+                {% for cve in cves %}
+                    {% set years.current = cve["cve_id"].split("-")[1] %}
+                    <tr {% if years.current != years.cve and years.cve %}
+                        style="border-top: 2px solid var(--bs-secondary)"{% endif %}
+                            {% if cves|length > 5 and loop.index0 >= 5 %}
+                        class="collapse cve-collapse" {% endif %}>
+                        <td><a href="{{ url_for("vuln.cve", cve_id=cve["cve_id"]) }}">{{ cve["cve_id"] }}</a></td>
+                        <td>
+                            {{ render_cve_links(cve) }}
+                        </td>
+                        <td>
+                            {{ render_cve_impact(cve["cvss"]["severity"]) }}
+                        </td>
+                        <td>{{ cve["cvss"]["base_score"] }}</td>
+                        <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y") }}</td>
+
+                    </tr>
+                    {% set years.cve = years.current %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% if cves|length > 5 %}
-            <div id="cve-toggle" class="d-flex justify-content-center">
-                <div class="d-inline-flex flex-column">
-                    <span class="text-muted">Showing 5 out of {{ cves|length }}.</span>
-                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
-                            data-bs-target=".cve-collapse" aria-expanded="false"
-                            aria-controls=".cve-collapse"
-                            onclick="$('#cve-toggle').toggleClass('d-flex').hide()">Show all
-                    </button>
-                </div>
-            </div>
+            {{ collapse_toggle("cve-toggle", "cve-collapse", 5, cves|length) }}
         {% endif %}
     </div>
 {%- endmacro %}
@@ -179,7 +260,7 @@
         {% endfor %}
 
         {% if refs.incoming or refs.outgoing %}
-            <h3 class="mt-3">References</h3>
+            <h4 class="mt-3">Cross-references {{ info_tooltip("Certificates whose identifiers were found in this document by our automated analysis.") }}</h4>
             {% if refs.outgoing %}
                 <b>Outgoing</b>
                 <ul class="outgoing-list">
@@ -547,3 +628,77 @@
         {% endfor %}
     {% endif %}
 {% endmacro %}
+
+{% set scheme_field_labels = {
+    "cert_id": "Certificate ID",
+    "cc_version": "CC version",
+    "url": "URL",
+    "entries": "Certification history",
+} %}
+
+{% set scheme_field_tooltips = {
+    "entries": "The original certification and every later recertification or maintenance step the scheme lists for this product. Both the identifier and the note are parsed from that list and can be incomplete.",
+} %}
+
+{% macro scheme_field_header(key) %}
+    {{- scheme_field_labels.get(key, key|replace("_", " ")|title) -}}
+    {%- if key in scheme_field_tooltips %} {{ info_tooltip(scheme_field_tooltips[key]) }}{% endif -%}
+{%- endmacro %}
+
+{% macro render_scheme_value(key, value) %}
+    {%- if value is none -%}
+        <span class="text-muted">&mdash;</span>
+    {%- elif key.endswith("link") or key.endswith("url") -%}
+        <a href="{{ value }}" target="_blank" rel="noopener">{{ value }}</a>
+    {%- elif value is date -%}
+        {{ value|strftime("%d.%m.%Y") }}
+    {%- elif key == "entries" -%}
+        <table class="table-sm table-borderless w-100 mb-0">
+            <tbody>
+            {% for entry in value %}
+                <tr>
+                    <th scope="row" class="fw-normal text-nowrap pe-3">
+                        {%- if entry["id"] %}{{ entry["id"] }}{% else %}<span class="text-muted">&mdash;</span>{% endif -%}
+                    </th>
+                    <td>{{ entry["description"]|default("", true) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {%- elif value is mapping -%}
+        <table class="table-sm table-borderless w-100 mb-0">
+            <tbody>
+            {% for k, v in value.items() %}
+                <tr>
+                    <th scope="row" class="fw-normal text-secondary">{{ k|replace("_", " ")|title }}</th>
+                    <td>{{ render_scheme_value(k, v) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {%- elif value is sequence and value is not string -%}
+        <ul class="mb-0 ps-3">
+            {% for item in value %}
+                <li>{{ render_scheme_value(key, item) }}</li>
+            {% endfor %}
+        </ul>
+    {%- else -%}
+        {{ value }}
+    {%- endif -%}
+{%- endmacro %}
+
+
+{% macro updates_card(hashid, subject, diffs, diff_jsons, diff_renders) %}
+    {% call entry_card(id="updates", title="Processing updates", icon="fa-clock-rotate-left",
+                       heading_extra=render_update_feed_button(hashid),
+                       tooltip="A log of how this entry's data changed across our periodic updates. Changes may reflect updates to the source listing or improvements in our own data extraction.") %}
+        {{ render_updates(subject, diffs, diff_jsons, diff_renders) }}
+    {% endcall %}
+{%- endmacro %}
+
+{% macro raw_data_card(hashid, json) %}
+    {% call entry_card(id="raw-data-head", title="Raw data", icon="fa-code",
+                       heading_extra=render_raw_data_button(hashid)) %}
+        {{ render_raw_data(json) }}
+    {% endcall %}
+{%- endmacro %}

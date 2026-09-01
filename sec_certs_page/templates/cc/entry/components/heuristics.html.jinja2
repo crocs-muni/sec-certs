@@ -2,15 +2,21 @@
 {% from "include/legal.html.jinja2" import certificate_note %}
 
 {% call entry_card(id="heuristics-info", title="Automated analysis", icon="fa-lightbulb") %}
-    {% set has_content = false %}
+    {# Computed up front rather than accumulated, so that the note can be gated on it. #}
+    {% set has_content = cert["heuristics"]["cert_id"] or cert["heuristics"]["extracted_sars"] or cpes or cves
+                         or previous or next or similar or cert["heuristics"]["scheme_data"] %}
 
+    {# Always shown, even with nothing below it: it carries the link to the documentation. #}
+    {{ certificate_note(covers_references=true) }}
+    {% if cert["heuristics"]["cert_id"] %}
+        <div data-cs-name="Certificate ID" class="my-3 pt-2">
+            <h4>Certificate ID</h4>
+            {{ cert["heuristics"]["cert_id"] }}
+        </div>
+    {% endif %}
 
-    {# Always shown, even with nothing below it: it carries the link to the documentation.
-       No covers_references here: EUCC entries have no Cross-references section. #}
-    {{ certificate_note() }}
     {% if cert["heuristics"]["extracted_sars"] %}
-        {% set has_content = true %}
-        <div data-cs-name="Extracted SARs">
+        <div data-cs-name="Extracted SARs" class="my-3 pt-2">
             <h4>Extracted <abbr title="Security Assurance Components">SARs</abbr></h4>
             {% for sar in cert["heuristics"]["extracted_sars"]|sort(attribute="family,level") %}
                 {% set sar_name = sar["family"] + "." + sar["level"]|string %}
@@ -21,16 +27,14 @@
     {% endif %}
 
     {% if cpes %}
-        {% set has_content = true %}
-        <div data-cs-name="CPE matches">
+        <div data-cs-name="CPE matches" class="my-3 pt-2">
             <h4><abbr title="Common Platform Enumeration">CPE</abbr> matches</h4>
             {{ render_cpes(cert, cpes) }}
         </div>
     {% endif %}
 
     {% if cves %}
-        {% set has_content = true %}
-        <div data-cs-name="Related CVEs">
+        <div data-cs-name="Related CVEs" class="my-3 pt-2">
             <h4 class="anchor" id="cves"><abbr title="Common Vulnerabilities and Exposures">CVE</abbr> matches
                 {{ info_tooltip("CVEs affecting the NVD products this certificate was matched to. A listed CVE may not affect the certified configuration, and an empty list does not mean the product is unaffected.") }}
             </h4>
@@ -39,8 +43,7 @@
     {% endif %}
 
     {% if previous or next %}
-        {% set has_content = true %}
-        <div data-cs-name="Certificate versions" >
+        <div data-cs-name="Certificate versions" class="my-3 pt-2">
             <h4 class="anchor" id="versions">Certificate versions</h4>
             <table class="table table-striped my-2">
                 <thead>
@@ -58,7 +61,7 @@
                 {% for other in previous %}
                     <tr>
                         <td>
-                            <a href="{{ url_for("eucc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
+                            <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                             {% if other["name"] == cert["name"] and cert["name"] %}
                                 {{ match_badge("Certificate name matches exactly.") }}
                             {% endif %}
@@ -70,7 +73,7 @@
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
+                            <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
                                class="btn btn-outline-primary">Compare</a></td>
                     </tr>
                 {% endfor %}
@@ -82,7 +85,7 @@
                 {% for other in next %}
                     <tr>
                         <td>
-                            <a href="{{ url_for("eucc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
+                            <a href="{{ url_for("cc.entry", hashid=other['_id']) }}">{{ other["name"] | truncate(120, true) }}</a>
                             {% if other["name"] == cert["name"] and cert["name"] %}
                                 {{ match_badge("Certificate name matches exactly.") }}
                             {% endif %}
@@ -94,7 +97,7 @@
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
+                            <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=other["_id"]) }}"
                                class="btn btn-outline-primary">Compare</a></td>
                     </tr>
                 {% endfor %}
@@ -103,8 +106,7 @@
     {% endif %}
 
     {% if similar %}
-        {% set has_content = true %}
-        <div data-cs-name="Similar certificates">
+        <div data-cs-name="Similar certificates" class="my-3 pt-2">
             <h4 class="anchor" id="similar">Similar certificates {{info_tooltip("Certificates related to this one by matching name, certificate ID, or identical source PDF (certificate report, or security target). Entries flagged as likely duplicates share two or more of these matches and may represent the same certification listed multiple times." )}}</h4>
             <div class="scroll-table">
                 <table class="table table-striped">
@@ -124,7 +126,7 @@
                         <tr {% if similar|length > 5 and loop.index0 >= 5 %}
                             class="collapse similarity-collapse" {% endif %}>
                             <td style="max-width: 70%">
-                                <a href="{{ url_for("eucc.entry", hashid=similar_cert['_id']) }}"
+                                <a href="{{ url_for("cc.entry", hashid=similar_cert['_id']) }}"
                                    title="{{ similar_cert["name"] }}">{{ similar_cert["name"] | truncate(120, true) }}</a>
                                 {% if similar_cert["name"] == cert["name"] and cert["name"] %}
                                     {{ match_badge("Certificate name matches exactly.") }}
@@ -142,13 +144,13 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {{ similar_cert["cert_id"] }}
-                                {% if similar_cert["cert_id"] == cert["cert_id"] and cert["cert_id"] %}
+                                {{ similar_cert["heuristics"]["cert_id"] }}
+                                {% if similar_cert["heuristics"]["cert_id"] == cert["heuristics"]["cert_id"] and cert["heuristics"]["cert_id"] %}
                                     {{ match_badge("Certificate ID matches exactly.") }}
                                 {% endif %}
                             </td>
                             <td class="text-end">
-                                <a href="{{ url_for("eucc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
+                                <a href="{{ url_for("cc.compare", one_hashid=hashid, other_hashid=similar_cert["_id"]) }}"
                                    class="btn btn-outline-primary">Compare</a></td>
                         </tr>
                     {% endfor %}
@@ -161,7 +163,6 @@
     {% endif %}
 
     {% if "scheme_data" in cert["heuristics"] and cert["heuristics"]["scheme_data"] %}
-        {% set has_content = true %}
         {% set scheme_data = cert["heuristics"]["scheme_data"] %}
         <div data-cs-name="Scheme data" class="my-3">
             <h4>Scheme data
@@ -206,7 +207,6 @@
             {% endif %}
         </div>
     {% endif %}
-
     {% if not has_content %}
         <p>No automatically derived data are available in this section.</p>
     {% endif %}
