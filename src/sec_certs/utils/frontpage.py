@@ -200,19 +200,28 @@ class NSCIBFrontpageParser(FrontpageParser):
         seen_label = False
 
         for idx, block in enumerate(blocks):
-            match = self._LABEL_RE.match(block)
-            if match is None:
+            labelled = self._label_of(block)
+            if labelled is None:
                 if not seen_label:
                     product_name_blocks.append(block)
                 continue
 
             seen_label = True
-            for tag, value in self._values_at(blocks, idx, match):
+            label, match = labelled
+            for tag, value in self._values_at(blocks, idx, label, match):
                 items_found.setdefault(tag, value)
 
         return items_found, product_name_blocks
 
-    def _values_at(self, blocks: list[str], idx: int, match: re.Match[str]) -> list[tuple[str, str]]:
+    def _label_of(self, block: str) -> tuple[str, re.Match[str]] | None:
+        """Return the known frontpage label of ``block`` with its match, or None if it carries none."""
+        match = self._LABEL_RE.match(block)
+        if match is None:
+            return None
+        label = match.group("label").strip().casefold()
+        return (label, match) if label in self.FRONTPAGE_LABELS else None
+
+    def _values_at(self, blocks: list[str], idx: int, label: str, match: re.Match[str]) -> list[tuple[str, str]]:
         """
         Resolve the tag/value pair(s) for the label matched at ``blocks[idx]``.
 
@@ -220,7 +229,6 @@ class NSCIBFrontpageParser(FrontpageParser):
         following block instead, sometimes with the organization's postal address merged in, which
         is trimmed off so that both converters agree.
         """
-        label = match.group("label").strip().casefold()
         value = match.group("value").strip()
         address_merged = False
 
@@ -231,7 +239,7 @@ class NSCIBFrontpageParser(FrontpageParser):
             value, address_merged = nxt, True
 
         resolved = []
-        for tag in self.FRONTPAGE_LABELS.get(label, ()):
+        for tag in self.FRONTPAGE_LABELS[label]:
             trimmed = self._organisation_of(value) if address_merged and tag in self._ORGANISATION_TAGS else value
             resolved.append((tag, _clean_identity(trimmed)))
         return resolved

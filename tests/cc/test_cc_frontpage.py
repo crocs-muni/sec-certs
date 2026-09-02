@@ -129,6 +129,31 @@ def test_nscib_ignores_letterhead_labels(nscib_parser: NSCIBFrontpageParser, fro
     assert "NL815820380B01" not in str(items)
 
 
+def test_nscib_colon_in_certified_item_is_not_a_label(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "colon.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "Certification Report",
+                "Acme SecureCore: Crypto Edition",
+                "v2.1 (build 42)",
+                "Sponsor and developer: Acme Systems, Inc.",
+                "1 Acme Way",
+                "Report number: NSCIB-CC-2400099-01-CR",
+                "Date: 1 January 2025",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    items = nscib_parser.parse(report)
+
+    assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore: Crypto Edition v2.1 (build 42"
+    assert items[constants.TAG_DEVELOPER] == "Acme Systems, Inc"
+    assert items[constants.TAG_CERT_ID] == "NSCIB-CC-2400099-01-CR"
+
+
 def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
     not_a_report = tmp_path / "empty.txt"
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
