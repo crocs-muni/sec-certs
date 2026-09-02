@@ -1,8 +1,8 @@
 {% set tabs = [
-    ("new",    "New",        "new_certs",           "success"),
-    ("change", "Updated",    "changed_ids",         "primary"),
-    ("remove", "Removed",    "current_removed_ids", "warning"),
-    ("back",   "Reappeared", "back_ids",            "info"),
+    ("new",    "New",        "new_certs",           "success", "Processed by us for the first time, which need not be when the certificate was issued."),
+    ("change", "Changed",    "changed_ids",         "primary", "Metadata changed since the previous update. See the details of each certficate to know what has changed."),
+    ("remove", "Removed",    "current_removed_ids", "warning", "Disappeared from the source listing, which does not necessarily mean it was revoked."),
+    ("back",   "Reappeared", "back_ids",            "info",    "Back in the source listing after having disappeared."),
 ] %}
 {% set stats = run["stats"] if run and "stats" in run else {} %}
 
@@ -53,12 +53,14 @@
 
         <input type="hidden" data-param="type" value="{{ type }}">
         <ul class="nav nav-pills gap-2" aria-label="Change type">
-            {% for key, label, stat_key, colour in tabs %}
+            {% for key, label, stat_key, colour, hint in tabs %}
                 {% set count = stats.get(stat_key, 0) %}
                 {#- Reappearances are rare; only show that tab when there are some. -#}
                 {% if count or key != "back" %}
                     <li class="nav-item">
                         <a class="nav-link{% if key == type %} active{% endif %}" data-updates-nav
+                           data-bs-toggle="tooltip" data-bs-trigger="hover"
+                           data-bs-placement="bottom" title="{{ hint }}"
                            href="{{ url_for('cc.updates', run_id=run_id, type=key) }}">
                             {{ label }}
                             <span class="badge {% if key == type %}text-bg-light{% else %}text-bg-{{ colour }}{% endif %}">{{ count }}</span>

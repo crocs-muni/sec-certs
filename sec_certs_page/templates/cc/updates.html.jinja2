@@ -9,8 +9,15 @@
                 <h1>Common Criteria</h1>
                 <span class="text-secondary fs-3">Processing updates</span>
             </div>
-            <p class="text-body-secondary">
-                Certificates that appeared, changed or disappeared in a weekly update of the dataset.
+            <p class="text-body">
+                Certificates that were first processed, changed, or disappeared from the source listing
+                in one of our periodic updates of the Common Criteria dataset.
+            </p>
+            <p class="text-body mb-4">
+                Changes may reflect updates to the source listing or improvements in our own data
+                extraction, so they do not necessarily mean the certification body changed anything.
+                The history of an individual certificate and the details of what changed are in the
+                <em>Processing updates</em> section on its page.
             </p>
 
             {% include "cc/_updates_picker.html.jinja2" %}
@@ -33,7 +40,13 @@
                 { key: 'not_valid_after',  label: 'Archive date',       defaultVisible: true  },
             ];
 
-            const go = url => document.dispatchEvent(new CustomEvent("ajax-search", { detail: { url } }));
+            const pickerTooltips = () =>
+                document.querySelectorAll('#updates-picker [data-bs-toggle="tooltip"]');
+
+            const go = url => {
+                pickerTooltips().forEach(el => bootstrap.Tooltip.getInstance(el)?.dispose());
+                document.dispatchEvent(new CustomEvent("ajax-search", { detail: { url } }));
+            };
 
             document.addEventListener("change", e => {
                 if (e.target.closest("#run-select")) go(`${ENDPOINT}?${searchParams()}`);
@@ -53,6 +66,9 @@
                     storageKey: 'cc-col-visibility',
                     sortBy: "{{ sort_by or '' }}",
                     sortDir: "{{ sort_dir or '' }}",
+                    // The picker is replaced on every refresh, and base.html.jinja2 only
+                    // initialises tooltips once at DOM ready, so rebind the new ones.
+                    onAfterApply: () => pickerTooltips().forEach(el => new bootstrap.Tooltip(el)),
                 });
             });
         </script>
