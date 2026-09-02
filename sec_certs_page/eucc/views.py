@@ -15,6 +15,7 @@ from ..cc import get_cc_references, redir_new
 from ..common.diffs import eucc_diff_method, render_compare
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
+from ..common.updates import render_updates
 from ..common.views import (
     entry_download_certificate_pdf,
     entry_download_certificate_txt,
@@ -29,7 +30,7 @@ from ..common.views import (
     send_json_attachment,
 )
 from . import eucc, eucc_eals, eucc_schemes
-from .search import EUCCSearch
+from .search import EUCCSearch, EUCCUpdatesSearch
 from .tasks import EUCCRenderer
 
 
@@ -101,6 +102,13 @@ def merged_search():
 def fulltext_search():
     args = {**request.args, "search_type": "fulltext"}
     return redirect(url_for(".merged_search", **args))
+
+
+@eucc.route("/updates/")
+@register_breadcrumb(eucc, ".updates", "Processing updates")
+def updates():
+    """Certificates changed in an EUCC update run."""
+    return render_updates(EUCCUpdatesSearch, "eucc", "EUCC Processing Updates | sec-certs.org")
 
 
 @eucc.route("/compare/<string(length=16):one_hashid>/<string(length=16):other_hashid>/")
