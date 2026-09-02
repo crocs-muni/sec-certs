@@ -21,6 +21,7 @@ from .. import cache, mongo, sitemap
 from ..common.diffs import fips_diff_method, render_compare
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
+from ..common.updates import render_updates
 from ..common.views import (
     Pagination,
     entry_download_files,
@@ -35,7 +36,7 @@ from ..common.views import (
 )
 from ..fips import fips_levels
 from . import fips, fips_reference_types, fips_status, fips_types, get_fips_references
-from .search import FIPSSearch
+from .search import FIPSSearch, FIPSUpdatesSearch
 from .tasks import FIPSRenderer
 
 
@@ -183,6 +184,13 @@ def compare(one_hashid: str, other_hashid: str):
 @register_breadcrumb(fips, ".analysis", "Analysis")
 def analysis():
     return render_template("fips/analysis.html.jinja2")
+
+
+@fips.route("/updates/")
+@register_breadcrumb(fips, ".updates", "Processing updates")
+def updates():
+    """Modules changed in a FIPS 140 update run."""
+    return render_updates(FIPSUpdatesSearch, "fips", "FIPS 140 Processing Updates | sec-certs.org")
 
 
 @fips.route("/mip/")
@@ -552,6 +560,7 @@ def sitemap_urls():
     yield "fips.network", {}
     yield "fips.analysis", {}
     yield "fips.search", {}
+    yield "fips.updates", {}
     yield "fips.fulltext_search", {}
     yield "fips.rand", {}
     yield "fips.mip_index", {}
