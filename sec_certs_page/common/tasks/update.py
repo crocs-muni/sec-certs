@@ -82,13 +82,17 @@ class Updater:  # pragma: no cover
             self.process(dset, paths)
 
             ids = self.sort_ids(dset)
-            changed_ids = self.store_certs(dset, ids, run["_id"], run["start_time"])
+            changed_ids, back_ids, current_removed_ids = self.store_certs(dset, ids, run["_id"], run["start_time"])
             run |= {
                 "stats": {
                     "new_certs": len(ids["new"]),
                     "removed_ids": len(ids["removed"]),
                     "updated_ids": len(ids["updated"]),
                     "changed_ids": len(changed_ids),
+                    # Certs that were removed and reappeared
+                    "back_ids": len(back_ids),
+                    # Certs that were removed during THIS run
+                    "current_removed_ids": len(current_removed_ids),
                     "cert_states": dict(self.count_cert_states(dset)),
                 },
             }
@@ -241,20 +245,22 @@ class Updater:  # pragma: no cover
             "removed": stored_ids - current_ids,
         }
 
-    def store_certs(self, dset: Dataset, ids: dict[str, set[str]], run_id, timestamp: datetime) -> set[str]:
+    def store_certs(
+        self, dset: Dataset, ids: dict[str, set[str]], run_id, timestamp: datetime
+    ) -> tuple[set[str], set[str], set[str]]:
         with sentry_sdk.start_span(op=f"{self.collection}.db", name="Process certs into DB."):
             res, res_diff = self.process_new_certs(dset, ids["new"], run_id, timestamp)
             self.insert_certs(self.collection, res)
             self.insert_certs(self.diff_collection, res_diff)
 
-            res, res_diff, changed_ids = self.process_updated_certs(dset, ids["updated"], run_id, timestamp)
+            res, res_diff, changed_ids, back_ids = self.process_updated_certs(dset, ids["updated"], run_id, timestamp)
             self.insert_certs(self.collection, res)
             self.insert_certs(self.diff_collection, res_diff)
 
-            res_diff = self.process_removed_certs(dset, ids["removed"], run_id, timestamp)
+            res_diff, removed_ids = self.process_removed_certs(dset, ids["removed"], run_id, timestamp)
             self.insert_certs(self.diff_collection, res_diff)
 
-        return changed_ids
+        return changed_ids, back_ids, removed_ids
 
     def process_new_certs(
         self, dset: Dataset, new_ids: set[str], run_id, timestamp: datetime
@@ -283,13 +289,13 @@ class Updater:  # pragma: no cover
 
     def process_updated_certs(
         self, dset: Dataset, updated_ids: set[str], run_id, timestamp: datetime
-    ) -> tuple[list[object], list[object], set[str]]:
+    ) -> tuple[list[object], list[object], set[str], set[str]]:
         res_col = []
         res_diff_col = []
         changed_ids: set[str] = set()
         with sentry_sdk.start_span(op=f"{self.collection}.db.updated", name="Process updated certs."):
             logger.info(f"Processing {len(updated_ids)} updated certificates.")
-            appearances = 0
+            back_ids: set[str] = set()
             for id in updated_ids:
                 # Process an updated cert, it can also be that a "removed" cert reappeared
                 working_current_cert = (
@@ -329,14 +335,17 @@ class Updater:  # pragma: no cover
                             }
                         )
                     )
-                    appearances += 1
+                    back_ids.add(id)
             logger.info(
-                f"Processed {len(changed_ids)} changes in cert data, {appearances} reappearances of removed certs and {len(updated_ids) - len(changed_ids) - appearances} unchanged."
+                f"Processed {len(changed_ids)} changes in cert data, {len(back_ids)} reappearances of removed certs and {len(updated_ids) - len(changed_ids) - len(back_ids)} unchanged."
             )
-        return res_col, res_diff_col, changed_ids
+        return res_col, res_diff_col, changed_ids, back_ids
 
-    def process_removed_certs(self, dset: Dataset, removed_ids: set[str], run_id, timestamp: datetime) -> list[object]:
+    def process_removed_certs(
+        self, dset: Dataset, removed_ids: set[str], run_id, timestamp: datetime
+    ) -> tuple[list[object], set[str]]:
         res_diff_col = []
+        current_removed_ids: set[str] = set()
         with sentry_sdk.start_span(op=f"{self.collection}.db.removed", name="Process removed certs."):
             logger.info(f"Processing {len(removed_ids)} removed certificates.")
             for id in removed_ids:
@@ -355,7 +364,9 @@ class Updater:  # pragma: no cover
                         }
                     )
                 )
-        return res_diff_col
+                current_removed_ids.add(id)
+
+        return res_diff_col, current_removed_ids
 
     def insert_certs(self, collection: str, requests: list[object], ordered: bool = False):
         if requests:
