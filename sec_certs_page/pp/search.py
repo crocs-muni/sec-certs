@@ -8,6 +8,7 @@ from ..common.search.query import (
     Facet,
     Search,
     SearchConfig,
+    UpdatesSearch,
     build_must_query,
     get_body_query,
     get_date_query,
@@ -82,3 +83,16 @@ class PPSearch(Search):
             get_keyword_query(pp_schema, keyword_units(args["keywords"], "pp"), kw_fields, args["kw_mode"]),
         )
         return query, errors
+
+
+class PPUpdatesSearch(UpdatesSearch):
+    search_args = {
+        "sort_by": OptionField(
+            {"name", "not_valid_before", "not_valid_after", "scheme", "status"},
+            "not_valid_before",
+        ),
+    }
+    schema = pp_schema
+    index = pp_index
+    log_collection = "pp_log"
+    diff_collection = "pp_diff"
