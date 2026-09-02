@@ -172,6 +172,21 @@ def test_nscib_spaced_dash_in_certified_item_is_kept(nscib_parser: NSCIBFrontpag
     assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore - Crypto Edition"
 
 
+def test_nscib_fields_survive_a_missing_cert_id(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "no_id.txt"
+    report.write_text(
+        "Certification Report\nAcme SecureCore\nEvaluation facility: Riscure B.V.\nDate: 1 January 2025\n",
+        encoding="utf-8",
+    )
+
+    items = nscib_parser.parse(report)
+
+    assert constants.TAG_CERT_ID not in items
+    assert items[constants.TAG_CERT_LAB] == "Riscure B.V"
+    assert items[constants.TAG_REPORT_DATE] == "1 January 2025"
+    assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore"
+
+
 def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
     not_a_report = tmp_path / "empty.txt"
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")

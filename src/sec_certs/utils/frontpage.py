@@ -176,9 +176,8 @@ class NSCIBFrontpageParser(FrontpageParser):
 
         if constants.TAG_CERT_ID not in items_found:
             cert_id = self._recover_cert_id(" ".join(blocks))
-            if not cert_id:
-                return {}
-            items_found[constants.TAG_CERT_ID] = cert_id
+            if cert_id:
+                items_found[constants.TAG_CERT_ID] = cert_id
 
         if product_name_blocks:
             items_found[constants.TAG_CERT_ITEM] = _clean_identity(" ".join(product_name_blocks))
