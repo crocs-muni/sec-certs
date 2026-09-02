@@ -1,0 +1,71 @@
+{% set tabs = [
+    ("new",    "New",        "new_certs",           "success"),
+    ("change", "Updated",    "changed_ids",         "primary"),
+    ("remove", "Removed",    "current_removed_ids", "warning"),
+    ("back",   "Reappeared", "back_ids",            "info"),
+] %}
+{% set stats = run["stats"] if run and "stats" in run else {} %}
+
+{% set pos = namespace(idx=-1) %}
+{% for r in runs %}
+    {% if run and r["_id"] == run["_id"] %}{% set pos.idx = loop.index0 %}{% endif %}
+{% endfor %}
+{% set newer_run = runs[pos.idx - 1] if pos.idx > 0 else None %}
+{% set older_run = runs[pos.idx + 1] if 0 <= pos.idx < runs|length - 1 else None %}
+
+<div id="updates-picker" data-ajax-swap class="card shadow-sm mb-4">
+    <div class="card-body p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-end gap-3">
+            <div>
+                <label class="form-label fw-semibold mb-1 d-block" for="run-select">Update run</label>
+                <div class="d-flex align-items-center gap-2">
+                    <a class="btn btn-outline-secondary{% if not older_run %} disabled{% endif %}"
+                       title="Older run" data-updates-nav
+                       {% if older_run %}href="{{ url_for('cc.updates', run_id=older_run['_id'], type=type) }}"{% endif %}>
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <select id="run-select" class="form-select w-auto" data-param="run_id"
+                            aria-label="Choose an update run">
+                        {% for r in runs %}
+                            <option value="{{ r['_id'] }}"
+                                    {% if run and r['_id'] == run['_id'] %}selected{% endif %}>
+                                {{ r["start_time"]|strftime("%d.%m.%Y") }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <a class="btn btn-outline-secondary{% if not newer_run %} disabled{% endif %}"
+                       title="Newer run" data-updates-nav
+                       {% if newer_run %}href="{{ url_for('cc.updates', run_id=newer_run['_id'], type=type) }}"{% endif %}>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            {% if run %}
+                <div class="ms-auto text-body-secondary small">
+                    Finished {{ run["end_time"]|strftime("%d.%m.%Y %H:%M") }}
+                    {%- if run["length"] %} &middot; {{ run["length"] }} certificates in the dataset{% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <hr class="my-3">
+
+        <input type="hidden" data-param="type" value="{{ type }}">
+        <ul class="nav nav-pills gap-2" aria-label="Change type">
+            {% for key, label, stat_key, colour in tabs %}
+                {% set count = stats.get(stat_key, 0) %}
+                {#- Reappearances are rare; only show that tab when there are some. -#}
+                {% if count or key != "back" %}
+                    <li class="nav-item">
+                        <a class="nav-link{% if key == type %} active{% endif %}" data-updates-nav
+                           href="{{ url_for('cc.updates', run_id=run_id, type=key) }}">
+                            {{ label }}
+                            <span class="badge {% if key == type %}text-bg-light{% else %}text-bg-{{ colour }}{% endif %}">{{ count }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</div>

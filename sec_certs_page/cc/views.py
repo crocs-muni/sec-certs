@@ -22,6 +22,7 @@ from ..common.constants import CC_CLASSES
 from ..common.diffs import cc_diff_method, render_compare
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
+from ..common.updates import get_recent_runs
 from ..common.views import (
     entry_download_certificate_pdf,
     entry_download_certificate_txt,
@@ -38,7 +39,7 @@ from ..common.views import (
     sitemap_cert_pipeline,
 )
 from . import cc, cc_categories, cc_eals, cc_reference_types, cc_sars, cc_schemes, cc_sfrs, cc_status, get_cc_references
-from .search import CCSearch
+from .search import CCSearch, CCUpdatesSearch
 from .tasks import CCRenderer
 
 
@@ -249,6 +250,25 @@ def compare(one_hashid: str, other_hashid: str):
         name_other=doc_other["name"],
         hashid_one=one_hashid,
         hashid_other=other_hashid,
+    )
+
+
+@cc.route("/updates/")
+@register_breadcrumb(cc, ".updates", "Processing updates")
+def updates():
+    """Certificates changed in a Common Criteria update run."""
+    template = "cc/updates.html.jinja2"
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        # Carries the picker too, so its counts and selected run refresh with the table.
+        template = "cc/updates_results.html.jinja2"
+    res = CCUpdatesSearch.process_search(request)
+    return render_template(
+        template,
+        **res,
+        runs=get_recent_runs("cc_log"),
+        run=mongo.db.cc_log.find_one({"_id": res["run_id"]}),
+        title="Common Criteria Processing Updates | sec-certs.org",
     )
 
 

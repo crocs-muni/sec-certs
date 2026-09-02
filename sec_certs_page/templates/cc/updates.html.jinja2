@@ -1,0 +1,62 @@
+{% extends "common/base.html.jinja2" %}
+
+{% set canonical = True %}
+
+{% block content %}
+    <main>
+        <div class="container-lg px-3 px-md-4 pt-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1>Common Criteria</h1>
+                <span class="text-secondary fs-3">Processing updates</span>
+            </div>
+            <p class="text-body-secondary">
+                Certificates that appeared, changed or disappeared in a weekly update of the dataset.
+            </p>
+
+            {% include "cc/_updates_picker.html.jinja2" %}
+        </div>
+
+        <script type="module">
+            import { initSearchResults } from "{{ url_for('static', filename='search_results.js') }}?{{ static_hash("search_results.js") }}";
+            import { searchParams } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+
+            const ENDPOINT = "{{ url_for('cc.updates') }}";
+            const COLS = [
+                { key: 'cert_id',          label: 'ID',                 defaultVisible: true  },
+                { key: 'name',             label: 'Name',               defaultVisible: true  },
+                { key: 'manufacturer',     label: 'Manufacturer',       defaultVisible: false },
+                { key: 'cert_lab',         label: 'Certification lab',  defaultVisible: false },
+                { key: 'scheme',           label: 'Scheme',             defaultVisible: false },
+                { key: 'eal',              label: 'EAL',                defaultVisible: true  },
+                { key: 'status',           label: 'Status',             defaultVisible: true  },
+                { key: 'not_valid_before', label: 'Certification date', defaultVisible: true  },
+                { key: 'not_valid_after',  label: 'Archive date',       defaultVisible: true  },
+            ];
+
+            const go = url => document.dispatchEvent(new CustomEvent("ajax-search", { detail: { url } }));
+
+            document.addEventListener("change", e => {
+                if (e.target.closest("#run-select")) go(`${ENDPOINT}?${searchParams()}`);
+            });
+
+            document.addEventListener("click", e => {
+                const link = e.target.closest("#updates-picker a[data-updates-nav]");
+                if (!link || link.classList.contains("disabled")) return;
+                e.preventDefault();
+                go(link.href);
+            });
+
+            $(function () {
+                initSearchResults({
+                    endpoint: ENDPOINT,
+                    cols: COLS,
+                    storageKey: 'cc-col-visibility',
+                    sortBy: "{{ sort_by or '' }}",
+                    sortDir: "{{ sort_dir or '' }}",
+                });
+            });
+        </script>
+
+        {% include "cc/search/_search_table.html.jinja2" %}
+    </main>
+{% endblock %}
