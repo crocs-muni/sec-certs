@@ -43,7 +43,7 @@ class FrontpageParser(ABC):
     @abstractmethod
     def parse_structured(self, document: dict[str, Any]) -> dict[str, Any]:
         """
-        Extract the frontpage fields from a serialized codling document.
+        Extract the frontpage fields from a serialized docling document.
 
         :param document: The deserialized docling JSON.
         :return: The extracted fields, empty if nothing could be extracted.
