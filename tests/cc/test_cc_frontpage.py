@@ -44,14 +44,6 @@ NSCIB_TUV_EXPECTED = {
     constants.TAG_REPORT_DATE: "9 October 2019",
 }
 
-_DOCLING_PROJECT_NUMBER_OVERRIDES = {"nscib_report_trustcb": "NSCIB- 2400046-01"}
-
-
-def _expected_for(expected: dict[str, str], name: str, converter: str) -> dict[str, str]:
-    if converter == "docling" and name in _DOCLING_PROJECT_NUMBER_OVERRIDES:
-        return {**expected, constants.TAG_PROJECT_NUMBER: _DOCLING_PROJECT_NUMBER_OVERRIDES[name]}
-    return expected
-
 
 @pytest.fixture(scope="module")
 def nscib_parser() -> NSCIBFrontpageParser:
@@ -69,7 +61,7 @@ def test_nscib_text(
     items = nscib_parser.parse(frontpage_dir / converter / f"{name}.txt")
 
     assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
-    assert items == _expected_for(expected, name, converter)
+    assert items == expected
 
 
 @pytest.mark.parametrize(
@@ -80,15 +72,16 @@ def test_nscib_structured(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Pat
     items = nscib_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
 
     assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
-    assert items == _expected_for(expected, name, "docling")
+    assert items == expected
 
 
-def test_nscib_project_number_source_pdf_quirk(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
+def test_nscib_converters_agree_on_hyphenated_project_number(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
+    """Docling breaks ``NSCIB-2400046-01`` after the hyphen; the break must not reach the value."""
     pdftotext = nscib_parser.parse(frontpage_dir / "pdftotext" / "nscib_report_trustcb.txt")
     docling = nscib_parser.parse(frontpage_dir / "docling" / "nscib_report_trustcb.txt")
 
     assert pdftotext[constants.TAG_PROJECT_NUMBER] == "NSCIB-2400046-01"
-    assert docling[constants.TAG_PROJECT_NUMBER] == "NSCIB- 2400046-01"
+    assert docling[constants.TAG_PROJECT_NUMBER] == "NSCIB-2400046-01"
 
 
 @pytest.mark.parametrize(
@@ -152,6 +145,31 @@ def test_nscib_colon_in_certified_item_is_not_a_label(nscib_parser: NSCIBFrontpa
     assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore: Crypto Edition v2.1 (build 42"
     assert items[constants.TAG_DEVELOPER] == "Acme Systems, Inc"
     assert items[constants.TAG_CERT_ID] == "NSCIB-CC-2400099-01-CR"
+
+
+@pytest.mark.parametrize(
+    ("merged", "expected"),
+    [
+        ("AKD d.o.o. Savska cesta 31, 10 000 Zagreb, Republic of Croatia", "AKD d.o.o."),
+        ("AKD D.O.O. Savska cesta 31, 10 000 Zagreb", "AKD D.O.O."),
+        ("Cisco Systems, Inc. 170 West Tasman Drive 95134 San Jose, CA USA", "Cisco Systems, Inc."),
+        ("SGS Brightsight B.V. Brassersplein 2 2612 CT Delft The Netherlands", "SGS Brightsight B.V."),
+    ],
+)
+def test_nscib_organisation_trimmed_off_merged_address(nscib_parser: NSCIBFrontpageParser, merged: str, expected: str):
+    assert nscib_parser._organisation_of(merged) == expected
+
+
+def test_nscib_spaced_dash_in_certified_item_is_kept(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "dash.txt"
+    report.write_text(
+        "Certification Report\nAcme SecureCore - Crypto Edition\nReport number: NSCIB-CC-2400099-01-CR\n",
+        encoding="utf-8",
+    )
+
+    items = nscib_parser.parse(report)
+
+    assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore - Crypto Edition"
 
 
 def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
