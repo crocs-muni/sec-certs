@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 _DOCLING_FURNITURE_LABELS = frozenset({"page_header", "page_footer"})
 
 _MARKDOWN_HEADING_RE = re.compile(r"(?:^|(?<=\s))#{1,6}\s*")
+_HYPHEN_BREAK_RE = re.compile(r"(?<=\w)-\s+(?=\w)")
 _BULLET_CHARS = "●•*-–— \t"
 
 
@@ -32,7 +33,9 @@ def _clean(value: str) -> str:
 
 def _clean_identity(value: str) -> str:
     """Normalize a frontpage identity value (certificate id, certified item, developer)."""
-    return normalize_match_string(_clean(value))
+    # Converters sometimes break a hyphenated identifier across lines ("NSCIB- 2400046-01"); rejoin
+    value = _HYPHEN_BREAK_RE.sub("-", _clean(value))
+    return normalize_match_string(value)
 
 
 class FrontpageParser(ABC):
@@ -125,7 +128,8 @@ class NSCIBFrontpageParser(FrontpageParser):
 
     _ORGANISATION_RE = re.compile(
         r"^(?P<name>.{2,80}?[\s,](?:Inc|Ltd|Limited|B\.?V|N\.?V|GmbH|AG|S\.r\.l|S\.p\.A|S\.A|LLC|Corp"
-        r"|Corporation|Co|Oy|AB|A/S|Pty\sLtd|Sdn\sBhd|K\.K|Pte\.?\sLtd)\.?)(?=\s|$)"
+        r"|Corporation|Co|Oy|Oyj|AB|A/S|ApS|Kft|Zrt|Ltda|SARL|SAS|Pty\sLtd|Sdn\sBhd|K\.K|Pte\.?\sLtd"
+        r"|(?i:d\.o\.o|d\.d|s\.r\.o|a\.s|sp\.\sz\so\.o))\.?)(?=\s|$)"
     )
 
     _HOUSE_NUMBER_RE = re.compile(r"\b\d+\b")
