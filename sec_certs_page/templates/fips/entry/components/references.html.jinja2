@@ -1,0 +1,8 @@
+{% from "include/entry.html.jinja2" import entry_card, render_reference_network %}
+
+{% call entry_card(id="reference-graph", title="Cross-references", icon="fa-diagram-project",
+                   tooltip="Certificates mentioned in this certificate's documents, and certificates mentioning it. The reason for a mention (reused component, earlier version, …) is not inferred.") %}
+    <div data-cs-name="Cross-references">
+        {{ render_reference_network(cert, network, hashid, categories=".types") }}
+    </div>
+{% endcall %}

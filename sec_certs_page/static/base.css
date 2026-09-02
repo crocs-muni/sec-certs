@@ -468,8 +468,74 @@
 }
 
 .anchor {
-    padding-top: 57px;
-    margin-top: -57px;
+    scroll-margin-top: 57px;
+}
+
+.entry-card {
+    scroll-margin-top: 57px;
+}
+
+.entry-card td {
+    overflow-wrap: anywhere;
+}
+
+.entry-card td .btn {
+    white-space: nowrap;
+}
+
+.entry-card tbody th {
+    vertical-align: top;
+}
+
+.entry-card .field-group-title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1.5rem;
+    margin-bottom: .5rem;
+    padding-bottom: .35rem;
+    border-bottom: 1px solid rgba(var(--bs-emphasis-color-rgb), .25);
+    font-size: .8125rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+
+.scroll-table {
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+/* Table margins inside the scroll box become dead space the scrollbar spans. */
+.scroll-table > table {
+    margin: 0;
+}
+
+.scroll-table thead tr:only-child th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bs-body-bg);
+}
+
+.entry-title {
+    font-size: 1.5rem;
+}
+
+.entry-card h2 {
+    font-size: 1.375rem;
+}
+
+.entry-card h3 {
+    font-size: 1.25rem;
+}
+
+.entry-card h4 {
+    font-size: 1.125rem;
+}
+
+.entry-card h5 {
+    font-size: 1rem;
 }
 
 .outgoing-list {
@@ -645,7 +711,6 @@ h6 {
 [data-bs-theme="dark"] #left-navigation {
     background-color: var(--bs-dark);
 }
-
 
 .shifted-section {
     margin-left: var(--sidebar-width);

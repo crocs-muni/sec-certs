@@ -8,23 +8,17 @@
         {{ mobile_warning() }}
 
         <div>
-            <h1 class="entry-title">{{ cert["name"]|default("", true) }}</h1>
+            <h1 class="entry-title">{{ cert|fips_name|default("", true) }}</h1>
 
             {% if cves %}
                 {{ certificate_vuln_note() }}
-            {% endif %}
-
-            {% if removed and same %}
-                {% call(other) removed_cert_alert(same, hashid, "EUCC portal", "eucc.entry", "eucc.compare") %}
-                    {{ other["cert_id"] }}
-                {% endcall %}
             {% endif %}
 
             <div class="d-flex gap-3 flex-wrap align-items-center pt-3 pb-3">
                 {% if config["CHAT_ENABLED"] %}{{ chat_icon() }}{% endif %}
                 {{ compare_icon() }}
                 {{ notification_icon(current_user, subscribed) }}
-                {{ render_share_buttons(hashid, cert_id=cert["cert_id"], name=cert["name"]) }}
+                {{ render_share_buttons(hashid, cert_id=cert["cert_id"], name=cert|fips_name) }}
             </div>
         </div>
     </div>
