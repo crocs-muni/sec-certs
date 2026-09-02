@@ -21,7 +21,7 @@
                 <div class="d-flex align-items-center gap-2">
                     <a class="btn btn-outline-secondary{% if not older_run %} disabled{% endif %}"
                        title="Older run" data-updates-nav
-                       {% if older_run %}href="{{ url_for('cc.updates', run_id=older_run['_id'], type=type) }}"{% endif %}>
+                       {% if older_run %}href="{{ url_for('.updates', run_id=older_run['_id'], type=type) }}"{% endif %}>
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <select id="run-select" class="form-select w-auto" data-param="run_id"
@@ -35,7 +35,7 @@
                     </select>
                     <a class="btn btn-outline-secondary{% if not newer_run %} disabled{% endif %}"
                        title="Newer run" data-updates-nav
-                       {% if newer_run %}href="{{ url_for('cc.updates', run_id=newer_run['_id'], type=type) }}"{% endif %}>
+                       {% if newer_run %}href="{{ url_for('.updates', run_id=newer_run['_id'], type=type) }}"{% endif %}>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </div>
@@ -44,7 +44,7 @@
             {% if run %}
                 <div class="ms-auto text-body-secondary small">
                     Finished {{ run["end_time"]|strftime("%d.%m.%Y %H:%M") }}
-                    {%- if run["length"] %} &middot; {{ run["length"] }} certificates in the dataset{% endif %}
+                    {%- if run["length"] %} &middot; {{ run["length"] }} {{ entity }} in the dataset{% endif %}
                 </div>
             {% endif %}
         </div>
@@ -61,7 +61,7 @@
                         <a class="nav-link{% if key == type %} active{% endif %}" data-updates-nav
                            data-bs-toggle="tooltip" data-bs-trigger="hover"
                            data-bs-placement="bottom" title="{{ hint }}"
-                           href="{{ url_for('cc.updates', run_id=run_id, type=key) }}">
+                           href="{{ url_for('.updates', run_id=run_id, type=key) }}">
                             {{ label }}
                             <span class="badge {% if key == type %}text-bg-light{% else %}text-bg-{{ colour }}{% endif %}">{{ count }}</span>
                         </a>

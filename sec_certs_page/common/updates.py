@@ -1,5 +1,6 @@
 import pymongo
 from bson import ObjectId
+from flask import render_template, request
 
 from .. import mongo
 
@@ -22,3 +23,16 @@ def get_recent_runs(log_collection: str, limit: int | None = None) -> list[dict]
         .sort([("end_time", pymongo.DESCENDING)])
     )
     return list(runs.limit(limit) if limit else runs)
+
+
+def render_updates(search_cls, scheme: str, title: str):
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    page = "results" if is_ajax else "index"
+    res = search_cls.process_search(request)
+    return render_template(
+        f"{scheme}/updates/{page}.html.jinja2",
+        **res,
+        runs=get_recent_runs(search_cls.log_collection),
+        run=mongo.db[search_cls.log_collection].find_one({"_id": res["run_id"]}),
+        title=title,
+    )

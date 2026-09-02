@@ -22,7 +22,7 @@ from ..common.constants import CC_CLASSES
 from ..common.diffs import cc_diff_method, render_compare
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
-from ..common.updates import get_recent_runs
+from ..common.updates import render_updates
 from ..common.views import (
     entry_download_certificate_pdf,
     entry_download_certificate_txt,
@@ -257,19 +257,7 @@ def compare(one_hashid: str, other_hashid: str):
 @register_breadcrumb(cc, ".updates", "Processing updates")
 def updates():
     """Certificates changed in a Common Criteria update run."""
-    template = "cc/updates.html.jinja2"
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    if is_ajax:
-        # Carries the picker too, so its counts and selected run refresh with the table.
-        template = "cc/updates_results.html.jinja2"
-    res = CCUpdatesSearch.process_search(request)
-    return render_template(
-        template,
-        **res,
-        runs=get_recent_runs("cc_log"),
-        run=mongo.db.cc_log.find_one({"_id": res["run_id"]}),
-        title="Common Criteria Processing Updates | sec-certs.org",
-    )
+    return render_updates(CCUpdatesSearch, "cc", "Common Criteria Processing Updates | sec-certs.org")
 
 
 @cc.route("/analysis/")
