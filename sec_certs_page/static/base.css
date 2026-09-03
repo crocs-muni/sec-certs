@@ -723,7 +723,7 @@ h6 {
     background-color: var(--bs-body-bg);
 }
 
-#hero-search-input {
+[role="search"] input[type="search"] {
     scroll-margin-top: 70px;
 }
 
