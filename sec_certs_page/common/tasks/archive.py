@@ -53,7 +53,7 @@ class Archiver:  # pragma: no cover
     """
 
     def map_artifact_dir(self, ids, fromdir, todir):
-        for format in ("pdf", "txt"):
+        for format in ("pdf", "txt", "json"):
             src = Path(fromdir) / format
             dst = Path(todir) / format
             dst.mkdir(parents=True, exist_ok=True)

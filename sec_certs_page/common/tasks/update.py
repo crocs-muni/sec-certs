@@ -138,7 +138,7 @@ class Updater:  # pragma: no cover
             doc_path = res["dir_path"] / document
             doc_path.mkdir(parents=True, exist_ok=True)
             res[document] = doc_path
-            for format in ("pdf", "txt"):
+            for format in ("pdf", "txt", "json"):
                 path = doc_path / format
                 path.mkdir(parents=True, exist_ok=True)
                 res[f"{document}_{format}"] = path
@@ -224,7 +224,7 @@ class Updater:  # pragma: no cover
 
     def publish_artifacts(self, dset: Dataset, paths: dict[str, Path]) -> None:
         for folder, document in self.dset_folders.items():
-            for format in ("pdf", "txt"):
+            for format in ("pdf", "txt", "json"):
                 dset_dir = getattr(dset, f"{document}_{format}_dir")
                 if not dset_dir.exists():
                     continue
