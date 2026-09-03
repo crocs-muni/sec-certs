@@ -13,13 +13,11 @@ _COLLECTION_INFO = {
         "title": "Common Criteria",
         "description": "Explore and analyze Common Criteria security certificates, including EAL levels, categories, and certification trends.",
         "icon": "fas fa-shield-alt",
-        "color": "primary",
     },
     CollectionName.FIPS140: {
         "title": "FIPS 140",
         "description": "Analyze FIPS 140 cryptographic module validations, security levels, and vendor certifications.",
         "icon": "fas fa-lock",
-        "color": "success",
     },
 }
 
@@ -55,7 +53,7 @@ def _build_collection_card(collection_name: CollectionName) -> dbc.Col:
                                 className="d-flex align-items-center gap-3 mb-3",
                                 children=[
                                     html.Div(
-                                        className="feature-icon-sm bg-primary bg-gradient mb-0",
+                                        className="feature-icon-sm bg-primary bg-gradient",
                                         children=html.I(className=f"{info['icon']} fa-fw"),
                                     ),
                                     html.H3(info["title"], className="h5 mb-0"),
@@ -100,7 +98,7 @@ def _build_getting_started() -> dbc.Card:
                         className="d-flex align-items-center gap-3 mb-3",
                         children=[
                             html.Div(
-                                className="feature-icon-sm bg-primary bg-gradient mb-0",
+                                className="feature-icon-sm bg-primary bg-gradient",
                                 children=html.I(className="fas fa-lightbulb fa-fw"),
                             ),
                             html.H3("Getting Started", className="h5 mb-0"),

@@ -447,25 +447,12 @@
 }
 */
 
-.feature-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 4rem;
-    height: 4rem;
-    margin-bottom: 1rem;
-    font-size: 2rem;
-    color: #fff;
-    border-radius: 0.75rem;
-}
-
 .feature-icon-sm {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    margin-bottom: 0.75rem;
     font-size: 1.25rem;
     color: #fff;
     border-radius: 0.5rem;
@@ -704,7 +691,7 @@ h6 {
     background-color: #454545;
 }
 
-/*two surfaces per theme*/
+/* two surfaces per theme */
 [data-bs-theme="light"] { --surface-box: #f0f0f0; }
 [data-bs-theme="dark"]  { --surface-box: #343a40; }
 
@@ -712,8 +699,6 @@ h6 {
     background-color: var(--surface-box);
 }
 
-/* the [data-bs-theme] prefixes carry equal values on both branches - they exist
-   to out-specify [data-bs-theme="dark"] .card below, not to differ by theme */
 [data-bs-theme="light"] .main-home .card,
 [data-bs-theme="dark"] .main-home .card,
 [data-bs-theme="light"] .scheme-home .card,
