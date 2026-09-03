@@ -179,8 +179,8 @@ def convert_all_pdfs_body(obj: CCDataset | EUCCDataset, converter_cls: type[PDFC
     convert_certs_pdfs(obj, converter_cls, fresh)
 
 
-def extract_generic(obj: CCDataset | EUCCDataset, doc_type: DocType, worker_func: Callable) -> None:
-    certs_to_process = [x for x in obj if getattr(x.state, doc_type.short).is_ok_to_analyze()]
+def extract_generic(obj: CCDataset | EUCCDataset, doc_type: DocType, worker_func: Callable, dgsts: set[str]) -> None:
+    certs_to_process = [obj[dgst] for dgst in dgsts]
 
     if not certs_to_process:
         return
@@ -195,56 +195,71 @@ def extract_generic(obj: CCDataset | EUCCDataset, doc_type: DocType, worker_func
 
 
 @staged(logger, "Extracting report metadata")
-def extract_report_metadata(obj: CCDataset | EUCCDataset):
-    extract_generic(obj, DocType.REPORT, extract_report_pdf_metadata)
+def extract_report_metadata(obj: CCDataset | EUCCDataset, dgsts: set[str]):
+    extract_generic(obj, DocType.REPORT, extract_report_pdf_metadata, dgsts)
 
 
 @staged(logger, "Extracting target metadata")
-def extract_target_metadata(obj: CCDataset | EUCCDataset):
-    extract_generic(obj, DocType.TARGET, extract_st_pdf_metadata)
+def extract_target_metadata(obj: CCDataset | EUCCDataset, dgsts: set[str]):
+    extract_generic(obj, DocType.TARGET, extract_st_pdf_metadata, dgsts)
 
 
 @staged(logger, "Extracting cert metadata")
-def extract_cert_metadata(obj: CCDataset | EUCCDataset):
-    extract_generic(obj, DocType.CERTIFICATE, extract_cert_pdf_metadata)
+def extract_cert_metadata(obj: CCDataset | EUCCDataset, dgsts: set[str]):
+    extract_generic(obj, DocType.CERTIFICATE, extract_cert_pdf_metadata, dgsts)
 
 
 @staged(logger, "Extracting report keywords")
-def extract_report_keywords(obj: CCDataset | EUCCDataset):
-    extract_generic(obj, DocType.REPORT, extract_report_pdf_keywords)
+def extract_report_keywords(obj: CCDataset | EUCCDataset, dgsts: set[str]):
+    extract_generic(obj, DocType.REPORT, extract_report_pdf_keywords, dgsts)
 
 
 @staged(logger, "Extracting target keywords")
-def extract_target_keywords(obj: CCDataset | EUCCDataset):
-    extract_generic(obj, DocType.TARGET, extract_st_pdf_keywords)
+def extract_target_keywords(obj: CCDataset | EUCCDataset, dgsts: set[str]):
+    extract_generic(obj, DocType.TARGET, extract_st_pdf_keywords, dgsts)
 
 
 @staged(logger, "Extracting cert keywords")
-def extract_cert_keywords(obj: CCDataset | EUCCDataset):
-    extract_generic(obj, DocType.CERTIFICATE, extract_cert_pdf_keywords)
+def extract_cert_keywords(obj: CCDataset | EUCCDataset, dgsts: set[str]):
+    extract_generic(obj, DocType.CERTIFICATE, extract_cert_pdf_keywords, dgsts)
 
 
 # Frontpage (Special case)
 @staged(logger, "Extracting report frontpages")
-def extract_report_frontpage(obj: CCDataset | EUCCDataset) -> None:
-    extract_generic(obj, DocType.REPORT, extract_report_pdf_frontpage)
+def extract_report_frontpage(obj: CCDataset | EUCCDataset, dgsts: set[str]) -> None:
+    extract_generic(obj, DocType.REPORT, extract_report_pdf_frontpage, dgsts)
 
 
-def extract_all_metadata(obj: CCDataset | EUCCDataset):
-    extract_report_metadata(obj)
-    extract_target_metadata(obj)
-    extract_cert_metadata(obj)
+def extract_all_metadata(obj: CCDataset | EUCCDataset, dgsts: dict[DocType, set[str]]):
+    extract_report_metadata(obj, dgsts[DocType.REPORT])
+    extract_target_metadata(obj, dgsts[DocType.TARGET])
+    extract_cert_metadata(obj, dgsts[DocType.CERTIFICATE])
 
 
-def extract_all_keywords(obj: CCDataset | EUCCDataset):
-    extract_report_keywords(obj)
-    extract_target_keywords(obj)
-    extract_cert_keywords(obj)
+def extract_all_keywords(obj: CCDataset | EUCCDataset, dgsts: dict[DocType, set[str]]):
+    extract_report_keywords(obj, dgsts[DocType.REPORT])
+    extract_target_keywords(obj, dgsts[DocType.TARGET])
+    extract_cert_keywords(obj, dgsts[DocType.CERTIFICATE])
 
 
-def extract_all_frontpages(obj: CCDataset | EUCCDataset):
-    extract_report_frontpage(obj)
-    # We have no frontpage extraction for targets or certificates themselves, only for the reports.
+def extract_all_frontpages(obj: CCDataset | EUCCDataset, dgsts: dict[DocType, set[str]]):
+    extract_report_frontpage(obj, dgsts[DocType.REPORT])
+
+
+def extract_all_data(obj: CCDataset | EUCCDataset, fresh: bool = True) -> None:
+    doc_types = (DocType.REPORT, DocType.TARGET, DocType.CERTIFICATE)
+    dgsts: dict[DocType, set[str]] = {
+        doc_type: {x.dgst for x in obj if getattr(x.state, doc_type.short).is_ok_to_extract(fresh)}
+        for doc_type in doc_types
+    }
+
+    for doc_type in doc_types:
+        for dgst in dgsts[doc_type]:
+            getattr(obj[dgst].state, doc_type.short).extract_ok = True
+
+    extract_all_metadata(obj, dgsts)
+    extract_all_frontpages(obj, dgsts)
+    extract_all_keywords(obj, dgsts)
 
 
 def compute_heuristics_body(obj: CCDataset | EUCCDataset, skip_schemes: bool = False) -> None:

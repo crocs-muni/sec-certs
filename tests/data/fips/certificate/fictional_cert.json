@@ -30,7 +30,15 @@
     "pdf_data": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.PdfData",
         "keywords": {},
-        "policy_metadata": {}
+        "policy_metadata": {},
+        "module_algorithms": {
+            "_type": "Set",
+            "elements": []
+        },
+        "policy_algorithms": {
+            "_type": "Set",
+            "elements": []
+        }
     },
     "heuristics": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",

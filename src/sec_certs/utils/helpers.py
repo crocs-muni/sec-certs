@@ -136,11 +136,13 @@ def download_file(  # noqa: C901
             ctx = nullcontext
 
         if r.status_code == requests.codes.ok:
-            with ctx() as pbar, output.open("wb") as f:
+            tmp = output.with_name(f"{output.name}.tmp")
+            with ctx() as pbar, tmp.open("wb") as f:
                 for data in r.iter_content(1024):
                     f.write(data)
                     if show_progress_bar:
                         pbar.update(len(data))
+            tmp.replace(output)
 
         return r.status_code
     except requests.exceptions.Timeout:
@@ -177,9 +179,20 @@ def get_first_16_bytes_sha256(string: str) -> str:
 def get_sha256_filepath(filepath: str | Path) -> str:
     hash_sha256 = hashlib.sha256()
     with Path(filepath).open("rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
             hash_sha256.update(chunk)
     return hash_sha256.hexdigest()
+
+
+def normalize_cloudflare_html(html: str) -> str:
+    """
+    Strip the tokens Cloudflare rewrites on every response, so the same page has the same hash across runs.
+    The stripped tokens (email obfuscation, injected challenge script) are not read when parsing the module.
+    """
+    html = re.sub(r"(/cdn-cgi/l/email-protection)#[0-9a-fA-F]+", r"\1", html)
+    html = re.sub(r'data-cfemail="[0-9a-fA-F]+"', 'data-cfemail=""', html)
+    html = re.sub(r"(__CF\$cv\$params=\{r:')[^']*(',t:')[^']*('\})", r"\1\2\3", html)
+    return html
 
 
 def to_utc(timestamp: datetime) -> datetime:

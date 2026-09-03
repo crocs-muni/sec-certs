@@ -14,6 +14,7 @@ from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.sample.pp_scheme import PPSchemeRecord
@@ -27,7 +28,12 @@ if TYPE_CHECKING:
 
 
 class ProtectionProfile(
-    Certificate["ProtectionProfile", "ProtectionProfile.Heuristics", "ProtectionProfile.PdfData"],
+    Certificate[
+        "ProtectionProfile",
+        "ProtectionProfile.Heuristics",
+        "ProtectionProfile.PdfData",
+        "ProtectionProfile.InternalState",
+    ],
     ComplexSerializableType,
 ):
     @dataclass
@@ -203,7 +209,7 @@ class ProtectionProfile(
             )
 
     @dataclass
-    class InternalState(ComplexSerializableType):
+    class InternalState(BaseInternalState, ComplexSerializableType):
         """
         Class to hold internal state for each of the documents.
         """
@@ -320,7 +326,10 @@ class ProtectionProfile(
             cert.state.report.download_ok = False
         else:
             cert.state.report.download_ok = True
-            cert.state.report.source_hash = helpers.get_sha256_filepath(cert.state.report.source_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.report.source_path)
+            if source_hash != cert.state.report.source_hash:
+                cert.state.report.reset_conversion()
+            cert.state.report.source_hash = source_hash
             cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.web_data.report_link).path).split("/")[-1])
         return cert
 
@@ -342,7 +351,10 @@ class ProtectionProfile(
             cert.state.pp.download_ok = False
         else:
             cert.state.pp.download_ok = True
-            cert.state.pp.source_hash = helpers.get_sha256_filepath(cert.state.pp.source_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.pp.source_path)
+            if source_hash != cert.state.pp.source_hash:
+                cert.state.pp.reset_conversion()
+            cert.state.pp.source_hash = source_hash
             cert.pdf_data.pp_filename = unquote_plus(str(urlparse(cert.web_data.pp_link).path).split("/")[-1])
         return cert
 
@@ -384,7 +396,6 @@ class ProtectionProfile(
         """
         try:
             cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.source_path)
-            cert.state.report.extract_ok = True
         except ValueError:
             cert.state.report.extract_ok = False
         return cert
@@ -396,7 +407,6 @@ class ProtectionProfile(
         """
         try:
             cert.pdf_data.pp_metadata = extract_pdf_metadata(cert.state.pp.source_path)
-            cert.state.pp.extract_ok = True
         except ValueError:
             cert.state.pp.extract_ok = False
 

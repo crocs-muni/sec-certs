@@ -160,17 +160,8 @@ def extract_pdf_metadata(filepath: Path) -> dict[str, Any]:  # noqa: C901
 
     metadata: dict[str, Any] = {}
 
-    try:
-        metadata["pdf_file_size_bytes"] = filepath.stat().st_size
-        with filepath.open("rb") as handle:
-            pdf = PdfReader(handle, strict=False)
-            metadata["pdf_is_encrypted"] = pdf.is_encrypted
-
-        # see https://stackoverflow.com/questions/26242952/pypdf-2-decrypt-not-working
-        if metadata["pdf_is_encrypted"]:
-            pikepdf.open(filepath, allow_overwriting_input=True).save()
-
-        with filepath.open("rb") as handle:
+    def read_metadata(source: Path) -> None:
+        with source.open("rb") as handle:
             pdf = PdfReader(handle, strict=False)
             metadata["pdf_number_of_pages"] = len(pdf.pages)
             pdf_document_info = pdf.metadata
@@ -194,6 +185,21 @@ def extract_pdf_metadata(filepath: Path) -> dict[str, Any]:  # noqa: C901
                 except Exception:
                     pass
             metadata["pdf_hyperlinks"] = links
+
+    try:
+        metadata["pdf_file_size_bytes"] = filepath.stat().st_size
+        with filepath.open("rb") as handle:
+            pdf = PdfReader(handle, strict=False)
+            metadata["pdf_is_encrypted"] = pdf.is_encrypted
+
+        # see https://stackoverflow.com/questions/26242952/pypdf-2-decrypt-not-working
+        if metadata["pdf_is_encrypted"]:
+            with TemporaryDirectory() as tmp_dir:
+                decrypted = Path(tmp_dir) / filepath.name
+                pikepdf.open(filepath).save(decrypted)
+                read_metadata(decrypted)
+        else:
+            read_metadata(filepath)
 
     except Exception as e:
         relative_filepath = "/".join(str(filepath).split("/")[-4:])

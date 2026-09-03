@@ -16,15 +16,14 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
     CVEDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
 from sec_certs.dataset.cc_eucc_common import (
     compute_heuristics_body,
     convert_all_pdfs_body,
     download_all_artifacts_body,
-    extract_all_frontpages,
-    extract_all_keywords,
-    extract_all_metadata,
+    extract_all_data,
 )
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.eucc import EUCCCertificate
@@ -383,29 +382,41 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
     @serialize
     @staged(logger, "Downloading and processing metadata from ENISA EUCC page.")
     @only_backed()
-    def get_certs_from_web(self, to_download: bool = True) -> None:
+    def get_certs_from_web(self, to_download: bool = True, carry_processing_results: bool = False) -> None:
         """
         Downloads certificate metadata from the ENISA website, parses the downloaded files, and constructs EUCC objects to
         populate the dataset.
 
         :param bool to_download: If fresh data shall be downloaded (or existing files utilized), defaults to True
+        :param bool carry_processing_results: If the dataset already holds certificates, carry their
+            already computed processing results over onto the freshly scraped certificates. So only certificates that are new,
+            changed or if files for them are missing can get reprocessed,
+            not the whole dataset. Defaults to False.
         """
+
+        old_certs = self.certs
         if to_download is True:
             self._download_metadata()
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
         self.root_dir.mkdir(parents=True, exist_ok=True)
-        self._set_local_paths()
+        if carry_processing_results:
+            # Reconciling the carried results sets the local paths already.
+            self._carry_processing_results(old_certs)
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
-    def process_auxiliary_datasets(self, download_fresh: bool = False, skip_schemes: bool = False, **kwargs) -> None:
+    def process_auxiliary_datasets(
+        self, mode: ProcessingMode = ProcessingMode.LOAD, skip_schemes: bool = False, **kwargs
+    ) -> None:
         if CCSchemeDatasetHandler in self.aux_handlers:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {x.scheme for x in self}  # type: ignore
 
         if skip_schemes:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
-        super().process_auxiliary_datasets(download_fresh, **kwargs)
+        super().process_auxiliary_datasets(mode, **kwargs)
 
     def _set_local_paths(self):
         super()._set_local_paths()
@@ -432,11 +443,9 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         logger.info("Extracting various data from certification artifacts.")
-        extract_all_metadata(self)
-        extract_all_frontpages(self)
-        extract_all_keywords(self)
+        extract_all_data(self, fresh)
 
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
         compute_heuristics_body(self, skip_schemes)

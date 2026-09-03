@@ -21,15 +21,14 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
     CVEDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
 from sec_certs.dataset.cc_eucc_common import (
     compute_heuristics_body,
     convert_all_pdfs_body,
     download_all_artifacts_body,
-    extract_all_frontpages,
-    extract_all_keywords,
-    extract_all_metadata,
+    extract_all_data,
 )
 from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.cc import CCCertificate
@@ -330,8 +329,8 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     @only_backed()
     def process_auxiliary_datasets(
         self,
-        download_fresh: bool = False,
-        skip_schemes: bool = False,
+        mode: ProcessingMode = ProcessingMode.LOAD,
+        skip_schemes: bool = True,
         **kwargs,
     ) -> None:
         if CCMaintenanceUpdateDatasetHandler in self.aux_handlers:
@@ -343,9 +342,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         if skip_schemes:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
-        super().process_auxiliary_datasets(download_fresh, **kwargs)
+        super().process_auxiliary_datasets(mode, **kwargs)
 
-    def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
+    def _merge_certs_from_other_source(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
@@ -354,7 +353,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self.certs.update(new_certs)
 
         for crt in certs_to_merge:
-            self[crt.dgst].merge(crt, cert_source)
+            self[crt.dgst].merge_from_other_source(crt, cert_source)
 
         logger.info(f"Added {len(new_certs)} new and merged further {len(certs_to_merge)} certificates to the dataset.")
 
@@ -386,6 +385,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         keep_metadata: bool = True,
         get_active: bool = True,
         get_archived: bool = True,
+        carry_processing_results: bool = False,
     ) -> None:
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
@@ -395,25 +395,36 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
         :param bool get_active: If active certificates shall be parsed, defaults to True
         :param bool get_archived: If archived certificates shall be parsed, defaults to True
+        :param bool carry_processing_results: If the dataset already holds certificates, carry their
+            already computed processing results over onto the freshly scraped certificates. So only certificates that are new,
+            changed or if files for them are missing can get reprocessed,
+            not the whole dataset. Defaults to False.
         """
         if to_download is True:
             self._download_csv_html_resources(get_active, get_archived)
 
+        old_certs = self.certs
+        self.certs = {}
+
         logger.info("Adding CSV certificates to CommonCriteria dataset.")
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
-        self._merge_certs(csv_certs, cert_source="csv")
+        self._merge_certs_from_other_source(csv_certs, cert_source="csv")
 
         # Someway along the way, 3 certificates get lost.
         logger.info("Adding HTML certificates to CommonCriteria dataset.")
         html_certs = self._get_all_certs_from_html(get_active, get_archived)
-        self._merge_certs(html_certs, cert_source="html")
+        self._merge_certs_from_other_source(html_certs, cert_source="html")
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-        self._set_local_paths()
+        if carry_processing_results:
+            # Reconciling the carried results sets the local paths already.
+            self._carry_processing_results(old_certs)
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
@@ -629,11 +640,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         logger.info("Extracting various data from certification artifacts.")
-        extract_all_metadata(self)
-        extract_all_frontpages(self)
-        extract_all_keywords(self)
+        extract_all_data(self, fresh)
 
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
         compute_heuristics_body(self, skip_schemes)
@@ -671,7 +680,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
     def process_auxiliary_datasets(
         self,
-        download_fresh: bool = False,
+        mode: ProcessingMode = ProcessingMode.LOAD,
         skip_schemes: bool = False,
         **kwargs,
     ) -> None:

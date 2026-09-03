@@ -4,11 +4,13 @@ import copy
 import logging
 from abc import ABC, abstractmethod
 from collections import ChainMap
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any, Generic, TypeVar
 
 import sec_certs.utils.extract
 from sec_certs.cert_rules import PANDAS_KEYWORDS_CATEGORIES
+from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 
 logger = logging.getLogger(__name__)
@@ -16,6 +18,7 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="Certificate")
 H = TypeVar("H", bound="Heuristics")
 P = TypeVar("P", bound="PdfData")
+S = TypeVar("S", bound="InternalState")
 
 
 @dataclass
@@ -46,11 +49,23 @@ class PdfData:
         )
 
 
-class Certificate(Generic[T, H, P], ABC, ComplexSerializableType):
+class InternalState:
+    def document_states(self) -> Iterator[DocumentState]:
+        for value in vars(self).values():
+            if isinstance(value, DocumentState):
+                yield value
+
+    def reconcile_document_states(self) -> None:
+        for doc_state in self.document_states():
+            doc_state.reconcile_state()
+
+
+class Certificate(Generic[T, H, P, S], ABC, ComplexSerializableType):
     manufacturer: str | None
     name: str | None
     pdf_data: P
     heuristics: H
+    state: S
 
     def __init__(self, *args, **kwargs):
         pass

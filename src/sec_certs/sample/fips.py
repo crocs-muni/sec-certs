@@ -19,6 +19,7 @@ from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.cpe import CPE
 from sec_certs.sample.document_state import DocumentState
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalState(ComplexSerializableType):
+class InternalState(BaseInternalState, ComplexSerializableType):
     module: DocumentState = field(default_factory=DocumentState)
     policy: DocumentState = field(default_factory=DocumentState)
 
@@ -214,7 +215,7 @@ DETAILS_KEY_TO_NORMALIZATION_FUNCTION: dict[str, Callable] = {
 
 
 class FIPSCertificate(
-    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics", "FIPSCertificate.PdfData"],
+    Certificate["FIPSCertificate", "FIPSCertificate.Heuristics", "FIPSCertificate.PdfData", "InternalState"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -322,6 +323,8 @@ class FIPSCertificate(
 
         keywords: dict = field(default_factory=dict)
         policy_metadata: dict[str, Any] = field(default_factory=dict)
+        module_algorithms: set[str] = field(default_factory=set)
+        policy_algorithms: set[str] = field(default_factory=set)
 
         @property
         def certlike_algorithm_numbers(self) -> set[str]:
@@ -457,23 +460,24 @@ class FIPSCertificate(
 
         parser = FIPSHTMLParser(soup)
         algorithms, cert.web_data = parser.get_web_data_and_algorithms()
-        cert.heuristics.algorithms |= algorithms
+        cert.pdf_data.module_algorithms = algorithms
         cert.state.module.extract_ok = True
 
         return cert
 
     @staticmethod
     def download_module(cert: FIPSCertificate) -> FIPSCertificate:
+        doc_state = cert.state.module
         if (
-            exit_code := helpers.download_file(
-                cert.module_html_url, cert.state.module.source_path, proxy=config.fips_use_proxy
-            )
+            exit_code := helpers.download_file(cert.module_html_url, doc_state.source_path, proxy=config.fips_use_proxy)
         ) != requests.codes.ok:
             error_msg = f"failed to download html module from {cert.module_html_url}, code {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.module.download_ok = False
         else:
             cert.state.module.download_ok = True
+            raw = doc_state.source_path.read_text(encoding="utf-8")
+            doc_state.source_path.write_text(helpers.normalize_cloudflare_html(raw), encoding="utf-8")
             cert.state.module.convert_ok = True  # No conversion needed for html, so we set it to True
 
         return cert
@@ -490,7 +494,10 @@ class FIPSCertificate(
             cert.state.policy.download_ok = False
         else:
             cert.state.policy.download_ok = True
-            cert.state.policy.source_hash = helpers.get_sha256_filepath(cert.state.policy.source_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.policy.source_path)
+            if source_hash != cert.state.policy.source_hash:
+                cert.state.policy.reset_conversion()
+            cert.state.policy.source_hash = source_hash
         return cert
 
     @staticmethod
@@ -520,7 +527,6 @@ class FIPSCertificate(
         """
         try:
             cert.pdf_data.policy_metadata = extract_pdf_metadata(cert.state.policy.source_path)
-            cert.state.policy.extract_ok = True
         except ValueError:
             cert.state.policy.extract_ok = False
         return cert
@@ -549,7 +555,7 @@ class FIPSCertificate(
             repair_pdf(cert.state.policy.source_path)
             try:
                 tabular_data = read_pdf(cert.state.policy.source_path, pages=list(table_rich_page_numbers), silent=True)
-                cert.heuristics.algorithms |= set(
+                cert.pdf_data.policy_algorithms = set(
                     itertools.chain.from_iterable(
                         tables.get_algs_from_table(df.to_string())
                         for df in tabular_data

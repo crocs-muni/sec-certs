@@ -29,6 +29,7 @@ from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
 from sec_certs.sample.cc_certificate_id import canonical_from_meta, canonicalize
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.certificate import References, logger
 from sec_certs.sample.document_state import DocumentState
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalState(ComplexSerializableType):
+class InternalState(BaseInternalState, ComplexSerializableType):
     """
     Holds internal state of the certificate, whether downloads and converts of individual components succeeded. Also
     holds information about errors and paths to the files.
@@ -270,7 +271,6 @@ def extract_pdf_metadata_(cert: CCCertificate | EUCCCertificate, doc_type: DocTy
     try:
         metadata = extract_pdf_metadata(doc_state.source_path)
         setattr(cert.pdf_data, f"{doc_type.short}_metadata", metadata)
-        doc_state.extract_ok = True
     except ValueError:
         doc_state.extract_ok = False
     return cert
@@ -399,7 +399,12 @@ def download_pdf(cert: CCCertificate | EUCCCertificate, doc_type: DocType):
         doc_state.download_ok = False
     else:
         doc_state.download_ok = True
-        doc_state.source_hash = helpers.get_sha256_filepath(doc_state.source_path)
+        source_hash = helpers.get_sha256_filepath(doc_state.source_path)
+        if source_hash != doc_state.source_hash:
+            doc_state.reset_conversion()
+
+        doc_state.source_hash = source_hash
+
         setattr(cert.pdf_data, f"{doc_type.short}_filename", unquote_plus(str(urlparse(link).path).split("/")[-1]))
     return cert
 

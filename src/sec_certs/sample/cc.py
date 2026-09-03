@@ -28,7 +28,7 @@ from sec_certs.utils import helpers, sanitization
 
 
 class CCCertificate(
-    Certificate["CCCertificate", "Heuristics", "PdfData"],
+    Certificate["CCCertificate", "Heuristics", "PdfData", "InternalState"],
     PandasSerializableType,
     ComplexSerializableType,
 ):
@@ -204,7 +204,7 @@ class CCCertificate(
             self.heuristics.cert_lab[0] if (self.heuristics.cert_lab and self.heuristics.cert_lab[0]) else np.nan,
         )
 
-    def merge(self, other: CCCertificate, other_source: str | None = None) -> None:
+    def merge_from_other_source(self, other: CCCertificate, other_source: str | None = None) -> None:
         """
         Merges with other CC sample. Assuming they come from different sources, e.g., csv and html.
         Assuming that html source has better protection profiles, they overwrite CSV info.
@@ -226,7 +226,11 @@ class CCCertificate(
         }
 
         for att, val in vars(self).items():
-            if (not val) or (other_source == "html" and att in html_preferred_attrs) or (att == "state"):
+            if (
+                (not val)
+                or (other_source == "html" and att in html_preferred_attrs)
+                or (att in ["state", "heuristics", "pdf_data"])
+            ):
                 setattr(self, att, getattr(other, att))
             else:
                 if getattr(self, att) != getattr(other, att):

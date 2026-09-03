@@ -18,6 +18,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEMatchDictHandler,
     CVEDatasetHandler,
     FIPSAlgorithmDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
 
@@ -54,7 +55,7 @@ def test_cpe_dataset_handler_process_dataset(preferred_source_aux_datasets, temp
         monkeypatch.setattr("sec_certs.utils.nvd_dataset_builder.CpeNvdDatasetBuilder.build_dataset", mock_get_dset)
 
     monkeypatch.setattr("sec_certs.dataset.cpe.CPEDataset.to_json", lambda x: None)
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
 
     assert handler.dset == mock_dset
     assert handler.dset_path == temp_dir / "cpe_dataset.json"
@@ -81,7 +82,7 @@ def test_cve_dataset_handler_process_dataset(preferred_source_aux_datasets, temp
     else:
         monkeypatch.setattr("sec_certs.utils.nvd_dataset_builder.CveNvdDatasetBuilder.build_dataset", mock_get_dset)
     monkeypatch.setattr("sec_certs.dataset.cve.CVEDataset.to_json", lambda x: None)
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
 
     assert handler.dset == mock_dset
     assert handler.dset_path == temp_dir / "cve_dataset.json"
@@ -115,7 +116,7 @@ def test_cpe_match_dict_handler_process_dataset(preferred_source_aux_datasets, t
         monkeypatch.setattr("sec_certs.utils.helpers.download_file", mock_download_file)
         monkeypatch.setattr("gzip.open", mock_open(read_data=(mock_dset_str_single_quotes.encode())))
 
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
 
     assert handler.dset == mock_dset
 
@@ -135,7 +136,7 @@ def test_fips_algorithm_dataset_handler_process_dataset(temp_dir, monkeypatch):
         return mock_dset
 
     monkeypatch.setattr("sec_certs.dataset.fips_algorithm.FIPSAlgorithmDataset.from_web", mock_from_web)
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
     assert handler.dset == mock_dset
     assert handler.dset_path == temp_dir / "algorithms" / "algorithms_dataset.json"
 
@@ -156,7 +157,7 @@ def test_cc_scheme_dataset_handler_process_dataset(temp_dir, monkeypatch):
 
     monkeypatch.setattr("sec_certs.dataset.cc_scheme.CCSchemeDataset.from_web", mock_from_web)
     monkeypatch.setattr("sec_certs.dataset.cc_scheme.CCSchemeDataset.to_json", lambda x: None)
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
     assert handler.dset == mock_dset
     assert handler.dset_path == temp_dir / "cc_scheme.json"
     assert handler.dset.json_path == handler.dset_path
@@ -177,11 +178,11 @@ def test_cc_maintenance_update_dataset_handler_process_dataset(temp_dir, monkeyp
         "sec_certs.sample.cc_maintenance_update.CCMaintenanceUpdate.get_updates_from_cc_cert",
         lambda x: [],
     )
-    monkeypatch.setattr("sec_certs.dataset.dataset.Dataset.download_all_artifacts", lambda x: None)
-    monkeypatch.setattr("sec_certs.dataset.dataset.Dataset.convert_all_pdfs", lambda x: None)
-    monkeypatch.setattr("sec_certs.dataset.cc.CCDataset.extract_data", lambda x: None)
+    monkeypatch.setattr("sec_certs.dataset.dataset.Dataset.download_all_artifacts", lambda x, **kwargs: None)
+    monkeypatch.setattr("sec_certs.dataset.dataset.Dataset.convert_all_pdfs", lambda x, **kwargs: None)
+    monkeypatch.setattr("sec_certs.dataset.cc.CCDataset.extract_data", lambda x, **kwargs: None)
     monkeypatch.setattr("sec_certs.dataset.dataset.Dataset.to_json", lambda x: None)
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
     assert handler.dset == mock_dset
 
 
@@ -209,5 +210,5 @@ def test_protection_profile_dataset_handler_process_dataset(temp_dir, monkeypatc
         "sec_certs.dataset.protection_profile.ProtectionProfileDataset.analyze_certificates", lambda x: None
     )
     monkeypatch.setattr("sec_certs.dataset.protection_profile.ProtectionProfileDataset.to_json", lambda x: None)
-    handler.process_dataset(download_fresh=True)
+    handler.process_dataset(mode=ProcessingMode.REBUILD)
     assert handler.dset == mock_dset

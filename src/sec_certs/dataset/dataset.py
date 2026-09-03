@@ -17,15 +17,15 @@ from packaging.version import parse as parse_version
 from pydantic import AnyHttpUrl
 
 from sec_certs._version import __version__
-from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
-from sec_certs.sample.certificate import Certificate
+from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, ProcessingMode
+from sec_certs.sample.certificate import Certificate, InternalState
 from sec_certs.serialization.json import (
     ComplexSerializableType,
     get_class_fullname,
     only_backed,
     serialize,
 )
-from sec_certs.utils import helpers
+from sec_certs.utils import helpers, parallel_processing
 from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
@@ -237,7 +237,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     tar.extractall(str(path))
                 dset = cls.from_json(path / "dataset.json")  # type: ignore
                 if auxiliary_datasets:
-                    dset.process_auxiliary_datasets(download_fresh=False)
+                    dset.process_auxiliary_datasets(mode=ProcessingMode.LOAD)
         else:
             with tempfile.TemporaryDirectory() as tmp_dir:
                 dset_path = Path(tmp_dir) / "dataset.json"
@@ -254,7 +254,7 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
                     # Clear the path, as it points to temporary file
                     dset._root_dir = None
             if auxiliary_datasets:
-                dset.process_auxiliary_datasets(download_fresh=True)
+                dset.process_auxiliary_datasets(mode=ProcessingMode.REBUILD)
         return dset
 
     def to_dict(self) -> dict[str, Any]:
@@ -271,6 +271,8 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     def from_dict(cls, dct: dict) -> Dataset:
         certs = {x.dgst: x for x in dct["certs"]}
         dset = cls(certs, name=dct["name"], description=dct["description"], state=dct["state"])
+        if ts := dct.get("timestamp"):
+            dset.timestamp = ts if isinstance(ts, datetime) else datetime.fromisoformat(ts)
         if len(dset) != (claimed := dct["n_certs"]):
             logger.error(
                 f"The actual number of certs in dataset ({len(dset)}) does not match the claimed number ({claimed})."
@@ -355,19 +357,24 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         return {crt for crt in self if crt.name and crt.name == name}
 
     @abstractmethod
-    def get_certs_from_web(self) -> None:
+    def get_certs_from_web(self, carry_processing_results: bool = False) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @staged(logger, "Processing auxiliary datasets.")
     @serialize
     @only_backed()
-    def process_auxiliary_datasets(self, download_fresh: bool = False, **kwargs) -> None:
+    def process_auxiliary_datasets(self, mode: ProcessingMode = ProcessingMode.LOAD, **kwargs) -> None:
         """
         Processes all auxiliary datasets (CPE, CVE, ...) that are required during computation.
+
+        :param mode: Whether to use the datasets on disk, refresh them while carrying already computed
+            processing results over, or rebuild them from scratch. Only the auxiliary datasets that are
+            themselves processed (protection profiles, maintenance updates) can be updated incrementally,
+            the rest are simply re-fetched.
         """
         logger.info("Processing auxiliary datasets.")
         for handler in self.aux_handlers.values():
-            handler.process_dataset(download_fresh)
+            handler.process_dataset(mode)
         self.state.auxiliary_datasets_processed = True
 
     @only_backed()
@@ -428,11 +435,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
 
     @serialize
     @only_backed()
-    def analyze_certificates(self) -> None:
+    def analyze_certificates(self, fresh: bool = True) -> None:
         """
         Does two things:
             - Extracts data from certificates (keywords, etc.)
             - Computes various heuristics on the certificates.
+
+        :param fresh: If False, only certificates whose extraction has not yet succeeded are analyzed.
         """
         if not self.state.pdfs_converted:
             logger.info(
@@ -445,17 +454,17 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             )
 
         logger.info("Analyzing certificates.")
-        self._analyze_certificates_body()
+        self._analyze_certificates_body(fresh)
         self.state.certs_analyzed = True
 
-    def _analyze_certificates_body(self) -> None:
+    def _analyze_certificates_body(self, fresh: bool = True) -> None:
         logger.info("Extracting data and heuristics.")
-        self.extract_data()
+        self.extract_data(fresh)
         self.compute_heuristics()
 
     @abstractmethod
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         raise NotImplementedError("Not meant to be implemented by the base class.")
 
     @serialize
@@ -484,3 +493,54 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
         if any(x not in self for x in certs):
             logger.warning("Updating dataset with certificates outside of the dataset!")
         self.certs.update({x.dgst: x for x in certs})
+
+    def _carry_processing_results(self, previous: dict[str, CertSubType]) -> None:
+        logger.info("Carrying over processing results from the previous run onto the freshly scraped certificates.")
+
+        count = 0
+        for dgst, cert in self.certs.items():
+            if (prev := previous.get(dgst)) is not None:
+                cert.state = prev.state
+                cert.pdf_data = prev.pdf_data
+                count += 1
+
+        logger.info(f"Carried processing results for {count} certificates")
+        self.reconcile_document_states()
+
+    def reconcile_document_states(self):
+        """
+        Reconciles the recorded documents flags with the files in dataset directories.
+        A missing document, or one whose content no longer matches the hash recorded when it was processed,
+        invalidates according processing stage and everything derived from it.
+        """
+        self._set_local_paths()
+        parallel_processing.process_parallel(
+            InternalState.reconcile_document_states,
+            [cert.state for cert in self],
+            use_threading=True,
+            progress_bar_desc=f"Reconciling document states of {self.name}",
+        )
+
+    @only_backed()
+    @staged(logger, "Updating the dataset")
+    def update(self, aux_mode: ProcessingMode = ProcessingMode.UPDATE):
+        """
+        Update the dataset by running the whole pipeline over it.
+
+        Processing results already computed for a certificate are carried over, so work that depends on an artifact
+        that hasn't changed is not repeated. Concretely, fresh metadata is scraped, auxiliary datasets are
+        refreshed, and all artifacts are re-downloaded (to check whether their hash changed)
+        but only new, changed or previously failed artifacts are converted and extracted. Heuristics are
+        always recomputed, since they depend on the whole dataset and the auxiliary datasets.
+
+        :param aux_mode: how to process the auxiliary datasets, see
+            :meth:`~sec_certs.dataset.dataset.Dataset.process_auxiliary_datasets`. Pass
+            :attr:`~sec_certs.dataset.auxiliary_dataset_handling.ProcessingMode.LOAD` to keep the ones on disk.
+        """
+        self.timestamp = datetime.now()
+        self.state.sec_certs_version = __version__
+        self.get_certs_from_web(carry_processing_results=True)
+        self.process_auxiliary_datasets(mode=aux_mode)
+        self.download_all_artifacts(fresh=True)
+        self.convert_all_pdfs(fresh=False)
+        self.analyze_certificates(fresh=False)
