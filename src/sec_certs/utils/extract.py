@@ -13,6 +13,7 @@ import numpy as np
 from sec_certs import constants
 from sec_certs.cert_rules import REGEXEC_SEP, cc_rules
 from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
+from sec_certs.utils.strings import normalize_whitespace
 
 if TYPE_CHECKING:
     from sec_certs.document.base import DocumentView
@@ -651,7 +652,7 @@ def extract_keywords(view: DocumentView, search_rules) -> dict[str, dict[str, in
     """
 
     try:
-        whole_text = view.get_full_text()
+        whole_text = normalize_whitespace(view.get_full_text())
 
         def extract(rules):
             if isinstance(rules, dict):
