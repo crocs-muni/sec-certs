@@ -3,8 +3,10 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from typing_extensions import override
+
 from sec_certs.constants import LINE_SEPARATOR
-from sec_certs.document.base import DocumentLayer, DocumentView
+from sec_certs.document.base import DocumentLayer, DocumentTable, DocumentView, TablesNotSupportedError
 from sec_certs.utils.extract import load_text_file
 
 logger = logging.getLogger(__name__)
@@ -28,3 +30,12 @@ class PlainTextView(DocumentView):
 
         whole_text, _, _ = load_text_file(self.txt_path, -1, self.line_separator)
         return whole_text
+
+    @override
+    def get_tables(self, include_index: bool = False, stitch: bool = True) -> list[DocumentTable]:
+        # Deliberately not an empty list: that would make a misconfigured run indistinguishable from a
+        # corpus of documents that genuinely contain no tables.
+        raise TablesNotSupportedError(
+            f"No table structure in {self}. "
+            "Set the pdf_converter configuration option to 'docling' and re-convert to extract tables."
+        )
