@@ -1,0 +1,24 @@
+{% extends "common/updates/index.html.jinja2" %}
+
+{% block scheme_name %}FIPS 140{% endblock %}
+{% block entity %}modules{% endblock %}
+{% block storage_key %}fips-col-visibility{% endblock %}
+
+{% block lead %}
+    Modules that were first processed, changed, or disappeared from the source listing
+    in one of our periodic updates of the FIPS 140 dataset.
+{% endblock %}
+
+{% block cols %}[
+    { key: 'cert_id',          label: 'ID',                 defaultVisible: true  },
+    { key: 'name',             label: 'Name',               defaultVisible: true  },
+    { key: 'vendor',           label: 'Vendor',             defaultVisible: true  },
+    { key: 'status',           label: 'Status',             defaultVisible: true  },
+    { key: 'level',            label: 'Security level',     defaultVisible: true  },
+    { key: 'validation_date',  label: 'Validation date',    defaultVisible: true  },
+    { key: 'sunset_date',      label: 'Sunset date',        defaultVisible: true  },
+]{% endblock %}
+
+{% block results %}
+    {% include "fips/search/_search_table.html.jinja2" %}
+{% endblock %}

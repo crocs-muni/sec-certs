@@ -7,6 +7,7 @@ from ..common.search.query import (
     Facet,
     Search,
     SearchConfig,
+    UpdatesSearch,
     build_must_query,
     get_body_query,
     get_date_query,
@@ -99,3 +100,16 @@ class FIPSSearch(Search):
             ),
         )
         return query, errors
+
+
+class FIPSUpdatesSearch(UpdatesSearch):
+    search_args = {
+        "sort_by": OptionField(
+            {"name", "validation_date", "sunset_date", "cert_id", "vendor", "status", "level"},
+            "validation_date",
+        ),
+    }
+    schema = fips_schema
+    index = fips_index
+    log_collection = "fips_log"
+    diff_collection = "fips_diff"

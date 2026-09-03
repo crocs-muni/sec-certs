@@ -4695,8 +4695,8 @@ wheels = [
 
 [[package]]
 name = "sec-certs"
-version = "0.4.1.post1.dev44+g0fa85adb3"
-source = { git = "https://github.com/crocs-muni/sec-certs.git#0fa85adb3df4eb41ee520c217b7551febee77c31" }
+version = "0.4.1.post1.dev100+g3579de46f"
+source = { git = "https://github.com/crocs-muni/sec-certs.git?rev=main#3579de46fc2431803baa5e06c8d2f8691af9ac75" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "click" },
@@ -4853,7 +4853,7 @@ requires-dist = [
     { name = "redis" },
     { name = "requests" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.15.13" },
-    { name = "sec-certs", git = "https://github.com/crocs-muni/sec-certs.git" },
+    { name = "sec-certs", git = "https://github.com/crocs-muni/sec-certs.git?rev=main" },
     { name = "sentry-dramatiq" },
     { name = "sentry-sdk", extras = ["flask"], specifier = ">=2.13.0" },
     { name = "setuptools", specifier = "<82.0.0" },

@@ -4,17 +4,14 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset.auxiliary_dataset_handling import CCMaintenanceUpdateDatasetHandler, CCSchemeDatasetHandler
 from sec_certs.dataset.cc import CCDataset
-from sec_certs.utils.helpers import get_sha256_filepath
 from tantivy import Document
 
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
-from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
 from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
@@ -34,6 +31,8 @@ class CCMixin:  # pragma: no cover
         self.dset_class = CCDataset
         self.dataset_path = current_app.config["DATASET_PATH_CC_DIR"]
         self.cert_schema = "cc"
+        # Mapping from the page's document directories to the dataset's ones.
+        self.dset_folders = {"report": "reports", "target": "targets", "cert": "certificates"}
 
 
 class CCRenderer(DiffRenderer, CCMixin):  # pragma: no cover
@@ -205,74 +204,9 @@ def archive_all():  # pragma: no cover
 
 
 class CCUpdater(Updater, CCMixin):  # pragma: no cover
-    def process(self, dset: CCDataset, paths: dict[str, Path]) -> set[str]:
-        to_reindex: set[str] = set()
-
-        with sentry_sdk.start_span(op="cc.all", name="Get full CC dataset"):
-            if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(op="cc.get_certs", name="Get certs from web"), suppress_child_spans():
-                    dset.get_certs_from_web(update_json=False)
-                with (
-                    sentry_sdk.start_span(
-                        op="cc.auxiliary_datasets", name="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)"
-                    ),
-                    suppress_child_spans(),
-                ):
-                    dset.process_auxiliary_datasets(update_json=False)
-                with (
-                    sentry_sdk.start_span(op="cc.download_artifacts", name="Download artifacts"),
-                    suppress_child_spans(),
-                ):
-                    dset.download_all_artifacts(update_json=False)
-                with sentry_sdk.start_span(op="cc.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
-                    dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(op="cc.analyze", name="Analyze certificates"), suppress_child_spans():
-                    dset.analyze_certificates(update_json=False)
-                with sentry_sdk.start_span(op="cc.write_json", name="Write JSON"), suppress_child_spans():
-                    dset.to_json(paths["output_path"])
-                    dset.aux_handlers[CCSchemeDatasetHandler].dset.to_json(paths["output_path_scheme"])
-                    dset.aux_handlers[CCMaintenanceUpdateDatasetHandler].dset.to_json(paths["output_path_mu"])
-
-            with sentry_sdk.start_span(op="cc.move", name="Move files"), suppress_child_spans():
-                for cert in dset:
-                    if cert.state.report.source_path and cert.state.report.source_path.exists():
-                        dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.source_hash:
-                            cert.state.report.source_path.replace(dst)
-                    if cert.state.report.txt_path and cert.state.report.txt_path.exists():
-                        dst = paths["report_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
-                            cert.state.report.txt_path.replace(dst)
-                            to_reindex.add(cert.dgst)
-                    if cert.state.st.source_path and cert.state.st.source_path.exists():
-                        dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.source_hash:
-                            cert.state.st.source_path.replace(dst)
-                    if cert.state.st.txt_path and cert.state.st.txt_path.exists():
-                        dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
-                            cert.state.st.txt_path.replace(dst)
-                            to_reindex.add(cert.dgst)
-                    if cert.state.cert.source_path and cert.state.cert.source_path.exists():
-                        dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.source_hash:
-                            cert.state.cert.source_path.replace(dst)
-                    if cert.state.cert.txt_path and cert.state.cert.txt_path.exists():
-                        dst = paths["cert_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
-                            cert.state.cert.txt_path.replace(dst)
-                            to_reindex.add(cert.dgst)
-            with sentry_sdk.start_span(op="cc.old_map", name="Update old digest map"), suppress_child_spans():
-                for cert in dset:
-                    if hasattr(cert, "old_dgst"):
-                        mongo.db.cc_old.replace_one(
-                            {"_id": cert.old_dgst}, {"_id": cert.old_dgst, "hashid": cert.dgst}, upsert=True
-                        )
-                    if hasattr(cert, "older_dgst"):
-                        mongo.db.cc_old.replace_one(
-                            {"_id": cert.older_dgst}, {"_id": cert.older_dgst, "hashid": cert.dgst}, upsert=True
-                        )
-        return to_reindex
+    def write_auxiliary_json(self, dset, paths: dict[str, Path]) -> None:
+        dset.aux_handlers[CCSchemeDatasetHandler].dset.to_json(paths["output_path_scheme"])
+        dset.aux_handlers[CCMaintenanceUpdateDatasetHandler].dset.to_json(paths["output_path_mu"])
 
     def dataset_state(self, dset):
         return dset.state.to_dict()

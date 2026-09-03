@@ -6,6 +6,8 @@ from dataclasses import field as dc_field
 from datetime import datetime
 from typing import Any, ClassVar
 
+from bson import ObjectId
+from bson.errors import InvalidId
 from flask import current_app
 from tantivy import (
     DocAddress,
@@ -24,6 +26,7 @@ from tantivy import (
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import BadRequest
 
+from ..updates import get_dgsts_by_diff_type, get_latest_run_id
 from ..views import Pagination
 from .fields import FieldProtocol, IntField, OptionField, TextField
 
@@ -264,7 +267,7 @@ class Facet:
 
 @dataclass(frozen=True)
 class SearchConfig:
-    default_sort_by: str
+    default_sort_by: str = ""
     default_sort_dir: str = "desc"
     query_targets: dict = dc_field(default_factory=dict)
     facets: tuple = ()
@@ -388,3 +391,62 @@ class Search(ABC):
             "broadened": broadened,
             **parsed,
         }
+
+
+class UpdatesSearch(Search):
+    log_collection: ClassVar[str]
+    diff_collection: ClassVar[str]
+
+    @classmethod
+    def _enrich_args(cls, parsed: dict) -> dict:
+        return parsed
+
+    @classmethod
+    def _get_args(cls) -> dict[str, FieldProtocol]:
+        return {
+            "run_id": TextField(),
+            "type": OptionField({"new", "change", "remove", "back"}, "new"),
+            "sort_dir": OptionField({"desc", "asc"}, "desc"),
+            "page": IntField(1, min=1),
+            "per_page": IntField(current_app.config["SEARCH_ITEMS_PER_PAGE"], min=1, max=100),
+            **cls.search_args,
+        }
+
+    @classmethod
+    def _build_query(cls, args: dict, broader: bool, fulltext: bool) -> tuple[Query, dict]:
+        errors = Errors()
+
+        run_id = None
+        if args["run_id"] is None:
+            run_id = get_latest_run_id(cls.log_collection)
+        else:
+            try:
+                run_id = ObjectId(args["run_id"])
+            except (InvalidId, TypeError):
+                errors.add("run_id", ["Invalid run id."])
+                return Query.empty_query(), errors
+
+        args["run_id"] = run_id
+        if run_id is None:
+            return Query.empty_query(), errors
+
+        dgsts = get_dgsts_by_diff_type(cls.diff_collection, run_id, args["type"])
+        return Query.term_set_query(cls.schema, "dgst", list(dgsts)), errors
+
+    @classmethod
+    def _search(cls, args: dict) -> tuple[list, int, dict, bool]:
+        page = args["page"]
+        per_page = args["per_page"]
+        sort_by = args["sort_by"]
+        sort_dir = args["sort_dir"]
+
+        searcher = cls.index().searcher()
+        query, errs = cls._build_query(args, False, False)
+        if errs:
+            return [], 0, errs, False
+
+        order_dir = Order.Desc if sort_dir == "desc" else Order.Asc
+        result = searcher.search(
+            query, order_by_field=sort_by, order=order_dir, limit=per_page, offset=(page - 1) * per_page
+        )
+        return get_results_from_hits(searcher, result.hits, {}), result.count, {}, False

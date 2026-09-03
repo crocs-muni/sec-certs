@@ -7,6 +7,7 @@ from ..common.search.query import (
     Facet,
     Search,
     SearchConfig,
+    UpdatesSearch,
     build_must_query,
     get_body_query,
     get_date_query,
@@ -93,3 +94,16 @@ class EUCCSearch(Search):
             get_keyword_query(eucc_schema, keyword_units(args["keywords"], "eucc"), kw_fields, args["kw_mode"]),
         )
         return query, errors
+
+
+class EUCCUpdatesSearch(UpdatesSearch):
+    search_args = {
+        "sort_by": OptionField(
+            {"name", "not_valid_after", "not_valid_before", "cert_id", "scheme", "status", "eal"},
+            "not_valid_before",
+        ),
+    }
+    schema = eucc_schema
+    index = eucc_index
+    log_collection = "eucc_log"
+    diff_collection = "eucc_diff"

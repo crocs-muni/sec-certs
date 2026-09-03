@@ -1,0 +1,72 @@
+{#- Shared "Processing updates" page. Each scheme extends this and fills in:
+      scheme_name  -- heading, e.g. "Common Criteria"
+      entity       -- plural noun for what it holds, e.g. "certificates"
+      lead         -- the first paragraph
+      cols         -- the column-picker definition, as a JS array literal
+      storage_key  -- localStorage key for column visibility, shared with its search page
+      results      -- the scheme's results table partial
+-#}
+{% extends "common/base.html.jinja2" %}
+
+{% set canonical = True %}
+{% set entity = self.entity() %}
+
+{% block content %}
+    <main>
+        <div class="container-lg px-3 px-md-4 pt-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1>{% block scheme_name %}{% endblock %}</h1>
+                <span class="text-secondary fs-3">Processing updates</span>
+            </div>
+            <p class="text-body">{% block lead %}{% endblock %}</p>
+            <p class="text-body mb-4">
+                Changes may reflect updates to the source listing or improvements in our own data
+                extraction, so they do not necessarily mean the certification body changed anything.
+                The history of an individual entry and the details of what changed are in the
+                <em>Processing updates</em> section on its page.
+            </p>
+
+            {% include "common/updates/_picker.html.jinja2" %}
+        </div>
+
+        <script type="module">
+            import { initSearchResults } from "{{ url_for('static', filename='search_results.js') }}?{{ static_hash("search_results.js") }}";
+            import { searchParams } from "{{ url_for('static', filename='search.js') }}?{{ static_hash("search.js") }}";
+
+            const ENDPOINT = "{{ url_for('.updates') }}";
+            const COLS = {% block cols %}[]{% endblock %};
+
+            const pickerTooltips = () =>
+                document.querySelectorAll('#updates-picker [data-bs-toggle="tooltip"]');
+
+            const go = url => {
+                pickerTooltips().forEach(el => bootstrap.Tooltip.getInstance(el)?.dispose());
+                document.dispatchEvent(new CustomEvent("ajax-search", { detail: { url } }));
+            };
+
+            document.addEventListener("change", e => {
+                if (e.target.closest("#run-select")) go(`${ENDPOINT}?${searchParams()}`);
+            });
+
+            document.addEventListener("click", e => {
+                const link = e.target.closest("#updates-picker a[data-updates-nav]");
+                if (!link || link.classList.contains("disabled")) return;
+                e.preventDefault();
+                go(link.href);
+            });
+
+            $(function () {
+                initSearchResults({
+                    endpoint: ENDPOINT,
+                    cols: COLS,
+                    storageKey: '{% block storage_key %}{% endblock %}',
+                    sortBy: "{{ sort_by or '' }}",
+                    sortDir: "{{ sort_dir or '' }}",
+                    onAfterApply: () => pickerTooltips().forEach(el => new bootstrap.Tooltip(el)),
+                });
+            });
+        </script>
+
+        {% block results %}{% endblock %}
+    </main>
+{% endblock %}
