@@ -37,6 +37,7 @@ from sec_certs.sample.sar import SAR
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers, sanitization
 from sec_certs.utils.extract import extract_keywords, normalize_match_string, scheme_frontpage_functions
+from sec_certs.utils.frontpage import scheme_frontpage_parsers
 from sec_certs.utils.helpers import DocType
 from sec_certs.utils.pdf import extract_pdf_metadata
 
@@ -361,7 +362,14 @@ def extract_report_pdf_frontpage(cert: CCCertificate | EUCCCertificate) -> CCCer
     """
     cert.pdf_data.report_frontpage = {}
 
-    if cert.scheme in scheme_frontpage_functions:
+    if cert.scheme in scheme_frontpage_parsers:
+        parser = scheme_frontpage_parsers[cert.scheme]
+        json_path = cert.state.report.json_path if cert.state.report.has_json_path else None
+        try:
+            cert.pdf_data.report_frontpage[cert.scheme] = parser.parse(cert.state.report.txt_path, json_path)
+        except ValueError:
+            cert.state.report.extract_ok = False
+    elif cert.scheme in scheme_frontpage_functions:
         header_func = scheme_frontpage_functions[cert.scheme]
         try:
             cert.pdf_data.report_frontpage[cert.scheme] = header_func(cert.state.report.txt_path)
