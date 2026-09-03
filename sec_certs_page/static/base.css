@@ -691,9 +691,17 @@ h6 {
     background-color: #454545;
 }
 
-/* two surfaces per theme */
-[data-bs-theme="light"] { --surface-box: #f0f0f0; }
-[data-bs-theme="dark"]  { --surface-box: #343a40; }
+/* ==================================
+   Home pages
+   ================================== */
+
+[data-bs-theme="light"] {
+    --surface-box: #f0f0f0;
+}
+
+[data-bs-theme="dark"] {
+    --surface-box: #343a40;
+}
 
 .bg-accent-light {
     background-color: var(--surface-box);
@@ -715,7 +723,6 @@ h6 {
     background-color: var(--bs-body-bg);
 }
 
-/* the reorder puts #hero-search-input well below the fixed navbar */
 #hero-search-input {
     scroll-margin-top: 70px;
 }
@@ -725,11 +732,11 @@ h6 {
     padding-bottom: 0;
 }
 
-/* "search in" darkmode */
 [data-bs-theme="dark"] [role="search"] .text-secondary {
     color: #adb5bd !important;
 }
 
+/* ===== Layout utilities ===== */
 .flex-basis-0 {
     flex-basis: 0px;
 }
