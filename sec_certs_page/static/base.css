@@ -708,23 +708,12 @@ h6 {
 [data-bs-theme="light"] { --surface-box: #f0f0f0; }
 [data-bs-theme="dark"]  { --surface-box: #343a40; }
 
-/* extend the background to the sides */
-.hero-search {
-    margin-left: calc(-.5 * var(--bs-gutter-x));
-    margin-right: calc(-.5 * var(--bs-gutter-x));
-    padding-left: calc(.5 * var(--bs-gutter-x));
-    padding-right: calc(.5 * var(--bs-gutter-x));
-}
-
-/* search same as page color*/
-.hero-search {
-    background-color: var(--bs-body-bg);
-}
-
 .bg-accent-light {
     background-color: var(--surface-box);
 }
 
+/* the [data-bs-theme] prefixes carry equal values on both branches - they exist
+   to out-specify [data-bs-theme="dark"] .card below, not to differ by theme */
 [data-bs-theme="light"] .main-home .card,
 [data-bs-theme="dark"] .main-home .card,
 [data-bs-theme="light"] .scheme-home .card,
@@ -732,11 +721,18 @@ h6 {
     background-color: var(--surface-box);
 }
 
+[data-bs-theme="light"] .main-home [role="search"] .card,
+[data-bs-theme="dark"] .main-home [role="search"] .card,
 [data-bs-theme="light"] .scheme-home [role="search"] .card,
 [data-bs-theme="dark"] .scheme-home [role="search"] .card,
 [data-bs-theme="light"] .scheme-home .bg-accent-light .card,
 [data-bs-theme="dark"] .scheme-home .bg-accent-light .card {
     background-color: var(--bs-body-bg);
+}
+
+/* the reorder puts #hero-search-input well below the fixed navbar */
+#hero-search-input {
+    scroll-margin-top: 70px;
 }
 
 [role="search"] .btn-check + .btn {
