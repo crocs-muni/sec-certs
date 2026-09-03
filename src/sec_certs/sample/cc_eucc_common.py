@@ -27,6 +27,7 @@ import requests
 
 from sec_certs.cert_rules import SARS_IMPLIED_FROM_EAL, cc_rules, rules
 from sec_certs.configuration import config
+from sec_certs.document.utils import get_view
 from sec_certs.sample.cc_certificate_id import canonical_from_meta, canonicalize
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
@@ -309,7 +310,7 @@ def extract_cert_pdf_metadata(cert: CCCertificate | EUCCCertificate) -> CCCertif
 def extract_pdf_keywords(cert: CCCertificate | EUCCCertificate, doc_type: DocType) -> CCCertificate | EUCCCertificate:
     doc_state = getattr(cert.state, doc_type.short)
     try:
-        keywords = extract_keywords(doc_state.txt_path, cc_rules)
+        keywords = extract_keywords(get_view(doc_state), cc_rules)
         if keywords is None:
             doc_state.extract_ok = False
         else:
