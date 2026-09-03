@@ -684,8 +684,9 @@ def extract_keywords(view: DocumentView, search_rules) -> dict[str, dict[str, in
 
 
 def normalize_match_string(match: str) -> str:
-    match = match.strip().strip("[];.”\"':)(,").rstrip(os.sep).replace("  ", " ")
-    return "".join(filter(str.isprintable, match))
+    match = re.sub(r"\s+", " ", match)
+    match = "".join(filter(str.isprintable, match))
+    return re.sub(r" +", " ", match).strip().strip("[];.”\"':)(,").rstrip(os.sep)
 
 
 def load_text_file(
