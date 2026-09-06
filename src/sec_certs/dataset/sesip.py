@@ -5,13 +5,18 @@ from __future__ import annotations
 import html
 import logging
 import re
+import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
+import requests
+
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.sesip import SESIPCertificate
-from sec_certs.serialization.json import ComplexSerializableType, only_backed
+from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
+from sec_certs.utils import helpers
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
+from sec_certs.utils.profiling import staged
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
@@ -119,8 +124,34 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         for cert in self:
             cert.set_local_paths(self.cert_dir, self.st_dir)
 
+    def _download_index(self) -> None:
+        logger.info(f"Downloading the SESIP certificate index from {INDEX_URL}")
+        if helpers.download_file(INDEX_URL, self.index_path) != requests.codes.ok:
+            raise ValueError(f"Could not download the SESIP index from {INDEX_URL}")
+
+    def _get_all_certs_from_index(self) -> list[SESIPCertificate]:
+        rows = parse_index_table(self.index_path.read_text(encoding="utf-8"))
+        return [SESIPCertificate.from_index_row(row) for row in rows]
+
+    @serialize
+    @staged(logger, "Downloading and processing certificates.")
+    @only_backed()
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
-        raise NotImplementedError("not implemented yet.")
+        self.web_dir.mkdir(parents=True, exist_ok=True)
+
+        if to_download:
+            self._download_index()
+        if not self.index_path.exists():
+            raise ValueError(f"No index at {self.index_path}, run with to_download=True first")
+
+        self.certs = {x.dgst: x for x in self._get_all_certs_from_index()}
+        logger.info(f"Dataset contains {len(self)} certificates")
+
+        if not keep_metadata:
+            shutil.rmtree(self.web_dir)
+
+        self._set_local_paths()
+        self.state.meta_sources_parsed = True
 
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
         raise NotImplementedError("not implemented yet.")
