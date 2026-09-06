@@ -3,7 +3,20 @@
 from __future__ import annotations
 
 import html
+import logging
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING, Final
+
+from sec_certs.dataset.dataset import Dataset
+from sec_certs.sample.sesip import SESIPCertificate
+from sec_certs.serialization.json import ComplexSerializableType, only_backed
+from sec_certs.utils.helpers import get_first_16_bytes_sha256
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
+
+logger = logging.getLogger(__name__)
 
 INDEX_URL = "https://trustcb.com/iot/sesip/sesip-certificates/"
 
@@ -71,3 +84,52 @@ def parse_index_table(page: str) -> list[dict[str, str]]:
             raise UnexpectedIndexSchema(f"row has {len(cells)} cells, expected {len(fields)}")
         rows.append(dict(zip(fields, (_cell_value(c) for c in cells))))
     return rows
+
+
+class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
+    """Dataset of SESIP certificates by TrustCB"""
+
+    INDEX_HTML: Final[str] = "sesip_certificates.html"
+
+    @property
+    @only_backed(throw=False)
+    def cert_dir(self) -> Path:
+        return self.certs_dir / "cert"
+
+    @property
+    @only_backed(throw=False)
+    def st_dir(self) -> Path:
+        return self.certs_dir / "st"
+
+    @property
+    @only_backed(throw=False)
+    def index_path(self) -> Path:
+        return self.web_dir / self.INDEX_HTML
+
+    def __getitem__(self, item: str) -> SESIPCertificate:
+        try:
+            return super().__getitem__(item)
+        except KeyError:
+            return super().__getitem__(get_first_16_bytes_sha256(item))
+
+    def _set_local_paths(self) -> None:
+        super()._set_local_paths()
+        if self.root_dir is None:
+            return
+        for cert in self:
+            cert.set_local_paths(self.cert_dir, self.st_dir)
+
+    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
+        raise NotImplementedError("not implemented yet.")
+
+    def _download_all_artifacts_body(self, fresh: bool = True) -> None:
+        raise NotImplementedError("not implemented yet.")
+
+    def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
+        raise NotImplementedError("not implemented yet.")
+
+    def extract_data(self) -> None:
+        raise NotImplementedError("not implemented yet.")
+
+    def _compute_heuristics_body(self) -> None:
+        raise NotImplementedError("not implemented yet.")
