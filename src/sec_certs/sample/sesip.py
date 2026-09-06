@@ -6,12 +6,15 @@ from dataclasses import dataclass, fields
 from datetime import date
 from typing import Any
 
+from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils.helpers import get_first_16_bytes_sha256
 
-class SESIPCertificate:
+
+class SESIPCertificate(ComplexSerializableType):
     # single sesip CERT
 
     @dataclass
-    class IndexData:
+    class IndexData(ComplexSerializableType):
         """row of the TrustCB index table"""
 
         product: str | None = None
@@ -27,9 +30,14 @@ class SESIPCertificate:
         @classmethod
         def from_row(cls, row: dict[str, str]) -> SESIPCertificate.IndexData:
             known = {f.name for f in fields(cls)}
-            values: dict[str, Any] = {k: (v.strip() or None) for k, v in row.items() if k in known}
-            if raw_date := values.get("issue_date"):
-                values["issue_date"] = date.fromisoformat(raw_date)
+            # empty cell -> key missing -> field defaults to None
+            return cls.from_dict({k: v.strip() for k, v in row.items() if k in known and v.strip()})
+
+        @classmethod
+        def from_dict(cls, dct: dict) -> SESIPCertificate.IndexData:
+            values = dict(dct)
+            if isinstance(values.get("issue_date"), str):
+                values["issue_date"] = date.fromisoformat(values["issue_date"])
             return cls(**values)
 
     def __init__(self, cert_id: str, index_data: SESIPCertificate.IndexData | None = None):
@@ -41,6 +49,33 @@ class SESIPCertificate:
         if not row.get("cert_id"):
             raise ValueError("row has no cert_id, which is the primary key")
         return cls(cert_id=row["cert_id"], index_data=cls.IndexData.from_row(row))
+
+    @property
+    def dgst(self) -> str:
+        return get_first_16_bytes_sha256(self.cert_id)
+
+    @property
+    def name(self) -> str | None:
+        return self.index_data.product
+
+    @property
+    def manufacturer(self) -> str | None:
+        return self.index_data.developer
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"dgst": self.dgst, **super().to_dict()}
+
+    @classmethod
+    def from_dict(cls, dct: dict) -> SESIPCertificate:
+        values = dict(dct)
+        values.pop("dgst", None)
+        return cls(**values)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SESIPCertificate) and self.dgst == other.dgst
+
+    def __hash__(self) -> int:
+        return hash(self.dgst)
 
     def __repr__(self) -> str:
         return f"SESIPCertificate({self.cert_id})"
