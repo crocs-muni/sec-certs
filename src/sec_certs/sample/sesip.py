@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass, field, fields
 from datetime import date
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -16,6 +17,9 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +152,25 @@ class SESIPCertificate(
 
         doc.download_ok = True
         doc.source_hash = helpers.get_sha256_filepath(doc.source_path)
+
+    @staticmethod
+    def convert_documents(cert: SESIPCertificate, converter: PDFConverter) -> SESIPCertificate:
+        for doc, label in ((cert.state.cert, "certificate"), (cert.state.st, "security target")):
+            if doc.is_ok_to_convert():
+                cert._convert_document(converter, doc, label)
+        return cert
+
+    def _convert_document(self, converter: PDFConverter, doc: DocumentState, label: str) -> None:
+        doc.txt_path.parent.mkdir(parents=True, exist_ok=True)
+        doc.json_path.parent.mkdir(parents=True, exist_ok=True)
+
+        doc.convert_ok = converter.convert(doc.source_path, doc.txt_path, doc.json_path)
+        if not doc.convert_ok:
+            logger.error(f"Cert dgst: {self.dgst} failed to convert the {label} pdf to txt")
+            return
+
+        doc.txt_hash = helpers.get_sha256_filepath(doc.txt_path)
+        doc.json_hash = helpers.get_sha256_filepath(doc.json_path) if doc.json_path.exists() else None
 
     @staticmethod
     def _is_pdf(path: Path) -> bool:

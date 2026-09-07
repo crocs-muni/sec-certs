@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Final
 
 import requests
 
+from sec_certs.configuration import config
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.sesip import SESIPCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
@@ -93,8 +94,6 @@ def parse_index_table(page: str) -> list[dict[str, str]]:
 
 
 class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
-    """Dataset of SESIP certificates by TrustCB"""
-
     INDEX_HTML: Final[str] = "sesip_certificates.html"
 
     @property
@@ -126,7 +125,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             cert.set_local_paths(self.cert_dir, self.st_dir)
 
     def _download_index(self) -> None:
-        logger.info(f"Downloading the SESIP certificate index from {INDEX_URL}")
+        logger.info("Downloading the SESIP certificate index")
         if helpers.download_file(INDEX_URL, self.index_path) != requests.codes.ok:
             raise ValueError(f"Could not download the SESIP index from {INDEX_URL}")
 
@@ -135,7 +134,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         return [SESIPCertificate.from_index_row(row) for row in rows]
 
     @serialize
-    @staged(logger, "Downloading and processing certificates.")
+    @staged(logger, "Downloading and processing certificates")
     @only_backed()
     def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
@@ -168,7 +167,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             if x.state.cert.is_ok_to_download(fresh) or (x.has_separate_st and x.state.st.is_ok_to_download(fresh))
         ]
         if not fresh and certs_to_process:
-            logger.info(f"Retrying {len(certs_to_process)} certificates for which download failed.")
+            logger.info(f"Retrying {len(certs_to_process)} certificates where download failed.")
 
         cert_processing.process_parallel(
             SESIPCertificate.download_artifacts,
@@ -177,8 +176,31 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs",
         )
 
+    @staged(logger, "Converting PDFs of sesip certs and STs")
     def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
-        raise NotImplementedError("not implemented yet.")
+        for folder in (self.cert_dir, self.st_dir):
+            (folder / "txt").mkdir(parents=True, exist_ok=True)
+            (folder / "json").mkdir(parents=True, exist_ok=True)
+
+        certs_to_process = [
+            x for x in self if x.state.cert.is_ok_to_convert(fresh) or x.state.st.is_ok_to_convert(fresh)
+        ]
+        if not certs_to_process:
+            logger.info("No PDFs need conversion")
+            return
+        if not fresh:
+            logger.info(f"Retrying {len(certs_to_process)} certificates where conversion failed")
+
+        processed = cert_processing.process_parallel_with_instance(
+            converter,
+            (),
+            SESIPCertificate.convert_documents,
+            certs_to_process,
+            config.pdf_conversion_workers,
+            config.pdf_conversion_max_chunk_size,
+            progress_bar_desc="Converting PDFs",
+        )
+        self.update_with_certs(processed)
 
     def extract_data(self) -> None:
         raise NotImplementedError("not implemented yet.")
