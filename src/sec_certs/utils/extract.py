@@ -6,13 +6,17 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, no_type_check
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 
 from sec_certs import constants
 from sec_certs.cert_rules import REGEXEC_SEP, cc_rules
 from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
+from sec_certs.utils.strings import normalize_whitespace
+
+if TYPE_CHECKING:
+    from sec_certs.document.base import DocumentView
 
 logger = logging.getLogger(__name__)
 
@@ -638,17 +642,17 @@ def prune_matches(dct: dict) -> dict:
     return walk(dct, 0)
 
 
-def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] | None:
+def extract_keywords(view: DocumentView, search_rules) -> dict[str, dict[str, int]] | None:
     """
-    Extract keywords from filepath using the search rules.
+    Extract keywords from the document behind `view` using the search rules.
 
-    :param filepath:
+    :param view: view over the converted document to search in.
     :param search_rules:
     :return:
     """
 
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath, -1, LINE_SEPARATOR)
+        whole_text = normalize_whitespace(view.get_full_text())
 
         def extract(rules):
             if isinstance(rules, dict):
@@ -675,15 +679,14 @@ def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] 
         result = extract(search_rules)
         return prune_matches(result)
     except Exception as e:
-        relative_filepath = "/".join(str(filepath).split("/")[-4:])
-        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
-        logger.error(error_msg)
+        logger.error(f"Failed to parse keywords from: {view}; {e}")
         return None
 
 
 def normalize_match_string(match: str) -> str:
-    match = match.strip().strip("[];.”\"':)(,").rstrip(os.sep).replace("  ", " ")
-    return "".join(filter(str.isprintable, match))
+    match = re.sub(r"\s+", " ", match)
+    match = "".join(filter(str.isprintable, match))
+    return re.sub(r" +", " ", match).strip().strip("[];.”\"':)(,").rstrip(os.sep)
 
 
 def load_text_file(

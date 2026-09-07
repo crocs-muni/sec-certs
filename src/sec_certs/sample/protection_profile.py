@@ -12,6 +12,7 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
+from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
@@ -417,7 +418,7 @@ class ProtectionProfile(
         """
         Extracts keywords using regexes from the certification report.
         """
-        report_keywords = extract_keywords(cert.state.report.txt_path, cc_rules)
+        report_keywords = extract_keywords(get_view(cert.state.report), cc_rules)
         if report_keywords is None:
             cert.state.report.extract_ok = False
         else:
@@ -429,7 +430,7 @@ class ProtectionProfile(
         """
         Extracts keywords using regexes from the actual protection profile.
         """
-        pp_keywords = extract_keywords(cert.state.pp.txt_path, cc_rules)
+        pp_keywords = extract_keywords(get_view(cert.state.pp), cc_rules)
         if pp_keywords is None:
             cert.state.pp.extract_ok = False
         else:

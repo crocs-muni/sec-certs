@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup, Tag
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
+from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
@@ -536,7 +537,7 @@ class FIPSCertificate(
         """
         Extract keywords from policy document
         """
-        keywords = extract.extract_keywords(cert.state.policy.txt_path, fips_rules)
+        keywords = extract.extract_keywords(get_view(cert.state.policy), fips_rules)
         if not keywords:
             cert.state.policy.extract_ok = False
         else:
