@@ -1,7 +1,7 @@
 {% set tabs = [
     ("new",    "New",        "new_certs",           "success", "Processed by us for the first time, which need not be when the certificate was issued."),
-    ("change", "Changed",    "changed_ids",         "primary", "Metadata changed since the previous update. See the details of each certficate to know what has changed."),
-    ("remove", "Removed",    "current_removed_ids", "warning", "Disappeared from the source listing, which does not necessarily mean it was revoked."),
+    ("change", "Changed",    "changed_ids",         "warning", "Metadata changed since the previous update. See the details of each certficate to know what has changed."),
+    ("remove", "Removed",    "current_removed_ids", "danger",  "Disappeared from the source listing, which does not necessarily mean it was revoked."),
     ("back",   "Reappeared", "back_ids",            "info",    "Back in the source listing after having disappeared."),
 ] %}
 {% set stats = run["stats"] if run and "stats" in run else {} %}
