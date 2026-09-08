@@ -10,20 +10,20 @@
 
 {% set canonical = True %}
 {% set entity = self.entity() %}
+{% set scheme_name = self.scheme_name() %}
 
 {% block content %}
     <main>
         <div class="container-lg px-3 px-md-4 pt-4">
             <div class="d-flex align-items-baseline gap-2 mb-3">
-                <h1>{% block scheme_name %}{% endblock %}</h1>
+                <h1>{{ scheme_name }}</h1>
                 <span class="text-secondary fs-3">Processing updates</span>
             </div>
-            <p class="text-body">{% block lead %}{% endblock %}</p>
+            <p class="text-body">
+            This page shows how the {{ scheme_name }} dataset changed in each periodic update: {{ entity }} that were newly added, {{ entity }} whose data changed, and {{ entity }}that were removed from the source listing.
+            </p>
             <p class="text-body mb-4">
-                Changes may reflect updates to the source listing or improvements in our own data
-                extraction, so they do not necessarily mean the certification body changed anything.
-                The history of an individual entry and the details of what changed are in the
-                <em>Processing updates</em> section on its page.
+                A change does not necessarily mean the certification body updated anything, it may also reflect improvement to our own data extraction. To see the history of changes to an individual entry, visit the <em>Processing updates</em> section on its page.
             </p>
 
             {% include "common/updates/_picker.html.jinja2" %}

@@ -4,11 +4,6 @@
 {% block entity %}modules{% endblock %}
 {% block storage_key %}fips-col-visibility{% endblock %}
 
-{% block lead %}
-    Modules that were first processed, changed, or disappeared from the source listing
-    in one of our periodic updates of the FIPS 140 dataset.
-{% endblock %}
-
 {% block cols %}[
     { key: 'cert_id',          label: 'ID',                 defaultVisible: true  },
     { key: 'name',             label: 'Name',               defaultVisible: true  },
