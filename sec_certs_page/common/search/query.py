@@ -267,7 +267,7 @@ class Facet:
 
 @dataclass(frozen=True)
 class SearchConfig:
-    default_sort_by: str = ""
+    default_sort_by: str
     default_sort_dir: str = "desc"
     query_targets: dict = dc_field(default_factory=dict)
     facets: tuple = ()
