@@ -574,6 +574,7 @@ def sitemap_urls():
     yield "cc.network", {}
     yield "cc.analysis", {}
     yield "cc.search", {}
+    yield "cc.updates", {}
     yield "cc.fulltext_search", {}
     yield "cc.rand", {}
     for doc in mongo.db.cc.aggregate(sitemap_cert_pipeline("cc"), allowDiskUse=True):
