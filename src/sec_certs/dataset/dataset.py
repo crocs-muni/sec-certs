@@ -5,7 +5,7 @@ import shutil
 import tarfile
 import tempfile
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -363,7 +363,12 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
     @staged(logger, "Processing auxiliary datasets.")
     @serialize
     @only_backed()
-    def process_auxiliary_datasets(self, mode: ProcessingMode = ProcessingMode.LOAD, **kwargs) -> None:
+    def process_auxiliary_datasets(
+        self,
+        mode: ProcessingMode = ProcessingMode.LOAD,
+        mode_overrides: Mapping[type[AuxiliaryDatasetHandler], ProcessingMode] = {},
+        **kwargs,
+    ) -> None:
         """
         Processes all auxiliary datasets (CPE, CVE, ...) that are required during computation.
 
@@ -371,10 +376,13 @@ class Dataset(Generic[CertSubType], ComplexSerializableType, ABC):
             processing results over, or rebuild them from scratch. Only the auxiliary datasets that are
             themselves processed (protection profiles, maintenance updates) can be updated incrementally,
             the rest are simply re-fetched.
+        :param mode_overrides: Individual aux handler overrides of `mode`, keyed by handler class.
+            Use it when you need finer control over how the auxiliary datasets are handled.
         """
         logger.info("Processing auxiliary datasets.")
-        for handler in self.aux_handlers.values():
-            handler.process_dataset(mode)
+        for handler_cls, handler in self.aux_handlers.items():
+            handler.process_dataset(mode_overrides.get(handler_cls, mode))
+
         self.state.auxiliary_datasets_processed = True
 
     @only_backed()

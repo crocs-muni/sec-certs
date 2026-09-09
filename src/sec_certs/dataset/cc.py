@@ -330,7 +330,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     def process_auxiliary_datasets(
         self,
         mode: ProcessingMode = ProcessingMode.LOAD,
-        skip_schemes: bool = True,
+        skip_schemes: bool = False,
         **kwargs,
     ) -> None:
         if CCMaintenanceUpdateDatasetHandler in self.aux_handlers:
