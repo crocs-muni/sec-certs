@@ -40,7 +40,7 @@
                 document.querySelectorAll('#updates-picker [data-bs-toggle="tooltip"]');
 
             const go = url => {
-                pickerTooltips().forEach(el => bootstrap.Tooltip.getInstance(el)?.dispose());
+                pickerTooltips().forEach(el => bootstrap.Tooltip.getInstance(el)?.hide());
                 document.dispatchEvent(new CustomEvent("ajax-search", { detail: { url } }));
             };
 
@@ -62,7 +62,7 @@
                     storageKey: '{% block storage_key %}{% endblock %}',
                     sortBy: "{{ sort_by or '' }}",
                     sortDir: "{{ sort_dir or '' }}",
-                    onAfterApply: () => pickerTooltips().forEach(el => new bootstrap.Tooltip(el)),
+                    onAfterApply: () => pickerTooltips().forEach(el => bootstrap.Tooltip.getOrCreateInstance(el)),
                 });
             });
         </script>
