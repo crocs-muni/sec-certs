@@ -55,8 +55,8 @@
         <ul class="nav nav-pills gap-2" aria-label="Change type">
             {% for key, label, stat_key, colour, hint in tabs %}
                 {% set count = stats.get(stat_key, 0) %}
-                {#- Reappearances are rare; only show that tab when there are some. -#}
-                {% if count or key != "back" %}
+                {#- Reappearances are rare; only show that tab when there are some, or when it is the one being shown. -#}
+                {% if count or key != "back" or key == type %}
                     <li class="nav-item">
                         <a class="nav-link{% if key == type %} active{% endif %}" data-updates-nav
                            data-bs-toggle="tooltip" data-bs-trigger="hover"
