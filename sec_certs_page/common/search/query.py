@@ -399,6 +399,13 @@ class UpdatesSearch(Search):
 
     @classmethod
     def _enrich_args(cls, parsed: dict) -> dict:
+        if parsed["run_id"] is None:
+            parsed["run_id"] = get_latest_run_id(cls.log_collection)
+        else:
+            try:
+                parsed["run_id"] = ObjectId(parsed["run_id"])
+            except (InvalidId, TypeError) as e:
+                raise BadRequest(description=str({"run_id": "Invalid run id."})) from e
         return parsed
 
     @classmethod
@@ -416,17 +423,7 @@ class UpdatesSearch(Search):
     def _build_query(cls, args: dict, broader: bool, fulltext: bool) -> tuple[Query, dict]:
         errors = Errors()
 
-        run_id = None
-        if args["run_id"] is None:
-            run_id = get_latest_run_id(cls.log_collection)
-        else:
-            try:
-                run_id = ObjectId(args["run_id"])
-            except (InvalidId, TypeError):
-                errors.add("run_id", ["Invalid run id."])
-                return Query.empty_query(), errors
-
-        args["run_id"] = run_id
+        run_id = args["run_id"]
         if run_id is None:
             return Query.empty_query(), errors
 
