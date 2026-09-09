@@ -1,6 +1,6 @@
 import pymongo
 from bson import ObjectId
-from flask import render_template, request
+from flask import abort, render_template, request
 
 from .. import mongo
 
@@ -29,10 +29,15 @@ def render_updates(search_cls, scheme: str, title: str):
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     page = "results" if is_ajax else "index"
     res = search_cls.process_search(request)
+    run = None
+    if res["run_id"] is not None:
+        run = mongo.db[search_cls.log_collection].find_one({"_id": res["run_id"], "ok": True})
+        if run is None:
+            abort(404)
     return render_template(
         f"{scheme}/updates/{page}.html.jinja2",
         **res,
         runs=get_recent_runs(search_cls.log_collection),
-        run=mongo.db[search_cls.log_collection].find_one({"_id": res["run_id"]}),
+        run=run,
         title=title,
     )
