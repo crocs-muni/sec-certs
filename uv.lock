@@ -4695,8 +4695,8 @@ wheels = [
 
 [[package]]
 name = "sec-certs"
-version = "0.4.1.post1.dev100+g3579de46f"
-source = { git = "https://github.com/crocs-muni/sec-certs.git?rev=main#3579de46fc2431803baa5e06c8d2f8691af9ac75" }
+version = "0.4.1.post1.dev119+g7527f7eac"
+source = { git = "https://github.com/crocs-muni/sec-certs.git?rev=main#7527f7eac981549d4ac75061c9a2e0edb24d8a8f" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "click" },

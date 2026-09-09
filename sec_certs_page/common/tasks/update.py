@@ -209,7 +209,16 @@ class Updater:  # pragma: no cover
             sentry_sdk.start_span(op=f"{collection}.auxiliary_datasets", name="Process auxiliary datasets"),
             suppress_child_spans(),
         ):
-            dset.process_auxiliary_datasets(ProcessingMode.LOAD)
+            dset.process_auxiliary_datasets(
+                ProcessingMode.UPDATE,
+                # Load the datasets that were symlinked in prepare_dataset_paths
+                mode_overrides={
+                    CVEDatasetHandler: ProcessingMode.LOAD,
+                    CPEDatasetHandler: ProcessingMode.LOAD,
+                    CPEMatchDictHandler: ProcessingMode.LOAD,
+                    ProtectionProfileDatasetHandler: ProcessingMode.LOAD,
+                },
+            )
         with (
             sentry_sdk.start_span(op=f"{collection}.download_artifacts", name="Download artifacts"),
             suppress_child_spans(),
