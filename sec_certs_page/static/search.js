@@ -243,6 +243,14 @@ export function initSearch({ searchUrl, networkUrl }) {
     });
 }
 
+// A tooltip parents its tip to document.body, so detaching the trigger while the tooltip is open
+// strands the tip with a live Popper still anchored to the detached node. Dispose before detaching.
+function disposeTooltipsIn(root) {
+    root.querySelectorAll('[data-bs-toggle="tooltip"], .result-clamp').forEach(el =>
+        bootstrap.Tooltip.getInstance(el)?.dispose()
+    );
+}
+
 export function resultsFetch(onSwap) {
     let controller = null;
     return async function doFetch(url) {
@@ -261,9 +269,9 @@ export function resultsFetch(onSwap) {
             if (!partial) return;
 
             // Swap only the tbody — colgroup, thead, and column picker stay untouched
-            document.getElementById('results-body').replaceWith(
-                parsed.getElementById('results-body')
-            );
+            const oldBody = document.getElementById('results-body');
+            disposeTooltipsIn(oldBody);
+            oldBody.replaceWith(parsed.getElementById('results-body'));
 
             // Sync pagination top (visibility class + inner content)
             const newTop = partial.querySelector('#pagination-top-wrapper');
@@ -289,7 +297,9 @@ export function resultsFetch(onSwap) {
 
             document.querySelectorAll('[data-ajax-swap]').forEach(el => {
                 const fresh = el.id && parsed.getElementById(el.id);
-                if (fresh) el.replaceWith(fresh);
+                if (!fresh) return;
+                disposeTooltipsIn(el);
+                el.replaceWith(fresh);
             });
 
             history.pushState(null, '', url);
