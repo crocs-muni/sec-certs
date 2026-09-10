@@ -4,6 +4,7 @@ import logging
 import sys
 from functools import cached_property
 from pathlib import Path
+from typing import ClassVar
 
 from docling_core.transforms.serializer.markdown import MarkdownTableSerializer
 from docling_core.transforms.serializer.plain_text import (
@@ -11,12 +12,23 @@ from docling_core.transforms.serializer.plain_text import (
     PlainTextParams,
 )
 from docling_core.types.doc.common.content_layer import ContentLayer
-from docling_core.types.doc.document import DoclingDocument
+from docling_core.types.doc.document import DoclingDocument, NodeItem, TableCell, TableItem
+from docling_core.types.doc.items.table.table_data import RichTableCell
+from docling_core.types.doc.labels import DocItemLabel
 from typing_extensions import override
 
-from sec_certs.document.base import DocumentLayer, DocumentView
+from sec_certs.document.base import DocumentLayer, DocumentTable, DocumentView
+from sec_certs.document.stitch import PageSpan, TableFragment, stitch_fragments
 
 logger = logging.getLogger(__name__)
+
+# Captions and page furniture sit between two fragments of the same table without separating them.
+_NON_BLOCKING_LABELS = {
+    DocItemLabel.CAPTION,
+    DocItemLabel.PAGE_HEADER,
+    DocItemLabel.PAGE_FOOTER,
+    DocItemLabel.FOOTNOTE,
+}
 
 
 class CustomTableSerializer(MarkdownTableSerializer):
@@ -43,6 +55,8 @@ class CustomTableSerializer(MarkdownTableSerializer):
 
 
 class DoclingView(DocumentView):
+    supports_tables: ClassVar[bool] = True
+
     def __init__(self, json_path: Path):
         self.json_path = json_path
 
@@ -77,3 +91,76 @@ class DoclingView(DocumentView):
             ),
         )
         return serializer.serialize().text
+
+    @override
+    def get_tables(self, include_index: bool = False, stitch: bool = True) -> list[DocumentTable]:
+        fragments: list[TableFragment] = []
+        blockers: list[PageSpan] = []
+
+        for item, _ in self.doc.iterate_items(included_content_layers={ContentLayer.BODY}):
+            if isinstance(item, TableItem):
+                is_index = item.label == DocItemLabel.DOCUMENT_INDEX
+                if include_index or not is_index:
+                    fragments.append(self._to_fragment(item, is_index))
+                    continue
+            if getattr(item, "label", None) not in _NON_BLOCKING_LABELS:
+                blockers.extend(self._page_spans(item))
+
+        if not stitch:
+            return [fragment.table for fragment in fragments]
+        return stitch_fragments(fragments, blockers)
+
+    def _to_fragment(self, item: TableItem, is_index: bool) -> TableFragment:
+        grid = item.data.grid
+        n_header = self._count_header_rows(grid)
+        spans = self._page_spans(item)
+        table = DocumentTable(
+            rows=self._cells(grid[n_header:]),
+            header=self._cells(grid[:n_header]),
+            caption=item.caption_text(self.doc).strip() or None,
+            pages=tuple(sorted({span.page for span in spans})),
+            is_index=is_index,
+        )
+        # A fragment is compared as a tail by where it starts and as a head by where it ends, which differ
+        # when the backend reports provenance for more than one page.
+        return TableFragment(
+            table=table,
+            span=min(spans, key=lambda s: (s.page, s.top)) if spans else None,
+            last_span=max(spans, key=lambda s: (s.page, s.bottom)) if spans else None,
+        )
+
+    def _cells(self, rows: list[list[TableCell]]) -> tuple[tuple[str, ...], ...]:
+        return tuple(tuple(self._cell_text(cell) for cell in row) for row in rows)
+
+    def _cell_text(self, cell: TableCell) -> str:
+        # A rich cell holds a reference to a document node rather than text of its own.
+        if isinstance(cell, RichTableCell):
+            resolved = cell.ref.resolve(self.doc)
+            return getattr(resolved, "text", "") or cell.text
+        return cell.text
+
+    @staticmethod
+    def _count_header_rows(grid: list[list[TableCell]]) -> int:
+        """
+        Leading rows that hold any header cell, matching how Docling itself splits header from body.
+
+        Always leaves at least one body row: a fragment whose every row is flagged as a header is a
+        misclassification, and treating it as header-only would hide its contents from every consumer.
+        """
+        n = 0
+        for row in grid:
+            if not any(cell.column_header for cell in row):
+                break
+            n += 1
+        return min(n, max(len(grid) - 1, 0))
+
+    def _page_spans(self, item: NodeItem) -> list[PageSpan]:
+        spans = []
+        for prov in getattr(item, "prov", None) or []:
+            page = self.doc.pages.get(prov.page_no)
+            height = page.size.height if page and page.size else None
+            if not height:
+                continue
+            bbox = prov.bbox.to_top_left_origin(height)
+            spans.append(PageSpan(page=prov.page_no, top=bbox.t / height, bottom=bbox.b / height))
+        return spans
