@@ -40,7 +40,6 @@
                 document.querySelectorAll('#updates-picker [data-bs-toggle="tooltip"]');
 
             const go = url => {
-                pickerTooltips().forEach(el => bootstrap.Tooltip.getInstance(el)?.hide());
                 document.dispatchEvent(new CustomEvent("ajax-search", { detail: { url } }));
             };
 
