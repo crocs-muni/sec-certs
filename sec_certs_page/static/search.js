@@ -55,7 +55,8 @@ export function hasActiveCriteria() {
 }
 
 export function searchParams(additional) {
-    const searchType = $("#nameSearchRadioId").is(":checked") ? "name" : "fulltext";
+    const nameRadio = document.getElementById("nameSearchRadioId");
+    const searchType = nameRadio ? (nameRadio.checked ? "name" : "fulltext") : null;
     const [sort_by, sort_dir] = getSort() ?? [];
     const params = { search_type: searchType, sort_by, sort_dir };
 
@@ -285,6 +286,11 @@ export function resultsFetch(onSwap) {
             container.dataset.errors = partial.dataset.errors;
             container.dataset.sortBy = partial.dataset.sortBy ?? '';
             container.dataset.sortDir = partial.dataset.sortDir ?? '';
+
+            document.querySelectorAll('[data-ajax-swap]').forEach(el => {
+                const fresh = el.id && parsed.getElementById(el.id);
+                if (fresh) el.replaceWith(fresh);
+            });
 
             history.pushState(null, '', url);
             onSwap?.();

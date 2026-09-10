@@ -8,6 +8,7 @@ from ..common.search.query import (
     Facet,
     Search,
     SearchConfig,
+    UpdatesSearch,
     build_must_query,
     get_body_query,
     get_date_query,
@@ -111,3 +112,26 @@ class CCSearch(Search):
             get_keyword_query(cc_schema, keyword_units(args["keywords"], "cc"), kw_fields, args["kw_mode"]),
         )
         return query, errors
+
+
+class CCUpdatesSearch(UpdatesSearch):
+    search_args = {
+        "sort_by": OptionField(
+            {
+                "name",
+                "not_valid_after",
+                "not_valid_before",
+                "cert_id",
+                "manufacturer",
+                "cert_lab",
+                "scheme",
+                "status",
+                "eal",
+            },
+            "not_valid_before",
+        ),
+    }
+    schema = cc_schema
+    index = cc_index
+    log_collection = "cc_log"
+    diff_collection = "cc_diff"

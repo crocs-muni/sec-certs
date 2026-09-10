@@ -4,16 +4,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset import ProtectionProfileDataset
-from sec_certs.utils.helpers import get_sha256_filepath
 from tantivy import Document
 
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
-from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
 from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.update import Updater
@@ -32,6 +29,8 @@ class PPMixin:  # pragma: no cover
         self.dset_class = ProtectionProfileDataset
         self.dataset_path = current_app.config["DATASET_PATH_PP_DIR"]
         self.cert_schema = "pp"
+        # Mapping from the page's document directories to the dataset's ones.
+        self.dset_folders = {"report": "reports", "profile": "pps"}
 
 
 class PPRenderer(DiffRenderer, PPMixin):  # pragma: no cover
@@ -143,52 +142,6 @@ def archive_all():  # pragma: no cover
 
 
 class PPUpdater(Updater, PPMixin):  # pragma: no cover
-    def process(self, dset: ProtectionProfileDataset, paths: dict[str, Path]) -> set[str]:
-        to_reindex: set[str] = set()
-
-        with sentry_sdk.start_span(op="pp.all", name="Get full PP dataset"):
-            if not self.skip_update or not paths["output_path"].exists():
-                with sentry_sdk.start_span(op="pp.get_certs", name="Get certs from web"), suppress_child_spans():
-                    dset.get_certs_from_web(update_json=False)
-                with (
-                    sentry_sdk.start_span(op="pp.auxiliary_datasets", name="Process auxiliary datasets"),
-                    suppress_child_spans(),
-                ):
-                    dset.process_auxiliary_datasets(update_json=False)
-                with (
-                    sentry_sdk.start_span(op="pp.download_artifacts", name="Download artifacts"),
-                    suppress_child_spans(),
-                ):
-                    dset.download_all_artifacts(update_json=False)
-                with sentry_sdk.start_span(op="pp.convert_pdfs", name="Convert pdfs"), suppress_child_spans():
-                    dset.convert_all_pdfs(update_json=False)
-                with sentry_sdk.start_span(op="pp.analyze", name="Analyze certificates"), suppress_child_spans():
-                    dset.analyze_certificates(update_json=False)
-                with sentry_sdk.start_span(op="pp.write_json", name="Write JSON"), suppress_child_spans():
-                    dset.to_json(paths["output_path"])
-
-            with sentry_sdk.start_span(op="pp.move", name="Move files"), suppress_child_spans():
-                for prof in dset:
-                    if prof.state.pp.source_path and prof.state.pp.source_path.exists():
-                        dst = paths["profile_pdf"] / f"{prof.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.pp.source_hash:
-                            prof.state.pp.source_path.replace(dst)
-                    if prof.state.pp.txt_path and prof.state.pp.txt_path.exists():
-                        dst = paths["profile_txt"] / f"{prof.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.pp.txt_hash:
-                            prof.state.pp.txt_path.replace(dst)
-                            to_reindex.add(prof.dgst)
-                    if prof.state.report.source_path and prof.state.report.source_path.exists():
-                        dst = paths["report_pdf"] / f"{prof.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.source_hash:
-                            prof.state.report.source_path.replace(dst)
-                    if prof.state.report.txt_path and prof.state.report.txt_path.exists():
-                        dst = paths["report_txt"] / f"{prof.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != prof.state.report.txt_hash:
-                            prof.state.report.txt_path.replace(dst)
-                            to_reindex.add(prof.dgst)
-        return to_reindex
-
     def dataset_state(self, dset):
         return dset.state.to_dict()
 

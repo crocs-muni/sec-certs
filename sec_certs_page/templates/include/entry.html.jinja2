@@ -434,10 +434,10 @@
                                 <span class="badge bg-success" aria-hidden="true">New</span>
                                 <div>The {{ doc_name }} was first processed.</div>
                             {% elif diff["type"] == "change" %}
-                                <span class="badge bg-primary" aria-hidden="true">Changed</span>
+                                <span class="badge bg-warning text-dark" aria-hidden="true">Changed</span>
                                 <div>The {{ doc_name }} data changed.</div>
                             {% elif diff["type"] == "remove" %}
-                                <span class="badge bg-warning text-dark"
+                                <span class="badge bg-danger"
                                       aria-hidden="true">Unavailable</span>
                                 <div>The {{ doc_name }} became unavailable — it disappeared from the
                                     upstream listing.

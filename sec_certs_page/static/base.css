@@ -1605,3 +1605,16 @@ tr.has-snippets > td {
     outline-offset: 2px;
     border-radius: 0.25rem;
 }
+
+.nav-pills .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+#updates-picker .btn.disabled {
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    opacity: 1;
+}
