@@ -129,13 +129,13 @@
                     <td>{{ labs|join(", ") }}</td>
                 </tr>
             {% endif %}
-            {% if cert["heuristics"]["algorithms"] %}
+            {% if cert["pdf_data"]["module_algorithms"] %}
                 <tr>
                     <th scope="row">Algorithms</th>
                     <td>
                         <ul>
                             {# Stored as a set of "<type>#<number>" strings, so sort for a stable order. #}
-                            {% for algo in cert["heuristics"]["algorithms"]|sort %}
+                            {% for algo in cert["pdf_data"]["module_algorithms"]|sort %}
                                 {% set parts = algo.split("#") %}
                                 <li>
                                     {% if parts|length == 2 %}
