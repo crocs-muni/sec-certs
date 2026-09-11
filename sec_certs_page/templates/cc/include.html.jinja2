@@ -19,7 +19,9 @@
 {%- endmacro %}
 
 {% macro render_status(status) %}
-    {% if status == "active" %}
+    {% if not status %}
+        {{ NA }}
+    {% elif status == "active" %}
         <span class="status-active"><i class="fas fa-check-square"></i> active</span>
     {% elif status == "archived" %}
         <span class="status-archived"><i class="fas fa-times-circle"></i> archived</span>

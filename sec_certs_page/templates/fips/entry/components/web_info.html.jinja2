@@ -38,11 +38,9 @@
             <tr data-cs-name="Validation dates">
                 <th scope="row">Validation dates</th>
                 <td>
-                    {% if cert["web_data"]["validation_history"] %}
-                        {% for entry in cert["web_data"]["validation_history"] %}
-                            {{ entry["date"]|strftime("%d.%m.%Y") }}
-                            {{ ", " if not loop.last else "" }}{% endfor %}
-                    {% endif %}
+                    {% for entry in cert["web_data"]["validation_history"]|default([], true) %}
+                        {{ entry["date"]|na("%d.%m.%Y") }}
+                        {{ ", " if not loop.last else "" }}{% else %}{{ NA }}{% endfor %}
                 </td>
             </tr>
             {% if cert["web_data"]["date_sunset"] %}
@@ -53,19 +51,19 @@
             {% endif %}
             <tr data-cs-name="Standard">
                 <th scope="row">Standard</th>
-                <td>{{ cert["web_data"]["standard"] }}</td>
+                <td>{{ cert["web_data"]["standard"]|na }}</td>
             </tr>
             <tr data-cs-name="Security level">
                 <th scope="row">Security level</th>
-                <td>{{ cert["web_data"]["level"] }}</td>
+                <td>{{ cert["web_data"]["level"]|na }}</td>
             </tr>
             <tr data-cs-name="Type">
                 <th scope="row">Type</th>
-                <td>{{ render_type(cert["web_data"]["module_type"]) }} {{ cert["web_data"]["module_type"] }}</td>
+                <td>{{ render_type(cert["web_data"]["module_type"]) }} {{ cert["web_data"]["module_type"]|na }}</td>
             </tr>
             <tr data-cs-name="Embodiment">
                 <th scope="row">Embodiment</th>
-                <td>{{ cert["web_data"]["embodiment"] }}</td>
+                <td>{{ cert["web_data"]["embodiment"]|na }}</td>
             </tr>
             {% if cert["web_data"]["caveat"] %}
                 <tr data-cs-name="Caveat">
@@ -118,29 +116,34 @@
             <tr>
                 <th scope="row">Vendor</th>
                 <td>
-                    {{ cert["web_data"]["vendor"] }}{% if cert["web_data"]["vendor_www"] %} <a
-                        href="{{ cert["web_data"]['vendor_www'] }}" target="_blank"
-                        rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>{% endif %}
+                    {{ cert["web_data"]["vendor"]|na }}{% if cert["web_data"]["vendor_url"] %} <a
+                        href="{{ cert["web_data"]['vendor_url'] }}" target="_blank"
+                        rel="noopener">{{ cert["web_data"]["vendor_url"] }}</a>{% endif %}
                 </td>
             </tr>
-            {% if cert["web_data"]["lab"] %}
+            {# The labs live on the validation history entries, one per validation, and repeat across them. #}
+            {% set labs = cert["web_data"]["validation_history"]|default([], true)|map(attribute="lab")|select|unique|list %}
+            {% if labs %}
                 <tr>
                     <th scope="row">Lab</th>
-                    <td>
-                        {{ cert["web_data"]["lab"] }} {% if cert["web_data"]["lab_nvlap"] %}(NVLAP Code:
-                        {{ cert["web_data"]["lab_nvlap"] }}){% endif %}</td>
+                    <td>{{ labs|join(", ") }}</td>
                 </tr>
             {% endif %}
-            {% if cert["web_data"]["algorithms"] %}
+            {% if cert["pdf_data"]["module_algorithms"] %}
                 <tr>
                     <th scope="row">Algorithms</th>
                     <td>
                         <ul>
-                            {% for algo in cert["web_data"]["algorithms"] %}
+                            {# Stored as a set of "<type>#<number>" strings, so sort for a stable order. #}
+                            {% for algo in cert["pdf_data"]["module_algorithms"]|sort %}
+                                {% set parts = algo.split("#") %}
                                 <li>
-                                    <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["algorithm_type"] }}&number={{ algo["cert_id"].replace("#", "") }}"
-                                       target="_blank" rel="noopener">
-                                        {{ algo["algorithm_type"] }}{{ algo["cert_id"] }}</a>
+                                    {% if parts|length == 2 %}
+                                        <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ parts[0] }}&number={{ parts[1] }}"
+                                           target="_blank" rel="noopener">{{ algo }}</a>
+                                    {% else %}
+                                        {{ algo }}
+                                    {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>

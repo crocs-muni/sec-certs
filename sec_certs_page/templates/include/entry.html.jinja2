@@ -626,6 +626,8 @@
             {%- endif %}
             {% if not loop.last %} {% endif %}
         {% endfor %}
+    {% else %}
+        {{ NA }}
     {% endif %}
 {% endmacro %}
 

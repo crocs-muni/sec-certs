@@ -14,14 +14,12 @@
         </tr>
         <tr data-cs-name="Valid from">
             <th scope="row">Valid from</th>
-            <td>{{ cert["not_valid_before"]|strftime("%d.%m.%Y") }}</td>
+            <td>{{ cert["not_valid_before"]|na("%d.%m.%Y") }}</td>
         </tr>
-        {% if cert["not_valid_after"] %}
-            <tr data-cs-name="Valid until">
-                <th scope="row">Valid until</th>
-                <td>{{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</td>
-            </tr>
-        {% endif %}
+        <tr data-cs-name="Valid until">
+            <th scope="row">Valid until</th>
+            <td>{{ cert["not_valid_after"]|na("%d.%m.%Y") }}</td>
+        </tr>
         <tr data-cs-name="Certification scheme">
             <th scope="row">Scheme</th>
             <td>{{ country_to_flag(cert["scheme"]) }} {{ cert['scheme'] }}</td>
@@ -31,9 +29,9 @@
             <td>
                 {% if cert["manufacturer_web"] %}
                     <a href="{{ cert["manufacturer_web"] }}" target="_blank"
-                       rel="noopener">{{ cert["manufacturer"] }}</a>
+                       rel="noopener">{{ cert["manufacturer"]|na }}</a>
                 {% else %}
-                    {{ cert["manufacturer"] }}
+                    {{ cert["manufacturer"]|na }}
                 {% endif %}
             </td>
         </tr>
@@ -46,6 +44,8 @@
             <td>
                 {% for level in cert["security_level"] %}
                     {{ render_eal(level) }}{%- if not loop.last -%}, {%- endif -%}
+                {% else %}
+                    {{ NA }}
                 {% endfor %}
             </td>
         </tr>
@@ -74,8 +74,8 @@
                         <th scope="row" rowspan="{{ updates|length }}">Maintenance updates</th>
                     {% endif %}
                     <td>
-                        {{ update["maintenance_title"] }}
-                        ({{ update["maintenance_date"]|strftime("%d.%m.%Y") }})
+                        {{ update["maintenance_title"]|na }}
+                        ({{ update["maintenance_date"]|na("%d.%m.%Y") }})
                         {% if update["maintenance_report_link"] %}
                             <a href="{{ update["maintenance_report_link"] }}" target="_blank"
                                rel="noopener"><i class="fas fa-file-contract"></i> Certification report</a>
