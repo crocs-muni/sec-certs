@@ -46,11 +46,11 @@
         </tr>
         <tr data-cs-name="Product name">
             <th scope="row">Product name</th>
-            <td>{{ cert["other_metadata"]["product_name"] }}</td>
+            <td>{{ cert["other_metadata"]["product_name"]|na }}</td>
         </tr>
         <tr data-cs-name="Scheme">
             <th scope="row">Scheme</th>
-            <td>{{ country_to_flag(cert["scheme"]) }} {{ cert['scheme'] }}</td>
+            <td>{{ country_to_flag(cert["scheme"]) }} {{ cert['scheme']|na }}</td>
         </tr>
         <tr data-cs-name="Assurance level">
             <th scope="row">Assurance level</th>
@@ -72,7 +72,7 @@
         <tbody>
         <tr data-cs-name="Product type">
             <th scope="row">Type</th>
-            <td>{{ cert["other_metadata"]["product_type"] }}</td>
+            <td>{{ cert["other_metadata"]["product_type"]|na }}</td>
         </tr>
         <tr data-cs-name="Product Description">
             <th scope="row">Description</th>
@@ -101,13 +101,13 @@
                         </button>
                     </div>
                 {% else %}
-                    {{ desc if desc else "N/A" }}
+                    {{ desc|na }}
                 {% endif %}
             </td>
         </tr>
         <tr data-cs-name="Product version">
             <th scope="row">Version</th>
-            <td>{{ cert["other_metadata"]["product_version"] }}</td>
+            <td>{{ cert["other_metadata"]["product_version"]|na }}</td>
         </tr>
         {% if profiles %}
             <tr data-cs-name="Protection profiles">
@@ -154,7 +154,7 @@
                     {% if not loop.last %}<br>{% endif %}
                 {% endfor %}
             {% else %}
-                N/A
+                {{ NA }}
             {% endif %}
             </td>
         </tr>
@@ -170,11 +170,11 @@
         <tbody>
         <tr data-cs-name="Certificate holder name">
             <th scope="row">Name</th>
-            <td>{{ cert["other_metadata"]["holder_name"] }}</td>
+            <td>{{ cert["other_metadata"]["holder_name"]|na }}</td>
         </tr>
         <tr data-cs-name="Certificate holder Address">
             <th scope="row">Address</th>
-            <td>{{ cert["other_metadata"]["holder_address"] }}</td>
+            <td>{{ cert["other_metadata"]["holder_address"]|na }}</td>
         </tr>
         <tr data-cs-name="Certificate holder contact information">
             <th scope="row">Contact information</th>
@@ -196,7 +196,7 @@
         <tbody>
         <tr data-cs-name="Name of the CB">
             <th scope="row">Name</th>
-            <td>{{ cert["other_metadata"]["certification_body"] }}</td>
+            <td>{{ cert["other_metadata"]["certification_body"]|na }}</td>
         </tr>
         <tr data-cs-name="NANDO ID of the CB">
             <th scope="row">
@@ -205,17 +205,21 @@
             </th>
             <td>
                 {% set nando_id = cert["other_metadata"]["nando_id"] %}
-                <a href="https://webgate.ec.europa.eu/single-market-compliance-space/notified-bodies/free-search?filter=notificationStatus:1,bodyNumber:{{ nando_id }}"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="fw-semibold text-decoration-none">
-                    {{ nando_id }}
-                </a>
+                {% if nando_id %}
+                    <a href="https://webgate.ec.europa.eu/single-market-compliance-space/notified-bodies/free-search?filter=notificationStatus:1,bodyNumber:{{ nando_id }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="fw-semibold text-decoration-none">
+                        {{ nando_id }}
+                    </a>
+                {% else %}
+                    {{ NA }}
+                {% endif %}
             </td>
         </tr>
         <tr data-cs-name="Address of the CB">
             <th scope="row">Address</th>
-            <td>{{ cert["other_metadata"]["certification_body_address"] }}</td>
+            <td>{{ cert["other_metadata"]["certification_body_address"]|na }}</td>
         </tr>
         <tr data-cs-name="Contact information of the CB">
             <th scope="row">Contact information</th>
@@ -233,11 +237,11 @@
         <tbody>
         <tr data-cs-name="CC Version">
             <th scope="row">CC Version</th>
-            <td>{{ cert["other_metadata"]["cc_version"] }}</td>
+            <td>{{ cert["other_metadata"]["cc_version"]|na }}</td>
         </tr>
         <tr data-cs-name="CEM Version">
             <th scope="row">CEM Version</th>
-            <td>{{ cert["other_metadata"]["cem_version"] }}</td>
+            <td>{{ cert["other_metadata"]["cem_version"]|na }}</td>
         </tr>
         <tr data-cs-name="AVA_VAN level">
             <th scope="row">AVA_VAN level</th>
@@ -248,7 +252,7 @@
                 <abbr title="Reference to the certification report associated with the certificate referred to in Annex V">Certification
                     report reference</abbr>
             </th>
-            <td>{{ cert["other_metadata"]["report_reference"] }}</td>
+            <td>{{ cert["other_metadata"]["report_reference"]|na }}</td>
         </tr>
         </tbody>
     </table>
@@ -264,35 +268,37 @@
             <th scope="row"><abbr
                     title="Name of the ITSEF which performed the evaluation">ITSEF</abbr>
             </th>
-            <td>{{ cert["other_metadata"]["itsef"] }}</td>
+            <td>{{ cert["other_metadata"]["itsef"]|na }}</td>
         </tr>
         <tr data-cs-name="Responsible NCCA">
             <th scope="row">Responsible <abbr
                     title="National Cybersecurity Certification Authority">NCCA</abbr>
             </th>
-            <td>{{ cert["other_metadata"]["responsible_ncca"] }}</td>
+            <td>{{ cert["other_metadata"]["responsible_ncca"]|na }}</td>
         </tr>
         <tr data-cs-name="Protection profile">
             <th scope="row">Protection profile</th>
-            <td>{{ cert["other_metadata"]["protection_profile"] }}</td>
+            <td>{{ cert["other_metadata"]["protection_profile"]|na }}</td>
         </tr>
         <tr data-cs-name="Certification date">
             <th scope="row">Certification date</th>
-            <td>{{ cert.get("not_valid_before")|strftime("%d.%m.%Y") if cert.get("not_valid_before") else "" }}</td>
+            <td>{{ cert["not_valid_before"]|na("%d.%m.%Y") }}</td>
         </tr>
         <tr data-cs-name="Archived data">
             <th scope="row">Archived date</th>
-            <td>{{ cert.get("not_valid_after")|strftime("%d.%m.%Y") if cert.get("not_valid_after") else "" }}</td>
+            <td>{{ cert["not_valid_after"]|na("%d.%m.%Y") }}</td>
         </tr>
         </tbody>
     </table>
 
-    <div class="mt-2 mb-2">
-        <a class="btn btn-outline-primary" role="button"
-           href="https://certification.enisa.europa.eu/certificates/{{ cert["other_metadata"]["certificate_id"] | replace("CERTIFICATE ", "", 1) }}"
-           data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Open certificate on ENISA's webpage"
-           target="_blank"
-           rel="noopener"><i
-                class="fas fa-external-link-alt"></i> Certificate webpage</a>
-    </div>
+    {% if cert["other_metadata"]["certificate_id"] %}
+        <div class="mt-2 mb-2">
+            <a class="btn btn-outline-primary" role="button"
+               href="https://certification.enisa.europa.eu/certificates/{{ cert["other_metadata"]["certificate_id"] | replace("CERTIFICATE ", "", 1) }}"
+               data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Open certificate on ENISA's webpage"
+               target="_blank"
+               rel="noopener"><i
+                    class="fas fa-external-link-alt"></i> Certificate webpage</a>
+        </div>
+    {% endif %}
 {% endcall %}

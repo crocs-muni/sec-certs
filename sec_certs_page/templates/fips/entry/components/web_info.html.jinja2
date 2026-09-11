@@ -38,11 +38,9 @@
             <tr data-cs-name="Validation dates">
                 <th scope="row">Validation dates</th>
                 <td>
-                    {% if cert["web_data"]["validation_history"] %}
-                        {% for entry in cert["web_data"]["validation_history"] %}
-                            {{ entry["date"]|strftime("%d.%m.%Y") }}
-                            {{ ", " if not loop.last else "" }}{% endfor %}
-                    {% endif %}
+                    {% for entry in cert["web_data"]["validation_history"]|default([], true) %}
+                        {{ entry["date"]|na("%d.%m.%Y") }}
+                        {{ ", " if not loop.last else "" }}{% else %}{{ NA }}{% endfor %}
                 </td>
             </tr>
             {% if cert["web_data"]["date_sunset"] %}
@@ -53,19 +51,19 @@
             {% endif %}
             <tr data-cs-name="Standard">
                 <th scope="row">Standard</th>
-                <td>{{ cert["web_data"]["standard"] }}</td>
+                <td>{{ cert["web_data"]["standard"]|na }}</td>
             </tr>
             <tr data-cs-name="Security level">
                 <th scope="row">Security level</th>
-                <td>{{ cert["web_data"]["level"] }}</td>
+                <td>{{ cert["web_data"]["level"]|na }}</td>
             </tr>
             <tr data-cs-name="Type">
                 <th scope="row">Type</th>
-                <td>{{ render_type(cert["web_data"]["module_type"]) }} {{ cert["web_data"]["module_type"] }}</td>
+                <td>{{ render_type(cert["web_data"]["module_type"]) }} {{ cert["web_data"]["module_type"]|na }}</td>
             </tr>
             <tr data-cs-name="Embodiment">
                 <th scope="row">Embodiment</th>
-                <td>{{ cert["web_data"]["embodiment"] }}</td>
+                <td>{{ cert["web_data"]["embodiment"]|na }}</td>
             </tr>
             {% if cert["web_data"]["caveat"] %}
                 <tr data-cs-name="Caveat">
@@ -118,7 +116,7 @@
             <tr>
                 <th scope="row">Vendor</th>
                 <td>
-                    {{ cert["web_data"]["vendor"] }}{% if cert["web_data"]["vendor_www"] %} <a
+                    {{ cert["web_data"]["vendor"]|na }}{% if cert["web_data"]["vendor_www"] %} <a
                         href="{{ cert["web_data"]['vendor_www'] }}" target="_blank"
                         rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>{% endif %}
                 </td>
