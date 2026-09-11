@@ -7,6 +7,7 @@ import sentry_sdk
 from flag import flag
 from flask import current_app, request
 from flask_principal import Permission, RoleNeed
+from jinja2 import Undefined
 from markupsafe import Markup
 from nacl.hashlib import blake2b
 from sec_certs.utils.extract import flatten_matches as dict_flatten
@@ -16,7 +17,7 @@ from . import app, cache, runtime_config
 from .common.constants import JAVACARD_PACKAGES_LOOKUP, PKCS_RFC
 from .common.keyword_groups import KEYWORD_GROUPS, build_keyword_tree
 
-app.add_template_global(KEYWORD_GROUPS, "KEYWORD_GROUPS")
+app.jinja_env.globals["KEYWORD_GROUPS"] = KEYWORD_GROUPS
 app.add_template_global(build_keyword_tree, "keyword_tree")
 
 
@@ -48,6 +49,22 @@ def filter_strftime(dt_obj, format):
     if isinstance(dt_obj, (datetime, date)):
         return dt_obj.strftime(format)
     raise TypeError("Not a datetime or a date")
+
+
+NA = Markup("<span>N/A</span>")
+app.jinja_env.globals["NA"] = NA
+
+
+@app.template_filter("na")
+def filter_na(value, format=None):
+    if value is None or isinstance(value, Undefined):
+        return NA
+    if isinstance(value, str) and not value:
+        return NA
+    if format is not None and isinstance(value, (datetime, date)):
+        return value.strftime(format)
+
+    return value
 
 
 @app.template_filter("fromisoformat")
