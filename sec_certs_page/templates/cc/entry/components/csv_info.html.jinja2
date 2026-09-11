@@ -16,12 +16,10 @@
             <th scope="row">Valid from</th>
             <td>{{ cert["not_valid_before"]|na("%d.%m.%Y") }}</td>
         </tr>
-        {% if cert["not_valid_after"] %}
-            <tr data-cs-name="Valid until">
-                <th scope="row">Valid until</th>
-                <td>{{ cert["not_valid_after"]|strftime("%d.%m.%Y") }}</td>
-            </tr>
-        {% endif %}
+        <tr data-cs-name="Valid until">
+            <th scope="row">Valid until</th>
+            <td>{{ cert["not_valid_after"]|na("%d.%m.%Y") }}</td>
+        </tr>
         <tr data-cs-name="Certification scheme">
             <th scope="row">Scheme</th>
             <td>{{ country_to_flag(cert["scheme"]) }} {{ cert['scheme'] }}</td>
