@@ -327,19 +327,20 @@ def build_chart_pipeline(
             pipeline.append({"$addFields": add_fields_stage})
 
         # Project only the fields we need for the chart
-        project_fields = {chart.x_axis.field: 1}
+        x_field_flat = chart.x_axis.field.replace(".", "_")
+        project_fields: dict[str, Any] = {"_id": 0, x_field_flat: f"${chart.x_axis.field}"}
         # For box plots, include y_field if it's a real field (not a placeholder like "count")
         if chart.chart_type in (ChartType.BOX, ChartType.SCATTER) and chart.y_axis and chart.y_axis.field:
             # Only project if it's not a placeholder aggregation value
             aggregation_placeholders = {agg.value for agg in AggregationType}
             if chart.y_axis.field not in aggregation_placeholders:
-                project_fields[chart.y_axis.field] = 1
+                project_fields[chart.y_axis.field.replace(".", "_")] = f"${chart.y_axis.field}"
         if chart.color_axis and chart.color_axis.field:
-            project_fields[chart.color_axis.field] = 1
+            project_fields[chart.color_axis.field.replace(".", "_")] = f"${chart.color_axis.field}"
         pipeline.append({"$project": project_fields})
 
         # Sort by x-axis for better visualization
-        pipeline.append({"$sort": {chart.x_axis.field: 1}})
+        pipeline.append({"$sort": {x_field_flat: 1}})
         return pipeline
 
     # For other chart types, use aggregation

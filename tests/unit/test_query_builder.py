@@ -1,12 +1,22 @@
 """Unit tests for QueryBuilder query generation and derived-field resolution.
 
 Pure unit tests (no MongoDB or fixtures). They exercise the public
-``build_query_from_filters`` API and the public ``resolve_derived_field`` dispatch,
-covering the FIPS ``web_data.validation_history`` array special-case and the
-collection-specific year extraction.
+``build_query_from_filters`` and ``build_chart_pipeline`` APIs and the public
+``resolve_derived_field`` dispatch, covering the FIPS ``web_data.validation_history``
+array special-case, the collection-specific year extraction and the projection of
+nested fields for raw-data charts.
 """
 
-from sec_certs_page.dashboard.filters.query_builder import build_query_from_filters, resolve_derived_field
+from uuid import uuid4
+
+import pytest
+from sec_certs_page.dashboard.chart.config import AxisConfig, ChartConfig
+from sec_certs_page.dashboard.filters.query_builder import (
+    build_chart_pipeline,
+    build_query_from_filters,
+    resolve_derived_field,
+)
+from sec_certs_page.dashboard.types.chart import ChartType
 from sec_certs_page.dashboard.types.common import CollectionName
 
 # Expected contract values, written as literals so the tests pin them independently
@@ -97,3 +107,34 @@ class TestResolveDerivedField:
     def test_unknown_field_returns_none(self) -> None:
         """A non-derived field name resolves to None."""
         assert resolve_derived_field("category", CollectionName.CommonCriteria) is None
+
+
+class TestRawDataChartPipeline:
+    """Pipelines for chart types that plot raw documents (histogram, box, scatter)."""
+
+    @pytest.mark.parametrize("chart_type", [ChartType.HISTOGRAM, ChartType.BOX, ChartType.SCATTER])
+    def test_nested_fields_projected_as_flat_columns(self, chart_type: ChartType) -> None:
+        """Nested axis fields are projected as top-level columns with dots flattened.
+
+        Projecting ``{"web_data.standard": 1}`` returns a nested ``web_data`` document,
+        so the figure builder never saw a column for the axis field (issue #685).
+        """
+        chart = ChartConfig(
+            chart_id=uuid4(),
+            name="fips-raw-chart",
+            title="CVEs per FIPS version",
+            chart_type=chart_type,
+            collection_name=CollectionName.FIPS140,
+            x_axis=AxisConfig(field="web_data.standard", label="FIPS Standard"),
+            y_axis=AxisConfig(field="cve_count", label="CVE Count"),
+            color_axis=AxisConfig(field="web_data.level", label="Security Level"),
+        )
+
+        pipeline = build_chart_pipeline(chart)
+
+        project = next(stage["$project"] for stage in pipeline if "$project" in stage)
+        assert project["_id"] == 0
+        assert project["web_data_standard"] == "$web_data.standard"
+        assert project["web_data_level"] == "$web_data.level"
+        assert not any("." in column for column in project)
+        assert pipeline[-1] == {"$sort": {"web_data_standard": 1}}

@@ -36,10 +36,11 @@ class FigureBuilder:
         if df.empty:
             return cls._empty_figure("No data available")
 
-        x_field = config.x_axis.field
-        y_field = config.y_axis.field if config.y_axis else None
+        # Flatten dots for nested fields (matches query_builder output)
+        x_field = config.x_axis.field.replace(".", "_")
+        y_field = config.y_axis.field.replace(".", "_") if config.y_axis else None
         aggregation = config.y_axis.aggregation if config.y_axis else None
-        color_field = config.color_axis.field if config.color_axis else None
+        color_field = config.color_axis.field.replace(".", "_") if config.color_axis else None
 
         try:
             df, hover_data = cls._truncate_xaxis_ticks_label(df, x_field)
