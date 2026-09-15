@@ -42,10 +42,6 @@ COLUMN_HEADERS: dict[str, str] = {
 _WHITESPACE_RE = re.compile(r"\s+")
 
 
-class UnexpectedIndexSchema(ValueError):
-    """The portal table no longer has the columns we know how to read"""
-
-
 def _cell_text(cell: Tag) -> str:
     # <br> separates words inside a cell
     return _WHITESPACE_RE.sub(" ", cell.get_text(" ")).strip()
@@ -62,24 +58,24 @@ def parse_index_table(page: str) -> list[dict[str, str]]:
     # return = rows keyed by the field names in :data:`COLUMN_HEADERS`
     table = BeautifulSoup(page, "html5lib").select_one("table.wpDataTable")
     if not table:
-        raise UnexpectedIndexSchema("no wpDataTable element found on the page")
+        raise ValueError("no wpDataTable element found on the page")
 
     headers = [_cell_text(th) for th in table.select("thead th")]
     unknown = set(headers) - set(COLUMN_HEADERS)
     missing = set(COLUMN_HEADERS) - set(headers)
     if unknown or missing:
-        raise UnexpectedIndexSchema(f"unexpected columns (extra={sorted(unknown)}, missing={sorted(missing)})")
+        raise ValueError(f"unexpected columns (extra={sorted(unknown)}, missing={sorted(missing)})")
     fields = [COLUMN_HEADERS[h] for h in headers]
 
     body = table.find("tbody")
     if not isinstance(body, Tag):
-        raise UnexpectedIndexSchema("table has no tbody")
+        raise ValueError("table has no tbody")
 
     rows = []
     for row in body.select("tr"):
         cells = row.find_all("td")
         if len(cells) != len(fields):
-            raise UnexpectedIndexSchema(f"row has {len(cells)} cells, expected {len(fields)}")
+            raise ValueError(f"row has {len(cells)} cells, expected {len(fields)}")
         rows.append(dict(zip(fields, (_cell_value(c) for c in cells))))
     return rows
 
