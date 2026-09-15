@@ -8,6 +8,7 @@ from pathlib import Path
 
 from sec_certs.sample.certificate import Certificate
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
@@ -15,14 +16,14 @@ from sec_certs.utils.helpers import get_first_16_bytes_sha256
 
 
 @dataclass
-class InternalState(ComplexSerializableType):
+class InternalState(BaseInternalState, ComplexSerializableType):
     # two artifacts per certificate
     cert: DocumentState = field(default_factory=DocumentState)
     st: DocumentState = field(default_factory=DocumentState)
 
 
 class SESIPCertificate(
-    Certificate["SESIPCertificate", "SESIPCertificate.Heuristics", "SESIPCertificate.PdfData"],
+    Certificate["SESIPCertificate", "SESIPCertificate.Heuristics", "SESIPCertificate.PdfData", "InternalState"],
     ComplexSerializableType,
 ):
     # single sesip CERT
