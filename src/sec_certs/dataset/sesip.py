@@ -129,7 +129,9 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     @serialize
     @staged(logger, "Downloading and processing certificates.")
     @only_backed()
-    def get_certs_from_web(self, to_download: bool = True, keep_metadata: bool = True) -> None:
+    def get_certs_from_web(
+        self, to_download: bool = True, keep_metadata: bool = True, carry_processing_results: bool = False
+    ) -> None:
         self.web_dir.mkdir(parents=True, exist_ok=True)
 
         if to_download:
@@ -137,13 +139,17 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         if not self.index_path.exists():
             raise ValueError(f"No index at {self.index_path}, run with to_download=True first")
 
+        old_certs = self.certs
         self.certs = {x.dgst: x for x in self._get_all_certs_from_index()}
         logger.info(f"Dataset contains {len(self)} certificates")
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-        self._set_local_paths()
+        if carry_processing_results:
+            self._carry_processing_results(old_certs)
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
@@ -152,7 +158,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         raise NotImplementedError("not implemented yet.")
 
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         raise NotImplementedError("not implemented yet.")
 
     def _compute_heuristics_body(self) -> None:
