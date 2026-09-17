@@ -23,8 +23,11 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# review(jakub): this should go to the sec_certs.constants
 INDEX_URL = "https://trustcb.com/iot/sesip/sesip-certificates/"
 
+# review(jakub): this is used just by the parse_index_table; if you want to have it as a constant, I'd move it closer to the place where it
+#                it is actually used. But personally, I would just define in the function as I dont see a reason to have it in this scope at all.
 # header to field name
 COLUMN_HEADERS: dict[str, str] = {
     "Cert. ID": "cert_id",
@@ -42,6 +45,12 @@ COLUMN_HEADERS: dict[str, str] = {
 _WHITESPACE_RE = re.compile(r"\s+")
 
 
+# review(jakub): I'd move this whole block (_cell_text, _cell_value, parse_index_table) into SESIPDataset
+#                as private staticmethods, It's only called from _get_all_certs_from_index and it isn't reusable
+#                outside SESIP currently.
+#                Every other dataset keeps its index parsing on the class: CCDataset._parse_single_html,
+#                ProtectionProfileDataset._parse_single_html, FIPSDataset._get_certificates_from_html,
+#                EUCCDataset._parse_page_metadata.
 def _cell_text(cell: Tag) -> str:
     # <br> separates words inside a cell
     return _WHITESPACE_RE.sub(" ", cell.get_text(" ")).strip()
@@ -52,6 +61,10 @@ def _cell_value(cell: Tag) -> str:
     return str(link["href"]) if isinstance(link, Tag) else _cell_text(cell)
 
 
+# review(Claude Code): Terminated certs are the edge case that breaks it:
+#                SESIP-2100003-01 has <a href=".../policies-procedures/certification-terminated">
+#                <button>TERMINATED</button></a> in the Cert column, so cert_link ends up as the
+#                policy page instead of None and we would download an HTML page as the certificate.
 def parse_index_table(page: str) -> list[dict[str, str]]:
     # parsing the index table into one dict per certificate
 

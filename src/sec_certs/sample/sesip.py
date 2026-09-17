@@ -17,6 +17,10 @@ from sec_certs.utils.helpers import get_first_16_bytes_sha256
 
 @dataclass
 class InternalState(BaseInternalState, ComplexSerializableType):
+    # review(jakub): I believe any reader can count, so I don't see the need for this comment at all.
+    #                Comments should be used where reading the code alone might not provide clarity, such as explaining WHY something is done in a particular way.
+    #                This comment doesn’t offer any insights that the reader couldn't already infer from the code itself. Delete it.
+    #                Same applies for some other comments in this file. Go trough them and delete them if they are useless.
     # two artifacts per certificate
     cert: DocumentState = field(default_factory=DocumentState)
     st: DocumentState = field(default_factory=DocumentState)
@@ -32,6 +36,7 @@ class SESIPCertificate(
     class IndexData(ComplexSerializableType):
         """row of the TrustCB index table"""
 
+        # review(jakub): This should contain ALL fields from the table, so the cert_id as well.
         product: str | None = None
         developer: str | None = None
         evaluator: str | None = None
