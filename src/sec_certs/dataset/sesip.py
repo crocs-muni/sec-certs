@@ -124,7 +124,11 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         try:
             return super().__getitem__(item)
         except KeyError:
-            return super().__getitem__(get_first_16_bytes_sha256(item))
+            pass
+        try:
+            return super().__getitem__(get_first_16_bytes_sha256(item.upper()))
+        except KeyError:
+            raise KeyError(item) from None
 
     def _set_local_paths(self) -> None:
         super()._set_local_paths()
