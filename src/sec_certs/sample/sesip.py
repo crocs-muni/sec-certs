@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, fields
 from datetime import date
 from pathlib import Path
 
-from sec_certs.sample.certificate import Certificate
+from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
@@ -49,15 +49,20 @@ class SESIPCertificate(
 
         @classmethod
         def from_row(cls, row: dict[str, str]) -> SESIPCertificate.IndexData:
-            known = {f.name for f in fields(cls)}
             # empty cell defaults to none
-            return cls.from_dict({k: v.strip() for k, v in row.items() if k in known and v.strip()})
+            return cls.from_dict({k: v for k, v in row.items() if v})
 
         @classmethod
         def from_dict(cls, dct: dict) -> SESIPCertificate.IndexData:
-            values = dict(dct)
-            if isinstance(values.get("issue_date"), str):
-                values["issue_date"] = date.fromisoformat(values["issue_date"])
+            known = {f.name for f in fields(cls)}
+            values = {k: v for k, v in dct.items() if k in known}
+            raw_date = values.get("issue_date")
+            if isinstance(raw_date, str):
+                try:
+                    values["issue_date"] = date.fromisoformat(raw_date)
+                except ValueError:
+                    logger.warning(f"Ignoring an unparsable issue_date: {raw_date!r}")
+                    values["issue_date"] = None
             return cls(**values)
 
     @dataclass
