@@ -94,7 +94,8 @@ def parse_index_table(page: str) -> list[dict[str, str]]:
     for row in body.select("tr"):
         cells = row.find_all("td")
         if len(cells) != len(fields):
-            raise ValueError(f"row has {len(cells)} cells, expected {len(fields)}")
+            logger.warning(f"Skipping a row with {len(cells)} cells, expected {len(fields)}")
+            continue
         rows.append({field: _cell_value(cell, field) for field, cell in zip(fields, cells)})
     return rows
 
@@ -139,7 +140,13 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
 
     def _get_all_certs_from_index(self) -> list[SESIPCertificate]:
         rows = parse_index_table(self.index_path.read_text(encoding="utf-8"))
-        return [SESIPCertificate.from_index_row(row) for row in rows]
+        certs = []
+        for row in rows:
+            try:
+                certs.append(SESIPCertificate.from_index_row(row))
+            except ValueError as e:
+                logger.warning(f"Skipping a row that failed to parse: {e}")
+        return certs
 
     @serialize
     @staged(logger, "Downloading and processing certificates.")
