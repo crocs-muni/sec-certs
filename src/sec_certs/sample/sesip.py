@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from datetime import date
 from pathlib import Path
+from typing import cast
 
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -36,7 +37,7 @@ class SESIPCertificate(
     class IndexData(ComplexSerializableType):
         """row of the TrustCB index table"""
 
-        # review(jakub): This should contain ALL fields from the table, so the cert_id as well.
+        cert_id: str | None = None
         product: str | None = None
         developer: str | None = None
         evaluator: str | None = None
@@ -76,24 +77,27 @@ class SESIPCertificate(
 
     def __init__(
         self,
-        cert_id: str,
-        index_data: SESIPCertificate.IndexData | None = None,
+        index_data: SESIPCertificate.IndexData,
         pdf_data: SESIPCertificate.PdfData | None = None,
         heuristics: SESIPCertificate.Heuristics | None = None,
         state: InternalState | None = None,
     ):
         super().__init__()
-        self.cert_id = cert_id
-        self.index_data = index_data if index_data else SESIPCertificate.IndexData()
+        if not index_data.cert_id:
+            raise ValueError("index_data has no cert_id, which is the primary key")
+        self.index_data = index_data
         self.pdf_data = pdf_data if pdf_data else SESIPCertificate.PdfData()
         self.heuristics = heuristics if heuristics else SESIPCertificate.Heuristics()
         self.state = state if state else InternalState()
 
     @classmethod
     def from_index_row(cls, row: dict[str, str]) -> SESIPCertificate:
-        if not row.get("cert_id"):
-            raise ValueError("row has no cert_id, which is the primary key")
-        return cls(cert_id=row["cert_id"], index_data=cls.IndexData.from_row(row))
+        return cls(cls.IndexData.from_row(row))
+
+    @property
+    def cert_id(self) -> str:
+        # __init__ rejects an IndexData without a cert_id -> this is never None
+        return cast(str, self.index_data.cert_id)
 
     @property
     def dgst(self) -> str:
