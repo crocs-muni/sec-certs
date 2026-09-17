@@ -42,6 +42,9 @@ COLUMN_HEADERS: dict[str, str] = {
 
 _WHITESPACE_RE = re.compile(r"\s+")
 
+# the only columns with link value
+LINK_FIELDS = frozenset({"cert_link", "st_link"})
+
 
 # review(jakub): I'd move this whole block (_cell_text, _cell_value, parse_index_table) into SESIPDataset
 #                as private staticmethods, It's only called from _get_all_certs_from_index and it isn't reusable
@@ -54,15 +57,20 @@ def _cell_text(cell: Tag) -> str:
     return _WHITESPACE_RE.sub(" ", cell.get_text(" ")).strip()
 
 
-def _cell_value(cell: Tag) -> str:
+def _cell_value(cell: Tag, field: str) -> str:
+    if field not in LINK_FIELDS:
+        return _cell_text(cell)
     link = cell.find("a", href=True)
-    return str(link["href"]) if isinstance(link, Tag) else _cell_text(cell)
+    if not isinstance(link, Tag):
+        return ""
+    href = str(link["href"])
+    # terminated certificates link to a policy page instead of a document
+    if "/download/" not in href:
+        logger.warning(f"Ignoring non-document {field}: {href}")
+        return ""
+    return href
 
 
-# review(Claude Code): Terminated certs are the edge case that breaks it:
-#                SESIP-2100003-01 has <a href=".../policies-procedures/certification-terminated">
-#                <button>TERMINATED</button></a> in the Cert column, so cert_link ends up as the
-#                policy page instead of None and we would download an HTML page as the certificate.
 def parse_index_table(page: str) -> list[dict[str, str]]:
     # parsing the index table into one dict per certificate
 
@@ -87,7 +95,7 @@ def parse_index_table(page: str) -> list[dict[str, str]]:
         cells = row.find_all("td")
         if len(cells) != len(fields):
             raise ValueError(f"row has {len(cells)} cells, expected {len(fields)}")
-        rows.append(dict(zip(fields, (_cell_value(c) for c in cells))))
+        rows.append({field: _cell_value(cell, field) for field, cell in zip(fields, cells)})
     return rows
 
 
