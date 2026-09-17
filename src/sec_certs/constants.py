@@ -90,6 +90,8 @@ FIPS_DOWNLOAD_DELAY = 1
 
 FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z- ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
 
+SESIP_INDEX_URL = "https://trustcb.com/iot/sesip/sesip-certificates/"
+
 TAG_CERT_ID = "cert_id"
 TAG_CC_SECURITY_LEVEL = "cc_security_level"
 TAG_CC_VERSION = "cc_version"
