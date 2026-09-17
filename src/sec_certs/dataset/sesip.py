@@ -24,86 +24,73 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# review(jakub): this is used just by the parse_index_table; if you want to have it as a constant, I'd move it closer to the place where it
-#                it is actually used. But personally, I would just define in the function as I dont see a reason to have it in this scope at all.
-# header to field name
-COLUMN_HEADERS: dict[str, str] = {
-    "Cert. ID": "cert_id",
-    "Issue Date": "issue_date",
-    "Product": "product",
-    "Developer": "developer",
-    "Evaluator": "evaluator",
-    "Compliance": "compliance",
-    "Standard": "standard",
-    "Status": "status",
-    "Cert": "cert_link",
-    "ST": "st_link",
-}
-
-_WHITESPACE_RE = re.compile(r"\s+")
-
-# the only columns with link value
-LINK_FIELDS = frozenset({"cert_link", "st_link"})
-
-
-# review(jakub): I'd move this whole block (_cell_text, _cell_value, parse_index_table) into SESIPDataset
-#                as private staticmethods, It's only called from _get_all_certs_from_index and it isn't reusable
-#                outside SESIP currently.
-#                Every other dataset keeps its index parsing on the class: CCDataset._parse_single_html,
-#                ProtectionProfileDataset._parse_single_html, FIPSDataset._get_certificates_from_html,
-#                EUCCDataset._parse_page_metadata.
-def _cell_text(cell: Tag) -> str:
-    # <br> separates words inside a cell
-    return _WHITESPACE_RE.sub(" ", cell.get_text(" ")).strip()
-
-
-def _cell_value(cell: Tag, field: str) -> str:
-    if field not in LINK_FIELDS:
-        return _cell_text(cell)
-    link = cell.find("a", href=True)
-    if not isinstance(link, Tag):
-        return ""
-    href = str(link["href"])
-    # terminated certificates link to a policy page instead of a document
-    if "/download/" not in href:
-        logger.warning(f"Ignoring non-document {field}: {href}")
-        return ""
-    return href
-
-
-def parse_index_table(page: str) -> list[dict[str, str]]:
-    # parsing the index table into one dict per certificate
-
-    # return = rows keyed by the field names in :data:`COLUMN_HEADERS`
-    table = BeautifulSoup(page, "html5lib").select_one("table.wpDataTable")
-    if not table:
-        raise ValueError("no wpDataTable element found on the page")
-
-    headers = [_cell_text(th) for th in table.select("thead th")]
-    unknown = set(headers) - set(COLUMN_HEADERS)
-    missing = set(COLUMN_HEADERS) - set(headers)
-    if unknown or missing:
-        raise ValueError(f"unexpected columns (extra={sorted(unknown)}, missing={sorted(missing)})")
-    fields = [COLUMN_HEADERS[h] for h in headers]
-
-    body = table.find("tbody")
-    if not isinstance(body, Tag):
-        raise ValueError("table has no tbody")
-
-    rows = []
-    for row in body.select("tr"):
-        cells = row.find_all("td")
-        if len(cells) != len(fields):
-            logger.warning(f"Skipping a row with {len(cells)} cells, expected {len(fields)}")
-            continue
-        rows.append({field: _cell_value(cell, field) for field, cell in zip(fields, cells)})
-    return rows
-
 
 class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     """Dataset of SESIP certificates by TrustCB"""
 
     INDEX_HTML: Final[str] = "sesip_certificates.html"
+
+    @staticmethod
+    def _parse_index_table(page: str) -> list[dict[str, str]]:  # noqa: C901
+        """
+        Parses the TrustCB index table into one dict per certificate, keyed by the
+        field names that SESIPCertificate.IndexData expects.
+        """
+        column_headers = {
+            "Cert. ID": "cert_id",
+            "Issue Date": "issue_date",
+            "Product": "product",
+            "Developer": "developer",
+            "Evaluator": "evaluator",
+            "Compliance": "compliance",
+            "Standard": "standard",
+            "Status": "status",
+            "Cert": "cert_link",
+            "ST": "st_link",
+        }
+        # the only columns whose value is a link; everything else is read as text
+        link_fields = frozenset({"cert_link", "st_link"})
+        whitespace_re = re.compile(r"\s+")
+
+        def cell_text(cell: Tag) -> str:
+            # <br> separates words inside a cell
+            return whitespace_re.sub(" ", cell.get_text(" ")).strip()
+
+        def cell_value(cell: Tag, field: str) -> str:
+            if field not in link_fields:
+                return cell_text(cell)
+            link = cell.find("a", href=True)
+            if not isinstance(link, Tag):
+                return ""
+            href = str(link["href"])
+            if "/download/" not in href:
+                logger.warning(f"Ignoring non-document {field}: {href}")
+                return ""
+            return href
+
+        table = BeautifulSoup(page, "html5lib").select_one("table.wpDataTable")
+        if not table:
+            raise ValueError("no wpDataTable element found on the page")
+
+        headers = [cell_text(th) for th in table.select("thead th")]
+        unknown = set(headers) - set(column_headers)
+        missing = set(column_headers) - set(headers)
+        if unknown or missing:
+            raise ValueError(f"unexpected columns (extra={sorted(unknown)}, missing={sorted(missing)})")
+        fields = [column_headers[h] for h in headers]
+
+        body = table.find("tbody")
+        if not isinstance(body, Tag):
+            raise ValueError("table has no tbody")
+
+        rows = []
+        for row in body.select("tr"):
+            cells = row.find_all("td")
+            if len(cells) != len(fields):
+                logger.warning(f"Skipping a row with {len(cells)} cells, expected {len(fields)}")
+                continue
+            rows.append({field: cell_value(cell, field) for field, cell in zip(fields, cells)})
+        return rows
 
     @property
     @only_backed(throw=False)
@@ -143,7 +130,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             raise ValueError(f"Could not download the SESIP index from {SESIP_INDEX_URL}")
 
     def _get_all_certs_from_index(self) -> list[SESIPCertificate]:
-        rows = parse_index_table(self.index_path.read_text(encoding="utf-8"))
+        rows = self._parse_index_table(self.index_path.read_text(encoding="utf-8"))
         certs = []
         for row in rows:
             try:
