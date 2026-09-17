@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Final
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from sec_certs.constants import SESIP_INDEX_URL
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.sesip import SESIPCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
@@ -22,9 +23,6 @@ if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
 
 logger = logging.getLogger(__name__)
-
-# review(jakub): this should go to the sec_certs.constants
-INDEX_URL = "https://trustcb.com/iot/sesip/sesip-certificates/"
 
 # review(jakub): this is used just by the parse_index_table; if you want to have it as a constant, I'd move it closer to the place where it
 #                it is actually used. But personally, I would just define in the function as I dont see a reason to have it in this scope at all.
@@ -127,9 +125,9 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             cert.set_local_paths(self.cert_dir, self.st_dir)
 
     def _download_index(self) -> None:
-        logger.info(f"Downloading the SESIP certificate index from {INDEX_URL}")
-        if helpers.download_file(INDEX_URL, self.index_path) != requests.codes.ok:
-            raise ValueError(f"Could not download the SESIP index from {INDEX_URL}")
+        logger.info(f"Downloading the SESIP certificate index from {SESIP_INDEX_URL}")
+        if helpers.download_file(SESIP_INDEX_URL, self.index_path) != requests.codes.ok:
+            raise ValueError(f"Could not download the SESIP index from {SESIP_INDEX_URL}")
 
     def _get_all_certs_from_index(self) -> list[SESIPCertificate]:
         rows = parse_index_table(self.index_path.read_text(encoding="utf-8"))
