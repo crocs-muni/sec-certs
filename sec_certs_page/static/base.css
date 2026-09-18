@@ -1577,19 +1577,6 @@ tr.has-snippets > td {
     overflow: hidden;
     overflow-wrap: anywhere;
 }
-@media (min-width: 1200px) {
-  .results-container {
-    max-width: 1320px;
-  }
-}
-
-
-@media (min-width: 1400px) {
-  .results-container {
-    max-width: 1720px;
-  }
-}
-
 .snippet-label {
     font-size: 0.95rem;
     font-weight: 600;
