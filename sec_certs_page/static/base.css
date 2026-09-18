@@ -799,6 +799,17 @@ h6 {
     flex: 1 0 auto;
 }
 
+.search-tabs {
+    border-bottom: 0;
+}
+
+.search-tabs .nav-link.active {
+    position: relative;
+    z-index: 1;
+    border-color: var(--bs-border-color-translucent) var(--bs-border-color-translucent) var(--bs-body-bg);
+    margin-bottom: -1px;
+}
+
 .home-band {
     background-color: var(--surface-box);
     flex: 1 0 auto;
