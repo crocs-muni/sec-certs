@@ -24,7 +24,7 @@
         </div>
         {{ search_box("vuln", "Search vulnerabilities", "CVE ID", url_for('.cve_search'),
                       tabs=[("CVEs", url_for('.cve_search'), "CVE ID"),
-                            ("CPEs", url_for('.cpe_search'), "Vendor, product")]) }}
+                            ("CPEs", url_for('.cpe_search'), "Title")]) }}
         <div class="home-band pt-3 pb-3 pb-md-4">
             <div class="home-container px-3 px-md-4">
                 <div class="row g-3 row-cols-1 row-cols-md-2 feature-grid">
