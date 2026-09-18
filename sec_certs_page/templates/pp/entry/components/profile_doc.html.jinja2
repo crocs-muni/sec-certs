@@ -1,0 +1,21 @@
+{% from "include/entry.html.jinja2" import entry_card, render_local_report, render_local_profile, render_file_metadata %}
+{% from "include/utils.html.jinja2" import render_process_state %}
+{% from "cc/include.html.jinja2" import render_keywords %}
+
+{% call entry_card(id="profile-info", title="Protection profile", icon="fa-file-alt") %}
+    <div>
+        {{ render_process_state(profile["state"], profile["web_data"]["pp_link"], "pp", "protection profile") }}
+    </div>
+
+    {% if profile["web_data"]["pp_link"] %}
+        <div>
+            {{ render_local_profile(hashid, local_files, profile["web_data"]["pp_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
+        </div>
+    {% endif %}
+
+    {{ render_keywords(profile["pdf_data"]["pp_keywords"], "profile") }}
+
+    <div>
+        {{ render_file_metadata(profile["pdf_data"]["pp_metadata"], "Protection profile", "pp") }}
+    </div>
+{% endcall %}

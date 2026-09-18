@@ -1,5 +1,6 @@
 import click
 from flask.cli import AppGroup
+from pymongo import UpdateOne
 from tqdm import tqdm
 
 from .. import app, mongo
@@ -72,3 +73,51 @@ def index_collections():  # pragma: no cover
         entries = [doc["_id"] for doc in tqdm(collection.find({}, {"_id": 1}))]
         click.echo(f"Indexing {name} entries...")
         reindex(entries)
+
+
+DIFF_TYPE_STATS = {
+    "change": "changed_ids",
+    "remove": "current_removed_ids",
+    "back": "back_ids",
+}
+
+
+@app.cli.command("backfill-update-stats", help="Recount the per-type diff counts on past update runs.")
+@click.option(
+    "-s",
+    "--scheme",
+    "schemes",
+    multiple=True,
+    type=click.Choice(("cc", "fips", "pp", "eucc")),
+    help="Scheme to process, repeatable. Defaults to all of them.",
+)
+@click.option("--dry-run", is_flag=True, help="Report what would change without writing.")
+def backfill_update_stats(schemes, dry_run):  # pragma: no cover
+    for scheme in schemes or ("cc", "fips", "pp", "eucc"):
+        diffs = mongo.db[f"{scheme}_diff"]
+        logs = mongo.db[f"{scheme}_log"]
+        counted: dict = {}
+        for group in diffs.aggregate([{"$group": {"_id": {"run": "$run_id", "type": "$type"}, "n": {"$sum": 1}}}]):
+            counted.setdefault(group["_id"]["run"], {})[group["_id"]["type"]] = group["n"]
+
+        requests = []
+        for run in logs.find({}, {"stats": 1}):
+            per_type = counted.get(run["_id"], {})
+            stats = run.get("stats", {})
+            update = {
+                f"stats.{key}": per_type.get(diff_type, 0)
+                for diff_type, key in DIFF_TYPE_STATS.items()
+                if stats.get(key) != per_type.get(diff_type, 0)
+            }
+            if update:
+                requests.append(UpdateOne({"_id": run["_id"]}, {"$set": update}))
+
+        total = logs.count_documents({})
+        if not requests:
+            click.echo(f"{scheme}: {total} runs, all counts already correct.")
+            continue
+        if dry_run:
+            click.echo(f"{scheme}: would update {len(requests)} of {total} runs.")
+            continue
+        result = logs.bulk_write(requests, ordered=False)
+        click.echo(f"{scheme}: updated {result.modified_count} of {total} runs.")

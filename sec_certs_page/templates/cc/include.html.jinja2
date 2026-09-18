@@ -1,11 +1,27 @@
 {% from "include/entry.html.jinja2" import keywords_card, opt_line %}
+{% from "include/entry.html.jinja2" import cryptography_keywords, device_keywords, security_keywords, other_keywords, render_sars, render_sfrs %}
+
+{% macro render_keywords(keywords, kind) %}
+    {% if keywords %}
+        <h4 class="mt-3">Extracted keywords</h4>
+        {{ cryptography_keywords(keywords, kind) }}
+        {{ device_keywords(keywords, kind) }}
+        {{ cc_keywords(keywords, kind, map_funcs={"cc_sar": render_sars, "cc_sfr": render_sfrs}) }}
+        {{ security_keywords(keywords, kind) }}
+        {{ other_keywords(keywords, kind) }}
+    {% endif %}
+{%- endmacro %}
 
 {% macro cc_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "common-criteria", "Common Criteria", KEYWORD_GROUPS.cc, hidden, map_funcs) }}
+    {% set _map = {"cc_security_level": render_eal} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "common-criteria", "Common Criteria", KEYWORD_GROUPS.cc, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_status(status) %}
-    {% if status == "active" %}
+    {% if not status %}
+        {{ NA }}
+    {% elif status == "active" %}
         <span class="status-active"><i class="fas fa-check-square"></i> active</span>
     {% elif status == "archived" %}
         <span class="status-archived"><i class="fas fa-times-circle"></i> archived</span>
@@ -34,9 +50,8 @@
 {%- endmacro %}
 
 {% macro render_eal(eal) %}
-    {% set ealm = eal.replace("+", "") %}
-    {%- if get_cc_eal(ealm) -%}
-        <abbr title="{{ get_cc_eal(ealm)["name"] }}">{{ eal }}</abbr>
+    {%- if get_cc_eal(eal) -%}
+        <abbr title="{{ get_cc_eal(eal)["name"] }}">{{ eal }}</abbr>
     {%- elif get_cc_sar(eal) -%}
         <abbr title="{{ get_cc_sar(eal) }}">{{ eal }}</abbr>
     {%- else -%}

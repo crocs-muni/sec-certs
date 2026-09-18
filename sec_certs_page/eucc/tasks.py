@@ -4,17 +4,14 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import sentry_sdk
 from dramatiq import pipeline
 from flask import current_app
 from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
 from sec_certs.dataset.eucc import EUCCDataset
-from sec_certs.utils.helpers import get_sha256_filepath
 from tantivy import Document
 
 from .. import mongo, runtime_config
 from ..common.diffs import DiffRenderer
-from ..common.sentry import suppress_child_spans
 from ..common.tasks.archive import Archiver
 from ..common.tasks.index import Indexer, add_keyword_paths
 from ..common.tasks.notify import Notifier
@@ -34,6 +31,8 @@ class EUCCMixin:  # pragma: no cover
         self.dset_class = EUCCDataset
         self.dataset_path = current_app.config["DATASET_PATH_EUCC_DIR"]
         self.cert_schema = "eucc"
+        # Mapping from the page's document directories to the dataset's ones.
+        self.dset_folders = {"report": "reports", "target": "targets", "cert": "certificates"}
 
 
 class EUCCRenderer(DiffRenderer, EUCCMixin):  # pragma: no cover
@@ -203,80 +202,8 @@ def archive_all():  # pragma: no cover
 
 
 class EUCCUpdater(Updater, EUCCMixin):  # pragma: no cover
-    def process(self, dset: EUCCDataset, paths: dict[str, Path]) -> set[str]:
-        to_reindex: set[str] = set()
-
-        with sentry_sdk.start_span(op="eucc.all", description="Get full EUCC dataset"):
-            if not self.skip_update or not paths["output_path"].exists():
-                with (
-                    sentry_sdk.start_span(op="eucc.get_certs", description="Get certs from web"),
-                    suppress_child_spans(),
-                ):
-                    dset.get_certs_from_web()
-                with (
-                    sentry_sdk.start_span(
-                        op="eucc.auxiliary_datasets",
-                        description="Process auxiliary datasets (CVE, CPE, PP, MU, Scheme)",
-                    ),
-                    suppress_child_spans(),
-                ):
-                    dset.process_auxiliary_datasets(update_json=False, download_fresh=False)
-                with (
-                    sentry_sdk.start_span(op="eucc.download_artifacts", description="Download artifacts"),
-                    suppress_child_spans(),
-                ):
-                    dset.download_all_artifacts()
-                with sentry_sdk.start_span(op="eucc.convert_pdfs", description="Convert pdfs"), suppress_child_spans():
-                    dset.convert_all_pdfs()
-                with (
-                    sentry_sdk.start_span(op="eucc.analyze", description="Analyze certificates"),
-                    suppress_child_spans(),
-                ):
-                    dset.analyze_certificates()
-                with sentry_sdk.start_span(op="eucc.write_json", description="Write JSON"), suppress_child_spans():
-                    dset.to_json(paths["output_path"])
-                    dset.aux_handlers[CCSchemeDatasetHandler].dset.to_json(paths["output_path_scheme"])
-
-            with sentry_sdk.start_span(op="eucc.move", description="Move files"), suppress_child_spans():
-                for cert in dset:
-                    if cert.state.report.source_path and cert.state.report.source_path.exists():
-                        dst = paths["report_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.source_hash:
-                            cert.state.report.source_path.replace(dst)
-                    if cert.state.report.txt_path and cert.state.report.txt_path.exists():
-                        dst = paths["report_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.report.txt_hash:
-                            cert.state.report.txt_path.replace(dst)
-                            to_reindex.add(cert.dgst)
-                    if cert.state.st.source_path and cert.state.st.source_path.exists():
-                        dst = paths["target_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.source_hash:
-                            cert.state.st.source_path.replace(dst)
-                    if cert.state.st.txt_path and cert.state.st.txt_path.exists():
-                        dst = paths["target_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.st.txt_hash:
-                            cert.state.st.txt_path.replace(dst)
-                            to_reindex.add(cert.dgst)
-                    if cert.state.cert.source_path and cert.state.cert.source_path.exists():
-                        dst = paths["cert_pdf"] / f"{cert.dgst}.pdf"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.source_hash:
-                            cert.state.cert.source_path.replace(dst)
-                    if cert.state.cert.txt_path and cert.state.cert.txt_path.exists():
-                        dst = paths["cert_txt"] / f"{cert.dgst}.txt"
-                        if not dst.exists() or get_sha256_filepath(dst) != cert.state.cert.txt_hash:
-                            cert.state.cert.txt_path.replace(dst)
-                            to_reindex.add(cert.dgst)
-            with sentry_sdk.start_span(op="eucc.old_map", description="Update old digest map"), suppress_child_spans():
-                for cert in dset:
-                    if hasattr(cert, "old_dgst"):
-                        mongo.db.eucc_old.replace_one(
-                            {"_id": cert.old_dgst}, {"_id": cert.old_dgst, "hashid": cert.dgst}, upsert=True
-                        )
-                    if hasattr(cert, "older_dgst"):
-                        mongo.db.eucc_old.replace_one(
-                            {"_id": cert.older_dgst}, {"_id": cert.older_dgst, "hashid": cert.dgst}, upsert=True
-                        )
-        return to_reindex
+    def write_auxiliary_json(self, dset, paths: dict[str, Path]) -> None:
+        dset.aux_handlers[CCSchemeDatasetHandler].dset.to_json(paths["output_path_scheme"])
 
     def dataset_state(self, dset):
         return dset.state.to_dict()

@@ -1,11 +1,9 @@
 {% extends "common/base.html.jinja2" %}
 {% set breadcrumb_title = True %}
 {% set canonical = True %}
-{% from "include/utils.html.jinja2" import render_process_state, render_share_buttons, notification_icon, notification_script with context %}
-{% from "include/modals.html.jinja2" import compare_icon, chat_icon, chat_modal with context %}
-{% from "fips/include.html.jinja2" import render_status, cryptography_keywords, device_keywords, security_keywords, other_keywords, render_type %}
-{% from "include/entry.html.jinja2" import render_local_cert, render_local_target, render_pdf_meta, render_cves, render_cpes, render_references, render_reference_network, render_updates, render_update_feed_button, render_raw_data, render_raw_data_button %}
-{% from "include/legal.html.jinja2" import certificate_vuln_note, certificate_note %}
+{% from "include/entry.html.jinja2" import updates_card, raw_data_card %}
+{% from "include/utils.html.jinja2" import notification_script with context %}
+{% from "include/modals.html.jinja2" import chat_modal with context %}
 {% set chat_documents = [
     {"value": "target", "label": "Security policy", "available": local_files.get(("target", "txt"), false)},
 ] %}
@@ -37,275 +35,36 @@
 {% block left_navigation %}
     <div id="left-navigation" class="d-none d-md-block list-group list-group-flush list-group-numbered">
         <h4>Sections</h4>
-        <a class="list-group-item list-group-item-action rounded" href="#web-info">Webpage information</a>
+        <a class="list-group-item list-group-item-action rounded" href="#web-info">Certificate details</a>
         <a class="list-group-item list-group-item-action rounded" href="#doc-info">Security Policy</a>
-        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">References</a>
-        <a class="list-group-item list-group-item-action rounded" href="#updates">Updates</a>
+        <a class="list-group-item list-group-item-action rounded" href="#heuristics-info">Automated analysis</a>
+        <a class="list-group-item list-group-item-action rounded" href="#reference-graph">Cross-references</a>
+        <a class="list-group-item list-group-item-action rounded" href="#updates">Processing updates</a>
         <a class="list-group-item list-group-item-action rounded" href="#raw-data-head">Raw data</a>
     </div>
 {% endblock %}
 
 
 {% block content %}
-    <main data-bs-spy="scroll" data-bs-target="#left-navigation" data-bs-smooth-scroll="false" tabindex="0"
-          class="shifted-section">
-        <div class="row">
-            <div id="web-info" class="col-12 col-sm-10 py-3 pt-md-5">
-                <div class="alert alert-warning d-sm-none" role="alert">
-                    <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile
-                    devices.
-                </div>
-                <h1>{{ cert|fips_name|default("", true) }}</h1>
-                <div class="d-flex gap-3 flex-wrap align-items-center pt-3">
-                    {% if config["CHAT_ENABLED"] %}{{ chat_icon() }}{% endif %}
-                    {{ compare_icon() }}
-                    {{ notification_icon(current_user, subscribed) }}
-                    {{ render_share_buttons(hashid, cert_id=cert["cert_id"], name=cert|fips_name) }}
-                </div>
+    <main tabindex="0" class="shifted-section">
+        {% include 'fips/entry/components/header.html.jinja2' %}
 
+        {% include 'fips/entry/components/web_info.html.jinja2' %}
 
-                {% if cves %}
-                    {{ certificate_vuln_note() }}
-                {% endif %}
+        {% include 'fips/entry/components/security_policy.html.jinja2' %}
 
+        {% include 'fips/entry/components/heuristics.html.jinja2' %}
 
-                <h2 class="pt-5">Certificate #{{ cert["cert_id"] }}</h2>
+        {% include 'fips/entry/components/references.html.jinja2' %}
 
-                {% if "web_data" in cert %}
-                    <div class="mt-5 mb-5">
-                        <h2 class="anchor">Webpage information</h2>
-                        <table class="table table-sm table-borderless w-auto">
-                            <colgroup>
-                                <col style="width: 10%"/>
-                                <col style="width: 80%"/>
-                            </colgroup>
-                            <tbody>
-                            <tr data-cs-name="Certificate status">
-                                <th scope="row">Status</th>
-                                <td>{{ render_status(cert["web_data"]["status"]) }}</td>
-                            </tr>
-                            {% if cert["web_data"]["historical_reason"] %}
-                                <tr data-cs-name="Historical reason">
-                                    <th scope="row">Historical reason</th>
-                                    <td>{{ cert["web_data"]["historical_reason"] }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["revoked_reason"] %}
-                                <tr data-cs-name="Revoked reason">
-                                    <th scope="row">Revoked reason</th>
-                                    <td>{{ cert["web_data"]["revoked_reason"] }}
-                                        {% if cert["web_data"]["revoked_link"] %}
-                                            <a href="{{ cert["web_data"]["revoked_link"] }}" target="_blank"
-                                               rel="noopener">{{ cert["web_data"]["revoked_link"] }}</a>
-                                        {% endif %}</td>
-                                </tr>
-                            {% endif %}
-                            <tr data-cs-name="Validation dates">
-                                <th scope="row">Validation dates</th>
-                                <td>
-                                    {% if cert["web_data"]["validation_history"] %}
-                                        {% for entry in cert["web_data"]["validation_history"] %}
-                                            {{ entry["date"]|strftime("%d.%m.%Y") }}
-                                            {{ ", " if not loop.last else "" }}{% endfor %}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% if cert["web_data"]["date_sunset"] %}
-                                <tr data-cs-name="Sunset date">
-                                    <th scope="row">Sunset date</th>
-                                    <td>{{ cert["web_data"]["date_sunset"]|strftime("%d-%m-%Y") }}</td>
-                                </tr>
-                            {% endif %}
-                            <tr data-cs-name="Standard">
-                                <th scope="row">Standard</th>
-                                <td>{{ cert["web_data"]["standard"] }}</td>
-                            </tr>
-                            <tr data-cs-name="Security level">
-                                <th scope="row">Security level</th>
-                                <td>{{ cert["web_data"]["level"] }}</td>
-                            </tr>
-                            <tr data-cs-name="Type">
-                                <th scope="row">Type</th>
-                                <td>{{ render_type(cert["web_data"]["module_type"]) }} {{ cert["web_data"]["module_type"] }}</td>
-                            </tr>
-                            <tr data-cs-name="Embodiment">
-                                <th scope="row">Embodiment</th>
-                                <td>{{ cert["web_data"]["embodiment"] }}</td>
-                            </tr>
-                            {% if cert["web_data"]["caveat"] %}
-                                <tr data-cs-name="Caveat">
-                                    <th scope="row">Caveat</th>
-                                    <td>{{ cert["web_data"]["caveat"] }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["exceptions"] %}
-                                <tr data-cs-name="Exceptions">
-                                    <th scope="row">Exceptions</th>
-                                    <td>
-                                        <ul>
-                                            {% for exceptioon in cert["web_data"]["exceptions"] %}
-                                                <li data-cs-name="Exceptions - {{ loop.index }}">{{ exceptioon }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["description"] %}
-                                <tr data-cs-name="Description">
-                                    <th scope="row">Description</th>
-                                    <td>{{ cert["web_data"]["description"] }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["hw_versions"] %}
-                                <tr>
-                                    <th scope="row">Version (Hardware)</th>
-                                    <td>{{ cert["web_data"]["hw_versions"] }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["fw_versions"] %}
-                                <tr>
-                                    <th scope="row">Version (Firmware)</th>
-                                    <td>{{ cert["web_data"]["fw_versions"] }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["tested_conf"] %}
-                                <tr>
-                                    <th scope="row">Tested configurations</th>
-                                    <td>
-                                        <ul>
-                                            {% for conf in cert["web_data"]["tested_conf"] %}
-                                                <li>{{ conf }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            <tr>
-                                <th scope="row">Vendor</th>
-                                <td>
-                                    {{ cert["web_data"]["vendor"] }}{% if cert["web_data"]["vendor_www"] %} <a
-                                        href="{{ cert["web_data"]['vendor_www'] }}" target="_blank"
-                                        rel="noopener">{{ cert["web_data"]["vendor_www"] }}</a>{% endif %}
-                                </td>
-                            </tr>
-                            {% if cert["web_data"]["lab"] %}
-                                <tr>
-                                    <th scope="row">Lab</th>
-                                    <td>
-                                        {{ cert["web_data"]["lab"] }} {% if cert["web_data"]["lab_nvlap"] %}(NVLAP Code:
-                                        {{ cert["web_data"]["lab_nvlap"] }}){% endif %}</td>
-                                </tr>
-                            {% endif %}
-                            {% if cert["web_data"]["algorithms"] %}
-                                <tr>
-                                    <th scope="row">Algorithms</th>
-                                    <td>
-                                        <ul>
-                                            {% for algo in cert["web_data"]["algorithms"] %}
-                                                <li>
-                                                    <a href="https://csrc.nist.gov/projects/Cryptographic-Algorithm-Validation-Program/details?source={{ algo["algorithm_type"] }}&number={{ algo["cert_id"].replace("#", "") }}"
-                                                       target="_blank" rel="noopener">
-                                                        {{ algo["algorithm_type"] }}{{ algo["cert_id"] }}</a>
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            <tr>
-                                <th scope="row">References</th>
-                                <td><p>This certificate's webpage directly references
-                                    {{ cert["heuristics"]["module_processed_references"]["directly_referencing"]|default("", true)|length }}
-                                    certificates,
-                                    transitively this expands
-                                    into {{ cert["heuristics"]["module_processed_references"]["indirectly_referencing"]|default("", true)|length }}
-                                    certificates.</p></td>
-                            </tr>
-                            </tbody>
-                        </table>
+        {{ updates_card(hashid, "certificate", diffs, diff_jsons, diff_renders) }}
 
-                        <div class="mt-2 mb-2">
-                            {{ render_local_cert(hashid, local_files, cert["web_data"]["certificate_pdf_url"]) }}
-                            <a class="btn btn-outline-primary" role="button"
-                               href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/{{ cert['cert_id'] }}"
-                               data-bs-toggle="tooltip" data-bs-placement="bottom"
-                               title="{{ cert["web_data"]['module_name']|default('') }}" target="_blank" rel="noopener"><i
-                                    class="fas fa-external-link-alt"></i> Webpage</a>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+        {{ raw_data_card(hashid, json) }}
 
-        <div id="doc-info" class="row bg-darker-light">
-            <div class="col-12 col-sm-10 py-md-5">
-                <div class="mb-3">
-                    <h2 class="anchor">Security policy
-                    </h2>
-                    {{ render_process_state(cert["state"], policy_link, "policy", "policy") }}
-                    <div class="mt-3 mb-3">
-                        {{ render_local_target(hashid, local_files, policy_link, primary_style="btn-primary", secondary_style="btn-secondary") }}
-                    </div>
-                    {% if cert["pdf_data"]["keywords"] %}
-                        {{ cryptography_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                        {{ device_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                        {{ security_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                        {{ other_keywords(cert["pdf_data"]["keywords"], "policy") }}
-                    {% endif %}
-                    {% if cert["pdf_data"]["policy_metadata"] %}
-                        <h3 class="mt-3">File metadata</h3>
-                        {{ render_pdf_meta(cert["pdf_data"]["policy_metadata"], "Security policy") }}
-                    {% endif %}
-                    {{ render_references(network, hashid, "st", render_status) }}
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 col-sm-10 py-md-5">
-                <div class="mt-3 mb-5">
-                    <h2 class="anchor" id="heuristics-info">Heuristics</h2>
-                    {% if not cpes and not cves %}
-                        <p>No heuristics are available for this certificate.</p>
-                    {% else %}
-                        {{ certificate_note() }}
-                    {% endif %}
-                    {% if cpes %}
-                        <div data-cs-name="CPE matches">
-                            <h3><abbr title="Common Platform Enumeration">CPE</abbr> matches</h3>
-                            {{ render_cpes(cert, cpes) }}
-                        </div>
-                    {% endif %}
-                    {% if cves %}
-                        <div data-cs-name="Related CVEs">
-                            <h3 class="anchor" id="cves">Related <abbr
-                                    title="Common Vulnerability Enumeration">CVEs</abbr>
-                            </h3>
-                            {{ render_cves(cves) }}
-                        </div>
-                    {% endif %}
-                </div>
-                <div id="reference-graph" class="mt-5 mb-5">
-                    <h2 class="anchor">References</h2>
-                    {{ render_reference_network(cert, network, hashid, categories=".types") }}
-                </div>
-                <div id="updates" class="mt-5 mb-5">
-                    <h2 class="anchor">Updates
-                        {{ render_update_feed_button(hashid) }}
-                    </h2>
-                    {{ render_updates("certificate", diffs, diff_jsons, diff_renders) }}
-                </div>
-
-                <div id="raw-data-head" class="mt-5 mb-5">
-                    <h2 class="anchor">Raw data
-                        {{ render_raw_data_button(hashid) }}
-                    </h2>
-                    {{ render_raw_data(json) }}
-                </div>
-            </div>
-        </div>
         <script type="module">
             import {copyLinkToClipboard} from "{{ url_for('static', filename='clipboard.js') }}?{{ static_hash("clipboard.js") }}";
+            import {initSectionNav} from "{{ url_for('static', filename='section_nav.js') }}?{{ static_hash("section_nav.js") }}";
+            initSectionNav();
 
             $(".copy-on-click").on("click", function (e) {
                 e.preventDefault();

@@ -1,0 +1,21 @@
+{% from "include/entry.html.jinja2" import entry_card, render_local_report, render_local_profile, render_file_metadata %}
+{% from "include/utils.html.jinja2" import render_process_state %}
+{% from "cc/include.html.jinja2" import render_keywords %}
+
+{% call entry_card(id="report-info", title="Certification report", icon="fa-file-contract") %}
+    <div>
+        {{ render_process_state(profile["state"], profile["web_data"]["report_link"], "report", "certification report") }}
+    </div>
+
+    {% if profile["web_data"]["report_link"] %}
+        <div>
+            {{ render_local_report(hashid, local_files, profile["web_data"]["report_link"], primary_style="btn-primary", secondary_style="btn-secondary") }}
+        </div>
+    {% endif %}
+
+    {{ render_keywords(profile["pdf_data"]["report_keywords"], "report") }}
+
+    <div>
+        {{ render_file_metadata(profile["pdf_data"]["report_metadata"], "Certification report", "report") }}
+    </div>
+{% endcall %}

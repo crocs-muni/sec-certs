@@ -1,0 +1,23 @@
+{% from "include/entry.html.jinja2" import entry_card, render_local_file, render_file_metadata, render_references %}
+{% from "include/utils.html.jinja2" import render_process_state %}
+{% from "fips/include.html.jinja2" import render_keywords, render_status %}
+
+{% call entry_card(id="doc-info", title="Security policy", icon="fa-file-alt") %}
+    <div>
+        {{ render_process_state(cert["state"], policy_link, "policy", "policy") }}
+    </div>
+
+    <div>
+        {{ render_local_file(hashid, '<i class="fas fa-file-alt"></i> Security policy', policy_link, local_files, "target", "btn-primary", "btn-secondary") }}
+    </div>
+
+    {{ render_keywords(cert["pdf_data"]["keywords"], "policy") }}
+
+    <div>
+        {{ render_references(network, hashid, "st", render_status) }}
+    </div>
+
+    <div>
+        {{ render_file_metadata(cert["pdf_data"]["policy_metadata"], "Security policy", "policy") }}
+    </div>
+{% endcall %}

@@ -1,11 +1,13 @@
-{% from "include/entry.html.jinja2" import keywords_card %}
+{% from "include/entry.html.jinja2" import keywords_card, render_standards, render_packages %}
 
 {% macro cryptography_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
     {{ keywords_card(keyword_scan, doc_prefix, "crypto", "Cryptography", KEYWORD_GROUPS.crypto, hidden, map_funcs) }}
 {%- endmacro %}
 
 {% macro device_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, map_funcs) }}
+    {% set _map = {"javacard_packages": render_packages} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "device", "Device", KEYWORD_GROUPS.device, hidden, _map) }}
 {%- endmacro %}
 
 {% macro security_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
@@ -13,11 +15,15 @@
 {%- endmacro %}
 
 {% macro other_keywords(keyword_scan, doc_prefix, hidden=[], map_funcs={}) -%}
-    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, map_funcs) }}
+    {% set _map = {"standard_id": render_standards} %}
+    {% for k, v in map_funcs.items() %}{% set _ = _map.update({k: v}) %}{% endfor %}
+    {{ keywords_card(keyword_scan, doc_prefix, "other", "Other", KEYWORD_GROUPS.other, hidden, _map) }}
 {%- endmacro %}
 
 {% macro render_status(status) %}
-    {% if status|lower == "active" %}
+    {% if not status %}
+        {{ NA }}
+    {% elif status|lower == "active" %}
         <span class="status-active"><i class="fas fa-check-square"></i> active</span>
     {% elif status|lower == "historical" %}
         <span class="status-historical"><i class="fas fa-times-circle"></i> historical</span>
@@ -113,4 +119,14 @@
         let certsData = JSON.parse('{{ timeline|tojson }}');
         renderTimeline(certsData);
     </script>
+{%- endmacro %}
+
+{% macro render_keywords(keywords, kind) %}
+    {% if keywords %}
+        <h4 class="mt-3">Extracted keywords</h4>
+        {{ cryptography_keywords(keywords, kind) }}
+        {{ device_keywords(keywords, kind) }}
+        {{ security_keywords(keywords, kind) }}
+        {{ other_keywords(keywords, kind) }}
+    {% endif %}
 {%- endmacro %}

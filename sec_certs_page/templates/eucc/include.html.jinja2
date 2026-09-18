@@ -5,7 +5,7 @@
             {{ item.strip() }}<br>
         {% endfor %}
     {% else %}
-        {{ level }}
+        {{ level|na }}
     {% endif %}
 {% endmacro %}
 
@@ -37,7 +37,9 @@
 {%- endmacro %}
 
 {% macro render_assurance_level(level) %}
-    {% if level == "High" %}
+    {% if not level %}
+        {{ NA }}
+    {% elif level == "High" %}
         <span class="eucc-assurance-high"><i class="fas fa-shield"></i> high</span>
     {% elif level == "Substantial" %}
         <span class="eucc-assurance-substantial"><i class="fas fa-shield"></i> substantial</span>

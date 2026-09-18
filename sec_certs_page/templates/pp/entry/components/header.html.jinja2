@@ -1,0 +1,20 @@
+{% from "include/entry.html.jinja2" import mobile_warning %}
+{% from "include/utils.html.jinja2" import render_share_buttons, notification_icon with context %}
+{% from "include/modals.html.jinja2" import compare_icon, chat_icon with context %}
+
+<div class="row">
+    <div class="col-12 col-sm-10 p-3 pt-md-5">
+        {{ mobile_warning() }}
+
+        <div>
+            <h1 class="entry-title">{{ profile["web_data"]["name"]|default("", true) }}</h1>
+
+            <div class="d-flex gap-3 flex-wrap align-items-center pt-3 pb-3">
+                {% if config["CHAT_ENABLED"] %}{{ chat_icon(subject="protection profile") }}{% endif %}
+                {{ compare_icon() }}
+                {{ notification_icon(current_user, subscribed) }}
+                {{ render_share_buttons(hashid, cert_id=None, name=profile["web_data"]["name"]) }}
+            </div>
+        </div>
+    </div>
+</div>

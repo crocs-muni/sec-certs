@@ -1,6 +1,7 @@
 """Common Criteria views."""
 
 import random
+import re
 from functools import wraps
 from operator import itemgetter
 from urllib.parse import urlencode
@@ -17,9 +18,11 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.utils import safe_join
 
 from .. import cache, mongo, sitemap
+from ..common.constants import CC_CLASSES
 from ..common.diffs import cc_diff_method, render_compare
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
+from ..common.updates import render_updates
 from ..common.views import (
     entry_download_certificate_pdf,
     entry_download_certificate_txt,
@@ -36,14 +39,14 @@ from ..common.views import (
     sitemap_cert_pipeline,
 )
 from . import cc, cc_categories, cc_eals, cc_reference_types, cc_sars, cc_schemes, cc_sfrs, cc_status, get_cc_references
-from .search import CCSearch
+from .search import CCSearch, CCUpdatesSearch
 from .tasks import CCRenderer
 
 
 @cc.app_template_global("get_cc_sar")
 def get_cc_sar(sar):
     """Get the long name for a SAR."""
-    return cc_sars.get(sar, None)
+    return cc_sars.get(sar) or cc_sars.get(sar.replace("．", "."))
 
 
 @cc.route("/sars.json")
@@ -57,7 +60,7 @@ def sars():
 @cc.app_template_global("get_cc_sfr")
 def get_cc_sfr(sfr):
     """Get the long name for a SFR."""
-    return cc_sfrs.get(sfr, None)
+    return cc_sfrs.get(sfr) or cc_sfrs.get(sfr.replace("．", "."))
 
 
 @cc.route("/sfrs.json")
@@ -66,6 +69,12 @@ def get_cc_sfr(sfr):
 def sfrs():
     """Endpoint with CC SFR JSON."""
     return send_json_attachment(cc_sfrs)
+
+
+@cc.app_template_global("cc_class_name")
+def cc_class_name(code):
+    """Get the long name of the CC class a SAR/SFR code belongs to."""
+    return CC_CLASSES.get(code[:3])
 
 
 @cc.app_template_global("get_cc_category")
@@ -84,8 +93,10 @@ def categories():
 
 @cc.app_template_global("get_cc_eal")
 def get_cc_eal(name):
-    """Get the long name for the CC EAL."""
-    return cc_eals.get(name, None)
+    """Get the long name for the CC EAL"""
+    key = re.sub(r"\s*augmented\s*", "+", name, flags=re.IGNORECASE)
+    key = re.sub(r"EAL\s+(\d)", r"EAL\1", key, flags=re.IGNORECASE).strip()
+    return cc_eals.get(key, None)
 
 
 @cc.route("/eals.json")
@@ -240,6 +251,13 @@ def compare(one_hashid: str, other_hashid: str):
         hashid_one=one_hashid,
         hashid_other=other_hashid,
     )
+
+
+@cc.route("/updates/")
+@register_breadcrumb(cc, ".updates", "Processing updates")
+def updates():
+    """Certificates changed in a Common Criteria update run."""
+    return render_updates(CCUpdatesSearch, "cc", "Common Criteria Processing Updates | sec-certs.org")
 
 
 @cc.route("/analysis/")
@@ -556,6 +574,7 @@ def sitemap_urls():
     yield "cc.network", {}
     yield "cc.analysis", {}
     yield "cc.search", {}
+    yield "cc.updates", {}
     yield "cc.fulltext_search", {}
     yield "cc.rand", {}
     for doc in mongo.db.cc.aggregate(sitemap_cert_pipeline("cc"), allowDiskUse=True):

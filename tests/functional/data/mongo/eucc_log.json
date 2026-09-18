@@ -1,0 +1,118 @@
+[{
+	"_id": {
+		"$oid": "6a09a75d491bb9f54509c3eb"
+	},
+	"start_time": {
+		"$date": "2026-05-17T13:28:37.875Z"
+	},
+	"end_time": {
+		"$date": "2026-05-17T13:32:45.002Z"
+	},
+	"tool_version": "0.3.2.post1.dev275+gcde12ab64.d20260218",
+	"length": 30,
+	"ok": true,
+	"stats": {
+		"new_certs": 30,
+		"removed_ids": 30,
+		"updated_ids": 0,
+		"cert_states": {
+			"report_download_ok": 30,
+			"report_convert_ok": 30,
+			"report_extract_ok": 30,
+			"st_download_ok": 30,
+			"st_convert_ok": 30,
+			"st_extract_ok": 30,
+			"cert_download_ok": 30,
+			"cert_convert_ok": 30,
+			"cert_extract_ok": 30
+		},
+		"changed_ids": 0
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true,
+		"sec_certs_version": "0.3.2.post1.dev275+gcde12ab64.d20260218"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a09a8ca753c8e0addc2e28b"
+	},
+	"start_time": {
+		"$date": "2026-05-17T13:34:48.689Z"
+	},
+	"end_time": {
+		"$date": "2026-05-17T13:38:50.064Z"
+	},
+	"tool_version": "0.3.2.post1.dev275+gcde12ab64.d20260218",
+	"length": 30,
+	"ok": true,
+	"stats": {
+		"new_certs": 30,
+		"removed_ids": 0,
+		"updated_ids": 0,
+		"cert_states": {
+			"report_download_ok": 30,
+			"report_convert_ok": 30,
+			"report_extract_ok": 30,
+			"st_download_ok": 30,
+			"st_convert_ok": 30,
+			"st_extract_ok": 30,
+			"cert_download_ok": 30,
+			"cert_convert_ok": 30,
+			"cert_extract_ok": 30
+		},
+		"changed_ids": 0
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true,
+		"sec_certs_version": "0.3.2.post1.dev275+gcde12ab64.d20260218"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a19b3cf9d67b22189834394"
+	},
+	"start_time": {
+		"$date": "2026-05-29T17:37:17.815Z"
+	},
+	"end_time": {
+		"$date": "2026-05-29T17:42:07.842Z"
+	},
+	"tool_version": "0.3.2.post1.dev275+gcde12ab64.d20260218",
+	"length": 36,
+	"ok": true,
+	"stats": {
+		"new_certs": 6,
+		"removed_ids": 0,
+		"updated_ids": 30,
+		"cert_states": {
+			"report_download_ok": 30,
+			"report_convert_ok": 30,
+			"report_extract_ok": 30,
+			"st_download_ok": 30,
+			"st_convert_ok": 30,
+			"st_extract_ok": 30,
+			"cert_download_ok": 30,
+			"cert_convert_ok": 30,
+			"cert_extract_ok": 30
+		},
+		"changed_ids": 7
+	},
+	"state": {
+		"meta_sources_parsed": true,
+		"artifacts_downloaded": true,
+		"pdfs_converted": true,
+		"auxiliary_datasets_processed": true,
+		"certs_analyzed": true,
+		"sec_certs_version": "0.3.2.post1.dev275+gcde12ab64.d20260218"
+	}
+}]
+

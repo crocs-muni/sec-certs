@@ -834,6 +834,8 @@ fips_diff_method = {
         "_type": diff_none(),
         "keywords": {kw_group: diff_keywords() for kw_group in fips_rules},
         "policy_metadata": diff_pdf_meta(),
+        "module_algorithms": diff_set(diff_str()),
+        "policy_algorithms": diff_set(diff_str()),
     },
     "state": {
         "_type": diff_none(),

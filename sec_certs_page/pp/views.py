@@ -11,6 +11,7 @@ from .. import mongo, sitemap
 from ..cc import cc_schemes
 from ..common.feed import Feed
 from ..common.objformats import StorageFormat, load
+from ..common.updates import render_updates
 from ..common.views import (
     entry_download_files,
     entry_download_profile_pdf,
@@ -24,7 +25,7 @@ from ..common.views import (
     sitemap_cert_pipeline,
 )
 from . import pp
-from .search import PPSearch
+from .search import PPSearch, PPUpdatesSearch
 from .tasks import PPRenderer
 
 
@@ -215,6 +216,13 @@ def entry_name(name):
         return abort(404)
 
 
+@pp.route("/updates/")
+@register_breadcrumb(pp, ".updates", "Processing updates")
+def updates():
+    """Protection profiles changed in an update run."""
+    return render_updates(PPUpdatesSearch, "pp", "Protection Profile Processing Updates | sec-certs.org")
+
+
 @pp.route("/analysis/")
 @register_breadcrumb(pp, ".analysis", "Analysis")
 def analysis():
@@ -234,6 +242,7 @@ def sitemap_urls():
     yield "pp.network", {}
     yield "pp.analysis", {}
     yield "pp.search", {}
+    yield "pp.updates", {}
     yield "pp.rand", {}
     for doc in mongo.db.pp.aggregate(sitemap_cert_pipeline("pp"), allowDiskUse=True):
         yield "pp.entry", {"hashid": doc["_id"]}, doc["timestamp"].strftime("%Y-%m-%d"), "weekly", 0.8
