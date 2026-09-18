@@ -1,16 +1,16 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
 {% set search_scopes = [
-    ("cc", "Common Criteria", url_for("cc.merged_search"), "Certificate name, vendor", url_for("cc.rand")),
-    ("eucc", "EUCC", url_for("eucc.merged_search"), "Certificate name, vendor", url_for("eucc.rand")),
-    ("pp", "Protection Profiles", url_for("pp.merged_search"), "Profile name, vendor", url_for("pp.rand")),
+    ("cc", "Common Criteria", url_for("cc.merged_search"), "Certificate name", url_for("cc.rand")),
+    ("eucc", "EUCC", url_for("eucc.merged_search"), "Certificate name", url_for("eucc.rand")),
+    ("pp", "Protection Profiles", url_for("pp.merged_search"), "Profile name", url_for("pp.rand")),
     ("fips", "FIPS 140", url_for("fips.merged_search"), "Module name", url_for("fips.rand")),
 ] %}
 {% set scheme_links = {
     "search": {"cc": url_for("cc.merged_search"), "eucc": url_for("eucc.merged_search"),
                "pp": url_for("pp.merged_search"), "fips": url_for("fips.merged_search")},
-    "network": {"cc": url_for("cc.network"), "pp": url_for("pp.network"), "fips": url_for("fips.network")},
-    "analysis": {"cc": url_for("cc.analysis"), "pp": url_for("pp.analysis"), "fips": url_for("fips.analysis")},
+    "network": {"cc": url_for("cc.network"), "fips": url_for("fips.network")},
+    "analysis": {"cc": url_for("cc.analysis"), "fips": url_for("fips.analysis")},
     "data": {"cc": url_for("cc.data"), "eucc": url_for("eucc.data"),
              "pp": url_for("pp.data"), "fips": url_for("fips.data")},
 } %}
@@ -44,8 +44,11 @@
                             products.
                         </p>
                         <p class="mb-0">
-                            The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
-                            and Security. Learn more about our
+                            The sec-certs tool is an ongoing research project by the
+                            <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">Centre for Research on
+                                Cryptography and Security (CRoCS)</a> at
+                            <a href="https://www.muni.cz/en" target="_blank" rel="noopener">Masaryk University</a>.
+                            Learn more about our
                             <a href="{{ url_for("about.index") }}">team</a>
                             and
                             <a href="{{ url_for("about.research") }}">research</a>.
@@ -113,62 +116,16 @@
                                     <h3>Unified search</h3>
                                 </div>
                                 <p class="text-body-secondary">
-                                    Search <a href="#home-search">certificates</a> relevant for your product, filter
+                                    Search certificates relevant for your product, filter
                                     certificates by categories or status.
                                     Explore the certificates without downloading and reading countless PDFs.
                                 </p>
                                 <p class="text-body-secondary">
                                     We download and process certificates
-                                    <a href="{{ url_for("cc.data") }}">weekly</a>, allowing you to search for your
+                                    <a href="{{ url_for("cc.updates") }}">weekly</a>, allowing you to search for your
                                     favorite Common Criteria, EUCC and FIPS 140 products.
                                 </p>
 {{ scheme_link("search", "Search certificates") }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card feature-card shadow-sm h-100">
-                            <div class="card-body d-flex flex-column p-3 p-lg-4">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="feature-icon-chip"><i class="fas fa-network-wired fa-fw"></i></span>
-                                    <h3>Certificate references</h3>
-                                </div>
-                                <p class="text-body-secondary">
-                                    Explore the <a href="{{ url_for("fips.network") }}">references</a> between product
-                                    certificates in a graph. A certificate referencing
-                                    another certificate often means that its product is built atop of another security
-                                    relevant product.
-                                </p>
-                                <p class="text-body-secondary">
-                                    We use regular expressions to create references between certificates, making it easy
-                                    for you to find relationships in our reference graphs or certificate details.
-                                </p>
-{{ scheme_link("network", "View reference graphs") }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card feature-card shadow-sm h-100">
-                            <div class="card-body d-flex flex-column p-3 p-lg-4">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="feature-icon-chip"><i class="fas fa-bug fa-fw"></i></span>
-                                    <h3>Vulnerability investigation</h3>
-                                </div>
-                                <p class="text-body-secondary">
-                                    Investigate the vulnerabilities affecting certified products.
-                                </p>
-                                <p class="text-body-secondary">
-                                    We automatically map certificates to <abbr
-                                        title="Common Vulnerabilities and Exposures">CVE</abbr>
-                                    entries in NIST's National Vulnerability Database affecting them.
-                                    The information on relevant CVEs is displayed in the appropriate heuristics section
-                                    on pages of the affected certificates.
-                                </p>
-                                <div class="mt-auto pt-3">
-                                    <a href="{{ url_for("vuln.index") }}" class="fw-semibold text-decoration-none">
-                                        Browse vulnerabilities <i class="fas fa-arrow-right fa-xs ms-1"></i>
-                                    </a>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -192,21 +149,76 @@
                         <div class="card feature-card shadow-sm h-100">
                             <div class="card-body d-flex flex-column p-3 p-lg-4">
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="feature-icon-chip"><i class="fas fa-chart-line fa-fw"></i></span>
-                                    <h3>Trend visualization</h3>
+                                    <span class="feature-icon-chip"><i class="fas fa-bug fa-fw"></i></span>
+                                    <h3>Vulnerability investigation</h3>
                                 </div>
                                 <p class="text-body-secondary">
-                                    Explore our analysis of the evolving security certifications landscape.
+                                    Investigate the vulnerabilities affecting certified products.
                                 </p>
                                 <p class="text-body-secondary">
-                                    We process certification PDFs into structured, machine-readable datasets, which are
-                                    then used to generate plots.
-                                    You can explore sample plots in the Analysis section.
-                                    Please note that these are preliminary findings - refer to our published
-                                    <a href="{{ url_for("about.research") }}">research</a>
-                                    for a more detailed analysis.
+                                    We automatically map certificates to <abbr
+                                        title="Common Vulnerabilities and Exposures">CVE</abbr>
+                                    entries in NIST's National Vulnerability Database affecting them.
+                                    The information on relevant CVEs is displayed in the appropriate heuristics section
+                                    on pages of the affected certificates.
                                 </p>
-{{ scheme_link("analysis", "Explore the analysis") }}
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for("vuln.cve_search") }}" class="fw-semibold text-decoration-none">
+                                        Browse vulnerabilities <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-chart-line fa-fw"></i></span>
+                                    <h3>Trends and dashboards</h3>
+                                </div>
+                                <p class="text-body-secondary">
+                                    We process certification PDFs into structured, machine-readable datasets and chart
+                                    them, so you can see how the certification landscape evolves.
+                                </p>
+                                <p class="text-body-secondary">
+                                    Browse our prepared analysis, or build a dashboard of your own: pick a collection,
+                                    add predefined or custom charts and save it for later. The analysis shows
+                                    preliminary findings - refer to our published
+                                    <a href="{{ url_for("about.research") }}">research</a> for a more detailed
+                                    analysis.
+                                </p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="/dashboard/" class="fw-semibold text-decoration-none">
+                                        Build a dashboard <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ scheme_links["analysis"]["cc"] }}"
+                                       class="fw-semibold text-decoration-none" data-scheme-link
+                                       {%- for scheme, url in scheme_links["analysis"].items() %} data-{{ scheme }}="{{ url }}"{% endfor %}>
+                                        See our analysis <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-network-wired fa-fw"></i></span>
+                                    <h3>Certificate references</h3>
+                                </div>
+                                <p class="text-body-secondary">
+                                    Explore the references between product
+                                    certificates in a graph. A certificate referencing
+                                    another certificate often means that its product is built atop of another security
+                                    relevant product.
+                                </p>
+                                <p class="text-body-secondary">
+                                    We use regular expressions to create references between certificates, making it easy
+                                    for you to find relationships in our reference graphs or certificate details.
+                                </p>
+{{ scheme_link("network", "View reference graphs") }}
                             </div>
                         </div>
                     </div>
@@ -215,18 +227,52 @@
                             <div class="card-body d-flex flex-column p-3 p-lg-4">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="feature-icon-chip"><i class="fas fa-file-alt fa-fw"></i></span>
-                                    <h3>Open source &amp; open data</h3>
+                                    <h3>Open data</h3>
                                 </div>
                                 <p class="text-body-secondary">
-                                    Contribute to our code or download our extracted dataset in machine-readable format.
+                                    Each week, we collect thousands of certificate files, convert them into
+                                    machine-readable datasets, and enrich them with additional metadata.
                                 </p>
                                 <p class="text-body-secondary">
-                                    Each week, we collect thousands of certificate files, convert them into
-                                    machine-readable datasets,
-                                    and enrich them with additional metadata. Full datasets are available below, while
-                                    individual certificate data can be accessed on each certificate's page.
+                                    Full datasets are available below, while individual certificate data can be
+                                    accessed on each certificate's page.
                                 </p>
-{{ scheme_link("data", "Download datasets") }}
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ scheme_links["data"]["cc"] }}"
+                                       class="fw-semibold text-decoration-none" data-scheme-link
+                                       {%- for scheme, url in scheme_links["data"].items() %} data-{{ scheme }}="{{ url }}"{% endfor %}>
+                                        Download datasets <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-code fa-fw"></i></span>
+                                    <h3>Python library</h3>
+                                </div>
+                                <p class="text-body-secondary">
+                                    Everything on this site is built with our open-source Python library. Install it to
+                                    reproduce the datasets yourself, or plug the certification data straight into your
+                                    own analysis.
+                                </p>
+                                <p class="text-body-secondary">
+                                    The documentation includes a quick-start guide, and the code is open to
+                                    contributions.
+                                </p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for("docs.serve_docs", path="index.html") }}"
+                                       class="fw-semibold text-decoration-none">
+                                        Read the docs <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener"
+                                       class="fw-semibold text-decoration-none">
+                                        View the code <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -268,27 +314,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card feature-card shadow-sm h-100">
-                            <div class="card-body d-flex flex-column p-3 p-lg-4">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="feature-icon-chip"><i class="fas fa-code fa-fw"></i></span>
-                                    <h3>Python library</h3>
-                                </div>
-                                <p class="text-body-secondary">
-                                    Everything on this site is built with our open-source Python library. Install it to
-                                    reproduce the datasets yourself, or plug the certification data straight into your
-                                    own analysis. The documentation includes a quick-start guide.
-                                </p>
-                                <div class="mt-auto pt-3">
-                                    <a href="{{ url_for("docs.serve_docs", path="index.html") }}"
-                                       class="fw-semibold text-decoration-none">
-                                        Read the docs <i class="fas fa-arrow-right fa-xs ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -313,9 +338,7 @@
                         input.placeholder = tab.dataset.placeholder;
                         if (random) random.href = tab.dataset.random;
                         document.querySelectorAll("[data-scheme-link]").forEach(link => {
-                            const url = link.dataset[tab.dataset.scheme];
-                            link.hidden = !url;
-                            if (url) link.href = url;
+                            link.href = link.dataset[tab.dataset.scheme] || link.dataset.cc;
                         });
                     });
                 });

@@ -34,19 +34,21 @@
                       url_for('.merged_search'), url_for('.rand')) }}
         <div class="home-band pt-3 pb-3 pb-md-4">
             <div class="home-container px-3 px-md-4">
-                <h2 class="h5 mb-3">Main features</h2>
-                <div class="row g-3 row-cols-1 row-cols-md-2 feature-grid">
+                <div class="row g-3 row-cols-1 row-cols-md-2 feature-grid" style="--feature-cols: 2">
                     <div class="col">
                         <div class="card feature-card shadow-sm h-100">
                             <div class="card-body d-flex flex-column p-3 p-lg-4">
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="feature-icon-chip"><i class="fas fa-chart-bar fa-fw"></i></span>
-                                    <h3>Statistics Analysis</h3>
+                                    <span class="feature-icon-chip"><i class="fas fa-chart-line fa-fw"></i></span>
+                                    <h3>Trends and dashboards</h3>
                                 </div>
-                                <p class="text-body-secondary">Which scheme is issuing certificates the most? Which certificate category is the most common? You can find answers here and you can also make your own statistics with our prepared datasets.</p>
-                                <div class="mt-auto pt-3">
+                                <p class="text-body-secondary">Which scheme is issuing certificates the most? Which certificate category is the most common? You can find answers in our analysis, or build your own charts in a dashboard.</p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="/dashboard/fips" class="fw-semibold text-decoration-none">
+                                        Build a dashboard <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
                                     <a href="{{ url_for('.analysis') }}" class="fw-semibold text-decoration-none">
-                                        Explore statistics <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                        See our analysis <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
@@ -72,25 +74,6 @@
                         <div class="card feature-card shadow-sm h-100">
                             <div class="card-body d-flex flex-column p-3 p-lg-4">
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="feature-icon-chip"><i class="fas fa-file-alt fa-fw"></i></span>
-                                    <h3>Data</h3>
-                                </div>
-                                <p class="text-body-secondary">Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
-                                <div class="mt-auto pt-3">
-                                    <a href="{{ url_for('.data') }}" class="fw-semibold text-decoration-none">
-                                        Download datasets <i class="fas fa-arrow-right fa-xs ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card feature-card shadow-sm mt-3">
-                    <div class="card-body p-3 p-lg-4">
-                        <div class="row g-4">
-                            <div class="col-12 col-md-8">
-                                <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="feature-icon-chip"><i class="fas fa-wrench fa-fw"></i></span>
                                     <h3 class="anchor" id="mip-iut">MIP and IUT</h3>
                                 </div>
@@ -101,36 +84,46 @@
                                 <p class="text-body-secondary">Use the overview to track which modules are in the
                                     evaluation pipeline, monitor status changes over time, and spot new entries
                                     before they become full certificates.</p>
-                                <div class="pt-2 d-flex flex-wrap gap-3">
-                                    <a href="{{ url_for('.mip_snapshot', id=fips_mip._id) if fips_mip else url_for('.mip_index') }}"
-                                       class="fw-semibold text-decoration-none">
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for('.mip_index') }}" class="fw-semibold text-decoration-none">
                                         Browse MIP <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
-                                    <a href="{{ url_for('.iut_snapshot', id=fips_iut._id) if fips_iut else url_for('.iut_index') }}"
-                                       class="fw-semibold text-decoration-none">
+                                    <a href="{{ url_for('.iut_index') }}" class="fw-semibold text-decoration-none">
                                         Browse IUT <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
-                                {% if fips_mip %}
-                                    <div class="d-flex align-items-baseline gap-2">
-                                        <span class="fs-4 fw-bold text-primary">{{ fips_mip.total }}</span>
-                                        <span class="text-body-secondary">Modules In Process</span>
-                                    </div>
-                                {% endif %}
-                                {% if fips_iut %}
-                                    <div class="d-flex align-items-baseline gap-2">
-                                        <span class="fs-4 fw-bold text-primary">{{ fips_iut.total }}</span>
-                                        <span class="text-body-secondary">Under Test</span>
-                                    </div>
-                                {% endif %}
-                                {% if fips_mip and fips_mip.last_updated %}
-                                    <div class="d-flex align-items-baseline gap-2">
-                                        <span class="fs-4 fw-bold text-primary">{{ fips_mip.last_updated|fromisoformat|strftime("%d.%m.%Y") }}</span>
-                                        <span class="text-body-secondary">Last updated</span>
-                                    </div>
-                                {% endif %}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-clock-rotate-left fa-fw"></i></span>
+                                    <h3>Processing updates</h3>
+                                </div>
+                                <p class="text-body-secondary">What changed the last time we processed the data? Which certificates are new, which ones changed, and which disappeared from the source listing? See our log of weekly processing updates.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.updates') }}" class="fw-semibold text-decoration-none">
+                                        Browse the updates <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-file-alt fa-fw"></i></span>
+                                    <h3>Data</h3>
+                                </div>
+                                <p class="text-body-secondary">Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.data') }}" class="fw-semibold text-decoration-none">
+                                        Download datasets <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
