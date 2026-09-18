@@ -42,7 +42,7 @@
                 </a>
             </div>
 
-            {% call entry_card(id="data", title="Vulnerability details", icon="fa-circle-info",
+            {% call entry_card(id="data", title="Vulnerability details", icon="fa-globe",
                                wrapper_class="", tooltip="As published in NIST's National Vulnerability Database.") %}
                 <table class="table-sm table-borderless w-100">
                     <colgroup>
@@ -120,10 +120,10 @@
                         <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
                             <h3 class="h6 mb-0">Common Criteria certificates</h3>
                             <a href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}"
-                               class="small text-decoration-none"
+                               class="btn btn-primary btn-sm" role="button"
                                data-bs-toggle="tooltip" data-bs-placement="top"
                                title="Display reference graph with affected certificates highlighted">
-                                Display network <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                <i class="fas fa-project-diagram"></i> Display network
                             </a>
                         </div>
                         <ul class="mb-0">
@@ -140,10 +140,10 @@
                         <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
                             <h3 class="h6 mb-0">FIPS 140 certificates</h3>
                             <a href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}"
-                               class="small text-decoration-none"
+                               class="btn btn-primary btn-sm" role="button"
                                data-bs-toggle="tooltip" data-bs-placement="top"
                                title="Display reference graph with affected certificates highlighted">
-                                Display network <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                <i class="fas fa-project-diagram"></i> Display network
                             </a>
                         </div>
                         <ul class="mb-0">
