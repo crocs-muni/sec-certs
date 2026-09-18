@@ -839,8 +839,9 @@ h6 {
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-    color: var(--bs-primary);
-    background: rgba(var(--bs-primary-rgb), 0.12);
+    color: #fff;
+    background-color: var(--bs-primary);
+    background-image: var(--bs-gradient);
 }
 
 [role="search"] input[type="search"] {
