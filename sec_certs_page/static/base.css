@@ -830,6 +830,11 @@ h6 {
     }
 }
 
+/* .table-light pins the header to a light fill in both themes; follow the theme instead. */
+.results-thead th {
+    background-color: var(--bs-tertiary-bg);
+}
+
 .feature-icon-chip {
     width: 2rem;
     height: 2rem;
