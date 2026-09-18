@@ -772,20 +772,58 @@ h6 {
     background-color: var(--surface-box);
 }
 
-[data-bs-theme="light"] .main-home .card,
-[data-bs-theme="dark"] .main-home .card,
 [data-bs-theme="light"] .scheme-home .card,
 [data-bs-theme="dark"] .scheme-home .card {
     background-color: var(--surface-box);
 }
 
-[data-bs-theme="light"] .main-home [role="search"] .card,
-[data-bs-theme="dark"] .main-home [role="search"] .card,
 [data-bs-theme="light"] .scheme-home [role="search"] .card,
 [data-bs-theme="dark"] .scheme-home [role="search"] .card,
 [data-bs-theme="light"] .scheme-home .bg-accent-light .card,
 [data-bs-theme="dark"] .scheme-home .bg-accent-light .card {
     background-color: var(--bs-body-bg);
+}
+
+.home-container {
+    width: 100%;
+    margin-inline: auto;
+    max-width: min(83.3333%, 1700px);
+}
+
+.home-band {
+    background-color: var(--surface-box);
+}
+
+[data-bs-theme="light"] .main-home .feature-card,
+[data-bs-theme="dark"] .main-home .feature-card {
+    background-color: var(--bs-body-bg);
+}
+
+.main-home .feature-card h3 {
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Bootstrap's row-cols-* key off the viewport, which is the wrong measure once the page itself
+   is capped. Below xxl the grid falls back to the row-cols-* classes on the element. */
+@media (min-width: 1400px) {
+    .feature-grid > * {
+        flex: 0 0 auto;
+        width: calc(100% / var(--feature-cols, 3));
+    }
+}
+
+.feature-icon-chip {
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.12);
 }
 
 [role="search"] input[type="search"] {
