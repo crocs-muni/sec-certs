@@ -802,6 +802,8 @@ h6 {
 .home-band {
     background-color: var(--surface-box);
     flex: 1 0 auto;
+    margin-inline: calc(var(--bs-gutter-x, 1.5rem) * -0.5);
+    padding-inline: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
 }
 
 /* The dashboards render inside Dash's own wrappers, which sit between #content and the page and
