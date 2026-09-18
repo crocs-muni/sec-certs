@@ -3,8 +3,8 @@
 {% set canonical = True %}
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <h1 class="mb-4">FIPS 140 MIP snapshot</h1>
+        <div class="home-container px-3 px-md-4 pt-md-4 pb-4">
+            <h1 class="h2 mb-4">FIPS 140 MIP snapshot</h1>
             <div class="row">
                 <div class="col-sm-6">
                     Snapshot taken on {{ snapshot["timestamp"]|fromisoformat|strftime("%d.%m.%Y %H:%M") }} with a last

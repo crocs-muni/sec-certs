@@ -5,12 +5,15 @@
     <title>Protection Profiles analysis | sec-certs.org</title>
 {% endblock %}
 {% block content %}
-    <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <h1 class="mb-4">Protection Profiles</h1>
+    <main class="analysis-page">
+        <div class="home-container px-3 px-md-4 pt-md-4 pb-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1 class="h2">Protection Profiles</h1>
+                <span class="text-secondary fs-4">Analysis</span>
+            </div>
             <div class="row">
                 <div class="col-sm-6" data-cs-name="Missing content">
-                    <p class="lead"><i class="fas fa-hammer fa-spin"></i> There is no content here, but we are working
+                    <p class="text-body" style="max-width: 100ch"><i class="fas fa-hammer fa-spin"></i> There is no content here, but we are working
                         on it. In the meantime, see our <a
                                 href="{{ url_for("about.research") }}">research</a> and
                         the <a href="https://sec-certs.org/docs/notebooks/examples/est_solution.html">notebooks</a> in

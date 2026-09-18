@@ -10,48 +10,51 @@
             height: 100%;
         }
     </style>
-    <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+    <main class="analysis-page">
+        <div class="home-container px-3 px-md-4 pt-md-4 pb-4">
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-            <h1 class="mb-4">FIPS 140</h1>
-            <p class="lead">This is a very basic showcase of some of our statistics.
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1 class="h2">FIPS 140</h1>
+                <span class="text-secondary fs-4">Analysis</span>
+            </div>
+            <p class="text-body" style="max-width: 100ch">This is a very basic showcase of some of our statistics.
                 For more, see our <a href="{{ url_for("about.research") }}">research</a> and the
                 <a href="{{ url_for("docs.serve_docs", path="notebooks/examples/est_solution.html") }}">notebooks</a> in
                 our documentation.
             </p>
 
-            <div class="row my-5">
+            <div class="row mb-4">
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>Module type over time</h2>
+                    <h2 class="h4">Module type over time</h2>
                     {{ include_static("img/charts/fips/n_certs_by_type.svg") }}
                 </div>
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>Module embodiment in time</h2>
+                    <h2 class="h4">Module embodiment in time</h2>
                     <div style="width:85%; height: 100%" class="mx-auto">
                         {{ include_static("img/charts/fips/n_certs_by_embodiment.svg") }}
                     </div>
                 </div>
             </div>
-            <div class="row my-5">
+            <div class="row mb-4">
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>Module security level in time</h2>
+                    <h2 class="h4">Module security level in time</h2>
                     <div style="width:80%; height: 100%" class="mx-auto">
                         {{ include_static("img/charts/fips/n_certs_by_level.svg") }}
                     </div>
                 </div>
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>Module standard version in time</h2>
+                    <h2 class="h4">Module standard version in time</h2>
                     <div style="width:80%; height: 100%" class="mx-auto">
                         {{ include_static("img/charts/fips/n_certs_by_standard.svg") }}
                     </div>
                 </div>
             </div>
 
-            <div class="row my-5">
+            <div class="row mb-4">
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>Average security level in time</h2>
+                    <h2 class="h4">Average security level in time</h2>
                     <div style="width:80%; height: 100%" class="mx-auto">
                         {{ include_static("img/charts/fips/avg_sec_level.svg") }}
                     </div>
@@ -60,15 +63,15 @@
                 </div>
             </div>
 
-            <div class="row my-5">
+            <div class="row mb-4">
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>IUT time</h2>
+                    <h2 class="h4">IUT time</h2>
                     <div style="width:95%; height: 100%" class="mx-auto">
                         {{ include_static("img/charts/fips/iut_time.svg") }}
                     </div>
                 </div>
                 <div class="analysis-chart col-12 col-sm-10 col-md-6 col-xl-5 mx-auto">
-                    <h2>MIP time in status</h2>
+                    <h2 class="h4">MIP time in status</h2>
                     <div style="width:100%; height: 100%" class="mx-auto">
                         {{ include_static("img/charts/fips/mip_status_duration.svg") }}
                     </div>

@@ -800,6 +800,17 @@ h6 {
     flex: 1 0 auto;
 }
 
+/* The dashboards render inside Dash's own wrappers, which sit between #content and the page and
+   break the chain that lets the band grow. Pass the growth through them. */
+#content > #react-entry-point,
+#react-entry-point > div,
+#react-entry-point > div > div,
+#_pages_content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+}
+
 [data-bs-theme="light"] .feature-card,
 [data-bs-theme="dark"] .feature-card {
     background-color: var(--bs-body-bg);
