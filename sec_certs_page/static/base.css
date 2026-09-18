@@ -772,16 +772,12 @@ h6 {
     background-color: var(--surface-box);
 }
 
-[data-bs-theme="light"] .scheme-home .card,
-[data-bs-theme="dark"] .scheme-home .card {
-    background-color: var(--surface-box);
+.part-logo {
+    filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
 }
 
-[data-bs-theme="light"] .scheme-home [role="search"] .card,
-[data-bs-theme="dark"] .scheme-home [role="search"] .card,
-[data-bs-theme="light"] .scheme-home .bg-accent-light .card,
-[data-bs-theme="dark"] .scheme-home .bg-accent-light .card {
-    background-color: var(--bs-body-bg);
+[data-bs-theme="dark"] .part-logo {
+    filter: invert(100%) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
 }
 
 .home-container {
@@ -790,16 +786,26 @@ h6 {
     max-width: min(83.3333%, 1700px);
 }
 
-.home-band {
-    background-color: var(--surface-box);
+/* #content is already a flex column with space-between, so a short page leaves a gap above the
+   footer. Growing the band instead lets it run all the way down. */
+.main-home,
+.scheme-home {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
 }
 
-[data-bs-theme="light"] .main-home .feature-card,
-[data-bs-theme="dark"] .main-home .feature-card {
+.home-band {
+    background-color: var(--surface-box);
+    flex: 1 0 auto;
+}
+
+[data-bs-theme="light"] .feature-card,
+[data-bs-theme="dark"] .feature-card {
     background-color: var(--bs-body-bg);
 }
 
-.main-home .feature-card h3 {
+.feature-card h3 {
     font-size: 1.05rem;
     margin: 0;
 }

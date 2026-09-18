@@ -1,11 +1,24 @@
-{% macro search_box(prefix, heading, placeholder, action, rand_url=None, extra_class="") %}
-    <section class="col-12 col-sm-10 mx-auto p-3{{ " " ~ extra_class if extra_class }}" role="search">
-        <div class="card shadow-sm">
+{#- tabs: a list of (label, action, placeholder); picking one retargets the form in place. -#}
+{% macro search_box(prefix, heading, placeholder, action, rand_url=None, extra_class="", tabs=None) %}
+    <section class="home-container px-3 px-md-4 pb-3{{ " " ~ extra_class if extra_class }}" role="search">
+        <h2 class="h5 mb-3">{{ heading }}</h2>
+        {%- if tabs %}
+            <ul class="nav nav-tabs mb-4" aria-label="{{ heading }}">
+                {% for label, tab_action, tab_placeholder in tabs %}
+                    <li class="nav-item">
+                        <a class="nav-link{% if loop.first %} active{% endif %}"
+                           {% if loop.first %}aria-current="page"{% endif %}
+                           href="#" data-search-tab="{{ prefix }}"
+                           data-action="{{ tab_action }}" data-placeholder="{{ tab_placeholder }}">{{ label }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {%- endif %}
+        <div class="card shadow-sm mb-0">
             <div class="card-body p-3 p-md-4">
-                <h2 class="h5">{{ heading }}</h2>
-                <form method="get" action="{{ action }}" id="{{ prefix }}-hero-search-form" class="mt-2">
-                    <label for="{{ prefix }}-hero-search-input" class="visually-hidden">Search query</label>
+                <form method="get" action="{{ action }}" id="{{ prefix }}-hero-search-form">
                     <div class="d-flex gap-2 align-items-center">
+                        <label for="{{ prefix }}-hero-search-input" class="visually-hidden">Search query</label>
                         <input type="search" name="query" id="{{ prefix }}-hero-search-input"
                                class="form-control flex-grow-1"
                                placeholder="{{ placeholder }}">
@@ -14,15 +27,39 @@
                         </button>
                     </div>
                     {%- if caller %}{{ caller() }}{% endif %}
+                    {%- if rand_url %}
+                        <div class="mt-1">
+                            <a href="{{ rand_url }}" class="text-muted small">
+                                <i class="fas fa-shuffle me-1"></i>Nothing specific in mind? Open a random certificate
+                            </a>
+                        </div>
+                    {%- endif %}
                 </form>
-                {%- if rand_url %}
-                <p class="text-muted small mt-3 mb-0">
-                    Nothing specific in mind? Have a look at a
-                    <a href="{{ rand_url }}">random certificate</a>.
-                </p>
-                {%- endif %}
             </div>
         </div>
+        {%- if tabs %}
+            <script>
+                (() => {
+                    const form = document.getElementById("{{ prefix }}-hero-search-form");
+                    const input = document.getElementById("{{ prefix }}-hero-search-input");
+                    const tabs = document.querySelectorAll('[data-search-tab="{{ prefix }}"]');
+                    if (!form || !input) return;
+                    tabs.forEach(tab => {
+                        tab.addEventListener("click", event => {
+                            event.preventDefault();
+                            tabs.forEach(other => {
+                                other.classList.remove("active");
+                                other.removeAttribute("aria-current");
+                            });
+                            tab.classList.add("active");
+                            tab.setAttribute("aria-current", "page");
+                            form.action = tab.dataset.action;
+                            input.placeholder = tab.dataset.placeholder;
+                        });
+                    });
+                })();
+            </script>
+        {%- endif %}
     </section>
 {%- endmacro %}
 
