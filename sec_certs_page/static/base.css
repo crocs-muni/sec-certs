@@ -897,6 +897,7 @@ h6 {
     background-image: var(--bs-gradient);
 }
 
+[role="search"],
 [role="search"] input[type="search"] {
     scroll-margin-top: 70px;
 }

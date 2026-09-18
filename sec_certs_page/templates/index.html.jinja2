@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <section role="search">
+            <section role="search" id="search">
                 <h2 class="h5 mb-3">Search security certificates</h2>
 
 
@@ -131,7 +131,11 @@
                                     <a href="{{ url_for("cc.updates") }}">weekly</a>, allowing you to search for your
                                     favorite Common Criteria, EUCC and FIPS 140 products.
                                 </p>
-{{ scheme_link("search", "Search certificates") }}
+                                <div class="mt-auto pt-3">
+                                    <a href="#search" class="fw-semibold text-decoration-none">
+                                        Search certificates <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -224,7 +228,14 @@
                                     We use regular expressions to create references between certificates, making it easy
                                     for you to find relationships in our reference graphs or certificate details.
                                 </p>
-{{ scheme_link("network", "View reference graphs") }}
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for("cc.network") }}" class="fw-semibold text-decoration-none">
+                                        CC references <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ url_for("fips.network") }}" class="fw-semibold text-decoration-none">
+                                        FIPS 140 references <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -243,11 +254,18 @@
                                     Full datasets are available below, while individual certificate data can be
                                     accessed on each certificate's page.
                                 </p>
-                                <div class="mt-auto pt-3">
-                                    <a href="{{ scheme_links["data"]["cc"] }}"
-                                       class="fw-semibold text-decoration-none" data-scheme-link
-                                       {%- for scheme, url in scheme_links["data"].items() %} data-{{ scheme }}="{{ url }}"{% endfor %}>
-                                        Download datasets <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for("cc.data") }}" class="fw-semibold text-decoration-none">
+                                        CC <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ url_for("eucc.data") }}" class="fw-semibold text-decoration-none">
+                                        EUCC <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ url_for("pp.data") }}" class="fw-semibold text-decoration-none">
+                                        PP <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ url_for("fips.data") }}" class="fw-semibold text-decoration-none">
+                                        FIPS 140 <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
@@ -372,6 +390,14 @@
                     };
                     step = setTimeout(tick, 600);
                 };
+
+                document.querySelectorAll('a[href="#search"]').forEach(link => {
+                    link.addEventListener("click", event => {
+                        event.preventDefault();
+                        document.getElementById("search").scrollIntoView({behavior: "smooth", block: "start"});
+                        input.focus({preventScroll: true});
+                    });
+                });
 
                 input.addEventListener("focus", stop);
                 input.addEventListener("blur", () => { if (!input.value) type(active().dataset.scheme); });
