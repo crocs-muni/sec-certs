@@ -55,10 +55,16 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="border">
+            <div class="border rounded">
                 <div id="network"></div>
-                <div id="network-skeleton" class="container d-flex justify-content-center align-items-center">
-                    <div id="network-loading" class="d-block spinner-border" role="status">
+                <div id="network-skeleton" class="d-flex justify-content-center align-items-center">
+                    {%- if not query %}
+                        <button id="show-network-btn" class="btn btn-primary">Click to load the graph of
+                            references
+                        </button>
+                    {%- endif %}
+                    <div id="network-loading" class="{% if query %}d-block{% else %}d-none{% endif %} spinner-border"
+                         role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
@@ -75,8 +81,17 @@
                             300,
                             false);
                 }
-                await loadNetwork()
-                $("#network-skeleton").remove()
+                {%- if query %}
+                    await loadNetwork()
+                    $("#network-skeleton").remove()
+                {%- else %}
+                    document.getElementById("show-network-btn").onclick = async function () {
+                        $("#network-loading").removeClass("d-none").addClass("d-block")
+                        $("#show-network-btn").addClass("d-none")
+                        await loadNetwork()
+                        $("#network-skeleton").remove()
+                    };
+                {%- endif %}
             </script>
         </div>
 
