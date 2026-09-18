@@ -22,6 +22,12 @@
         </a>
     </div>
 {%- endmacro %}
+{% set search_examples = {
+    "cc": ["ShadowCube V8.0", "Apple macOS 26 Tahoe", "RICOH IM 7010", "Progress LoadMaster"],
+    "eucc": ["ST54J / ST54K", "NPCT7xx TPM2.0 rev 1.59", "Huawei ATN Series Routers"],
+    "pp": ["PP-Module for SDN Controller", "Protection Profile for Virtualization"],
+    "fips": ["Acme Packet VME", "NetScaler MPX", "nShield 5s Hardware Security Module"],
+} %}
 {% block content %}
     <main class="main-home">
         <div class="home-container px-3 px-md-4 pt-md-4 pb-3">
@@ -325,6 +331,56 @@
                 const random = document.getElementById("home-random");
                 const tabs = document.querySelectorAll("[data-search-scope]");
                 if (!form || !input) return;
+
+                const examples = {{ search_examples|tojson }};
+                const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                const active = () => document.querySelector("[data-search-scope].active") || tabs[0];
+
+                let step;
+                const stop = () => {
+                    clearTimeout(step);
+                    input.placeholder = "";
+                };
+
+                const type = scheme => {
+                    clearTimeout(step);
+                    const names = examples[scheme] || [];
+                    if (still || !names.length) {
+                        input.placeholder = active().dataset.placeholder;
+                        return;
+                    }
+                    input.placeholder = "";
+
+                    let i = 0, at = 0, erasing = false;
+                    const tick = () => {
+                        if (document.activeElement === input || input.value) {
+                            input.placeholder = "";
+                            at = 0;
+                            erasing = false;
+                            step = setTimeout(tick, 600);
+                            return;
+                        }
+                        const name = names[i % names.length];
+                        at += erasing ? -1 : 1;
+                        input.placeholder = name.slice(0, at);
+                        let wait = erasing ? 25 : 55;
+                        if (!erasing && at === name.length) {
+                            erasing = true;
+                            wait = 1800;
+                        } else if (erasing && at === 0) {
+                            erasing = false;
+                            i++;
+                            wait = 700;
+                        }
+                        step = setTimeout(tick, wait);
+                    };
+                    step = setTimeout(tick, 600);
+                };
+
+                input.addEventListener("focus", stop);
+                input.addEventListener("blur", () => { if (!input.value) type(active().dataset.scheme); });
+                type(tabs[0].dataset.scheme);
+
                 tabs.forEach(tab => {
                     tab.addEventListener("click", event => {
                         event.preventDefault();
@@ -335,7 +391,7 @@
                         tab.classList.add("active");
                         tab.setAttribute("aria-current", "page");
                         form.action = tab.dataset.action;
-                        input.placeholder = tab.dataset.placeholder;
+                        type(tab.dataset.scheme);
                         if (random) random.href = tab.dataset.random;
                         document.querySelectorAll("[data-scheme-link]").forEach(link => {
                             link.href = link.dataset[tab.dataset.scheme] || link.dataset.cc;
