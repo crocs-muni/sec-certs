@@ -110,6 +110,11 @@ class NSCIBFrontpageParser(FrontpageParser):
 
     TITLE_ANCHORS = ("Certification Report", "Assurance Continuity Maintenance Report")
 
+    # Newer reports prefix the title with the scheme ("EUCC Certification Report"). Only a plain
+    # word may precede it: anything else is a different line that merely ends with the anchor, such
+    # as the reference line "NSCIB-CC-05-6609 Certification Report" of the older report template.
+    _TITLE_RE = re.compile(rf"^(?:[A-Za-z]+ )?(?:{'|'.join(TITLE_ANCHORS)})$")
+
     FRONTPAGE_LABELS: dict[str, tuple[str, ...]] = {
         "sponsor and developer": (constants.TAG_SPONSOR, constants.TAG_DEVELOPER),
         "sponsor": (constants.TAG_SPONSOR,),
@@ -198,9 +203,8 @@ class NSCIBFrontpageParser(FrontpageParser):
         return None
 
     def _is_title(self, block: str) -> bool:
-        if ":" in block:
-            return False
-        return any(block == anchor or block.endswith(f" {anchor}") for anchor in self.TITLE_ANCHORS)
+        """Recognize the report title, optionally prefixed with the scheme name."""
+        return self._TITLE_RE.match(block) is not None
 
     def _collect_fields(self, blocks: list[str]) -> tuple[dict[str, Any], list[str]]:
         """Split the blocks following the title into recognized label values and product-name lines."""

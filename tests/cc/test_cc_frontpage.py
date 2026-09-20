@@ -229,6 +229,50 @@ def test_nscib_fields_survive_a_missing_cert_id(nscib_parser: NSCIBFrontpagePars
     assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore"
 
 
+def test_nscib_scheme_prefixed_title_is_recognized(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    """EUCC-era reports title the frontpage "EUCC Certification Report"."""
+    report = tmp_path / "eucc_title.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "EUCC Certification Report",
+                "ZTE OTN Solution v1.10",
+                "Sponsor and developer: ZTE Corporation",
+                "Report number: EUCC-3110-2026-2500102-01",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    items = nscib_parser.parse(report)
+
+    assert items[constants.TAG_CERT_ITEM] == "ZTE OTN Solution v1.10"
+    assert items[constants.TAG_DEVELOPER] == "ZTE Corporation"
+
+
+def test_nscib_reference_line_is_not_a_title(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    """
+    The older template carries a reference line that ends with the title anchor
+    ("NSCIB-CC-05-6609 Certification Report"). Taking it for the title makes the letterhead
+    that follows it the product name, so only a plain word may prefix the anchor.
+    """
+    report = tmp_path / "reference_line.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "TNO CERTIFICATION",
+                "NSCIB-CC-05-6609 Certification Report",
+                "Laan van Westenenk 501 P.O. Box 541 7300 AM Apeldoorn",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert nscib_parser.parse(report) == {}
+
+
 def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
     not_a_report = tmp_path / "empty.txt"
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
