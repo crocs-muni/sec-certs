@@ -154,10 +154,52 @@ def test_nscib_colon_in_certified_item_is_not_a_label(nscib_parser: NSCIBFrontpa
         ("AKD D.O.O. Savska cesta 31, 10 000 Zagreb", "AKD D.O.O."),
         ("Cisco Systems, Inc. 170 West Tasman Drive 95134 San Jose, CA USA", "Cisco Systems, Inc."),
         ("SGS Brightsight B.V. Brassersplein 2 2612 CT Delft The Netherlands", "SGS Brightsight B.V."),
+        # No legal form to anchor on, and the house number is glued to the city name.
+        ("Entrust Minneapolis1187 Park Place Shakopee, MN 55379 USA", "Entrust"),
+        ("Brightsight", "Brightsight"),
     ],
 )
 def test_nscib_organisation_trimmed_off_merged_address(nscib_parser: NSCIBFrontpageParser, merged: str, expected: str):
     assert nscib_parser._organisation_of(merged) == expected
+
+
+def test_nscib_soft_hyphen_in_prose_is_dropped(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "hyphenated.txt"
+    report.write_text(
+        "Certification Report\nAcme Secure\u00adCore\nReport number: NSCIB-CC-2400099-01-CR\n",
+        encoding="utf-8",
+    )
+
+    assert nscib_parser.parse(report)[constants.TAG_CERT_ITEM] == "Acme SecureCore"
+
+
+def test_nscib_unbalanced_parenthesis_is_still_trimmed(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "unbalanced.txt"
+    report.write_text(
+        "Certification Report\nAcme SecureCore v1.0)\nReport number: NSCIB-CC-2400099-01-CR\n",
+        encoding="utf-8",
+    )
+
+    assert nscib_parser.parse(report)[constants.TAG_CERT_ITEM] == "Acme SecureCore v1.0"
+
+
+def test_nscib_address_trimmed_when_label_and_value_share_a_block(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    """Docling sometimes merges the label, the organization and its address into one block."""
+    report = tmp_path / "merged_label.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "Certification Report",
+                "Acme SecureCore",
+                "Sponsor: Veridos GmbH, Identity Solutions Prinzregentenstr. 161 1677 Munchen Germany",
+                "Report number: NSCIB-CC-2300088-01-CR2",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert nscib_parser.parse(report)[constants.TAG_SPONSOR] == "Veridos GmbH"
 
 
 def test_nscib_spaced_dash_in_certified_item_is_kept(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):

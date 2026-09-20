@@ -126,13 +126,14 @@ class NSCIBFrontpageParser(FrontpageParser):
 
     _LABEL_RE = re.compile(r"^(?P<label>[A-Za-z][A-Za-z ()]{2,30}?)\s*:\s*(?P<value>.*)$")
 
-    _ORGANISATION_RE = re.compile(
-        r"^(?P<name>.{2,80}?[\s,](?:Inc|Ltd|Limited|B\.?V|N\.?V|GmbH|AG|S\.r\.l|S\.p\.A|S\.A|LLC|Corp"
+    _LEGAL_FORM = (
+        r"(?:Inc|Ltd|Limited|B\.?V|N\.?V|GmbH|AG|S\.r\.l|S\.p\.A|S\.A|LLC|Corp"
         r"|Corporation|Co|Oy|Oyj|AB|A/S|ApS|Kft|Zrt|Ltda|SARL|SAS|Pty\sLtd|Sdn\sBhd|K\.K|Pte\.?\sLtd"
-        r"|(?i:d\.o\.o|d\.d|s\.r\.o|a\.s|sp\.\sz\so\.o))\.?)(?=\s|$)"
+        r"|(?i:d\.o\.o|d\.d|s\.r\.o|a\.s|sp\.\sz\so\.o))"
     )
 
-    _HOUSE_NUMBER_RE = re.compile(r"\b\d+\b")
+    # Comma-chained legal forms belong to the name ("Co., Ltd."); other text after it does not.
+    _ORGANISATION_RE = re.compile(rf"^(?P<name>.{{2,80}}?[\s,]{_LEGAL_FORM}\.?(?:,?\s+{_LEGAL_FORM}\.?)*)(?=[\s,]|$)")
 
     _ORGANISATION_TAGS = frozenset(
         {constants.TAG_DEVELOPER, constants.TAG_SPONSOR, constants.TAG_CERT_LAB, constants.TAG_EVAL_FACILITY}
@@ -228,22 +229,22 @@ class NSCIBFrontpageParser(FrontpageParser):
         """
         Resolve the tag/value pair(s) for the label matched at ``blocks[idx]``.
 
-        pdftotext keeps the value on the label's own line (``match``). Docling puts it in the
-        following block instead, sometimes with the organization's postal address merged in, which
-        is trimmed off so that both converters agree.
+        pdftotext keeps the value on the label's own line (``match``). Docling emits whole frontpage
+        cells instead, before or merged into the label's block, carrying the organization's postal
+        address. Organizations are therefore always address-trimmed, a no-op on a bare name, so that
+        both converters agree.
         """
         value = match.group("value").strip()
-        address_merged = False
 
         if not value:
             nxt = blocks[idx + 1] if idx + 1 < len(blocks) else ""
             if not nxt or self._LABEL_RE.match(nxt):
                 return []
-            value, address_merged = nxt, True
+            value = nxt
 
         resolved = []
         for tag in self.FRONTPAGE_LABELS[label]:
-            trimmed = self._organisation_of(value) if address_merged and tag in self._ORGANISATION_TAGS else value
+            trimmed = self._organisation_of(value) if tag in self._ORGANISATION_TAGS else value
             resolved.append((tag, _clean_identity(trimmed)))
         return resolved
 
@@ -254,13 +255,15 @@ class NSCIBFrontpageParser(FrontpageParser):
         if match:
             return match.group("name")
 
-        number = cls._HOUSE_NUMBER_RE.search(value)
-        if not number:
+        # No legal form to cut at: the address starts at the street name, which is the word before a
+        # standalone house number ("Brassersplein 2") or the word holding a glued one ("Delft1187").
+        words = value.split()
+        number_index = next((i for i, word in enumerate(words) if any(char.isdigit() for char in word)), None)
+        if number_index is None:
             return value
 
-        # Drop the street name that precedes the house number along with everything after it.
-        words = value[: number.start()].split()
-        return " ".join(words[:-1]) if len(words) > 1 else value
+        street_index = number_index - 1 if words[number_index].strip(",.").isdigit() else number_index
+        return " ".join(words[:street_index]) if street_index > 0 else value
 
     @staticmethod
     def _recover_cert_id(text: str) -> str:
