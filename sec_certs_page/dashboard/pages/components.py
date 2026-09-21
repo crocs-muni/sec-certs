@@ -27,7 +27,7 @@ def section_header(title: str, icon: str, icon_color: str = "text-primary") -> h
         className="d-flex align-items-center mb-3",
         children=[
             html.I(className=f"{icon} me-2 {icon_color}"),
-            html.H2(title, className="mb-0 fw-bold"),
+            html.H2(title, className="h4 mb-0 fw-bold"),
         ],
     )
 
@@ -47,7 +47,7 @@ def subsection_header(title: str, icon: str, icon_color: str = "text-muted") -> 
         className="d-flex align-items-center mb-2",
         children=[
             html.I(className=f"{icon} me-2 {icon_color}"),
-            html.H3(title, className="mb-0 fw-bold"),
+            html.H3(title, className="h5 mb-0 fw-bold"),
         ],
     )
 
