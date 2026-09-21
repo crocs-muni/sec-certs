@@ -189,13 +189,13 @@ class CCArchiver(Archiver, CCMixin):  # pragma: no cover
             logger.info(f"Finished archiving {path}")
 
 
-@actor("cc_archive", "cc_archive", "updates", timedelta(hours=4))
+@actor("cc_archive", "cc_archive", "archive", timedelta(hours=4))
 def archive(ids, paths):  # pragma: no cover
     archiver = CCArchiver()
     archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_CC_ARCHIVE"], paths)
 
 
-@actor("cc_archive_all", "cc_archive_all", "updates", timedelta(hours=1))
+@actor("cc_archive_all", "cc_archive_all", "archive", timedelta(hours=1))
 def archive_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.cc.find({}, {"_id": 1})]
     updater = CCUpdater()

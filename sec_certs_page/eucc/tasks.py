@@ -187,13 +187,13 @@ class EUCCArchiver(Archiver, EUCCMixin):  # pragma: no cover
             logger.info(f"Finished archiving {path}")
 
 
-@actor("eucc_archive", "eucc_archive", "updates", timedelta(hours=4))
+@actor("eucc_archive", "eucc_archive", "archive", timedelta(hours=4))
 def archive(ids, paths):  # pragma: no cover
     archiver = EUCCArchiver()
     archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_EUCC_ARCHIVE"], paths)
 
 
-@actor("eucc_archive_all", "eucc_archive_all", "updates", timedelta(hours=1))
+@actor("eucc_archive_all", "eucc_archive_all", "archive", timedelta(hours=1))
 def archive_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.eucc.find({}, {"_id": 1})]
     updater = EUCCUpdater()

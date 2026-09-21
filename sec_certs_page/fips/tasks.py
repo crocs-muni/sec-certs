@@ -172,13 +172,13 @@ class FIPSArchiver(Archiver, FIPSMixin):  # pragma: no cover
             logger.info(f"Finished archiving {path}")
 
 
-@actor("fips_archive", "fips_archive", "updates", timedelta(hours=4))
+@actor("fips_archive", "fips_archive", "archive", timedelta(hours=4))
 def archive(ids, paths):  # pragma: no cover
     archiver = FIPSArchiver()
     archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_FIPS_ARCHIVE"], paths)
 
 
-@actor("fips_archive_all", "fips_archive_all", "updates", timedelta(hours=1))
+@actor("fips_archive_all", "fips_archive_all", "archive", timedelta(hours=1))
 def archive_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.fips.find({}, {"_id": 1})]
     updater = FIPSUpdater()
