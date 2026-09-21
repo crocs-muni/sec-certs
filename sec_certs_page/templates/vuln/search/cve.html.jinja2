@@ -1,5 +1,6 @@
 {% extends "common/base.html.jinja2" %}
 {% from "include/entry.html.jinja2" import render_cve_impact %}
+{% set canonical = True %}
 
 {% block head %}
     {{ super() }}
@@ -8,13 +9,13 @@
 
 {% block content %}
     <main>
-        <div class="container-lg px-3 px-md-4 pt-4">
+        <div class="home-container px-3 px-md-4 pt-4">
             <div class="d-flex align-items-baseline gap-2 mb-3">
-                <h1>Vulnerabilities</h1>
-                <span class="text-secondary fs-3">Search</span>
+                <h1 class="h2">Vulnerabilities</h1>
+                <span class="text-secondary fs-4">Search</span>
             </div>
 
-            <ul class="nav nav-tabs mb-4">
+            <ul class="nav nav-tabs search-tabs mb-0">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="{{ url_for('vuln.cve_search') }}">CVEs</a>
                 </li>
@@ -23,7 +24,7 @@
                 </li>
             </ul>
 
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-4 rounded-top-0">
                 <div class="card-body p-3 p-md-4">
                     <input type="radio" id="nameSearchRadioId" checked hidden>
 
@@ -150,7 +151,7 @@
             </div>
         </div>
 
-        <div class="container-xl results-container px-3 px-md-5 pb-4">
+        <div class="home-container px-3 px-md-4 pb-4">
             <div id="results" data-sort-by="{{ sort_by or '' }}" data-sort-dir="{{ sort_dir or '' }}">
                 <div class="d-grid mt-3 mb-1" style="grid-template-columns: 1fr auto 1fr; align-items: end;">
                     <div></div>
@@ -187,7 +188,7 @@
                             <col data-col="published_date" style="width: 13ch">
                             <col data-col="cert_count" style="width: 4ch">
                         </colgroup>
-                        <thead class="table-light">
+                        <thead class="results-thead">
                             <tr>
                                 <th class="sortable" data-col="cve_number"><span class="th-label">ID</span> <span class="sort-icon"></span></th>
                                 <th data-col="cwe"><span class="th-label">CWE</span></th>
