@@ -1,0 +1,298 @@
+{% extends "common/base.html.jinja2" %}
+{% set canonical = True %}
+{% block title %}
+    <title>FAQ | sec-certs.org</title>
+{% endblock %}
+
+{% macro faq(id, question) %}
+    <div class="accordion-item anchor" id="{{ id }}">
+        <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#{{ id }}-body" aria-expanded="false" aria-controls="{{ id }}-body">
+                {{ question }}
+            </button>
+        </h3>
+        <div id="{{ id }}-body" class="accordion-collapse collapse">
+            <div class="accordion-body">
+                {{ caller() }}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% block content %}
+<div class="home-container px-3 px-md-4 pt-md-4 pb-4">
+    <main>
+        <h1 class="h2 pb-4">Frequently asked questions</h1>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">About the project</h2>
+            <div class="accordion">
+            {% call faq("how-it-works", "How does sec-certs work?") %}
+                <p>
+                    sec-certs crawls the official portals of Common Criteria, Protection Profiles,
+                    FIPS 140 and EUCC once a week, downloads the certification PDFs (certificates,
+                    certification and validation reports, Security Targets, security policies and
+                    maintenance reports) and converts them to text. It then extracts structured
+                    information using hundreds of hand-crafted rules and NLP/ML models, and links the
+                    resulting records to each other and to the NVD vulnerability database.
+                    Vulnerability data from the NVD is refreshed daily.
+                </p>
+                <p>
+                    The processed dataset is published on this website, and the code is available on
+                    <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener">our GitHub</a>.
+                </p>
+            {% endcall %}
+
+            {% call faq("who-benefits", "Who could benefit from using sec-certs?") %}
+                <p>
+                    sec-certs is built for anyone who would otherwise have to search through
+                    certification PDFs by hand. Typical users and how they use the tool:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Vendors certifying their own product</strong> — technical managers with a
+                        strategic scope look up a product's certificate details, identify which
+                        laboratories have certified similar products, and build a dashboard of
+                        certifications within a given framework. Developers and technical leads look up a
+                        product's certificate, check for associated CVEs, and search for relevant
+                        Protection Profiles.
+                    </li>
+                    <li>
+                        <strong>Companies analyzing products to buy</strong> — use it to find a certificate for a
+                        product, check its associated CVEs, find products built on a given technology,
+                        and compare certificates across different versions of the same product.
+                    </li>
+                    <li>
+                        <strong>Research organisations</strong> — security researchers use it to identify which
+                        products are affected by a given vulnerability, compare certificates across
+                        product versions, and explore dependencies between certified products.
+                    </li>
+                    <li>
+                        <strong>Security-related testing laboratories</strong> — used it to find a product's
+                        certificate, identify which labs have certified similar products, build
+                        certification dashboards, and explore dependencies between products.
+                    </li>
+                    <li>
+                        <strong>National schemes and standardization organizations</strong> — use it to get an
+                        aggregated, cross-scheme view of the certification landscape to inform policy
+                        and standardization work.
+                    </li>
+                </ul>
+            {% endcall %}
+
+            {% call faq("data-sources", "Which sources does sec-certs use for data crawling?") %}
+                <p>
+                    The sources from which the certification documents can be found on the section
+                    Data of each of the frameworks:
+                </p>
+                <ul>
+                    <li>
+                        For Common Criteria, we use
+                        <a href="https://commoncriteriaportal.org" target="_blank" rel="noopener">commoncriteriaportal.org</a> as the main source
+                        (<a href="{{ url_for('cc.data') }}">details</a>)
+                    </li>
+                    <li>
+                        For Protection Profiles, we use
+                        <a href="https://commoncriteriaportal.org" target="_blank" rel="noopener">commoncriteriaportal.org</a> and
+                        <a href="https://www.niap-ccevs.org" target="_blank" rel="noopener">niap-ccevs.org</a>
+                        (<a href="{{ url_for('pp.data') }}">details</a>)
+                    </li>
+                    <li>
+                        For EUCC, we use
+                        <a href="https://certification.enisa.europa.eu/certificates_en" target="_blank" rel="noopener">certification.enisa.europa.eu</a> as the main source
+                        (<a href="{{ url_for('eucc.data') }}">details</a>)
+                    </li>
+                    <li>
+                        For FIPS 140, we use <a href="https://csrc.nist.gov/Projects/cryptographic-module-validation-program/validated-modules/search" target="_blank" rel="noopener">NIST CMVP</a>,
+                        <a href="https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/modules-in-process-list" target="_blank" rel="noopener">NIST CMVP Modules In Process</a> and
+                        <a href="https://csrc.nist.gov/Projects/cryptographic-module-validation-program/modules-in-process/iut-list" target="_blank" rel="noopener">NIST CMVP Implementations Under Test</a>
+                        (<a href="{{ url_for('fips.data') }}">details</a>)
+                    </li>
+                </ul>
+            {% endcall %}
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">Searching</h2>
+            <div class="accordion">
+            {% call faq("advanced-queries", "How do I build advanced search queries?") %}
+                <p>
+                    First, try to use the filters on the search form. For most searches you will not need any
+                    special syntax. Depending on the framework, you can filter by ID, manufacturer,
+                    lab, status, category, scheme, assurance level, certification and archival dates,
+                    and extracted keywords. Selecting several values inside one filter matches any of
+                    them, while different filters narrow each other down: <em>Schemes: DE, FR</em>
+                    together with <em>Status: active</em> finds active certificates issued under
+                    either the German or the French scheme.
+                </p>
+                <p>
+                    If the filters cannot express what you are after, you can switch to the advanced query
+                    syntax. This is useful when you want to use OR between two different fields instead of the
+                    default AND from the filters. It also lets you exclude terms, search for exact phrases,
+                    boost specific terms, and more. For details,
+                    <a href="{{ url_for('query_guide') }}">query syntax guide</a> explains what is
+                    available and how to use it.
+                </p>
+            {% endcall %}
+
+            {% call faq("cannot-find", "Why can't I find a certificate in sec-certs?") %}
+                <p>The most common reasons:</p>
+                <p><strong>The certificate is not (yet) in our dataset.</strong></p>
+                <p>
+                    sec-certs crawls only a selected set of official portals for each certification
+                    framework, and does so once a week. If your certificate has not been added to the
+                    source portal yet, or was added after our last crawl, it will not appear yet.
+                </p>
+                <p>
+                    What to do: Check the <em>Data</em> section of the relevant framework to see
+                    <a href="#data-sources">which sources are crawled</a> and when the dataset was
+                    last successfully updated. Its <em>Processing updates</em> page lists every
+                    update run by date, so you can check whether your certificate was picked up in a
+                    recent one.
+                </p>
+                <p><strong>The search query syntax is incorrect.</strong></p>
+                <p>
+                    See the <a href="{{ url_for('query_guide') }}">query guide</a> for the supported
+                    syntax.
+                </p>
+                <p><strong>The wrong search type is selected.</strong></p>
+                <p>sec-certs offers two distinct search modes:</p>
+                <ul>
+                    <li><strong>Name search</strong> searches by product name, i.e. the title of the certificate.</li>
+                    <li>
+                        <strong>Fulltext search</strong> searches the text of all available certification
+                        documents (e.g., for Common Criteria, this includes the certificate, certification report, and Security Target)
+                    </li>
+                </ul>
+                <p>
+                    What to do: If your term doesn't appear in a product's name, try switching to fulltext search, and vice versa.
+                </p>
+            {% endcall %}
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">Automated analysis</h2>
+            <div class="accordion">
+            {% call faq("heuristics", "What is “heuristic” or “automated analysis”?") %}
+                <p>
+                    It is any information on a certificate's page (e.g., matched CVEs/CPEs, references
+                    to other certificates, extracted vendor, algorithms, or keywords) that was produced
+                    automatically by our processing pipeline with non 100% certainty. These heuristics
+                    can contain false positives and false negatives, so they should be treated as a
+                    strong lead rather than a definitive fact — always cross-check against the linked
+                    source document. If something looks wrong, please use the feedback option on the
+                    certificate's page. If you want to know more how its computed and how to verify it,
+                    visit our
+                    <a href="{{ url_for('docs.serve_docs', path='heuristics.html') }}">documentation</a>.
+                </p>
+                <p>
+                    The data presented outside of the section <em>Automated analysis</em> refers to
+                    the fields that are directly extracted from the data sources, and thus, it should
+                    have been reviewed by a human.
+                </p>
+            {% endcall %}
+
+            {% call faq("matched-vulnerabilities", "What does it mean that a certificate has some “matched vulnerabilities”?") %}
+                <p>
+                    It means our pipeline has heuristically linked that certificate to one or more CVE
+                    records from the NVD, most commonly because the certified product's configuration
+                    matched a CPE record listed as affected by those CVEs. This is a strong indicator,
+                    not a certainty — the affected feature may be outside the certified scope, disabled
+                    by default, or already patched in a maintenance update. Always verify against the
+                    certificate's Security Target or certification report before drawing conclusions.
+                </p>
+            {% endcall %}
+
+            {% call faq("cve-matching", "How does sec-certs match a vulnerability (CVE) with a certificate?") %}
+                <p>
+                    A CVE is a unique identifier for a publicly disclosed vulnerability, and a CPE is
+                    NIST's standardized identifier for a product/version/vendor configuration; the NVD
+                    maintains the mapping from vulnerable CPEs to the CVEs affecting them.
+                </p>
+                <p>
+                    Our tool automatically matches a certified product's name and extracted version(s)
+                    against candidate CPE records using vendor and version constraints plus fuzzy
+                    string similarity, and treats a certificate as affected by any CVEs associated with
+                    a matched CPE.
+                </p>
+                <p>
+                    On a certificate's page, the <em>Automated analysis</em> section shows the CPE matches our
+                    tool matched to the product, while CVE matches shows the specific vulnerabilities
+                    inferred from those matches. Because this matching is automated, it can miss
+                    vulnerable products (if no CPE was matched) or over-report them (if a match is too
+                    loose or the vulnerable feature was excluded from the certified scope). For
+                    authoritative confirmation, always consult the linked NVD entry, the certificate's
+                    Security Target/security policy, and, where relevant, the vendor's own advisories.
+                </p>
+            {% endcall %}
+
+            {% call faq("cross-references", "What are the cross-references?") %}
+                <p>
+                    Cross-references (or just "references") are links our tool detects between two
+                    certificates, typically because one certificate's documents mention the identifier
+                    of another (e.g., a smartcard certificate referencing the certificate of its
+                    underlying chip). They usually signal that the referencing product reuses or builds
+                    upon a certified component, or that it is a re-evaluation/newer version of the
+                    referenced product.
+                </p>
+            {% endcall %}
+
+            {% call faq("reference-graph", "How to use a cross-reference graph?") %}
+                <p>
+                    The reference graph is available for
+                    <a href="{{ url_for('cc.network') }}">Common Criteria</a> and
+                    <a href="{{ url_for('fips.network') }}">FIPS 140</a> certificates under
+                    <em>References</em>. It visualizes
+                    certificates as nodes and references as directed edges. Use it to explore what a
+                    product depends on, what depends on it, or how far a potential vulnerability might
+                    propagate through the ecosystem.
+                </p>
+            {% endcall %}
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">Processing updates</h2>
+            <div class="accordion">
+            {% call faq("processing-updates", "What is the certificate processing update?") %}
+                <p>
+                    Each certificate's page has a <em>Processing updates</em> tab that logs the history of our
+                    processing pipeline for that certificate, e.g., when it was first processed, when
+                    its source PDF or metadata changed, or when its computed heuristics (such as
+                    matched CPEs/CVEs) were recomputed, together with a diff of what changed. It lets
+                    you track a certificate's history over time and see exactly what changed since your
+                    last visit.
+                </p>
+            {% endcall %}
+
+            {% call faq("atom-feed", "What is ATOM feed?") %}
+                <p>
+                    It is a machine-readable web feed you can subscribe to with a feed reader (or your
+                    own tooling) to get notified of new or changed certificates matching your
+                    interests, as an alternative to email notifications. It follows the standard Atom
+                    syndication format, so any standard feed reader can consume it.
+                </p>
+            {% endcall %}
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    $(function () {
+        function openFromHash() {
+            if (!window.location.hash) return;
+            const body = document.querySelector(window.location.hash + " > .accordion-collapse");
+            if (!body) return;
+            bootstrap.Collapse.getOrCreateInstance(body, {toggle: false}).show();
+            body.parentElement.scrollIntoView({block: "start"});
+        }
+
+        window.addEventListener("hashchange", openFromHash);
+        openFromHash();
+    });
+</script>
+{% endblock %}

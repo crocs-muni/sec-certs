@@ -18,6 +18,13 @@ def query_guide():
     return render_template("query_guide.html.jinja2")
 
 
+@app.route("/faq/")
+@register_breadcrumb(app, ".faq", "FAQ")
+def faq():
+    """Frequently asked questions about the project, its data and its automated analysis."""
+    return render_template("faq.html.jinja2")
+
+
 @app.route("/robots.txt")
 def robots():
     content = f"""
@@ -46,3 +53,4 @@ def sitemap_urls():
     yield "about.changelog", {}, None, None, 0.8
     yield "about.research", {}, None, None, 0.8
     yield "about.privacy_policy", {}, None, None, 0.8
+    yield "faq", {}, None, None, 0.8
