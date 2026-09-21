@@ -16,6 +16,7 @@ from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.sesip import SESIPCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
+from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
 from sec_certs.utils.profiling import staged
 
@@ -165,8 +166,25 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             self._set_local_paths()
         self.state.meta_sources_parsed = True
 
+    @staged(logger, "Downloading certs and STs")
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
-        raise NotImplementedError("not implemented yet.")
+        for folder in (self.cert_dir, self.st_dir):
+            (folder / "pdf").mkdir(parents=True, exist_ok=True)
+
+        certs_to_process = [
+            x
+            for x in self
+            if x.state.cert.is_ok_to_download(fresh) or (x.has_separate_st and x.state.st.is_ok_to_download(fresh))
+        ]
+        if not fresh and certs_to_process:
+            logger.info(f"Downloading artifacts of {len(certs_to_process)} certificates for which download failed")
+
+        cert_processing.process_parallel(
+            SESIPCertificate.download_artifacts,
+            certs_to_process,
+            kwargs={"fresh": fresh},
+            progress_bar_desc="Downloading PDFs",
+        )
 
     def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
         raise NotImplementedError("not implemented yet.")
