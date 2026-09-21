@@ -9,7 +9,6 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-import spacy
 import umap
 import umap.plot
 from rapidfuzz import fuzz
@@ -25,10 +24,11 @@ from sec_certs.model.references_nlp.annotator import ReferenceAnnotator
 from sec_certs.model.references_nlp.annotator_trainer import ReferenceAnnotatorTrainer
 from sec_certs.model.references_nlp.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.utils.nlp import prec_recall_metric
+from sec_certs.utils.strings import load_spacy_model
 
 logger = logging.getLogger(__name__)
 
-nlp = spacy.load("en_core_web_sm")
+nlp = load_spacy_model("en_core_web_sm", disable=())
 
 
 def strip_all(text: str, to_strip) -> str:

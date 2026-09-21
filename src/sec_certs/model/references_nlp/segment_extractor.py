@@ -13,13 +13,13 @@ from typing import Any, Literal
 # import langdetect
 import numpy as np
 import pandas as pd
-import spacy
 
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_certificate_id import CertificateId
 from sec_certs.utils import parallel_processing
+from sec_certs.utils.strings import load_spacy_model
 
-nlp = spacy.load("en_core_web_sm")
+nlp = load_spacy_model("en_core_web_sm", disable=())
 logger = logging.getLogger(__name__)
 
 
