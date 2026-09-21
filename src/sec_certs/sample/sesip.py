@@ -7,12 +7,15 @@ from datetime import date
 from pathlib import Path
 from typing import cast
 
+import requests
+
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils import helpers
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
 
 
@@ -123,6 +126,38 @@ class SESIPCertificate(
             + "Assurance: "
             + str(self.index_data.compliance)
         )
+
+    @property
+    def has_separate_st(self) -> bool:
+        # withheld certificates have only cert file
+        return bool(self.index_data.st_link) and self.index_data.st_link != self.index_data.cert_link
+
+    @staticmethod
+    def download_artifacts(cert: SESIPCertificate, fresh: bool = True) -> SESIPCertificate:
+        if cert.state.cert.is_ok_to_download(fresh):
+            cert._download_document(cert.index_data.cert_link, cert.state.cert, "certificate")
+        if cert.has_separate_st and cert.state.st.is_ok_to_download(fresh):
+            cert._download_document(cert.index_data.st_link, cert.state.st, "security target")
+        return cert
+
+    def _download_document(self, url: str | None, doc: DocumentState, label: str) -> None:
+        previous_hash = doc.source_hash
+        doc.download_ok = False
+        doc.source_hash = None
+
+        if not url:
+            logger.warning(f"Cert dgst: {self.dgst} has no link to the {label}")
+            return
+
+        doc.source_path.parent.mkdir(parents=True, exist_ok=True)
+        if (exit_code := helpers.download_file(url, doc.source_path)) != requests.codes.ok:
+            logger.error(f"Cert dgst: {self.dgst} failed to download the {label} from {url}, code {exit_code}")
+            return
+
+        doc.download_ok = True
+        doc.source_hash = helpers.get_sha256_filepath(doc.source_path)
+        if doc.source_hash != previous_hash:
+            doc.reset_conversion()
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):
