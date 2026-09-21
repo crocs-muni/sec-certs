@@ -1,122 +1,131 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
+{% from "include/utils.html.jinja2" import search_box %}
 
 {% block content %}
-    <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="row mb-3 g-4 justify-content-start row-cols-1 row-cols-lg-2">
-                <div class="col-sm-10 col-md-5 order-1 order-md-0">
-                    <h1>FIPS 140</h1>
-                    <p class="lead">All of the certificates are sourced from the NIST CMVP (Cryptographic Module
-                        Validation Program) portal
-                        at
-                        <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
-                           target="_blank" rel="noopener">csrc.nist.gov</a>.
-                        The site provides a search and HTML listing of the certified products with some metadata.
-                        These listings were crawled (along with the certificates and security targets themselves) to
-                        gather the data provided here.</p>
-                </div>
-                <div class="col-5 d-flex justify-content-md-center align-items-md-center order-0 order-md-1">
-                    <img src="{{ url_for("static", filename="img/fips_logo.svg") }}" alt="FIPS-140"
-                         class="part-logo"
-                         style="width: 10em"/>
+    <main class="scheme-home">
+        <div class="col-12 col-sm-10 mx-auto p-3 pt-md-5 pb-md-4">
+            <h1>FIPS 140</h1>
+            <p class="pt-2">
+                All of the certificates are sourced from the NIST CMVP (Cryptographic Module Validation Program) portal at
+                <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
+                   target="_blank" rel="noopener">csrc.nist.gov</a>.
+                The site provides a search and HTML listing of the certified products with some metadata.
+                These listings were crawled (along with PDFs of the certificates and security targets) to gather the data provided here.
+            </p>
+            <p class="pt-2">
+                Search our database for FIPS 140 certificates, discover the extracted metadata and keywords,
+                filter them and use other advanced filtering.
+            </p>
+        </div>
+        {{ search_box("fips", "Search FIPS 140 certificates", "Module name",
+                      url_for('.merged_search'), url_for('.rand')) }}
+        <div class="row p-3">
+            <div class="col-12 col-sm-10 mx-auto">
+                <div class="row g-4 py-3 py-md-4 row-cols-1 row-cols-lg-2">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="feature-icon-sm bg-primary bg-gradient"><i class="fas fa-chart-bar fa-fw"></i></div>
+                                    <h3 class="h5 mb-0">Statistics Analysis</h3>
+                                </div>
+                                <p class="flex-grow-1">Which scheme is issuing certificates the most? Which certificate category
+                                    is the most common? You can find answers here and you can also make your
+                                    own statistics with our prepared datasets.</p>
+                                <div>
+                                    <a href="{{ url_for('.analysis') }}" class="btn btn-primary">Explore statistics →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="feature-icon-sm bg-primary bg-gradient"><i class="fas fa-project-diagram fa-fw"></i></div>
+                                    <h3 class="h5 mb-0">Cross-references</h3>
+                                </div>
+                                <p class="flex-grow-1">Wanted to know, what certificates are referencing yours and vice versa? We
+                                    got you covered. We are automatically adding references between
+                                    certificates, which then creates big graph of references. You can also see
+                                    smaller reference graphs in certificate details.</p>
+                                <div>
+                                    <a href="{{ url_for('.network') }}" class="btn btn-primary">View reference graph →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row bg-darker-light p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5">
-                    <div class="col-12 col-md-6">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-search fa-fw"></i>
+        <div class="col-12 col-sm-10 mx-auto p-3">
+            <div class="bg-accent-light border rounded-3 p-4">
+                <div class="row g-4">
+                    <div class="col-12 col-md-8">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="feature-icon-sm bg-primary bg-gradient">
+                                <i class="fas fa-wrench fa-fw"></i>
+                            </div>
+                            <h2 class="anchor h5 mb-0" id="mip-iut">MIP and IUT</h2>
                         </div>
-                        <h2>Search</h2>
-                        <p>We are converting all FIPS 140 certificates from PDFs into machine readable format.
-                        You can use this website to search in our database for any FIPS 140 certificate, discover its extracted metadata, filter them and do much more.</p>
-                        <a href="{{ url_for(".merged_search") }}" class="btn btn-primary">
-                            Learn more <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 mt-4 mt-md-0">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fa fa-lightbulb" aria-hidden="true"></i>
-                        </div>
-                        <h2>Example</h2>
-                        <p>No more talking. Have a look at the example certificate we have chosen for you. 
-                        Discover extracted metadata and much more. Don't forget to search for your own certificates later!</p>
-                        <a href="{{ url_for("fips.rand") }}" class="btn btn-outline-primary m-1 ms-0">
-                            Random certificate
-                        </a>
-                        <a href="{{ url_for(".entry", hashid="1625f9db144171f7") }}" class="btn btn-primary m-1">
-                            Show example <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-        <div class="row p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5">
-                    <div class="col-12 col-md-6">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-chart-line fa-fw"></i>
-                        </div>
-                        <h2>Analysis</h2>
-                        <p>Which scheme is issuing certificates the most? Which certificate category is the most numerous?
-                        You can find answers here and you can also make your own statistics with our prepared datasets.</p>
-                        <a href="{{ url_for(".analysis") }}" class="btn btn-primary">
-                            Learn more <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 mt-4 mt-md-0">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-network-wired fa-fw"></i>
-                        </div>
-                        <h2>References</h2>
-                        <p>Wanted to know, what certificates are referencing yours and vice versa? We got you covered.
-                        We are automatically adding references between certificates, which then creates big graph of references.
-                        You can also see smaller reference graphs in certificate details.</p>
-                        <a href="{{ url_for(".network") }}" class="btn btn-primary">
-                            Learn more <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row bg-darker-light p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row my-5">
-                    <div class="col-12 col-md-6">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-tools fa-fw"></i>
-                        </div>
-                        <h2 class="anchor" id="mip-iut">MIP and IUT</h2>
-                        <p>The FIPS 140 Modules In Process (MIP) and Implementations Under Test (IUT) lists provide
+                        <p>The FIPS 140 <b>Modules In Process (MIP)</b> and <b>Implementations Under Test (IUT)</b> lists provide
                             information about modules currently undergoing NIST CMVP evaluation. We process these lists
                             daily and provide a log of snapshots.</p>
-                        <a href="{{ url_for(".mip_index") }}" role="button" class="mt-1 btn btn-primary"><i
-                                class="fas fa-fw fa-list"></i>
-                            MIP</a>
-                        <a href="{{ url_for(".iut_index") }}" role="button" class="mt-1 btn btn-primary"><i
-                                class="fas fa-fw fa-list"></i>
-                            IUT
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 mt-4 mt-md-0">
-                        <div class="feature-icon bg-primary bg-gradient">
-                            <i class="fas fa-file-alt fa-fw"></i>
+                        <p>Use the overview to track which modules are in the evaluation pipeline, monitor status changes over
+                            time, and spot new entries before they become full certificates.</p>
+                        <div class="mt-2">
+                            <a href="{{ url_for('.mip_snapshot', id=fips_mip._id) if fips_mip else url_for('.mip_index') }}"
+                               class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
+                            <a href="{{ url_for('.iut_snapshot', id=fips_iut._id) if fips_iut else url_for('.iut_index') }}"
+                               class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
                         </div>
-                        <h2>Data</h2>
-                        <p>Want to process all FIPS 140 data on your own? Download our prepared datasets and analyse them.</p>
-                        <a href="{{ url_for(".data") }}" class="btn btn-primary">
-                            Learn more <i class="fa-solid fa-arrow-right"></i>
-                        </a>
+                    </div>
+                    <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
+                        {% if fips_mip %}
+                        <div class="card text-center">
+                            <div class="card-body py-3">
+                                <div class="fs-2 fw-bold text-primary">{{ fips_mip.total }}</div>
+                                <div class="text-muted">Modules In Process</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if fips_iut %}
+                        <div class="card text-center">
+                            <div class="card-body py-3">
+                                <div class="fs-2 fw-bold text-primary">{{ fips_iut.total }}</div>
+                                <div class="text-muted">Under Test</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if fips_mip and fips_mip.last_updated %}
+                        <div class="card text-center">
+                            <div class="card-body py-3">
+                                <div class="fs-2 fw-bold text-primary">{{ fips_mip.last_updated|fromisoformat|strftime("%d.%m.%Y") }}</div>
+                                <div class="text-muted">Last updated</div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-        </div>       
-        
+        </div>
+
+        <div class="col-12 col-sm-10 mx-auto p-3 pb-md-5">
+            <div class="card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="feature-icon-sm bg-primary bg-gradient">
+                            <i class="fas fa-file-alt fa-fw"></i>
+                        </div>
+                        <h2 class="h5 mb-0">Data</h2>
+                    </div>
+                    <p>Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
+                    <a href="{{ url_for('.data') }}" class="btn btn-primary">Download datasets →</a>
+                </div>
+            </div>
+        </div>
+
     </main>
 {% endblock %}
