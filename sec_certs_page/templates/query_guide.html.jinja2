@@ -79,18 +79,20 @@ TPM OR firmware
         <section class="mb-5">
             <h3 id="field-prefix">Field targeting</h3>
             <p>
-                Each search input already targets its own field by default. Field prefixes are
-                only needed if you want to cross-reference multiple fields from a single box.
+                Each search input already targets its own field. Field prefixes are only needed if you want to
+                cross-reference multiple fields from a single box. Or when you need <code>OR</code> between two fileds,
+                since the filters on the search form are combined with <code>AND</code>.
+            </p>
+            <p>
+                Either the query starts with a prefixed field, or the terms are joined with
+                <code>AND</code> or <code>OR</code>. <code>name:foo keystore</code> and
+                <code>keystore AND name:foo</code> both work, <code>keystore name:foo</code>
+                does not.
             </p>
             <p>
                 Every scheme is indexed separately, so the available fields differ between
-                Common Criteria (CC), FIPS 140, Protection Profiles (PP) and EUCC. Naming a
-                field the current scheme does not have reports a query error.
-            </p>
-            <p>
-                <em>Exact</em> fields are stored untokenized: the value has to match the whole
-                stored value, and it must be quoted if it contains spaces — use
-                <code>category:"Data Protection"</code>, not <code>category:Data Protection</code>.
+                Common Criteria (CC), FIPS 140, Protection Profiles (PP) and EUCC. If you try to use 
+                a field which is not available for the current scheme, the query will result into an error.
             </p>
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
@@ -111,9 +113,11 @@ TPM OR firmware
                         </tr>
                         <tr>
                             <td><code>cert_id</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>CC, EUCC</td>
-                            <td>The complete certificate ID, e.g. <code>ANSSI-CC-2023/12</code>.</td>
+                            <td>
+                                The complete certificate ID, matched as a whole, e.g. <code>cert_id:ANSSI-CC-2023/12</code>.
+                            </td>
                         </tr>
                         <tr>
                             <td><code>cert_id_tokenized</code></td>
@@ -121,8 +125,7 @@ TPM OR firmware
                             <td>CC, EUCC</td>
                             <td>
                                 The same ID split into words, so parts of it can be matched on their
-                                own — <code>cert_id_tokenized:ANSSI</code>. The certificate ID input
-                                searches both fields at once.
+                                own, e.g. <code>cert_id_tokenized:ANSSI</code>
                             </td>
                         </tr>
                         <tr>
@@ -151,43 +154,46 @@ TPM OR firmware
                         </tr>
                         <tr>
                             <td><code>scheme</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>CC, PP, EUCC</td>
                             <td>Two-letter country code of the certification scheme, e.g. <code>DE</code>, <code>FR</code>, <code>NL</code>.</td>
                         </tr>
                         <tr>
                             <td><code>category</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>CC, PP</td>
-                            <td>Full category name, e.g. <code>"Data Protection"</code> or <code>Databases</code>.</td>
+                            <td>
+                                The whole category name. Quote it if it has more words:
+                                <code>category:"Data Protection"</code>.
+                            </td>
                         </tr>
                         <tr>
                             <td><code>category</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>FIPS</td>
                             <td>Module type: <code>Hardware</code>, <code>Software</code>, <code>Firmware</code>, <code>Hybrid</code>, <code>Software-Hybrid</code>, <code>Firmware-Hybrid</code>.</td>
                         </tr>
                         <tr>
                             <td><code>eal</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>CC, EUCC</td>
                             <td><code>EAL1</code> to <code>EAL7</code>, optionally augmented: <code>EAL4+</code>.</td>
                         </tr>
                         <tr>
                             <td><code>level</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>FIPS</td>
                             <td>Security level as a plain number, matching the Level filter on the search form.</td>
                         </tr>
                         <tr>
                             <td><code>status</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>CC, PP, EUCC</td>
                             <td><code>active</code>, <code>archived</code>.</td>
                         </tr>
                         <tr>
                             <td><code>status</code></td>
-                            <td>exact</td>
+                            <td>text</td>
                             <td>FIPS</td>
                             <td><code>active</code>, <code>historical</code>, <code>revoked</code>.</td>
                         </tr>
@@ -224,10 +230,10 @@ TPM OR firmware
                     </tbody>
                 </table>
             </div>
-            <p>The document body fields are only searched when the full-text search mode is active.</p>
             <pre class="bg-body-secondary rounded p-3 mb-2">manufacturer:qualcomm
 manufacturer:apple AND cert_id_tokenized:ANSSI
 scheme:DE AND eal:EAL4+
+scheme:DE OR eal:EAL4+
 status:active AND vendor:cisco
 category:"Data Protection" AND body_target:keystore
 not_valid_before:[2020-01-01T00:00:00Z TO 2023-01-01T00:00:00Z}</pre>
