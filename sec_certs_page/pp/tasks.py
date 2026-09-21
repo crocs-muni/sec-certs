@@ -127,13 +127,13 @@ class PPArchiver(Archiver, PPMixin):
             logger.info(f"Finished archiving {path}")
 
 
-@actor("pp_archive", "pp_archive", "updates", timedelta(hours=4))
+@actor("pp_archive", "pp_archive", "archive", timedelta(hours=4))
 def archive(ids, paths):  # pragma: no cover
     archiver = PPArchiver()
     archiver.archive(ids, Path(current_app.instance_path) / current_app.config["DATASET_PATH_PP_ARCHIVE"], paths)
 
 
-@actor("pp_archive_all", "pp_archive_all", "updates", timedelta(hours=1))
+@actor("pp_archive_all", "pp_archive_all", "archive", timedelta(hours=1))
 def archive_all():  # pragma: no cover
     ids = [doc["_id"] for doc in mongo.db.pp.find({}, {"_id": 1})]
     updater = PPUpdater()
