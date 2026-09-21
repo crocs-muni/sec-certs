@@ -4,54 +4,125 @@
 
 {% block content %}
     <main class="scheme-home">
-        <div class="col-12 col-sm-10 mx-auto p-3 pt-md-5 pb-md-4">
-            <h1>FIPS 140</h1>
-            <p class="pt-2">
-                All of the certificates are sourced from the NIST CMVP (Cryptographic Module Validation Program) portal at
-                <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
-                   target="_blank" rel="noopener">csrc.nist.gov</a>.
-                The site provides a search and HTML listing of the certified products with some metadata.
-                These listings were crawled (along with PDFs of the certificates and security targets) to gather the data provided here.
-            </p>
-            <p class="pt-2">
-                Search our database for FIPS 140 certificates, discover the extracted metadata and keywords,
-                filter them and use other advanced filtering.
-            </p>
+        <div class="home-container px-3 px-md-4 pt-4">
+            <div class="row g-4 justify-content-between mb-4">
+                <div class="col-12 col-sm-9">
+                    <h1 class="h2 mb-3">FIPS 140</h1>
+                    <div style="max-width: 100ch">
+                <p>
+                    All of the certificates are sourced from the NIST CMVP (Cryptographic Module Validation Program)
+                    portal at
+                    <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search/all"
+                       target="_blank" rel="noopener">csrc.nist.gov</a>.
+                    The site provides a search and HTML listing of the certified products with some metadata.
+                    These listings were crawled (along with PDFs of the certificates and security targets) to gather
+                    the data provided here.
+                </p>
+                <p class="mb-0">
+                    Search our database for FIPS 140 certificates, discover the extracted metadata and keywords,
+                    filter them and use other advanced filtering.
+                </p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-3 d-flex justify-content-center align-items-start">
+                    <img src="{{ url_for("static", filename="img/fips_logo.svg") }}" alt="FIPS 140"
+                         class="part-logo mw-100 mt-5" style="width: clamp(3.5rem, 6vw, 7rem)"/>
+                </div>
+            </div>
         </div>
         {{ search_box("fips", "Search FIPS 140 certificates", "Module name",
                       url_for('.merged_search'), url_for('.rand')) }}
-        <div class="row p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row g-4 py-3 py-md-4 row-cols-1 row-cols-lg-2">
+        <div class="home-band pt-3 pb-3 pb-md-4">
+            <div class="home-container px-3 px-md-4">
+                <div class="row g-3 row-cols-1 row-cols-md-2 feature-grid" style="--feature-cols: 2">
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient"><i class="fas fa-chart-bar fa-fw"></i></div>
-                                    <h3 class="h5 mb-0">Statistics Analysis</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-chart-line fa-fw"></i></span>
+                                    <h3>Trends and dashboards</h3>
                                 </div>
-                                <p class="flex-grow-1">Which scheme is issuing certificates the most? Which certificate category
-                                    is the most common? You can find answers here and you can also make your
-                                    own statistics with our prepared datasets.</p>
-                                <div>
-                                    <a href="{{ url_for('.analysis') }}" class="btn btn-primary">Explore statistics →</a>
+                                <p class="text-body-secondary">Which scheme is issuing certificates the most? Which certificate category is the most common? You can find answers in our analysis, or build your own charts in a dashboard.</p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ dashboard_url }}fips" class="fw-semibold text-decoration-none">
+                                        Build a dashboard <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ url_for('.analysis') }}" class="fw-semibold text-decoration-none">
+                                        See our analysis <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient"><i class="fas fa-project-diagram fa-fw"></i></div>
-                                    <h3 class="h5 mb-0">Cross-references</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-project-diagram fa-fw"></i></span>
+                                    <h3>Cross-references</h3>
                                 </div>
-                                <p class="flex-grow-1">Wanted to know, what certificates are referencing yours and vice versa? We
-                                    got you covered. We are automatically adding references between
-                                    certificates, which then creates big graph of references. You can also see
-                                    smaller reference graphs in certificate details.</p>
-                                <div>
-                                    <a href="{{ url_for('.network') }}" class="btn btn-primary">View reference graph →</a>
+                                <p class="text-body-secondary">Wanted to know, what certificates are referencing yours and vice versa? We got you covered. We are automatically adding references between certificates, which then creates big graph of references. You can also see smaller reference graphs in certificate details.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.network') }}" class="fw-semibold text-decoration-none">
+                                        View reference graph <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-wrench fa-fw"></i></span>
+                                    <h3 class="anchor" id="mip-iut">MIP and IUT</h3>
+                                </div>
+                                <p class="text-body-secondary">The FIPS 140 <b>Modules In Process (MIP)</b> and
+                                    <b>Implementations Under Test (IUT)</b> lists provide information about modules
+                                    currently undergoing NIST CMVP evaluation. We process these lists daily and
+                                    provide a log of snapshots.</p>
+                                <p class="text-body-secondary">Use the overview to track which modules are in the
+                                    evaluation pipeline, monitor status changes over time, and spot new entries
+                                    before they become full certificates.</p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for('.mip_index') }}" class="fw-semibold text-decoration-none">
+                                        Browse MIP <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="{{ url_for('.iut_index') }}" class="fw-semibold text-decoration-none">
+                                        Browse IUT <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-clock-rotate-left fa-fw"></i></span>
+                                    <h3>Processing updates</h3>
+                                </div>
+                                <p class="text-body-secondary">What changed the last time we processed the data? Which certificates are new, which ones changed, and which disappeared from the source listing? See our log of weekly processing updates.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.updates') }}" class="fw-semibold text-decoration-none">
+                                        Browse the updates <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-file-alt fa-fw"></i></span>
+                                    <h3>Data</h3>
+                                </div>
+                                <p class="text-body-secondary">Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.data') }}" class="fw-semibold text-decoration-none">
+                                        Download datasets <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -59,73 +130,5 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-12 col-sm-10 mx-auto p-3">
-            <div class="bg-accent-light border rounded-3 p-4">
-                <div class="row g-4">
-                    <div class="col-12 col-md-8">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="feature-icon-sm bg-primary bg-gradient">
-                                <i class="fas fa-wrench fa-fw"></i>
-                            </div>
-                            <h2 class="anchor h5 mb-0" id="mip-iut">MIP and IUT</h2>
-                        </div>
-                        <p>The FIPS 140 <b>Modules In Process (MIP)</b> and <b>Implementations Under Test (IUT)</b> lists provide
-                            information about modules currently undergoing NIST CMVP evaluation. We process these lists
-                            daily and provide a log of snapshots.</p>
-                        <p>Use the overview to track which modules are in the evaluation pipeline, monitor status changes over
-                            time, and spot new entries before they become full certificates.</p>
-                        <div class="mt-2">
-                            <a href="{{ url_for('.mip_snapshot', id=fips_mip._id) if fips_mip else url_for('.mip_index') }}"
-                               class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse MIP</a>
-                            <a href="{{ url_for('.iut_snapshot', id=fips_iut._id) if fips_iut else url_for('.iut_index') }}"
-                               class="btn btn-primary"><i class="fas fa-search fa-fw"></i> Browse IUT</a>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 d-flex flex-column gap-3 justify-content-center">
-                        {% if fips_mip %}
-                        <div class="card text-center">
-                            <div class="card-body py-3">
-                                <div class="fs-2 fw-bold text-primary">{{ fips_mip.total }}</div>
-                                <div class="text-muted">Modules In Process</div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if fips_iut %}
-                        <div class="card text-center">
-                            <div class="card-body py-3">
-                                <div class="fs-2 fw-bold text-primary">{{ fips_iut.total }}</div>
-                                <div class="text-muted">Under Test</div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if fips_mip and fips_mip.last_updated %}
-                        <div class="card text-center">
-                            <div class="card-body py-3">
-                                <div class="fs-2 fw-bold text-primary">{{ fips_mip.last_updated|fromisoformat|strftime("%d.%m.%Y") }}</div>
-                                <div class="text-muted">Last updated</div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-10 mx-auto p-3 pb-md-5">
-            <div class="card">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="feature-icon-sm bg-primary bg-gradient">
-                            <i class="fas fa-file-alt fa-fw"></i>
-                        </div>
-                        <h2 class="h5 mb-0">Data</h2>
-                    </div>
-                    <p>Want to process all FIPS 140 data on your own? Download our prepared datasets and analyze them.</p>
-                    <a href="{{ url_for('.data') }}" class="btn btn-primary">Download datasets →</a>
-                </div>
-            </div>
-        </div>
-
     </main>
 {% endblock %}

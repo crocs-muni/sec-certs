@@ -4,40 +4,72 @@
 {% block title %}
     <title>EUCC | sec-certs.org</title>
 {% endblock %}
-
 {% block content %}
     <main class="scheme-home">
-        <div class="col-12 col-sm-10 mx-auto p-3 pt-md-5 pb-md-4">
-            <h1>EUCC</h1>
-            <p class="pt-2">
-                The EU Cybersecurity Certification Scheme on Common Criteria (EUCC) certificates are sourced from the EUCC portal at
-                <a href="https://certification.enisa.europa.eu/"
-                   target="_blank" rel="noopener">certification.enisa.europa.eu</a>.
-                The site provides certificates, each accompanied by a metadata table. These listings, along with
-                associated artifacts such as reports, security targets, and the certificates themselves, were
-                scraped to gather the data provided here.
-            </p>
-            <p class="pt-2">
-                Search our database for EUCC certificates, discover the extracted metadata and keywords,
-                filter them and use other advanced filtering.
-            </p>
-        </div>
-        {{ search_box("eucc", "Search EUCC certificates", "Certificate name, vendor",
-                      url_for('.merged_search'), url_for('.rand'), "mb-3 mb-md-4") }}
-        <div class="col-12 col-sm-10 mx-auto p-3 pb-md-5">
-            <div class="card">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="feature-icon-sm bg-primary bg-gradient">
-                            <i class="fas fa-file-alt fa-fw"></i>
-                        </div>
-                        <h2 class="h5 mb-0">Data</h2>
+        <div class="home-container px-3 px-md-4 pt-4">
+            <div class="row g-4 justify-content-between mb-4">
+                <div class="col-12 col-sm-9">
+                    <h1 class="h2 mb-3">EUCC</h1>
+                    <div style="max-width: 100ch">
+                <p>
+                    The EU Cybersecurity Certification Scheme on Common Criteria (EUCC) certificates are sourced from
+                    the EUCC portal at
+                    <a href="https://certification.enisa.europa.eu/" target="_blank" rel="noopener">certification.enisa.europa.eu</a>.
+                    The site provides certificates, each accompanied by a metadata table. These listings, along with
+                    associated artifacts such as reports, security targets, and the certificates themselves, were
+                    scraped to gather the data provided here.
+                </p>
+                <p class="mb-0">
+                    Search our database for EUCC certificates, discover the extracted metadata and keywords,
+                    filter them and use other advanced filtering.
+                </p>
                     </div>
-                    <p>Want to process all EUCC data on your own? Download our prepared datasets and analyse them.</p>
-                    <a href="{{ url_for('.data') }}" class="btn btn-primary">Download datasets →</a>
+                </div>
+                <div class="col-12 col-sm-3 d-flex justify-content-center align-items-start">
+                    <img src="{{ url_for("static", filename="img/eucc_logo.svg") }}" alt="EUCC"
+                         class="part-logo mw-100 mt-5" style="width: clamp(3.5rem, 6vw, 7rem)"/>
                 </div>
             </div>
         </div>
-
+        {{ search_box("eucc", "Search EUCC certificates", "Certificate name",
+                      url_for('.merged_search'), url_for('.rand')) }}
+        <div class="home-band pt-3 pb-3 pb-md-4">
+            <div class="home-container px-3 px-md-4">
+                <div class="row g-3 row-cols-1 row-cols-md-2 feature-grid" style="--feature-cols: 2">
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-clock-rotate-left fa-fw"></i></span>
+                                    <h3>Processing updates</h3>
+                                </div>
+                                <p class="text-body-secondary">What changed the last time we processed the data? Which certificates are new, which ones changed, and which disappeared from the source listing? See our log of weekly processing updates.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.updates') }}" class="fw-semibold text-decoration-none">
+                                        Browse the updates <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-file-alt fa-fw"></i></span>
+                                    <h3>Data</h3>
+                                </div>
+                                <p class="text-body-secondary">Want to process all EUCC data on your own? Download our prepared datasets and analyse them.</p>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for('.data') }}" class="fw-semibold text-decoration-none">
+                                        Download datasets <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 {% endblock %}
