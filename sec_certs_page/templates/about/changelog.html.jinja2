@@ -6,11 +6,11 @@
 
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <div class="home-container px-3 px-md-4 pt-4 pb-4">
             <div class="row mb-3 g-4 justify-content-start">
                 <div class="col-12">
-                    <h1>Changes</h1>
-                    <p class="lead">This page highlights some new features and changes to the site. For an overview
+                    <h1 class="h2">Changes</h1>
+                    <p>This page highlights some new features and changes to the site. For an overview
                         of changes in the sec-certs tool itself, consult <a
                                 href="https://github.com/crocs-muni/sec-certs/releases">its releases</a>.</p>
                 </div>
@@ -19,8 +19,8 @@
         <div>
             <div>
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>July 3, 2026</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">July 3, 2026</h2>
                         <p>Rework search with a new engine and several new features:</p>
                         <ul>
                             <li>Name search and fulltext search are now unified. Previously they used different backends and behaved
@@ -35,15 +35,15 @@
                     </div>
                 </div>
                 <div class="row p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>June 3, 2026</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">June 3, 2026</h2>
                         <p>Add section for EU Cybersecurity Certification Scheme on Common Criteria (EUCC). You can now
                         search and browse the certificates.</p>
                     </div>
                 </div>
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>November 11, 2025</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">November 11, 2025</h2>
                         <p>Add LLM-based chat. Logged-in users can now query several language models about the contents
                         of certification documents.</p>
                         <img class="w-50 border rounded opacity-50 mx-auto d-block"
@@ -52,15 +52,15 @@
                     </div>
                 </div>
                 <div class="row p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>October 5, 2025</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">October 5, 2025</h2>
                         <p>Add user accounts. Users can now register via email or use Github to login.
                             Notification subscriptions require a user account.</p>
                     </div>
                 </div>
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>May 30, 2025</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">May 30, 2025</h2>
                         <p>Redesign the user experience.</p>
                         <img class="w-100 border rounded opacity-50"
                              src="{{ url_for("static", filename="img/changelog/ux_redesign.png") }}"
@@ -68,15 +68,15 @@
                     </div>
                 </div>
                 <div class="row p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Feb 5, 2025</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Feb 5, 2025</h2>
                         <p>Add new processing of Protection Profiles. They are no longer static and will keep getting
                             updates with new features.</p>
                     </div>
                 </div>
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Nov 21, 2024</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Nov 21, 2024</h2>
                         <p>Add search filtering by CC scheme and improve tokenization in full-text search.</p>
                         <img class="w-100 border rounded opacity-50"
                              src="{{ url_for("static", filename="img/changelog/scheme_filter.png") }}"
@@ -84,8 +84,8 @@
                     </div>
                 </div>
                 <div class="row p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Nov 3, 2024</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Nov 3, 2024</h2>
                         <p>Add new analysis charts to <a href="{{ url_for("cc.analysis") }}">CC analysis</a>
                             and <a href="{{ url_for("fips.analysis") }}">FIPS analysis</a>.</p>
                         <img class="w-100 border rounded opacity-50"
@@ -94,8 +94,8 @@
                     </div>
                 </div>
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Oct 30, 2024</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Oct 30, 2024</h2>
                         <p>Allow subscription to new certificates.</p>
                         <img class="w-100 border rounded opacity-50"
                              src="{{ url_for("static", filename="img/changelog/new_certs_sub.png") }}"
@@ -103,14 +103,14 @@
                     </div>
                 </div>
                 <div class="row p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Oct 28, 2024</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Oct 28, 2024</h2>
                         <p>Add dark theme. <i class="fas fa-sun"></i></p>
                     </div>
                 </div>
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Oct 10, 2024</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Oct 10, 2024</h2>
                         <p>Add "similar certificates" to CC and FIPS certificate pages.</p>
                         <img class="w-100 border rounded opacity-50"
                              src="{{ url_for("static", filename="img/changelog/similar_certs.png") }}"
@@ -118,8 +118,8 @@
                     </div>
                 </div>
                 <div class="row p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>May 13, 2024</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">May 13, 2024</h2>
                         <p>Add full dataset archive downloads for CC and FIPS (including all PDFs).</p>
                         <p>Add certificate comparison.</p>
                         <img class="w-100 border rounded opacity-50"
@@ -134,8 +134,8 @@
                 </div>
 
                 <div class="row bg-secondary-subtle p-3">
-                    <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                        <h4>Oct 10, 2020</h4>
+                    <div class="home-container px-3 px-md-4 pt-4 pb-4">
+                        <h2 class="h4">Oct 10, 2020</h2>
                         <p>The page is live! 🥳</p>
                     </div>
                 </div>

@@ -3,12 +3,12 @@
 {% block content %}
     <main style="min-height: 60vh">
         <div class="col-10 mx-auto p-3 py-md-5">
-            <h1>Manage notification subscriptions</h1>
+            <h1 class="h2">Manage notification subscriptions</h1>
             <p class="lead">You can manage your notification subscriptions for your user account below.</p>
             <form action="{{ url_for("notify.manage") }}" method="post">
                 {{ form.hidden_tag() }}
                 <div>
-                    <h2>Existing certificates</h2>
+                    <h2 class="h4">Existing certificates</h2>
                     {% if form.changes.entries %}
                         <table class="table">
                             <thead>
@@ -42,7 +42,7 @@
                         <p>You have no certificate change subscriptions. Add them on the certificate page for them to
                             show up here.</p>
                     {% endif %}
-                    <h2>New certificates</h2>
+                    <h2 class="h4">New certificates</h2>
                     {% if form.new.entries %}
                         <table class="table">
                             <thead>

@@ -3,9 +3,9 @@
 {% set canonical = True %}
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <h1 class="mb-4">FIPS 140 MIP entry</h1>
-            <h2>{{ name }}</h2>
+        <div class="home-container px-3 px-md-4 pt-4 pb-4">
+            <h1 class="h2 mb-4">FIPS 140 MIP entry</h1>
+            <h2 class="h4">{{ name }}</h2>
             <p>The module is present on the MIP list for at least {{ present.days }} days.</p>
             <div class="row my-5">
                 <p class="mb-4">This module has undergone the following status changes:</p>

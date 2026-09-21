@@ -7,10 +7,13 @@
 
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto">
-            <div class="row p-3 py-md-5">
+        <div class="home-container px-3 px-md-4 pt-4 pb-4">
+            <div class="row">
                 <div class="col-12">
-                    <h1 class="anchor" id="data">Data</h1>
+                    <div class="d-flex align-items-baseline gap-2 mb-3">
+                        <h1 class="h2 anchor" id="data">Common Criteria</h1>
+                        <span class="text-secondary fs-4">Data</span>
+                    </div>
                     <p>
                         The full and up-to-date dataset used on this site can be downloaded here. It is updated weekly
                         and all the pages and data on this site are extracted from it. It is a JSON file as produced
@@ -79,8 +82,8 @@
                     {{ render_library_info() }}
                 </div>
             </div>
-            <div class="row p-3 pb-md-5">
-                <h2>Data sources</h2>
+            <div class="row mt-4">
+                <h2 class="h4">Data sources</h2>
                 <p>
                     We are getting information from the following data sources:
                 </p>
