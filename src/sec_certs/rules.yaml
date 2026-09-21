@@ -1157,7 +1157,7 @@ javacard_api_const:
       - "ALG_SM2"
     SM3:
       - "ALG_SM3"
-    NULL:
+    "NULL":
       - "ALG_NULL"
   misc:
     - "SIG_CIPHER_[A-Z_0-9]+"
