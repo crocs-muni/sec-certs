@@ -84,15 +84,153 @@ TPM OR firmware
                 only needed if you want to cross-reference multiple fields from a single box.
             </p>
             <p>
-                Available fields: <code>name</code>, <code>cert_id</code>, <code>manufacturer</code>,
-                <code>cert_lab</code>, <code>scheme</code>, <code>category</code>, <code>eal</code>,
-                <code>is_active</code> (true/false), <code>not_valid_before</code> and
-                <code>not_valid_after</code> (RFC 3339 dates)
+                Every scheme is indexed separately, so the available fields differ between
+                Common Criteria (CC), FIPS 140, Protection Profiles (PP) and EUCC. Naming a
+                field the current scheme does not have reports a query error.
             </p>
+            <p>
+                <em>Exact</em> fields are stored untokenized: the value has to match the whole
+                stored value, and it must be quoted if it contains spaces — use
+                <code>category:"Data Protection"</code>, not <code>category:Data Protection</code>.
+            </p>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Field</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Schemes</th>
+                            <th scope="col">Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>text</td>
+                            <td>CC, FIPS, PP, EUCC</td>
+                            <td>Certificate or module name.</td>
+                        </tr>
+                        <tr>
+                            <td><code>cert_id</code></td>
+                            <td>exact</td>
+                            <td>CC, EUCC</td>
+                            <td>The complete certificate ID, e.g. <code>ANSSI-CC-2023/12</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>cert_id_tokenized</code></td>
+                            <td>text</td>
+                            <td>CC, EUCC</td>
+                            <td>
+                                The same ID split into words, so parts of it can be matched on their
+                                own — <code>cert_id_tokenized:ANSSI</code>. The certificate ID input
+                                searches both fields at once.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>cert_id</code></td>
+                            <td>number</td>
+                            <td>FIPS</td>
+                            <td>The numeric module ID, e.g. <code>4523</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>manufacturer</code></td>
+                            <td>text</td>
+                            <td>CC</td>
+                            <td>Certified product's manufacturer.</td>
+                        </tr>
+                        <tr>
+                            <td><code>vendor</code></td>
+                            <td>text</td>
+                            <td>FIPS</td>
+                            <td>Module's vendor — the FIPS equivalent of <code>manufacturer</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>cert_lab</code></td>
+                            <td>text</td>
+                            <td>CC</td>
+                            <td>Evaluation laboratory.</td>
+                        </tr>
+                        <tr>
+                            <td><code>scheme</code></td>
+                            <td>exact</td>
+                            <td>CC, PP, EUCC</td>
+                            <td>Two-letter country code of the certification scheme, e.g. <code>DE</code>, <code>FR</code>, <code>NL</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>category</code></td>
+                            <td>exact</td>
+                            <td>CC, PP</td>
+                            <td>Full category name, e.g. <code>"Data Protection"</code> or <code>Databases</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>category</code></td>
+                            <td>exact</td>
+                            <td>FIPS</td>
+                            <td>Module type: <code>Hardware</code>, <code>Software</code>, <code>Firmware</code>, <code>Hybrid</code>, <code>Software-Hybrid</code>, <code>Firmware-Hybrid</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>eal</code></td>
+                            <td>exact</td>
+                            <td>CC, EUCC</td>
+                            <td><code>EAL1</code> to <code>EAL7</code>, optionally augmented: <code>EAL4+</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>level</code></td>
+                            <td>exact</td>
+                            <td>FIPS</td>
+                            <td>Security level as a plain number, matching the Level filter on the search form.</td>
+                        </tr>
+                        <tr>
+                            <td><code>status</code></td>
+                            <td>exact</td>
+                            <td>CC, PP, EUCC</td>
+                            <td><code>active</code>, <code>archived</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>status</code></td>
+                            <td>exact</td>
+                            <td>FIPS</td>
+                            <td><code>active</code>, <code>historical</code>, <code>revoked</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>not_valid_before</code>, <code>not_valid_after</code></td>
+                            <td>date</td>
+                            <td>CC, PP, EUCC</td>
+                            <td>Certification and archival dates (RFC 3339).</td>
+                        </tr>
+                        <tr>
+                            <td><code>validation_date</code>, <code>sunset_date</code></td>
+                            <td>date</td>
+                            <td>FIPS</td>
+                            <td>Validation and sunset dates (RFC 3339).</td>
+                        </tr>
+                        <tr>
+                            <td><code>body_cert</code>, <code>body_report</code>, <code>body_target</code></td>
+                            <td>text</td>
+                            <td>CC, EUCC</td>
+                            <td>Full text of the certificate, evaluation report and security target.</td>
+                        </tr>
+                        <tr>
+                            <td><code>body_report</code>, <code>body_profile</code></td>
+                            <td>text</td>
+                            <td>PP</td>
+                            <td>Full text of the evaluation report and the protection profile.</td>
+                        </tr>
+                        <tr>
+                            <td><code>body</code></td>
+                            <td>text</td>
+                            <td>FIPS</td>
+                            <td>Full text of the security policy.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The document body fields are only searched when the full-text search mode is active.</p>
             <pre class="bg-body-secondary rounded p-3 mb-2">manufacturer:qualcomm
-manufacturer:apple AND cert_id:ANSSI
+manufacturer:apple AND cert_id_tokenized:ANSSI
 scheme:DE AND eal:EAL4+
-is_active:true AND manufacturer:qualcomm
+status:active AND vendor:cisco
+category:"Data Protection" AND body_target:keystore
 not_valid_before:[2020-01-01T00:00:00Z TO 2023-01-01T00:00:00Z}</pre>
         </section>
 
