@@ -154,6 +154,32 @@ class TestFigureBuilderCreateFigure:
         assert isinstance(fig, go.Figure)
         assert fig.layout.title.text == f"Test {chart_type.value} Chart"
 
+    @pytest.mark.parametrize("chart_type", [ChartType.HISTOGRAM, ChartType.BOX, ChartType.SCATTER])
+    def test_create_figure_nested_fields_use_flattened_columns(self, chart_type: ChartType) -> None:
+        """Raw-data charts on nested fields read the flattened columns the pipeline projects."""
+        df = pd.DataFrame(
+            {
+                "web_data_standard": ["FIPS 140-2", "FIPS 140-2", "FIPS 140-3"],
+                "web_data_level": [1, 2, 1],
+                "cve_count": [0, 3, 1],
+            }
+        )
+        config = Chart(
+            chart_id=uuid4(),
+            name=f"nested-{chart_type.value}-chart",
+            title="CVEs per FIPS version",
+            chart_type=chart_type,
+            collection_name=CollectionName.FIPS140,
+            x_axis=AxisConfig(field="web_data.standard", label="FIPS Standard"),
+            y_axis=AxisConfig(field="cve_count", label="CVE Count"),
+            color_axis=AxisConfig(field="web_data.level", label="Security Level"),
+        )
+
+        fig = FigureBuilder.create_figure(config, df)
+
+        assert not fig.layout.annotations
+        assert fig.layout.xaxis.title.text == "FIPS Standard"
+
     def test_create_figure_applies_show_legend_false(self, sample_data: pd.DataFrame) -> None:
         """create_figure respects show_legend=False setting."""
         config = Chart(
