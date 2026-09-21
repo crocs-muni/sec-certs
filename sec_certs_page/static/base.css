@@ -1,5 +1,9 @@
 :root {
     --sidebar-width: 250px;
+    /* Plex Mono is the companion to the Plex Sans the site already loads, so monospace stops
+       resolving to a different platform default for every visitor. */
+    --bs-font-monospace: "IBM Plex Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+        "Courier New", monospace;
 }
 
 /* Skip to main content link - accessible but visually hidden until focused */
@@ -447,17 +451,6 @@
 }
 */
 
-.feature-icon-sm {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.25rem;
-    color: #fff;
-    border-radius: 0.5rem;
-}
-
 .anchor {
     scroll-margin-top: 57px;
 }
@@ -768,26 +761,134 @@ h6 {
     --surface-box: #343a40;
 }
 
-.bg-accent-light {
-    background-color: var(--surface-box);
+.part-logo {
+    filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
 }
 
-[data-bs-theme="light"] .main-home .card,
-[data-bs-theme="dark"] .main-home .card,
-[data-bs-theme="light"] .scheme-home .card,
-[data-bs-theme="dark"] .scheme-home .card {
-    background-color: var(--surface-box);
+[data-bs-theme="dark"] .part-logo {
+    filter: invert(100%) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));
 }
 
-[data-bs-theme="light"] .main-home [role="search"] .card,
-[data-bs-theme="dark"] .main-home [role="search"] .card,
-[data-bs-theme="light"] .scheme-home [role="search"] .card,
-[data-bs-theme="dark"] .scheme-home [role="search"] .card,
-[data-bs-theme="light"] .scheme-home .bg-accent-light .card,
-[data-bs-theme="dark"] .scheme-home .bg-accent-light .card {
+.home-container {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 1700px;
+}
+
+@media (min-width: 576px) {
+    .home-container {
+        max-width: min(83.3333%, 1700px);
+    }
+}
+
+/* #content is already a flex column with space-between, so a short page leaves a gap above the
+   footer. Growing the band instead lets it run all the way down. */
+.main-home,
+.scheme-home {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+}
+
+.search-tabs {
+    border-bottom: 0;
+}
+
+.search-tabs .nav-link.active {
+    position: relative;
+    z-index: 1;
+    border-color: var(--bs-border-color-translucent) var(--bs-border-color-translucent) var(--bs-body-bg);
+    margin-bottom: -1px;
+}
+
+.home-band {
+    background-color: var(--surface-box);
+    flex: 1 0 auto;
+    margin-inline: calc(var(--bs-gutter-x, 1.5rem) * -0.5);
+    padding-inline: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+}
+
+/* The dashboards render inside Dash's own wrappers, which sit between #content and the page and
+   break the chain that lets the band grow. Pass the growth through them. */
+#content > #react-entry-point,
+#react-entry-point > div,
+#react-entry-point > div > div:has(> #_pages_content),
+#_pages_content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+}
+
+[data-bs-theme="light"] .feature-card,
+[data-bs-theme="dark"] .feature-card {
     background-color: var(--bs-body-bg);
 }
 
+.feature-card h3 {
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Bootstrap's row-cols-* key off the viewport, which is the wrong measure once the page itself
+   is capped. Below xxl the grid falls back to the row-cols-* classes on the element. */
+@media (min-width: 1400px) {
+    .feature-grid > * {
+        flex: 0 0 auto;
+        width: calc(100% / var(--feature-cols, 3));
+    }
+}
+
+/* .table-light pins the header to a light fill in both themes; follow the theme instead. */
+.results-thead th {
+    background-color: var(--bs-tertiary-bg);
+}
+
+/* Long machine-generated lists stay on the page and scroll, rather than being hidden behind a
+   button: browser find still reaches them. */
+.scroll-list {
+    max-height: 22rem;
+    overflow-y: auto;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bs-body-bg);
+}
+
+.cpe-uri {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.8125rem;
+    overflow-wrap: anywhere;
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+}
+
+.cpe-uri:hover {
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.06);
+}
+
+.cpe-uri a {
+    text-decoration: none;
+}
+
+.cpe-uri a:hover {
+    text-decoration: underline;
+}
+
+.feature-icon-chip {
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: var(--bs-primary);
+    background-image: var(--bs-gradient);
+}
+
+[role="search"],
 [role="search"] input[type="search"] {
     scroll-margin-top: 70px;
 }
@@ -799,6 +900,10 @@ h6 {
 
 [data-bs-theme="dark"] [role="search"] .text-secondary {
     color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+    --bs-dropdown-header-color: #adb5bd;
 }
 
 /* ===== Layout utilities ===== */
@@ -1467,19 +1572,6 @@ tr.has-snippets > td {
     overflow: hidden;
     overflow-wrap: anywhere;
 }
-@media (min-width: 1200px) {
-  .results-container {
-    max-width: 1320px;
-  }
-}
-
-
-@media (min-width: 1400px) {
-  .results-container {
-    max-width: 1720px;
-  }
-}
-
 .snippet-label {
     font-size: 0.95rem;
     font-weight: 600;

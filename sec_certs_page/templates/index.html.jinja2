@@ -1,349 +1,320 @@
 {% extends "common/base.html.jinja2" %}
 {% set canonical = True %}
+{% set search_scopes = [
+    ("cc", "Common Criteria", url_for("cc.merged_search"), "Certificate name", url_for("cc.rand")),
+    ("eucc", "EUCC", url_for("eucc.merged_search"), "Certificate name", url_for("eucc.rand")),
+    ("pp", "Protection Profiles", url_for("pp.merged_search"), "Profile name", url_for("pp.rand")),
+    ("fips", "FIPS 140", url_for("fips.merged_search"), "Module name", url_for("fips.rand")),
+] %}
+{% set scheme_links = {
+    "search": {"cc": url_for("cc.merged_search"), "eucc": url_for("eucc.merged_search"),
+               "pp": url_for("pp.merged_search"), "fips": url_for("fips.merged_search")},
+    "network": {"cc": url_for("cc.network"), "fips": url_for("fips.network")},
+    "analysis": {"cc": url_for("cc.analysis"), "fips": url_for("fips.analysis")},
+    "data": {"cc": url_for("cc.data"), "eucc": url_for("eucc.data"),
+             "pp": url_for("pp.data"), "fips": url_for("fips.data")},
+} %}
+{% macro scheme_link(feature, label) %}
+    <div class="mt-auto pt-3">
+        <a href="{{ scheme_links[feature]["cc"] }}" class="fw-semibold text-decoration-none" data-scheme-link
+           {%- for scheme, url in scheme_links[feature].items() %} data-{{ scheme }}="{{ url }}"{% endfor %}>
+            {{ label }} <i class="fas fa-arrow-right fa-xs ms-1"></i>
+        </a>
+    </div>
+{%- endmacro %}
+{% set search_examples = {
+    "cc": ["Red Hat Enterprise Linux", "Apple macOS 26 Tahoe", "RICOH IM 7010", "Java Card MultiApp V4.2"],
+    "eucc": ["Java Card MultiApp V4.2", "CardOS V6.0", "NPCT7xx TPM2.0"],
+    "pp": ["PP-Module for File Encryption", "Protection Profile for Virtualization"],
+    "fips": ["Cryptographic library", "Boot Manager", "Red Hat Enterprise Linux", "Apple corecrypto Module"],
+} %}
 {% block content %}
     <main class="main-home">
-        <div class="col-12 col-sm-10 mx-auto p-3 pt-md-5 pb-md-4">
-            <div class="row g-4 justify-content-between row-cols-1 row-cols-lg-2">
+        <div class="home-container px-3 px-md-4 pt-4 pb-3">
+            <div class="row g-4 justify-content-between align-items-center mb-4">
                 <div class="col-12 col-sm-7">
-                    <h1 class="h3">What is sec-certs?</h1>
-                    <p class="pt-2">
-                        We want to become the one-stop shop to explore the
-                        <a href="{{ url_for("cc.index") }}">Common Criteria</a> /
-                        <a href="{{ url_for("eucc.index") }}">EUCC</a> /
-                        <a href="{{ url_for("fips.index") }}">FIPS 140</a>
-                        certification ecosystem. We aggregate and annotate certification data, enabling you to perform
-                        unified searches,
-                        investigate <a href="{{ url_for("vuln.index") }}">vulnerabilities</a>,
-                        analyze <a href="/dashboard/">trends</a>,
-                        compare
-                        <a href="{{ url_for("cc.compare", one_hashid="a5171efab0a32451", other_hashid="0b0b999b8665313b") }}">products</a>
-                        side-by-side, subscribe to
-                        certificate changes,
-                        and take other actions on certified products.
-                    </p>
-                    <p class="pt-2">
-                        The sec-certs tool is an ongoing research project by the Centre for Research on Cryptography
-                        and Security. Learn more about our
-                        <a href="{{ url_for("about.index") }}">team</a>
-                        and
-                        <a href="{{ url_for("about.research") }}">research</a>.
-                    </p>
+                    <h1 class="h2 mb-3">What is sec-certs?</h1>
+                    <div style="max-width: 100ch">
+                        <p>
+                            We want to become the one-stop shop to explore the
+                            <a href="{{ url_for("cc.index") }}">Common Criteria</a>,
+                            <a href="{{ url_for("eucc.index") }}">EUCC</a> and
+                            <a href="{{ url_for("fips.index") }}">FIPS 140</a>
+                            certification ecosystem. We aggregate and annotate certification data, enabling you to
+                            perform unified searches,
+                            investigate <a href="{{ url_for("vuln.index") }}">vulnerabilities</a>,
+                            analyze <a href="{{ dashboard_url }}">trends</a>,
+                            compare
+                            <a href="{{ url_for("cc.compare", one_hashid="a5171efab0a32451", other_hashid="0b0b999b8665313b") }}">products</a>
+                            side-by-side, subscribe to certificate changes, and take other actions on certified
+                            products.
+                        </p>
+                        <p class="mb-0">
+                            The sec-certs tool is an ongoing research project by the
+                            <a href="https://crocs.fi.muni.cz" target="_blank" rel="noopener">Centre for Research on
+                                Cryptography and Security (CRoCS)</a> at
+                            <a href="https://www.muni.cz/en" target="_blank" rel="noopener">Masaryk University</a>.
+                            Learn more about our
+                            <a href="{{ url_for("about.index") }}">team</a>
+                            and
+                            <a href="{{ url_for("about.research") }}">research</a>.
+                        </p>
+                    </div>
                 </div>
-                <div class="col-12 col-sm-5 justify-content-center justify-content-sm-start d-flex">
+                <div class="col-12 col-sm-5 d-flex justify-content-center">
                     <img src="{{ url_for("static", filename="img/logo.svg") }}" alt="sec-certs"
-                         class="d-none d-xl-block mw-100"
-                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); margin: 2em;"/>
+                         class="d-none d-xl-block mw-100" width="520"
+                         style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15)); margin: 2em 0;"/>
                     <img src="{{ url_for("static", filename="img/logo_badge.svg") }}" alt="sec-certs"
                          class="d-xl-none mw-100"
                          style="filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.15));"/>
                 </div>
             </div>
+
+            <section role="search" id="search">
+                <h2 class="h5 mb-3">Search security certificates</h2>
+
+
+                <ul class="nav nav-tabs search-tabs mb-0" aria-label="Certification scheme">
+                    {% for scheme, label, action, placeholder, random_url in search_scopes %}
+                        <li class="nav-item">
+                            <button type="button" class="nav-link{% if loop.first %} active{% endif %}"
+                                    {% if loop.first %}aria-current="true"{% endif %}
+                                    data-search-scope data-scheme="{{ scheme }}"
+                                    data-action="{{ action }}" data-placeholder="{{ placeholder }}"
+                                    data-random="{{ random_url }}">{{ label }}</button>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="card shadow-sm mb-0 rounded-top-0">
+                    <div class="card-body p-3 p-md-4 pb-3 pb-md-3">
+                        <form method="get" action="{{ search_scopes[0][2] }}" id="home-search-form">
+                            <div class="d-flex gap-2 align-items-center">
+                                <label for="home-search" class="visually-hidden">Search query</label>
+                                <input id="home-search" name="query" type="search"
+                                       class="form-control flex-grow-1"
+                                       placeholder="{{ search_scopes[0][3] }}"/>
+                                <button type="submit" class="btn btn-primary flex-shrink-0">
+                                    <i class="fas fa-search me-1"></i>Search
+                                </button>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ search_scopes[0][4] }}" id="home-random"
+                                   class="text-muted small d-inline-flex align-items-center gap-1">
+                                    <i class="fas fa-shuffle"></i>Nothing specific in mind? Open a random certificate
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <section class="col-12 col-sm-10 mx-auto p-3" role="search">
-            <div class="card shadow-sm">
-                <div class="card-body p-3 p-md-4">
-                    <h2 class="h5">Search security certificates</h2>
-                    <p class="text-muted small mb-0">
-                        Explore Common Criteria, FIPS 140, and EUCC certificates in one place
-                    </p>
-                    <form method="get" action="{{ url_for("cc.merged_search") }}" id="hero-search-form" class="mt-3">
-                        <label for="hero-search-input" class="visually-hidden">Search query</label>
-                        <div class="d-flex gap-2 align-items-center flex-wrap flex-sm-nowrap">
-                            <div class="position-relative flex-grow-1">
-                                <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"
-                                   aria-hidden="true"></i>
-                                <input type="search" name="query" id="hero-search-input"
-                                       class="form-control ps-5"
-                                       placeholder="Product name">
-                            </div>
-                            <button type="submit" class="btn btn-primary flex-shrink-0">
-                                <i class="fas fa-search me-1"></i>Search
-                            </button>
-                        </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                            <span class="fw-semibold text-secondary">Search in:</span>
-                            <div class="d-flex flex-wrap gap-2" role="group" aria-label="Search category">
-                                <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-cc"
-                                       value="cc" autocomplete="off" checked>
-                                <label class="btn btn-outline-primary" for="hero-cat-cc">Common Criteria</label>
-
-                                <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-pp"
-                                       value="pp" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="hero-cat-pp">Protection Profiles</label>
-
-                                <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-eucc"
-                                       value="eucc" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="hero-cat-eucc">EUCC</label>
-
-                                <input type="radio" class="btn-check" name="hero-search-cat" id="hero-cat-fips"
-                                       value="fips" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="hero-cat-fips">FIPS 140</label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </section>
-        <script>
-            (() => {
-                const form = document.getElementById("hero-search-form");
-                if (!form) return;
-                const urls = {
-                    cc: "{{ url_for("cc.merged_search") }}",
-                    pp: "{{ url_for("pp.merged_search") }}",
-                    eucc: "{{ url_for("eucc.merged_search") }}",
-                    fips: "{{ url_for("fips.merged_search") }}",
-                };
-                form.addEventListener("submit", () => {
-                    const checked = form.querySelector('input[name="hero-search-cat"]:checked');
-                    if (checked && urls[checked.value]) {
-                        form.action = urls[checked.value];
-                    }
-                });
-            })();
-        </script>
-
-        <div class="row p-3">
-            <div class="col-12 col-sm-10 mx-auto">
-                <div class="row g-4 py-3 py-md-4 row-cols-1 row-cols-lg-3">
+        <div class="home-band pt-3 pb-3 pb-md-4">
+            <div class="home-container px-3 px-md-4">
+                <h2 class="h5 mb-3">Main features</h2>
+                <div class="row g-3 row-cols-1 row-cols-md-2 feature-grid">
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-search fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Unified search</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-search fa-fw"></i></span>
+                                    <h3>Unified search</h3>
                                 </div>
-                                <p>Search <a href="#hero-search-input">certificates</a> relevant for your product, filter
+                                <p class="text-body-secondary">
+                                    Search certificates relevant for your product, filter
                                     certificates by categories or status.
                                     Explore the certificates without downloading and reading countless PDFs.
                                 </p>
-                                <p>
+                                <p class="text-body-secondary">
                                     We download and process certificates
-                                    <a href="{{ url_for("cc.data") }}">weekly</a>, allowing you to search for your favorite Common
-                                    Criteria, EUCC and FIPS 140 products.
+                                    <a href="{{ url_for("cc.updates") }}">weekly</a>, allowing you to search for your
+                                    favorite Common Criteria, EUCC and FIPS 140 products.
                                 </p>
-                                <div class="mt-auto">
-                                    <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Search in Common Criteria">
-                                        CC
-                                    </a>
-                                    <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Search in EUCC">
-                                        EUCC
-                                    </a>
-                                    <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Search in Protection Profiles">
-                                        PP
-                                    </a>
-                                    <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Search in FIPS 140">
-                                        FIPS
+                                <div class="mt-auto pt-3">
+                                    <a href="#search" class="fw-semibold text-decoration-none">
+                                        Search certificates <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-network-wired fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Certificate references</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-comments fa-fw"></i></span>
+                                    <h3>Explore certificates with AI</h3>
                                 </div>
-                                <p>Explore the <a href="{{ url_for("fips.network") }}">references</a> between product
-                                    certificates in a graph. A certificate referencing
-                                    another certificate often means that its product is built atop of another security relevant
-                                    product.</p>
-                                <p>We use regular expressions to create references between certificates, making it easy for you
-                                    to find relationships in our reference graphs or certificate details.</p>
-                                <div class="mt-auto">
-                                    <a href="{{ url_for("cc.network") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Show Common Criteria references graph">
-                                        CC
-                                    </a>
-                                    <a href="{{ url_for("fips.network") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Show FIPS 140 references graph">
-                                        FIPS
-                                    </a>
-                                </div>
+                                <p class="text-body-secondary">
+                                    Use our AI assistant to help you explore and understand
+                                    Common Criteria, EUCC and FIPS 140 certificates. Ask questions about a certificate
+                                    and let the AI guide you through the complex certification documents.
+                                </p>
+{{ scheme_link("search", "Pick a certificate") }}
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-bug fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Vulnerability investigation</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-bug fa-fw"></i></span>
+                                    <h3>Vulnerability investigation</h3>
                                 </div>
-                                <p>
+                                <p class="text-body-secondary">
                                     Investigate the vulnerabilities affecting certified products.
                                 </p>
-                                <p>
+                                <p class="text-body-secondary">
                                     We automatically map certificates to <abbr
                                         title="Common Vulnerabilities and Exposures">CVE</abbr>
                                     entries in NIST's National Vulnerability Database affecting them.
                                     The information on relevant CVEs is displayed in the appropriate heuristics section
                                     on pages of the affected certificates.
                                 </p>
-                                <div class="mt-auto">
-                                    <a href="{{ url_for("vuln.index", _anchor="cve") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Search vulnerable certificates by CVE">
-                                        CVE
-                                    </a>
-                                    <a href="{{ url_for("vuln.index", _anchor="cpe") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Search vulnerable certificates by CPE">
-                                        CPE
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ url_for("vuln.cve_search") }}" class="fw-semibold text-decoration-none">
+                                        Browse vulnerabilities <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-comments fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Explore certificates with AI</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-chart-line fa-fw"></i></span>
+                                    <h3>Trends and dashboards</h3>
                                 </div>
-                                <p>Use our AI assistant to help you explore and understand
-                                    Common Criteria, EUCC and FIPS 140 certificates. Ask questions about a certificate
-                                    and let the AI guide you through the complex certification documents.
+                                <p class="text-body-secondary">
+                                    We process certification PDFs into structured, machine-readable datasets and chart
+                                    them, so you can see how the certification landscape evolves.
                                 </p>
-                                <div class="mt-auto">
-                                    <a href="{{ url_for("cc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                                        CC
+                                <p class="text-body-secondary">
+                                    Browse our prepared analysis, or build a dashboard of your own: pick a collection,
+                                    add predefined or custom charts and save it for later. The analysis shows
+                                    preliminary findings - refer to our published
+                                    <a href="{{ url_for("about.research") }}">research</a> for a more detailed
+                                    analysis.
+                                </p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ dashboard_url }}" class="fw-semibold text-decoration-none">
+                                        Build a dashboard <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
-                                    <a href="{{ url_for("eucc.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                                        EUCC
-                                    </a>
-                                    <a href="{{ url_for("pp.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Pick a protection profile">
-                                        PP
-                                    </a>
-                                    <a href="{{ url_for("fips.merged_search") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Pick a certificate">
-                                        FIPS
+                                    <a href="{{ scheme_links["analysis"]["cc"] }}"
+                                       class="fw-semibold text-decoration-none" data-scheme-link
+                                       {%- for scheme, url in scheme_links["analysis"].items() %} data-{{ scheme }}="{{ url }}"{% endfor %}>
+                                        See our analysis <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-chart-line fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Trend visualization</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-network-wired fa-fw"></i></span>
+                                    <h3>Certificate references</h3>
                                 </div>
-                                <p>
-                                    Explore our analysis of the evolving security certifications landscape.
+                                <p class="text-body-secondary">
+                                    Explore the references between product
+                                    certificates in a graph. A certificate referencing
+                                    another certificate often means that its product is built atop of another security
+                                    relevant product.
                                 </p>
-                                <p>
-                                    We process certification PDFs into structured, machine-readable datasets, which are then
-                                    used to generate plots.
-                                    You can explore sample plots in the Analysis section.
-                                    Please note that these are preliminary findings - refer to our published
-                                    <a href="{{ url_for("about.research") }}">research</a>
-                                    for a more detailed analysis.
-
+                                <p class="text-body-secondary">
+                                    We use regular expressions to create references between certificates, making it easy
+                                    for you to find relationships in our reference graphs or certificate details.
                                 </p>
-                                <div class="mt-auto">
-                                    <a href="{{ url_for("cc.analysis") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show Common Criteria analysis">
-                                        CC
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for("cc.network") }}" class="fw-semibold text-decoration-none">
+                                        CC references <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
-                                    <a href="{{ url_for("fips.analysis") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show FIPS 140 analysis">
-                                        FIPS
+                                    <a href="{{ url_for("fips.network") }}" class="fw-semibold text-decoration-none">
+                                        FIPS 140 references <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-file-alt fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Open source & open data</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-file-alt fa-fw"></i></span>
+                                    <h3>Open data</h3>
                                 </div>
-                                <p>
-                                    Contribute to our code or download our extracted dataset in machine-readable format.
+                                <p class="text-body-secondary">
+                                    Each week, we collect thousands of certificate files, convert them into
+                                    machine-readable datasets, and enrich them with additional metadata.
                                 </p>
-                                <p>
-                                    Each week, we collect thousands of certificate files, convert them into machine-readable
-                                    datasets,
-                                    and enrich them with additional metadata. Full datasets are available below, while
-                                    individual certificate
-                                    data can be accessed on each certificate's page.
+                                <p class="text-body-secondary">
+                                    Full datasets are available below, while individual certificate data can be
+                                    accessed on each certificate's page.
                                 </p>
-                                <div class="mt-auto">
-                                    <a href="https://github.com/crocs-muni/sec-certs"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show project source code">
-                                        GitHub
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for("cc.data") }}" class="fw-semibold text-decoration-none">
+                                        CC <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
-                                    <a href="{{ url_for("cc.data") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show Common Criteria datasets">
-                                        CC
+                                    <a href="{{ url_for("eucc.data") }}" class="fw-semibold text-decoration-none">
+                                        EUCC <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
-                                    <a href="{{ url_for("eucc.data") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show EUCC datasets">
-                                        EUCC
+                                    <a href="{{ url_for("pp.data") }}" class="fw-semibold text-decoration-none">
+                                        PP <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
-                                    <a href="{{ url_for("pp.data") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show Protection Profile datasets">
-                                        PP
-                                    </a>
-                                    <a href="{{ url_for("fips.data") }}"
-                                       class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip"
-                                       data-bs-title="Show FIPS 140 datasets">
-                                        FIPS
+                                    <a href="{{ url_for("fips.data") }}" class="fw-semibold text-decoration-none">
+                                        FIPS 140 <i class="fas fa-arrow-right fa-xs ms-1"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-envelope fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Change notifications</h3>
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-code fa-fw"></i></span>
+                                    <h3>Python library</h3>
                                 </div>
-                                <p>Subscribe to notifications about a vulnerability affecting a set of
+                                <p class="text-body-secondary">
+                                    Everything on this site is built with our open-source Python library. Install it to
+                                    reproduce the datasets yourself, or plug the certification data straight into your
+                                    own analysis.
+                                </p>
+                                <p class="text-body-secondary">
+                                    The documentation includes a quick-start guide, and the code is open to
+                                    contributions.
+                                </p>
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-3">
+                                    <a href="{{ url_for("docs.serve_docs", path="index.html") }}"
+                                       class="fw-semibold text-decoration-none">
+                                        Read the docs <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                    <a href="https://github.com/crocs-muni/sec-certs" target="_blank" rel="noopener"
+                                       class="fw-semibold text-decoration-none">
+                                        View the code <i class="fas fa-arrow-right fa-xs ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card feature-card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column p-3 p-lg-4">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="feature-icon-chip"><i class="fas fa-envelope fa-fw"></i></span>
+                                    <h3>Change notifications</h3>
+                                </div>
+                                <p class="text-body-secondary">
+                                    Subscribe to notifications about a vulnerability affecting a set of
                                     certified products, all changes in a set of certified products or about new
-                                    certificates.</p>
-                                {% if not config["SUBSCRIPTIONS_ENABLED"] %}
-                                    <p>Notification subscriptions are currently disabled.</p>
-                                {% endif %}
-                                <p>As a registered user, you can subscribe using the <span class="fa-stack fa-2x"
-                                                                                           style="font-size: 0.8rem">
+                                    certificates.
+                                </p>
+                                <p class="text-body-secondary">
+                                    As a registered user, you can subscribe using the <span class="fa-stack fa-2x"
+                                                                                            style="font-size: 0.8rem">
                                     <i class="fas fa-square fa-stack-2x text-secondary"
                                        style="vertical-align: middle"></i>
                                     <i class="fas fa-envelope fa-stack-1x text-light"
@@ -363,37 +334,94 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="feature-icon-sm bg-primary bg-gradient">
-                                        <i class="fas fa-code fa-fw"></i>
-                                    </div>
-                                    <h3 class="h5 mb-0">Python library</h3>
-                                </div>
-                                <p>Everything on this site is built with our open-source Python library. Install it to
-                                    reproduce the datasets yourself, or plug the certification data straight into your own
-                                    analysis. The documentation includes a quick-start guide.</p>
-                                <div class="mt-auto">
-                                    <a href="https://github.com/crocs-muni/sec-certs" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Show project source code">
-                                        GitHub
-                                    </a>
-                                    <a href="{{ url_for("docs.serve_docs", path="index.html") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Show documentation">
-                                        Docs
-                                    </a>
-                                    <a href="{{ url_for("about.changelog") }}" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="tooltip" data-bs-title="Show changelog">
-                                        Changelog
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            (() => {
+                const form = document.getElementById("home-search-form");
+                const input = document.getElementById("home-search");
+                const random = document.getElementById("home-random");
+                const tabs = document.querySelectorAll("[data-search-scope]");
+                if (!form || !input) return;
+
+                const examples = {{ search_examples|tojson }};
+                const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                const active = () => document.querySelector("[data-search-scope].active") || tabs[0];
+
+                let step;
+                // The static hint stands in for the animation whenever the animation will not run.
+                const hint = () => {
+                    const names = examples[active().dataset.scheme] || [];
+                    return (still || !names.length) ? active().dataset.placeholder : "";
+                };
+                const stop = () => {
+                    clearTimeout(step);
+                    input.placeholder = hint();
+                };
+
+                const type = scheme => {
+                    clearTimeout(step);
+                    const names = examples[scheme] || [];
+                    if (still || !names.length) {
+                        input.placeholder = active().dataset.placeholder;
+                        return;
+                    }
+                    input.placeholder = "";
+
+                    let i = 0, at = 0, erasing = false;
+                    const tick = () => {
+                        if (document.activeElement === input || input.value) {
+                            input.placeholder = "";
+                            return;
+                        }
+                        const name = names[i % names.length];
+                        at += erasing ? -1 : 1;
+                        input.placeholder = name.slice(0, at);
+                        let wait = erasing ? 25 : 55;
+                        if (!erasing && at === name.length) {
+                            erasing = true;
+                            wait = 1800;
+                        } else if (erasing && at === 0) {
+                            erasing = false;
+                            i++;
+                            wait = 700;
+                        }
+                        step = setTimeout(tick, wait);
+                    };
+                    step = setTimeout(tick, 600);
+                };
+
+                document.querySelectorAll('a[href="#search"]').forEach(link => {
+                    link.addEventListener("click", event => {
+                        event.preventDefault();
+                        document.getElementById("search").scrollIntoView({behavior: "smooth", block: "start"});
+                        input.focus({preventScroll: true});
+                    });
+                });
+
+                input.addEventListener("focus", stop);
+                input.addEventListener("blur", () => { if (!input.value) type(active().dataset.scheme); });
+                type(tabs[0].dataset.scheme);
+
+                tabs.forEach(tab => {
+                    tab.addEventListener("click", () => {
+                        tabs.forEach(other => {
+                            other.classList.remove("active");
+                            other.removeAttribute("aria-current");
+                        });
+                        tab.classList.add("active");
+                        tab.setAttribute("aria-current", "true");
+                        form.action = tab.dataset.action;
+                        type(tab.dataset.scheme);
+                        if (random) random.href = tab.dataset.random;
+                        document.querySelectorAll("[data-scheme-link]").forEach(link => {
+                            link.href = link.dataset[tab.dataset.scheme] || link.dataset.cc;
+                        });
+                    });
+                });
+            })();
+        </script>
     </main>
 {% endblock %}
