@@ -6,6 +6,7 @@ from flask import abort, current_app, redirect, render_template, request, url_fo
 from .. import mongo, sitemap
 from ..common.objformats import load
 from ..common.views import register_breadcrumb, send_cacheable_instance_file
+from ..jinja import filter_fips_name
 from . import vuln
 from .search import CVE_SEVERITIES, CPESearch, CVESearch
 
@@ -58,6 +59,14 @@ def cve_dset_gz():
     )
 
 
+def _cc_name(cert) -> str:
+    return (cert.get("name") or "").casefold()
+
+
+def _fips_name(cert) -> str:
+    return (filter_fips_name(cert) or "").casefold()
+
+
 @vuln.route("/cve/<string:cve_id>")
 @register_breadcrumb(
     vuln,
@@ -108,9 +117,9 @@ def cve(cve_id):
 
     vuln_configs.sort(key=lambda tup: (not tup[0], tup[1], tup[2]))
     with sentry_sdk.start_span(op="mongo", name="Find CC certs"):
-        cc_certs = list(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})))
+        cc_certs = sorted(map(load, mongo.db.cc.find({"heuristics.related_cves._value": cve_id})), key=_cc_name)
     with sentry_sdk.start_span(op="mongo", name="Find FIPS certs"):
-        fips_certs = list(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})))
+        fips_certs = sorted(map(load, mongo.db.fips.find({"heuristics.related_cves._value": cve_id})), key=_fips_name)
     return render_template(
         "vuln/cve.html.jinja2", cve=load(cve_doc), cc_certs=cc_certs, fips_certs=fips_certs, vuln_configs=vuln_configs
     )
@@ -144,9 +153,9 @@ def cpe(cpe_id):
         return abort(404)
 
     with sentry_sdk.start_span(op="mongo", name="Find CC certs"):
-        cc_certs = list(map(load, mongo.db.cc.find({"heuristics.cpe_matches._value": cpe_id})))
+        cc_certs = sorted(map(load, mongo.db.cc.find({"heuristics.cpe_matches._value": cpe_id})), key=_cc_name)
     with sentry_sdk.start_span(op="mongo", name="Find FIPS certs"):
-        fips_certs = list(map(load, mongo.db.fips.find({"heuristics.cpe_matches._value": cpe_id})))
+        fips_certs = sorted(map(load, mongo.db.fips.find({"heuristics.cpe_matches._value": cpe_id})), key=_fips_name)
     with sentry_sdk.start_span(op="mongo", name="Find CVEs"):
         match_ids = list(map(itemgetter("_id"), mongo.db.cpe_match.find({"matches.cpeName": cpe_id}, ["_id"])))
         # XXX: If we want to include the "running on/with" part of the matching then we need one more or

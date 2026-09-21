@@ -206,6 +206,7 @@ with app.app_context():
     # Use absolute path for pages_folder to avoid Windows path issues
     pages_folder_path = Path(__file__).parent / "dashboard" / "pages"
     DASHBOARD_URL_BASE_PATHNAME = "/dashboard/"
+    app.jinja_env.globals["dashboard_url"] = DASHBOARD_URL_BASE_PATHNAME
 
     from .dashboard.base import Dash
 

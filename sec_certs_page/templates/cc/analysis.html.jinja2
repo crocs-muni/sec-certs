@@ -10,56 +10,59 @@
         }
     </style>
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
+        <div class="home-container px-3 px-md-4 pt-4 pb-4">
             <div class="alert alert-warning d-sm-none" role="alert">
                 <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
             </div>
-            <h1 class="mb-4">Common Criteria</h1>
-            <p class="lead">This is a very basic showcase of some of our statistics.
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h1 class="h2">Common Criteria</h1>
+                <span class="text-secondary fs-4">Analysis</span>
+            </div>
+            <p class="text-body" style="max-width: 100ch">This is a very basic showcase of some of our statistics.
                 For more, see our <a href="{{ url_for("about.research") }}">research</a> and
                 the <a href="{{ url_for("docs.serve_docs", path="notebooks/examples/est_solution.html") }}">notebooks</a> in our
                 documentation.
             </p>
 
-            <div class="row mt-4 mb-4">
+            <div class="row mb-4">
                 <div class="col ml-3 mr-3">
-                    <h2>Category Distribution</h2>
+                    <h2 class="h4">Category Distribution</h2>
                     <div id="category-pie-chart" class="analysis-chart">
                         {{ include_static("img/charts/cc/category_pie_chart.svg") }}
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-4 mb-4">
+            <div class="row mb-4">
                 <div class="col ml-3 mr-3">
-                    <h2>Category Distribution per Year</h2>
+                    <h2 class="h4">Category Distribution per Year</h2>
                     <div id="category-year-bar-chart" class="analysis-chart">
                         {{ include_static("img/charts/cc/category_year_bar_chart.svg") }}
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-4 mb-4">
+            <div class="row mb-4">
                 <div class="col ml-3 mr-3">
-                    <h2>Certificate Validity Periods</h2>
+                    <h2 class="h4">Certificate Validity Periods</h2>
                     <div id="certificate-validity-boxplot" class="analysis-chart">
                         {{ include_static("img/charts/cc/certificate_validity_boxplot.svg") }}
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-4 mb-4">
+            <div class="row mb-4">
                 <div class="col ml-3 mr-3">
-                    <h2>Evolution of Average EAL Over Time</h2>
+                    <h2 class="h4">Evolution of Average EAL Over Time</h2>
                     <div id="eal-line-chart" class="analysis-chart">
                         {{ include_static("img/charts/cc/eal_line_chart.svg") }}
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-4 mb-4">
+            <div class="row mb-4">
                 <div class="col ml-3 mr-3">
-                    <h2>Interesting Schemes Evolution</h2>
+                    <h2 class="h4">Interesting Schemes Evolution</h2>
                     <div id="schemes-line-chart" class="analysis-chart">
                         {{ include_static("img/charts/cc/schemes_line_chart.svg") }}
                     </div>

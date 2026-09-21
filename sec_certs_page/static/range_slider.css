@@ -12,6 +12,10 @@
     padding: 0 6px;
 }
 
+[data-bs-theme="dark"] .rs-labels {
+    color: #85B6FF;
+}
+
 .rs-track-wrap {
     position: relative;
     height: 20px;
