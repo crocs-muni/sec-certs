@@ -22,7 +22,7 @@ def query_guide():
 @register_breadcrumb(app, ".faq", "FAQ")
 def faq():
     """Frequently asked questions about the project, its data and its automated analysis."""
-    return render_template("faq.html.jinja2")
+    return render_template("about/faq.html.jinja2")
 
 
 @app.route("/robots.txt")
