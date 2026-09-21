@@ -1,14 +1,13 @@
 {% extends "common/base.html.jinja2" %}
-
-{% set canonical = True %}
-{% from "include/entry.html.jinja2" import render_cve_impact, render_cve_links %}
+{% from "include/entry.html.jinja2" import entry_card, mobile_warning, render_cpe_uri, render_cve_impact %}
 {% from "include/legal.html.jinja2" import cve_note %}
+{% set canonical = True %}
+{% set breadcrumb_title = True %}
 {% block title %}
-    <title>
-        {{ cve["_id"] }}
-    </title>
+    <title>{{ cve["_id"] }} | sec-certs.org</title>
 {% endblock %}
 {% block metadata %}
+    <meta property="description" content="{{ cve["_id"] }}"/>
     <meta property="twitter:card" content="summary"/>
     <meta property="twitter:site" content="@CRoCS_MUNI"/>
     <meta property="twitter:title" content="{{ cve["_id"] }}"/>
@@ -26,216 +25,145 @@
 
 {% block content %}
     <main>
-        <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-            <div class="alert alert-warning d-sm-none" role="alert">
-                <i class="fas fa-exclamation-triangle"></i> This page was not yet optimized for use on mobile devices.
+        <div class="home-container px-3 px-md-4 pt-4 pb-4">
+            {{ mobile_warning() }}
+
+            <h1 class="entry-title">{{ cve["_id"] }}</h1>
+            <div class="d-flex gap-3 flex-wrap align-items-center pt-3 pb-3 mb-3">
+                <a class="btn btn-outline-primary" role="button"
+                   href="https://www.cve.org/CVERecord?id={{ cve["_id"] }}" target="_blank" rel="noopener"
+                   data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Open the record at cve.org">
+                    <i class="fas fa-external-link-alt"></i> cve.org
+                </a>
+                <a class="btn btn-outline-primary" role="button"
+                   href="https://nvd.nist.gov/vuln/detail/{{ cve["_id"] }}" target="_blank" rel="noopener"
+                   data-bs-toggle="tooltip" data-bs-placement="bottom"
+                   data-bs-title="Open the record in NIST's National Vulnerability Database">
+                    <i class="fas fa-external-link-alt"></i> NVD
+                </a>
             </div>
-            <div>
-                <h1>{{ cve["_id"] }}</h1>
 
-                <div class="row pt-5">
-                    <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="data">Data</h2>
-                        <table class="table table-sm table-borderless w-auto">
-                            <colgroup>
-                                <col style="width: 30%"/>
-                                <col style="width: 70%"/>
-                            </colgroup>
-                            <tbody>
-                            <tr data-cs-name="Vulnerability ID">
-                                <th scope="row">Vulnerability ID</th>
-                                <td>{{ cve["_id"] }}</td>
-                            </tr>
-                            <tr data-cs-name="Published on">
-                                <th scope="row">Published on</th>
-                                <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
-                            </tr>
-                            <tr data-cs-name="Severity">
-                                <th scope="row">Severity</th>
-                                <td>{{ render_cve_impact(cve["cvss"]["severity"]) }}</td>
-                            </tr>
-                        </table>
+            {% call entry_card(id="data", title="Vulnerability details", icon="fa-globe",
+                               wrapper_class="", tooltip="As published in NIST's National Vulnerability Database.") %}
+                <table class="table-sm table-borderless w-100">
+                    <colgroup>
+                        <col style="width: 30%"/>
+                        <col style="width: 70%"/>
+                    </colgroup>
+                    <tbody>
+                    <tr data-cs-name="Vulnerability ID">
+                        <th scope="row">Vulnerability ID</th>
+                        <td>{{ cve["_id"] }}</td>
+                    </tr>
+                    <tr data-cs-name="Published on">
+                        <th scope="row">Published on</th>
+                        <td>{{ cve["published_date"]|fromisoformat()|strftime("%d.%m.%Y %H:%M") }}</td>
+                    </tr>
+                    <tr data-cs-name="Severity">
+                        <th scope="row">Severity</th>
+                        <td>{{ render_cve_impact(cve["cvss"]["severity"]) }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            {% endcall %}
 
-                        {{ render_cve_links(cve,full=True) }}
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <h2 class="anchor" id="vulnerable-cpes">Vulnerable configurations</h2>
-                        {% if vuln_configs %}
-                            {% set configs = namespace(shown=0,rendered=False) %}
-                            <ul data-cs-name="Vulnerable configurations">
-                                {% for has_cpes, first, second in vuln_configs %}
-                                    <li class="vuln-config" style="{% if configs.shown > 10 %}display: none{% endif %}">
-                                        {% for cpe in first %}
-                                            {% set configs.shown = configs.shown + 1 %}
-                                            <span class="vuln-config"
-                                                  style="{% if configs.shown > 10 %}display: none{% endif %}">
+            {%- set cpe_count = namespace(total=0) %}
+            {%- for has_cpes, first, second in vuln_configs %}
+                {%- set cpe_count.total = cpe_count.total + (first|length) + (second|length if second else 0) %}
+            {%- endfor %}
+            {% call entry_card(id="vulnerable-cpes", title="Vulnerable configurations", icon="fa-list-ul",
+                               wrapper_class="",
+                               heading_extra=("%d CPEs" % cpe_count.total) if vuln_configs else None,
+                               tooltip="The configurations this vulnerability applies to, as CPE identifiers.") %}
+                {% if vuln_configs %}
+                    <ul class="list-unstyled mb-0 {% if cpe_count.total > 12 %}scroll-list{% endif %}"
+                        data-cs-name="Vulnerable configurations">
+                        {% for has_cpes, first, second in vuln_configs %}
+                            <li class="{% if not loop.first %}pt-2 mt-2 border-top{% endif %}">
+                                <ul class="list-unstyled mb-0">
+                                    {% for cpe in first %}
+                                        <li class="cpe-uri">
                                             {% if has_cpes %}
-                                                <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
-                                                {%- if not loop.last %}, {% endif %}
+                                                <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ render_cpe_uri(cpe) }}</a>
                                             {% else %}
-                                                {{ cpe }}
+                                                {{ render_cpe_uri(cpe) }}
                                             {% endif %}
-                                            </span>
-                                            {% if configs.shown > 10 and not configs.rendered %}
-                                                <span class="vuln-ellipsis"><br/>&hellip;</span>
-                                                {% set configs.rendered = True %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% if second %}
-                                            <b class="vuln-config"
-                                               style="{% if configs.shown > 10 %}display: none{% endif %}">
-                                                <br/>running
-                                                on/with<br/></b>
-                                            {% for cpe in second %}
-                                                {% set configs.shown = configs.shown + 1 %}
-                                                <span class="vuln-config"
-                                                      style="{% if configs.shown > 10 %}display: none{% endif %}">
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                {% if second %}
+                                    <div class="small text-secondary ps-3 pt-1">running on</div>
+                                    <ul class="list-unstyled mb-0 ps-3">
+                                        {% for cpe in second %}
+                                            <li class="cpe-uri">
                                                 {% if has_cpes %}
-                                                    <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ cpe }}</a>
-                                                    {%- if not loop.last %}, {% endif %}
+                                                    <a href="{{ url_for(".cpe", cpe_id=cpe) }}">{{ render_cpe_uri(cpe) }}</a>
                                                 {% else %}
-                                                    {{ cpe }}
+                                                    {{ render_cpe_uri(cpe) }}
                                                 {% endif %}
-                                                </span>
-                                                {% if configs.shown > 10 and not configs.rendered %}
-                                                    <span class="vuln-ellipsis"><br/>&hellip;</span>
-                                                    {% set configs.rendered = True %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            {% if configs.rendered %}
-                                <button type="button" id="display-vuln-configs" class="btn btn-outline-primary"
-                                        style="margin-left: 2rem">
-                                    <i class="fas fa-plus"></i> Display all
-                                </button>
-                                <script>
-                                    $(function () {
-                                        $("#display-vuln-configs").click(function () {
-                                            $(".vuln-config").show();
-                                            $(".vuln-ellipsis").hide();
-                                            $("#display-vuln-configs").hide();
-                                        });
-                                    });
-                                </script>
-                            {% endif %}
-                        {% else %}
-                            <p>This CVE has no vulnerable configurations linked.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row bg-dark p-3">
-            <div class="col-12 col-sm-10 mx-auto p-3 py-md-5 text-light">
-                <div class="mb-3">
-                    <h2 class="anchor" id="vulnerable-certs">Vulnerable certificates</h2>
-                    {% if cc_certs or fips_certs %}
-                        {{ cve_note() }}
-                    {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="mb-0">This CVE has no vulnerable configurations linked.</p>
+                {% endif %}
+            {% endcall %}
 
-                    {% if cc_certs %}
-                        <div class="my-4" data-cs-name="Vulnerable CC certificates">
-                            <h3>Common Criteria certificates <a style="font-size: 0.5em; vertical-align: middle"
-                                                                tabindex="0"
-                                                                class="badge bg-primary text-dark text-decoration-none"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                title="Display reference graph with affected certificates highlighted"
-                                                                href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}">Display
-                                network</a></h3>
-                            <ul>
-                                {% for cert in cc_certs %}
-                                    <li>
-                                        <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cert["name"]|default("", true) }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    {% if fips_certs %}
-                        <div class="my-4" data-cs-name="Vulnerable FIPS certificates">
-                            <h3>FIPS 140 certificates <a style="font-size: 0.5em; vertical-align: middle" tabindex="0"
-                                                         class="badge bg-primary text-dark text-decoration-none"
-                                                         data-bs-toggle="tooltip" data-bs-placement="top"
-                                                         title="Display reference graph with affected certificates highlighted"
-                                                         href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}">Display
-                                network</a></h3>
-                            <ul>
-                                {% for cert in fips_certs %}
-                                    <li>
-                                        <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">{{ cert|fips_name|default("", true) }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    {% if not cc_certs and not fips_certs %}
-                        <p>This CVE has no assigned vulnerable CC or FIPS certificates.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+            {% call entry_card(id="vulnerable-certs", title="Vulnerable certificates", icon="fa-certificate",
+                               wrapper_class="",
+                               tooltip="Certificates we link to this vulnerability through their CPE matches.") %}
+                {% if cc_certs or fips_certs %}
+                    {{ cve_note() }}
+                {% endif %}
 
-        {% if not cc_certs and not fips_certs %}
-            <div class="row p-3">
-                <div class="col-12 col-sm-10 mx-auto p-3 py-md-5">
-                    <h2>Looking for more?</h2>
-                    <p class="lead">Explore the landscape of Common Criteria and FIPS 140 certificates.</p>
-                    <div class="row g-4 row-cols-1 row-cols-lg-4">
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <h4 class="card-title">Common Criteria</h4>
-                                    <p class="card-text flex-grow-1">Want to explore Common Criteria certificates?</p>
-                                    <div>
-                                        <a href="{{ url_for("cc.index") }}" class="btn btn-primary">Go</a>
-                                    </div>
-                                </div>
-                            </div>
+                {% if cc_certs %}
+                    <div class="mb-3" data-cs-name="Vulnerable CC certificates">
+                        <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
+                            <h3 class="h6 mb-0">Common Criteria certificates</h3>
+                            <a href="{{ url_for("cc.network", search="cve", cve=cve["_id"]) }}"
+                               class="btn btn-primary btn-sm" role="button"
+                               data-bs-toggle="tooltip" data-bs-placement="top"
+                               title="Display reference graph with affected certificates highlighted">
+                                <i class="fas fa-project-diagram"></i> Display network
+                            </a>
                         </div>
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <h4 class="card-title">Protection Profiles</h4>
-                                    <p class="card-text flex-grow-1">Want to explore Protection Profiles of Common
-                                        Criteria
-                                        certificates?</p>
-                                    <div>
-                                        <a href="{{ url_for("pp.index") }}" class="btn btn-primary">Go</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <h4 class="card-title">FIPS 140</h4>
-                                    <p class="card-text flex-grow-1">Want to explore FIPS 140-2 and 140-3
-                                        certificates?</p>
-                                    <div>
-                                        <a href="{{ url_for("fips.index") }}" class="btn btn-primary">Go</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <h4 class="card-title">Vulnerabilities</h4>
-                                    <p class="card-text flex-grow-1">Want to explore how vulnerabilities affect
-                                        certified
-                                        products?</p>
-                                    <div>
-                                        <a href="{{ url_for("vuln.index") }}" class="btn btn-primary">Go</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <ul class="mb-0">
+                            {% for cert in cc_certs %}
+                                <li>
+                                    <a href="{{ url_for("cc.entry", hashid=cert["_id"]) }}">{{ cert["name"]|default("", true) }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                </div>
-            </div>
-        {% endif %}
+                {% endif %}
+                {% if fips_certs %}
+                    <div class="mb-3" data-cs-name="Vulnerable FIPS certificates">
+                        <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
+                            <h3 class="h6 mb-0">FIPS 140 certificates</h3>
+                            <a href="{{ url_for("fips.network", search="cve", cve=cve["_id"]) }}"
+                               class="btn btn-primary btn-sm" role="button"
+                               data-bs-toggle="tooltip" data-bs-placement="top"
+                               title="Display reference graph with affected certificates highlighted">
+                                <i class="fas fa-project-diagram"></i> Display network
+                            </a>
+                        </div>
+                        <ul class="mb-0">
+                            {% for cert in fips_certs %}
+                                <li>
+                                    <a href="{{ url_for("fips.entry", hashid=cert["_id"]) }}">{{ cert|fips_name|default("", true) }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if not cc_certs and not fips_certs %}
+                    <p class="mb-0">This CVE has no assigned vulnerable Common Criteria or FIPS 140 certificates.</p>
+                {% endif %}
+            {% endcall %}
+        </div>
     </main>
 {% endblock %}

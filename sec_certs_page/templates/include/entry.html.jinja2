@@ -1,3 +1,17 @@
+{% macro render_cpe_uri(uri) %}
+    {%- set parts = uri.split(":") -%}
+    {%- set ns = namespace(cut=parts|length) -%}
+    {%- for i in range(parts|length - 1, -1, -1) -%}
+        {%- if parts[i] == "*" and ns.cut == i + 1 %}{% set ns.cut = i %}{% endif -%}
+    {%- endfor -%}
+    {%- if parts|length > 2 and parts[0] == "cpe" -%}
+        <span class="text-secondary">{{ parts[0] }}:{{ parts[1] }}:</span>{{ parts[2:ns.cut]|join(":") }}
+    {%- else -%}
+        {{ parts[:ns.cut]|join(":") }}
+    {%- endif -%}
+    {%- if ns.cut < parts|length %}<span class="text-secondary">:{{ parts[ns.cut:]|join(":") }}</span>{% endif -%}
+{%- endmacro %}
+
 {% macro info_tooltip(text, placement="right") %}
     <span class="text-muted d-inline-flex align-items-center"
           style="cursor: help;"
@@ -11,8 +25,9 @@
     </span>
 {%- endmacro %}
 
-{% macro entry_card(id=None, title=None, icon=None, level=2, heading_extra=None, tooltip=None) %}
-    <section class="entry-card col-12 col-sm-10 mb-4 ms-sm-1 p-3 p-md-4 bg-darker-light rounded-3"
+{% macro entry_card(id=None, title=None, icon=None, level=2, heading_extra=None, tooltip=None,
+                    wrapper_class="col-12 col-sm-10 ms-sm-1") %}
+    <section class="entry-card {{ wrapper_class }} mb-4 p-3 p-md-4 bg-darker-light rounded-3"
              {% if id %}id="{{ id }}"{% endif %}>
         {% if title %}
             <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
