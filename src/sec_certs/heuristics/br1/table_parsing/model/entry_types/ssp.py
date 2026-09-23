@@ -1,15 +1,17 @@
 from dataclasses import dataclass
 
+from ..table import column
+
 """
 Table 27: Storage Areas
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class StorageArea:
-    name: str
-    description: str
-    persistance: str
+    name: str = column("Storage Area Name")
+    description: str = column("Description")
+    persistance: str = column("Persistence Type")
 
 
 """
@@ -17,15 +19,15 @@ Table 28: SSP Input-Output
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class SspIOMethod:
-    name: str
-    source: str
-    dest: str
-    format: str
-    distribution: str
-    entry: str
-    sfiAlgo: str = ""
+    name: str = column("Name")
+    source: str = column("From")
+    dest: str = column("To")
+    format: str = column("Format Type")
+    distribution: str = column("Distribution Type")
+    entry: str = column("Entry Type")
+    sfiAlgo: str = column("SFI or Algorithm")
 
 
 """
@@ -33,12 +35,12 @@ Table 29: SSP Zeroization Methods
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class SspZeroization:
-    method: str
-    description: str
-    rationale: str
-    operatorId: str
+    method: str = column("Zeroization Method")
+    description: str = column("Description")
+    rationale: str = column("Rationale")
+    operatorId: str = column("Operator Initiation")
 
 
 """

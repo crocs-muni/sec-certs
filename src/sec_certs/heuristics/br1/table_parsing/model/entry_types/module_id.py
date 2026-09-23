@@ -1,16 +1,19 @@
 from dataclasses import dataclass
 
+from ..table import column
+
 """
 Table 2: Tested Module Identification – Hardware
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TestedHw:
-    modelPartNum: str
-    hwVersion: str
-    processors: str
-    features: str = ""
+    modelPartNum: str = column("Model and/or Part Number")
+    hwVersion: str = column("Hardware Version")
+    fwVersion: str = column("Firmware Version")
+    processors: str = column("Processors")
+    features: str = column("Features")
 
 
 """
@@ -18,12 +21,12 @@ Table 3: Tested Module Identification – Software/Firmware/Hybrid (Executable C
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TestedSwFwHy:
-    packageFileName: str
-    swFwVersion: str
-    features: str  # optional
-    integrityTest: str
+    packageFileName: str = column("Package or File Name")
+    swFwVersion: str = column("Software/Firmware Version")
+    features: str = column("Features")
+    integrityTest: str = column("Integrity Test")
 
 
 """
@@ -31,13 +34,13 @@ Table 4: Tested Module Identification – Hybrid Disjoint Hardware
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TestedHyHw:
-    modelPartNum: str
-    hwVersion: str
-    fwVersion: str = ""
-    processors: str = ""
-    features: str = ""
+    modelPartNum: str = column("Model and/or Part Number")
+    hwVersion: str = column("Hardware Version")
+    fwVersion: str = column("Firmware Version")
+    processors: str = column("Processors")
+    features: str = column("Features")
 
 
 """
@@ -45,14 +48,14 @@ Table 5: Tested Operational Environments - Software, Firmware, Hybrid
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TestedOpEnvSwFwHy:
-    operatingSystem: str
-    hardwarePlatform: str
-    processors: str
-    paa_pai: str
-    hypervisorHostOs: str  # optional
-    version: str
+    operatingSystem: str = column("Operating System")
+    hardwarePlatform: str = column("Hardware Platform")
+    processors: str = column("Processors")
+    paa_pai: str = column("PAA/PAI")
+    hypervisorHostOs: str = column("Hypervisor or Host OS")
+    version: str = column("Version(s)")
 
 
 """
@@ -60,7 +63,7 @@ Table 6: Vendor Affirmed Operational Environments - Software, Firmware, Hybrid
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class OpEnvSwFwHyVA:
-    operatingSystem: str
-    hardwarePlatform: str
+    operatingSystem: str = column("Operating System")
+    hardwarePlatform: str = column("Hardware Platform")

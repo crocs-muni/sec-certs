@@ -1,13 +1,15 @@
 from dataclasses import dataclass
 
+from ..table import column
+
 """
 Table 7: Modes List and Description
 """
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ModeOfOp:
-    name: str
-    description: str
-    type: str
-    statusIndicator: str = ""
+    name: str = column("Mode Name")
+    description: str = column("Description")
+    type: str = column("Type")
+    statusIndicator: str = column("Status Indicator")

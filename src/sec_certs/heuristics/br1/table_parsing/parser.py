@@ -1,3 +1,4 @@
+import logging
 import re
 from dataclasses import fields
 
@@ -7,7 +8,9 @@ from sec_certs.configuration import config
 from sec_certs.heuristics.br1.models.chapter import Chapter
 from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
 
-from .md_tables import filter_table_lines, parse_markdown_tables
+from .md_tables import Row, filter_table_lines, parse_markdown_tables
+
+logger = logging.getLogger(__name__)
 
 
 def get_chapter(chapters: list[Chapter], chapter_num: int, subchapter_num: int):
@@ -82,6 +85,23 @@ def get_splitted_section(text: str, section: int, subsection: int, name: str, ad
     return "" if name not in matched else sections[name]
 
 
+def normalize_header(header: str) -> str:
+    """Keep only lowercase letters and digits, so that words split by the converter (e.g. "Descripti on") match."""
+    return re.sub(r"[^a-z0-9]", "", header.lower())
+
+
+def map_columns(header: Row, entry_type: type) -> dict[str, int] | None:
+    """
+    Maps the fields of `entry_type` to the indices of their columns in `header`. Returns None unless the table
+    has exactly the columns of `entry_type`, i.e. a column is missing, extra or named differently.
+    """
+    cells = [normalize_header(cell) for cell in header]
+    columns = {f.name: normalize_header(f.metadata["header"]) for f in fields(entry_type)}
+    if sorted(cells) != sorted(columns.values()):
+        return None
+    return {name: cells.index(column) for name, column in columns.items()}
+
+
 def parse_tables(chapters: list[Chapter]) -> BR1Tables:
     """
     Parse all tables defined in the AdvancedProperties model from the chapters' content.
@@ -103,15 +123,14 @@ def parse_tables(chapters: list[Chapter]) -> BR1Tables:
         if not tables or len(tables[0]) <= 1:
             continue
 
-        table.found = True
-
-        constructor = table.entry_type
         # First row is always the table header
-        for row in tables[0][1:]:
-            try:
-                element = constructor(*row)
-                table.entries.append(element)
-            except Exception:
-                pass
+        header, *rows = tables[0]
+        columns = map_columns(header, table.entry_type)
+        if columns is None:
+            logger.debug(f"Header {header} of table {f.name} does not match {table.entry_type.__name__}.")
+            continue
+
+        table.found = True
+        table.entries = [table.entry_type(**{name: row[i] for name, i in columns.items()}) for row in rows]
 
     return res
