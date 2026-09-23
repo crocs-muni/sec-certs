@@ -1,4 +1,9 @@
-from dataclasses import dataclass, field
+from __future__ import annotations
+
+from dataclasses import dataclass, field, fields
+from typing import Any
+
+from sec_certs.serialization.json import ComplexSerializableType
 
 from .entry_types.algorithms import (
     Algo,
@@ -26,7 +31,7 @@ from .table import BR1Table
 
 
 @dataclass
-class BR1Tables:
+class BR1Tables(ComplexSerializableType):
     # Security Levels
     security_levels: BR1Table[SecurityLevel] = field(default_factory=lambda: BR1Table("", 1, 2, SecurityLevel))
 
@@ -117,3 +122,15 @@ class BR1Tables:
 
     # Error States
     error_states: BR1Table[ErrorState] = field(default_factory=lambda: BR1Table("", 10, 4, ErrorState))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {f.name: getattr(self, f.name).to_dict() for f in fields(self)}
+
+    @classmethod
+    def from_dict(cls, dct: dict) -> BR1Tables:
+        tables = cls()
+        for name, saved in dct.items():
+            table = getattr(tables, name)
+            table.found = saved["found"]
+            table.entries = [table.entry_type(**entry) for entry in saved["entries"]]
+        return tables

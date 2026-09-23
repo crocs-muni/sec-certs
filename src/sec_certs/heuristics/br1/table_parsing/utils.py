@@ -1,6 +1,6 @@
 import json
 import logging
-from dataclasses import asdict, fields, is_dataclass
+from dataclasses import is_dataclass
 from pathlib import Path
 
 from sec_certs.heuristics.br1.config.constants import INDENT
@@ -13,21 +13,11 @@ logger = logging.getLogger(__name__)
 
 def table_asdict(table: BR1Table):
     """Exports the Table to a dictionary with required keys."""
-    entries_list = [asdict(entry) for entry in table.entries]
-    return {
-        "section": table.section,
-        "subsection": table.subsection,
-        "found": table.found,
-        "entries": entries_list,
-    }
+    return table.to_dict()
 
 
 def br1tables_asdict(br1tables: BR1Tables):
-    res = {}
-    for f in fields(br1tables):
-        table = getattr(br1tables, f.name)
-        res[f.name] = table_asdict(table)
-    return res
+    return br1tables.to_dict()
 
 
 def export_br1_tables_to_json(data: BR1Tables, file: Path, output_dir: Path):

@@ -7,13 +7,17 @@ installed or a converted policy on disk. The headings come from the BR1 template
 
 from __future__ import annotations
 
+import json
+
 from sec_certs.configuration import config
 from sec_certs.document.base import BlockKind, DocumentBlock, DocumentTable
 from sec_certs.heuristics.br1.chapter_parsing.chapter_utils import chapters_from_json
 from sec_certs.heuristics.br1.chapter_parsing.mapper import extract_chapters
 from sec_certs.heuristics.br1.chapter_parsing.validator import validate_chapters
+from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
 from sec_certs.heuristics.br1.table_parsing.model.entry_types.algorithms import ApprovedAlgo
 from sec_certs.heuristics.br1.table_parsing.parser import parse_tables
+from sec_certs.serialization.json import CustomJSONDecoder, CustomJSONEncoder
 
 ALGORITHMS = (2, 5)
 APPROVED_HEADER = ("Algorithm", "CAVP Cert", "Properties", "Reference")
@@ -141,3 +145,13 @@ class TestTables:
         tables = parse_tables(extract_chapters(policy({(3, 1): [table(header, ("USB", "Data Input", "Commands"))]})))
 
         assert [entry.physicalPort for entry in tables.ports_interfaces.entries] == ["USB"]
+
+
+def test_tables_survive_a_round_trip_through_json():
+    tables = BR1Tables()
+    tables.approved_algorithms.found = True
+    tables.approved_algorithms.entries = [
+        ApprovedAlgo(algorithm=AES[0], cavpCertName=AES[1], properties=AES[2], reference=AES[3])
+    ]
+
+    assert json.loads(json.dumps(tables, cls=CustomJSONEncoder), cls=CustomJSONDecoder) == tables

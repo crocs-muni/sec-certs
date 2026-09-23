@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
@@ -21,3 +21,12 @@ class BR1Table(Generic[T]):
     entry_type: type[T]
     found: bool = False
     entries: list[T] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        """The table as saved in the dataset. Its name and entry type are part of the template, not saved."""
+        return {
+            "section": self.section,
+            "subsection": self.subsection,
+            "found": self.found,
+            "entries": [asdict(entry) for entry in self.entries],  # type: ignore[call-overload]
+        }
