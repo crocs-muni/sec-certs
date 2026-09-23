@@ -5,23 +5,24 @@ from dataclasses import fields
 from fuzzysearch import find_near_matches
 
 from sec_certs.configuration import config
+from sec_certs.document.base import DocumentTable
 from sec_certs.heuristics.br1.models.chapter import Chapter
 from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
 
-from .md_tables import Row, filter_table_lines, parse_markdown_tables
-
 logger = logging.getLogger(__name__)
+
+Row = list[str]
 
 
 def get_chapter(chapters: list[Chapter], chapter_num: int, subchapter_num: int):
     return chapters[chapter_num - 1].subchapters[subchapter_num - 1]
 
 
-def match_sections_between_headers(text: str, headers: list[str]) -> tuple[dict[str, str], list[str]]:
+def match_sections_between_headers(text: str, headers: list[str]) -> dict[str, tuple[int, int]]:
     """
     Searches for each header of `headers` in the text using fuzzy matching
-    (fuzzysearch.find_near_matches), then splits the parts of the `text`
-    between the headers and returns them.
+    (fuzzysearch.find_near_matches), then splits the `text` into the parts
+    between the headers and returns their start and end offsets.
     """
     found_matches = []
 
@@ -52,37 +53,43 @@ def match_sections_between_headers(text: str, headers: list[str]) -> tuple[dict[
     found_matches.sort(key=lambda x: x["start"])
 
     sections = {}
-    matched_headers = []
 
     for i, current_match in enumerate(found_matches):
-        current_header = current_match["header_name"]
-        start_index = current_match["content_start"]
-
         end_index = found_matches[i + 1]["start"] if i + 1 < len(found_matches) else len(text)
+        sections[current_match["header_name"]] = (current_match["content_start"], end_index)
 
-        content = text[start_index:end_index].strip()
-
-        sections[current_header] = content
-        matched_headers.append(current_header)
-
-    return sections, matched_headers
+    return sections
 
 
 # Section is split into parts by the separator titles
-def get_splitted_section(text: str, section: int, subsection: int, name: str, adv_prop: BR1Tables) -> str:
+def get_splitted_section(
+    text: str, section: int, subsection: int, name: str, adv_prop: BR1Tables
+) -> tuple[int, int] | None:
     """
-    Extracts the content associated with header name (`name`) from a section.
+    Finds the part of a section associated with header name (`name`), as its start and end offsets.
     Multiple sections contain more tables that are separated by their names.
-    This function extracts the part of the section starting immediately after the `name`
-    until the next header or the end of `text`
+    The part starts immediately after the `name` and ends at the next header or the end of `text`.
+    Returns None when `name` is not found.
     """
     section_names = [
         getattr(adv_prop, f.name).name
         for f in fields(adv_prop)
         if getattr(adv_prop, f.name).section == section and getattr(adv_prop, f.name).subsection == subsection
     ]
-    sections, matched = match_sections_between_headers(text, section_names)
-    return "" if name not in matched else sections[name]
+    return match_sections_between_headers(text, section_names).get(name)
+
+
+def join_tables(tables: list[DocumentTable]) -> list[Row]:
+    """
+    Joins tables into one whose header is the first row of the first table. Rows repeating the header are
+    dropped, the others are padded or cut to its width.
+    """
+    rows = [[cell.strip() for cell in row] for table in tables for row in table.header + table.rows]
+    if not rows:
+        return []
+    header, width = rows[0], len(rows[0])
+    body = [(row + [""] * width)[:width] for row in rows[1:]]
+    return [header, *(row for row in body if row != header)]
 
 
 def normalize_header(header: str) -> str:
@@ -114,17 +121,19 @@ def parse_tables(chapters: list[Chapter]) -> BR1Tables:
         table = getattr(res, f.name)
         chapter = get_chapter(chapters, table.section, table.subsection)
         # If table.name is empty it means there is just 1 table in the section
-        if table.name == "":
-            content = chapter.content
+        region: tuple[int, int] | None = (0, len(chapter.content))
         # Case when there is more tables in one section, the section is split by separators
         if table.name:
-            content = get_splitted_section(chapter.content, table.section, table.subsection, table.name, res)
-        tables = parse_markdown_tables(filter_table_lines(content))
-        if not tables or len(tables[0]) <= 1:
+            region = get_splitted_section(chapter.content, table.section, table.subsection, table.name, res)
+        if region is None:
+            continue
+        start, end = region
+        joined = join_tables([t for offset, t in chapter.tables if start <= offset < end])
+        if len(joined) <= 1:
             continue
 
         # First row is always the table header
-        header, *rows = tables[0]
+        header, *rows = joined
         columns = map_columns(header, table.entry_type)
         if columns is None:
             logger.debug(f"Header {header} of table {f.name} does not match {table.entry_type.__name__}.")

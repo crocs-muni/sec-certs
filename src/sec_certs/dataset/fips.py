@@ -176,9 +176,10 @@ class FIPSDataset(Dataset[FIPSCertificate], ComplexSerializableType):
         self.update_with_certs(processed_certs)
 
     def _extract_br1_metadata(self, dgsts: set[str]) -> None:
-        if config.pdf_converter != "docling":
-            logger.info(
-                "Skipping BR1 metadata parsing. BR1 parsing requires the 'docling' converter to properly handle the document structure."
+        if not get_view_cls().supports_structure:
+            logger.warning(
+                f"Skipping BR1 metadata: the configured PDF converter ({config.pdf_converter}) provides no "
+                "document structure. Re-convert with the docling converter to enable it."
             )
             return
         logger.info("Extracting BR1 metadata.")
