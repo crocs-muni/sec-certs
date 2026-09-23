@@ -45,6 +45,9 @@ def select_by_list(selected: list | None, options: Iterable) -> list:
     return [opt for opt in options if not selected or opt in selected]
 
 
+_HAS_FIELD_PREFIX = re.compile(r"^\s*[+\-(]*\w+:")
+
+
 def detect_advanced_syntax(query: str) -> set[str]:
     rules = [
         ("boolean_op", r"\b(AND|OR)\b"),
@@ -55,6 +58,7 @@ def detect_advanced_syntax(query: str) -> set[str]:
         ("boost", r"\^(\d+|\d*\.\d*)"),
         ("regex", r"/[^/\n]+/"),
         ("match_all", r"^\s*\*\s*$"),
+        ("field_prefix", _HAS_FIELD_PREFIX.pattern),
     ]
 
     matched = set()
@@ -63,9 +67,6 @@ def detect_advanced_syntax(query: str) -> set[str]:
             matched.add(name)
 
     return matched
-
-
-_HAS_FIELD_PREFIX = re.compile(r"^\s*[+\-(]*\w+:")
 
 
 def need_field_targeting(query: str, advanced_features: set[str]) -> bool:

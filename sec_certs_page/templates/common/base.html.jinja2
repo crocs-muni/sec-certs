@@ -345,6 +345,7 @@
                             <li><a class="dropdown-item" href="{{ url_for('about.index') }}">Project</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('about.research') }}">Research</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('about.changelog') }}">Changelog</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('faq') }}">FAQ</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('about.privacy_policy') }}">Privacy policy</a>
                             </li>
                         </ul>
@@ -471,6 +472,9 @@
                                           class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
                                         Documentation
                                     </a>
+                                    </p>
+                                    <p><a href="{{ url_for('faq') }}"
+                                          class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">FAQ</a>
                                     </p>
                                     <p><a href="{{ url_for('about.privacy_policy') }}"
                                           class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Privacy
