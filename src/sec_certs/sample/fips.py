@@ -17,6 +17,10 @@ from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
 from sec_certs.document.base import TablesNotSupportedError
 from sec_certs.document.utils import get_view
+from sec_certs.heuristics.br1.chapter_parsing.mapper import extract_chapters
+from sec_certs.heuristics.br1.chapter_parsing.validator import validate_chapters
+from sec_certs.heuristics.br1.table_parsing.model.br1_tables import BR1Tables
+from sec_certs.heuristics.br1.table_parsing.parser import parse_tables
 from sec_certs.sample.certificate import Certificate, References, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
@@ -325,6 +329,9 @@ class FIPSCertificate(
         policy_metadata: dict[str, Any] = field(default_factory=dict)
         module_algorithms: set[str] = field(default_factory=set)
         policy_algorithms: set[str] = field(default_factory=set)
+        is_br1_format: bool = field(default=False)
+        br1_deviations: int = field(default=0)
+        br1_tables: BR1Tables | None = field(default=None)
 
         @property
         def certlike_algorithm_numbers(self) -> set[str]:
@@ -541,6 +548,32 @@ class FIPSCertificate(
             cert.state.policy.extract_ok = False
         else:
             cert.pdf_data.keywords = keywords
+        return cert
+
+    @staticmethod
+    def extract_br1_metadata(cert: FIPSCertificate) -> FIPSCertificate:
+        """
+        Extract br1 chapters and tables from the document
+        """
+        try:
+            chapters = extract_chapters(get_view(cert.state.policy).iter_blocks())
+        except Exception as e:
+            logger.warning(f"Error when parsing the BR1 structure of {cert.dgst}: {e}")
+            cert.state.policy.extract_ok = False
+            cert.pdf_data.is_br1_format = False
+            cert.pdf_data.br1_deviations = 0
+            cert.pdf_data.br1_tables = None
+            return cert
+
+        error, _ = validate_chapters(chapters)
+        cert.pdf_data.br1_deviations = error
+
+        is_br1 = error <= config.br1_error_accept
+        cert.pdf_data.is_br1_format = is_br1
+
+        # Reset on a non-BR1 result, otherwise a re-extracted policy would keep the tables of its previous version.
+        cert.pdf_data.br1_tables = parse_tables(chapters) if is_br1 else None
+
         return cert
 
     @staticmethod

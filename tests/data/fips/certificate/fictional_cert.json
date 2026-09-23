@@ -38,7 +38,10 @@
         "policy_algorithms": {
             "_type": "Set",
             "elements": []
-        }
+        },
+        "is_br1_format": false,
+        "br1_deviations": 0,
+        "br1_tables": null
     },
     "heuristics": {
         "_type": "sec_certs.sample.fips.FIPSCertificate.Heuristics",
