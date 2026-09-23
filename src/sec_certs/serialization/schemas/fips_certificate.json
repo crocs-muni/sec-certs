@@ -120,6 +120,7 @@
     "br1_tables": {
       "type": "object",
       "properties": {
+        "_type": { "const": "sec_certs.heuristics.br1.table_parsing.model.br1_tables.BR1Tables" },
         "security_levels": { "$ref": "#/definitions/br1_table" },
         "tested_module_id_hw": { "$ref": "#/definitions/br1_table" },
         "tested_module_id_sw_fw_hy": { "$ref": "#/definitions/br1_table" },
@@ -134,6 +135,7 @@
         "non_approved_not_allowed": { "$ref": "#/definitions/br1_table" },
         "ports_interfaces": { "$ref": "#/definitions/br1_table" },
         "authentication_methods": { "$ref": "#/definitions/br1_table" },
+        "roles": { "$ref": "#/definitions/br1_table" },
         "approved_services": { "$ref": "#/definitions/br1_table" },
         "non_approved_services": { "$ref": "#/definitions/br1_table" },
         "mechanisms_actions": { "$ref": "#/definitions/br1_table" },
@@ -141,6 +143,7 @@
         "ssp_io_methods": { "$ref": "#/definitions/br1_table" },
         "ssp_zeroization_methods": { "$ref": "#/definitions/br1_table" },
         "self_tests": { "$ref": "#/definitions/br1_table" },
+        "cond_self_tests": { "$ref": "#/definitions/br1_table" },
         "error_states": { "$ref": "#/definitions/br1_table" }
       },
       "required": [
@@ -158,6 +161,7 @@
         "non_approved_not_allowed",
         "ports_interfaces",
         "authentication_methods",
+        "roles",
         "approved_services",
         "non_approved_services",
         "mechanisms_actions",
@@ -165,6 +169,7 @@
         "ssp_io_methods",
         "ssp_zeroization_methods",
         "self_tests",
+        "cond_self_tests",
         "error_states"
       ]
     }
