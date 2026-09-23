@@ -64,6 +64,7 @@
     "pytesseract",
     "selenium>=4.38.0",
     "fuzzysearch",
+    "regex",
 ]
 
   [project.optional-dependencies]
