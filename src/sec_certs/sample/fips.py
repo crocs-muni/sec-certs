@@ -568,6 +568,9 @@ class FIPSCertificate(
         except Exception as e:
             logger.warning(f"Error when parsing the BR1 structure of {cert.dgst}: {e}")
             cert.state.policy.extract_ok = False
+            cert.pdf_data.is_br1_format = False
+            cert.pdf_data.br1_deviations = 0
+            cert.pdf_data.br1_tables = None
             return cert
 
         error, _ = validate_chapters(chapters)
