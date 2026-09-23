@@ -9,7 +9,7 @@ from multiprocessing import cpu_count, get_context
 from multiprocessing.pool import Pool, ThreadPool
 from typing import Any
 
-from sec_certs.configuration import config
+from sec_certs.configuration import Configuration, config
 from sec_certs.utils.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -17,8 +17,20 @@ logger = logging.getLogger(__name__)
 _worker_instance: Any = None
 
 
-def _init_worker_instance(instance_cls: type, instance_args: tuple) -> None:
+def _restore_config(parent_config: Configuration) -> None:
+    """
+    Re-apply the parent's configuration inside a worker process.
+
+    Workers started with the `spawn` method (the default on macOS, and on Windows) re-import
+    `sec_certs.configuration` from scratch, so they see the field defaults rather than whatever the parent
+    loaded from yaml or set at runtime. Anything a worker reads off `config` would silently differ.
+    """
+    config._set_attrs_from_cfg(parent_config, parent_config._get_nondefault_keys())
+
+
+def _init_worker_instance(instance_cls: type, instance_args: tuple, parent_config: Configuration) -> None:
     global _worker_instance
+    _restore_config(parent_config)
     _worker_instance = instance_cls(*instance_args)
 
 
@@ -53,7 +65,10 @@ def process_parallel_with_instance(
             chunk = items[i : i + chunk_size]
             ctx = get_context("spawn")
             pool = ProcessPoolExecutor(
-                max_workers, ctx, initializer=_init_worker_instance, initargs=(instance_cls, instance_args)
+                max_workers,
+                ctx,
+                initializer=_init_worker_instance,
+                initargs=(instance_cls, instance_args, config),
             )
             with pool:
                 wrapper = partial(_worker_wrapper, func=func)
@@ -73,6 +88,7 @@ def process_parallel_with_instance(
 def process_parallel(
     func: Callable,
     items: Iterable,
+    kwargs: dict[str, Any] | None = None,
     max_workers: int = config.n_threads,
     callback: Callable | None = None,
     use_threading: bool = True,
@@ -80,14 +96,34 @@ def process_parallel(
     unpack: bool = False,
     progress_bar_desc: str | None = None,
 ) -> list[Any]:
+    """
+    Execute a function in parallel over a collection of items using a thread or process pool.
+
+    :param func: The function to execute for each item.
+    :param items: The collection of items to process. Each item is passed to `func` as a single
+        positional argument, or unpacked as multiple positional arguments when `unpack=True`.
+    :param kwargs: Optional dictionary of keyword arguments forwarded to every invocation of `func`.
+    :param max_workers: Number of workers in the pool. Use -1 for all available CPUs.
+    :param callback: Optional callback invoked with the result of each completed task.
+    :param use_threading: If True (default), use a thread pool; otherwise use a process pool.
+    :param progress_bar: Whether to display a tqdm progress bar.
+    :param unpack: If True, each item is expected to be a tuple and is unpacked as positional
+        arguments to `func` (i.e., `func(*item, **kwargs)`). If False, each item is passed as a
+        single argument (i.e., `func(item, **kwargs)`).
+    :param progress_bar_desc: Description label for the progress bar.
+    :return: List of results, one per item, in the original order.
+    """
     if max_workers == -1:
         max_workers = cpu_count()
 
-    pool: Pool | ThreadPool = ThreadPool(max_workers) if use_threading else Pool(max_workers)
+    kwds = kwargs or {}
+    pool: Pool | ThreadPool = (
+        ThreadPool(max_workers) if use_threading else Pool(max_workers, initializer=_restore_config, initargs=(config,))
+    )
     results = (
-        [pool.apply_async(func, (*i,), callback=callback) for i in items]
+        [pool.apply_async(func, args=(*i,), kwds=kwds, callback=callback) for i in items]
         if unpack
-        else [pool.apply_async(func, (i,), callback=callback) for i in items]
+        else [pool.apply_async(func, args=(i,), kwds=kwds, callback=callback) for i in items]
     )
 
     if progress_bar is True and items:

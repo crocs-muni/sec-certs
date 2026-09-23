@@ -12,7 +12,8 @@ from docling.datamodel.pipeline_options import (
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
 from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
-from docling_core.types.doc import ContentLayer, ImageRefMode
+from docling_core.types.doc.base import ImageRefMode
+from docling_core.types.doc.common.content_layer import ContentLayer
 
 from sec_certs.converter import PDFConverter
 
@@ -102,7 +103,7 @@ class DoclingConverter(PDFConverter):
             }
         )
 
-    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
+    def _convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
         """
         Convert a PDF file and save the result as a text file to `txt_path`
         alongisde with a serialized DoclingDocument as JSON to `json_path`.

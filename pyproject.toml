@@ -52,8 +52,7 @@
     "setuptools-scm",
     "ipykernel",
     "ipywidgets",
-    "spacy<3.8.0; platform_machine == 'aarch64'",
-    "spacy>=3.8.0; platform_machine != 'aarch64'",
+    "spacy",
     "pkgconfig",
     "seaborn",
     "pySankeyBeta",
@@ -99,8 +98,8 @@
 
 [dependency-groups]
   dev = [
-    "ruff==0.14.5",
-    "mypy==1.18.2",
+    "ruff==0.15.6",
+    "mypy==1.19.1",
     "types-PyYAML",
     "types-python-dateutil",
     "types-requests",
@@ -156,7 +155,6 @@
   version_scheme = "no-guess-dev"
 
 [tool.mypy]
-  plugins = ["numpy.typing.mypy_plugin"]
   ignore_missing_imports = true
   exclude = "build/"
 

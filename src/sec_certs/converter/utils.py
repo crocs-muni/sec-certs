@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter, has_docling, has_pdftotext
+from sec_certs.converter import has_docling, has_pdftotext
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 def get_converter_cls() -> type[PDFConverter]:

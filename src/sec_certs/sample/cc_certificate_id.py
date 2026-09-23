@@ -19,6 +19,14 @@ def _parse_year(year: str | None) -> int | None:
         return y
 
 
+def _eucc_id(meta) -> str | None:
+    if not meta.get("eucc"):
+        return None
+    if meta.get("anssi"):
+        return f"EUCC-ANSSI-{meta['year']}-{meta['month']}-{meta['day']}"
+    return f"EUCC-{meta['cb']}-{meta['year']}-{int(meta['seq'])}"
+
+
 def FR(meta) -> str:
     year = _parse_year(meta["year"])
     counter = meta["counter"]
@@ -221,6 +229,14 @@ schemes = {
 }
 
 
+def canonical_from_meta(scheme: str, meta: dict) -> str | None:
+    if (eucc_id := _eucc_id(meta)) is not None:
+        return eucc_id
+    if scheme in schemes:
+        return schemes[scheme](meta)
+    return None
+
+
 @dataclass(frozen=True)
 class CertificateId:
     """
@@ -249,12 +265,7 @@ class CertificateId:
         """
         The canonical version of this certificate id.
         """
-        clean = self.clean
-
-        if self.scheme in schemes:
-            return schemes[self.scheme](self.meta)
-        else:
-            return clean
+        return canonical_from_meta(self.scheme, self.meta) or self.clean
 
     def __str__(self):
         return self.canonical
@@ -272,3 +283,9 @@ class CertificateId:
 
 def canonicalize(cert_id_str: str, scheme: str) -> str:
     return CertificateId(scheme, cert_id_str).canonical
+
+
+def canonicalize_eucc(cert_id: str) -> str | None:
+    if match := re.match(rules["eucc_cert_id"], cert_id.strip()):
+        return _eucc_id(match.groupdict())
+    return None

@@ -10,7 +10,8 @@ from sec_certs.cert_rules import rules
 from sec_certs.configuration import config
 from sec_certs.model.matching import AbstractMatcher
 from sec_certs.sample.cc import CCCertificate
-from sec_certs.sample.cc_certificate_id import CertificateId, schemes
+from sec_certs.sample.cc_certificate_id import CertificateId, canonical_from_meta
+from sec_certs.sample.eucc import EUCCCertificate
 from sec_certs.utils.sanitization import sanitize_link_fname
 from sec_certs.utils.strings import fully_sanitize_string
 
@@ -33,7 +34,7 @@ CATEGORIES = {
 }
 
 
-class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
+class CCSchemeMatcher(AbstractMatcher[CCCertificate | EUCCCertificate]):
     """
     A heuristic matcher between entries on CC scheme websites (see CCSchemeDataset) and
     CC certificates from the Common Criteria portal (as in CCDataset).
@@ -78,7 +79,6 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
             self._level = self._level.upper().replace("AUGMENTED", "").replace("WITH", "")
 
         filename_rules = rules["cc_filename_cert_id"][self.scheme]
-        scheme_meta = schemes[self.scheme]
         if filename_rules and self._canonical_cert_id is None:
             cert_link = self._get_from_entry("cert_link")
             if cert_link:
@@ -87,7 +87,7 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
                     if match := re.match(rule, cert_fname):
                         with contextlib.suppress(Exception):
                             meta = match.groupdict()
-                            self._canonical_cert_id = scheme_meta(meta)
+                            self._canonical_cert_id = canonical_from_meta(self.scheme, meta)
                             break
 
             report_link = self._get_from_entry("report_link")
@@ -97,13 +97,13 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
                     if match := re.match(rule, report_fname):
                         with contextlib.suppress(Exception):
                             meta = match.groupdict()
-                            self._canonical_cert_id = scheme_meta(meta)
+                            self._canonical_cert_id = canonical_from_meta(self.scheme, meta)
                             break
 
         self._report_hash = self._get_from_entry("report_hash")
         self._target_hash = self._get_from_entry("target_hash")
 
-    def match(self, cert: CCCertificate) -> float:  # noqa: C901
+    def match(self, cert: CCCertificate | EUCCCertificate) -> float:  # noqa: C901
         """
         Compute the match of this matcher to the certificate, a float from 0 to 100.
 
@@ -132,10 +132,10 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
         if self._product == cert.name and self._vendor == cert.manufacturer:
             return 99
         # If we match the report hash, return early.
-        if cert.state.report.pdf_hash == self._report_hash and self._report_hash is not None:
+        if cert.state.report.source_hash == self._report_hash and self._report_hash is not None:
             return 95
         # If we match the target hash, return early.
-        if cert.state.st.pdf_hash == self._target_hash and self._target_hash is not None:
+        if cert.state.st.source_hash == self._target_hash and self._target_hash is not None:
             return 93
 
         # Fuzzy match at the end with some penalization.
@@ -169,7 +169,7 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
 
     @classmethod
     def match_all(
-        cls, entries: list[dict[str, Any]], scheme: str, certificates: Iterable[CCCertificate]
+        cls, entries: list[dict[str, Any]], scheme: str, certificates: Iterable[CCCertificate | EUCCCertificate]
     ) -> tuple[dict[str, dict[str, Any]], dict[str, float]]:
         """
         Match all entries of a given CC scheme to certificates from the dataset.
@@ -181,6 +181,6 @@ class CCSchemeMatcher(AbstractMatcher[CCCertificate]):
                   - A mapping of certificate digests to entries, without duplicates, not all entries may be present.
                   - A mapping of certificate digests to scores that they matched with.
         """
-        certs: list[CCCertificate] = list(filter(lambda cert: cert.scheme == scheme, certificates))
+        certs: list[CCCertificate | EUCCCertificate] = list(filter(lambda cert: cert.scheme == scheme, certificates))
         matchers: Sequence[CCSchemeMatcher] = [CCSchemeMatcher(entry, scheme) for entry in entries]
         return cls._match_certs(matchers, certs, config.cc_matching_threshold)  # type: ignore

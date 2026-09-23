@@ -17,6 +17,7 @@ import requests
 from requests import RequestException, Response
 
 from sec_certs import constants
+from sec_certs.configuration import config
 
 if typing.TYPE_CHECKING:
     from sec_certs.dataset.cpe import CPEDataset, CPEMatchDict
@@ -41,7 +42,6 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
 
     api_key: str | None = None
     n_threads: int = -1
-    max_attempts: int = 5
 
     _start_mod_date: datetime | None = field(init=False)
     _end_mod_date: datetime | None = field(init=False)
@@ -159,7 +159,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         self._end_mod_date = None
         self._ok_responses = []
         self._requests_to_process = []
-        self._attempts_left = self.max_attempts
+        self._attempts_left = config.n_download_attempts
 
     def _fill_in_mod_dates(self, force_full_update: bool, last_update: datetime) -> None:
         """
@@ -235,7 +235,7 @@ class NvdDatasetBuilder(Generic[DatasetType], ABC):
         currently_ok = [x for x in responses if x.status_code == requests.codes.ok]
 
         logger.info(
-            f"Attempt {self.max_attempts - self._attempts_left}/{self.max_attempts}: Successfully processed {len(currently_ok)}/{len(self._requests_to_process)} requests."
+            f"Attempt {config.n_download_attempts - self._attempts_left}/{config.n_download_attempts}: Successfully processed {len(currently_ok)}/{len(self._requests_to_process)} requests."
         )
 
         self._ok_responses.extend(currently_ok)

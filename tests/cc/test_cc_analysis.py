@@ -21,8 +21,7 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
 from sec_certs.dataset.cc import CCDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
-from sec_certs.heuristics.cc import compute_references
-from sec_certs.heuristics.common import compute_related_cves, compute_transitive_vulnerabilities
+from sec_certs.heuristics.common import compute_references, compute_related_cves, compute_transitive_vulnerabilities
 from sec_certs.model.references_nlp.segment_extractor import ReferenceSegmentExtractor
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.sar import SAR

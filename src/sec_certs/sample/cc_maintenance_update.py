@@ -5,6 +5,7 @@ from datetime import date
 from typing import ClassVar
 
 from sec_certs.sample.cc import CCCertificate
+from sec_certs.sample.cc_eucc_common import Heuristics, InternalState, PdfData
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
 
@@ -26,9 +27,9 @@ class CCMaintenanceUpdate(CCCertificate, ComplexSerializableType):
         name: str,
         report_link: str,
         st_link: str,
-        state: CCCertificate.InternalState | None,
-        pdf_data: CCCertificate.PdfData | None,
-        heuristics: CCCertificate.Heuristics | None,
+        state: InternalState | None,
+        pdf_data: PdfData | None,
+        heuristics: Heuristics | None,
         related_cert_digest: str,
         maintenance_date: date,
     ):

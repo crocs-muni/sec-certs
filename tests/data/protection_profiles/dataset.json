@@ -57,7 +57,7 @@
                     "download_ok": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null,
                     "json_hash": null
                 },
@@ -66,11 +66,12 @@
                     "download_ok": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null,
                     "json_hash": null
                 }
-            }
+            },
+            "scheme_metadata": null
         },
         {
             "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
@@ -114,7 +115,7 @@
                     "download_ok": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null,
                     "json_hash": null
                 },
@@ -123,11 +124,12 @@
                     "download_ok": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null,
                     "json_hash": null
                 }
-            }
+            },
+            "scheme_metadata": null
         },
         {
             "_type": "sec_certs.sample.protection_profile.ProtectionProfile",
@@ -172,7 +174,7 @@
                     "download_ok": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null,
                     "json_hash": null
                 },
@@ -181,11 +183,12 @@
                     "download_ok": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null,
                     "json_hash": null
                 }
-            }
+            },
+            "scheme_metadata": null
         }
     ]
 }

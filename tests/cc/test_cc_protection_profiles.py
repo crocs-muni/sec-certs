@@ -1,16 +1,19 @@
 import json
 import shutil
+import textwrap
 from importlib.resources import as_file, files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
 import tests.data.protection_profiles
-from tests.conftest import get_converters
+from bs4 import BeautifulSoup
+from tests.conftest import compare_to_template, get_converters
 
 from sec_certs import constants
 from sec_certs.converter import PDFConverter
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
+from sec_certs.sample.protection_profile import ProtectionProfile
 
 
 def test_dataset_from_json(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmp_path: Path):
@@ -113,21 +116,21 @@ def downloaded_toy_dataset(tmp_path_factory):
     return dataset
 
 
-def test_downloaded_pdf_hashes(downloaded_toy_dataset: ProtectionProfileDataset):
-    template_pp_pdf_hashes = {
+def test_downloaded_source_hashes(downloaded_toy_dataset: ProtectionProfileDataset):
+    template_pp_source_hashes = {
         "c8b175590bb7fdfb": "f35ea732cfe303415080e0a95b9aa573ff9e02019e9ab971904c7530c2617b80",
         "e315e3e834a61448": "605489cda568c32371d0aeb6841df0dc63277f57113f59a5a60f8a64a1661def",
         "b02ed76d2545326a": "e88bddd8948a8624d3f350e4cb489f4b1b708e5f10e2c1402166cdfe08e5d32a",
     }
-    template_report_pdf_hashes = {
+    template_report_source_hashes = {
         "c8b175590bb7fdfb": "c7dbaec8c333431c65129a0f429cdea22aa244e971f79139fb0ae079d4805b29",
         "e315e3e834a61448": "5f72a3ef0dce80b66c077a8a7482a1843c36e90113bd77827fba81c6e148d248",
         "b02ed76d2545326a": "e4c2d590fce870cd14fe6571a3258bd094b1e66f83f5e4d4a53a28a96f27490e",
     }
 
     for cert in downloaded_toy_dataset:
-        assert cert.state.pp.pdf_hash == template_pp_pdf_hashes[cert.dgst]
-        assert cert.state.report.pdf_hash == template_report_pdf_hashes[cert.dgst]
+        assert cert.state.pp.source_hash == template_pp_source_hashes[cert.dgst]
+        assert cert.state.report.source_hash == template_report_source_hashes[cert.dgst]
 
 
 @pytest.mark.parametrize("converter", get_converters())
@@ -148,8 +151,9 @@ def test_convert_pdfs(
     test_crt = downloaded_toy_dataset["b02ed76d2545326a"]
     template_report_path = pp_data_dir / f"templates/{converter.get_name()}/reports/{test_crt.dgst}.txt"
     template_pp_path = pp_data_dir / f"templates/{converter.get_name()}/pps/{test_crt.dgst}.txt"
-    assert abs(test_crt.state.report.txt_path.stat().st_size - template_report_path.stat().st_size) < 1000
-    assert abs(test_crt.state.pp.txt_path.stat().st_size - template_pp_path.stat().st_size) < 1000
+
+    compare_to_template(template_report_path, test_crt.state.report.txt_path)
+    compare_to_template(template_pp_path, test_crt.state.pp.txt_path)
 
 
 def test_keyword_extraction(toy_pp_dataset: ProtectionProfileDataset, pp_data_dir: Path, tmpdir):
@@ -199,3 +203,51 @@ def test_get_pp_by_pp_link(toy_pp_dataset: ProtectionProfileDataset):
     assert pp
     assert pp.dgst == "b02ed76d2545326a"
     assert not toy_pp_dataset.get_pp_by_pp_link("https://some-random-url.com")
+
+
+def test_archived_embedded_collaborative_parsing():
+    # Real structure of rows from the active/archived CC portal tables.
+    # Collaborative PPs use a <p> name + "Protection Profile" link in cell[0];
+    # the remaining 6 cells are identical to ordinary archived rows.
+    COLLAB_ROW = textwrap.dedent("""\
+        <tr>
+          <td>
+            <p>collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0</p>
+            <li><a href="/nfs/ccpfiles/files/ppfiles/CPP_FW_V2.0.pdf" target="_blank"
+                   title="Protection Profile: CPP_FW_V2.0.pdf">Protection Profile</a></li>
+          </td>
+          <td>2.0</td>
+          <td>None</td>
+          <td>2017-12-06</td>
+          <td>2018-03-14</td>
+          <td></td>
+          <td><a href="/nfs/ccpfiles/files/ppfiles/CPP_FW_V2.0_report.pdf">Certification Report</a></td>
+        </tr>
+    """)
+    CLASSIC_ROW = textwrap.dedent("""\
+        <tr>
+          <td><a href="/nfs/ccpfiles/files/ppfiles/pp0062b_pdf.pdf">Example Classic PP</a></td>
+          <td>1.0</td>
+          <td>EAL2</td>
+          <td>2010-01-01</td>
+          <td>2020-01-01</td>
+          <td>DE</td>
+          <td><a href="/nfs/ccpfiles/files/ppfiles/pp0062b_report.pdf">Certification Report</a></td>
+        </tr>
+    """)
+
+    def parse(html: str) -> ProtectionProfile.WebData:
+        soup = BeautifulSoup(f"<table>{html}</table>", "html5lib")
+        row = soup.find("tr")
+        return ProtectionProfile.WebData.from_html_row(
+            row, "archived", "Boundary Protection Devices", from_collaborative_page=False
+        )
+
+    collab = parse(COLLAB_ROW)
+    assert collab.is_collaborative is True
+    assert collab.name == "collaborative Protection Profile for Stateful Traffic Filter Firewalls v2.0"
+    assert collab.pp_link is not None and collab.pp_link.endswith("CPP_FW_V2.0.pdf")
+
+    classic = parse(CLASSIC_ROW)
+    assert classic.is_collaborative is False
+    assert classic.name == "Example Classic PP"

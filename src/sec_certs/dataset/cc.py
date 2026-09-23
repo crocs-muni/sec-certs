@@ -5,7 +5,7 @@ import shutil
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Literal, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 import pandas as pd
@@ -14,7 +14,6 @@ from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import (
     AuxiliaryDatasetHandler,
     CCMaintenanceUpdateDatasetHandler,
@@ -22,25 +21,24 @@ from sec_certs.dataset.auxiliary_dataset_handling import (
     CPEDatasetHandler,
     CPEMatchDictHandler,
     CVEDatasetHandler,
+    ProcessingMode,
     ProtectionProfileDatasetHandler,
 )
-from sec_certs.dataset.dataset import Dataset, logger
-from sec_certs.heuristics.cc import (
-    compute_cert_labs,
-    compute_eals,
-    compute_normalized_cert_ids,
-    compute_references,
-    compute_sars,
-    compute_scheme_data,
-    link_to_protection_profiles,
+from sec_certs.dataset.cc_eucc_common import (
+    compute_heuristics_body,
+    convert_all_pdfs_body,
+    download_all_artifacts_body,
+    extract_all_data,
 )
-from sec_certs.heuristics.common import compute_cpe_heuristics, compute_related_cves, compute_transitive_vulnerabilities
+from sec_certs.dataset.dataset import Dataset, logger
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers, sanitization
-from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
@@ -331,7 +329,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
     @only_backed()
     def process_auxiliary_datasets(
         self,
-        download_fresh: bool = False,
+        mode: ProcessingMode = ProcessingMode.LOAD,
         skip_schemes: bool = False,
         **kwargs,
     ) -> None:
@@ -344,9 +342,9 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
 
         if skip_schemes:
             self.aux_handlers[CCSchemeDatasetHandler].only_schemes = {}  # type: ignore
-        super().process_auxiliary_datasets(download_fresh, **kwargs)
+        super().process_auxiliary_datasets(mode, **kwargs)
 
-    def _merge_certs(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
+    def _merge_certs_from_other_source(self, certs: dict[str, CCCertificate], cert_source: str | None = None) -> None:
         """
         Merges dictionary of certificates into the dataset. Assuming they all are CommonCriteria certificates
         """
@@ -355,7 +353,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         self.certs.update(new_certs)
 
         for crt in certs_to_merge:
-            self[crt.dgst].merge(crt, cert_source)
+            self[crt.dgst].merge_from_other_source(crt, cert_source)
 
         logger.info(f"Added {len(new_certs)} new and merged further {len(certs_to_merge)} certificates to the dataset.")
 
@@ -387,6 +385,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         keep_metadata: bool = True,
         get_active: bool = True,
         get_archived: bool = True,
+        carry_processing_results: bool = False,
     ) -> None:
         """
         Downloads CSV and HTML files that hold lists of certificates from common criteria website. Parses these files
@@ -396,25 +395,36 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         :param bool keep_metadata: If CSV and HTML files shall be kept on disk after download, defaults to True
         :param bool get_active: If active certificates shall be parsed, defaults to True
         :param bool get_archived: If archived certificates shall be parsed, defaults to True
+        :param bool carry_processing_results: If the dataset already holds certificates, carry their
+            already computed processing results over onto the freshly scraped certificates. So only certificates that are new,
+            changed or if files for them are missing can get reprocessed,
+            not the whole dataset. Defaults to False.
         """
         if to_download is True:
             self._download_csv_html_resources(get_active, get_archived)
 
+        old_certs = self.certs
+        self.certs = {}
+
         logger.info("Adding CSV certificates to CommonCriteria dataset.")
         csv_certs = self._get_all_certs_from_csv(get_active, get_archived)
-        self._merge_certs(csv_certs, cert_source="csv")
+        self._merge_certs_from_other_source(csv_certs, cert_source="csv")
 
         # Someway along the way, 3 certificates get lost.
         logger.info("Adding HTML certificates to CommonCriteria dataset.")
         html_certs = self._get_all_certs_from_html(get_active, get_archived)
-        self._merge_certs(html_certs, cert_source="html")
+        self._merge_certs_from_other_source(html_certs, cert_source="html")
 
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-        self._set_local_paths()
+        if carry_processing_results:
+            # Reconciling the carried results sets the local paths already.
+            self._carry_processing_results(old_certs)
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def _get_all_certs_from_csv(self, get_active: bool, get_archived: bool) -> dict[str, CCCertificate]:
@@ -496,15 +506,11 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         df_base = df.loc[~df.is_maintenance].copy()
         df_main = df.loc[df.is_maintenance].copy()
 
-        df_base.report_link = df_base.report_link.map(map_ip_to_hostname).map(sanitization.sanitize_link)
-        df_base.st_link = df_base.st_link.map(map_ip_to_hostname).map(sanitization.sanitize_link)
+        df_base.report_link = df_base.report_link.map(map_ip_to_hostname)
+        df_base.st_link = df_base.st_link.map(map_ip_to_hostname)
 
-        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname).map(
-            sanitization.sanitize_link
-        )
-        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname).map(
-            sanitization.sanitize_link
-        )
+        df_main.maintenance_report_link = df_main.maintenance_report_link.map(map_ip_to_hostname)
+        df_main.maintenance_st_link = df_main.maintenance_st_link.map(map_ip_to_hostname)
 
         n_all = len(df_base)
         n_deduplicated = len(df_base.drop_duplicates(subset=["dgst"]))
@@ -540,7 +546,7 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
                 None,
                 None,
                 None,
-                updates.get(x.dgst, None),
+                updates.get(x.dgst),
                 None,
                 None,
                 None,
@@ -628,233 +634,18 @@ class CCDataset(Dataset[CCCertificate], ComplexSerializableType):
         return certs
 
     def _download_all_artifacts_body(self, fresh: bool = True) -> None:
-        self._download_reports(fresh)
-        self._download_targets(fresh)
-        self._download_certs(fresh)
-
-    @staged(logger, "Downloading PDFs of CC certification reports.")
-    def _download_reports(self, fresh: bool = True) -> None:
-        self.reports_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_download(fresh) and x.report_link]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC certification reports for which previous download failed."
-            )
-
-        cert_processing.process_parallel(
-            CCCertificate.download_pdf_report,
-            certs_to_process,
-            progress_bar_desc="Downloading PDFs of CC certification reports",
-        )
-
-    @staged(logger, "Downloading PDFs of CC security targets.")
-    def _download_targets(self, fresh: bool = True) -> None:
-        self.targets_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_download(fresh)]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC security targets for which previous download failed."
-            )
-
-        cert_processing.process_parallel(
-            CCCertificate.download_pdf_st,
-            certs_to_process,
-            progress_bar_desc="Downloading PDFs of CC security targets",
-        )
-
-    @staged(logger, "Downloading PDFs of CC certificates.")
-    def _download_certs(self, fresh: bool = True) -> None:
-        self.certificates_pdf_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_download(fresh)]
-
-        if not fresh and certs_to_process:
-            logger.info(
-                f"Downloading {len(certs_to_process)} PDFs of CC certificates for which previous download failed."
-            )
-
-        cert_processing.process_parallel(
-            CCCertificate.download_pdf_cert,
-            certs_to_process,
-            progress_bar_desc="Downloading PDFs of CC certificates",
-        )
-
-    def _convert_pdfs(
-        self,
-        doc_type: Literal["report", "target", "certificate"],
-        converter_cls: type[PDFConverter],
-        fresh: bool = True,
-    ) -> None:
-        doc_type_map = {
-            "report": {"short": "report", "long": "certification report"},
-            "target": {"short": "st", "long": "security target"},
-            "certificate": {"short": "cert", "long": "certificate"},
-        }
-        short_name = doc_type_map[doc_type]["short"]
-        long_name = doc_type_map[doc_type]["long"]
-
-        txt_dir = getattr(self, f"{doc_type}s_txt_dir")
-        json_dir = getattr(self, f"{doc_type}s_json_dir")
-        txt_dir.mkdir(parents=True, exist_ok=True)
-        json_dir.mkdir(parents=True, exist_ok=True)
-        certs_to_process = [x for x in self if getattr(x.state, short_name).is_ok_to_convert(fresh)]
-
-        if not certs_to_process:
-            return
-
-        if not fresh:
-            logger.info(
-                f"Converting {len(certs_to_process)} PDFs of {long_name}s for which previous conversion failed."
-            )
-
-        convert_func = getattr(CCCertificate, f"convert_{short_name}_pdf")
-        processed_certs = cert_processing.process_parallel_with_instance(
-            converter_cls,
-            (),
-            convert_func,
-            certs_to_process,
-            config.pdf_conversion_workers,
-            config.pdf_conversion_max_chunk_size,
-            progress_bar_desc=f"Converting PDFs of {long_name}s",
-        )
-
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Converting PDFs of certification reports.")
-    def _convert_reports_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_pdfs("report", converter_cls, fresh)
-
-    @staged(logger, "Converting PDFs of security targets.")
-    def _convert_targets_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_pdfs("target", converter_cls, fresh)
-
-    @staged(logger, "Converting PDFs of certificates.")
-    def _convert_certs_pdfs(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_pdfs("certificate", converter_cls, fresh)
+        download_all_artifacts_body(self, fresh)
 
     def _convert_all_pdfs_body(self, converter_cls: type[PDFConverter], fresh: bool = True) -> None:
-        self._convert_reports_pdfs(converter_cls, fresh)
-        self._convert_targets_pdfs(converter_cls, fresh)
-        self._convert_certs_pdfs(converter_cls, fresh)
-
-    @staged(logger, "Extracting certification reports metadata.")
-    def _extract_report_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_report_pdf_metadata,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting report metadata",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting security targets metadata.")
-    def _extract_target_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_st_pdf_metadata,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting target metadata",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting certificates metadata.")
-    def _extract_cert_metadata(self) -> None:
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_cert_pdf_metadata,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting cert metadata",
-        )
-        self.update_with_certs(processed_certs)
-
-    def _extract_pdf_metadata(self) -> None:
-        self._extract_report_metadata()
-        self._extract_target_metadata()
-        self._extract_cert_metadata()
-
-    @staged(logger, "Extracting certification reports frontpages.")
-    def _extract_report_frontpage(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_report_pdf_frontpage,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting report frontpages",
-        )
-        self.update_with_certs(processed_certs)
-
-    def _extract_pdf_frontpage(self) -> None:
-        self._extract_report_frontpage()
-        # We have no frontpage extraction for targets or certificates themselves, only for the reports.
-
-    @staged(logger, "Extracting certification reports keywords.")
-    def _extract_report_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_report_pdf_keywords,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting report keywords",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting security targets keywords.")
-    def _extract_target_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.st.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_st_pdf_keywords,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting target keywords",
-        )
-        self.update_with_certs(processed_certs)
-
-    @staged(logger, "Extracting certificates keywords.")
-    def _extract_cert_keywords(self) -> None:
-        certs_to_process = [x for x in self if x.state.cert.is_ok_to_analyze()]
-        processed_certs = cert_processing.process_parallel(
-            CCCertificate.extract_cert_pdf_keywords,
-            certs_to_process,
-            use_threading=False,
-            progress_bar_desc="Extracting cert keywords",
-        )
-        self.update_with_certs(processed_certs)
-
-    def _extract_pdf_keywords(self) -> None:
-        self._extract_report_keywords()
-        self._extract_target_keywords()
-        self._extract_cert_keywords()
+        convert_all_pdfs_body(self, converter_cls, fresh)
 
     @only_backed()
-    def extract_data(self) -> None:
+    def extract_data(self, fresh: bool = True) -> None:
         logger.info("Extracting various data from certification artifacts.")
-        self._extract_pdf_metadata()
-        self._extract_pdf_frontpage()
-        self._extract_pdf_keywords()
+        extract_all_data(self, fresh)
 
     def _compute_heuristics_body(self, skip_schemes: bool = False) -> None:
-        link_to_protection_profiles(self.certs.values(), self.aux_handlers[ProtectionProfileDatasetHandler].dset)
-        compute_cpe_heuristics(self.aux_handlers[CPEDatasetHandler].dset, self.certs.values())
-        compute_related_cves(
-            self.aux_handlers[CPEDatasetHandler].dset,
-            self.aux_handlers[CVEDatasetHandler].dset,
-            self.aux_handlers[CPEMatchDictHandler].dset,
-            self.certs.values(),
-        )
-        compute_normalized_cert_ids(self.certs.values())
-        compute_references(self.certs)
-        compute_transitive_vulnerabilities(self.certs)
-
-        if not skip_schemes:
-            compute_scheme_data(self.aux_handlers[CCSchemeDatasetHandler].dset, self.certs)
-
-        compute_cert_labs(self.certs.values())
-        compute_eals(self.certs.values(), self.aux_handlers[ProtectionProfileDatasetHandler].dset)
-        compute_sars(self.certs.values())
+        compute_heuristics_body(self, skip_schemes)
 
 
 class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
@@ -878,11 +669,6 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
         super().__init__(certs, root_dir, name, description, state, aux_handlers={})  # type: ignore
         self.state.meta_sources_parsed = True
 
-    @property
-    @only_backed(throw=False)
-    def certs_dir(self) -> Path:
-        return self.root_dir
-
     def __iter__(self) -> Iterator[CCMaintenanceUpdate]:
         yield from self.certs.values()  # type: ignore
 
@@ -894,7 +680,7 @@ class CCDatasetMaintenanceUpdates(CCDataset, ComplexSerializableType):
 
     def process_auxiliary_datasets(
         self,
-        download_fresh: bool = False,
+        mode: ProcessingMode = ProcessingMode.LOAD,
         skip_schemes: bool = False,
         **kwargs,
     ) -> None:

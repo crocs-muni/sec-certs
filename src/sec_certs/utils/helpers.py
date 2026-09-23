@@ -9,6 +9,7 @@ import time
 from collections.abc import Collection
 from contextlib import nullcontext
 from datetime import datetime
+from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -119,7 +120,7 @@ def download_file(  # noqa: C901
             allow_redirects=True,
             timeout=constants.REQUEST_TIMEOUT,
             stream=True,
-            headers={"Accept-Encoding": None},  # type: ignore
+            headers={"Accept-Encoding": None, "User-Agent": "sec-certs.org"},  # type: ignore
         )
         ctx: Any
         if show_progress_bar:
@@ -135,11 +136,13 @@ def download_file(  # noqa: C901
             ctx = nullcontext
 
         if r.status_code == requests.codes.ok:
-            with ctx() as pbar, output.open("wb") as f:
+            tmp = output.with_name(f"{output.name}.tmp")
+            with ctx() as pbar, tmp.open("wb") as f:
                 for data in r.iter_content(1024):
                     f.write(data)
                     if show_progress_bar:
                         pbar.update(len(data))
+            tmp.replace(output)
 
         return r.status_code
     except requests.exceptions.Timeout:
@@ -150,10 +153,10 @@ def download_file(  # noqa: C901
 
 
 def download_parallel(
-    urls: Collection[str], paths: Collection[Path], progress_bar_desc: str | None = None
+    urls: Collection[str], paths: Collection[Path], progress_bar_desc: str | None = None, proxy: bool = False
 ) -> list[int]:
     exit_codes = parallel_processing.process_parallel(
-        download_file, list(zip(urls, paths)), unpack=True, progress_bar_desc=progress_bar_desc
+        download_file, list(zip(urls, paths)), kwargs={"proxy": proxy}, unpack=True, progress_bar_desc=progress_bar_desc
     )
     n_successful = len([e for e in exit_codes if e == requests.codes.ok])
     logger.info(f"Successfully downloaded {n_successful} files, {len(exit_codes) - n_successful} failed.")
@@ -176,9 +179,20 @@ def get_first_16_bytes_sha256(string: str) -> str:
 def get_sha256_filepath(filepath: str | Path) -> str:
     hash_sha256 = hashlib.sha256()
     with Path(filepath).open("rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
             hash_sha256.update(chunk)
     return hash_sha256.hexdigest()
+
+
+def normalize_cloudflare_html(html: str) -> str:
+    """
+    Strip the tokens Cloudflare rewrites on every response, so the same page has the same hash across runs.
+    The stripped tokens (email obfuscation, injected challenge script) are not read when parsing the module.
+    """
+    html = re.sub(r"(/cdn-cgi/l/email-protection)#[0-9a-fA-F]+", r"\1", html)
+    html = re.sub(r'data-cfemail="[0-9a-fA-F]+"', 'data-cfemail=""', html)
+    html = re.sub(r"(__CF\$cv\$params=\{r:')[^']*(',t:')[^']*('\})", r"\1\2\3", html)
+    return html
 
 
 def to_utc(timestamp: datetime) -> datetime:
@@ -348,3 +362,13 @@ def choose_lowest_eal(eals: set[str] | None) -> str | None:
         eal_entries.sort(key=lambda x: (x[0], x[1]))
         return eal_entries[0][2]
     return None
+
+
+class DocType(Enum):
+    REPORT = ("report", "certification report")
+    TARGET = ("st", "security target")
+    CERTIFICATE = ("cert", "certificate")
+
+    def __init__(self, short: str, long: str):
+        self.short = short
+        self.long = long

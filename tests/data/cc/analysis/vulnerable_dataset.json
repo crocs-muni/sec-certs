@@ -42,14 +42,14 @@
             },
             "maintenance_updates": [],
             "state": {
-                "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
+                "_type": "sec_certs.sample.cc_eucc_common.InternalState",
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
                     "extract_ok": true,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null
                 },
                 "st": {
@@ -58,7 +58,7 @@
                     "convert_garbage": false,
                     "convert_ok": true,
                     "extract_ok": true,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null
                 },
                 "cert": {
@@ -67,12 +67,12 @@
                     "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null
                 }
             },
             "pdf_data": {
-                "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
+                "_type": "sec_certs.sample.cc_eucc_common.PdfData",
                 "report_metadata": null,
                 "st_metadata": null,
                 "cert_metadata": null,
@@ -87,7 +87,7 @@
                 "cert_filename": null
             },
             "heuristics": {
-                "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
+                "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
                 "extracted_versions": [
                     "8.2"
                 ],
@@ -132,14 +132,14 @@
             },
             "maintenance_updates": [],
             "state": {
-                "_type": "sec_certs.sample.cc.CCCertificate.InternalState",
+                "_type": "sec_certs.sample.cc_eucc_common.InternalState",
                 "report": {
                     "_type": "sec_certs.sample.document_state.DocumentState",
                     "download_ok": true,
                     "convert_garbage": false,
                     "convert_ok": true,
                     "extract_ok": true,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null
                 },
                 "st": {
@@ -148,7 +148,7 @@
                     "convert_garbage": false,
                     "convert_ok": true,
                     "extract_ok": true,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null
                 },
                 "cert": {
@@ -157,12 +157,12 @@
                     "convert_garbage": false,
                     "convert_ok": false,
                     "extract_ok": false,
-                    "pdf_hash": null,
+                    "source_hash": null,
                     "txt_hash": null
                 }
             },
             "pdf_data": {
-                "_type": "sec_certs.sample.cc.CCCertificate.PdfData",
+                "_type": "sec_certs.sample.cc_eucc_common.PdfData",
                 "report_metadata": null,
                 "st_metadata": null,
                 "cert_metadata": null,
@@ -177,7 +177,7 @@
                 "cert_filename": null
             },
             "heuristics": {
-                "_type": "sec_certs.sample.cc.CCCertificate.Heuristics",
+                "_type": "sec_certs.sample.cc_eucc_common.Heuristics",
                 "extracted_versions": [
                     "8.2"
                 ],

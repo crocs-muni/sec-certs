@@ -1,0 +1,43 @@
+TÜV Rheinland Nederland B.V.
+Head Office:
+Westervoortsedijk 73
+NL-6827 AV Arnhem
+P.O. Box 2220
+NL-6802 CE Arnhem
+The Netherlands
+Location Leek:
+Eiberkamp 10
+NL-9351 VT Leek
+P.O. Box 37
+NL-9350 AA Leek
+The Netherlands
+info@nl.tuv.com
+www.tuv.com/nl
+Tel. +31 (0)88 888 7 888
+Fax +31 (0)88 888 7 879
+TÜV Rheinland Nederland B.V. is a
+registered company at the
+Netherlands Chamber of Commerce
+(KVK), under number 27288788.
+VAT number: NL815820380B01
+IBAN: NL61DEUT0265155096
+Version 2022-01 ® TÜV, TUEV and TUV are registered trademarks. Any use or application requires prior approval.
+Certification Report
+Huawei GaussDB(openGauss) Database Management
+System (DBMS) V500R001C20SPC100+V500R001C20HP1015
+Sponsor and developer: Huawei Technologies Co., Ltd.
+Huawei Industrial Base Bantian
+Longgang, Shenzhen 518129
+People's Republic of China
+Evaluation facility: SGS Brightsight B.V.
+Brassersplein 2
+2612 CT Delft
+The Netherlands
+Report number: NSCIB-CC-0392006-CR
+Report version: 1
+Project number: 0392006
+Author(s): Andy Brown
+Date: 31 August 2022
+Number of pages: 11
+Number of appendices: 0
+Reproduction of this report is authorised only if the report is reproduced in its entirety.

@@ -14,22 +14,22 @@ from sec_certs.serialization.pandas import PandasSerializableType
 @dataclass
 class CVE(PandasSerializableType, ComplexSerializableType):
     @dataclass
-    class Metrics(ComplexSerializableType):
+    class CVSS(ComplexSerializableType):
         base_score: float
         severity: str
-        exploitability_score: float
-        impact_score: float
+        version: str
 
-        __slots__ = ["base_score", "severity", "exploitability_score", "impact_score"]
+        __slots__ = ["base_score", "severity", "version"]
 
         @classmethod
-        def from_nist_dict(cls, dct: dict[str, Any]) -> CVE.Metrics:
+        def from_nist_dict(cls, dct: dict[str, Any]) -> CVE.CVSS:
             """
             Loads metrics from dictionary
             """
-            if not (metric_dct := CVE.Metrics.find_metrics_to_use(dct.get("metrics"))):
-                return cls(0, "", 0, 0)
-            return CVE.Metrics.from_metrics_dct(metric_dct)
+            if not (metric_dct := CVE.CVSS.find_metrics_to_use(dct.get("metrics"))):
+                return cls(0.0, "UNKNOWN", "N/A")
+
+            return CVE.CVSS.from_metrics_dct(metric_dct)
 
         @staticmethod
         def find_metrics_to_use(dct: dict | None) -> dict | None:
@@ -38,17 +38,21 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             """
             if not dct:
                 return None
+
             all_metrics: list[dict] = sum(
-                (dct[metric] for metric in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2") if metric in dct), []
+                (
+                    dct[metric]
+                    for metric in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2", "cvssMetricV40")
+                    if metric in dct
+                ),
+                [],
             )
-            # TODO: cvssMetricV40 does not have exploitabilityScore and impactScore, what do we do?
-            #       See https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
 
             for element in all_metrics:
-                if element["type"] == "Primary":
+                if element.get("type") == "Primary":
                     return element
             for element in all_metrics:
-                if element["source"] == "nvd@nist.gov":
+                if element.get("source") == "nvd@nist.gov":
                     return element
 
             if all_metrics:
@@ -57,37 +61,35 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             return None
 
         @classmethod
-        def from_metrics_dct(cls, dct: dict) -> CVE.Metrics:
+        def from_metrics_dct(cls, dct: dict) -> CVE.CVSS:
             """
-            Parse any 3.1, 3.0 or 2.0 CVSS metrics dictionary.
+            Parse any 4.0, 3.1, 3.0 or 2.0 CVSS metrics dictionary.
             """
-            if dct["cvssData"]["version"] == "3.1":
+            version = dct["cvssData"]["version"]
+            if version in ("3.1", "3.0"):
                 return cls(
                     dct["cvssData"]["baseScore"],
                     dct["cvssData"]["baseSeverity"],
-                    dct["exploitabilityScore"],
-                    dct["impactScore"],
+                    version,
                 )
-            if dct["cvssData"]["version"] == "3.0":
-                return cls(
-                    dct["cvssData"]["baseScore"],
-                    dct["cvssData"]["baseSeverity"],
-                    dct["exploitabilityScore"],
-                    dct["impactScore"],
-                )
-            if dct["cvssData"]["version"] == "2.0":
+            if version == "2.0":
                 return cls(
                     dct["cvssData"]["baseScore"],
                     dct["baseSeverity"],
-                    dct["exploitabilityScore"],
-                    dct["impactScore"],
+                    version,
                 )
-            raise ValueError(f"Unknown CVSS version occured ({dct['cvssData']['version']}) when parsing CVSS metrics.")
+            if version == "4.0":
+                return cls(
+                    dct["cvssData"]["baseScore"],
+                    dct["cvssData"]["baseSeverity"],
+                    version,
+                )
+            raise ValueError(f"Unknown CVSS version occurred ({version}) when parsing CVSS metrics.")
 
     cve_id: str
     vulnerable_criteria: list[CPEMatchCriteria]
     vulnerable_criteria_configurations: list[CPEMatchCriteriaConfiguration]
-    metrics: Metrics
+    metrics: CVSS
     published_date: datetime.datetime | None
     cwe_ids: set[str] | None
 
@@ -105,8 +107,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
         "vulnerable_cpes",
         "base_score",
         "severity",
-        "explotability_score",
-        "impact_score",
+        "cvss_version",
         "published_date",
         "cwe_ids",
     ]
@@ -136,8 +137,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             self.vulnerable_criteria,
             self.metrics.base_score,
             self.metrics.severity,
-            self.metrics.exploitability_score,
-            self.metrics.impact_score,
+            self.metrics.version,
             self.published_date,
             self.cwe_ids,
         )
@@ -147,7 +147,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             "cve_id": self.cve_id,
             "vulnerable_cpes": self.vulnerable_criteria,
             "vulnerable_criteria_configurations": self.vulnerable_criteria_configurations,
-            "impact": self.metrics,
+            "cvss": self.metrics,
             "published_date": self.published_date.isoformat() if self.published_date else None,
             "cwe_ids": self.cwe_ids,
         }
@@ -161,7 +161,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
             dct["cve_id"],
             dct["vulnerable_cpes"],
             dct["vulnerable_criteria_configurations"],
-            dct["impact"],
+            dct["cvss"],
             date_to_take,
             dct["cwe_ids"],
         )
@@ -169,7 +169,7 @@ class CVE(PandasSerializableType, ComplexSerializableType):
     @classmethod
     def from_nist_dict(cls, dct: dict) -> CVE:
         cve_id = dct["id"]
-        metrics = cls.Metrics.from_nist_dict(dct)
+        metrics = cls.CVSS.from_nist_dict(dct)
         published_date = datetime.datetime.fromisoformat(dct["published"])
         cwe_ids = cls.parse_cwe_data(dct)
         vulnerable_criteria, vulnerable_criteria_configurations = CVE.parse_configurations(dct)

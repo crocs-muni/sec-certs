@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><meta charset="utf-8" /><title>Test CAVP List Page</title></head>
+<body>
+<span id='showing-results-text' data-total-pages='1' data-current-page='1'>Showing 1 through 3</span>
+<table class="table">
+<thead>
+<tr>
+<th>Vendor</th>
+<th>Implementation</th>
+<th>Validation Number</th>
+<th>Validation Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="2" id="vendor-name-1">Test Vendor A</td>
+<td rowspan="2"><a href="details?product=9999" id="product-name-1">Test Implementation Alpha</a></td>
+<td class="text-center">
+<a href="details?validation=100" id="validation-number-1-0">
+AES 123
+</a>
+</td>
+<td class="text-center" id="validation-date-1-0">1/15/2024</td>
+</tr>
+<tr>
+<td class="text-center">
+<a href="details?validation=101" id="validation-number-1-1">
+SHS 456
+</a>
+</td>
+<td class="text-center" id="validation-date-1-1">1/15/2024</td>
+</tr>
+<tr>
+<td rowspan="1" id="vendor-name-2">Test Vendor B</td>
+<td rowspan="1"><a href="details?product=8888" id="product-name-2">Test Implementation Beta</a></td>
+<td class="text-center">
+<a href="details?validation=200" id="validation-number-2-0">
+HMAC 789
+</a>
+</td>
+<td class="text-center" id="validation-date-2-0">3/20/2023</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

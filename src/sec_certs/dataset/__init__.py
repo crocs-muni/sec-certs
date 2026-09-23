@@ -8,6 +8,7 @@ from sec_certs.dataset.fips import FIPSDataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
 from sec_certs.dataset.fips_iut import IUTDataset
 from sec_certs.dataset.fips_mip import MIPDataset
+from sec_certs.dataset.pp_scheme import PPSchemeDataset
 from sec_certs.dataset.protection_profile import ProtectionProfileDataset
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     "FIPSAlgorithmDataset",
     "IUTDataset",
     "MIPDataset",
+    "PPSchemeDataset",
     "ProtectionProfileDataset",
 ]

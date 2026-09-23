@@ -4,11 +4,13 @@ from importlib.resources import as_file, files
 from pathlib import Path
 
 import pytest
+from rapidfuzz import fuzz
 
 import tests.data.common
 from sec_certs.configuration import config
 from sec_certs.converter import has_docling, has_pdftotext
 from sec_certs.dataset import CPEDataset, CVEDataset
+from sec_certs.utils.strings import normalize_whitespace
 
 
 def get_converters():
@@ -22,6 +24,19 @@ def get_converters():
 
         converters.append(pytest.param(DoclingConverter, marks=pytest.mark.docling))
     return converters
+
+
+def compare_to_template(template: Path, actual: Path) -> None:
+    with template.open("r", encoding="utf-8") as f:
+        template_text = f.read()
+
+    with actual.open("r", encoding="utf-8") as f:
+        actual_text = f.read()
+
+    template_text = normalize_whitespace(template_text)
+    actual_text = normalize_whitespace(actual_text)
+    ratio = fuzz.ratio(template_text, actual_text)
+    assert ratio >= 95
 
 
 @pytest.fixture(scope="module", autouse=True)

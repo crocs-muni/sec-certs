@@ -112,6 +112,12 @@ class Configuration(BaseSettings):
         ge=0,
         le=100,
     )
+    pp_matching_threshold: int = Field(
+        70,
+        description="Level of required similarity before a scraped PP scheme entry is considered to match an existing PP certificate.",
+        ge=0,
+        le=100,
+    )
     minimal_token_length: int = Field(
         3,
         description="Minimal length of a string that will be considered as a token during keyword extraction in CVE matching",
@@ -153,6 +159,9 @@ class Configuration(BaseSettings):
     )
     pdf_conversion_workers: int = Field(
         2, description="Number of workers for parallel PDF processing. PDFs are divided into across workers."
+    )
+    n_download_attempts: int = Field(
+        5, description="Number of attempts to download problematic files before giving up."
     )
 
     # Recommended when using Docling.

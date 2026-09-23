@@ -2,21 +2,25 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 from bs4 import BeautifulSoup
 from pydantic import AnyHttpUrl
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
 from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler
 from sec_certs.dataset.dataset import Dataset, logger
+from sec_certs.dataset.pp_scheme import PPSchemeDataset
+from sec_certs.model.pp_matching import PPSchemeMatcher
 from sec_certs.sample.protection_profile import ProtectionProfile
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
 from sec_certs.utils import parallel_processing as cert_processing
 from sec_certs.utils.profiling import staged
+
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
 
 
 class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableType):
@@ -175,21 +179,42 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         get_active: bool = True,
         get_archived: bool = True,
         get_collaborative: bool = True,
+        get_schemes: bool | None = None,
+        carry_processing_results: bool = False,
     ) -> None:
         """
         Fetches list of protection profiles together with metadata from commoncriteriaportal.org
+
+        :param get_schemes: whether to also scrape and merge national scheme data; defaults to `to_download`.
         """
+        if get_schemes is None:
+            get_schemes = to_download
+
         if to_download:
             self._download_html_resources(get_active, get_archived, get_collaborative)
+
+        old_certs = self.certs
 
         logger.info("Adding HTML certificates to ProtectionProfile dataset.")
         self.certs = self._get_all_certs_from_html(get_active, get_archived, get_collaborative)
         logger.info(f"The resulting dataset has {len(self)} certificates.")
 
+        if get_schemes:
+            try:
+                self._match_and_enrich_from_scheme(PPSchemeDataset.from_scrapers())
+            except Exception as e:
+                logger.error("Scheme scrape/merge failed; dataset will have no scheme enrichment: %s", e)
+        else:
+            logger.info("Skipping scheme scrape/merge (get_schemes=False); dataset will have no scheme enrichment.")
+
         if not keep_metadata:
             shutil.rmtree(self.web_dir)
 
-        self._set_local_paths()
+        if carry_processing_results:
+            # Reconciling the carried results sets the local paths already.
+            self._carry_processing_results(old_certs)
+        else:
+            self._set_local_paths()
         self.state.meta_sources_parsed = True
 
     def _get_all_certs_from_html(
@@ -234,7 +259,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             cert_status: Literal["active", "archived"],
             table_id: str,
             category_string: str,
-            is_collaborative: bool,
+            from_collaborative_page: bool,
         ) -> dict[str, ProtectionProfile]:
             tables = soup.find_all("table", id=table_id)
             if len(tables) > 1:
@@ -249,7 +274,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             table_certs = {}
             for row in body:
                 try:
-                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, is_collaborative)
+                    pp = ProtectionProfile.from_html_row(row, cert_status, category_string, from_collaborative_page)
                     table_certs[pp.dgst] = pp
                 except ValueError as e:
                     logger.error(f"Error when creating ProtectionProfile object: {e}")
@@ -257,9 +282,9 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
             return table_certs
 
         cert_status: Literal["active", "archived"] = "active" if "active" in file.name else "archived"
-        is_collaborative = "collaborative" in file.name
+        from_collaborative_page = "collaborative" in file.name
         cc_table_ids = ["tbl" + x for x in constants.CC_CAT_ABBREVIATIONS]
-        if is_collaborative:
+        if from_collaborative_page:
             cc_table_ids = [x + "1" for x in cc_table_ids]
         cat_dict = dict(zip(cc_table_ids, constants.CC_CATEGORIES))
 
@@ -268,7 +293,7 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
 
         certs = {}
         for key, val in cat_dict.items():
-            certs.update(_parse_table(soup, cert_status, key, val, is_collaborative))
+            certs.update(_parse_table(soup, cert_status, key, val, from_collaborative_page))
 
         return certs
 
@@ -357,26 +382,35 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
 
     @only_backed()
-    def extract_data(self):
+    def extract_data(self, fresh: bool = True):
         """
         Extracts pdf metadata and keywords from converted text documents.
         """
         logger.info("Extracting various data from certification artifacts.")
-        self._extract_pdf_metadata()
-        self._extract_pdf_keywords()
+        doc_types = ["report", "pp"]
+        dgsts: dict[str, set[str]] = {
+            doc_type: {x.dgst for x in self if getattr(x.state, doc_type).is_ok_to_extract(fresh)}
+            for doc_type in doc_types
+        }
+        for doc_type in doc_types:
+            for dgst in dgsts[doc_type]:
+                getattr(self[dgst].state, doc_type).extract_ok = True
+
+        self._extract_pdf_metadata(dgsts)
+        self._extract_pdf_keywords(dgsts)
 
     @staged(logger, "Extracting metadata from certification artifacts.")
-    def _extract_pdf_metadata(self):
-        self._extract_report_metadata()
-        self._extract_pp_metadata()
+    def _extract_pdf_metadata(self, dgsts: dict[str, set[str]]):
+        self._extract_report_metadata(dgsts["report"])
+        self._extract_pp_metadata(dgsts["pp"])
 
     @staged(logger, "Extracting keywords from certification artifacts.")
-    def _extract_pdf_keywords(self):
-        self._extract_report_keywords()
-        self._extract_pp_keywords()
+    def _extract_pdf_keywords(self, dgsts: dict[str, set[str]]):
+        self._extract_report_keywords(dgsts["report"])
+        self._extract_pp_keywords(dgsts["pp"])
 
-    def _extract_report_metadata(self):
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
+    def _extract_report_metadata(self, dgsts: set[str]):
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             ProtectionProfile.extract_report_pdf_metadata,
             certs_to_process,
@@ -385,8 +419,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    def _extract_pp_metadata(self):
-        certs_to_process = [x for x in self if x.state.pp.is_ok_to_analyze()]
+    def _extract_pp_metadata(self, dgsts: set[str]):
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             ProtectionProfile.extract_pp_pdf_metadata,
             certs_to_process,
@@ -395,8 +429,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    def _extract_report_keywords(self):
-        certs_to_process = [x for x in self if x.state.report.is_ok_to_analyze()]
+    def _extract_report_keywords(self, dgsts: set[str]):
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             ProtectionProfile.extract_report_pdf_keywords,
             certs_to_process,
@@ -405,8 +439,8 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
         )
         self.update_with_certs(processed_certs)
 
-    def _extract_pp_keywords(self):
-        certs_to_process = [x for x in self if x.state.pp.is_ok_to_analyze()]
+    def _extract_pp_keywords(self, dgsts: set[str]):
+        certs_to_process = [self[dgst] for dgst in dgsts]
         processed_certs = cert_processing.process_parallel(
             ProtectionProfile.extract_pp_pdf_keywords,
             certs_to_process,
@@ -418,18 +452,40 @@ class ProtectionProfileDataset(Dataset[ProtectionProfile], ComplexSerializableTy
     def _compute_heuristics_body(self):
         logger.info("Protection profile dataset has no heuristics to compute, skipping.")
 
-    @only_backed()
-    def process_auxiliary_datasets(self, **kwargs) -> None:
+    def _match_and_enrich_from_scheme(self, scheme_dset: PPSchemeDataset) -> None:
         """
-        Dummy method to adhere to `Dataset` interface. `ProtectionProfile` dataset has currently no auxiliary datasets.
-        This will just set the state `auxiliary_datasets_processed = True`
+        Matches scraped scheme records against existing PPs (enriching scheme_metadata)
+        and inserts previously unseen records as new ProtectionProfile objects
         """
-        logger.info("Protection Profile dataset has no auxiliary datasets to process, skipping.")
-        self.state.auxiliary_datasets_processed = True
+        for scheme, entries in scheme_dset.schemes.items():
+            scheme_pool_certs = [
+                c
+                for c in self
+                if c.web_data
+                and (c.web_data.scheme == scheme or (c.web_data.scheme is None and c.web_data.is_collaborative))
+            ]
+            matchers = [PPSchemeMatcher(e) for e in entries]
+            matched, _ = PPSchemeMatcher._match_certs(matchers, scheme_pool_certs, config.pp_matching_threshold)
+
+            for dgst, record in matched.items():
+                self.certs[dgst].scheme_metadata = record.to_enrichment_dict()
+
+            matched_ids = {id(v) for v in matched.values()}
+            added = 0
+            for entry in entries:
+                if id(entry) not in matched_ids:
+                    pp = ProtectionProfile.from_scheme_record(entry)
+                    if pp.dgst not in self.certs:
+                        self.certs[pp.dgst] = pp
+                        added += 1
+
+            logger.info("Scheme %s: %d matched, %d new PPs added.", scheme, len(matched), added)
+
+        self._set_local_paths()
 
     def get_pp_by_pp_link(self, pp_link: str) -> ProtectionProfile | None:
         """
-        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if such exists.
+        Given URL to PP pdf, will retrieve `ProtectionProfile` object in the dataset with the link, if exists
         """
         for pp in self:
             if pp.web_data.pp_link == pp_link:

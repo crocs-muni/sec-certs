@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from sec_certs.serialization.json import ComplexSerializableType
+from sec_certs.utils.helpers import get_sha256_filepath
 
 
 @dataclass
@@ -13,13 +14,49 @@ class DocumentState(ComplexSerializableType):
     extract_ok: bool = False  # Whether extraction went OK
     convert_garbage: bool = False  # deprecated
 
-    pdf_hash: str | None = None
+    source_hash: str | None = None
     txt_hash: str | None = None
     json_hash: str | None = None
 
-    _pdf_path: Path | None = None
+    _source_path: Path | None = None
     _txt_path: Path | None = None
     _json_path: Path | None = None
+
+    def reset_extraction(self) -> None:
+        self.extract_ok = False
+
+    def reset_conversion(self) -> None:
+        self.convert_ok = False
+        self.txt_hash = None
+        self.json_hash = None
+        self.reset_extraction()
+
+    def reset_download(self) -> None:
+        self.download_ok = False
+        self.source_hash = None
+        self.reset_conversion()
+
+    @staticmethod
+    def _is_artifact_stale(path: Path | None, recorded_hash: str | None) -> bool:
+        if path is None or not path.exists():
+            return True
+        return recorded_hash is None or get_sha256_filepath(path) != recorded_hash
+
+    def reconcile_state(self) -> None:
+        if self.download_ok and self._is_artifact_stale(self._source_path, self.source_hash):
+            self.reset_download()
+            return
+
+        # Assuming paths are set before this, so _txt_path is None means no conversion artifact (e.g. FIPS module html).
+        if (
+            self.convert_ok
+            and self._txt_path is not None
+            and (
+                self._is_artifact_stale(self._txt_path, self.txt_hash)
+                or (self.json_hash is not None and self._is_artifact_stale(self._json_path, self.json_hash))
+            )
+        ):
+            self.reset_conversion()
 
     def is_ok_to_download(self, fresh: bool = True) -> bool:
         return True if fresh else not self.download_ok
@@ -27,21 +64,21 @@ class DocumentState(ComplexSerializableType):
     def is_ok_to_convert(self, fresh: bool = True) -> bool:
         return self.download_ok if fresh else self.download_ok and not self.convert_ok
 
-    def is_ok_to_analyze(self, fresh: bool = True) -> bool:
+    def is_ok_to_extract(self, fresh: bool = True) -> bool:
         if fresh:
             return self.download_ok and self.convert_ok
         else:
             return self.download_ok and self.convert_ok and not self.extract_ok
 
     @property
-    def pdf_path(self) -> Path:
-        if not self._pdf_path:
-            raise ValueError(f"pdf_path not set on {type(self)}")
-        return self._pdf_path
+    def source_path(self) -> Path:
+        if not self._source_path:
+            raise ValueError(f"source_path not set on {type(self)}")
+        return self._source_path
 
-    @pdf_path.setter
-    def pdf_path(self, pth: str | Path | None) -> None:
-        self._pdf_path = Path(pth) if pth else None
+    @source_path.setter
+    def source_path(self, pth: str | Path | None) -> None:
+        self._source_path = Path(pth) if pth else None
 
     @property
     def txt_path(self) -> Path:
@@ -64,5 +101,9 @@ class DocumentState(ComplexSerializableType):
         self._json_path = Path(pth) if pth else None
 
     @property
+    def has_json_path(self) -> bool:
+        return self._json_path is not None
+
+    @property
     def serialized_attributes(self) -> list[str]:
-        return ["download_ok", "convert_ok", "extract_ok", "pdf_hash", "txt_hash", "json_hash"]
+        return ["download_ok", "convert_ok", "extract_ok", "source_hash", "txt_hash", "json_hash"]

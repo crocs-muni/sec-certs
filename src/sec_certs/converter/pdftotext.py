@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class PdftotextConverter(PDFConverter):
     HAS_JSON_OUTPUT = False
 
-    def convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
+    def _convert(self, pdf_path: Path, txt_path: Path, json_path: Path | None = None) -> bool:
         """
         Convert a PDF file and save the resulst as a text file to `txt_path`.
 

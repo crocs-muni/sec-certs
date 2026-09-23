@@ -6,7 +6,7 @@ import pytest
 import sec_certs.sample.cc_scheme as CCSchemes
 from sec_certs.dataset.auxiliary_dataset_handling import CCSchemeDatasetHandler
 from sec_certs.dataset.cc import CCDataset
-from sec_certs.heuristics.cc import compute_scheme_data
+from sec_certs.heuristics.common import compute_scheme_data
 from sec_certs.model.cc_matching import CCSchemeMatcher
 from sec_certs.sample.cc import CCCertificate
 

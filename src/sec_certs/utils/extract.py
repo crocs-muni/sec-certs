@@ -6,13 +6,17 @@ import re
 from collections import Counter
 from enum import Enum
 from pathlib import Path
-from typing import Any, no_type_check
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 
 from sec_certs import constants
 from sec_certs.cert_rules import REGEXEC_SEP, cc_rules
 from sec_certs.constants import FILE_ERRORS_STRATEGY, LINE_SEPARATOR, MAX_ALLOWED_MATCH_LENGTH
+from sec_certs.utils.strings import normalize_whitespace
+
+if TYPE_CHECKING:
+    from sec_certs.document.base import DocumentView
 
 logger = logging.getLogger(__name__)
 
@@ -374,87 +378,6 @@ def search_only_headers_bsi(filepath: Path):  # type: ignore # noqa: C901
 
 
 @no_type_check
-def search_only_headers_nscib(filepath: Path):  # type: ignore # noqa: C901
-    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
-    LINE_SEPARATOR_STRICT = " "
-    NUM_LINES_TO_INVESTIGATE = 60
-    items_found: dict[str, str] = {}
-
-    try:
-        # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
-            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
-        )
-
-        certified_item = ""
-        developer = ""
-        cert_lab = ""
-        cert_id = ""
-
-        lines = whole_text_with_newlines.splitlines()
-        no_match_yet = True
-        item_offset = -1
-
-        for line_index in range(0, len(lines)):
-            line = lines[line_index]
-
-            if "Certification Report" in line:
-                item_offset = line_index + 1
-            if "Assurance Continuity Maintenance Report" in line:
-                item_offset = line_index + 1
-
-            SPONSORDEVELOPER_STR = "Sponsor and developer:"
-
-            if SPONSORDEVELOPER_STR in line:
-                if no_match_yet:
-                    items_found = {}
-                    no_match_yet = False
-
-                # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
-                certified_item = ""
-                for name_index in range(item_offset, line_index):
-                    certified_item += lines[name_index] + " "
-                developer = line[line.find(SPONSORDEVELOPER_STR) + len(SPONSORDEVELOPER_STR) :]
-
-            SPONSOR_STR = "Sponsor:"
-
-            if SPONSOR_STR in line:
-                if no_match_yet:
-                    items_found = {}
-                    no_match_yet = False
-
-                # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
-                certified_item = ""
-                for name_index in range(item_offset, line_index):
-                    certified_item += lines[name_index] + " "
-
-            DEVELOPER_STR = "Developer:"
-            if DEVELOPER_STR in line:
-                developer = line[line.find(DEVELOPER_STR) + len(DEVELOPER_STR) :]
-
-            CERTLAB_STR = "Evaluation facility:"
-            if CERTLAB_STR in line:
-                cert_lab = line[line.find(CERTLAB_STR) + len(CERTLAB_STR) :]
-
-            REPORTNUM_STR = "Report number:"
-            if REPORTNUM_STR in line:
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
-
-        if not no_match_yet:
-            items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
-            items_found[constants.TAG_CERT_ITEM] = normalize_match_string(certified_item)
-            items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
-            items_found[constants.TAG_CERT_LAB] = cert_lab
-
-    except Exception as e:
-        error_msg = f"Failed to parse NSCIB headers from frontpage: {filepath}; {e}"
-        logger.error(error_msg)
-        raise ValueError(error_msg) from e
-
-    return items_found
-
-
-@no_type_check
 def search_only_headers_niap(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
@@ -638,17 +561,17 @@ def prune_matches(dct: dict) -> dict:
     return walk(dct, 0)
 
 
-def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] | None:
+def extract_keywords(view: DocumentView, search_rules) -> dict[str, dict[str, int]] | None:
     """
-    Extract keywords from filepath using the search rules.
+    Extract keywords from the document behind `view` using the search rules.
 
-    :param filepath:
+    :param view: view over the converted document to search in.
     :param search_rules:
     :return:
     """
 
     try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath, -1, LINE_SEPARATOR)
+        whole_text = normalize_whitespace(view.get_full_text())
 
         def extract(rules):
             if isinstance(rules, dict):
@@ -675,15 +598,14 @@ def extract_keywords(filepath: Path, search_rules) -> dict[str, dict[str, int]] 
         result = extract(search_rules)
         return prune_matches(result)
     except Exception as e:
-        relative_filepath = "/".join(str(filepath).split("/")[-4:])
-        error_msg = f"Failed to parse keywords from: {relative_filepath}; {e}"
-        logger.error(error_msg)
+        logger.error(f"Failed to parse keywords from: {view}; {e}")
         return None
 
 
 def normalize_match_string(match: str) -> str:
-    match = match.strip().strip("[];.”\"':)(,").rstrip(os.sep).replace("  ", " ")
-    return "".join(filter(str.isprintable, match))
+    match = re.sub(r"\s+", " ", match)
+    match = "".join(filter(str.isprintable, match))
+    return re.sub(r" +", " ", match).strip().strip("[];.”\"':)(,").rstrip(os.sep)
 
 
 def load_text_file(
@@ -793,7 +715,6 @@ def get_sums_for_rules_subset(dct: dict | None, path: str) -> dict[str, float]:
 scheme_frontpage_functions = {
     "FR": search_only_headers_anssi,
     "DE": search_only_headers_bsi,
-    "NL": search_only_headers_nscib,
     "US": search_only_headers_niap,
     "CA": search_only_headers_canada,
 }

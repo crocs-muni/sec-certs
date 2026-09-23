@@ -46,6 +46,9 @@ def processed_dataset(
     toy_dataset.convert_all_pdfs()
     toy_dataset.extract_data()
 
+    for cert in toy_dataset.certs.values():
+        cert.heuristics.algorithms = cert.pdf_data.module_algorithms | cert.pdf_data.policy_algorithms
+
     compute_cpe_heuristics(toy_dataset.aux_handlers[CPEDatasetHandler].dset, toy_dataset.certs.values())
     compute_related_cves(
         toy_dataset.aux_handlers[CPEDatasetHandler].dset,

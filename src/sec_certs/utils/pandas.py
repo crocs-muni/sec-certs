@@ -274,9 +274,11 @@ def filter_to_cves_within_validity_period(cc_df: pd.DataFrame, cve_dset: CVEData
         )
 
     cc_df["related_cves"] = cc_df.apply(
-        lambda row: filter_cves(cve_dset, row["related_cves"], row["not_valid_before"], row["not_valid_after"])
-        if not pd.isna(row["related_cves"])
-        else row["related_cves"],
+        lambda row: (
+            filter_cves(cve_dset, row["related_cves"], row["not_valid_before"], row["not_valid_after"])
+            if not pd.isna(row["related_cves"])
+            else row["related_cves"]
+        ),
         axis=1,
     )
 

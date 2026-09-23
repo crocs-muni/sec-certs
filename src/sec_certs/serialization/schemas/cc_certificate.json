@@ -13,50 +13,6 @@
       "title": "Certificate ID",
       "description": "The unique identifier of the Common Criteria certificate."
     },
-    "cc_document_state": {
-      "type": "object",
-      "properties": {
-        "_type": {
-          "const": "sec_certs.sample.document_state.DocumentState"
-        },
-        "convert_ok": {
-          "type": "boolean",
-          "description": "Whether the document was successfully converted from PDF to text."
-        },
-        "download_ok": {
-          "type": "boolean",
-          "description": "Whether the document was successfully downloaded."
-        },
-        "extract_ok": {
-          "type": "boolean",
-          "description": "Whether keyword extraction from the document was successful."
-        },
-        "pdf_hash": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "SHA256 hash of the PDF document, if available."
-        },
-        "txt_hash": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "SHA256 hash of the text document, if available."
-        },
-        "json_hash": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "SHA256 hash of the document json representation, if available."
-        }
-      },
-      "additionalProperties": false,
-      "title": "Certificate Document State (cert, report, st)",
-      "description": "State of the document processing pipeline for cert, report, or st document."
-    },
     "cc_document_frontpage_body": {
       "type": "object",
       "properties": {
@@ -121,6 +77,62 @@
           ],
           "title": "CC Security Level",
           "description": "The security level (e.g., EAL) as extracted from the front page."
+        },
+        "eval_facility": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Evaluation Facility",
+          "description": "The ITSEF that carried out the evaluation as extracted from the front page."
+        },
+        "parse_strategy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Parse Strategy",
+          "description": "Which frontpage parsing strategy produced this result ('structured' or 'text')."
+        },
+        "sponsor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Sponsor",
+          "description": "The sponsor of the evaluation as extracted from the front page, where the scheme distinguishes it from the developer."
+        },
+        "report_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Report Version",
+          "description": "The report's own version/revision number as extracted from the front page."
+        },
+        "project_number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Project Number",
+          "description": "The certification body's internal project/tracking number as extracted from the front page."
+        },
+        "author": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Author",
+          "description": "The author(s) of the report as extracted from the front page."
+        },
+        "report_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "Report Date",
+          "description": "The report's issuance date as extracted from the front page."
         }
       },
       "additionalProperties": false
@@ -434,7 +446,7 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.cc.CCCertificate.Heuristics"
+          "const": "sec_certs.sample.cc_eucc_common.Heuristics"
         },
         "eal": {
           "type": [
@@ -567,7 +579,10 @@
       "type": "object"
     },
     "protection_profile_links": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
         "_type": {
           "const": "Set"
@@ -586,7 +601,7 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.cc.CCCertificate.PdfData"
+          "const": "sec_certs.sample.cc_eucc_common.PdfData"
         },
         "report_metadata": {
           "$ref": "base.json#/definitions/document_metadata",
@@ -616,16 +631,16 @@
       "type": "object",
       "properties": {
         "_type": {
-          "const": "sec_certs.sample.cc.CCCertificate.InternalState"
+          "const": "sec_certs.sample.cc_eucc_common.InternalState"
         },
         "cert": {
-          "$ref": "#/definitions/cc_document_state"
+          "$ref": "base.json#/definitions/document_state"
         },
         "report": {
-          "$ref": "#/definitions/cc_document_state"
+          "$ref": "base.json#/definitions/document_state"
         },
         "st": {
-          "$ref": "#/definitions/cc_document_state"
+          "$ref": "base.json#/definitions/document_state"
         }
       },
       "additionalProperties": false,

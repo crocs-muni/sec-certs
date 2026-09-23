@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import unquote_plus, urlparse
 
 import requests
@@ -12,19 +12,29 @@ from bs4 import Tag
 from sec_certs import constants
 from sec_certs.cert_rules import cc_rules
 from sec_certs.configuration import config
-from sec_certs.converter import PDFConverter
+from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
+from sec_certs.sample.certificate import InternalState as BaseInternalState
 from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
+from sec_certs.sample.pp_scheme import PPSchemeRecord
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import cc_html_parsing, helpers, sanitization
 from sec_certs.utils.extract import extract_keywords
 from sec_certs.utils.pdf import extract_pdf_metadata
 
+if TYPE_CHECKING:
+    from sec_certs.converter import PDFConverter
+
 
 class ProtectionProfile(
-    Certificate["ProtectionProfile", "ProtectionProfile.Heuristics", "ProtectionProfile.PdfData"],
+    Certificate[
+        "ProtectionProfile",
+        "ProtectionProfile.Heuristics",
+        "ProtectionProfile.PdfData",
+        "ProtectionProfile.InternalState",
+    ],
     ComplexSerializableType,
 ):
     @dataclass
@@ -72,14 +82,20 @@ class ProtectionProfile(
 
         @classmethod
         def from_html_row(
-            cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+            cls, row: Tag, status: Literal["active", "archived"], category: str, from_collaborative_page: bool
         ) -> ProtectionProfile.WebData:
             """
             Given bs4 tag of html row (fetched from cc portal), will build the object.
             """
-            if is_collaborative:
+            if from_collaborative_page:
                 return cls._from_html_row_collaborative(row, category)
             return cls._from_html_row_classic_pp(row, status, category)
+
+        @staticmethod
+        def _html_row_is_collaborative(cell: Tag) -> bool:
+            # A collaborative PP saved in the active/archived tables has its name
+            # in a <p> tag in the first cell,so the filename-based flag misses it
+            return cell.find("p") is not None
 
         @classmethod
         def _from_html_row_classic_pp(
@@ -95,8 +111,15 @@ class ProtectionProfile(
                     f"Unexpected number of <td> elements in PP html row. Expected: 6, actual: {len(cells)}"
                 )
 
-            pp_link = cls._html_row_get_link(cells[0])
-            pp_name = cls._html_row_get_name(cells[0])
+            name_cell = cells[0]
+            is_collaborative = cls._html_row_is_collaborative(name_cell)
+            if is_collaborative:
+                # A collaborative PP listed in the active/archived tables uses the name in a <p> tag
+                pp_name = cls._html_row_get_collaborative_name(name_cell)
+                pp_link = cls._html_row_get_collaborative_pp_link(name_cell)
+            else:
+                pp_name = cls._html_row_get_name(name_cell)
+                pp_link = cls._html_row_get_link(name_cell)
             if not sanitization.sanitize_cc_link(pp_link):
                 raise ValueError(f"pp_link for PP {pp_name} is empty, cannot create PP record")
 
@@ -109,7 +132,7 @@ class ProtectionProfile(
             return cls(
                 category,
                 status,
-                False,
+                is_collaborative,
                 pp_name,
                 cls._html_row_get_version(cells[1]),
                 cls._html_row_get_security_level(cells[2]),
@@ -187,7 +210,7 @@ class ProtectionProfile(
             )
 
     @dataclass
-    class InternalState(ComplexSerializableType):
+    class InternalState(BaseInternalState, ComplexSerializableType):
         """
         Class to hold internal state for each of the documents.
         """
@@ -201,12 +224,14 @@ class ProtectionProfile(
         pdf_data: PdfData | None = None,
         heuristics: Heuristics | None = None,
         state: InternalState | None = None,
+        scheme_metadata: dict[str, Any] | None = None,
     ):
         super().__init__()
         self.web_data: ProtectionProfile.WebData = web_data
         self.pdf_data: ProtectionProfile.PdfData = pdf_data if pdf_data else ProtectionProfile.PdfData()
         self.heuristics: ProtectionProfile.Heuristics = heuristics if heuristics else ProtectionProfile.Heuristics()
         self.state: ProtectionProfile.InternalState = state if state else ProtectionProfile.InternalState()
+        self.scheme_metadata: dict[str, Any] | None = scheme_metadata
 
     @property
     def dgst(self) -> str:
@@ -240,9 +265,9 @@ class ProtectionProfile(
         Adjusts local paths for various files.
         """
         if report_pdf_dir:
-            self.state.report.pdf_path = Path(report_pdf_dir) / f"{self.dgst}.pdf"
+            self.state.report.source_path = Path(report_pdf_dir) / f"{self.dgst}.pdf"
         if pp_pdf_dir:
-            self.state.pp.pdf_path = Path(pp_pdf_dir) / f"{self.dgst}.pdf"
+            self.state.pp.source_path = Path(pp_pdf_dir) / f"{self.dgst}.pdf"
         if report_txt_dir:
             self.state.report.txt_path = Path(report_txt_dir) / f"{self.dgst}.txt"
         if pp_txt_dir:
@@ -254,12 +279,35 @@ class ProtectionProfile(
 
     @classmethod
     def from_html_row(
-        cls, row: Tag, status: Literal["active", "archived"], category: str, is_collaborative: bool
+        cls, row: Tag, status: Literal["active", "archived"], category: str, from_collaborative_page: bool
     ) -> ProtectionProfile:
         """
         Builds a `ProtectionProfile` object from html row obtained from cc portal html source.
         """
-        return cls(ProtectionProfile.WebData.from_html_row(row, status, category, is_collaborative))
+        return cls(ProtectionProfile.WebData.from_html_row(row, status, category, from_collaborative_page))
+
+    @classmethod
+    def from_scheme_record(cls, entry: PPSchemeRecord) -> ProtectionProfile:
+        """
+        Builds a `ProtectionProfile` object from a PPSchemeRecord produced by a national scheme scraper.
+        """
+        return cls(
+            ProtectionProfile.WebData(
+                category=entry.category,
+                status=entry.status,
+                is_collaborative=entry.is_collaborative,
+                name=entry.name,
+                version=entry.version,
+                security_level=entry.security_level,
+                not_valid_before=entry.not_valid_before,
+                not_valid_after=entry.not_valid_after,
+                report_link=entry.report_link,
+                pp_link=entry.pp_link,
+                scheme=entry.scheme,
+                maintenances=entry.maintenances,
+            ),
+            scheme_metadata=entry.to_enrichment_dict(),
+        )
 
     @staticmethod
     def download_pdf_report(cert: ProtectionProfile) -> ProtectionProfile:
@@ -271,7 +319,7 @@ class ProtectionProfile(
             exit_code = "No link"
         else:
             exit_code = helpers.download_file(
-                cert.web_data.report_link, cert.state.report.pdf_path, proxy=config.cc_use_proxy
+                cert.web_data.report_link, cert.state.report.source_path, proxy=config.cc_use_proxy
             )
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download report from {cert.web_data.report_link}, code: {exit_code}"
@@ -279,7 +327,10 @@ class ProtectionProfile(
             cert.state.report.download_ok = False
         else:
             cert.state.report.download_ok = True
-            cert.state.report.pdf_hash = helpers.get_sha256_filepath(cert.state.report.pdf_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.report.source_path)
+            if source_hash != cert.state.report.source_hash:
+                cert.state.report.reset_conversion()
+            cert.state.report.source_hash = source_hash
             cert.pdf_data.report_filename = unquote_plus(str(urlparse(cert.web_data.report_link).path).split("/")[-1])
         return cert
 
@@ -292,14 +343,19 @@ class ProtectionProfile(
         if not cert.web_data.pp_link:
             exit_code = "No link"
         else:
-            exit_code = helpers.download_file(cert.web_data.pp_link, cert.state.pp.pdf_path, proxy=config.cc_use_proxy)
+            exit_code = helpers.download_file(
+                cert.web_data.pp_link, cert.state.pp.source_path, proxy=config.cc_use_proxy
+            )
         if exit_code != requests.codes.ok:
             error_msg = f"failed to download PP from {cert.web_data.pp_link}, code: {exit_code}"
             logger.error(f"Cert dgst: {cert.dgst} " + error_msg)
             cert.state.pp.download_ok = False
         else:
             cert.state.pp.download_ok = True
-            cert.state.pp.pdf_hash = helpers.get_sha256_filepath(cert.state.pp.pdf_path)
+            source_hash = helpers.get_sha256_filepath(cert.state.pp.source_path)
+            if source_hash != cert.state.pp.source_hash:
+                cert.state.pp.reset_conversion()
+            cert.state.pp.source_hash = source_hash
             cert.pdf_data.pp_filename = unquote_plus(str(urlparse(cert.web_data.pp_link).path).split("/")[-1])
         return cert
 
@@ -308,7 +364,7 @@ class ProtectionProfile(
         cert: ProtectionProfile, doc_type: Literal["report", "pp"], converter: PDFConverter
     ) -> ProtectionProfile:
         cert_state = getattr(cert.state, doc_type)
-        ok_result = converter.convert(cert_state.pdf_path, cert_state.txt_path, cert_state.json_path)
+        ok_result = converter.convert(cert_state.source_path, cert_state.txt_path, cert_state.json_path)
         cert_state.convert_ok = ok_result
         if not ok_result:
             logger.error(f"Cert dgst: {cert.dgst} failed to convert report pdf to txt")
@@ -340,8 +396,7 @@ class ProtectionProfile(
         Extracts various pdf metadata from the certification report.
         """
         try:
-            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.pdf_path)
-            cert.state.report.extract_ok = True
+            cert.pdf_data.report_metadata = extract_pdf_metadata(cert.state.report.source_path)
         except ValueError:
             cert.state.report.extract_ok = False
         return cert
@@ -352,8 +407,7 @@ class ProtectionProfile(
         Extracts various pdf metadata from the actual protection profile.
         """
         try:
-            cert.pdf_data.pp_metadata = extract_pdf_metadata(cert.state.pp.pdf_path)
-            cert.state.pp.extract_ok = True
+            cert.pdf_data.pp_metadata = extract_pdf_metadata(cert.state.pp.source_path)
         except ValueError:
             cert.state.pp.extract_ok = False
 
@@ -364,7 +418,7 @@ class ProtectionProfile(
         """
         Extracts keywords using regexes from the certification report.
         """
-        report_keywords = extract_keywords(cert.state.report.txt_path, cc_rules)
+        report_keywords = extract_keywords(get_view(cert.state.report), cc_rules)
         if report_keywords is None:
             cert.state.report.extract_ok = False
         else:
@@ -376,7 +430,7 @@ class ProtectionProfile(
         """
         Extracts keywords using regexes from the actual protection profile.
         """
-        pp_keywords = extract_keywords(cert.state.pp.txt_path, cc_rules)
+        pp_keywords = extract_keywords(get_view(cert.state.pp), cc_rules)
         if pp_keywords is None:
             cert.state.pp.extract_ok = False
         else:

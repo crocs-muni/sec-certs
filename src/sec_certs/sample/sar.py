@@ -29,7 +29,7 @@ class SAR(ComplexSerializableType):
 
     @property
     def assurance_class(self):
-        return SAR_CLASS_MAPPING.get(self.family.split("_")[0], None)
+        return SAR_CLASS_MAPPING.get(self.family.split("_")[0])
 
     @classmethod
     def from_string(cls, string: str) -> SAR:

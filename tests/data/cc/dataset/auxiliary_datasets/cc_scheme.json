@@ -1,0 +1,904 @@
+{
+    "_type": "sec_certs.dataset.cc_scheme.CCSchemeDataset",
+    "schemes": {
+        "CA": {
+            "_type": "sec_certs.sample.cc_scheme.CCScheme",
+            "country": "CA",
+            "timestamp": "2026-08-27T10:19:40.718052",
+            "lists": {
+                "INEVALUATION": [
+                    {
+                        "product": "RICOH IM C2011/C2511/C2519EXJ/C3011/C3511/C3519EXJ/C4511/C5511/C6011, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "CPP_HCD_V1.0E",
+                        "evaluation_facility": "Lightship Security"
+                    },
+                    {
+                        "product": "HPE Aruba Networking Mobility Conductor running software version 8.13.2",
+                        "vendor": "HPE Aruba Networking",
+                        "level": "CPP_ND_V3.0E, PKG_SSH_V1.0",
+                        "evaluation_facility": "Lightship Security"
+                    },
+                    {
+                        "product": "Dell Powerstore 4.1.0.6",
+                        "vendor": "Dell Inc.",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "evaluation_facility": "EWA Canada"
+                    },
+                    {
+                        "product": "RICOH IM 7010, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "CPP_HCD_V1.0E",
+                        "evaluation_facility": "Lightship Security"
+                    },
+                    {
+                        "product": "Broadcom Content Analysis (CAS) v4.1",
+                        "vendor": "Symantec by Broadcom",
+                        "level": "CPP_ND_V3.0E, PKG_SSH_V1.0",
+                        "evaluation_facility": "Lightship Security"
+                    },
+                    {
+                        "product": "Belkin F1DN102KVM-UNN4, F1DN202KVM-UNN4, F1DN104KVM-UNN4, F1DN204KVM-UNN4, F1DN202KVMUNN4M, F1DN204KVMUNN4M, F1DN104KVMUNN4Z, F1DN204KVMUNN4Z Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSD_V4.0, MOD_AO_V1.0, MOD_KM_V1.0, MOD_VI_V1.0",
+                        "evaluation_facility": "EWA-Canada"
+                    },
+                    {
+                        "product": "NVOS v6.9.1",
+                        "vendor": "Keysight Technologies",
+                        "level": "NDcPP v3.0e",
+                        "evaluation_facility": "Lightship Security"
+                    },
+                    {
+                        "product": "Broadcom Symantec Privileged Access Manager 4.3",
+                        "vendor": "Broadcom",
+                        "level": "PP_ESM_PM_V2.1",
+                        "evaluation_facility": "EWA-Canada"
+                    },
+                    {
+                        "product": "High Sec Labs RS20N-4 and RS40N-4 Secure Multi-Domain Smart Card Reader Firmware Version 40040-0E7",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0, MOD_UA_V1.0",
+                        "evaluation_facility": "EWA-Canada"
+                    },
+                    {
+                        "product": "FortiGate with FortiOS 7.6",
+                        "vendor": "Fortinet",
+                        "level": "CPP_ND_V3.0E, MOD_CPP_FW_V1.4E, MOD_VPNGW_V1.3, PKG_SSH_V1.0",
+                        "evaluation_facility": "Lightship Security"
+                    },
+                    {
+                        "product": "MaxVision Secure 3x3 KVM Switch MaxKVM-S Firmware Version 40344-4M4M",
+                        "vendor": "MaxVision",
+                        "level": "PP_PSD_V4.0, MOD_KM_V1.0, MOD_VI_V1.0, MOD_UA_V1.0",
+                        "evaluation_facility": "EWA-Canada"
+                    }
+                ],
+                "CERTIFIED": [
+                    {
+                        "product": "Broadcom Layer 7 API Gateway v11.1.3",
+                        "vendor": "Broadcom Inc.",
+                        "level": "collaborative Protection Profile for Network Devices, v3.0e Functional Package for SSH, v1.0",
+                        "certification_date": "2026-07-24"
+                    },
+                    {
+                        "product": "Crunchy Certified PostgreSQL 17.9",
+                        "vendor": "Crunchy Data Solutions, Inc.",
+                        "level": "collaborative Protection Profile for Database Management Systems v1.3, March 13, 2023",
+                        "certification_date": "2026-07-07"
+                    },
+                    {
+                        "product": "Belkin F1DN102KVM-UNN4, F1DN202KVM-UNN4, F1DN104KVM-UNN4, F1DN204KVM-UNN4, F1DN202KVMUNN4M, F1DN204KVMUNN4M, F1DN104KVMUNN4Z, F1DN204KVMUNN4Z Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP-Peripheral Sharing Devices Version 4.0 PP-Module for Analog Audio Output Devices, Version 1.0 PP-Module for Keyboard/Mouse Devices, Version 1.0 PP-Module for Video/Display Devices, Version 1.0",
+                        "certification_date": "2026-07-02"
+                    },
+                    {
+                        "product": "NetApp E-Series and EF-Series with SANtricity v11.90R5",
+                        "vendor": "NetApp Inc.",
+                        "level": "collaborative Protection Profile for Network Devices v3.0e",
+                        "certification_date": "2026-07-02"
+                    },
+                    {
+                        "product": "RICOH IM 2510/2519J/3010/3019J/3510/3519J/4510/4519J/5510/6010/6019J, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2026-05-06"
+                    },
+                    {
+                        "product": "Belkin F1DN102KVM-UN-4, F1DN102KVM-UN4Z, F1DN102KVM-UN4C, F1DN202KVM-UN-4, F1DN202KVM-UN4Z, F1DN202KVM-UN4C, F1DN104KVM-UN-4, F1DN104KVM-UN4Z, F1DN104KVM-UN4C, F1DN104KVM-UN4W, F1DN204KVM-UN-4, F1DN204KVM-UN4Z, F1DN204KVM-UN4C, F1DN204KVM-UN4W, F1DN204KVM-UN4M, F1DN108KVM-UN-4, F1DN108KVM-UN4Z, F1DN108KVM-UN4W, F1DN208KVM-UN-4, F1DN208KVM-UN4Z, F1DN208KVM-UN4W, F1DN116KVM-UN-4 Firmware Version 44444-E7E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP-Peripheral Sharing Devices Version 4.0 PP-Module for Analog Audio Output Devices, Version 1.0 PP-Module for User Authentication Devices, Version 1.0 PP-Module for Keyboard/Mouse Devices, Version 1.0 PP-Module for Video/Display Devices, Version 1.0",
+                        "certification_date": "2026-04-24"
+                    },
+                    {
+                        "product": "Nokia IXR Service Router Linux (SR Linux) Family v24.10.4",
+                        "vendor": "Nokia Corporation",
+                        "level": "EAL 3+ (ALC_FLR.1)",
+                        "certification_date": "2025-12-15"
+                    },
+                    {
+                        "product": "Xerox® AltaLink™ C8130/C8135/C8145/C8155/C8170/B8145/B8155/B8170/C8230/C8235/C8245/C8255/C8270/B8245/B8255/B8270 with SSD Xerox® AltaLink™ C8130/C8135/C8145/C8155/C8170/B8145/B8155/B8170/C8230/C8235/C8245/C8255/C8270/B8245/B8255/B8270 and Xerox® EC8136/EC8156 with SSD (March 2026)",
+                        "vendor": "Xerox Corporation",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2025-12-16"
+                    },
+                    {
+                        "product": "High Sec Labs DK82PHU-4TR, SX42PHU- 4TR, SX82PHU-4TR, SC42PHU 4TR, SC82PHU-4TR, SC162PHU-4TR Ruggedized KVM Devices Firmware Version 44444 R7R7",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0 MOD_KM_V1.0 MOD_UA_V1.0 MOD_VI_V1.0",
+                        "certification_date": "2025-11-28"
+                    },
+                    {
+                        "product": "RICOH IM C3010SD/C3510SD/C4510SD/C6010SD, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "CPP_HCD_v1.0e",
+                        "certification_date": "2025-10-27"
+                    },
+                    {
+                        "product": "RICOH Pro C5400S/C5410S/C5400SL, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "CPP_HCD_V1.0e",
+                        "certification_date": "2025-11-03"
+                    },
+                    {
+                        "product": "Auralis™ Wave Optical Diode",
+                        "vendor": "Defendable Technologies",
+                        "level": "EAL2+ (ALC_FLR.2)",
+                        "certification_date": "2025-10-10"
+                    },
+                    {
+                        "product": "HPE Integrated Lights-Out 6 v1.11",
+                        "vendor": "Hewlett Packard Enterprise",
+                        "level": "EAL 4+ (ALC_FLR.2)",
+                        "certification_date": "2025-08-07"
+                    },
+                    {
+                        "product": "HPE Integrated Lights-Out 5 v2.73",
+                        "vendor": "Hewlett Packard Enterprise",
+                        "level": "EAL 4+ (ALC_FLR.2)",
+                        "certification_date": "2025-08-19"
+                    },
+                    {
+                        "product": "RICOH IM C401F/C401SRF/C431/C431F Version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2025-08-07"
+                    },
+                    {
+                        "product": "Fortinet FortiAnalyzer 7.2.9 Fortinet FortiAnalyzer 7.2.9 (build 7495) (February 2026)",
+                        "vendor": "Fortinet, Inc.",
+                        "level": "EAL4+ ALC_FLR.3",
+                        "certification_date": "2025-06-30"
+                    },
+                    {
+                        "product": "Lexmark MS622, MS822, MS826, CS730, CS735, CS943, MS632, CS632, and CS963 Single-Function Printers, Firmware version 240.204CC",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2025-06-26"
+                    },
+                    {
+                        "product": "Lexmark MX432, MX522, MX622, MX721, MX722, MX822, MX826, MX931, CX730, CX735, CX930, CX931, CX942, CX943, CX944, CX532, CX635, MX532, MX632, MX953, CX961, CX962, CX963, CX950, CX951 and CX833 Multi-Function Printers with Fax and without Hard Drive, Firmware version 240.204CC Lexmark MX432, MX421, MX521, MX622, MX721, MX722, MX725, MX931, CX730, CX735, CX930, CX931, CX942, CX943, CX944, CX532, CX635, MX532, MX632, MX951, MX953, CX950, CX951, CX952, CX953, CX961, CX962, CX963, and CX833 Multi-Function Printers with Fax and without Hard Drive, Firmware version 240.204CC (April 2026)",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2025-06-24"
+                    },
+                    {
+                        "product": "Lexmark MX521, MX931, MX953, CX730, CX930, CX931, CX950, CX951, CX961, CX962, CX963, and CX833 Multi-Function Printers without Fax or Hard Drive, Firmware version 240.204CC Lexmark MX521, MX931, MX951, MX953, CX730, CX930, CX931, CX950, CX951, CX952, CX953, CX961, CX962, CX963, and CX833 Multi-Function Printers without Fax or Hard Drive, Firmware version 240.204CC (April 2026)",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2025-06-20"
+                    },
+                    {
+                        "product": "Lexmark MX432, MX522, MX622, MX721, MX722, MX822, MX826, MX931, CX730, CX735, CX930, CX931, CX942, CX943, CX944, CX532, CX635, MX532, MX632, MX953, CX961, CX962, CX963, CX950, CX951 and CX833 Multi-Function Printers with Fax and Hard Drive, Firmware version 240.204CC Lexmark MX432, MX522, MX622, MX721, MX722, MX822, MX826, MX931, CX730, CX735, CX930, CX931, CX942, CX943, CX944, CX532, CX635, MX532, MX632, MX951, MX953, CX961, CX962, CX963, CX950, CX951, CX952, CX953 and CX833 Multi-Function Printers with Fax and Hard Drive, Firmware version 240.204CC (April 2026)",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2025-05-29"
+                    },
+                    {
+                        "product": "Senetas CN 9000 Series Ethernet Encryptors v5.5.0 Senetas CN 9000 Series Ethernet Encryptors v5.5.1 (June 2025)",
+                        "vendor": "Senetas Corporation Ltd., distributed by Thales SA (Safenet)",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2025-03-25"
+                    },
+                    {
+                        "product": "Senetas CN 4000/6000 Series Ethernet Encryptors v5.5.0 Senetas CN 4000/6000 Series Ethernet Encryptors v5.5.1 (June 2025)",
+                        "vendor": "Senetas Corporation Ltd., distributed by Thales SA (Safenet)",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2025-03-25"
+                    },
+                    {
+                        "product": "High Sec Labs FH10N-4 Firmware Version 40404-0E7",
+                        "vendor": "High Sec Labs, Ltd.",
+                        "level": "PP_PSD_V4.0, MOD_KM_V1.0",
+                        "certification_date": "2025-02-28"
+                    },
+                    {
+                        "product": "High Sec Labs SM20N-4, SM40N-4, SM80N-4 Firmware Version 40404-0E7",
+                        "vendor": "High Sec Labs, Ltd.",
+                        "level": "PP_PSD_V4.0, MOD_KM_V1.0",
+                        "certification_date": "2025-02-28"
+                    },
+                    {
+                        "product": "Belkin F1DN102KVM-DC-4, F1DN202KVM-DC-4, F1DN104KVM-DC-4, F1DN204KVM-DC-4, F1DN108KVM-DC-4, F1DN208KVM-DC-4, F1DN104KVMDCU-4, F1DN204KVMDCU-4, F1DN104MVKVMDC4, F1DN108MVKVMDC4, F1DN104MKVMDC-4, F1DN108MKVMDC-4 Firmware Version 44444-D5D5",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSD_V4.0, MOD_KM_V1.0, MOD_VI_V1.0, MOD_UA_V1.0",
+                        "certification_date": "2025-03-05"
+                    },
+                    {
+                        "product": "RICOH Pro 8400S/8410S/8420S version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2025-03-05"
+                    },
+                    {
+                        "product": "Market Central SecureSwitch® Fiber Optic Switch Models: A, B, C, D, 1:1, 2:1, 3:1, 4:1, 5:1, 6:1, 7:1 and 8:1",
+                        "vendor": "Market Central, Inc.",
+                        "level": "EAL 4+ (ALC_FLR.1)",
+                        "certification_date": "2025-01-21"
+                    },
+                    {
+                        "product": "KAYTUS Server Baseboard Management Controller 7.11.00",
+                        "vendor": "KAYTUS Systems Pte Ltd.",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2025-01-08"
+                    },
+                    {
+                        "product": "NetScaler Version 13.1 Build 37.201 NetScaler Version 13.1 Build 37.241 (September 2025)",
+                        "vendor": "Cloud Software Group",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2024-12-02"
+                    },
+                    {
+                        "product": "NETSCOUT Arbor Edge Defense 7.0.2.0",
+                        "vendor": "NetScout Systems Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2025-01-31"
+                    },
+                    {
+                        "product": "Cisco cEdge Routers running IOS XE 17.12 with SD-WAN 20.12 Cisco cEdge Routers running IOS XE 17.12.04 with SD-WAN 20.12.06.1 (April 2026)",
+                        "vendor": "Cisco Systems, Inc.",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2024-12-18"
+                    },
+                    {
+                        "product": "Xerox® B410 Printer and C410 Color Printer with Firmware Version 222.037",
+                        "vendor": "Xerox International, Inc.",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2024-10-29"
+                    },
+                    {
+                        "product": "RICOH IM C300/C300F/C400F/C400SRF/C400SRFG, version JE-1.20-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-10-09"
+                    },
+                    {
+                        "product": "RICOH IM 550/600/600SR, version E-1.20-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-10-09"
+                    },
+                    {
+                        "product": "RICOH Pro C5300S/C5310S, version JE-1.20-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-10-08"
+                    },
+                    {
+                        "product": "Oracle Identity Governance 12c Oracle Identity Governance 12c, Build 12.2.1.4, with patch 38477295 (January 2026)",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_ESM_ICM_V2.1",
+                        "certification_date": "2024-10-09"
+                    },
+                    {
+                        "product": "RICOH IM C6500/C8000, version JE-1.20-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-10-09"
+                    },
+                    {
+                        "product": "Lexmark MS632, CS632 Single Function Printers with Firmware Version 222.037",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2024-10-11"
+                    },
+                    {
+                        "product": "Lexmark MX532, MX632, CX532 and CX635 Multi-Function Printers with Firmware Version 222.037",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2024-09-23"
+                    },
+                    {
+                        "product": "Lexmark MX532, MX632, CX532 and CX635 Multi-Function Printers with Hard Drive and with Firmware Version 222.037",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2024-09-10"
+                    },
+                    {
+                        "product": "Xerox® AltaLink™ C8130, C8135, C8145, C8155, C8170, B8145, B8155 and B8170 with HDD",
+                        "vendor": "Xerox Corporation",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-08-21"
+                    },
+                    {
+                        "product": "NETSCOUT Omnis Cyber Intelligence with CyberStream v6.3.4",
+                        "vendor": "NETSCOUT Systems, Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2024-10-17"
+                    },
+                    {
+                        "product": "RICOH IM C7010, version JE-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-07-29"
+                    },
+                    {
+                        "product": "High Sec Labs FA10A-4 and FA10AO-4 Firmware Version 40000-0E7 Peripheral Sharing Devices",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0, MOD_AO_V1.0",
+                        "certification_date": "2024-07-09"
+                    },
+                    {
+                        "product": "Belkin Secure KVM models F1DN102KVM-HA-3, F1DN202KVM-HA-3, F1DN104KVM-HA-3, F1DN204KVM-HA-3 Version 33303-C6C6",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSS_V3.0",
+                        "certification_date": "2024-06-11"
+                    },
+                    {
+                        "product": "CipherDriveOne 2.0.1 CipherDriveOne 2.1.0 (June 2026)",
+                        "vendor": "KLC Group LLC",
+                        "level": "CPP_FDE_AA_V2.0E",
+                        "certification_date": "2024-06-27"
+                    },
+                    {
+                        "product": "Dell PowerScale OneFS v9.5 Dell PowerScale OneFS v9.7 (October 2024)",
+                        "vendor": "Dell Technologies",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2024-05-22"
+                    },
+                    {
+                        "product": "Xerox® AltaLink™ EC8036 and EC8056",
+                        "vendor": "Xerox Corporation",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-06-25"
+                    },
+                    {
+                        "product": "Layer7 API Gateway v10.1.00",
+                        "vendor": "Broadcom Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2024-05-24"
+                    },
+                    {
+                        "product": "Xerox® VersaLink™ C625 and B625 with eMMC",
+                        "vendor": "Xerox Corporation",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-05-08"
+                    },
+                    {
+                        "product": "Xerox® VersaLink™ C625 and B625 with HDD",
+                        "vendor": "Xerox Corporation",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-05-14"
+                    },
+                    {
+                        "product": "Xerox® VersaLink™ C415 and B415 with HDD",
+                        "vendor": "Xerox Corporation",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-04-24"
+                    },
+                    {
+                        "product": "Xerox® VersaLink™ C415 and B415 with eMMC",
+                        "vendor": "Xerox Corporation",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2024-05-03"
+                    },
+                    {
+                        "product": "High Sec Labs FI11H-M, FI11D-M, FI11PH-M Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0 with MOD_KM_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2024-04-29"
+                    },
+                    {
+                        "product": "High Sec Labs SC21H-4, SC82PH-4, SC162PH-4, SMX42D-M, SMX42H-M, SMX42P-M, SMX82D-M, SMX82H-M, SMX82P-M Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0 with MOD_KM_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2024-04-29"
+                    },
+                    {
+                        "product": "NETSCOUT® nGeniusONE® with InfiniStreamNG® v6.3.3",
+                        "vendor": "NETSCOUT Systems Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2024-04-04"
+                    },
+                    {
+                        "product": "Adder AS-4CR Multi-Domain Card Reader Firmware Version 40040-0E7",
+                        "vendor": "Adder Technology",
+                        "level": "PP_PSD_V4.0 with MOD_UA_V1.0",
+                        "certification_date": "2024-01-05"
+                    },
+                    {
+                        "product": "RICOH IM 370F/460F version JE-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-12-07"
+                    },
+                    {
+                        "product": "High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0 with MOD_AO_V1.0, MOD_KM_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2023-11-20"
+                    },
+                    {
+                        "product": "RICOH IM 370 version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-12-08"
+                    },
+                    {
+                        "product": "Dell ECS v3.8.0.3",
+                        "vendor": "Dell Technologies",
+                        "level": "EAL2+ (ALC_FLR.2)",
+                        "certification_date": "2023-11-14"
+                    },
+                    {
+                        "product": "Dell PowerMax with PowerMaxOS 10 Solutions Enabler 10.0, and Unisphere for PowerMax 10.0",
+                        "vendor": "Dell Technologies",
+                        "level": "EAL2+ (ALC_FLR.2)",
+                        "certification_date": "2023-10-20"
+                    },
+                    {
+                        "product": "BAE Systems STOP™ 8.8.2",
+                        "vendor": "BAE Systems",
+                        "level": "PP_OS_V4.2.1",
+                        "certification_date": "2023-09-15"
+                    },
+                    {
+                        "product": "RICOH IM 2500/3000/3500/4000/5000/6000 version JE-1.10-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-09-08"
+                    },
+                    {
+                        "product": "RICOH IM 7000/8000/9000/9000T version JE-1.10-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-09-08"
+                    },
+                    {
+                        "product": "Oracle Access Management 12c",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_ESM_PM_V2.1, PP_ESM_AC_V2.1",
+                        "certification_date": "2023-09-20"
+                    },
+                    {
+                        "product": "RICOH IM C530F / C530FB version E-1.10-H",
+                        "vendor": "Ricoh Company, Ltd",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-08-29"
+                    },
+                    {
+                        "product": "RICOH Pro C5300S/C5310S Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company, Ltd",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-07-28"
+                    },
+                    {
+                        "product": "Lexmark CX730, CX930, CX931 and MX931 Multi-Function Printers with Trusted Platform Module and Hard Drive and without Fax and with Firmware Version 081.234",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-06-23"
+                    },
+                    {
+                        "product": "Lexmark MX521, MX931, CX730, CX930, and CX931 Multi-Function Printers with Trusted Platform Module, without Fax and Hard Drive and with Firmware Version 081.234",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-06-23"
+                    },
+                    {
+                        "product": "Lexmark MX421, MX432, MX521, MX622, MX721, MX722, MX725, MX931, CX622, CX625, CX730, CX735, CX930, CX931, CX942, CX943 and CX944 Multi-Function Printers with Trusted Platform Module and Fax and without Hard Drive and with Firmware Version 081.234",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-06-22"
+                    },
+                    {
+                        "product": "Lexmark MS622, MS822, MS826, CS622, CS730, CS735, CS820, and CS943 Single Function Printers with Trusted Platform Module and Firmware Version 081.234",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-06-23"
+                    },
+                    {
+                        "product": "RICOH IM C2010/C2510/C2519/C3010/C3510/C3519/C4510/C5510/C6010 version JE-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-06-29"
+                    },
+                    {
+                        "product": "Lexmark MX432, MX522, MX622, MX721, MX722, MX822, MX826, MX931, CX622, CX625, CX730, CX735, CX820, CX825, CX860, CX930, CX931, CX942, CX943, and CX944 MFPs with TPM, Fax and Hard Drive with firmware version 081.234",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-05-24"
+                    },
+                    {
+                        "product": "RICOH IM C6500/C8000 Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-04-27"
+                    },
+                    {
+                        "product": "RICOH IM 2500/3000/3500/4000/5000/6000 Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-05-01"
+                    },
+                    {
+                        "product": "RICOH IM 7000/8000/9000 Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-05-01"
+                    },
+                    {
+                        "product": "RICOH IM C300/C300F/C300FLT/C400F/C400SRF/C400FLT Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-04-27"
+                    },
+                    {
+                        "product": "RICOH IM 550/600/600SR Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-04-27"
+                    },
+                    {
+                        "product": "RICOH IM C2000/C2000LT/C2500/C2500LT/C3000/C3000LT/C3500/C3500LT/C4500/C4500LT/C5500/C5500LT/C6000/ C6000LT Enhanced Security Firmware version E-1.00-H",
+                        "vendor": "Ricoh Company Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2023-04-27"
+                    },
+                    {
+                        "product": "Oracle Linux 8.4",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_OS_V4.2.1, PKG_SSH_V1.0",
+                        "certification_date": "2023-04-12"
+                    },
+                    {
+                        "product": "TestStream Management Software v5.3.0 on nGenius 3900 Series Switches",
+                        "vendor": "NetScout Systems, Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2023-04-17"
+                    },
+                    {
+                        "product": "Cisco Catalyst 9800 Series Wireless Controllers and Access Points 17.6",
+                        "vendor": "Cisco Systems, Inc.",
+                        "level": "CPP_ND_V2.2E, PP_WLAN_AS_EP_V1.0",
+                        "certification_date": "2023-03-20"
+                    },
+                    {
+                        "product": "Oracle Linux 7.6 UEK 5 KVM & Virtualization Manager 4.3",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_BASE_VIRTUALIZATION_V1.0, EP_SV_V1.0, PP_SSH_EP_V1.0",
+                        "certification_date": "2023-03-03"
+                    },
+                    {
+                        "product": "High Sec Labs SK41PHU-4, DK42PHU-4, SX42PHU-4, SX82PHU-4, SC42DHU-4, SC42PHU-4 Firmware Version 44444-E7E7 Peripheral Sharing Devices",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0 with MOD_AO_V1.0, MOD_KM_V1.0, MOD_UA_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2022-12-20"
+                    },
+                    {
+                        "product": "Adder AVS-4228, AVS-42216, XDS441, XDS441FX Firmware Version 44404-E7E7 Peripheral Sharing Devices Adder AVS-4228, AVS-42216 Firmware Version 44404-E7E7 Peripheral Sharing Devices (August 2023)",
+                        "vendor": "Adder Technology",
+                        "level": "PP_PSD_V4.0 with MOD_KM_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2022-12-07"
+                    },
+                    {
+                        "product": "SentinelOne Singularity Complete Version S",
+                        "vendor": "SentinelOne, Inc.",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2022-12-19"
+                    },
+                    {
+                        "product": "Dell EMC Unity OE v5.2",
+                        "vendor": "Dell EMC",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2022-12-13"
+                    },
+                    {
+                        "product": "FortiAnalyzer 6.2.8",
+                        "vendor": "Fortinet, Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2022-12-12"
+                    },
+                    {
+                        "product": "RICOH IM C300/C300F/C400F/C400SRF version JE-1.10-H",
+                        "vendor": "Ricoh Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2022-11-23"
+                    },
+                    {
+                        "product": "RICOH IM 550/600/600SR version E-1.10-H",
+                        "vendor": "Ricoh Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2022-11-23"
+                    },
+                    {
+                        "product": "RICOH IM C5300S/C5310S version JE-1.10-H",
+                        "vendor": "Ricoh Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2022-11-14"
+                    },
+                    {
+                        "product": "RICOH IM C6500/C8000 version JE-1.10-H",
+                        "vendor": "Ricoh Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2022-11-14"
+                    },
+                    {
+                        "product": "Fortinet FortiManager 6.2.8",
+                        "vendor": "Fortinet, Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2022-11-07"
+                    },
+                    {
+                        "product": "Cisco 900 Series Integrated Services Routers running IOS v15.9",
+                        "vendor": "Cisco Systems, Inc.",
+                        "level": "CPP_ND_V2.2E with MOD_VPNGW_v1.1",
+                        "certification_date": "2022-11-02"
+                    },
+                    {
+                        "product": "RICOH IM C2000/C2000LT/C2500/C2500LT/C3000/C3000LT/C3500/C3500LT/ C4500/C4500LT/C5500/C5500LT/C6000/C6000LT version JE-1.20-H",
+                        "vendor": "Ricoh Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2022-09-28"
+                    },
+                    {
+                        "product": "Dell EMC™ Data Domain® v7.2",
+                        "vendor": "Dell EMC™",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2022-09-26"
+                    },
+                    {
+                        "product": "Citrix Hypervisor® 8.2 LTSR Premium Edition (CU1)",
+                        "vendor": "Citrix Systems, Inc.",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2022-08-23"
+                    },
+                    {
+                        "product": "McAfee Endpoint Security 10.7.x with ePolicy Orchestrator 5.10.x",
+                        "vendor": "Trellix",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2022-07-28"
+                    },
+                    {
+                        "product": "NetApp StorageGRID 11.5",
+                        "vendor": "NetApp Inc.",
+                        "level": "EAL 2+ (ALC_FLR.1)",
+                        "certification_date": "2022-07-15"
+                    },
+                    {
+                        "product": "AhnLab CPP 1.0",
+                        "vendor": "AhnLab, Inc.",
+                        "level": "EAL 2+ (ALC_FLR.1)",
+                        "certification_date": "2022-07-14"
+                    },
+                    {
+                        "product": "nGenius 5000 and 7000 Series Packet Flow Switches with PFOS 6.0.6",
+                        "vendor": "NETSCOUT Systems, Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2022-06-07"
+                    },
+                    {
+                        "product": "Trend Micro Deep Security 20",
+                        "vendor": "Trend Micro Inc.",
+                        "level": "EAL 2+ (ALC_FLR.1)",
+                        "certification_date": "2022-05-31"
+                    },
+                    {
+                        "product": "Adder AVS-4112, AVS-2112, AVS-4114, AVS-4214, AVS-2114, AVS-2214, AVS-4128, AVS-4124, AVS-1124, AVS-4224 Firmware Version 44404-E7E7, Peripheral Sharing Devices",
+                        "vendor": "Adder Technology",
+                        "level": "PP_PSD_v4.0, MOD_AO_v1.0, MOD_KM_v1.0, MOD_VI_v1.0",
+                        "certification_date": "2022-04-20"
+                    },
+                    {
+                        "product": "Keysight Technologies Vision Series Network Packet Broker v5.7.1 Keysight Technologies Vision Series Network Packet Broker v5.10.0 (January 2024)",
+                        "vendor": "Keysight Technologies",
+                        "level": "CPP_ND_v2.2E",
+                        "certification_date": "2022-03-04"
+                    },
+                    {
+                        "product": "Belkin F1DN102MOD-xx-4, F1DN202MOD-xx-4, F1DN104MOD-xx-4, F1DN204MOD-xx-4, F1DN108MOD-xx-4, F1DN208MOD-xx-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSD_v4.0, MOD_KM_v1.0, MOD_VI_v1.0",
+                        "certification_date": "2021-07-11"
+                    },
+                    {
+                        "product": "Belkin F1DN002MOD-KM-4, F1DN004MOD-KM-4 and F1DN-FLTR-HID-4 Firmware Version 40404-0E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSD_v4.0, MOD_KM_v1.0",
+                        "certification_date": "2022-01-24"
+                    },
+                    {
+                        "product": "Cisco Web Security Appliance with AsyncOS 11.8",
+                        "vendor": "Cisco Systems, Inc.",
+                        "level": "CPP_ND_v2.2E",
+                        "certification_date": "2022-02-28"
+                    },
+                    {
+                        "product": "FortiGate/FortiOS Version 6.2.7",
+                        "vendor": "Fortinet, Inc.",
+                        "level": "CPP_ND_V2.2E w/ MOD_CPP_FW_v1.4e, MOD_VPNGW_v1.1,MOD_IPS_V1.0",
+                        "certification_date": "2022-01-14"
+                    },
+                    {
+                        "product": "Fortinet FortiGate™ Next Generation Firewalls with FortiOS 6.2.7",
+                        "vendor": "Fortinet, Incorporated",
+                        "level": "EAL 4+ (ALC_FLR.3)",
+                        "certification_date": "2021-10-15"
+                    },
+                    {
+                        "product": "NetApp Element Software 12.2 on SolidFire Appliances",
+                        "vendor": "NetApp, Inc.",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2022-03-08"
+                    },
+                    {
+                        "product": "Sphyrna Security Unidirectional Gateway- Data Diode Identifier: 2010-UG100-SSI Sphyrna Security Unidirectional Gateway- Data Diode Identifier: NGXS UGW-200 (November 2024)",
+                        "vendor": "Sphyrna Security Incorporated",
+                        "level": "EAL4+ (ADV_INT.2, ALC_CMC.5, ALC_CMS.5, ALC_DVS.2, ALC_FLR.3, ATE_DPT.2 and AVA_VAN.4)",
+                        "certification_date": "2021-09-07"
+                    },
+                    {
+                        "product": "NetApp E-Series & EF-Series with SANtricity OS 11.70",
+                        "vendor": "NetApp, Inc.",
+                        "level": "NDcPP v2.2e",
+                        "certification_date": "2021-09-21"
+                    },
+                    {
+                        "product": "Blackline Systems Corporation BSC-CDS Unidirectional Subsystem PN: 710-0185-00",
+                        "vendor": "Blackline Systems Corporation",
+                        "level": "EAL 4+ (ADV_INT.2, ALC_CMC.5, ALC_CMS.5, ALC_DVS.2, ALC_FLR.3, ATE_DPT.2 and AVA_VAN.4)",
+                        "certification_date": "2021-09-15"
+                    },
+                    {
+                        "product": "RICOH IM C530F/C530FB version E-1.00-H",
+                        "vendor": "RICOH Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2021-10-13"
+                    },
+                    {
+                        "product": "RICOH IM 2500/3000/3500/4000/5000/6000 version JE-1.00-H",
+                        "vendor": "RICOH Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2021-10-18"
+                    },
+                    {
+                        "product": "RICOH IM 7000/8000/9000/9000T version JE-1.00-H",
+                        "vendor": "RICOH Company, LTD.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2021-10-18"
+                    },
+                    {
+                        "product": "Cisco Email Security Appliance with AsyncOS 13.0",
+                        "vendor": "Cisco Systems, Inc",
+                        "level": "cPP_ND_v2.1",
+                        "certification_date": "2021-09-20"
+                    },
+                    {
+                        "product": "Belkin F1DN104KVM-UNN4, F1DN204KVM-UNN4, F1DN102KVM-UNN4, F1DN202KVM-UNN4 Firmware Version 44404-E7E7 Peripheral Sharing Devices Belkin F1DN104KVM-UNN4, F1DN204KVM-UNN4, F1DN102KVM-UNN4, F1DN202KVM-UNN4, F1DN104KVM-HA-4, F1DN204KVM-HA-4, F1DN102KVM-HA-4, F1DN202KVM-HA-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices (April 2023)",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSD_v4.0, MOD_AO_V1.0, MOD_KM_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2021-07-08"
+                    },
+                    {
+                        "product": "Belkin F1DN104KVM-UN-4, F1DN204KVM-UN-4, F1DN102KVM-UN-4, F1DN202KVM-UN-4, F1DN108KVM-UN-4, F1DN208KVM-UN-4, F1DN116KVM-UN-4 Firmware Version 44444-E7E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP_PSD_V4.0, MOD_AO_V1.0, MOD_KM_V1.0, MOD_UA_V1.0, MOD_VI_V1.0",
+                        "certification_date": "2021-04-29"
+                    },
+                    {
+                        "product": "Oracle Linux 7.6",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_OS_V4.2.1 PP_SSH_EP_v1.0",
+                        "certification_date": "2021-07-19"
+                    },
+                    {
+                        "product": "Oracle Solaris 11.4",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_OS_v4.2.1, PP_SSH_EP_v1.0",
+                        "certification_date": "2021-02-08"
+                    },
+                    {
+                        "product": "NETSCOUT Sightline and Threat Mitigation System v9.7",
+                        "vendor": "NETSCOUT Systems Inc.",
+                        "level": "CPP_ND_V2.2E",
+                        "certification_date": "2024-05-14"
+                    },
+                    {
+                        "product": "RICOH IM C320F, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2025-01-20"
+                    },
+                    {
+                        "product": "Oracle Linux 9.3",
+                        "vendor": "Oracle Corporation",
+                        "level": "PP_OS_V4.3, PKG_TLS_V1.1, PKG_SSH_V1.0",
+                        "certification_date": "2025-02-14"
+                    },
+                    {
+                        "product": "RICOH IM C2010/C2510/C2519/C3010/C3510/C3519/C4510/C5510/C6010 Version JE-1.10-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "PP_HCD_V1.0",
+                        "certification_date": "2025-03-06"
+                    },
+                    {
+                        "product": "RICOH IM C6510/C8010, version JE-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2025-10-30"
+                    },
+                    {
+                        "product": "Dell VxRail 7.0",
+                        "vendor": "Dell Technologies",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2025-04-03"
+                    },
+                    {
+                        "product": "Fortinet FortiManager 7.2.9 Fortinet FortiManager 7.2.9 (build 7495) (February 2026)",
+                        "vendor": "Fortinet, Inc.",
+                        "level": "EAL4+ ALC_FLR.3",
+                        "certification_date": "2025-05-05"
+                    },
+                    {
+                        "product": "Lexmark MX931, MX953, CX730, CX930, CX950, CX951, CX931, CX961, CX962, CX963, and CX833 Multi-Function Printers with Hard Drive and without Fax, Firmware version 240.204CC Lexmark MX931, MX951, MX953, CX730, CX930, CX950, CX951, CX952, CX953, CX931, CX961, CX962, CX963, and CX833 Multi-Function Printers with Hard Drive and without Fax, Firmware version 240.204CC (April 2026)",
+                        "vendor": "Lexmark International, Inc.",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2025-06-12"
+                    },
+                    {
+                        "product": "High Sec Labs FV11H-M, FV11D-M, FV11PH-M, FV11HH-MM, FV11PP-MM, FV11HP-MM, FV11PH-MM Video Isolators Firmware Version 44000-E7E7",
+                        "vendor": "High Sec Labs Ltd.",
+                        "level": "PP_PSD_V4.0, MOD_VI_V1.0",
+                        "certification_date": "2026-01-14"
+                    },
+                    {
+                        "product": "RICOH IM C2510/C3010/C3510/C4510/C6010 Enhanced Security Firmware, version E-1.00-H",
+                        "vendor": "Ricoh Company, Ltd.",
+                        "level": "CPP_HCD_V1.0E",
+                        "certification_date": "2026-03-26"
+                    },
+                    {
+                        "product": "Xerox® VersaLink™ C415/B415/C625/B625 with eMMC",
+                        "vendor": "Xerox Corporation",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2026-03-26"
+                    },
+                    {
+                        "product": "Xerox® VersaLink™ C415/B415/C625/B625 with HDD",
+                        "vendor": "Xerox Corporation",
+                        "level": "cPP_HCD_v1.0e",
+                        "certification_date": "2026-03-27"
+                    },
+                    {
+                        "product": "Belkin F1DN102MOD-BA-4, F1DN202MOD-BA-4, F1DN104MOD-BA-4, F1DN204MOD-BA-4, F1DN108MOD-BA-4, F1DN208MOD-BA-4, F1DN102MOD-HH-4, F1DN102MOD-PP-4, F1DN202MOD-HH-4, F1DN202MOD-PP-4, F1DN104MOD-HH-4, F1DN104MOD-PP-4, F1DN108MOD-PP-4, F1DN204MOD-HH-4, F1DN204MOD-PP-4, F1DN208MOD-PP-4, F1DN104MOD-XX-4, F1DN204MOD-XX-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                        "vendor": "Belkin International, Inc.",
+                        "level": "PP-Peripheral Sharing Devices Version 4.0; PP-Module for Keyboard/Mouse Devices, Version 1.0; PP-Module for Video/Display Devices, Version 1.0",
+                        "certification_date": "2026-07-17"
+                    },
+                    {
+                        "product": "Dell PowerProtect Data Manager v19.22",
+                        "vendor": "Dell Technologies",
+                        "level": "EAL 2+ (ALC_FLR.2)",
+                        "certification_date": "2026-07-14"
+                    },
+                    {
+                        "product": "CYBEX SC Series Secure Micro Switches SC825SFF, SC925SFF, SC845SFF, SC945SFF, SC885SFF, SC985SFF, SCMV245SFF, SC825SFF-B-DP, SC825SFF-B-H, SC925SFF-B-DP, SC925SFF-B-H, SC845SFF-B-DP, SC845SFF-B-H, SC945SFF-B-DP, SC945SFF-B-H, SC885SFF-B-DP, SC885SFF-B-H, SC985SFF-B-DP, SC985SFF-B-H, SCMV245SFF-B-DP, SCMV245SFF-B-H Firmware Version 44044-M7M7",
+                        "vendor": "Vertiv Group Corp.",
+                        "level": "Protection Profile for Peripheral Sharing Device, Version 4.0 PP-Module for Keyboard/Mouse Devices, Version 1.0 PP-Module for Video/Display Devices, Version 1.0 PP-Module for User Authentication Devices, Version 1.0",
+                        "certification_date": "2026-08-06"
+                    }
+                ]
+            }
+        }
+    }
+}

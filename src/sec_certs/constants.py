@@ -88,7 +88,7 @@ FIPS_MIP_URL = (
 
 FIPS_DOWNLOAD_DELAY = 1
 
-FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
+FIPS_MIP_STATUS_RE = re.compile(r"^(?P<status>[a-zA-Z- ]+?) +\((?P<since>\d{1,2}/\d{1,2}/\d{4})\)$")
 
 TAG_CERT_ID = "cert_id"
 TAG_CC_SECURITY_LEVEL = "cc_security_level"
@@ -99,6 +99,13 @@ TAG_CERT_ITEM_VERSION = "cert_item_version"
 TAG_DEVELOPER = "developer"
 TAG_REFERENCED_PROTECTION_PROFILES = "ref_protection_profiles"
 TAG_HEADER_MATCH_RULES = "match_rules"
+TAG_EVAL_FACILITY = "eval_facility"
+TAG_SPONSOR = "sponsor"
+TAG_PARSE_STRATEGY = "parse_strategy"
+TAG_REPORT_VERSION = "report_version"
+TAG_PROJECT_NUMBER = "project_number"
+TAG_AUTHOR = "author"
+TAG_REPORT_DATE = "report_date"
 
 FILE_ERRORS_STRATEGY = "surrogateescape"
 MAX_ALLOWED_MATCH_LENGTH = 300
@@ -195,3 +202,6 @@ CC_USA_API_PRODUCTS_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products_a
 CC_USA_API_PRODUCT_URL = CC_USA_BASE_URL + "/api/project/product/pcl_products/{}/"
 CC_USA_API_FILES_URL = CC_USA_BASE_URL + "/api/file/get_pcl_files/"
 CC_USA_API_GETFILE_URL = CC_USA_BASE_URL + "/api/file/get_public_file/"
+
+EUCC_BASE_URL = "https://certification.enisa.europa.eu/certificates_en"
+EUCC_RSS_URL = "https://certification.enisa.europa.eu/node/198/rss_en"
