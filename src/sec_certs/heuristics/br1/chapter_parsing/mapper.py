@@ -3,7 +3,7 @@ from collections.abc import Iterable
 
 import regex
 
-import sec_certs.heuristics.br1.config.constants as config
+from sec_certs.configuration import config
 from sec_certs.document.base import BlockKind, DocumentBlock
 from sec_certs.heuristics.br1.models.chapter import Chapter
 
@@ -46,7 +46,7 @@ def extract_chapters(blocks: Iterable[DocumentBlock]) -> list[Chapter]:
     Split the blocks of a document into chapters by their headings. Returns a list of chapters with the
     .found attribute set and the .content and .tables attributes filled. The headings are not a part of the
     chapter contents. The matching is case insensitive, allows a number of errors in the heading text, which
-    can be configured via config.MAX_DEVIATION.
+    can be configured via config.br1_max_parsing_deviation.
     """
     chapters = chapters_from_json()
     curr_chapter, curr_subchapter = 0, 0
@@ -65,7 +65,7 @@ def extract_chapters(blocks: Iterable[DocumentBlock]) -> list[Chapter]:
 
                 ## Match regex with a number of allowed errors
                 pattern = regex.compile(
-                    f"({build_chapter_regex(chapters, ch_num, sub_num)}){{e<={config.MAX_DEVIATION}}}",
+                    f"({build_chapter_regex(chapters, ch_num, sub_num)}){{e<={config.br1_max_parsing_deviation}}}",
                     flags=regex.IGNORECASE,
                 )
                 if pattern.match(substitute(stripped)):
