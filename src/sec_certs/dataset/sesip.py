@@ -5,12 +5,14 @@ from __future__ import annotations
 import logging
 import re
 import shutil
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from sec_certs.configuration import config
 from sec_certs.constants import SESIP_INDEX_URL
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.sample.sesip import SESIPCertificate
@@ -186,8 +188,31 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             progress_bar_desc="Downloading PDFs",
         )
 
+    @staged(logger, "Converting PDFs of certs and STs")
     def _convert_all_pdfs_body(self, converter: type[PDFConverter], fresh: bool = True) -> None:
-        raise NotImplementedError("not implemented yet.")
+        for folder in (self.cert_dir, self.st_dir):
+            (folder / "txt").mkdir(parents=True, exist_ok=True)
+            (folder / "json").mkdir(parents=True, exist_ok=True)
+
+        certs_to_process = [
+            x for x in self if x.state.cert.is_ok_to_convert(fresh) or x.state.st.is_ok_to_convert(fresh)
+        ]
+        if not certs_to_process:
+            logger.info("No PDFs need conversion")
+            return
+        if not fresh:
+            logger.info(f"Converting PDFs of {len(certs_to_process)} certificates where conversion failed")
+
+        processed = cert_processing.process_parallel_with_instance(
+            converter,
+            (),
+            partial(SESIPCertificate.convert_documents, fresh=fresh),
+            certs_to_process,
+            config.pdf_conversion_workers,
+            config.pdf_conversion_max_chunk_size,
+            progress_bar_desc="Converting PDFs",
+        )
+        self.update_with_certs(processed)
 
     def extract_data(self, fresh: bool = True) -> None:
         raise NotImplementedError("not implemented yet.")
