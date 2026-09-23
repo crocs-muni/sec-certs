@@ -41,21 +41,3 @@ class SspZeroization:
     description: str = column("Description")
     rationale: str = column("Rationale")
     operatorId: str = column("Operator Initiation")
-
-
-"""
-Table 30: SSP Information First
-Table 31: SSP Information Second
-This table consists of 2 parts
-"""
-
-
-@dataclass
-class Ssp:
-    name: str
-    description: str
-    size: str
-    strength: str
-    type: str
-    generatedBy: str = ""
-    usedBy: str = ""

@@ -1,2 +1,0 @@
-# Formatting
-INDENT = 4

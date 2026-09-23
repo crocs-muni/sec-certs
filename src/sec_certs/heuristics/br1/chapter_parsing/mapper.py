@@ -81,9 +81,6 @@ def extract_chapters(blocks: Iterable[DocumentBlock]) -> list[Chapter]:
                     chapter.found = True
                     break
 
-                if matched:
-                    break
-
         if not matched and inside_chapter:
             chapter = (
                 chapters[curr_chapter - 1]

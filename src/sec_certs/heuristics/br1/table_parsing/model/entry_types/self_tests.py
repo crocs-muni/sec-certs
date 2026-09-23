@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from ..table import column
 
-# Tables 32 - 35
+# Tables 32 - 33
 
 """
 Table 32: Pre-Operational Self-Tests
@@ -33,31 +33,3 @@ class CondSelfTest:
     indicator: str = column("Indicator")
     details: str = column("Details")
     condition: str = column("Conditions")
-
-
-"""
-Table 34: Pre-Operational Periodic Information
-"""
-
-
-@dataclass
-class PeriodicSelfTest:
-    algorithmOrTest: str
-    testMethod: str
-    type: str
-    period: str
-    periodicMethod: str
-
-
-"""
-Table 35: Conditional Periodic Information
-"""
-
-
-@dataclass
-class PeriodicCondSelfTest:
-    algorithmOrTest: str
-    testMethod: str
-    type: str
-    period: str
-    periodicMethod: str

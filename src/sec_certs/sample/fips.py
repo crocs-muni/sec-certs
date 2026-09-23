@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup, Tag
 from sec_certs import constants
 from sec_certs.cert_rules import FIPS_ALGS_IN_TABLE, fips_rules
 from sec_certs.configuration import config
-from sec_certs.document.base import StructureNotSupportedError, TablesNotSupportedError
+from sec_certs.document.base import TablesNotSupportedError
 from sec_certs.document.utils import get_view
 from sec_certs.heuristics.br1.chapter_parsing.mapper import extract_chapters
 from sec_certs.heuristics.br1.chapter_parsing.validator import validate_chapters
@@ -557,14 +557,6 @@ class FIPSCertificate(
         """
         try:
             chapters = extract_chapters(get_view(cert.state.policy).iter_blocks())
-        except StructureNotSupportedError:
-            # As with tables, a converter that cannot recover the structure is a configuration property, not a
-            # failure of this document.
-            logger.warning(
-                f"Cert dgst: {cert.dgst} skipping BR1 metadata, the configured PDF converter "
-                f"({config.pdf_converter}) provides no document structure."
-            )
-            return cert
         except Exception as e:
             logger.warning(f"Error when parsing the BR1 structure of {cert.dgst}: {e}")
             cert.state.policy.extract_ok = False

@@ -1,14 +1,9 @@
 import json
-import logging
 from collections.abc import Iterator
-from dataclasses import asdict
 from importlib import resources
 from pathlib import Path
 
-from sec_certs.heuristics.br1.config.constants import INDENT
 from sec_certs.heuristics.br1.models.chapter import Chapter
-
-logger = logging.getLogger(__name__)
 
 
 def traverse_chapters(chapters: list[Chapter]) -> Iterator[tuple[str, tuple[int, int]]]:
@@ -24,15 +19,6 @@ def traverse_chapters(chapters: list[Chapter]) -> Iterator[tuple[str, tuple[int,
         yield chapter.title, (i, 0)
         for j, sub in enumerate(chapter.subchapters, 1):
             yield sub.title, (i, j)
-
-
-def chapters_to_json(chapters: list[Chapter], file: Path, output_dir: Path) -> None:
-    """Save chapter structure into formatted JSON."""
-    filename = file.stem
-    logger.info(f"\nExporting file as json ... {output_dir}/{filename}.json")
-    output_file = output_dir / (filename + ".json")
-    with output_file.open("w", encoding="utf-8") as f:
-        json.dump([asdict(ch) for ch in chapters], f, indent=INDENT)
 
 
 def chapter_from_dict(data: dict) -> Chapter:
