@@ -2,22 +2,31 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Iterator, Sequence
 from functools import cached_property
 from pathlib import Path
 from typing import ClassVar
 
+from docling_core.transforms.serializer.common import DocSerializer
 from docling_core.transforms.serializer.markdown import MarkdownTableSerializer
 from docling_core.transforms.serializer.plain_text import (
     PlainTextDocSerializer,
     PlainTextParams,
 )
 from docling_core.types.doc.common.content_layer import ContentLayer
-from docling_core.types.doc.document import DoclingDocument, NodeItem, TableCell, TableItem
+from docling_core.types.doc.document import (
+    DoclingDocument,
+    NodeItem,
+    SectionHeaderItem,
+    TableCell,
+    TableItem,
+    TitleItem,
+)
 from docling_core.types.doc.items.table.table_data import RichTableCell
 from docling_core.types.doc.labels import DocItemLabel
 from typing_extensions import override
 
-from sec_certs.document.base import DocumentLayer, DocumentTable, DocumentView
+from sec_certs.document.base import BlockKind, DocumentBlock, DocumentLayer, DocumentTable, DocumentView
 from sec_certs.document.stitch import PageSpan, TableFragment, stitch_fragments
 
 logger = logging.getLogger(__name__)
@@ -29,6 +38,10 @@ _NON_BLOCKING_LABELS = {
     DocItemLabel.PAGE_FOOTER,
     DocItemLabel.FOOTNOTE,
 }
+
+
+def _lines(text: str) -> list[str]:
+    return [line for line in text.splitlines() if line.strip()]
 
 
 class CustomTableSerializer(MarkdownTableSerializer):
@@ -56,6 +69,7 @@ class CustomTableSerializer(MarkdownTableSerializer):
 
 class DoclingView(DocumentView):
     supports_tables: ClassVar[bool] = True
+    supports_structure: ClassVar[bool] = True
 
     def __init__(self, json_path: Path):
         self.json_path = json_path
@@ -109,6 +123,50 @@ class DoclingView(DocumentView):
         if not stitch:
             return [fragment.table for fragment in fragments]
         return stitch_fragments(fragments, blockers)
+
+    @override
+    def iter_blocks(self, layers: set[DocumentLayer] | None = None) -> Iterator[DocumentBlock]:
+        if layers is None:
+            layers = set(DocumentLayer)
+        serializer = PlainTextDocSerializer(
+            doc=self.doc, params=PlainTextParams(layers=self._translate_layers(layers), image_placeholder="")
+        )
+        return self._blocks(serializer)
+
+    def _blocks(self, serializer: DocSerializer) -> Iterator[DocumentBlock]:
+        """
+        Blocks in the order, grouping and rendering of `serializer`: a block per line of text, and one per table
+        preceded by the lines of its captions.
+        """
+        for part in serializer.get_parts():
+            items = [span.item for span in part.spans]
+            table = next((item for item in items if isinstance(item, TableItem)), None)
+            if table is not None:
+                captions = serializer.serialize_captions(item=table).text
+                yield from (DocumentBlock(BlockKind.TEXT, line) for line in _lines(captions))
+                table_text = part.text.removeprefix(captions).lstrip("\n")
+                is_index = table.label == DocItemLabel.DOCUMENT_INDEX
+                yield DocumentBlock(BlockKind.TABLE, table_text, self._to_fragment(table, is_index).table)
+                continue
+
+            # A part can group several items, e.g. a chapter heading directly followed by its first subchapter one.
+            headings = self._first_lines(serializer, items, SectionHeaderItem)
+            titles = self._first_lines(serializer, items, TitleItem)
+            for line in _lines(part.text):
+                kind = BlockKind.TEXT
+                if headings and line.strip() == headings[0]:
+                    kind = BlockKind.HEADING
+                    headings.pop(0)
+                elif titles and line.strip() == titles[0]:
+                    kind = BlockKind.TITLE
+                    titles.pop(0)
+                yield DocumentBlock(kind, line)
+
+    @staticmethod
+    def _first_lines(serializer: DocSerializer, items: Sequence[NodeItem], item_type: type[NodeItem]) -> list[str]:
+        """The first line each item of `item_type` is rendered as by `serializer`."""
+        rendered = [_lines(serializer.serialize(item=item).text) for item in items if isinstance(item, item_type)]
+        return [lines[0].strip() for lines in rendered if lines]
 
     def _to_fragment(self, item: TableItem, is_index: bool) -> TableFragment:
         grid = item.data.grid

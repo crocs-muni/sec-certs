@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from importlib.resources import as_file, files
+
 import pytest
 
 import sec_certs.configuration as config_module
+import tests.data.fips.tables
 from sec_certs.converter import has_docling
-from sec_certs.document.base import DocumentTable, TablesNotSupportedError
+from sec_certs.document.base import BlockKind, DocumentTable, StructureNotSupportedError, TablesNotSupportedError
 from sec_certs.document.plaintext import PlainTextView
 
 if has_docling:
@@ -301,6 +304,68 @@ class TestViewContracts:
         else:
             with pytest.raises(TablesNotSupportedError):
                 view.get_tables()
+
+    @pytest.mark.parametrize("view_cls", [PlainTextView, *([DoclingView] if has_docling else [])])
+    def test_structure_support_flag_matches_actual_behaviour(self, view_cls, tmp_path):
+        """The same contract as for tables, for the same reason."""
+        view = view_cls(tmp_path / "artifact")
+
+        if view_cls.supports_structure:
+            with pytest.raises(Exception) as excinfo:  # noqa: B017 - the artifact is absent, so it must fail
+                list(view.iter_blocks())
+            assert not isinstance(excinfo.value, StructureNotSupportedError)
+        else:
+            with pytest.raises(StructureNotSupportedError):
+                list(view.iter_blocks())
+
+
+@pytest.mark.skipif(not has_docling, reason="docling is not installed")
+@pytest.mark.docling
+class TestDoclingBlocks:
+    @pytest.fixture(scope="class")
+    def view(self):
+        with as_file(files(tests.data.fips.tables) / "20fa0bcc74ce3b21.docling.json") as path:
+            view = DoclingView(path)
+            view.doc  # noqa: B018 - load before the file may be gone
+            yield view
+
+    def test_tables_are_the_unstitched_tables_of_the_document(self, view):
+        blocks = [block.table for block in view.iter_blocks() if block.kind is BlockKind.TABLE]
+
+        assert blocks == view.get_tables(include_index=True, stitch=False)
+
+    def test_caption_precedes_its_table(self, view):
+        blocks = list(view.iter_blocks())
+        captioned = [i for i, block in enumerate(blocks) if block.table is not None and block.table.caption]
+
+        assert captioned
+        assert all(blocks[i - 1].text == blocks[i].table.caption for i in captioned)
+
+    def test_headings_are_told_apart_from_text(self, view):
+        headings = [block.text for block in view.iter_blocks() if block.kind is BlockKind.HEADING]
+
+        assert "1. Module Overview" in headings
+        assert "2.1 Approved and Allowed Cryptographic Functions" in headings
+
+    def test_every_heading_of_a_group_is_a_heading(self, tmp_path):
+        """Docling can put a chapter heading and the one of its first subchapter into a single list."""
+        from docling_core.types.doc.document import DoclingDocument
+        from docling_core.types.doc.labels import DocItemLabel, GroupLabel
+
+        doc = DoclingDocument(name="policy")
+        group = doc.add_group(label=GroupLabel.LIST)
+        doc.add_heading("2 Cryptographic Module Specification", level=1, parent=group)
+        doc.add_heading("2.1 Description", level=2, parent=group)
+        doc.add_text(label=DocItemLabel.TEXT, text="The module is a library.")
+        doc.save_as_json(tmp_path / "policy.json")
+
+        blocks = list(DoclingView(tmp_path / "policy.json").iter_blocks())
+
+        assert [(block.kind, block.text) for block in blocks] == [
+            (BlockKind.HEADING, "2 Cryptographic Module Specification"),
+            (BlockKind.HEADING, "2.1 Description"),
+            (BlockKind.TEXT, "The module is a library."),
+        ]
 
 
 class TestDocumentTable:

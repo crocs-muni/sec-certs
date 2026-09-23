@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from pathlib import Path
 
 from typing_extensions import override
 
 from sec_certs.constants import LINE_SEPARATOR
-from sec_certs.document.base import DocumentLayer, DocumentTable, DocumentView, TablesNotSupportedError
+from sec_certs.document.base import (
+    DocumentBlock,
+    DocumentLayer,
+    DocumentTable,
+    DocumentView,
+    StructureNotSupportedError,
+    TablesNotSupportedError,
+)
 from sec_certs.utils.extract import load_text_file
 
 logger = logging.getLogger(__name__)
@@ -38,4 +46,11 @@ class PlainTextView(DocumentView):
         raise TablesNotSupportedError(
             f"No table structure in {self}. "
             "Set the pdf_converter configuration option to 'docling' and re-convert to extract tables."
+        )
+
+    @override
+    def iter_blocks(self, layers: set[DocumentLayer] | None = None) -> Iterator[DocumentBlock]:
+        raise StructureNotSupportedError(
+            f"No document structure in {self}. "
+            "Set the pdf_converter configuration option to 'docling' and re-convert to extract it."
         )

@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -79,14 +80,42 @@ class DocumentTable:
         return row_sep.join(cell_sep.join(cell.strip() for cell in row) for row in source)
 
 
+class BlockKind(str, Enum):
+    TITLE = "title"
+    HEADING = "heading"
+    TEXT = "text"
+    TABLE = "table"
+
+
+@dataclass(frozen=True)
+class DocumentBlock:
+    """
+    A piece of the document in reading order: a line of text, or a whole table.
+    """
+
+    kind: BlockKind
+    text: str
+    """The text as the backend renders it. For a table, its rendering including every row."""
+
+    table: DocumentTable | None = None
+    """The table itself, not stitched with its continuations on other pages. Only set for a table."""
+
+
 class TablesNotSupportedError(NotImplementedError):
     """
     Raised by views whose backend cannot recover table structure.
     """
 
 
+class StructureNotSupportedError(NotImplementedError):
+    """
+    Raised by views whose backend cannot tell headings, text and tables apart.
+    """
+
+
 class DocumentView(ABC):
     supports_tables: ClassVar[bool] = False
+    supports_structure: ClassVar[bool] = False
 
     @property
     @abstractmethod
@@ -115,6 +144,17 @@ class DocumentView(ABC):
         """
         raise TablesNotSupportedError(
             f"Cannot extract tables from {self}. Table extraction requires the docling PDF converter."
+        )
+
+    def iter_blocks(self, layers: set[DocumentLayer] | None = None) -> Iterator[DocumentBlock]:
+        """
+        Iterate over the blocks of the document in reading order.
+
+        :param layers: content layers to include, all of them when None.
+        :raises StructureNotSupportedError: when the backend cannot recover the document structure.
+        """
+        raise StructureNotSupportedError(
+            f"Cannot recover the structure of {self}. Structure extraction requires the docling PDF converter."
         )
 
     def __str__(self) -> str:
