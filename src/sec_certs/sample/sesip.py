@@ -137,9 +137,7 @@ class SESIPCertificate(
         return cert
 
     def _download_document(self, url: str | None, doc: DocumentState, label: str) -> None:
-        previous_hash = doc.source_hash
         doc.download_ok = False
-        doc.source_hash = None
 
         if not url:
             logger.warning(f"Cert dgst: {self.dgst} has no link to the {label}")
@@ -151,9 +149,10 @@ class SESIPCertificate(
             return
 
         doc.download_ok = True
-        doc.source_hash = helpers.get_sha256_filepath(doc.source_path)
-        if doc.source_hash != previous_hash:
+        source_hash = helpers.get_sha256_filepath(doc.source_path)
+        if source_hash != doc.source_hash:
             doc.reset_conversion()
+        doc.source_hash = source_hash
 
     @staticmethod
     def convert_documents(cert: SESIPCertificate, converter: PDFConverter, fresh: bool = True) -> SESIPCertificate:
@@ -163,9 +162,7 @@ class SESIPCertificate(
         return cert
 
     def _convert_document(self, converter: PDFConverter, doc: DocumentState, label: str) -> None:
-        doc.convert_ok = False
-        doc.txt_hash = None
-        doc.json_hash = None
+        doc.reset_conversion()
 
         doc.txt_path.parent.mkdir(parents=True, exist_ok=True)
         doc.json_path.parent.mkdir(parents=True, exist_ok=True)

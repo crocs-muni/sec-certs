@@ -176,9 +176,12 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         certs_to_process = [
             x
             for x in self
-            if x.state.cert.is_ok_to_download(fresh) or (x.has_separate_st and x.state.st.is_ok_to_download(fresh))
+            if (x.index_data.cert_link and x.state.cert.is_ok_to_download(fresh))
+            or (x.has_separate_st and x.state.st.is_ok_to_download(fresh))
         ]
-        if not fresh and certs_to_process:
+        if not certs_to_process:
+            return
+        if not fresh:
             logger.info(f"Downloading artifacts of {len(certs_to_process)} certificates for which download failed")
 
         cert_processing.process_parallel(
