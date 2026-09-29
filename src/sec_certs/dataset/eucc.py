@@ -241,12 +241,10 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
         resp.raise_for_status()
         return BeautifulSoup(resp.content, "html.parser")
 
-    def _download_certificates_links(self) -> list[str]:
+    def _parse_certificate_links(self, soup: BeautifulSoup, page_url: str) -> set[str]:
         """
-        Parses the EUCC base page and extracts URLs pointing to individual certificate detail pages.
+        Extracts URLs pointing to individual certificate detail pages from a single EUCC listing page.
         """
-        soup = self._get_soup(constants.EUCC_BASE_URL)
-
         links: set[str] = set()
 
         for anchor in soup.select("main a"):
@@ -262,10 +260,27 @@ class EUCCDataset(Dataset[EUCCCertificate], ComplexSerializableType):
             if not (is_certificate_link or is_eucc_id_link):
                 continue
 
-            full_url = urljoin(constants.EUCC_BASE_URL, href)
+            full_url = urljoin(page_url, href)
             links.add(full_url)
 
-        self._fetch_delay()
+        return links
+
+    def _download_certificates_links(self) -> list[str]:
+        """
+        Walks all pages of the EUCC listing by following the pager's "Next" link and extracts URLs
+        pointing to individual certificate detail pages.
+        """
+        links: set[str] = set()
+        page_url: str | None = constants.EUCC_BASE_URL
+
+        while page_url:
+            soup = self._get_soup(page_url)
+            links |= self._parse_certificate_links(soup, page_url)
+
+            next_anchor = soup.select_one("nav.ecl-pagination li.ecl-pagination__item--next a[href]")
+            page_url = urljoin(page_url, next_anchor["href"]) if next_anchor else None
+            self._fetch_delay()
+
         return sorted(links)
 
     def _extract_product_description(self, cert_soup: BeautifulSoup) -> str:
