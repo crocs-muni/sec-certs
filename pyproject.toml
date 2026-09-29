@@ -4,7 +4,7 @@
 
 [project]
   name = "sec-certs-page"
-  version = "0.0.1"
+  version = "0.1.0"
   authors = [
     { name = "Jan Jancar", email = "445358@mail.muni.cz" }
   ]
