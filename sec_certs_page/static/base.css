@@ -779,6 +779,10 @@ h6 {
     .home-container {
         max-width: min(83.3333%, 1700px);
     }
+
+    .home-container-wide {
+        max-width: min(95%, 1700px);
+    }
 }
 
 /* #content is already a flex column with space-between, so a short page leaves a gap above the
