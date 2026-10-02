@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from datetime import date
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import requests
 
@@ -17,6 +17,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
+from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
@@ -67,8 +68,8 @@ class SESIPCertificate(
 
     @dataclass
     class PdfData(BasePdfData, ComplexSerializableType):
-        # data from certificate pdf
-        pass
+        cert_metadata: dict[str, Any] | None = field(default=None)
+        st_metadata: dict[str, Any] | None = field(default=None)
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -175,6 +176,17 @@ class SESIPCertificate(
         doc.txt_hash = helpers.get_sha256_filepath(doc.txt_path)
         # only converters with HAS_JSON_OUTPUT write one
         doc.json_hash = helpers.get_sha256_filepath(doc.json_path) if doc.json_path.exists() else None
+
+    @staticmethod
+    def extract_documents_metadata(cert: SESIPCertificate) -> SESIPCertificate:
+        for doc, attr in ((cert.state.cert, "cert_metadata"), (cert.state.st, "st_metadata")):
+            if not doc.is_ok_to_extract():
+                continue
+            try:
+                setattr(cert.pdf_data, attr, extract_pdf_metadata(doc.source_path))
+            except ValueError:
+                doc.extract_ok = False
+        return cert
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):
