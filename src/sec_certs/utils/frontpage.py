@@ -5,6 +5,7 @@ import json
 import logging
 import re
 from abc import ABC, abstractmethod
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -283,3 +284,45 @@ class NSCIBFrontpageParser(FrontpageParser):
 scheme_frontpage_parsers: dict[str, FrontpageParser] = {
     "NL": NSCIBFrontpageParser(),
 }
+
+
+_SESIP_DATE = r"(\d{4}-\d{2}-\d{2})"
+_SESIP_CERT_ID_RE = re.compile(r"SESIP\s*-\s*\d{7,8}\s*-\s*\d{2}(?:\.\d+)?", re.I)
+_SESIP_LEVEL_RE = re.compile(r"\bSESIP\s?([1-5])(?![.\d])")
+_SESIP_SUMMARY_RE = re.compile(r"Summari[sz]ed", re.I)
+_SESIP_ISSUE_RE = re.compile(r"of (?:1st )?issu\w*\s*:?\s*" + _SESIP_DATE, re.I)
+_SESIP_EXPIRY_RE = re.compile(r"of expiry\s*:?\s*" + _SESIP_DATE, re.I)
+# the security target date is not a validity date
+_SESIP_VALIDITY_DATE_RE = re.compile(r"(?<!dated )" + _SESIP_DATE, re.I)
+
+
+def _iso_date(value: str | None) -> str | None:
+    try:
+        return date.fromisoformat(value).isoformat() if value else None
+    except ValueError:
+        return None
+
+
+def parse_sesip_frontpage(text: str) -> dict[str, Any]:
+    """
+    Extract the fields of a SESIP certificate by the phrases next to the values, so that labels
+    incorrectly converted do not matter. A field that is not found is None.
+    """
+    text = re.sub(r"\s+", " ", re.sub(r"[\u2010-\u2015]", "-", text))
+    cert_id = _SESIP_CERT_ID_RE.search(text)
+    summary = _SESIP_SUMMARY_RE.search(text)
+    level = _SESIP_LEVEL_RE.search(text, summary.end() if summary else 0)
+
+    issue = m.group(1) if (m := _SESIP_ISSUE_RE.search(text)) else None
+    expiry = m.group(1) if (m := _SESIP_EXPIRY_RE.search(text)) else None
+    # converters may move a date away from its label
+    dates = sorted(set(_SESIP_VALIDITY_DATE_RE.findall(text)))
+    if len(dates) == 2 and (issue is None or expiry is None or issue >= expiry):
+        issue, expiry = dates
+
+    return {
+        constants.TAG_CERT_ID: re.sub(r"\s", "", cert_id.group()).upper() if cert_id else None,
+        "assurance_level": f"SESIP{level.group(1)}" if level else None,
+        "date_of_issue": _iso_date(issue),
+        "date_of_expiry": _iso_date(expiry),
+    }

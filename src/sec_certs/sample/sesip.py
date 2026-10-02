@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import requests
 
+from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
@@ -16,6 +17,7 @@ from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
+from sec_certs.utils.frontpage import parse_sesip_frontpage
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
 from sec_certs.utils.pdf import extract_pdf_metadata
 
@@ -70,6 +72,7 @@ class SESIPCertificate(
     class PdfData(BasePdfData, ComplexSerializableType):
         cert_metadata: dict[str, Any] | None = field(default=None)
         st_metadata: dict[str, Any] | None = field(default=None)
+        cert_frontpage: dict[str, Any] | None = field(default=None)
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -186,6 +189,16 @@ class SESIPCertificate(
                 setattr(cert.pdf_data, attr, extract_pdf_metadata(doc.source_path))
             except ValueError:
                 doc.extract_ok = False
+        return cert
+
+    @staticmethod
+    def extract_cert_frontpage(cert: SESIPCertificate) -> SESIPCertificate:
+        if not cert.state.cert.is_ok_to_extract():
+            return cert
+        try:
+            cert.pdf_data.cert_frontpage = parse_sesip_frontpage(get_view(cert.state.cert).get_full_text())
+        except OSError:
+            cert.state.cert.extract_ok = False
         return cert
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
