@@ -217,8 +217,30 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed)
 
+    @only_backed()
     def extract_data(self, fresh: bool = True) -> None:
-        raise NotImplementedError("not implemented yet.")
+        certs_to_process = []
+        for cert in self:
+            docs = [doc for doc in (cert.state.cert, cert.state.st) if doc.is_ok_to_extract(fresh)]
+            for doc in docs:
+                doc.extract_ok = True
+            if docs:
+                certs_to_process.append(cert)
+        if not certs_to_process:
+            logger.info("No documents need extraction")
+            return
+
+        self._extract_metadata(certs_to_process)
+
+    @staged(logger, "Extracting PDF metadata of certs and STs")
+    def _extract_metadata(self, certs: list[SESIPCertificate]) -> None:
+        processed = cert_processing.process_parallel(
+            SESIPCertificate.extract_documents_metadata,
+            certs,
+            use_threading=False,
+            progress_bar_desc="Extracting PDF metadata",
+        )
+        self.update_with_certs(processed)
 
     def _compute_heuristics_body(self) -> None:
         raise NotImplementedError("not implemented yet.")
