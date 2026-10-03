@@ -294,6 +294,28 @@ _SESIP_ISSUE_RE = re.compile(r"of (?:1st )?issu\w*\s*:?\s*" + _SESIP_DATE, re.I)
 _SESIP_EXPIRY_RE = re.compile(r"of expiry\s*:?\s*" + _SESIP_DATE, re.I)
 # the security target date is not a validity date
 _SESIP_VALIDITY_DATE_RE = re.compile(r"(?<!dated )" + _SESIP_DATE, re.I)
+# converters put labels in the middle of values, so they are dropped first
+_SESIP_LABELS_RE = re.compile(
+    r"\bProduct\b(?!\s+Family)|\bSponsor\b|\(\s*and\b|\bdeveloper\s*\)|\bStandard\b|Assurance|\bValidity\b"
+    r"|Evaluation\s+Facility|(?<!Under )\bScheme\b",
+    re.I,
+)
+_SESIP_PRODUCT_RE = re.compile(
+    r"declares that\s+(?P<product>.+)\s+of\s+(?P<sponsor>.+?)(?:\s+in\s+.*?)?\s+complies to", re.I
+)
+_SESIP_LAB_RE = re.compile(r"evaluated by\s*:?\s*(.+?)(?:\s+located in|\s+Under scheme|\s+Date of|$)", re.I)
+
+
+def _sesip_value(match: re.Match[str] | None, group: int | str = 1) -> str | None:
+    value = re.sub(r"[\s,;:&]+$", "", match.group(group)) if match else ""
+    return value or None
+
+
+def _sesip_organisation(value: str | None) -> str | None:
+    if not value:
+        return None
+    value = NSCIBFrontpageParser._organisation_of(re.sub(r",?\s+\d.*$", "", value))
+    return re.sub(r"[\s,;:&]+$", "", value) or None
 
 
 def _iso_date(value: str | None) -> str | None:
@@ -309,6 +331,7 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
     incorrectly converted do not matter. A field that is not found is None.
     """
     text = re.sub(r"\s+", " ", re.sub(r"[\u2010-\u2015]", "-", text))
+    text = re.sub(r"\s+", " ", _SESIP_LABELS_RE.sub(" ", text))
     cert_id = _SESIP_CERT_ID_RE.search(text)
     summary = _SESIP_SUMMARY_RE.search(text)
     level = _SESIP_LEVEL_RE.search(text, summary.end() if summary else 0)
@@ -320,9 +343,13 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
     if len(dates) == 2 and (issue is None or expiry is None or issue >= expiry):
         issue, expiry = dates
 
+    product = _SESIP_PRODUCT_RE.search(text)
     return {
         constants.TAG_CERT_ID: re.sub(r"\s", "", cert_id.group()).upper() if cert_id else None,
         "assurance_level": f"SESIP{level.group(1)}" if level else None,
         "date_of_issue": _iso_date(issue),
         "date_of_expiry": _iso_date(expiry),
+        constants.TAG_CERT_ITEM: _sesip_value(product, "product"),
+        constants.TAG_SPONSOR: _sesip_organisation(_sesip_value(product, "sponsor")),
+        constants.TAG_CERT_LAB: _sesip_value(_SESIP_LAB_RE.search(text)),
     }
