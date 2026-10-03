@@ -330,6 +330,8 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
     Extract the fields of a SESIP certificate by the phrases next to the values, so that labels
     incorrectly converted do not matter. A field that is not found is None.
     """
+    # docling writes tables to txt as markdown
+    text = re.sub(r"\|?-{3,}\|?", " ", text).replace("|", " ")
     text = re.sub(r"\s+", " ", re.sub(r"[\u2010-\u2015]", "-", text))
     text = re.sub(r"\s+", " ", _SESIP_LABELS_RE.sub(" ", text))
     cert_id = _SESIP_CERT_ID_RE.search(text)
