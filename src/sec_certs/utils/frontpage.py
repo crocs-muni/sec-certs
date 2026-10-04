@@ -300,8 +300,11 @@ _SESIP_LABELS_RE = re.compile(
     r"|Evaluation\s+Facility|(?<!Under )\bScheme\b",
     re.I,
 )
+# docling repeats merged table cells
 _SESIP_PRODUCT_RE = re.compile(
-    r"declares that\s+(?P<product>.+)\s+of\s+(?P<sponsor>.+?)(?:\s+in\s+.*?)?\s+complies to", re.I
+    r"declares that\s+(?!.*declares that)(?P<product>.+)(?<!\sof)(?:\s+of)+\s+(?P<sponsor>.+?)(?:\s+in\s+.*?)?"
+    r"\s+complies to",
+    re.I,
 )
 _SESIP_LAB_RE = re.compile(r"evaluated by\s*:?\s*(.+?)(?:\s+located in|\s+Under scheme|\s+Date of|$)", re.I)
 
