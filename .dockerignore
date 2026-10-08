@@ -1,2 +1,17 @@
 # The directory with the datasets
 dataset/
+
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+build
+dist
+**/*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+docs/_build
+Dockerfile
+.dockerignore
