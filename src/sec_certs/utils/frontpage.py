@@ -313,7 +313,7 @@ _SESIP_AUGMENTATION_RE = re.compile(
 _SESIP_PROFILE_RE = re.compile(r"[\W_]*(.*?)\s*(?:\bAs\s+)?(?:evaluated by|Date of|$)", re.I)
 # docling repeats merged table cells
 _SESIP_PRODUCT_RE = re.compile(
-    r"declares that\s+(?!.*declares that)(?P<product>.+)(?<!\sof)(?:\s+of)+\s+(?P<sponsor>.+?)(?:\s+in\s+.*?)?"
+    r"declares that\s+(?!.*declares that)(?P<product>.+)(?<!\sof)(?:\s+of)+\s+(?P<developer>.+?)(?:\s+in\s+.*?)?"
     r"\s+complies to",
     re.I,
 )
@@ -369,7 +369,7 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
         "date_of_issue": _iso_date(issue),
         "date_of_expiry": _iso_date(expiry),
         constants.TAG_CERT_ITEM: _sesip_value(product, "product"),
-        constants.TAG_SPONSOR: _sesip_organisation(_sesip_value(product, "sponsor")),
+        constants.TAG_DEVELOPER: _sesip_organisation(_sesip_value(product, "developer")),
         constants.TAG_CERT_LAB: _sesip_value(_SESIP_LAB_RE.search(text)),
         "augmentations": _sesip_value(augmentation),
         "sesip_profile": None if profile is None or re.search(r"\bNone\b", profile) else profile,
