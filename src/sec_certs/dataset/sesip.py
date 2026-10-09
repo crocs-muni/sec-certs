@@ -219,26 +219,37 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
 
     @only_backed()
     def extract_data(self, fresh: bool = True) -> None:
-        certs_to_process = []
+        dgsts = set()
         for cert in self:
             docs = [doc for doc in (cert.state.cert, cert.state.st) if doc.is_ok_to_extract(fresh)]
             for doc in docs:
                 doc.extract_ok = True
             if docs:
-                certs_to_process.append(cert)
-        if not certs_to_process:
+                dgsts.add(cert.dgst)
+        if not dgsts:
             logger.info("No documents need extraction")
             return
 
-        self._extract_metadata(certs_to_process)
+        self._extract_metadata(dgsts)
+        self._extract_frontpages(dgsts)
 
     @staged(logger, "Extracting PDF metadata of certs and STs")
-    def _extract_metadata(self, certs: list[SESIPCertificate]) -> None:
+    def _extract_metadata(self, dgsts: set[str]) -> None:
         processed = cert_processing.process_parallel(
             SESIPCertificate.extract_documents_metadata,
-            certs,
+            [self[dgst] for dgst in dgsts],
             use_threading=False,
             progress_bar_desc="Extracting PDF metadata",
+        )
+        self.update_with_certs(processed)
+
+    @staged(logger, "Extracting frontpages of certs")
+    def _extract_frontpages(self, dgsts: set[str]) -> None:
+        processed = cert_processing.process_parallel(
+            SESIPCertificate.extract_cert_frontpage,
+            [self[dgst] for dgst in dgsts],
+            use_threading=False,
+            progress_bar_desc="Extracting cert frontpages",
         )
         self.update_with_certs(processed)
 
