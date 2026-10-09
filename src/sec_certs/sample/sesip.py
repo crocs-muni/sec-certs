@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from datetime import date
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import requests
 
@@ -39,8 +39,8 @@ class SESIPCertificate(
     class IndexData(ComplexSerializableType):
         """row of the TrustCB index table"""
 
-        cert_id: str | None = None
-        product: str | None = None
+        cert_id: str
+        product: str
         developer: str | None = None
         evaluator: str | None = None
         compliance: str | None = None  # not augmented
@@ -59,6 +59,9 @@ class SESIPCertificate(
         def from_dict(cls, dct: dict) -> SESIPCertificate.IndexData:
             known = {f.name for f in fields(cls)}
             values = {k: v for k, v in dct.items() if k in known}
+            for required in ("cert_id", "product"):
+                if not values.get(required):
+                    raise ValueError(f"index row has no {required}")
             raw_date = values.get("issue_date")
             if isinstance(raw_date, str):
                 try:
@@ -86,8 +89,6 @@ class SESIPCertificate(
         state: InternalState | None = None,
     ):
         super().__init__()
-        if not index_data.cert_id:
-            raise ValueError("index_data has no cert_id, which is the primary key")
         self.index_data = index_data
         self.pdf_data = pdf_data if pdf_data else SESIPCertificate.PdfData()
         self.heuristics = heuristics if heuristics else SESIPCertificate.Heuristics()
@@ -99,15 +100,14 @@ class SESIPCertificate(
 
     @property
     def cert_id(self) -> str:
-        # __init__ rejects an IndexData without cert_id -> this is never None
-        return cast(str, self.index_data.cert_id)
+        return self.index_data.cert_id
 
     @property
     def dgst(self) -> str:
         return get_first_16_bytes_sha256(self.cert_id)
 
     @property
-    def name(self) -> str | None:  # type: ignore
+    def name(self) -> str:  # type: ignore
         return self.index_data.product
 
     @property
