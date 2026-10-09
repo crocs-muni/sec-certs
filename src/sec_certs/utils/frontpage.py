@@ -297,9 +297,20 @@ _SESIP_VALIDITY_DATE_RE = re.compile(r"(?<!dated )" + _SESIP_DATE, re.I)
 # converters put labels in the middle of values, so they are dropped first
 _SESIP_LABELS_RE = re.compile(
     r"\bProduct\b(?!\s+Family)|\bSponsor\b|\(\s*and\b|\bdeveloper\s*\)|\bStandard\b|Assurance|\bValidity\b"
-    r"|Evaluation\s+Facility|(?<!Under )\bScheme\b",
+    r"|Evaluation\s+Facility|(?<!Under )\bScheme\b|ST\s+Reference|(?-i:\bPackage\b)",
     re.I,
 )
+# security target names contain the profile label too
+_SESIP_PROFILE_LABEL_RE = re.compile(r"\s*\b(?:SESIP|Protection)\s+Profiles?\b(?!\s+for)", re.I)
+# the standard ends differently in each template
+_SESIP_ST_RE = re.compile(
+    r".*(?:\(ISO/IEC 15408\)|ISO/IEC 15408-3\)|\(CEM\) v3\.1, rev 5|COMMON CRITERIA)[\s,;:&]*(.*?)Summari[sz]ed"
+)
+_SESIP_AUGMENTATION_RE = re.compile(
+    r"\s*(?:\(with source code review\)\s*)?with\s+(.*Resistance(?:\W+Isolation of (?:Platform|Application)(?: Parts)?)?)",
+    re.I,
+)
+_SESIP_PROFILE_RE = re.compile(r"[\W_]*(.*?)\s*(?:\bAs\s+)?(?:evaluated by|Date of|$)", re.I)
 # docling repeats merged table cells
 _SESIP_PRODUCT_RE = re.compile(
     r"declares that\s+(?!.*declares that)(?P<product>.+)(?<!\sof)(?:\s+of)+\s+(?P<sponsor>.+?)(?:\s+in\s+.*?)?"
@@ -340,6 +351,9 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
     cert_id = _SESIP_CERT_ID_RE.search(text)
     summary = _SESIP_SUMMARY_RE.search(text)
     level = _SESIP_LEVEL_RE.search(text, summary.end() if summary else 0)
+    assurance = _SESIP_PROFILE_LABEL_RE.sub("", text[level.end() :]) if level else ""
+    augmentation = _SESIP_AUGMENTATION_RE.match(assurance)
+    profile = _sesip_value(_SESIP_PROFILE_RE.match(assurance, augmentation.end() if augmentation else 0))
 
     issue = m.group(1) if (m := _SESIP_ISSUE_RE.search(text)) else None
     expiry = m.group(1) if (m := _SESIP_EXPIRY_RE.search(text)) else None
@@ -357,4 +371,7 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
         constants.TAG_CERT_ITEM: _sesip_value(product, "product"),
         constants.TAG_SPONSOR: _sesip_organisation(_sesip_value(product, "sponsor")),
         constants.TAG_CERT_LAB: _sesip_value(_SESIP_LAB_RE.search(text)),
+        "augmentations": _sesip_value(augmentation),
+        "sesip_profile": None if profile is None or re.search(r"\bNone\b", profile) else profile,
+        "st_reference": _sesip_value(_SESIP_ST_RE.search(text)),
     }
