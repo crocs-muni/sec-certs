@@ -317,6 +317,8 @@ _SESIP_PRODUCT_RE = re.compile(
     r"\s+complies to",
     re.I,
 )
+# docling puts the end of a long product line after the "of" line
+_SESIP_STRAY_VERSION_RE = re.compile(r"(version\s+\S+|\d+(?:\.\d+)*)\s+", re.I)
 _SESIP_LAB_RE = re.compile(r"evaluated by\s*:?\s*(.+?)(?:\s+located in|\s+Under scheme|\s+Date of|$)", re.I)
 
 
@@ -363,13 +365,16 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
         issue, expiry = dates
 
     product = _SESIP_PRODUCT_RE.search(text)
+    item, developer = _sesip_value(product, "product"), _sesip_value(product, "developer")
+    if item and developer and (stray := _SESIP_STRAY_VERSION_RE.match(developer)):
+        item, developer = f"{item} {stray.group(1)}", developer[stray.end() :]
     return {
         constants.TAG_CERT_ID: re.sub(r"\s", "", cert_id.group()).upper() if cert_id else None,
         "assurance_level": f"SESIP{level.group(1)}" if level else None,
         "date_of_issue": _iso_date(issue),
         "date_of_expiry": _iso_date(expiry),
-        constants.TAG_CERT_ITEM: _sesip_value(product, "product"),
-        constants.TAG_DEVELOPER: _sesip_organisation(_sesip_value(product, "developer")),
+        constants.TAG_CERT_ITEM: item,
+        constants.TAG_DEVELOPER: _sesip_organisation(developer),
         constants.TAG_CERT_LAB: _sesip_value(_SESIP_LAB_RE.search(text)),
         "augmentations": _sesip_value(augmentation),
         "sesip_profile": None if profile is None or re.search(r"\bNone\b", profile) else profile,
