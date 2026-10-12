@@ -15,10 +15,6 @@ from sec_certs.utils.frontpage.base import (
 
 
 class CanadaFrontpageParser(FrontpageParser):
-    """
-    Frontpage parser for the Canadian scheme.
-    """
-
     certification_body = "CANADA"
     scheme = "CA"
 
@@ -48,7 +44,6 @@ class CanadaFrontpageParser(FrontpageParser):
         return items_found
 
     def _fields_after_title(self, full_text: str) -> dict[str, Any]:
-        """Recover the product name and date, which both sit right after the frontpage title."""
         title_match = self._TITLE_RE.search(full_text)
         if title_match is None:
             return {}

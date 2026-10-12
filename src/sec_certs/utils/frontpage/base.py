@@ -24,7 +24,6 @@ _BULLET_CHARS = "●•*-–— \t"
 
 
 def _clean(value: str) -> str:
-    """Normalize a block of extracted text."""
     value = html.unescape(value.replace("\n", " "))
     value = _MARKDOWN_HEADING_RE.sub("", value)
     value = value.strip().lstrip(_BULLET_CHARS)
@@ -33,20 +32,17 @@ def _clean(value: str) -> str:
 
 
 def _clean_blocks(blocks: list[str]) -> list[str]:
-    """Normalize each block, dropping those left empty."""
     cleaned = (_clean(block) for block in blocks)
     return [block for block in cleaned if block]
 
 
 def _clean_identity(value: str) -> str:
-    """Normalize a frontpage identity value (certificate id, certified item, developer)."""
     # Converters sometimes break a hyphenated identifier across lines ("NSCIB- 2400046-01"); rejoin
     value = _HYPHEN_BREAK_RE.sub("-", _clean(value))
     return normalize_match_string(value)
 
 
 def _page_one_blocks(document: dict[str, Any]) -> list[str]:
-    """Keep page-one Docling blocks, dropping running headers/footers and empty blocks."""
     blocks = []
     for block in document.get("texts", []):
         if block.get("label") in _DOCLING_FURNITURE_LABELS or not block.get("text"):
@@ -99,7 +95,6 @@ class FrontpageParser(ABC):
                 yield match
 
     def _recover_cert_id(self, text: str) -> str:
-        """Find the certificate id anywhere in ``text``, using the scheme's canonical id rules."""
         match = next(self._cert_id_matches(text), None)
         return _clean_identity(match.group()) if match else ""
 
