@@ -5,7 +5,6 @@ import re
 from typing import Any
 
 from sec_certs import constants
-from sec_certs.cert_rules import rules
 from sec_certs.utils.frontpage.base import FrontpageParser, _clean, _clean_identity, _page_one_blocks, _page_one_lines
 
 
@@ -15,12 +14,11 @@ class CanadaFrontpageParser(FrontpageParser):
     """
 
     certification_body = "CANADA"
+    scheme = "CA"
 
     _TITLE_RE = re.compile(r"COMMON CRITERIA\s+CERTIFICATION REPORT(?:\s+[A-Z][A-Z]+(?:\s+[A-Z][A-Z]+)*)?")
     _MONTHS = "|".join(calendar.month_name[1:])
     _DATE_RE = re.compile(rf"\b\d{{1,2}}\s+(?:{_MONTHS})\s+\d{{4}}\b")
-
-    cert_id_rules = rules["cc_cert_id"]["CA"]
 
     def parse_structured(self, document: dict[str, Any]) -> dict[str, Any]:
         return self._parse(_page_one_blocks(document))
@@ -64,22 +62,10 @@ class CanadaFrontpageParser(FrontpageParser):
 
         return fields
 
-    @classmethod
-    def _recover_cert_item(cls, rest: str, date_match: re.Match[str] | None) -> str:
-        product_name_end_candidates = []
+    def _recover_cert_item(self, rest: str, date_match: re.Match[str] | None) -> str:
+        product_name_end_candidates = [match.start() for match in self._cert_id_matches(rest)]
         if date_match:
             product_name_end_candidates.append(date_match.start())
-        for rule in cls.cert_id_rules:
-            cert_id_match = re.search(rule, rest)
-            if cert_id_match:
-                product_name_end_candidates.append(cert_id_match.start())
 
         product_name_end = min(product_name_end_candidates) if product_name_end_candidates else len(rest)
         return _clean_identity(rest[:product_name_end])
-
-    def _recover_cert_id(self, text: str) -> str:
-        for rule in self.cert_id_rules:
-            match = re.search(rule, text)
-            if match:
-                return _clean_identity(match.group())
-        return ""
