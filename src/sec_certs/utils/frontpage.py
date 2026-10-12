@@ -320,6 +320,10 @@ _SESIP_PRODUCT_RE = re.compile(
 # docling puts the end of a long product line after the "of" line
 _SESIP_STRAY_VERSION_RE = re.compile(r"(version\s+\S+|\d+(?:\.\d+)*)\s+", re.I)
 _SESIP_LAB_RE = re.compile(r"evaluated by\s*:?\s*(.+?)(?:\s+located in|\s+Under scheme|\s+Date of|$)", re.I)
+_SESIP_EN_RE = re.compile(r"EN\s*17927\s*:\s*(\d{4})")
+# OCR of the logos may leave a few characters between the parts
+_SESIP_GP_RE = re.compile(r"GP_FST_070\W*Public\s+Release\D{0,10}?v\s*(\d+\.\d+)", re.I)
+_SESIP_OLD_STANDARD_RE = re.compile(r"Platforms\s*(?:\(SESIP\))?\s*v\s*(\d+\.\d+)(,.{0,20}?GP_FST_070)?", re.I)
 
 
 def _sesip_value(match: re.Match[str] | None, group: int | str = 1) -> str | None:
@@ -332,6 +336,16 @@ def _sesip_organisation(value: str | None) -> str | None:
         return None
     value = NSCIBFrontpageParser._organisation_of(re.sub(r",?\s+\d.*$", "", value))
     return re.sub(r"[\s,;:&]+$", "", value) or None
+
+
+def _sesip_standard(text: str) -> str | None:
+    if m := _SESIP_EN_RE.search(text):
+        return f"EN 17927:{m.group(1)}"
+    if m := _SESIP_GP_RE.search(text):
+        return f"GP_FST_070 v{m.group(1)}"
+    if m := _SESIP_OLD_STANDARD_RE.search(text):
+        return f"GP_FST_070 v{m.group(1)}" if m.group(2) else f"SESIP v{m.group(1)}"
+    return None
 
 
 def _iso_date(value: str | None) -> str | None:
@@ -379,4 +393,5 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
         "augmentations": _sesip_value(augmentation),
         "sesip_profile": None if profile is None or re.search(r"\bNone\b", profile) else profile,
         "st_reference": _sesip_value(_SESIP_ST_RE.search(text)),
+        "standard": _sesip_standard(text),
     }
