@@ -32,6 +32,12 @@ def _clean(value: str) -> str:
     return "".join(filter(str.isprintable, value))
 
 
+def _clean_blocks(blocks: list[str]) -> list[str]:
+    """Normalize each block, dropping those left empty."""
+    cleaned = (_clean(block) for block in blocks)
+    return [block for block in cleaned if block]
+
+
 def _clean_identity(value: str) -> str:
     """Normalize a frontpage identity value (certificate id, certified item, developer)."""
     # Converters sometimes break a hyphenated identifier across lines ("NSCIB- 2400046-01"); rejoin

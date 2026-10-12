@@ -4,7 +4,13 @@ import re
 from typing import Any
 
 from sec_certs import constants
-from sec_certs.utils.frontpage.base import FrontpageParser, _clean, _clean_identity, _page_one_blocks, _page_one_lines
+from sec_certs.utils.frontpage.base import (
+    FrontpageParser,
+    _clean_blocks,
+    _clean_identity,
+    _page_one_blocks,
+    _page_one_lines,
+)
 
 
 class NSCIBFrontpageParser(FrontpageParser):
@@ -59,7 +65,7 @@ class NSCIBFrontpageParser(FrontpageParser):
 
     def _parse_frontpage_blocks(self, blocks: list[str]) -> dict[str, Any]:
         """Read the label/value form on page one."""
-        blocks = self._clean_blocks(blocks)
+        blocks = _clean_blocks(blocks)
 
         body = self._blocks_after_title(blocks)
         if body is None:
@@ -76,11 +82,6 @@ class NSCIBFrontpageParser(FrontpageParser):
             items_found[constants.TAG_CERT_ITEM] = _clean_identity(" ".join(product_name_blocks))
 
         return items_found
-
-    @staticmethod
-    def _clean_blocks(blocks: list[str]) -> list[str]:
-        cleaned = (_clean(block) for block in blocks)
-        return [block for block in cleaned if block]
 
     def _blocks_after_title(self, blocks: list[str]) -> list[str] | None:
         """Return the blocks following the title line, or None if this isn't an NSCIB frontpage."""
