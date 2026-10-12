@@ -14,10 +14,6 @@ from sec_certs.utils.frontpage.base import (
 
 
 class NSCIBFrontpageParser(FrontpageParser):
-    """
-    Frontpage parser for the Dutch scheme (NSCIB).
-    """
-
     scheme = "NL"
 
     TITLE_ANCHORS = ("Certification Report", "Assurance Continuity Maintenance Report")
@@ -63,7 +59,6 @@ class NSCIBFrontpageParser(FrontpageParser):
         return self._parse_frontpage_blocks(_page_one_lines(text_with_newlines))
 
     def _parse_frontpage_blocks(self, blocks: list[str]) -> dict[str, Any]:
-        """Read the label/value form on page one."""
         blocks = _clean_blocks(blocks)
 
         body = self._blocks_after_title(blocks)
@@ -110,7 +105,6 @@ class NSCIBFrontpageParser(FrontpageParser):
         return items_found, product_name_blocks
 
     def _label_of(self, block: str) -> tuple[str, re.Match[str]] | None:
-        """Return the known frontpage label of ``block`` with its match, or None if it carries none."""
         match = self._LABEL_RE.match(block)
         if match is None:
             return None
@@ -119,8 +113,6 @@ class NSCIBFrontpageParser(FrontpageParser):
 
     def _values_at(self, blocks: list[str], idx: int, label: str, match: re.Match[str]) -> list[tuple[str, str]]:
         """
-        Resolve the tag/value pair(s) for the label matched at ``blocks[idx]``.
-
         pdftotext keeps the value on the label's own line (``match``). Docling emits whole frontpage
         cells instead, before or merged into the label's block, carrying the organization's postal
         address. Organizations are therefore always address-trimmed, a no-op on a bare name, so that
