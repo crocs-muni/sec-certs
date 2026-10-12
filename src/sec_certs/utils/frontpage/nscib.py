@@ -85,13 +85,9 @@ class NSCIBFrontpageParser(FrontpageParser):
     def _blocks_after_title(self, blocks: list[str]) -> list[str] | None:
         """Return the blocks following the title line, or None if this isn't an NSCIB frontpage."""
         for idx, block in enumerate(blocks):
-            if self._is_title(block):
+            if self._TITLE_RE.match(block):
                 return blocks[idx + 1 :]
         return None
-
-    def _is_title(self, block: str) -> bool:
-        """Recognize the report title, optionally prefixed with the scheme name."""
-        return self._TITLE_RE.match(block) is not None
 
     def _collect_fields(self, blocks: list[str]) -> tuple[dict[str, Any], list[str]]:
         """Split the blocks following the title into recognized label values and product-name lines."""
