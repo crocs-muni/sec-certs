@@ -4,7 +4,6 @@ import re
 from typing import Any
 
 from sec_certs import constants
-from sec_certs.cert_rules import rules
 from sec_certs.utils.frontpage.base import FrontpageParser, _clean, _clean_identity, _page_one_blocks, _page_one_lines
 
 
@@ -14,6 +13,7 @@ class NSCIBFrontpageParser(FrontpageParser):
     """
 
     certification_body = "NSCIB"
+    scheme = "NL"
 
     TITLE_ANCHORS = ("Certification Report", "Assurance Continuity Maintenance Report")
 
@@ -160,12 +160,3 @@ class NSCIBFrontpageParser(FrontpageParser):
 
         street_index = number_index - 1 if words[number_index].strip(",.").isdigit() else number_index
         return " ".join(words[:street_index]) if street_index > 0 else value
-
-    @staticmethod
-    def _recover_cert_id(text: str) -> str:
-        """Find the report number anywhere on the page, using the scheme's canonical id rules."""
-        for rule in rules["cc_cert_id"]["NL"]:
-            match = re.search(rule, text)
-            if match:
-                return _clean_identity(match.group())
-        return ""

@@ -5,10 +5,12 @@ import json
 import logging
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 from sec_certs import constants
+from sec_certs.cert_rules import rules
 from sec_certs.utils.extract import load_text_file, normalize_match_string
 
 logger = logging.getLogger(__name__)
@@ -60,6 +62,8 @@ class FrontpageParser(ABC):
     """Base class for scheme-specific certification report frontpage parsers."""
 
     certification_body: str
+    # Key of the scheme's canonical certificate id rules in `rules["cc_cert_id"]`.
+    scheme: str
 
     @abstractmethod
     def parse_structured(self, document: dict[str, Any]) -> dict[str, Any]:
@@ -81,6 +85,18 @@ class FrontpageParser(ABC):
         :return: The extracted fields, empty if nothing could be extracted.
         """
         raise NotImplementedError("Not meant to be implemented by the base class.")
+
+    def _cert_id_matches(self, text: str) -> Iterator[re.Match[str]]:
+        """Yield the first match of each of the scheme's certificate id rules, in rule order."""
+        for rule in rules["cc_cert_id"][self.scheme]:
+            match = re.search(rule, text)
+            if match:
+                yield match
+
+    def _recover_cert_id(self, text: str) -> str:
+        """Find the certificate id anywhere in ``text``, using the scheme's canonical id rules."""
+        match = next(self._cert_id_matches(text), None)
+        return _clean_identity(match.group()) if match else ""
 
     def parse(self, txt_path: Path, json_path: Path | None = None) -> dict[str, Any]:
         """
