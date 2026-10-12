@@ -30,13 +30,38 @@ class CanadaFrontpageParser(FrontpageParser):
     _DETACHED_MARK_RE = re.compile(r"\s+(?=[®™])")
 
     def parse_structured(self, document: dict[str, Any]) -> dict[str, Any]:
-        return self._parse(_page_one_blocks(document))
+        blocks = _clean_blocks(_page_one_blocks(document))
+        developer_index = self._developer_block_index(blocks)
+        if developer_index is None:
+            return self._parse(blocks)
+
+        developer = blocks.pop(developer_index)
+        items_found = self._parse(blocks)
+        if items_found:
+            items_found[constants.TAG_DEVELOPER] = _clean_identity(developer)
+        return items_found
 
     def parse_text(self, text: str, text_with_newlines: str) -> dict[str, Any]:
-        return self._parse(_page_one_lines(text_with_newlines))
+        return self._parse(_clean_blocks(_page_one_lines(text_with_newlines)))
+
+    def _developer_block_index(self, blocks: list[str]) -> int | None:
+        """Docling-only: the developer is the 2nd of exactly two blocks between the title and the date or cert id."""
+        title_index = next((idx for idx, block in enumerate(blocks) if self._TITLE_RE.fullmatch(block)), None)
+        if title_index is None:
+            return None
+
+        between = []
+        for idx in range(title_index + 1, len(blocks)):
+            if self._DATE_RE.search(blocks[idx]) or next(self._cert_id_matches(blocks[idx]), None):
+                break
+            between.append(idx)
+        else:
+            return None
+
+        return between[1] if len(between) == 2 else None
 
     def _parse(self, blocks: list[str]) -> dict[str, Any]:
-        full_text = " ".join(_clean_blocks(blocks))
+        full_text = " ".join(blocks)
 
         cert_id = self._recover_cert_id(full_text)
         if not cert_id:
