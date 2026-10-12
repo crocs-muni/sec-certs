@@ -128,7 +128,7 @@ class FrontpageParser(ABC):
             text, text_with_newlines, _ = load_text_file(txt_path)
             items_found = self.parse_text(text, text_with_newlines)
         except Exception as e:
-            relative_filepath = "/".join(str(txt_path).split("/")[-4:])
+            relative_filepath = Path(*txt_path.parts[-4:])
             error_msg = f"Failed to parse {type(self).__name__} headers from frontpage: {relative_filepath}; {e}"
             logger.error(error_msg)
             raise ValueError(error_msg) from e
@@ -136,5 +136,5 @@ class FrontpageParser(ABC):
         if items_found:
             items_found[constants.TAG_PARSE_STRATEGY] = "text"
         else:
-            logger.error(f"ERROR: front page not found for file: {txt_path}")
+            logger.error(f"Front page not found for file: {txt_path}")
         return items_found
