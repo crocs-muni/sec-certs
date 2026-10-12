@@ -359,6 +359,29 @@ def test_canada_further_template(canada_parser: CanadaFrontpageParser, frontpage
     assert items[constants.TAG_REPORT_DATE] == "30 November 2016"
 
 
+def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(
+        frontpage_dir / "docling" / "canada_report_dell.txt", frontpage_dir / "docling" / "canada_report_dell.json"
+    )
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == {
+        constants.TAG_CERT_ID: "383-4-480",
+        constants.TAG_CERT_LAB: "CANADA",
+        constants.TAG_CERT_ITEM: "Dell EMC™ Isilon with OneFS v8.2.0.0",
+        constants.TAG_DEVELOPER: "Dell EMC",
+        constants.TAG_REPORT_DATE: "31 January 2020",
+    }
+
+
+def test_canada_text_keeps_developer_in_cert_item(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    """Known limitation: pdftotext can't tell the developer line from a wrapped product name."""
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_dell.txt")
+
+    assert items[constants.TAG_CERT_ITEM] == "Dell EMC™ Isilon with OneFS v8.2.0.0 Dell EMC"
+    assert constants.TAG_DEVELOPER not in items
+
+
 def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
     """
     Documents a real converter limitation rather than papering over it.
