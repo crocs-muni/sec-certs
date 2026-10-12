@@ -18,7 +18,6 @@ class NSCIBFrontpageParser(FrontpageParser):
     Frontpage parser for the Dutch scheme (NSCIB).
     """
 
-    certification_body = "NSCIB"
     scheme = "NL"
 
     TITLE_ANCHORS = ("Certification Report", "Assurance Continuity Maintenance Report")
