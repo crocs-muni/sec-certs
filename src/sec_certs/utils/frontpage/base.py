@@ -67,7 +67,6 @@ def _page_one_lines(text_with_newlines: str) -> list[str]:
 class FrontpageParser(ABC):
     """Base class for scheme-specific certification report frontpage parsers."""
 
-    certification_body: str
     # Key of the scheme's canonical certificate id rules in `rules["cc_cert_id"]`.
     scheme: str
 
