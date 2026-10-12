@@ -5,7 +5,13 @@ import re
 from typing import Any
 
 from sec_certs import constants
-from sec_certs.utils.frontpage.base import FrontpageParser, _clean, _clean_identity, _page_one_blocks, _page_one_lines
+from sec_certs.utils.frontpage.base import (
+    FrontpageParser,
+    _clean_blocks,
+    _clean_identity,
+    _page_one_blocks,
+    _page_one_lines,
+)
 
 
 class CanadaFrontpageParser(FrontpageParser):
@@ -27,9 +33,7 @@ class CanadaFrontpageParser(FrontpageParser):
         return self._parse(_page_one_lines(text_with_newlines))
 
     def _parse(self, blocks: list[str]) -> dict[str, Any]:
-        cleaned_blocks = [_clean(block) for block in blocks]
-        non_empty_blocks = [block for block in cleaned_blocks if block]
-        full_text = " ".join(non_empty_blocks)
+        full_text = " ".join(_clean_blocks(blocks))
 
         cert_id = self._recover_cert_id(full_text)
         if not cert_id:
