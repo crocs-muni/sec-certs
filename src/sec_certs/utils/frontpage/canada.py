@@ -18,9 +18,16 @@ class CanadaFrontpageParser(FrontpageParser):
     certification_body = "CANADA"
     scheme = "CA"
 
-    _TITLE_RE = re.compile(r"COMMON CRITERIA\s+CERTIFICATION REPORT(?:\s+[A-Z][A-Z]+(?:\s+[A-Z][A-Z]+)*)?")
+    # 2008-2015 template: "Certification Report [EAL 3 Evaluation of] <product> Issued by: ..."
+    _TITLE_RE = re.compile(
+        r"COMMON CRITERIA\s+CERTIFICATION REPORT(?:\s+[A-Z][A-Z]+(?:\s+[A-Z][A-Z]+)*)?"
+        r"|Certification Report(?:\s+\S+(?:\s+\S+){0,4}?\s+[Ee]valuation\s+of\b)?"
+    )
+    _PRODUCT_NAME_END_RE = re.compile(r"\bIssued by\b")
     _MONTHS = "|".join(calendar.month_name[1:])
     _DATE_RE = re.compile(rf"\b\d{{1,2}}\s+(?:{_MONTHS})\s+\d{{4}}\b")
+    # Docling writes "McAfee ® Hercules ®"
+    _DETACHED_MARK_RE = re.compile(r"\s+(?=[®™])")
 
     def parse_structured(self, document: dict[str, Any]) -> dict[str, Any]:
         return self._parse(_page_one_blocks(document))
@@ -65,6 +72,9 @@ class CanadaFrontpageParser(FrontpageParser):
         product_name_end_candidates = [match.start() for match in self._cert_id_matches(rest)]
         if date_match:
             product_name_end_candidates.append(date_match.start())
+        end_match = self._PRODUCT_NAME_END_RE.search(rest)
+        if end_match:
+            product_name_end_candidates.append(end_match.start())
 
         product_name_end = min(product_name_end_candidates) if product_name_end_candidates else len(rest)
-        return _clean_identity(rest[:product_name_end])
+        return _clean_identity(self._DETACHED_MARK_RE.sub("", rest[:product_name_end]))

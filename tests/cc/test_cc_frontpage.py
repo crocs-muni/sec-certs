@@ -302,11 +302,29 @@ CANADA_THYCOTIC_EXPECTED = {
     constants.TAG_REPORT_DATE: "23 October 2018",
 }
 
+CANADA_MCAFEE_HERCULES_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-88-CR",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "McAfee® Hercules® Policy Auditor v4.5 and McAfee® Hercules® Remediation Manager v4.5",
+    constants.TAG_REPORT_DATE: "11 April 2008",
+}
 
-@pytest.mark.parametrize(
-    ("name", "expected"),
-    [("canada_report_hsl", CANADA_HSL_EXPECTED), ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED)],
-)
+CANADA_NETAPP_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-263-CR",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "NetApp Clustered Data ONTAP® 8.2.1",
+    constants.TAG_REPORT_DATE: "5 January 2015",
+}
+
+CANADA_REPORTS = [
+    ("canada_report_hsl", CANADA_HSL_EXPECTED),
+    ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED),
+    ("canada_report_mcafee_hercules", CANADA_MCAFEE_HERCULES_EXPECTED),
+    ("canada_report_netapp", CANADA_NETAPP_EXPECTED),
+]
+
+
+@pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
 def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
     """The same fields must come out of pdftotext plain text and Docling JSON alike."""
     items = canada_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
@@ -315,10 +333,7 @@ def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, 
     assert items == expected
 
 
-@pytest.mark.parametrize(
-    ("name", "expected"),
-    [("canada_report_hsl", CANADA_HSL_EXPECTED), ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED)],
-)
+@pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
 def test_canada_structured(
     canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]
 ):
