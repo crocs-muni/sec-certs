@@ -304,7 +304,7 @@ _SESIP_LABELS_RE = re.compile(
 _SESIP_PROFILE_LABEL_RE = re.compile(r"\s*\b(?:SESIP|Protection)\s+Profiles?\b(?!\s+for)", re.I)
 # the standard ends differently in each template
 _SESIP_ST_RE = re.compile(
-    r".*(?:\(ISO/IEC 15408\)|ISO/IEC 15408-3\)|\(CEM\) v3\.1, rev 5|COMMON CRITERIA)[\s,;:&]*(.*?)Summari[sz]ed"
+    r".*(?:\(ISO/IEC 15408\)|ISO/IEC 15408-3\)|\(CEM\) v3\.1, rev 5|COMMON CRITERIA)[\s,;:&]*(.*?)(?i:Summari[sz]ed)"
 )
 _SESIP_AUGMENTATION_RE = re.compile(
     r"\s*(?:\(with source code review\)\s*)?with\s+(.*Resistance(?:\W+Isolation of (?:Platform|Application)(?: Parts)?)?)",
@@ -319,7 +319,7 @@ _SESIP_PRODUCT_RE = re.compile(
 )
 # docling puts the end of a long product line after the "of" line
 _SESIP_STRAY_VERSION_RE = re.compile(r"(version\s+\S+|\d+(?:\.\d+)*)\s+", re.I)
-_SESIP_LAB_RE = re.compile(r"evaluated by\s*:?\s*(.+?)(?:\s+located in|\s+Under scheme|\s+Date of|$)", re.I)
+_SESIP_LAB_RE = re.compile(r"evaluated by\s*:?\s*(?:As\s+)?(.+?)(?:\s+located in|\s+Under scheme|\s+Date of|$)", re.I)
 _SESIP_EN_RE = re.compile(r"EN\s*17927\s*:\s*(\d{4})")
 # OCR of the logos may leave a few characters between the parts
 _SESIP_GP_RE = re.compile(r"GP_FST_070\W*Public\s+Release\D{0,10}?v\s*(\d+\.\d+)", re.I)
