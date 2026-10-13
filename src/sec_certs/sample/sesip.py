@@ -43,7 +43,7 @@ class SESIPCertificate(
         product: str
         developer: str | None = None
         evaluator: str | None = None
-        compliance: str | None = None  # not augmented
+        assurance_level: str | None = None  # not augmented
         standard: str | None = None
         status: str | None = None
         issue_date: date | None = None
@@ -124,7 +124,7 @@ class SESIPCertificate(
             + str(self.index_data.developer)
             + "\n"
             + "Assurance: "
-            + str(self.index_data.compliance)
+            + str(self.index_data.assurance_level)
         )
 
     @property

@@ -385,8 +385,8 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
     return {
         constants.TAG_CERT_ID: re.sub(r"\s", "", cert_id.group()).upper() if cert_id else None,
         "assurance_level": f"SESIP{level.group(1)}" if level else None,
-        "date_of_issue": _iso_date(issue),
-        "date_of_expiry": _iso_date(expiry),
+        "issue_date": _iso_date(issue),
+        "expiry_date": _iso_date(expiry),
         constants.TAG_CERT_ITEM: item,
         constants.TAG_DEVELOPER: _sesip_organisation(developer),
         constants.TAG_CERT_LAB: _sesip_value(_SESIP_LAB_RE.search(text)),

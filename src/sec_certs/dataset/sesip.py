@@ -45,7 +45,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             "Product": "product",
             "Developer": "developer",
             "Evaluator": "evaluator",
-            "Compliance": "compliance",
+            "Compliance": "assurance_level",
             "Standard": "standard",
             "Status": "status",
             "Cert": "cert_link",
