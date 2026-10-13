@@ -185,6 +185,7 @@ class SESIPCertificate(
         for doc, attr in ((cert.state.cert, "cert_metadata"), (cert.state.st, "st_metadata")):
             if not doc.is_ok_to_extract():
                 continue
+            setattr(cert.pdf_data, attr, None)
             try:
                 setattr(cert.pdf_data, attr, extract_pdf_metadata(doc.source_path))
             except ValueError:
@@ -195,9 +196,11 @@ class SESIPCertificate(
     def extract_cert_frontpage(cert: SESIPCertificate) -> SESIPCertificate:
         if not cert.state.cert.is_ok_to_extract():
             return cert
+        cert.pdf_data.cert_frontpage = None
         try:
             cert.pdf_data.cert_frontpage = parse_sesip_frontpage(get_view(cert.state.cert).get_full_text())
-        except OSError:
+        except (OSError, ValueError) as e:
+            logger.error(f"Cert dgst: {cert.dgst} failed to parse the certificate frontpage: {e}")
             cert.state.cert.extract_ok = False
         return cert
 
