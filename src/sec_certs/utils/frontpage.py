@@ -285,7 +285,7 @@ scheme_frontpage_parsers: dict[str, FrontpageParser] = {
     "NL": NSCIBFrontpageParser(),
 }
 
-
+# -----SESIP SECTION-----
 _SESIP_DATE = r"(\d{4}-\d{2}-\d{2})"
 _SESIP_CERT_ID_RE = re.compile(r"SESIP\s*-\s*\d{7,8}\s*-\s*\d{2}(?:\.\d+)?", re.I)
 _SESIP_LEVEL_RE = re.compile(r"\bSESIP\s?([1-5])(?![.\d])")
@@ -360,7 +360,7 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
     Extract the fields of a SESIP certificate by the phrases next to the values, so that labels
     incorrectly converted do not matter. A field that is not found is None.
     """
-    # docling writes tables to txt as markdown
+    # docling writes tables to txt as markdown - only safeguard for bad config
     text = re.sub(r"\|?-{3,}\|?", " ", text).replace("|", " ")
     text = re.sub(r"\s+", " ", re.sub(r"[\u2010-\u2015]", "-", text))
     text = re.sub(r"\s+", " ", _SESIP_LABELS_RE.sub(" ", text))
