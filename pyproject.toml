@@ -95,6 +95,10 @@
     sec-certs = "sec_certs.cli:main"
 
 [dependency-groups]
+binder = [
+    "jupyterlab>=4.6.4",
+    "notebook>=7.6.3",
+]
   dev = [
     "ruff==0.15.6",
     "mypy==1.19.1",
