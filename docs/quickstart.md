@@ -30,7 +30,7 @@ to obtain the freshly processed dataset from [sec-certs.org](https://sec-certs.o
 ::::
 
 ```{hint}
-You can work with those with the help of the [common criteria notebook](notebooks/examples/cc.ipynb) or [fips notebook](notebooks/examples/fips.ipynb) and even launch them in MyBinder without installing anything. Just use the 🚀 icon (top-right corner).
+You can work with those with the help of the [common criteria notebook](notebooks/examples/cc.ipynb) or [fips notebook](notebooks/examples/fips.ipynb).
 ```
 
 If you insist on processing the whole certificates pipeline, make sure that you installed all [dependencies](installation.md#dependencies). Then, run

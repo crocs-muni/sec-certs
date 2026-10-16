@@ -11,10 +11,6 @@ There are three main parts of this documentation. *Quickstart* describes high-le
 Show me Quickstart!
 ```
 
-```{admonition} Launch notebooks in MyBinder
-Each of the notebooks can be launched interactively in MyBinder by clicking on 🚀 icon (top-right corner).
-```
-
 ```{toctree}
 :hidden:
 :caption: Navigation

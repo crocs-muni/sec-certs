@@ -89,5 +89,5 @@ To exclude slow tests, use `uv run pytest -m "not slow"`. To exclude remote test
 Every public method of a module that can be leveraged as an API by user should be documented. The docstring style should
 be [`sphinx`](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
 
-The documentation is built using `sphinx` with `mnyst` extension that allows for markdown files. Folder `notebooks/examples` is symbolically linked to `/docs` and its contents will be automatically parsed. These notebooks are supposed to be runnable from Binder.
+The documentation is built using `sphinx` with `mnyst` extension that allows for markdown files. Folder `notebooks/examples` is symbolically linked to `/docs` and its contents will be automatically parsed.
 
