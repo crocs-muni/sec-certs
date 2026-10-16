@@ -35,7 +35,7 @@ There are two main steps in exploring the world of security certificates:
 
 For the first step, we currently provide CLI. For the second step, we provide simple API that can be used directly inside our Jupyter notebook or locally, together with a fully processed datasets that can be downloaded.
 
-More elaborate usage is described in [docs/quickstart](https://sec-certs.org/docs/quickstart.html). Also, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples) either at GitHub or at docs. From docs, you can also run our notebooks in Binder.
+More elaborate usage is described in [docs/quickstart](https://sec-certs.org/docs/quickstart.html). Also, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples) either at GitHub or at docs.
 
 If you are looking for the sources of the web-page at [sec-certs.org](https://sec-certs.org) look into the [page](https://github.com/crocs-muni/sec-certs/tree/page) branch of this repository.
 
@@ -45,7 +45,7 @@ Run `sec-certs cc all` for Common Criteria processing, `sec-certs fips all` for 
 
 ## Data analysis
 
-Most probably, you don't want to fully process the certification artifacts by yourself. Instead, you can use our results and explore them as a data structure. An example snippet follows. For more, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples). *Tip*: these can be run with Binder from our [docs](https://sec-certs.org/docs/index.html).
+Most probably, you don't want to fully process the certification artifacts by yourself. Instead, you can use our results and explore them as a data structure. An example snippet follows. For more, see [example notebooks](https://github.com/crocs-muni/sec-certs/tree/main/notebooks/examples).
 
 ```python
 from sec_certs.dataset import CCDataset
