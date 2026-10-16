@@ -1,7 +1,6 @@
 # The directory with the datasets
 dataset/
 
-.git
 .github
 .venv
 **/__pycache__
