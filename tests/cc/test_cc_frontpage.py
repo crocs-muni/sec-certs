@@ -6,7 +6,7 @@ import pytest
 import tests.data.cc.frontpage
 
 from sec_certs import constants
-from sec_certs.utils.frontpage import NSCIBFrontpageParser
+from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
 
 
 @pytest.fixture(scope="module")
@@ -229,8 +229,175 @@ def test_nscib_fields_survive_a_missing_cert_id(nscib_parser: NSCIBFrontpagePars
     assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore"
 
 
+def test_nscib_scheme_prefixed_title_is_recognized(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    """EUCC-era reports title the frontpage "EUCC Certification Report"."""
+    report = tmp_path / "eucc_title.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "EUCC Certification Report",
+                "ZTE OTN Solution v1.10",
+                "Sponsor and developer: ZTE Corporation",
+                "Report number: EUCC-3110-2026-2500102-01",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    items = nscib_parser.parse(report)
+
+    assert items[constants.TAG_CERT_ITEM] == "ZTE OTN Solution v1.10"
+    assert items[constants.TAG_DEVELOPER] == "ZTE Corporation"
+
+
+def test_nscib_reference_line_is_not_a_title(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    """
+    The older template carries a reference line that ends with the title anchor
+    ("NSCIB-CC-05-6609 Certification Report"). Taking it for the title makes the letterhead
+    that follows it the product name, so only a plain word may prefix the anchor.
+    """
+    report = tmp_path / "reference_line.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "TNO CERTIFICATION",
+                "NSCIB-CC-05-6609 Certification Report",
+                "Laan van Westenenk 501 P.O. Box 541 7300 AM Apeldoorn",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert nscib_parser.parse(report) == {}
+
+
 def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
     not_a_report = tmp_path / "empty.txt"
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
 
     assert nscib_parser.parse(not_a_report) == {}
+
+
+@pytest.fixture(scope="module")
+def canada_parser() -> CanadaFrontpageParser:
+    return CanadaFrontpageParser()
+
+
+CANADA_HSL_EXPECTED = {
+    constants.TAG_CERT_ID: "544-EWA",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: (
+        "High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 "
+        "Firmware Version 44404-E7E7 Peripheral Sharing Devices"
+    ),
+    constants.TAG_REPORT_DATE: "20 November 2023",
+}
+
+CANADA_THYCOTIC_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-445",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "Thycotic Secret Server Government Edition v10.0",
+    constants.TAG_REPORT_DATE: "23 October 2018",
+}
+
+CANADA_MCAFEE_HERCULES_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-88-CR",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "McAfee® Hercules® Policy Auditor v4.5 and McAfee® Hercules® Remediation Manager v4.5",
+    constants.TAG_REPORT_DATE: "11 April 2008",
+}
+
+CANADA_NETAPP_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-263-CR",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "NetApp Clustered Data ONTAP® 8.2.1",
+    constants.TAG_REPORT_DATE: "5 January 2015",
+}
+
+CANADA_REPORTS = [
+    ("canada_report_hsl", CANADA_HSL_EXPECTED),
+    ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED),
+    ("canada_report_mcafee_hercules", CANADA_MCAFEE_HERCULES_EXPECTED),
+    ("canada_report_netapp", CANADA_NETAPP_EXPECTED),
+]
+
+
+@pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
+def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    """The same fields must come out of pdftotext plain text and Docling JSON alike."""
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == expected
+
+
+@pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
+def test_canada_structured(
+    canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]
+):
+    items = canada_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == expected
+
+
+def test_canada_further_template(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    """
+    A third, older report template where the certification id and date swap places relative to the
+    other two fixtures (id before date here, after it in canada_report_thycotic) -- guards that the
+    product-name cut point checks both, not just whichever came first in the other samples.
+    """
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_mcafee.txt")
+
+    assert items[constants.TAG_CERT_ID] == "383-4-396"
+    assert items[constants.TAG_CERT_LAB] == "CANADA"
+    assert items[constants.TAG_CERT_ITEM] == (
+        "McAfee Threat Intelligence Exchange 2.0.0 and Data Exchange Layer 3.0.0 with ePolicy Orchestrator 5.3.2"
+    )
+    assert items[constants.TAG_REPORT_DATE] == "30 November 2016"
+
+
+def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(
+        frontpage_dir / "docling" / "canada_report_dell.txt", frontpage_dir / "docling" / "canada_report_dell.json"
+    )
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == {
+        constants.TAG_CERT_ID: "383-4-480",
+        constants.TAG_CERT_LAB: "CANADA",
+        constants.TAG_CERT_ITEM: "Dell EMC™ Isilon with OneFS v8.2.0.0",
+        constants.TAG_DEVELOPER: "Dell EMC",
+        constants.TAG_REPORT_DATE: "31 January 2020",
+    }
+
+
+def test_canada_text_keeps_developer_in_cert_item(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    """Known limitation: pdftotext can't tell the developer line from a wrapped product name."""
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_dell.txt")
+
+    assert items[constants.TAG_CERT_ITEM] == "Dell EMC™ Isilon with OneFS v8.2.0.0 Dell EMC"
+    assert constants.TAG_DEVELOPER not in items
+
+
+def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    """
+    Documents a real converter limitation rather than papering over it.
+
+    Docling's markdown export drops the frontpage banner (certification id, product name) for
+    this scheme's report layout entirely -- it isn't reachable from `save_as_markdown` output, only
+    from the full serialized JSON document. Since `DoclingConverter.convert` always writes both
+    files, this only affects the text-only fallback path, not real extraction.
+    """
+    items = canada_parser.parse(frontpage_dir / "docling" / "canada_report_hsl.txt")
+
+    assert items == {}
+
+
+def test_canada_non_report_yields_nothing(canada_parser: CanadaFrontpageParser, tmp_path: Path):
+    not_a_report = tmp_path / "empty.txt"
+    not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
+
+    assert canada_parser.parse(not_a_report) == {}

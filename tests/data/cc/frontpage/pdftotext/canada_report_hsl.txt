@@ -1,0 +1,289 @@
+UNCLASSIFIED / NON CLASSIFIÉ
+544-EWA
+COMMON CRITERIA CERTIFICATION REPORT
+High Sec Labs SK21PH-4, SK41PH- 4,
+DK22PH-4, DK42PH-4, SK81PH-4,
+DK82PH-4, SX42PH-4, SX82PH-4
+Firmware Version 44404-E7E7
+Peripheral Sharing Devices
+20 November 20232
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+FOREWORD
+This certification report is an UNCLASSIFIED publication, issued under the authority of the Chief, Communications Security
+Establishment (CSE).
+The Information Technology (IT) product identified in this certification report, and its associated certificate, has been
+evaluated at an approved testing laboratory established under the Canadian Centre for Cyber Security (a branch of CSE).
+This certification report, and its associated certificate, applies only to the identified version and release of the product in its
+evaluated configuration. The evaluation has been conducted in accordance with the provisions of the Canadian Common
+Criteria Program, and the conclusions of the testing laboratory in the evaluation report are consistent with the evidence
+adduced.
+This report, and its associated certificate, are not an endorsement of the IT product by Canadian Centre for Cyber Security, or
+any other organization that recognizes or gives effect to this report, and its associated certificate, and no warranty for the IT
+product by the Canadian Centre for Cyber Security, or any other organization that recognizes or gives effect to this report,
+and its associated certificate, is either expressed or implied.
+If your organization has identified a requirement for this certification report based on business needs and would like more
+detailed information, please contact:
+Canadian Centre for Cyber Security
+Contact Centre and Information Services
+contact@cyber.gc.ca | 1-833-CYBER-88 (1-833-292-3788)3
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+OVERVIEW
+The Canadian Common Criteria Program provides a third-party evaluation service for determining the trustworthiness of
+Information Technology (IT) security products. Evaluations are performed by a commercial Common Criteria Testing
+Laboratory (CCTL) under the oversight of the Certification Body, which is managed by the Canadian Centre for Cyber
+Security.
+A CCTL is a commercial facility that has been approved by the Certification Body to perform Common Criteria evaluations; a
+significant requirement for such approval is accreditation to the requirements of ISO/IEC 17025, the General Requirements
+for the Competence of Testing and Calibration Laboratories.
+By awarding a Common Criteria certificate, the Certification Body asserts that the product complies with the security
+requirements specified in the associated security target. A security target is a requirements specification document that
+defines the scope of the evaluation activities. The consumer of certified IT products should review the security target, in
+addition to this certification report, to gain an understanding of any assumptions made during the evaluation, the IT
+product's intended environment, the evaluated security functionality, and the testing and analysis conducted by the CCTL.
+The certification report, certificate of product evaluation and security target are posted to the Common Criteria portal (the
+official website of the International Common Criteria Program).4
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+TABLE OF CONTENTS
+EXECUTIVE SUMMARY .................................................................................................................................... 6
+1 Identification of Target of Evaluation ........................................................................................................... 7
+1.1 Common Criteria Conformance.......................................................................................................................... 7
+1.2 TOE Description................................................................................................................................................. 7
+1.3 TOE Architecture............................................................................................................................................... 8
+2 Security Policy......................................................................................................................................... 9
+3 Assumptions and Clarification of Scope ......................................................................................................10
+3.1 Usage and Environmental Assumptions.............................................................................................................10
+3.2 Clarification of Scope.......................................................................................................................................10
+4 Evaluated Configuration............................................................................................................................11
+4.1 Documentation.................................................................................................................................................11
+5 Evaluation Analysis Activities....................................................................................................................12
+5.1 Development....................................................................................................................................................12
+5.2 Guidance Documents........................................................................................................................................12
+5.3 Life-Cycle Support............................................................................................................................................12
+6 Testing Activities ....................................................................................................................................13
+6.1 Assessment of Developer tests.........................................................................................................................13
+6.2 Conduct of Testing...........................................................................................................................................13
+6.3 Independent Testing.........................................................................................................................................13
+6.3.1 Independent Testing Results.........................................................................................................................13
+6.4 Vulnerability Analysis .......................................................................................................................................14
+6.4.1 Vulnerability Analysis Results........................................................................................................................14
+7 Results of the Evaluation ..........................................................................................................................15
+7.1 Recommendations/Comments..........................................................................................................................15
+8 Supporting Content..................................................................................................................................16
+8.1 List of Abbreviations.........................................................................................................................................16
+8.2 References.......................................................................................................................................................165
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+LIST OF FIGURES
+TOE Architecture..................................................................................................................................................8
+LIST OF TABLES
+Table 1: TOE Identification ................................................................................................................................................76
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+EXECUTIVE SUMMARY
+High Sec Labs SK21PH-4, SK41PH- 4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 Firmware
+Version 44404-E7E7 Peripheral Sharing Devices (hereafter referred to as the Target of Evaluation, or TOE), from High Sec
+Labs Ltd. , was the subject of this Common Criteria evaluation. A description of the TOE can be found in Section 1.2. The
+results of this evaluation demonstrate that the TOE meets the requirements of the conformance claim listed in Section 1.1
+for the evaluated security functionality.
+EWA-Canada is the CCTL that conducted the evaluation. This evaluation was completed on 20 November 2023 and was
+carried out in accordance with the rules of the Canadian Common Criteria Program.
+The scope of the evaluation is defined by the Security Target, which identifies assumptions made during the evaluation, the
+intended environment for the TOE, and the security functional/assurance requirements. Consumers are advised to verify
+that their operating environment is consistent with that specified in the security target, and to give due consideration to the
+comments, observations, and recommendations in this Certification Report.
+The Canadian Centre for Cyber Security, as the Certification Body, declares that this evaluation meets all the conditions of
+the Arrangement on the Recognition of Common Criteria Certificates and that the product is listed on the Certified Products
+list (CPL) for the Canadian Common Criteria Program and the Common Criteria portal (the official website of the
+International Common Criteria Program).7
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+1 IDENTIFICATION OF TARGET OF EVALUATION
+The Target of Evaluation (TOE) is identified as follows:
+Table 1: TOE Identification
+TOE Name and Version High Sec Labs SK21PH-4, SK41PH- 4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4,
+SX42PH-4, SX82PH-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices
+Developer High Sec Labs Ltd.
+1.1 COMMON CRITERIA CONFORMANCE
+The evaluation was conducted using the Common Methodology for Information Technology Security Evaluation, Version 3.1
+Revision 5, for conformance to the Common Criteria for Information Technology Security Evaluation, Version 3.1 Revision 5.
+The TOE claims the following conformance:
+Exact conformance with the National Information Assurance Partnership (NIAP) PP‐Configuration for Peripheral Sharing
+Device, Analog Audio Output Devices, Keyboard/Mouse Devices, and Video/Display Devices, 19 July 2019, version 1.0, which
+includes the following components:
+• Base-PP: Protection Profile for Peripheral Sharing Device, Version 4.0
+• PP-Module: PP-Module for Keyboard/Mouse Devices, Version 1.0
+• PP-Module: PP-Module for Video/Display Devices, Version 1.0
+• PP-Module: PP-Module for Analog Audio Output Devices, Version 1.0
+1.2 TOE DESCRIPTION
+The High Sec Labs (HSL) Secure Keyboard, Video, Mouse (KVM) Switches allow users to share keyboard, video, and mouse
+peripherals between a number of connected computers. These devices also allow for the sharing of audio peripherals.
+Security features ensure isolation between computers and peripherals to prevent data leakage between connected systems.8
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+1.3 TOE ARCHITECTURE
+A diagram of the TOE architecture is as follows:
+TOE Architecture9
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+2 SECURITY POLICY
+The TOE implements and enforces policies pertaining to the following security functionality:
+ User Data Protection
+ Protection of the TSF
+ TOE Access
+Complete details of the security functional requirements (SFRs) can be found in the Security Target (ST) referenced in
+section 8.2.10
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+3 ASSUMPTIONS AND CLARIFICATION OF SCOPE
+Consumers of the TOE should consider assumptions about usage and environmental settings as requirements for the
+product’s installation and its operating environment. This will ensure the proper and secure operation of the TOE.
+3.1 USAGE AND ENVIRONMENTAL ASSUMPTIONS
+The following assumptions are made regarding the use and deployment of the TOE:
+ No TEMPEST: Computers and peripheral devices connected to the PSD are not TEMPEST approved.
+ Physical: The environment provides physical security commensurate with the value of the TOE and the data it
+processes and contains.
+ No wireless devices: The environment includes no wireless peripheral devices.
+ Trusted Admin and configuration: PSD Administrators and users are trusted to follow and apply all guidance in a
+trusted manner. Personnel configuring the PSD and its operational environment follow the applicable security
+configuration guidance.
+ User allowed access: All PSD users are allowed to interact with all connected computers. It is not the role of the PSD
+to prevent or otherwise control user access to connected computers. Computers or their connected network shall
+have the required means to authenticate the user and to control access to their various resources.
+ No special analog capabilities: The computers connected to the TOE are not equipped with special analog data
+collection cards or peripherals such as analog to digital interface, high performance audio interface, digital signal
+processing function, or analog video capture function.
+ No microphones: Users are trained not to connect a microphone to the TOE audio output interface.
+3.2 CLARIFICATION OF SCOPE
+All security features of these products were evaluated.11
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+4 EVALUATED CONFIGURATION
+The evaluated configuration for the TOE comprises:
+TOE Software/Firmware Firmware Version 44404-E7E7
+TOE Hardware SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4
+Environmental Support 2-8 General purpose computers
+General purpose USB keyboard
+General purpose USB mouse
+Analog audio output device (speakers or headphones)
+Standard computer display (HDMI 2.0, or DisplayPort 1.1, 1.2 or 1.3)
+HSL KVM Cables
+4.1 DOCUMENTATION
+The following documents are provided to the consumer to assist in the configuration and installation of the TOE:
+a) HSL Quick Installation Guide 2/4/8 Ports High Security DP/HDMI KVM Switches, HDC31273 Rev 1.0
+b) HSL Quick Installation Guide 4/8 Ports High Security DP/HDMI Mini-Matrix KVM Switches, HDC31272 Rev 1.0
+Guidance may be downloaded from the High Sec Labs website (https://highseclabs.com/quick-start-guides/) in .pdf format.
+The following guidance is available upon request by emailing support@highseclabs.com:
+• High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 Firmware
+Version 44404-E7E7 Peripheral Sharing Devices Common Criteria Guidance Supplement, Version 1.412
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+5 EVALUATION ANALYSIS ACTIVITIES
+The evaluation analysis activities involved a structured evaluation of the TOE. Documentation and process dealing with
+Development, Guidance Documents, and Life-Cycle Support were evaluated.
+5.1 DEVELOPMENT
+The evaluators analyzed the documentation provided by the vendor; they determined that the design completely and
+accurately describes the TOE security functionality (TSF) interfaces and how the TSF implements the security functional
+requirements. The evaluators determined that the initialization process is secure, that the security functions are protected
+against tamper and bypass, and that security domains are maintained.
+5.2 GUIDANCE DOCUMENTS
+The evaluators examined the TOE preparative user guidance and operational user guidance and determined that it
+sufficiently and unambiguously describes how to securely transform the TOE into its evaluated configuration and how to use
+and administer the product. The evaluators examined and tested the preparative and operational guidance and determined
+that they are complete and sufficiently detailed to result in a secure configuration.
+Section 4.1 provides details on the guidance documents.
+5.3 LIFE-CYCLE SUPPORT
+An analysis of the TOE configuration management system and associated documentation was performed. The evaluators
+found that the TOE configuration items were clearly marked.
+The evaluators examined the delivery documentation and determined that it described all the procedures required to
+maintain the integrity of the TOE during distribution to the consumer.13
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+6 TESTING ACTIVITIES
+Testing consists of the following three steps: assessing developer tests, performing independent tests, and performing a
+vulnerability analysis.
+6.1 ASSESSMENT OF DEVELOPER TESTS
+The evaluators verified that the developer has met their testing responsibilities by examining their test evidence, and
+reviewing their test results, as documented in the Evaluation Technical Report (ETR). The correspondence between the tests
+identified in the developer’s test documentation and the functional specification was complete.
+6.2 CONDUCT OF TESTING
+The TOE was subjected to a comprehensive suite of formally documented, independent functional and penetration tests. The
+detailed testing activities, including configurations, procedures, test cases, expected results and observed results are
+documented in a separate Test Results document.
+6.3 INDEPENDENT TESTING
+During this evaluation, the evaluator developed independent functional & penetration tests by examining design and
+guidance documentation.
+All testing was planned and documented to a sufficient level of detail to allow repeatability of the testing procedures and
+results. The following testing activities were performed:
+a. PP Assurance Activities: The evaluator performed the assurance activities listed in the claimed PP
+6.3.1 INDEPENDENT TESTING RESULTS
+The developer’s tests and the independent tests yielded the expected results, providing assurance that the TOE behaves as
+specified in its ST and functional specification.14
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+6.4 VULNERABILITY ANALYSIS
+The vulnerability analysis focused on 4 flaw hypotheses.
+ Public Vulnerability based (Type 1)
+ Technical community sources (Type 2)
+ Evaluation team generated (Type 3)
+ Tool Generated (Type 4)
+The evaluators conducted an independent review of all evaluation evidence, public domain vulnerability databases and
+technical community sources (Type 1 & 2). Additionally, the evaluators used automated vulnerability scanning tools to
+discover potential network, platform, and application layer vulnerabilities (Type 4). Based upon this review, the evaluators
+formulated flaw hypotheses (Type 3), which they used in their vulnerability analysis.
+Type 1 & 2 searches were conducted on 26 October 2023 and included the following search terms:
+High Sec Labs highseclabs highseclabs KVM
+highseclabs switch highseclabs peripheral sharing DisplayPort
+HDMI vulnerability vulnerabilities
+bug maintenance SK21PH-4
+SK41PH-4 DK22PH-4 DK42PH-4
+SK81PH-4 DK82PH-4 SX42PH-4
+SX82PH-4 Version 44404-E7E7
+Vulnerability searches were conducted using the following sources:
+National Vulnerability Database Search
+https://nvd.nist.gov/vuln/search
+4.7.1.2 HSL Support Search
+https://highseclabs.com/
+6.4.1 VULNERABILITY ANALYSIS RESULTS
+The vulnerability analysis did not uncover any security relevant residual exploitable vulnerabilities in the intended operating
+environment.15
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+7 RESULTS OF THE EVALUATION
+The Information Technology (IT) product identified in this certification report, and its associated certificate, has been
+evaluated at an approved testing laboratory established under the Canadian Centre for Cyber Security. This certification
+report, and its associated certificate, apply only to the specific version and release of the product in its evaluated
+configuration.
+This evaluation has provided the basis for the conformance claim documented in Table 1. The overall verdict for this
+evaluation is PASS. These results are supported by evidence in the ETR.
+7.1 RECOMMENDATIONS/COMMENTS
+It is recommended that all guidance outlined in Section 4.1 be followed to configure the TOE in the evaluated configuration.16
+TLP:WHITE
+UNCLASSIFIED / NON CLASSIFIÉ
+8 SUPPORTING CONTENT
+8.1 LIST OF ABBREVIATIONS
+Term Definition
+CCTL Common Criteria Testing Laboratory
+CSE Communications Security Establishment
+ETR Evaluation Technical Report
+IT Information Technology
+ITS Information Technology Security
+PP Protection Profile
+PSD Peripheral Sharing Device
+SFR Security Functional Requirement
+ST Security Target
+TOE Target of Evaluation
+TSF TOE Security Function
+8.2 REFERENCES
+Reference
+Common Criteria for Information Technology Security Evaluation, Version 3.1 Revision 5, April 2017.
+Common Methodology for Information Technology Security Evaluation, CEM, Version 3.1 Revision 5, April 2017.
+High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 Firmware
+Version 44404-E7E7 Peripheral Sharing Devices Security Target, Version 1.0, 20 November 2023.
+Evaluation Technical Report For Common Criteria Evaluation of High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4,
+DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices,
+Version 1.0, 20 November 2023.
+Assurance Activity Report, High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4,
+SX42PH-4, SX82PH-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices, Version 1.0, 20 November 2023.
