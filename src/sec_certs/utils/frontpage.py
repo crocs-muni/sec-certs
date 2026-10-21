@@ -324,6 +324,8 @@ _SESIP_EN_RE = re.compile(r"EN\s*17927\s*:\s*(\d{4})")
 # OCR of the logos may leave a few characters between the parts
 _SESIP_GP_RE = re.compile(r"GP_FST_070\W*Public\s+Release\D{0,10}?v\s*(\d+\.\d+)", re.I)
 _SESIP_OLD_STANDARD_RE = re.compile(r"Platforms\s*(?:\(SESIP\))?\s*v\s*(\d+\.\d+)(,.{0,20}?GP_FST_070)?", re.I)
+# docling sometimes moves the version right after "Under scheme:"
+_SESIP_SCHEME_RE = re.compile(r"(?:Procedures\b\D{0,20}?|Under scheme:\s*)\b[vV]\s*(\d+\.\d+)", re.I)
 
 
 def _sesip_value(match: re.Match[str] | None, group: int | str = 1) -> str | None:
@@ -394,4 +396,5 @@ def parse_sesip_frontpage(text: str) -> dict[str, Any]:
         "sesip_profile": None if profile is None or re.search(r"\bNone\b", profile) else profile,
         "st_reference": _sesip_value(_SESIP_ST_RE.search(text)),
         "standard": _sesip_standard(text),
+        "scheme_version": f"v{m.group(1)}" if (m := _SESIP_SCHEME_RE.search(text)) else None,
     }
