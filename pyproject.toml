@@ -116,6 +116,11 @@
     "sphinx-copybutton",
     "ipython!=8.7.0",
   ]
+jupyter = [
+    "jupyterlab>=4.6.4",
+    "notebook>=7.6.3",
+    "pip>=26.2",
+]
 
 [tool.ruff]
   lint.select = [

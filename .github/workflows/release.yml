@@ -61,6 +61,8 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS=${{ steps.meta.outputs.version }}
       - name: Update dockerhub description
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0
         with:
