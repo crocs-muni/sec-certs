@@ -1265,6 +1265,88 @@ fips_certlike:
 
 
 #####
+# SESIP security functional requirement
+#####
+sesip_sfr:
+  identification:
+    verification_of_platform_identity:
+      - "(?i:verification\\sof\\s(?:the\\s)?platform\\sidentity)"
+    verification_of_platform_instance_identity:
+      - "(?i:verification\\sof\\s(?:the\\s)?platform\\sinstance\\sidentity)"
+    attestation_of_platform_genuineness:
+      - "(?i:attestation\\sof\\s(?:the\\s)?platform\\sgenuineness)"
+    attestation_of_platform_state:
+      - "(?i:attestation\\sof\\s(?:the\\s)?platform\\sstate)"
+    attestation_of_application_genuineness:
+      - "(?i:attestation\\sof\\s(?:the\\s)?application\\sgenuineness)"
+    attestation_of_application_state:
+      - "(?i:attestation\\sof\\s(?:the\\s)?application\\sstate)"
+  lifecycle:
+    secure_initialization_of_platform:
+      - "(?i:secure\\sinitiali[sz]ation\\sof\\s(?:the\\s)?platform)"
+    secure_initialization_of_application:
+      - "(?i:secure\\sinitiali[sz]ation\\sof\\s(?:the\\s)?application)"
+    secure_update_of_platform:
+      - "(?i:secure\\supdate\\sof\\s(?:the\\s)?platform)"
+    secure_update_of_application:
+      - "(?i:secure\\supdate\\sof\\s(?:the\\s)?application)"
+    secure_installation_of_application:
+      - "(?i:secure\\sinstall(?:ation)?\\sof\\s(?:the\\s)?application)"
+    decommission_of_platform:
+      - "(?i:decommission(?:ing)?\\sof\\s(?:the\\s)?platform)"
+    field_return_of_platform:
+      - "(?i:field\\sreturn\\sof\\s(?:the\\s)?platform)"
+    factory_reset_of_platform:
+      - "(?i:factory\\sreset\\sof\\s(?:the\\s)?platform)"
+    residual_information_purging:
+      - "(?i:residual\\sinformation\\spurging)"
+  communication:
+    secure_communication_support:
+      - "(?i:secure\\scommunication\\ssupport)"
+    secure_communication_enforcement:
+      - "(?i:secure\\scommunication\\senforcement)"
+  attacker_resistance:
+    isolation_of_platform:
+      - "(?i:software\\sattacker\\sresistance\\s?:\\s?isolation\\sof\\s(?:the\\s)?platform(?!\\s?parts))"
+    isolation_of_platform_parts:
+      - "(?i:software\\sattacker\\sresistance\\s?:\\s?isolation\\sof\\s(?:the\\s)?platform\\s?parts)"
+    isolation_of_application_parts:
+      - "(?i:software\\sattacker\\sresistance\\s?:\\s?isolation\\sof\\s(?:the\\s)?application\\s?parts)"
+    physical_attacker_resistance:
+      - "(?i:(?<!limited\\s)physical\\sattack(?:er)?\\sresistance)"
+    limited_physical_attacker_resistance:
+      - "(?i:limited\\sphysical\\sattack(?:er)?\\sresistance)"
+  cryptography:
+    cryptographic_operation:
+      - "(?i:cryptographic\\soperation)"
+    cryptographic_random_number_generation:
+      - "(?i:cryptographic\\srandom\\snumber\\sgeneration)"
+    cryptographic_keystore:
+      - "(?i:cryptographic\\skey\\s?store)"
+    cryptographic_key_generation:
+      - "(?i:cryptographic\\skey\\sgeneration)"
+  compliance:
+    secure_debugging:
+      - "(?i:secure\\sdebugging)"
+    secure_encrypted_storage:
+      - "(?i:secure\\sencrypted\\sstorage)"
+    secure_external_storage:
+      - "(?i:secure\\sexternal\\sstorage)"
+    secure_confidential_storage:
+      - "(?i:secure\\sconfidential\\sstorage)"
+    reliable_index:
+      - "(?i:reliable\\sindex)"
+    reliable_time:
+      - "(?i:reliable\\stime)"
+    audit_log_generation_and_storage:
+      - "(?i:audit\\slog\\sgeneration(?:\\sand\\sstorage)?)"
+    secure_data_serialization:
+      - "(?i:secure\\sdata\\sserialization)"
+    trust_provisioning:
+      - "(?i:trust\\sprovisioning)"
+
+
+#####
 # Common Criteria rules.
 #####
 cc_rules:
@@ -1357,3 +1439,4 @@ sesip_rules:
   - "tee_name"
   - "os_name"
   - "cc_sar"
+  - "sesip_sfr"
