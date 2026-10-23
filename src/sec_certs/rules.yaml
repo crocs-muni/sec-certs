@@ -1323,3 +1323,24 @@ fips_rules:
   - "javacard_api_const"
   - "javacard_packages"
   - "certification_process"
+
+#####
+# SESIP rules
+#####
+sesip_rules:
+  - "symmetric_crypto"
+  - "asymmetric_crypto"
+  - "pq_crypto"
+  - "hash_function"
+  - "crypto_scheme"
+  - "crypto_protocol"
+  - "randomness"
+  - "cipher_mode"
+  - "ecc_curve"
+  - "crypto_library"
+  - "side_channel_analysis"
+  - "vulnerability"
+  - "standard_id"
+  - "tee_name"
+  - "os_name"
+  - "cc_sar"

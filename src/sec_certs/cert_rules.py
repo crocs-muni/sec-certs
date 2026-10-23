@@ -275,6 +275,10 @@ fips_rules = {}
 for rule_group in rules["fips_rules"]:
     fips_rules[rule_group] = _process(rules[rule_group])
 
+sesip_rules = {}
+for rule_group in rules["sesip_rules"]:
+    sesip_rules[rule_group] = _process(rules[rule_group])
+
 
 PANDAS_KEYWORDS_CATEGORIES: Final[list[str]] = [
     "symmetric_crypto",
