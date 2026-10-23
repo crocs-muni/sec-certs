@@ -232,6 +232,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
 
         self._extract_metadata(dgsts)
         self._extract_frontpages(dgsts)
+        self._extract_keywords(dgsts)
 
     @staged(logger, "Extracting PDF metadata of certs and STs")
     def _extract_metadata(self, dgsts: set[str]) -> None:
@@ -250,6 +251,16 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             [self[dgst] for dgst in dgsts],
             use_threading=False,
             progress_bar_desc="Extracting cert frontpages",
+        )
+        self.update_with_certs(processed)
+
+    @staged(logger, "Extracting keywords of STs")
+    def _extract_keywords(self, dgsts: set[str]) -> None:
+        processed = cert_processing.process_parallel(
+            SESIPCertificate.extract_st_keywords,
+            [self[dgst] for dgst in dgsts],
+            use_threading=False,
+            progress_bar_desc="Extracting ST keywords",
         )
         self.update_with_certs(processed)
 

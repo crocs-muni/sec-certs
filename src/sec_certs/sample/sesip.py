@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 import requests
 
+from sec_certs.cert_rules import sesip_rules
 from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
@@ -17,6 +18,7 @@ from sec_certs.sample.certificate import PdfData as BasePdfData
 from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
+from sec_certs.utils.extract import extract_keywords
 from sec_certs.utils.frontpage import parse_sesip_frontpage
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
 from sec_certs.utils.pdf import extract_pdf_metadata
@@ -76,6 +78,7 @@ class SESIPCertificate(
         cert_metadata: dict[str, Any] | None = field(default=None)
         st_metadata: dict[str, Any] | None = field(default=None)
         cert_frontpage: dict[str, Any] | None = field(default=None)
+        st_keywords: dict[str, Any] | None = field(default=None)
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -202,6 +205,19 @@ class SESIPCertificate(
         except (OSError, ValueError) as e:
             logger.error(f"Cert dgst: {cert.dgst} failed to parse the certificate frontpage: {e}")
             cert.state.cert.extract_ok = False
+        return cert
+
+    @staticmethod
+    def extract_st_keywords(cert: SESIPCertificate) -> SESIPCertificate:
+        if not cert.state.st.is_ok_to_extract():
+            return cert
+        cert.pdf_data.st_keywords = None
+        keywords = extract_keywords(get_view(cert.state.st), sesip_rules)
+        if keywords is None:
+            logger.error(f"Cert dgst: {cert.dgst} failed to extract keywords from the security target")
+            cert.state.st.extract_ok = False
+        else:
+            cert.pdf_data.st_keywords = keywords
         return cert
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
