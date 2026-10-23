@@ -1347,6 +1347,38 @@ sesip_sfr:
 
 
 #####
+# Document IDs of the SESIP methodology
+#####
+sesip_document_id:
+  GlobalPlatform:
+    - "GP[A-Z]?_[A-Z]{3}_[0-9]{3}"
+  PSA:
+    - "JSADEN0?[0-9]{2,3}"
+  Arm:
+    - "ARM DEN ?[0-9]{4}"
+    - "DEN[0-9]{4}"
+
+#####
+# IDs of mentioned certificates
+#####
+other_certification_id:
+  PSA:
+    - "0716[0-9]{8,9} ?- ?[0-9]{5}"
+  CAVP:
+    - "(?<=Certification\\snumber\\s)(?:A[0-9]{3,5}|(?:AES|SHS|HMAC|DRBG|ECDSA|RSA|KAS|CVL) #?[0-9]{1,5})"
+
+
+#####
+# EU legal acts
+#####
+regulation:
+  RED:
+    - "2014/53/EU"
+  CRA:
+    - "(?<=\\(EU\\)\\s)2024/2847"
+
+
+#####
 # Common Criteria rules.
 #####
 cc_rules:
@@ -1440,3 +1472,6 @@ sesip_rules:
   - "os_name"
   - "cc_sar"
   - "sesip_sfr"
+  - "sesip_document_id"
+  - "other_certification_id"
+  - "regulation"
