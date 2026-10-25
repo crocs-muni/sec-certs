@@ -22,6 +22,12 @@ _MARKDOWN_HEADING_RE = re.compile(r"(?:^|(?<=\s))#{1,6}\s*")
 _HYPHEN_BREAK_RE = re.compile(r"(?<=\w)-\s+(?=\w)")
 _BULLET_CHARS = "●•*-–— \t"
 
+_LEGAL_FORM = (
+    r"(?:Inc|Ltd|Limited|B\.?V|N\.?V|GmbH|AG|S\.r\.l|S\.p\.A|S\.A|LLC|Corp"
+    r"|Corporation|Co|Oy|Oyj|AB|A/S|ApS|Kft|Zrt|Ltda|SARL|SAS|Pty\sLtd|Sdn\sBhd|K\.K|Pte\.?\sLtd"
+    r"|(?i:d\.o\.o|d\.d|s\.r\.o|a\.s|sp\.\sz\so\.o))"
+)
+
 
 def _clean(value: str) -> str:
     value = html.unescape(value.replace("\n", " "))

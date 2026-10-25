@@ -1,3 +1,5 @@
+import importlib
+import locale
 from collections.abc import Generator
 from importlib.resources import as_file, files
 from pathlib import Path
@@ -7,6 +9,7 @@ import tests.data.cc.frontpage
 
 from sec_certs import constants
 from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
+from sec_certs.utils.frontpage import canada as canada_module
 
 
 @pytest.fixture(scope="module")
@@ -380,6 +383,87 @@ def test_canada_text_keeps_developer_in_cert_item(canada_parser: CanadaFrontpage
 
     assert items[constants.TAG_CERT_ITEM] == "Dell EMC™ Isilon with OneFS v8.2.0.0 Dell EMC"
     assert constants.TAG_DEVELOPER not in items
+
+
+def _docling_document(blocks: list[str]) -> dict:
+    return {"texts": [{"text": block} for block in blocks]}
+
+
+def test_canada_title_keeps_all_caps_product_words(canada_parser: CanadaFrontpageParser):
+    """Only the issuer banner may trail the title; an all-caps vendor name belongs to the product."""
+    text = "COMMON CRITERIA CERTIFICATION REPORT\nIBM Security QRadar 7.4\n31 January 2020\n383-4-480\n"
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert items[constants.TAG_CERT_ITEM] == "IBM Security QRadar 7.4"
+    assert items[constants.TAG_REPORT_DATE] == "31 January 2020"
+
+
+def test_canada_structured_wrapped_product_name_is_not_a_developer(canada_parser: CanadaFrontpageParser):
+    """A product name Docling splits in two must not have its tail reported as the developer."""
+    items = canada_parser.parse_structured(
+        _docling_document(
+            [
+                "COMMON CRITERIA CERTIFICATION REPORT",
+                "High Sec Labs SK21PH-4, SK41PH-4",
+                "Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                "20 November 2023",
+                "544-EWA",
+            ]
+        )
+    )
+
+    assert constants.TAG_DEVELOPER not in items
+    assert items[constants.TAG_CERT_ITEM] == (
+        "High Sec Labs SK21PH-4, SK41PH-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices"
+    )
+
+
+def test_canada_structured_developer_by_legal_form(canada_parser: CanadaFrontpageParser):
+    """A developer that doesn't share the product's first word is still recognised by its legal form."""
+    items = canada_parser.parse_structured(
+        _docling_document(
+            ["COMMON CRITERIA CERTIFICATION REPORT", "FortiGate 7.0", "Fortinet, Inc.", "31 January 2020", "383-4-480"]
+        )
+    )
+
+    assert items[constants.TAG_DEVELOPER] == "Fortinet, Inc"
+    assert items[constants.TAG_CERT_ITEM] == "FortiGate 7.0"
+
+
+def test_canada_structured_legacy_issued_by_is_not_a_developer(canada_parser: CanadaFrontpageParser):
+    """The legacy template has no developer line; a merged tail must not promote "Issued by:" to one."""
+    items = canada_parser.parse_structured(
+        _docling_document(
+            [
+                "Certification Report",
+                "NetApp Clustered Data ONTAP® 8.2.1",
+                "Issued by:",
+                "Communications Security Establishment Certification Body Document number : 383-4-263-CR",
+            ]
+        )
+    )
+
+    assert constants.TAG_DEVELOPER not in items
+    assert items[constants.TAG_CERT_ITEM] == "NetApp Clustered Data ONTAP® 8.2.1"
+
+
+def test_canada_date_parsing_ignores_process_locale():
+    """The month names must not come from the locale-dependent `calendar.month_name`."""
+    try:
+        locale.setlocale(locale.LC_ALL, "cs_CZ.UTF-8")
+    except locale.Error:
+        pytest.skip("cs_CZ.UTF-8 locale not installed")
+
+    try:
+        text = "COMMON CRITERIA CERTIFICATION REPORT\nThycotic Secret Server v10.0\n23 October 2018\n383-4-445\n"
+        items = importlib.reload(canada_module).CanadaFrontpageParser().parse_text(text.replace("\n", " "), text)
+    finally:
+        locale.setlocale(locale.LC_ALL, "C")
+        importlib.reload(canada_module)
+
+    assert items[constants.TAG_REPORT_DATE] == "23 October 2018"
+    assert items[constants.TAG_CERT_ITEM] == "Thycotic Secret Server v10.0"
 
 
 def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
