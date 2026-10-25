@@ -5,7 +5,7 @@ from typing import Any
 
 from sec_certs import constants
 from sec_certs.utils.frontpage.base import (
-    _LEGAL_FORM,
+    _LEGAL_FORM_SUFFIX,
     FrontpageParser,
     _clean_blocks,
     _clean_identity,
@@ -24,7 +24,7 @@ _MONTHS = "January|February|March|April|May|June|July|August|September|October|N
 _DATE_RE = re.compile(rf"\b\d{{1,2}}\s+(?:{_MONTHS})\s+\d{{4}}\b")
 _ISSUED_BY_RE = re.compile(r"\bIssued by\b")
 _DETACHED_MARK_RE = re.compile(r"\s+(?=[®™])")
-_LEGAL_FORM_END_RE = re.compile(rf"[\s,]{_LEGAL_FORM}\.?$")
+_LEGAL_FORM_END_RE = re.compile(rf"{_LEGAL_FORM_SUFFIX}$")
 
 
 def _first_word(value: str) -> str:

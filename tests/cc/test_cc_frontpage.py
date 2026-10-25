@@ -10,6 +10,7 @@ import tests.data.cc.frontpage
 from sec_certs import constants
 from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
 from sec_certs.utils.frontpage import canada as canada_module
+from sec_certs.utils.frontpage.nscib import _organization_of
 
 
 @pytest.fixture(scope="module")
@@ -79,7 +80,6 @@ def test_nscib_structured(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Pat
 
 
 def test_nscib_converters_agree_on_hyphenated_project_number(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
-    """Docling breaks ``NSCIB-2400046-01`` after the hyphen; the break must not reach the value."""
     pdftotext = nscib_parser.parse(frontpage_dir / "pdftotext" / "nscib_report_trustcb.txt")
     docling = nscib_parser.parse(frontpage_dir / "docling" / "nscib_report_trustcb.txt")
 
@@ -157,13 +157,12 @@ def test_nscib_colon_in_certified_item_is_not_a_label(nscib_parser: NSCIBFrontpa
         ("AKD D.O.O. Savska cesta 31, 10 000 Zagreb", "AKD D.O.O."),
         ("Cisco Systems, Inc. 170 West Tasman Drive 95134 San Jose, CA USA", "Cisco Systems, Inc."),
         ("SGS Brightsight B.V. Brassersplein 2 2612 CT Delft The Netherlands", "SGS Brightsight B.V."),
-        # No legal form to anchor on, and the house number is glued to the city name.
         ("Entrust Minneapolis1187 Park Place Shakopee, MN 55379 USA", "Entrust"),
         ("Brightsight", "Brightsight"),
     ],
 )
-def test_nscib_organisation_trimmed_off_merged_address(nscib_parser: NSCIBFrontpageParser, merged: str, expected: str):
-    assert nscib_parser._organisation_of(merged) == expected
+def test_nscib_organization_trimmed_off_merged_address(merged: str, expected: str):
+    assert _organization_of(merged) == expected
 
 
 def test_nscib_soft_hyphen_in_prose_is_dropped(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
@@ -187,7 +186,6 @@ def test_nscib_unbalanced_parenthesis_is_still_trimmed(nscib_parser: NSCIBFrontp
 
 
 def test_nscib_address_trimmed_when_label_and_value_share_a_block(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
-    """Docling sometimes merges the label, the organization and its address into one block."""
     report = tmp_path / "merged_label.txt"
     report.write_text(
         "\n".join(
@@ -233,7 +231,6 @@ def test_nscib_fields_survive_a_missing_cert_id(nscib_parser: NSCIBFrontpagePars
 
 
 def test_nscib_scheme_prefixed_title_is_recognized(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
-    """EUCC-era reports title the frontpage "EUCC Certification Report"."""
     report = tmp_path / "eucc_title.txt"
     report.write_text(
         "\n".join(
@@ -255,11 +252,6 @@ def test_nscib_scheme_prefixed_title_is_recognized(nscib_parser: NSCIBFrontpageP
 
 
 def test_nscib_reference_line_is_not_a_title(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
-    """
-    The older template carries a reference line that ends with the title anchor
-    ("NSCIB-CC-05-6609 Certification Report"). Taking it for the title makes the letterhead
-    that follows it the product name, so only a plain word may prefix the anchor.
-    """
     report = tmp_path / "reference_line.txt"
     report.write_text(
         "\n".join(
@@ -329,7 +321,6 @@ CANADA_REPORTS = [
 
 @pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
 def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
-    """The same fields must come out of pdftotext plain text and Docling JSON alike."""
     items = canada_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
 
     assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
@@ -347,11 +338,6 @@ def test_canada_structured(
 
 
 def test_canada_further_template(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
-    """
-    A third, older report template where the certification id and date swap places relative to the
-    other two fixtures (id before date here, after it in canada_report_thycotic) -- guards that the
-    product-name cut point checks both, not just whichever came first in the other samples.
-    """
     items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_mcafee.txt")
 
     assert items[constants.TAG_CERT_ID] == "383-4-396"
@@ -378,7 +364,6 @@ def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, front
 
 
 def test_canada_text_keeps_developer_in_cert_item(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
-    """Known limitation: pdftotext can't tell the developer line from a wrapped product name."""
     items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_dell.txt")
 
     assert items[constants.TAG_CERT_ITEM] == "Dell EMC™ Isilon with OneFS v8.2.0.0 Dell EMC"
@@ -390,7 +375,6 @@ def _docling_document(blocks: list[str]) -> dict:
 
 
 def test_canada_title_keeps_all_caps_product_words(canada_parser: CanadaFrontpageParser):
-    """Only the issuer banner may trail the title; an all-caps vendor name belongs to the product."""
     text = "COMMON CRITERIA CERTIFICATION REPORT\nIBM Security QRadar 7.4\n31 January 2020\n383-4-480\n"
 
     items = canada_parser.parse_text(text.replace("\n", " "), text)
@@ -400,7 +384,6 @@ def test_canada_title_keeps_all_caps_product_words(canada_parser: CanadaFrontpag
 
 
 def test_canada_structured_wrapped_product_name_is_not_a_developer(canada_parser: CanadaFrontpageParser):
-    """A product name Docling splits in two must not have its tail reported as the developer."""
     items = canada_parser.parse_structured(
         _docling_document(
             [
@@ -420,7 +403,6 @@ def test_canada_structured_wrapped_product_name_is_not_a_developer(canada_parser
 
 
 def test_canada_structured_developer_by_legal_form(canada_parser: CanadaFrontpageParser):
-    """A developer that doesn't share the product's first word is still recognised by its legal form."""
     items = canada_parser.parse_structured(
         _docling_document(
             ["COMMON CRITERIA CERTIFICATION REPORT", "FortiGate 7.0", "Fortinet, Inc.", "31 January 2020", "383-4-480"]
@@ -432,7 +414,6 @@ def test_canada_structured_developer_by_legal_form(canada_parser: CanadaFrontpag
 
 
 def test_canada_structured_legacy_issued_by_is_not_a_developer(canada_parser: CanadaFrontpageParser):
-    """The legacy template has no developer line; a merged tail must not promote "Issued by:" to one."""
     items = canada_parser.parse_structured(
         _docling_document(
             [
@@ -449,7 +430,6 @@ def test_canada_structured_legacy_issued_by_is_not_a_developer(canada_parser: Ca
 
 
 def test_canada_date_parsing_ignores_process_locale():
-    """The month names must not come from the locale-dependent `calendar.month_name`."""
     try:
         locale.setlocale(locale.LC_ALL, "cs_CZ.UTF-8")
     except locale.Error:
@@ -467,14 +447,6 @@ def test_canada_date_parsing_ignores_process_locale():
 
 
 def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
-    """
-    Documents a real converter limitation rather than papering over it.
-
-    Docling's markdown export drops the frontpage banner (certification id, product name) for
-    this scheme's report layout entirely -- it isn't reachable from `save_as_markdown` output, only
-    from the full serialized JSON document. Since `DoclingConverter.convert` always writes both
-    files, this only affects the text-only fallback path, not real extraction.
-    """
     items = canada_parser.parse(frontpage_dir / "docling" / "canada_report_hsl.txt")
 
     assert items == {}
