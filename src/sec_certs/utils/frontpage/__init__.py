@@ -3,8 +3,8 @@ from sec_certs.utils.frontpage.canada import CanadaFrontpageParser
 from sec_certs.utils.frontpage.nscib import NSCIBFrontpageParser
 
 __all__ = [
-    "CanadaFrontpageParser",
     "FrontpageParser",
+    "CanadaFrontpageParser",
     "NSCIBFrontpageParser",
     "scheme_frontpage_parsers",
 ]

@@ -38,6 +38,9 @@ _LEGAL_FORM = (
     r"|(?i:d\.o\.o|d\.d|s\.r\.o|a\.s|sp\.\sz\so\.o))"
 )
 
+# A legal form closing an organization's name, with any comma-chained ones after it ("Co., Ltd.").
+_LEGAL_FORM_SUFFIX = rf"[\s,]{_LEGAL_FORM}\.?(?:,?\s+{_LEGAL_FORM}\.?)*"
+
 
 def _clean(value: str) -> str:
     """Flatten a block to one line of printable text, free of Markdown headings and bullets."""
