@@ -294,6 +294,7 @@ CANADA_THYCOTIC_EXPECTED = {
     constants.TAG_CERT_ID: "383-4-445",
     constants.TAG_CERT_LAB: "CANADA",
     constants.TAG_CERT_ITEM: "Thycotic Secret Server Government Edition v10.0",
+    constants.TAG_REPORT_VERSION: "1.1",
     constants.TAG_REPORT_DATE: "23 October 2018",
 }
 
@@ -301,6 +302,7 @@ CANADA_MCAFEE_HERCULES_EXPECTED = {
     constants.TAG_CERT_ID: "383-4-88-CR",
     constants.TAG_CERT_LAB: "CANADA",
     constants.TAG_CERT_ITEM: "McAfee® Hercules® Policy Auditor v4.5 and McAfee® Hercules® Remediation Manager v4.5",
+    constants.TAG_REPORT_VERSION: "1.1",
     constants.TAG_REPORT_DATE: "11 April 2008",
 }
 
@@ -308,6 +310,7 @@ CANADA_NETAPP_EXPECTED = {
     constants.TAG_CERT_ID: "383-4-263-CR",
     constants.TAG_CERT_LAB: "CANADA",
     constants.TAG_CERT_ITEM: "NetApp Clustered Data ONTAP® 8.2.1",
+    constants.TAG_REPORT_VERSION: "1.0",
     constants.TAG_REPORT_DATE: "5 January 2015",
 }
 
@@ -345,7 +348,18 @@ def test_canada_further_template(canada_parser: CanadaFrontpageParser, frontpage
     assert items[constants.TAG_CERT_ITEM] == (
         "McAfee Threat Intelligence Exchange 2.0.0 and Data Exchange Layer 3.0.0 with ePolicy Orchestrator 5.3.2"
     )
+    assert items[constants.TAG_REPORT_VERSION] == "1.0"
     assert items[constants.TAG_REPORT_DATE] == "30 November 2016"
+
+
+CANADA_DELL_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-480",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "Dell EMC™ Isilon with OneFS v8.2.0.0",
+    constants.TAG_DEVELOPER: "Dell EMC",
+    constants.TAG_REPORT_VERSION: "1.0",
+    constants.TAG_REPORT_DATE: "31 January 2020",
+}
 
 
 def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
@@ -354,20 +368,49 @@ def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, front
     )
 
     assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
-    assert items == {
-        constants.TAG_CERT_ID: "383-4-480",
-        constants.TAG_CERT_LAB: "CANADA",
-        constants.TAG_CERT_ITEM: "Dell EMC™ Isilon with OneFS v8.2.0.0",
-        constants.TAG_DEVELOPER: "Dell EMC",
-        constants.TAG_REPORT_DATE: "31 January 2020",
-    }
+    assert items == CANADA_DELL_EXPECTED
 
 
-def test_canada_text_keeps_developer_in_cert_item(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+def test_canada_text_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
     items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_dell.txt")
 
-    assert items[constants.TAG_CERT_ITEM] == "Dell EMC™ Isilon with OneFS v8.2.0.0 Dell EMC"
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == CANADA_DELL_EXPECTED
+
+
+def test_canada_text_developer_under_wrapped_product_name(canada_parser: CanadaFrontpageParser):
+    text = (
+        "COMMON CRITERIA CERTIFICATION REPORT\nMarket Central SecureSwitch® Fiber Optic\nSwitch Models: A, B\n"
+        "Market Central, Inc.\n25 June 2020\n383-4-506\nV1.0\n"
+    )
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert items[constants.TAG_DEVELOPER] == "Market Central, Inc"
+    assert items[constants.TAG_CERT_ITEM] == "Market Central SecureSwitch® Fiber Optic Switch Models: A, B"
+
+
+def test_canada_text_wrapped_product_name_starting_like_it_is_not_a_developer(canada_parser: CanadaFrontpageParser):
+    text = (
+        "COMMON CRITERIA CERTIFICATION REPORT\nMcAfee Threat Intelligence Exchange 2.0.0 and\n"
+        "McAfee Data Exchange Layer\n30 November 2016\n383-4-396\n"
+    )
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
     assert constants.TAG_DEVELOPER not in items
+    assert items[constants.TAG_CERT_ITEM] == (
+        "McAfee Threat Intelligence Exchange 2.0.0 and McAfee Data Exchange Layer"
+    )
+
+
+def test_canada_report_version_ignores_product_version(canada_parser: CanadaFrontpageParser):
+    text = "COMMON CRITERIA CERTIFICATION REPORT\nFortiManager 6.2\n7 November 2022\n573-LSS\n"
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert items[constants.TAG_CERT_ITEM] == "FortiManager 6.2"
+    assert constants.TAG_REPORT_VERSION not in items
 
 
 def _docling_document(blocks: list[str]) -> dict:
