@@ -5,6 +5,7 @@ from typing import Any
 
 from sec_certs import constants
 from sec_certs.utils.frontpage.base import (
+    _LEGAL_FORM,
     FrontpageParser,
     _clean_blocks,
     _clean_identity,
@@ -38,12 +39,6 @@ class NSCIBFrontpageParser(FrontpageParser):
     }
 
     _LABEL_RE = re.compile(r"^(?P<label>[A-Za-z][A-Za-z ()]{2,30}?)\s*:\s*(?P<value>.*)$")
-
-    _LEGAL_FORM = (
-        r"(?:Inc|Ltd|Limited|B\.?V|N\.?V|GmbH|AG|S\.r\.l|S\.p\.A|S\.A|LLC|Corp"
-        r"|Corporation|Co|Oy|Oyj|AB|A/S|ApS|Kft|Zrt|Ltda|SARL|SAS|Pty\sLtd|Sdn\sBhd|K\.K|Pte\.?\sLtd"
-        r"|(?i:d\.o\.o|d\.d|s\.r\.o|a\.s|sp\.\sz\so\.o))"
-    )
 
     # Comma-chained legal forms belong to the name ("Co., Ltd."); other text after it does not.
     _ORGANISATION_RE = re.compile(rf"^(?P<name>.{{2,80}}?[\s,]{_LEGAL_FORM}\.?(?:,?\s+{_LEGAL_FORM}\.?)*)(?=[\s,]|$)")

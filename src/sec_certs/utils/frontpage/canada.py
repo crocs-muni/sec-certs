@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import calendar
 import re
 from typing import Any
 
 from sec_certs import constants
 from sec_certs.utils.frontpage.base import (
+    _LEGAL_FORM,
     FrontpageParser,
     _clean_blocks,
     _clean_identity,
@@ -13,57 +13,67 @@ from sec_certs.utils.frontpage.base import (
     _page_one_lines,
 )
 
+# Only the banner Docling merges in may follow the title, or an all-caps product name ("BIG-IP") gets eaten
+_CURRENT_TITLE = r"COMMON CRITERIA\s+CERTIFICATION REPORT(?:\s+CANADIAN CENTRE FOR CYBER SECURITY)?"
+_LEGACY_TITLE = r"Certification Report(?:\s+\S+(?:\s+\S+){0,4}?\s+[Ee]valuation\s+of\b)?"
+_CURRENT_TITLE_RE = re.compile(_CURRENT_TITLE)
+_TITLE_RE = re.compile(rf"{_CURRENT_TITLE}|{_LEGACY_TITLE}")
+
+# Not calendar.month_name, which follows the process locale
+_MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
+_DATE_RE = re.compile(rf"\b\d{{1,2}}\s+(?:{_MONTHS})\s+\d{{4}}\b")
+_ISSUED_BY_RE = re.compile(r"\bIssued by\b")
+_DETACHED_MARK_RE = re.compile(r"\s+(?=[®™])")
+_LEGAL_FORM_END_RE = re.compile(rf"[\s,]{_LEGAL_FORM}\.?$")
+
+
+def _first_word(value: str) -> str:
+    words = value.split()
+    return re.sub(r"\W", "", words[0]).casefold() if words else ""
+
+
+def _names_developer(line: str, product: str) -> bool:
+    """A developer line starts like the product name ("Dell EMC") or ends in a legal form ("Fortinet, Inc.")."""
+    first_word = _first_word(line)
+    return (first_word != "" and first_word == _first_word(product)) or _LEGAL_FORM_END_RE.search(line) is not None
+
 
 class CanadaFrontpageParser(FrontpageParser):
     certification_body = "CANADA"
     scheme = "CA"
 
-    # 2008-2015 template: "Certification Report [EAL 3 Evaluation of] <product> Issued by: ..."
-    _TITLE_RE = re.compile(
-        r"COMMON CRITERIA\s+CERTIFICATION REPORT(?:\s+[A-Z][A-Z]+(?:\s+[A-Z][A-Z]+)*)?"
-        r"|Certification Report(?:\s+\S+(?:\s+\S+){0,4}?\s+[Ee]valuation\s+of\b)?"
-    )
-    _PRODUCT_NAME_END_RE = re.compile(r"\bIssued by\b")
-    _MONTHS = "|".join(calendar.month_name[1:])
-    _DATE_RE = re.compile(rf"\b\d{{1,2}}\s+(?:{_MONTHS})\s+\d{{4}}\b")
-    # Docling writes "McAfee ® Hercules ®"
-    _DETACHED_MARK_RE = re.compile(r"\s+(?=[®™])")
-
     def parse_structured(self, document: dict[str, Any]) -> dict[str, Any]:
         blocks = _clean_blocks(_page_one_blocks(document))
-        developer_index = self._developer_block_index(blocks)
-        if developer_index is None:
-            return self._parse(blocks)
+        developer_index = self._developer_index(blocks)
+        developer = blocks.pop(developer_index) if developer_index is not None else None
 
-        developer = blocks.pop(developer_index)
         items_found = self._parse(blocks)
-        if items_found:
+        if items_found and developer:
             items_found[constants.TAG_DEVELOPER] = _clean_identity(developer)
         return items_found
 
     def parse_text(self, text: str, text_with_newlines: str) -> dict[str, Any]:
         return self._parse(_clean_blocks(_page_one_lines(text_with_newlines)))
 
-    def _developer_block_index(self, blocks: list[str]) -> int | None:
-        """Docling-only: the developer is the 2nd of exactly two blocks between the title and the date or cert id."""
-        title_index = next((idx for idx, block in enumerate(blocks) if self._TITLE_RE.fullmatch(block)), None)
-        if title_index is None:
+    def _developer_index(self, blocks: list[str]) -> int | None:
+        """Docling only: the developer may get its own block between the product name and the date or cert id."""
+        title = next((idx for idx, block in enumerate(blocks) if _CURRENT_TITLE_RE.fullmatch(block)), None)
+        if title is None:
             return None
 
-        between = []
-        for idx in range(title_index + 1, len(blocks)):
-            if self._DATE_RE.search(blocks[idx]) or next(self._cert_id_matches(blocks[idx]), None):
-                break
-            between.append(idx)
-        else:
+        end = next((idx for idx in range(title + 1, len(blocks)) if self._is_date_or_cert_id(blocks[idx])), None)
+        if end != title + 3:
             return None
 
-        return between[1] if len(between) == 2 else None
+        product, developer = blocks[title + 1], blocks[title + 2]
+        return title + 2 if _names_developer(developer, product) else None
+
+    def _is_date_or_cert_id(self, block: str) -> bool:
+        return _DATE_RE.search(block) is not None or next(self._cert_id_matches(block), None) is not None
 
     def _parse(self, blocks: list[str]) -> dict[str, Any]:
-        full_text = " ".join(blocks)
-
-        cert_id = self._recover_cert_id(full_text)
+        text = " ".join(blocks)
+        cert_id = self._recover_cert_id(text)
         if not cert_id:
             return {}
 
@@ -71,35 +81,23 @@ class CanadaFrontpageParser(FrontpageParser):
             constants.TAG_CERT_ID: cert_id,
             constants.TAG_CERT_LAB: self.certification_body,
         }
-        items_found.update(self._fields_after_title(full_text))
 
+        title = _TITLE_RE.search(text)
+        if title is None:
+            return items_found
+
+        after_title = text[title.end() :].strip()
+        date = _DATE_RE.search(after_title)
+        if date:
+            items_found[constants.TAG_REPORT_DATE] = date.group()
+
+        product_name = self._product_name(after_title, date)
+        if product_name:
+            items_found[constants.TAG_CERT_ITEM] = product_name
         return items_found
 
-    def _fields_after_title(self, full_text: str) -> dict[str, Any]:
-        title_match = self._TITLE_RE.search(full_text)
-        if title_match is None:
-            return {}
-
-        rest = full_text[title_match.end() :].strip()
-        fields: dict[str, Any] = {}
-
-        date_match = self._DATE_RE.search(rest)
-        if date_match:
-            fields[constants.TAG_REPORT_DATE] = date_match.group()
-
-        cert_item = self._recover_cert_item(rest, date_match)
-        if cert_item:
-            fields[constants.TAG_CERT_ITEM] = cert_item
-
-        return fields
-
-    def _recover_cert_item(self, rest: str, date_match: re.Match[str] | None) -> str:
-        product_name_end_candidates = [match.start() for match in self._cert_id_matches(rest)]
-        if date_match:
-            product_name_end_candidates.append(date_match.start())
-        end_match = self._PRODUCT_NAME_END_RE.search(rest)
-        if end_match:
-            product_name_end_candidates.append(end_match.start())
-
-        product_name_end = min(product_name_end_candidates) if product_name_end_candidates else len(rest)
-        return _clean_identity(self._DETACHED_MARK_RE.sub("", rest[:product_name_end]))
+    def _product_name(self, after_title: str, date: re.Match[str] | None) -> str:
+        """The product name runs up to the first cert id, date or "Issued by"."""
+        ends = [*self._cert_id_matches(after_title), date, _ISSUED_BY_RE.search(after_title)]
+        end = min((match.start() for match in ends if match), default=len(after_title))
+        return _clean_identity(_DETACHED_MARK_RE.sub("", after_title[:end]))
