@@ -340,6 +340,16 @@ def _sesip_organisation(value: str | None) -> str | None:
     return re.sub(r"[\s,;:&]+$", "", value) or None
 
 
+_LEGAL_SUFFIX_RE = re.compile(
+    rf"[\s,]+{NSCIBFrontpageParser._LEGAL_FORM}\.?(?:,?\s+{NSCIBFrontpageParser._LEGAL_FORM}\.?)*$"
+)
+
+
+def strip_legal_form(value: str) -> str:
+    """'SGS Brightsight B.V.' -> 'SGS Brightsight'"""
+    return _LEGAL_SUFFIX_RE.sub("", value).strip()
+
+
 def _sesip_standard(text: str) -> str | None:
     if m := _SESIP_EN_RE.search(text):
         return f"EN 17927:{m.group(1)}"

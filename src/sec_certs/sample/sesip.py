@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 import requests
 
+from sec_certs import constants
 from sec_certs.cert_rules import sesip_rules
 from sec_certs.document.utils import get_view
 from sec_certs.sample.certificate import Certificate, logger
@@ -19,7 +20,7 @@ from sec_certs.sample.document_state import DocumentState
 from sec_certs.serialization.json import ComplexSerializableType
 from sec_certs.utils import helpers
 from sec_certs.utils.extract import extract_keywords
-from sec_certs.utils.frontpage import parse_sesip_frontpage
+from sec_certs.utils.frontpage import parse_sesip_frontpage, strip_legal_form
 from sec_certs.utils.helpers import get_first_16_bytes_sha256
 from sec_certs.utils.pdf import extract_pdf_metadata
 
@@ -82,7 +83,7 @@ class SESIPCertificate(
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
-        pass
+        cert_lab: list[str] | None = field(default=None)
 
     def __init__(
         self,
@@ -219,6 +220,12 @@ class SESIPCertificate(
         else:
             cert.pdf_data.st_keywords = keywords
         return cert
+
+    def compute_heuristics_cert_lab(self) -> None:
+        frontpage = self.pdf_data.cert_frontpage or {}
+        lab = self.index_data.evaluator or frontpage.get(constants.TAG_CERT_LAB)
+        name = strip_legal_form(lab) if lab else None
+        self.heuristics.cert_lab = [name] if name else None
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):

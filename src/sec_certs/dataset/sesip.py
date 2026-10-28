@@ -264,5 +264,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         )
         self.update_with_certs(processed)
 
+    @staged(logger, "Computing heuristics of SESIP certificates")
     def _compute_heuristics_body(self) -> None:
-        raise NotImplementedError("not implemented yet.")
+        for cert in self:
+            cert.compute_heuristics_cert_lab()
