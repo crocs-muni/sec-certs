@@ -2,10 +2,13 @@
 # Targets:
 #   docker buildx build .                   -> slim image (default, last stage)
 #   docker buildx build --target jupyter .  -> slim + Jupyter + notebooks
+#   docker buildx build --target docling .  -> slim + Docling + its models
 # Stage graph:
 #   deps ──┬──> builder ─────────────────────────> slim
-#          └──> deps-jupyter ──> builder-jupyter ─> jupyter
-#   runtime is the common base of slim and jupyter; each gets its own venv.
+#          ├──> deps-jupyter ──> builder-jupyter ─> jupyter
+#          └──> deps-docling ──> builder-docling ─> docling
+#   runtime is the common base of slim, jupyter and docling; each gets its own venv.
+
 # uv in its own stage: Dependabot tracks images in FROM lines, not in COPY --from
 FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 AS uv
 
@@ -18,6 +21,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Needed to compile pdftotext (no prebuilt wheels)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    ca-certificates \
     libpoppler-cpp-dev \
     python3-dev \
     python3.12 \
@@ -49,6 +53,15 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project --inexact --group jupyter
 
+# ---------- deps-docling ----------
+# Models are downloaded at build time, so the container does not fetch them on every start
+FROM deps AS deps-docling
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --inexact --extra docling
+RUN /app/.venv/bin/docling-tools models download layout tableformer -o /opt/docling-models
+
 # ---------- builder ----------
 # Version comes from a build arg (.git is not in the context); release.yml passes the tag.
 # --reinstall-package: otherwise uv reuses a cached wheel with old code or an old version.
@@ -65,6 +78,14 @@ COPY . /app
 ARG SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS=0.0.0+local
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-editable --inexact --group jupyter --reinstall-package sec-certs
+
+# ---------- builder-docling ----------
+# Same as builder; --extra docling keeps the Docling packages
+FROM deps-docling AS builder-docling
+COPY . /app
+ARG SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS=0.0.0+local
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-editable --inexact --extra docling --reinstall-package sec-certs
 
 # ---------- runtime ----------
 # Common base of the final stages: no compilers, no uv
@@ -99,6 +120,24 @@ COPY --chown=user:user notebooks /home/user/notebooks
 USER user
 EXPOSE 8888
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser"]
+
+# ---------- docling ----------
+FROM runtime AS docling
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# OpenCV (pulled in by rapidocr via docling[standard]) needs libGL and glib
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0t64 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder-docling /app/.venv /app/.venv
+COPY --from=builder-docling /opt/docling-models /opt/docling-models
+ENV DOCLING_ARTIFACTS_PATH=/opt/docling-models
+
+USER user
+CMD ["/bin/bash"]
 
 # ---------- slim (default, must stay last) ----------
 FROM runtime AS slim
