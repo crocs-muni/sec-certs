@@ -268,3 +268,4 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     def _compute_heuristics_body(self) -> None:
         for cert in self:
             cert.compute_heuristics_cert_lab()
+            cert.compute_heuristics_status()

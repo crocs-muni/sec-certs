@@ -84,6 +84,7 @@ class SESIPCertificate(
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
         cert_lab: list[str] | None = field(default=None)
+        status: str | None = field(default=None)  # active, expired, withdrawn, terminated
 
     def __init__(
         self,
@@ -226,6 +227,20 @@ class SESIPCertificate(
         lab = self.index_data.evaluator or frontpage.get(constants.TAG_CERT_LAB)
         name = strip_legal_form(lab) if lab else None
         self.heuristics.cert_lab = [name] if name else None
+
+    def compute_heuristics_status(self) -> None:
+        table_status = (self.index_data.status or "").lower()
+        if table_status in ("terminated", "withdrawn"):
+            self.heuristics.status = table_status
+        elif self.index_data.product.lower().startswith("withdrawn"):
+            self.heuristics.status = "withdrawn"
+        else:
+            expiry = (self.pdf_data.cert_frontpage or {}).get("expiry_date") or ""
+            try:
+                # same rule as EUCC - valid if the expiry date is in the future
+                self.heuristics.status = "active" if date.fromisoformat(expiry) > date.today() else "expired"
+            except (TypeError, ValueError):
+                self.heuristics.status = None
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):
