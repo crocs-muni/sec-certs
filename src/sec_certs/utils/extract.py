@@ -430,79 +430,6 @@ def search_only_headers_niap(filepath: Path):  # type: ignore # noqa: C901
 
 
 @no_type_check
-def search_only_headers_canada(filepath: Path):  # type: ignore # noqa: C901
-    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
-    LINE_SEPARATOR_STRICT = " "
-    NUM_LINES_TO_INVESTIGATE = 20
-    items_found: dict[str, str] = {}
-    try:
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
-            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
-        )
-
-        cert_id = ""
-
-        lines = whole_text_with_newlines.splitlines()
-        no_match_yet = True
-        for line_index in range(0, len(lines)):
-            line = lines[line_index]
-            if "Government of Canada, Communications Security Establishment" in line:
-                REPORTNUM_STR1 = "Evaluation number:"
-                REPORTNUM_STR2 = "Document number:"
-                matched_number_str = ""
-                line_certid = lines[line_index + 1]
-                if line_certid.startswith(REPORTNUM_STR1):
-                    matched_number_str = REPORTNUM_STR1
-                if line_certid.startswith(REPORTNUM_STR2):
-                    matched_number_str = REPORTNUM_STR2
-                if matched_number_str != "":
-                    if no_match_yet:
-                        items_found = {}
-                        no_match_yet = False
-
-                    cert_id = line_certid[line_certid.find(matched_number_str) + len(matched_number_str) :]
-                    break
-
-            if (
-                "Government of Canada. This document is the property of the Government of Canada. It shall not be altered,"
-                in line
-            ):
-                REPORTNUM_STR = "Evaluation number:"
-                for offset in range(1, 20):
-                    line_certid = lines[line_index + offset]
-                    if "UNCLASSIFIED" in line_certid:
-                        if no_match_yet:
-                            items_found = {}
-                            no_match_yet = False
-                        line_certid = lines[line_index + offset - 4]
-                        cert_id = line_certid[line_certid.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
-                        break
-                if not no_match_yet:
-                    break
-
-            if (
-                "UNCLASSIFIED / NON CLASSIFIÉ" in line
-                and "COMMON CRITERIA CERTIFICATION REPORT" in lines[line_index + 2]
-            ):
-                line_certid = lines[line_index + 1]
-                if no_match_yet:
-                    items_found = {}
-                    no_match_yet = False
-                cert_id = line_certid
-                break
-
-        if not no_match_yet and cert_id:
-            items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
-            items_found[constants.TAG_CERT_LAB] = "CANADA"
-
-    except Exception as e:
-        error_msg = f"Failed to parse Canada headers from frontpage: {filepath}; {e}"
-        logger.error(error_msg)
-        raise ValueError(error_msg) from e
-
-    return items_found
-
-
 def flatten_matches(dct: dict) -> dict:
     """
     Function to flatten dictionary of matches.
@@ -716,5 +643,4 @@ scheme_frontpage_functions = {
     "FR": search_only_headers_anssi,
     "DE": search_only_headers_bsi,
     "US": search_only_headers_niap,
-    "CA": search_only_headers_canada,
 }
