@@ -85,6 +85,8 @@ class SESIPCertificate(
     class Heuristics(BaseHeuristics, ComplexSerializableType):
         cert_lab: list[str] | None = field(default=None)
         status: str | None = field(default=None)  # active, expired, withdrawn, terminated
+        prev_certificates: list[str] | None = field(default=None)
+        next_certificates: list[str] | None = field(default=None)
 
     def __init__(
         self,

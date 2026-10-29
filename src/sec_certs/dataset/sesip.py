@@ -32,6 +32,8 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     """Dataset of SESIP certificates by TrustCB"""
 
     INDEX_HTML: Final[str] = "sesip_certificates.html"
+    # SESIP-2300031-02: base number, revision; a reissue ".1" is the same certificate
+    CERT_REVISION_RE: Final = re.compile(r"^(SESIP-\d{7})-(\d{2})(?:\.\d+)?$")
 
     @staticmethod
     def _parse_index_table(page: str) -> list[dict[str, str]]:  # noqa: C901
@@ -269,3 +271,16 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         for cert in self:
             cert.compute_heuristics_cert_lab()
             cert.compute_heuristics_status()
+        self._compute_cert_versions()
+
+    # won't be used at production for now
+    def _compute_cert_versions(self) -> None:
+        revisions: dict[str, list[tuple[int, str]]] = {}
+        for cert in self:
+            if m := self.CERT_REVISION_RE.match(cert.cert_id):
+                revisions.setdefault(m.group(1), []).append((int(m.group(2)), cert.cert_id))
+        for cert in self:
+            m = self.CERT_REVISION_RE.match(cert.cert_id)
+            own, group = (int(m.group(2)), revisions[m.group(1)]) if m else (0, [])
+            cert.heuristics.prev_certificates = sorted(cid for rev, cid in group if rev < own)
+            cert.heuristics.next_certificates = sorted(cid for rev, cid in group if rev > own)
