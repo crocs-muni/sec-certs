@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, fields
 from datetime import date
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 import requests
 
@@ -47,6 +48,26 @@ class SESIPProfile(ComplexSerializableType):
             other.version or "",
             other.release or "",
         )
+
+
+_PSA: Final = r"PSA\s*Certified\W*(?:TM\W*)?"
+SESIP_PROFILE_FAMILIES: Final[dict[str, re.Pattern[str]]] = {
+    name: re.compile(pattern, re.IGNORECASE)
+    for name, pattern in {
+        "Secure MCUs and MPUs": r"Secure\s*MCUs\s*and\s*MPUs",
+        "Secure External Memories": r"Secure\s*External\s*Memories",
+        "WPC Qi Secure Storage Subsystem": r"WPC\s*Qi",
+        "DTSec Connected Diabetes Devices": r"DTSec",
+        "UWB module": r"Ultra-Wideband|UWB",
+        "ICA IoT Security Requirements": r"ICA IoT",
+        "PSA Certified Level 2": _PSA + r"Level\s*2|ARM PSA L2",
+        "PSA Certified Level 3": _PSA + r"Level\s*3(?!\s*iSE)",
+        "PSA Certified Level 3 iSE/SE + RoT Component": _PSA + r"Level\s*3\s*iSE/SE",
+        "PSA Certified Level 4 iSE/SE": _PSA + r"(?:\w+\W+)?Level\s*4",
+        "PSA Certified RoT Component Level 2": _PSA + r"RoT\s*Component\s*Level\s*2",
+        "PSA Certified RoT Component Level 3": _PSA + r"(?:3\W*)?RoT\s*Component\s*Level\s*3",
+    }.items()
+}
 
 
 class SESIPCertificate(
@@ -259,6 +280,13 @@ class SESIPCertificate(
                 self.heuristics.status = "active" if date.fromisoformat(expiry) > date.today() else "expired"
             except (TypeError, ValueError):
                 self.heuristics.status = None
+
+    def compute_heuristics_sesip_profiles(self) -> None:
+        text = (self.pdf_data.cert_frontpage or {}).get("sesip_profile") or ""
+        found = {SESIPProfile(name) for name, pattern in SESIP_PROFILE_FAMILIES.items() if pattern.search(text)}
+        if text and not found:
+            logger.warning(f"Cert dgst: {self.dgst} has an unknown SESIP profile: {text}")
+        self.heuristics.sesip_profiles = found or None
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):
