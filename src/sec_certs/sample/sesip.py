@@ -68,6 +68,21 @@ SESIP_PROFILE_FAMILIES: Final[dict[str, re.Pattern[str]]] = {
         "PSA Certified RoT Component Level 3": _PSA + r"(?:3\W*)?RoT\s*Component\s*Level\s*3",
     }.items()
 }
+_NEXT_PROFILE_RE: Final = re.compile(r"profile\s+for", re.IGNORECASE)
+_MARKED_VERSION_RE: Final = re.compile(r"(?:version|\bv)\s*\.?\s*(\d+\.\d+(?:\.\d+)?)", re.IGNORECASE)
+_BARE_VERSION_RE: Final = re.compile(r"(?<![\d.])(\d+\.\d+)(?![\d.x])")
+_RELEASE_RE: Final = re.compile(r"[\s,]*(BETA|draft)?[\s,]*(?:REL\s*(\d+))?", re.IGNORECASE)
+
+
+def _profile_version(text: str, start: int) -> tuple[str | None, str | None]:
+    end = m.start() if (m := _NEXT_PROFILE_RE.search(text, start)) else len(text)
+    tail = text[start:end]
+    version = _MARKED_VERSION_RE.search(tail) or _BARE_VERSION_RE.search(tail)
+    if not version:
+        return None, None
+    stage, rel = r.groups() if (r := _RELEASE_RE.match(tail, version.end())) else (None, None)
+    release = " ".join(x for x in (stage and stage.upper(), rel and f"REL {int(rel):02d}") if x)
+    return version.group(1), release or None
 
 
 class SESIPCertificate(
@@ -283,7 +298,11 @@ class SESIPCertificate(
 
     def compute_heuristics_sesip_profiles(self) -> None:
         text = (self.pdf_data.cert_frontpage or {}).get("sesip_profile") or ""
-        found = {SESIPProfile(name) for name, pattern in SESIP_PROFILE_FAMILIES.items() if pattern.search(text)}
+        found = {
+            SESIPProfile(name, *_profile_version(text, m.end()))
+            for name, pattern in SESIP_PROFILE_FAMILIES.items()
+            if (m := pattern.search(text))
+        }
         if text and not found:
             logger.warning(f"Cert dgst: {self.dgst} has an unknown SESIP profile: {text}")
         self.heuristics.sesip_profiles = found or None

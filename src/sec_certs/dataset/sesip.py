@@ -32,7 +32,6 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     """Dataset of SESIP certificates by TrustCB"""
 
     INDEX_HTML: Final[str] = "sesip_certificates.html"
-    # SESIP-2300031-02: base number, revision; a reissue ".1" is the same certificate
     CERT_REVISION_RE: Final = re.compile(r"^(SESIP-\d{7})-(\d{2})(?:\.\d+)?$")
 
     @staticmethod
