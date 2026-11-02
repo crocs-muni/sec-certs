@@ -34,6 +34,21 @@ class InternalState(BaseInternalState, ComplexSerializableType):
     st: DocumentState = field(default_factory=DocumentState)
 
 
+@dataclass(frozen=True)
+class SESIPProfile(ComplexSerializableType):
+    family: str
+    version: str | None = None  # 1.0
+    release: str | None = None  # REL 02, BETA
+
+    def __lt__(self, other: SESIPProfile) -> bool:
+        # sets are serialized sorted
+        return (self.family, self.version or "", self.release or "") < (
+            other.family,
+            other.version or "",
+            other.release or "",
+        )
+
+
 class SESIPCertificate(
     Certificate["SESIPCertificate", "SESIPCertificate.Heuristics", "SESIPCertificate.PdfData", "InternalState"],
     ComplexSerializableType,
@@ -87,6 +102,7 @@ class SESIPCertificate(
         status: str | None = field(default=None)  # active, expired, withdrawn, terminated
         prev_certificates: list[str] | None = field(default=None)
         next_certificates: list[str] | None = field(default=None)
+        sesip_profiles: set[SESIPProfile] | None = field(default=None)
 
     def __init__(
         self,
