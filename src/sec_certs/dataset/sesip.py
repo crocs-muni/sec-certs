@@ -271,6 +271,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             cert.compute_heuristics_cert_lab()
             cert.compute_heuristics_status()
             cert.compute_heuristics_sesip_profiles()
+            cert.compute_heuristics_psa_profile_levels()
         self._compute_cert_versions()
 
     # won't be used at production for now

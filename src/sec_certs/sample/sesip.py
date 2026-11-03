@@ -126,6 +126,9 @@ class SESIPCertificate(
         prev_certificates: list[str] | None = field(default=None)
         next_certificates: list[str] | None = field(default=None)
         sesip_profiles: set[SESIPProfile] | None = field(default=None)
+        # against a PSA profile, not PSA certificate
+        psa_profile_level: int | None = field(default=None)
+        psa_rot_component_profile_level: int | None = field(default=None)
 
     def __init__(
         self,
@@ -293,6 +296,12 @@ class SESIPCertificate(
         if text and not found:
             logger.warning(f"Cert dgst: {self.dgst} has an unknown SESIP profile: {text}")
         self.heuristics.sesip_profiles = found or None
+
+    def compute_heuristics_psa_profile_levels(self) -> None:
+        entries = [e for p in self.heuristics.sesip_profiles or [] if (e := SESIP_PROFILES.get(p.family))]
+        levels = [(e["psa_level"], e["psa_rot_component"]) for e in entries if e["psa_level"]]
+        self.heuristics.psa_profile_level = min((lvl for lvl, rot in levels if not rot), default=None)
+        self.heuristics.psa_rot_component_profile_level = min((lvl for lvl, rot in levels if rot), default=None)
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):
