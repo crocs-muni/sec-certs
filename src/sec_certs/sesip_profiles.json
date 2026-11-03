@@ -1,0 +1,62 @@
+[
+  {
+    "family": "Secure MCUs and MPUs",
+    "pattern": "Secure\\s*MCUs\\s*and\\s*MPUs",
+    "url": null
+  },
+  {
+    "family": "Secure External Memories",
+    "pattern": "Secure\\s*External\\s*Memories",
+    "url": null
+  },
+  {
+    "family": "WPC Qi Secure Storage Subsystem",
+    "pattern": "WPC\\s*Qi",
+    "url": null
+  },
+  {
+    "family": "DTSec Connected Diabetes Devices",
+    "pattern": "DTSec",
+    "url": null
+  },
+  {
+    "family": "UWB module",
+    "pattern": "Ultra-Wideband|UWB",
+    "url": null
+  },
+  {
+    "family": "ICA IoT Security Requirements",
+    "pattern": "ICA IoT",
+    "url": null
+  },
+  {
+    "family": "PSA Certified Level 2",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*2|ARM PSA L2",
+    "url": null
+  },
+  {
+    "family": "PSA Certified Level 3",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*3(?!\\s*iSE)",
+    "url": null
+  },
+  {
+    "family": "PSA Certified Level 3 iSE/SE + RoT Component",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*3\\s*iSE/SE",
+    "url": null
+  },
+  {
+    "family": "PSA Certified Level 4 iSE/SE",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:\\w+\\W+)?Level\\s*4",
+    "url": null
+  },
+  {
+    "family": "PSA Certified RoT Component Level 2",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?RoT\\s*Component\\s*Level\\s*2",
+    "url": null
+  },
+  {
+    "family": "PSA Certified RoT Component Level 3",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:3\\W*)?RoT\\s*Component\\s*Level\\s*3",
+    "url": null
+  }
+]
