@@ -2,61 +2,134 @@
   {
     "family": "Secure MCUs and MPUs",
     "pattern": "Secure\\s*MCUs\\s*and\\s*MPUs",
-    "url": null
+    "issuer": "GlobalPlatform",
+    "doc_ids": [
+      "GPT_SPE_150"
+    ],
+    "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-mcus-and-mpus-gpt_spe_150/"
   },
   {
     "family": "Secure External Memories",
     "pattern": "Secure\\s*External\\s*Memories",
-    "url": null
+    "issuer": "GlobalPlatform",
+    "doc_ids": [
+      "GPT_SPE_148"
+    ],
+    "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-external-memories/"
   },
   {
     "family": "WPC Qi Secure Storage Subsystem",
     "pattern": "WPC\\s*Qi",
-    "url": null
+    "issuer": "GlobalPlatform",
+    "doc_ids": [
+      "GPT_SPE_153"
+    ],
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-wpc-qi-gpt_spe_153/"
   },
   {
     "family": "DTSec Connected Diabetes Devices",
     "pattern": "DTSec",
-    "url": null
+    "issuer": "GlobalPlatform",
+    "doc_ids": [
+      "GPT_SPE_151"
+    ],
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-dtsec-cdd-platform/"
   },
   {
     "family": "UWB module",
     "pattern": "Ultra-Wideband|UWB",
+    "issuer": null,
+    "doc_ids": [],
     "url": null
   },
   {
     "family": "ICA IoT Security Requirements",
     "pattern": "ICA IoT",
+    "issuer": null,
+    "doc_ids": [],
     "url": null
   },
   {
     "family": "PSA Certified Level 2",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*2|ARM PSA L2",
-    "url": null
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*2(?!\\s*ARoT)|ARM PSA L2",
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN012",
+      "GPS_SPE_112"
+    ],
+    "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-2-gps_spe_112/"
   },
   {
     "family": "PSA Certified Level 3",
     "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*3(?!\\s*iSE)",
-    "url": null
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN011",
+      "GPS_SPE_111"
+    ],
+    "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-3-gps_spe_111/"
   },
   {
     "family": "PSA Certified Level 3 iSE/SE + RoT Component",
     "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*3\\s*iSE/SE",
-    "url": null
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN018"
+    ],
+    "url": "https://www.psacertified.org/development-resources/certification-resources/"
   },
   {
     "family": "PSA Certified Level 4 iSE/SE",
     "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:\\w+\\W+)?Level\\s*4",
-    "url": null
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN023"
+    ],
+    "url": "https://www.psacertified.org/development-resources/certification-resources/"
   },
   {
     "family": "PSA Certified RoT Component Level 2",
     "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?RoT\\s*Component\\s*Level\\s*2",
-    "url": null
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN017"
+    ],
+    "url": "https://www.psacertified.org/development-resources/certification-resources/"
   },
   {
     "family": "PSA Certified RoT Component Level 3",
     "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:3\\W*)?RoT\\s*Component\\s*Level\\s*3",
-    "url": null
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN018"
+    ],
+    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+  },
+  {
+    "family": "PSA Certified Level 2 ARoT-less",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*2\\s*ARoT\\W*less",
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN019"
+    ],
+    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+  },
+  {
+    "family": "Code Update Mechanism",
+    "pattern": "Code\\s*Update\\s*Mechanism",
+    "issuer": "GlobalPlatform",
+    "doc_ids": [
+      "GPS_SPE_026"
+    ],
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-code-update-mechanism-gps_spe_026/"
+  },
+  {
+    "family": "ECN",
+    "pattern": "\\bECN\\b",
+    "issuer": "GlobalPlatform",
+    "doc_ids": [
+      "GPT_SPE_152"
+    ],
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-ecn-gpt_spe_152/"
   }
 ]
