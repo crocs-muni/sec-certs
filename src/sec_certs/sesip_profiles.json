@@ -6,7 +6,9 @@
     "doc_ids": [
       "GPT_SPE_150"
     ],
-    "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-mcus-and-mpus-gpt_spe_150/"
+    "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-mcus-and-mpus-gpt_spe_150/",
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "Secure External Memories",
@@ -15,7 +17,9 @@
     "doc_ids": [
       "GPT_SPE_148"
     ],
-    "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-external-memories/"
+    "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-external-memories/",
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "WPC Qi Secure Storage Subsystem",
@@ -24,7 +28,9 @@
     "doc_ids": [
       "GPT_SPE_153"
     ],
-    "url": "https://globalplatform.org/specs-library/sesip-profile-for-wpc-qi-gpt_spe_153/"
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-wpc-qi-gpt_spe_153/",
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "DTSec Connected Diabetes Devices",
@@ -33,21 +39,27 @@
     "doc_ids": [
       "GPT_SPE_151"
     ],
-    "url": "https://globalplatform.org/specs-library/sesip-profile-for-dtsec-cdd-platform/"
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-dtsec-cdd-platform/",
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "UWB module",
     "pattern": "Ultra-Wideband|UWB",
     "issuer": null,
     "doc_ids": [],
-    "url": null
+    "url": null,
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "ICA IoT Security Requirements",
     "pattern": "ICA IoT",
     "issuer": null,
     "doc_ids": [],
-    "url": null
+    "url": null,
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "PSA Certified Level 2",
@@ -57,7 +69,9 @@
       "JSADEN012",
       "GPS_SPE_112"
     ],
-    "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-2-gps_spe_112/"
+    "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-2-gps_spe_112/",
+    "psa_level": 2,
+    "psa_rot_component": false
   },
   {
     "family": "PSA Certified Level 3",
@@ -67,7 +81,9 @@
       "JSADEN011",
       "GPS_SPE_111"
     ],
-    "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-3-gps_spe_111/"
+    "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-3-gps_spe_111/",
+    "psa_level": 3,
+    "psa_rot_component": false
   },
   {
     "family": "PSA Certified Level 3 iSE/SE + RoT Component",
@@ -76,7 +92,9 @@
     "doc_ids": [
       "JSADEN018"
     ],
-    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+    "url": "https://www.psacertified.org/development-resources/certification-resources/",
+    "psa_level": 3,
+    "psa_rot_component": false
   },
   {
     "family": "PSA Certified Level 4 iSE/SE",
@@ -85,7 +103,9 @@
     "doc_ids": [
       "JSADEN023"
     ],
-    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+    "url": "https://www.psacertified.org/development-resources/certification-resources/",
+    "psa_level": 4,
+    "psa_rot_component": false
   },
   {
     "family": "PSA Certified RoT Component Level 2",
@@ -94,7 +114,9 @@
     "doc_ids": [
       "JSADEN017"
     ],
-    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+    "url": "https://www.psacertified.org/development-resources/certification-resources/",
+    "psa_level": 2,
+    "psa_rot_component": true
   },
   {
     "family": "PSA Certified RoT Component Level 3",
@@ -103,7 +125,9 @@
     "doc_ids": [
       "JSADEN018"
     ],
-    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+    "url": "https://www.psacertified.org/development-resources/certification-resources/",
+    "psa_level": 3,
+    "psa_rot_component": true
   },
   {
     "family": "PSA Certified Level 2 ARoT-less",
@@ -112,7 +136,9 @@
     "doc_ids": [
       "JSADEN019"
     ],
-    "url": "https://www.psacertified.org/development-resources/certification-resources/"
+    "url": "https://www.psacertified.org/development-resources/certification-resources/",
+    "psa_level": 2,
+    "psa_rot_component": false
   },
   {
     "family": "Code Update Mechanism",
@@ -121,7 +147,9 @@
     "doc_ids": [
       "GPS_SPE_026"
     ],
-    "url": "https://globalplatform.org/specs-library/sesip-profile-for-code-update-mechanism-gps_spe_026/"
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-code-update-mechanism-gps_spe_026/",
+    "psa_level": null,
+    "psa_rot_component": false
   },
   {
     "family": "ECN",
@@ -130,6 +158,8 @@
     "doc_ids": [
       "GPT_SPE_152"
     ],
-    "url": "https://globalplatform.org/specs-library/sesip-profile-for-ecn-gpt_spe_152/"
+    "url": "https://globalplatform.org/specs-library/sesip-profile-for-ecn-gpt_spe_152/",
+    "psa_level": null,
+    "psa_rot_component": false
   }
 ]
