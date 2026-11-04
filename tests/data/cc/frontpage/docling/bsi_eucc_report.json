@@ -1,0 +1,1361 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "EUCC-3087-2026-0012 Administration ID BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "for",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "TCOS FlexCert Version 2.0 Release 2/SLC52",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "from",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "text",
+   "text": "Deutsche Telekom Security GmbH",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-11",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "page_footer",
+   "text": "Certification Report V1.0",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "page_footer",
+   "text": "EUCC-Zert-327 EUCC V6.9",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "page_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "page_header",
+   "text": "EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "section_header",
+   "text": "Contents",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "page_footer",
+   "text": "3 / 37",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "page_header",
+   "text": "Certification Report EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "section_header",
+   "text": "A. Certification",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "1. Preliminary Remarks",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "The Implementing Regulation (EU) 2024/482 of the European Parliament and of the Council of 31 January 2024 [EUCC-VO] establishes a Union-wide cybersecurity certification scheme for TOEs and Protection Profiles for conformity assessments using the requirements of Common Criteria.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "By implementing the Cybersecurity Act 1 , certification activities at assurance level 'high' and in duly justified cases at assurance level 'substantial' are reserved to the National Cybersecurity Certification Agency of a Member State.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "text",
+   "text": "In accordance to BSIG 2 Act, the Federal Office for Information Security (BSI) issues certificates for information technology products.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "text",
+   "text": "Certification of a product is carried out at the request of a developer, vendor or a distributor, hereinafter called the applicant.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "text",
+   "text": "A part of the procedure is the technical examination (evaluation) of the product according to the security criteria referenced in the above mentioned Implementing Regulation (EU) 2024/482 as well as relevant application notes and interpretations published by the certification body of the BSI.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "text",
+   "text": "Evaluation facilities notified by the German National Cybersecurity Certification Authority carry out the evaluation.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "text",
+   "text": "This Certification Report is the result of the certification activities carried out by the certification body of the BSI in conclusion of the technical evaluation. This report contains among others the certificate (summarised assessment) and the detailed Certification Results.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "text",
+   "text": "The Certification Results contain the technical description of the security functionality of the certified product, the details of the evaluation (strength and weaknesses) and instructions for the user.",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "section_header",
+   "text": "2. Specifications of the Certification Procedure",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/26",
+   "label": "text",
+   "text": "The certification body carries out its activities according to the criteria laid down in the following:",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/27",
+   "label": "list_item",
+   "text": "Implementing Regulation (EU) 2024/482 of the European Parliament and of the Council of 31 January 2024 laying down rules for the application of Regulation (EU) 2019/881 of the European Parliament and of the Council as regards the adoption of the European Common Criteria-based cybersecurity certification scheme (EUCC) [EUCC-VO]",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/28",
+   "label": "list_item",
+   "text": "EUCC state-of-the-art documents of relevance to the TOE [EUCC_SOTA]",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/29",
+   "label": "list_item",
+   "text": "Act on the Federal Office for Information Security 2",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/30",
+   "label": "footnote",
+   "text": "1 Regulation (EU) 2019/881 of the European Parliament and of the Council of 17 April 2019 on ENISA (the European Union Agency for Cybersecurity) and on information and communications technology cybersecurity certification and repealing Regulation (EU) No 526/2013 (Cybersecurity Act)",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/31",
+   "label": "footnote",
+   "text": "2 Act on the Federal Office for Information Security (BSI-Gesetz - BSIG) of 2 December 2025, BGBl. 2025 Nr. 301, S. 2",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/32",
+   "label": "page_footer",
+   "text": "4 / 37",
+   "prov": [
+    {
+     "page_no": 4
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/33",
+   "label": "page_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/34",
+   "label": "page_header",
+   "text": "EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/35",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/36",
+   "label": "list_item",
+   "text": "BSI Certification and Approval Ordinance 3",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/37",
+   "label": "list_item",
+   "text": "BMI Regulations on Ex-parte Costs 4",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/38",
+   "label": "list_item",
+   "text": "Special decrees issued by the Bundesministerium des Innern (Federal Ministry of the Interior and Community)",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/39",
+   "label": "list_item",
+   "text": "ISO/IEC 15408 (Common Criteria for IT Security Evaluation (CC), Version CC:2022 R1) [CC]",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/40",
+   "label": "list_item",
+   "text": "ISO/IEC 18045 (Common Methodology for IT Security Evaluation (CEM), Version CEM:2022 R1) [CEM]",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/41",
+   "label": "list_item",
+   "text": "DIN EN ISO/IEC 17065 standard",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/42",
+   "label": "list_item",
+   "text": "EUCC programme: Scheme documentation describing the certification process (EUCC) [EUCC_PROG]",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/43",
+   "label": "list_item",
+   "text": "BSI certification: Application Notes and Interpretation of the Scheme (AIS) [AIS]",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/44",
+   "label": "section_header",
+   "text": "3. Recognition Agreements",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/45",
+   "label": "text",
+   "text": "In order to avoid multiple certifications of the same product in different countries a mutual recognition of IT security certificates - as far as such certificates are based on ITSEC or CC - under certain conditions was agreed.",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/46",
+   "label": "section_header",
+   "text": "3.1. International Recognition of CC - Certificates (CCRA)",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/47",
+   "label": "text",
+   "text": "The international arrangement on the mutual recognition of certificates based on the CC (Common Criteria Recognition Arrangement, CCRA-2014) has been ratified on 08 September 2014. It covers CC certificates based on collaborative Protection Profiles (cPP) (exact use), CC certificates based on assurance components up to and including EAL 2 or the assurance family Flaw Remediation (ALC_FLR) and CC certificates for Protection Profiles and for collaborative Protection Profiles (cPP).",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/48",
+   "label": "text",
+   "text": "The current list of signatory nations and approved certification schemes can be seen on the website: https://www.commoncriteriaportal.org.",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/49",
+   "label": "text",
+   "text": "The Common Criteria Recognition Arrangement logo printed on the certificate indicates that this certification is recognised under the terms of this agreement by the related bodies of the signatory nations. A disclaimer beneath the logo indicates the specific scope of recognition.",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/50",
+   "label": "text",
+   "text": "This certificate is recognized according to the rules of CCRA-2014, i. e. up to and including CC part 5 EAL 2 and ALC_FLR components.",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/51",
+   "label": "section_header",
+   "text": "4. Performance of Evaluation and Certification",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/52",
+   "label": "list_item",
+   "text": "The certification body monitors each individual evaluation to ensure a uniform application and interpretation of the criteria as well as uniform ratings.",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/53",
+   "label": "footnote",
+   "text": "3 Ordinance on the Procedure for Issuance of Security Certificates and approval by the Federal Office for Information Security (BSI-Zertifizierungs- und -Anerkennungsverordnung - BSIZertV) of 02 December 2025, Bundesgesetzblatt 2025, no. 301",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/54",
+   "label": "list_item",
+   "text": "4 BMI Regulations on Ex-parte Costs - Besondere Gebührenverordnung des BMI für individuell zurechenbare öffentliche Leistungen in dessen Zuständigkeitsbereich (BMIBGebV), Abschnitt 7 (BSIGesetz) - dated 2 September 2019, Bundesgesetzblatt I p. 1365",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/55",
+   "label": "page_footer",
+   "text": "5 / 37",
+   "prov": [
+    {
+     "page_no": 5
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/56",
+   "label": "page_header",
+   "text": "Certification Report EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/57",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/58",
+   "label": "list_item",
+   "text": "The TOE TCOS FlexCert Version 2.0 Release 2/SLC52 has been previously certified by the certification body of the Federal Office for Information Security (BSI) based on administration ID BSI-DSZ-CC-0904-V2-2021 (including subsequent maintenance procedure). Specific results from the corresponding evaluation process were re-used.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/59",
+   "label": "list_item",
+   "text": "The present evaluation of the product TCOS FlexCert Version 2.0 Release 2/SLC52 was carried out by SRC Security Research & Consulting GmbH, located at Emil-NoldeStraße 7, 53113 Bonn, Germany.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/60",
+   "label": "list_item",
+   "text": "The evaluation was completed on 19 June 2026. SRC Security Research & Consulting GmbH is a notified evaluation facility (ITSEF).",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/61",
+   "label": "list_item",
+   "text": "This certification was applied for: Deutsche Telekom Security GmbH.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/62",
+   "label": "list_item",
+   "text": "The assessed TOE was developed by: Deutsche Telekom Security GmbH.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/63",
+   "label": "list_item",
+   "text": "The certification activities are concluded with the comparability check and the production of this Certification Report. This work was completed by the certification body of the BSI.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/64",
+   "label": "text",
+   "text": "This Certification Report applies only to the version of the TOE as identified in this document. The confirmed assurance package is valid on the condition that",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/65",
+   "label": "list_item",
+   "text": "all statements and indications regarding generation, configuration and operation, as given in the following report, are observed,",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/66",
+   "label": "list_item",
+   "text": "the product is operated in an environment as specified in the following report and in the Security Target.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/67",
+   "label": "text",
+   "text": "For the meaning of the assurance components and assurance levels please refer to CC [CC] itself.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/68",
+   "label": "text",
+   "text": "The issued Certificate confirms the assurance of the product claimed in the Security Target [ST] on certificate's issuance day. As attack methods evolve over time, the resistance of the certified version of the product against new attack methods needs to be re-assessed. Therefore, the holder of the Certificate should involve the assurance continuity program of the EUCC Certification Scheme (e.g. by a re-assessment or re-certification) in its obligations to monitor the certified product. Specifically, if certification results should be used in subsequent evaluation and certification procedures, in a system integration process or if a user's risk management needs regularly updated results, it is recommended to perform a re-assessment on a regular e.g. annual basis.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/69",
+   "label": "text",
+   "text": "In order to prevent an indefinite certificate usage where evolving attack methods justify a recent re-assessment of the product's resistance, the maximum validity period of the certificate is limited. The certificate issued on 3 July 2026 is valid until 2 July 2031 and its validity can be renewed by certifying the TOE again.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/70",
+   "label": "text",
+   "text": "The holder of this certificate is obliged:",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/71",
+   "label": "list_item",
+   "text": "to meet the obligations from the Implementing Regulation (EU) 2024/482, in particular but not exclusively to respect the rules for certificate usage, to monitor the conformity of the certified TOE, to inform the certification body about subsequently detected vulnerabilities or irregularities with relevance to the security of the TOE and to maintain vulnerability management and disclosure procedures.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/72",
+   "label": "text",
+   "text": "Should changes be introduced into the certified version of the TOE, the validity period of its related certificate can be extended in order to cover the changed TOE, provided the holder of the certificate applies for measures under EUCC scheme's assurance continuity (i.e. recertification or maintenance) and the changed TOE then meets the assurance requirements.",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/73",
+   "label": "page_footer",
+   "text": "6 / 37",
+   "prov": [
+    {
+     "page_no": 6
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/74",
+   "label": "page_header",
+   "text": "Certification Report EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/75",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/76",
+   "label": "section_header",
+   "text": "5. Publication",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/77",
+   "label": "text",
+   "text": "The TOE TCOS FlexCert Version 2.0 Release 2/SLC52 has been notified to ENISA for publication on the website on European cybersecurity certification schemes and has also been included in BSI's list of certified products, which is published regularly (see [EUCC_CERT]). Further information can be obtained from BSI-Infoline +49 228 9582-111.",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/78",
+   "label": "text",
+   "text": "This holder of the certificate 5 has to publish on its website this Certification Report and supplementary information. The Certification Report may also be obtained in electronic form at the internet address stated above.",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/79",
+   "label": "footnote",
+   "text": "5 Deutsche Telekom Security GmbH Koblenzer Straße 87-93 57072 Siegen Germany",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/80",
+   "label": "page_footer",
+   "text": "7 / 37",
+   "prov": [
+    {
+     "page_no": 7
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/81",
+   "label": "page_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/82",
+   "label": "page_header",
+   "text": "EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/83",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/84",
+   "label": "section_header",
+   "text": "B. Certification Results",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/85",
+   "label": "text",
+   "text": "The following chapters summarise the assessment results of",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/86",
+   "label": "list_item",
+   "text": "the applicant's Security Target specified for the Target of Evaluation,",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/87",
+   "label": "list_item",
+   "text": "the relevant evaluation results from the evaluation facility, and",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/88",
+   "label": "list_item",
+   "text": "complementary notes, statements and indications from the certification body.",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/89",
+   "label": "page_footer",
+   "text": "8 / 37",
+   "prov": [
+    {
+     "page_no": 8
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/90",
+   "label": "page_header",
+   "text": "Certification Report EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/91",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/92",
+   "label": "section_header",
+   "text": "1. Executive Summary",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/93",
+   "label": "text",
+   "text": "The Target of Evaluation (TOE) is the product TCOS FlexCert Version 2.0 Release 2/SLC52 developed by Deutsche Telekom Security GmbH.",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/94",
+   "label": "text",
+   "text": "The TOE is a smart card product according to the G2-COS specification [Spec G2 COS] from gematik and is implemented on the hardware platform Infineon Security Controller IFX_CCI_000010h (SLC52GDA600A8 / SLC52GDA600A9) from Infineon Technologies AG (refer to [ST IC], [CertRep IC]).",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/95",
+   "label": "text",
+   "text": "The TOE is intended to be used as a card operating system platform for cards of the card generation G2 in the framework of the German health care system.",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/96",
+   "label": "text",
+   "text": "For this purpose, the TOE serves as secure data storage and secure cryptographic service provider for card applications running on the TOE and supports them for their specific security needs related to storage and cryptographic functionalities. In particular, these storage and cryptographic services are oriented on the different card types eHC (electronic Health Card), HPC (Health Professional Card), SMC-B (Security Module Card Type B), gSMC-K (gerätespezifische Security Module Card Type K for the so-called Konnektor) and gSMC-KT (gerätespezifische Security Module Card Type KT for Terminals) as currently specified for a card product of the generation G2 within the German health care system. These TOE's storage and cryptographic services that are provided by the TOE and invoked by the human users and components of the German health care system cover the following issues:",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/97",
+   "label": "list_item",
+   "text": "authentication of human users and external devices,",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/98",
+   "label": "list_item",
+   "text": "storage of and access control on user data,",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/99",
+   "label": "list_item",
+   "text": "key management and cryptographic functions,",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/100",
+   "label": "list_item",
+   "text": "management of TSF data including life cycle support,",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/101",
+   "label": "list_item",
+   "text": "export of non-sensitive TSF and user data of the object system if implemented.",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/102",
+   "label": "text",
+   "text": "The TOE comprises",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/103",
+   "label": "list_item",
+   "text": "the circuitry of the dual-interface chip (i.e. contact-based and contactless chip) including all IC Dedicated Software being active in the Smart Card Initialisation Phase, Personalisation Phase and Usage Phase of the TOE (the integrated circuit, IC Infineon IFX_CCI_000010h (SLC52GDA600A8 / SLC52GDA600A9)),",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/104",
+   "label": "list_item",
+   "text": "the IC Embedded Software (TCOS FlexCert Version 2.0 Release 2/SLC52 Operating System),",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/105",
+   "label": "list_item",
+   "text": "the so-called Wrapper (TOE specific SW tool for re-coding and interpretation of exported TSF and user data), and",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/106",
+   "label": "list_item",
+   "text": "the associated guidance documentation.",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/107",
+   "label": "text",
+   "text": "The TOE is ready for the installation and personalisation of object systems (applications) on the TOE that match the G2-COS specification [Spec G2 COS], but does not contain itself any object systems (applications). However, the delivered product comprises beside the TOE also an object system already installed on the TOE.",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/108",
+   "label": "text",
+   "text": "In functional view, the TOE with its IC Embedded Software (TCOS FlexCert Version 2.0 Release 2/SLC52 Operating System) is implemented according to the G2-COS specification [Spec G2 COS] from gematik. Hereby, the TOE implements the mandatory part of the G2-COS specification [Spec G2 COS] with the base functionality of the operating system platform. In addition, the TOE implements the option RSA Key Generation ('Option_RSA_KeyGeneration'), the option Contactless ('Option_kontaktlose_Schnittstelle'), the option Crypto Box ('Option_Kryptobox') and the option Logical Channel ('Option_logische_Kanäle') as defined in the G2-COS specification [Spec G2 COS]. None of the further options PACE for Proximity Coupling Device ('Option_PACE_PCD'), USB ('Option_USB_Schnittstelle') and RSA CVC ('Option_RSA_CVC') defined in the G2-COS specification [Spec G2 COS] is implemented in the TOE.",
+   "prov": [
+    {
+     "page_no": 9
+    },
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/109",
+   "label": "page_footer",
+   "text": "9 / 37",
+   "prov": [
+    {
+     "page_no": 9
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/110",
+   "label": "page_header",
+   "text": "Certification Report EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/111",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/112",
+   "label": "text",
+   "text": "Furthermore, the TOE provides developer-specific administration commands for support of the TOE's life cycle model (refer to the user guidance [Guide ADM], chapter 6 and [Guide OPE P2], chapter 4).",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/113",
+   "label": "text",
+   "text": "The TOE's Wrapper is implemented according to the Wrapper specification [Spec Wrapper] from gematik.",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/114",
+   "label": "text",
+   "text": "The product TCOS FlexCert Version 2.0 Release 2/SLC52 has been certified under the EUCC scheme in accordance to the provisions of the Implementing Regulation (EU) 2024/482. This is a certification based on BSI administration ID BSI-DSZ-CC-0904-V22021 (including subsequent maintenance procedure). Specific results from the evaluation process BSI-DSZ-CC-0904-V2-2021 and subsequent maintenance procedure were reused. The TOE deliverables are listed in table 1.",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/115",
+   "label": "text",
+   "text": "The evaluation of the product TCOS FlexCert Version 2.0 Release 2/SLC52 was conducted by SRC Security Research & Consulting GmbH. The evaluation was completed on 19 June 2026. SRC Security Research & Consulting GmbH is a notified evaluation facility (ITSEF).",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/116",
+   "label": "text",
+   "text": "The Evaluation Technical Report (ETR) [ETR] was provided by the ITSEF according to the Common Criteria [CC], the Methodology [CEM], the requirements of the Scheme [EUCCVO] and [EUCC_PROG].",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/117",
+   "label": "text",
+   "text": "The evaluation has confirmed:",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/118",
+   "label": "list_item",
+   "text": "CC Version and Release:",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/119",
+   "label": "text",
+   "text": "see [CC] and [CEM]",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/120",
+   "label": "list_item",
+   "text": "PP Conformance:",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/121",
+   "label": "text",
+   "text": "Card Operating System Generation 2 (PP COS G2), Version 2.1, 10 July 2019, BSI-CC-PP-0082-V4-2019 [PP]",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/122",
+   "label": "list_item",
+   "text": "Assurance Level:",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/123",
+   "label": "text",
+   "text": "EUCC High with component AVA_VAN.5",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/124",
+   "label": "list_item",
+   "text": "Assurance Package:",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/125",
+   "label": "text",
+   "text": "EAL 4",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/126",
+   "label": "list_item",
+   "text": "Augmentation:",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/127",
+   "label": "text",
+   "text": "ALC_DVS.2, ATE_DPT.2, AVA_VAN.5 and ALC_FLR.1",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/128",
+   "label": "text",
+   "text": "The Security Target [ST] is the basis for this certification. It is based on the certified Protection Profile Card Operating System Generation 2 (PP COS G2), Version 2.1, 10 July 2019, BSI-CC-PP-0082-V4-2019 [PP]. The Security Target [ST] uses the mandatory parts of the PP and the optional packages RSA Key Generation, Contactless, Crypto Box and Logical Channel defined in the PP. None of the PP's further optional packages PACE for Proximity Coupling Device and RSA CVC is used.",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/129",
+   "label": "text",
+   "text": "A detailed description of the security functionality, addressed threats, organisational security policies and the operational environment can be found in the Security Target [ST].",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/130",
+   "label": "text",
+   "text": "This certification covers the configurations of the TOE as outlined in chapter 8.",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/131",
+   "label": "page_footer",
+   "text": "10 / 37",
+   "prov": [
+    {
+     "page_no": 10
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/132",
+   "label": "page_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 11
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/133",
+   "label": "page_header",
+   "text": "EUCC-3087-2026-0012",
+   "prov": [
+    {
+     "page_no": 11
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/134",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0904-V3-2026",
+   "prov": [
+    {
+     "page_no": 11
+    }
+   ]
+  }
+ ],
+ "tables": []
+}
