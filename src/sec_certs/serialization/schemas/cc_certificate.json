@@ -32,6 +32,14 @@
           "title": "Certificate ID",
           "description": "The unique identifier of the Common Criteria certificate."
         },
+        "eucc_cert_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "title": "EUCC Certificate ID",
+          "description": "The EUCC certificate ID on the front page of an EUCC report; cert_id then holds the scheme's own ID."
+        },
         "cert_item": {
           "type": [
             "string",
