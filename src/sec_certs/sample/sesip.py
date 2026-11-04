@@ -297,7 +297,10 @@ class SESIPCertificate(
         if not cert.state.st.is_ok_to_extract():
             return cert
         cert.pdf_data.st_keywords = None
-        keywords = extract_keywords(get_view(cert.state.st), sesip_rules)
+        try:
+            keywords = extract_keywords(get_view(cert.state.st), sesip_rules)
+        except ValueError:
+            keywords = None
         if keywords is None:
             logger.error(f"Cert dgst: {cert.dgst} failed to extract keywords from the security target")
             cert.state.st.extract_ok = False
