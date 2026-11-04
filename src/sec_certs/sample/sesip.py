@@ -156,6 +156,7 @@ class SESIPCertificate(
         st_metadata: dict[str, Any] | None = field(default=None)
         cert_frontpage: dict[str, Any] | None = field(default=None)
         st_keywords: dict[str, Any] | None = field(default=None)
+        st_sections: dict[str, str] | None = field(default=None)
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -302,6 +303,18 @@ class SESIPCertificate(
             cert.state.st.extract_ok = False
         else:
             cert.pdf_data.st_keywords = keywords
+        return cert
+
+    @staticmethod
+    def extract_st_sections(cert: SESIPCertificate) -> SESIPCertificate:
+        if not cert.state.st.is_ok_to_extract():
+            return cert
+        cert.pdf_data.st_sections = None
+        try:
+            cert.pdf_data.st_sections = _st_sections(get_view(cert.state.st))
+        except (OSError, ValueError) as e:
+            logger.error(f"Cert dgst: {cert.dgst} failed to read the sections of the security target: {e}")
+            cert.state.st.extract_ok = False
         return cert
 
     def compute_heuristics_cert_lab(self) -> None:

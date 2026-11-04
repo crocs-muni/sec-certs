@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup, Tag
 from sec_certs.configuration import config
 from sec_certs.constants import SESIP_INDEX_URL
 from sec_certs.dataset.dataset import Dataset
+from sec_certs.document.utils import get_view_cls
 from sec_certs.sample.sesip import SESIPCertificate
 from sec_certs.serialization.json import ComplexSerializableType, only_backed, serialize
 from sec_certs.utils import helpers
@@ -234,6 +235,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
         self._extract_metadata(dgsts)
         self._extract_frontpages(dgsts)
         self._extract_keywords(dgsts)
+        self._extract_st_sections(dgsts)
 
     @staged(logger, "Extracting PDF metadata of certs and STs")
     def _extract_metadata(self, dgsts: set[str]) -> None:
@@ -262,6 +264,19 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             [self[dgst] for dgst in dgsts],
             use_threading=False,
             progress_bar_desc="Extracting ST keywords",
+        )
+        self.update_with_certs(processed)
+
+    @staged(logger, "Extracting template sections of STs")
+    def _extract_st_sections(self, dgsts: set[str]) -> None:
+        if not get_view_cls().supports_structure:
+            logger.warning(f"Skipping ST sections: the {config.pdf_converter} converter gives no document structure")
+            return
+        processed = cert_processing.process_parallel(
+            SESIPCertificate.extract_st_sections,
+            [self[dgst] for dgst in dgsts],
+            use_threading=False,
+            progress_bar_desc="Extracting ST sections",
         )
         self.update_with_certs(processed)
 
