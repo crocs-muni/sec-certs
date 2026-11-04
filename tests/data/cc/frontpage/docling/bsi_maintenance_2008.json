@@ -1,0 +1,337 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "BSI-DSZ-CC-0386-2006-MA-04",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "text",
+   "text": "ZKA SECCOS Sig v1.5.3",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "from",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "text",
+   "text": "Sagem Orga GmbH",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "Common Criteria Arrangement for components up to EAL4",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "The  IT  product  identified  in  this  report  was  assessed  according  to  the Assurance Continuity: CCRA Requirements, version 1.0, February 2004 and the developers Impact Analysis  Report  (IAR).  The  baseline  for  this  assessment  was  the  Certification  Report, the Security Target and the Evaluation Technical Report of the product certified by the Federal Office for Information Security (BSI) under BSI-DSZ-CC-0386-2006.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "The change to the certified product is at the level of two additional Initialisation Tables added. These changes have no effect on assurance.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "text",
+   "text": "Consideration of the nature of the change leads to the conclusion that it is classified as a minor  change  and  that  certificate  maintenance  is  the  correct  path  to  continuity  of assurance.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "text",
+   "text": "Therefore, the assurance as outlined in the Certification Report BSI-DSZ-CC-0386-2006 is  maintained  for  this  version  of  the  product.  Details  can  be  found  on  the  following pages.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "text",
+   "text": "This report is an addendum to the Certification Report BSI-DSZ-CC-0386-2006.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "text",
+   "text": "Bonn, 30. November 2006",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "page_footer",
+   "text": "Godesberger Allee 185-189 - D-53175 Bonn      -      Postfach 20 03 63 - D-53133 Bonn Phone +49 228 9582-0 - Fax +49 228 9582-455 - Infoline +49 228 9582-111",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "page_footer",
+   "text": "Bundesamt für Sicherheit in der Informationstechnik",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "page_header",
+   "text": "Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0386-2006-MA-04",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "Assessment",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "The  IT  product  identified  in  this  report  was  assessed  according  to  the Assurance Continuity:  CCRA  Requirements [1]  and  the  Impact  Analysis  Report  (IAR)  [2].  The baseline for this assessment was the Certification Report of the certified TOE [3], the Security Target [4] and the Evaluation Technical Report as outlined in [3].",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "The vendor for the ZKA SECCOS Sig v1.5.3, Sagem Orga GmbH, submitted an IAR [2] to  the  BSI  for  approval.  The  IAR  is  intended  to  satisfy  requirements  outlined  in  the document Assurance  Continuity:  CCRA  Requirements [1].  In  accordance  with  those requirements, the IAR describes the changes made to the certified TOE, the evidence updated as a result of the changes and the security impact of the changes.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "text",
+   "text": "The ZKA SECCOS Sig v1.5.3 was changed due to two additional Initialisation Tables, SDR0O1G0.A_B  and  SWR0O1H0.A_5.  Both  Initialisation  Tables  are  added  to  the certified TOE.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "text",
+   "text": "Those changes are not significant from the standpoint of security.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "section_header",
+   "text": "Conclusion",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "text",
+   "text": "The change to the TOE is at the level of two additional Initialisation, the changes have no effect on assurance. Examination of the evidence indicates that the changes required are  limited  to  the  inclusion  of  two  additional  Initialisation  Tables  SDR0O1G0.A_B  and SWR0O1H0.A_5.  Therefore,  the  Configuration  List  has  been  updated  taking  those changes into account, see [5]. Additionally, the Appendix to the Configuration List was supplemented with a reference to the test scenarios relevant for the changes, see [6], and new Data Sheets related to the new Initialisation Tables have also been created, see [7] and [8]. The Security Target [4] is still valid for the changed TOE. Consideration of the nature of the change leads to the conclusion that it is classified as a minor change and that certificate maintenance is the correct path to continuity of assurance.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "text",
+   "text": "Therefore, BSI agrees that the assurance as outlined in the Certification Report [3] is maintained for this version of the product. This report is an addendum to the Certification Report [3].",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "section_header",
+   "text": "References",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "page_footer",
+   "text": "Maintenance Report V1.0 ZS_01_02_F_201_V105",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/26",
+   "label": "page_footer",
+   "text": "Page 2 of 3",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/27",
+   "label": "page_header",
+   "text": "Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/28",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0386-2006-MA-04",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/29",
+   "label": "page_footer",
+   "text": "Maintenance Report V1.0 ZS_01_02_F_201_V105",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/30",
+   "label": "page_footer",
+   "text": "Page 3 of 3",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "table",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/tables/1",
+   "label": "table",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,278 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-0153-1999",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "section_header",
+   "text": "for",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "Philips Smart Card Controller P8WE5032V0B",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "section_header",
+   "text": "from",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "section_header",
+   "text": "Philips Semiconductors Hamburg Unternehmensbereich der Philips GmbH Business Line Identification",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "section_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "page_footer",
+   "text": "- Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "page_footer",
+   "text": "Telefon +49 228 9582-0, Infoline +49 228 9582-111, Telefax +49 228 9582-455",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-0153-1999",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "section_header",
+   "text": "Philips Smart Card Controller P8WE5032V0B",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "text",
+   "text": "from",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "section_header",
+   "text": "Philips Semiconductors Hamburg Unternehmensbereich der Philips GmbH Business Line Identification",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "Common Criteria Arrangement",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "The  IT  product  identified  in  this  certificate  has  been  evaluated  at  an  accredited  and  licensed/ approved  evaluation  facility  using  the Common  Methodology  for  IT  Security  Evaluation  (CEM) Version 0.6 and CEM Part 2 Version 1.0 Annex B for conformance to the Common Criteria for IT Security Evaluation, Version 2.0 (CC) .",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "section_header",
+   "text": "Evaluation Results:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "text",
+   "text": "Functionality:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "text",
+   "text": "Cryptographic support Protection of the TOE Security Functions",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "Assurance Package:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "EAL3",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "text",
+   "text": "This  certificate  applies  only  to  the  specific  version  and  release  of  the  product  in  its  evaluated configuration and in conjunction with the complete Certification Report.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "text",
+   "text": "The evaluation has been conducted in accordance with the provisions of the certification scheme of the Bundesamt für Sicherheit in der Informationstechnik and the conclusions of the evaluation facility in the evaluation technical report are consistent with the evidence adduced.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "text",
+   "text": "The remarks printed on the reverse side are part of this certificate.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "text",
+   "text": "Bonn, 15 November 1999",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "text",
+   "text": "The President of the Bundesamt für Sicherheit in der Informationstechnik",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "text",
+   "text": "Dr. Henze L.S.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "page_footer",
+   "text": "Bundesamt für Sicherheit in der Informationstechnik Godesberger Allee 183 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/26",
+   "label": "page_footer",
+   "text": "Telefon (0228) 9582-0 - Telefax (0228) 9582-455 - Infoline (0228) 9582-111",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": []
+}

@@ -1,0 +1,268 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-1063-2020 zu c-secure-ident, Version 2.0 der",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "section_header",
+   "text": "c-trace GmbH",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "text",
+   "text": "BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-111",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "page_footer",
+   "text": "Zertifizierungsreport V1.0",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "page_footer",
+   "text": "CC-Zert-328 V1.6",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-1063-2020 (*)",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "Abfallbehälter-Identifikationssystem",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "c-secure-ident, Version 2.0",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "text",
+   "text": "von",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "text",
+   "text": "c-trace GmbH",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "text",
+   "text": "PP-Konformität:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "text",
+   "text": "Protection Profile Waste Bin Identification Systems (WBIS-PP), Version 1.04, 27 May 2004, BSI-PP-0010-2004",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "Funktionalität:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "PP konform Common Criteria Teil 2 erweitert",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "text",
+   "text": "Vertrauenswürdigkeit:  Common Criteria Teil 3 konform EAL 1 mit Zusatz von ASE_SPD.1, ASE_OBJ.2 und ASE_REQ.2",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "text",
+   "text": "Das in diesem Zertifikat genannte IT-Produkt wurde von einer anerkannten Prüfstelle nach der Gemeinsamen Evaluationsmethodologie für die Prüfung und Bewertung der Sicherheit von Informationstechnik (CEM), Version 3.1 ergänzt um Interpretationen des Zertifizierungsschemas   unter   Nutzung   der   Gemeinsamen   Kriterien   für   die   Prüfung   und Bewertung der Sicherheit von Informationstechnik, Version 3.1 (CC) evaluiert. CC und CEM sind ebenso als Norm ISO/IEC 15408 und ISO/IEC 18045 veröffentlicht.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "list_item",
+   "text": "(*) Dieses Zertifikat gilt nur für die angegebene Version des Produktes in der evaluierten Konfiguration   und   nur   in   Verbindung   mit   dem   vollständigen   Zertifizierungsreport   und   bescheid. Details zur Gültigkeit sind dem Zertifizierungsreport Teil A, Kap. 5 zu entnehmen.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "Die Evaluation wurde in Übereinstimmung mit den Bestimmungen des Zertifizierungsschemas des   Bundesamtes   für   Sicherheit   in   der   Informationstechnik   durchgeführt.   Die   im Evaluationsbericht enthaltenen Schlussfolgerungen der Prüfstelle sind in Einklang mit den erbrachten Nachweisen.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "Dieses Zertifikat ist keine generelle Empfehlung des IT-Produktes durch das Bundesamt für Sicherheit in der Informationstechnik oder eine andere Organisation, die dieses Zertifikat anerkennt oder darauf Einfluss hatte. Eine Gewährleistung für das IT-Produkt durch das Bundesamt für Sicherheit in   der   Informationstechnik   oder   eine   andere   Organisation,   die dieses Zertifikat anerkennt oder darauf Einfluss hatte, ist weder enthalten noch zum Ausdruck gebracht.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "text",
+   "text": "Bonn, 24. Juli 2020 Bundesamt für Sicherheit in der Informationstechnik Im Auftrag",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "caption",
+   "text": "SOGIS Recognition Agreement",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "caption",
+   "text": "Common Criteria Recognition Arrangement",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "page_footer",
+   "text": "Phone +49 (0)228 99 9582-0 - Fax +49 (0)228 9582-5477 - Infoline +49 (0)228 99 9582-111",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "page_footer",
+   "text": "Matthias Intemann Fachbereichsleiter",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "page_footer",
+   "text": "L.S.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "page_footer",
+   "text": "Bundesamt für Sicherheit in der Informationstechnik Godesberger Allee 185-189 - D-53175 Bonn   -    Postfach 20 03 63 - D-53133 Bonn",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": []
+}

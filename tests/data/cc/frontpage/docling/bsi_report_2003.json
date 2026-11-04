@@ -1,0 +1,358 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "section_header",
+   "text": "Bundesamt für Sicherheit in der Informationstechnik",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-0225-2003",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "section_header",
+   "text": "for",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "section_header",
+   "text": "IBM LPAR for POWER 4",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "for the IBM pSeries Firmware Releases: 3R031021 (p630), 3K031021 (p650) and 3H031021 (p690)",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "section_header",
+   "text": "from",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "section_header",
+   "text": "IBM Corporation",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "page_footer",
+   "text": "- Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "page_footer",
+   "text": "Telefon +49 228 9582-0, Infoline +49 228 9582-111, Telefax +49 228 9582-455",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-0225-2003",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "section_header",
+   "text": "IBM LPAR for POWER 4",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "for the IBM pSeries",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "Firmware Releases:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "text",
+   "text": "3R031021 (p630), 3K031021 (p650) and 3H031021 (p690)",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "text",
+   "text": "from",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "IBM Corporation",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "The  IT  product  identified  in  this  certificate  has  been  evaluated  at  an  accredited  and  licensed/ approved  evaluation  facility  using  the Common  Methodology  for  IT  Security  Evaluation,  Part 1 Version 0.6 , Part 2 Version 1.0 , extended by CEM  supplementation 'ALC_FLR -Flaw remediation', Version 1.1, February 2002, for conformance to the Common Criteria for IT Security Evaluation, Version 2.1 (ISO/IEC 15408:1999) .",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "section_header",
+   "text": "Evaluation Results:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "text",
+   "text": "Functionality:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "text",
+   "text": "Product specific Security Target Common Criteria Part 2 conformant",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "text",
+   "text": "Assurance Package:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "text",
+   "text": "Common Criteria Part 3 conformant",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "text",
+   "text": "EAL4 augmented by ALC_FLR.1 (Basic Flaw Remediation)",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "text",
+   "text": "This  certificate  applies  only  to  the  specific  version  and  release  of  the  product  in  its  evaluated configuration and in conjunction with the complete Certification Report.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "text",
+   "text": "The evaluation has been conducted in accordance with the provisions of the certification scheme of the German Federal Office for Information Security (BSI) and the conclusions of the evaluation facility in the evaluation technical report are consistent with the evidence adduced.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/26",
+   "label": "text",
+   "text": "The notes mentioned on the reverse side are part of this certificate.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/27",
+   "label": "text",
+   "text": "Bonn, 26. January 2004",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/28",
+   "label": "text",
+   "text": "The President of the Federal Office for Information Security",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/29",
+   "label": "text",
+   "text": "Dr. Helmbrecht L.S.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/30",
+   "label": "text",
+   "text": "Common Criteria Arrangement",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/31",
+   "label": "text",
+   "text": "SOGIS-MRA",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/32",
+   "label": "page_footer",
+   "text": "Bundesamt für Sicherheit in der Informationstechnik",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/33",
+   "label": "page_footer",
+   "text": "Godesberger Allee 185-189 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/34",
+   "label": "page_footer",
+   "text": "Telefon (0228) 9582-0 - Telefax (0228) 9582-455 - Infoline (0228) 9582-111",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": []
+}

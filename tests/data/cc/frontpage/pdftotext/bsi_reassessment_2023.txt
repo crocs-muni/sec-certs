@@ -1,0 +1,99 @@
+Assurance Continuity Reassessment Report
+BSI-DSZ-CC-1188-2023-RA-02
+TCOS ID Version 3.0 Release 1/P71
+from
+Deutsche Telekom Security GmbH
+SOGIS
+Recognition Agreement
+The IT product identified in this report certified under the certification
+procedure BSI-DSZ-CC-1188-2023 [6] has undergone a reassessment of
+the vulnerability analysis according to the current state of the art attack
+methods according to the procedures on Assurance Continuity [5], based
+on the Security Target [7].
+This reassessment confirms resistance of the product against attacks on
+the level of AVA_VAN.5 as stated in the product certificate.
+More details are outlined on the following pages of this report.
+This report is an addendum to the Certification Report BSI-DSZ-CC-1188-
+2023.
+Common Criteria
+Recognition
+Arrangement
+recognition for
+components up to
+EAL 2 only
+Bonn, 24 April 2026
+The Federal Office for Information Security
+Bundesamt für Sicherheit in der Informationstechnik
+Godesberger Allee 87 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+Phone +49 228 99 9582-0 - Fax +49 228 9582-5477 - Infoline +49 228 99 9582-111Assurance Continuity Reassessment Report BSI-DSZ-CC-1188-2023-RA-02
+Assessment
+The reassessment was performed based on CC [1], CEM [2], according to the
+procedures on Assurance Continuity [5] and relevant AIS [4] and according to the BSI
+Certification Procedures [3] by the IT Security Evaluation Facility (ITSEF) SRC Security
+Research & Consulting GmbH, approved by BSI.
+The following guidance specific for the technology has been applied as a refinement of
+CC and CEM:
+• Composite product evaluation for Smart Cards and similar devices according to
+AIS 36 (see [4]). On base of this concept the relevant guidance documents of the
+underlying IC platform (refer to [9]) and the document ETR for composite
+evaluation from the IC’s evaluation ([11]) have been applied in the TOE
+evaluation.
+• Guidance for Smartcard Evaluation (AIS 37, see [4]).
+• Attack Methods for Smartcards and Similar Devices, under consideration of the
+current versions of the JIWG/JHAS documents ‘Attack Methods for Smartcards
+and Similar Devices’, Version 2.5 and ‘Application of Attack Potential to
+Smartcards and Similar Devices’, Version 3.2.1 (AIS 26, see [4]).
+• Application of CC to Integrated Circuits (AIS 25, see [4]).
+• Security Architecture requirements (ADV_ARC) for smart cards and similar
+devices (AIS 25, see [4]).
+• Evaluation Methodology for CC Assurance Classes for EAL5+ and EAL6 (AIS 34,
+see [4]).
+• Functionality classes and evaluation methodology of physical and deterministic
+random number generators (AIS 20 and AIS 31, see [4]).
+• Informationen zur Evaluierung von kryptographischen Algorithmen (AIS 46, see
+[4]).
+The results of the reassessment of the product TCOS ID Version 3.0 Release 1/P71 are
+documented in an updated version of the ETR [8].
+Please note that the product TCOS ID Version 3.0 Release 1/P71 is set up on the NXP
+Secure Smart Card Controller N7122 that was originally certified under the Certification
+ID BSI-DSZ-CC-1149-2022 and BSI-DSZ-CC-1149-2022-MA-01 (refer to BSI-DSZ-
+CC-1188-2023 [6]). In the meantime, the IC platform was re-certified under the
+Certification ID BSI-DSZ-CC-1149-V4-2025 (refer to [9]). For the present reassessment
+of the TOE, the corresponding updated ETR for composite evaluation [11] and IC user
+guidance documentation as referenced in [9] were taken into account.
+This reassessment is the second reassessment of the product certified under BSI-DSZ-
+CC-1188-2023. For the first reassessment refer to BSI-DSZ-CC-1188-2023-RA-01
+(Assurance Continuity Reassessment Report [6]).
+Reassessment Report V1.0
+CC-RA-806_V1.21 Page 2 of 5Assurance Continuity Reassessment Report BSI-DSZ-CC-1188-2023-RA-02
+Regarding cryptographic security functionality:
+Cryptographic security functionality as well is considered within the scope of a
+reassessment.
+No changes applied regarding cryptographic security functionality. The previous
+certification report and assurance continuity reassessment report [6] still apply in that
+regard.
+Regarding assurance class life cycle (ALC):
+The assurance class ALC as well is considered within the scope of a reassessment.
+The following ALC aspect with regard to the conducted vulnerability assessment
+changed, compared to the previous certification and the subsequent first reassessment:
+• Movement of the development site Deutsche Telekom Security GmbH, Untere
+Industriestraße 20, 57250 Netphen-Dreis-Tiefenbach to the new development site
+Deutsche Telekom Security GmbH, Koblenzer Straße 87-93, 57072 Siegen
+However, the development of the TOE was performed and finished at the former
+development site of Deutsche Telekom Security GmbH (refer to BSI-DSZ-CC-1188-
+2023 [6]).
+The renewal of the site certificate for Bundesdruckerei GmbH [12] has already been
+considered in the framework of the first reassessment.
+Changes of ALC related aspects concerning the underlying NXP IC platform are covered
+by [9].
+Conclusion
+This reassessment confirms resistance of the product against attacks on the level
+AVA_VAN.5 as claimed in the Security Target [7].
+The obligations and recommendations as outlined in the certification report [6] are still
+valid and have to be considered.
+The obligations and recommendations as outlined in the guidance documentation
+referenced in [6] have to be considered by the user of the product.
+The assessment on TOE cryptographic security functionality did not change in
+comparison to the previous certification [6].
+Reassessment Report V1.0
+CC-RA-806_V1.21 Page 3 of 5

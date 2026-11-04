@@ -1,0 +1,408 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "section_header",
+   "text": "BSI-DSZ-CC-0862-V2-2021-MA-02 POLYAS CORE, Version 2.5.4 der",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "Polyas GmbH",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "Das in diesem Report genannte IT-Produkt wurde entsprechend der Anforderungen aus Assurance Continuity: CCRA Requirements, Version 2.1, Juni 2012 und des Impact Analysis Report (IAR) des Herstellers beurteilt. Die Grundlage für diese Beurteilung war der Zertifizierungsreport,   die   Sicherheitsvorgaben   und   der   technische Evaluierungsbericht   des   vom   Bundesamt   für   Sicherheit   in   der Informationstechnik   (BSI)   unter   der   Zertifizierungs-ID  BSI-DSZ-CC0862-V2-2021  zertifizierten   Produkts   aktualisiert   durch   BSI-DSZ-CC0862-V2-2021-MA-01. Die Änderung im Vergleich zum zertifizierten  Produkt   wurde   auf   der Ebene der EVG-Laufzeitumgebung vorgenommen. Die Implementierung der zertifizierten Sicherheitsleistungen des EVG ist unverändert. Die   Identifizierung   des   geänderten   Produkts   wird   durch   eine   neue Versionsnummer   im   Vergleich   zum   zertifizierten   Produkt   angezeigt. Das Security Target und die Handbücher wurden entsprechend editoriell überarbeitet. Die Betrachtung der Art der Änderung führt zu der Entscheidung, dass die   Änderung   als   'Minor   Change'   eingestuft   wird   und   dass   das Maintenance-Verfahren für Zertifikate das sachgerechte Verfahren zur Aufrechterhaltung der Vertrauenswürdigkeit ist. Die   Widerstandsfähigkeit   gegen   Angriffe   wurde   im   Rahmen   dieses Maintenance-Verfahrens nicht neu bewertet. Aus diesem Grunde ist die Vertrauenswürdigkeitsaussage im Zertifizierungsreport vom BSI-DSZ-CC0862-V2-2021 bei   der   Verwendung   des   Produktes   heranzuziehen. Nähere Informationen finden sich auf den nächsten Seiten. Dieser Report  ist   ein   Anhang   zum   Zertifizierungsreport  BSI-DSZ-CC-",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "text",
+   "text": "0862-V2-2021.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "Bonn, 11. März 2022 Bundesamt für Sicherheit in der Informationstechnik Common Criteria Recognition Arrangement Anerkennung nur für Komponenten bis EAL 2 und ALC_FLR",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "SOGIS",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "Recognition Agreement",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "page_footer",
+   "text": "Bundesamt für Sicherheit in der Informationstechnik Godesberger Allee 185-189 - D-53175 Bonn      -      Postfach 20 03 63 - D-53133 Bonn Phone +49 228 99 9582-0 - Fax +49 228 9582-5477 - Infoline +49 228 99 9582-111",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "page_header",
+   "text": "Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0862-V2-2021-MA-02",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "section_header",
+   "text": "Beurteilung",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "Das in diesem Report genannte IT-Produkt wurde entsprechend der Anforderungen aus Assurance Continuity: CCRA Requirements [1] und des Impact Analysis Report (IAR) [2] beurteilt.   Die   Grundlage   für   diese   Beurteilung   war   der   Zertifizierungsreport   des zertifizierten   Produktes   (Evaluierungsgegenstand,   EVG)   [3],   die   Sicherheitsvorgaben und der technische Evaluierungsbericht wie in [3] angegeben.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "Der Vertreiber für  POLYAS CORE,  Version 2.5.4,  die  Polyas GmbH,  legte dem BSI einen IAR [2] zur Entscheidung vor. Der IAR dient der Erfüllung, der in dem Dokument Assurance   Continuity:   CCRA   Requirements [1] angegebenen   Anforderungen.   In Übereinstimmung mit diesen Anforderungen beschreibt der IAR (i) die am zertifizierten EVG vorgenommenen Änderungen, (ii) die aufgrund der Änderungen aktualisierten Unterlagen und (iii) die Auswirkungen der Änderungen auf die Sicherheit.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "text",
+   "text": "Die Laufzeitumgebung des EVG POLYAS CORE, Version 2.5.4 wurde zur Behebung einer   Sicherheitslücke   in   dem   Paket   apache   log4j geändert   (Wechsel   von   der verwundbaren log4j Version 2.13.3 zur aktuellen Version 2.17.1).",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "text",
+   "text": "Die Konfigurationsmanagement-Prozeduren erfordern eine Änderung der Bezeichnung des Produktes. Aus diesem Grunde wurde die Versionsnummer von Version 2.5.3 (aus BSI-DSZ-0862-V2-2021-MA-01) zu Version 2.5.4 geändert.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "text",
+   "text": "Die EVG-Software besteht aus fünf JAR-Dateien (Java Archiven). Jede JAR-Datei wird über die eindeutige Version des EVG, den Dateinamen und die Prüfsumme (SHA-256) der Datei eindeutig identifiziert. Da die EVG-Versionsnummer Teil der JAR-Datei ist, ändern sich die Prüfsummen der fünf JAR-Dateien:",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "list_item",
+   "text": "Urnen EVG - polyas-vote-2.5.4.jar mit SHA256-Prüfsumme: db2b3a19091c7d9b4d1362c94093eb7fe19ef11290496cc057f91eef47e327af",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "list_item",
+   "text": "Wählerverzeichnis EVG - polyas-registry-2.5.4.jar mit SHA256-Prüfsumme: 799359111720a5f6406665273ebd76158ed73065f612355630d87c954eed113d",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "list_item",
+   "text": "Validator EVG - polyas-validator-2.5.4.jar mit SHA256-Prüfsumme: 8a36fc0f1fa84437e4f79a94383aebb20b991f620838df371b3a758efd2afc30",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "text",
+   "text": "·",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "text",
+   "text": "Wahlvorstandsinterface   EVG   -   polyas-management-2.5.4.jar   mit   SHA256-",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "text",
+   "text": "Prüfsumme:",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "text",
+   "text": "682c45a571529b26de8d9e150ccfa6329a5463a97717bf77dff7f6effb16961f",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "list_item",
+   "text": "Gemeinsamer Bestandteil - polyas-common-2.5.4.jar mit SHA256-Prüfsumme: 594da7391f171ffc1086175b167cfd29c3b9eb1eff3bcb376febd82fe43da107",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "text",
+   "text": "Die   Sicherheitsvorgaben   [5]   und   die   Handbücher   [6],   [7]   und   [8]   wurden   editoriell aktualisiert.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/26",
+   "label": "page_footer",
+   "text": "Maintenance Report V1.0 CC-MA-501_V3.2",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/27",
+   "label": "page_footer",
+   "text": "Seite 2 von 4",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/28",
+   "label": "page_header",
+   "text": "Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/29",
+   "label": "page_header",
+   "text": "BSI-DSZ-CC-0862-V2-2021-MA-02",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/30",
+   "label": "section_header",
+   "text": "Schlussfolgerung",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/31",
+   "label": "text",
+   "text": "Die Änderung wurde auf der Ebene der EVG-Laufzeitumgebung  vorgenommen. Die Implementierung der zertifizierten Sicherheitsleistungen des  EVG  ist unverändert. Die Änderung hat keine Auswirkungen auf die Vertrauenswürdigkeit.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/32",
+   "label": "text",
+   "text": "Die Betrachtung der Art der Änderung führt zu der Entscheidung, dass die Änderung als 'Minor Change' eingestuft wird und dass das Maintenance-Verfahren für Zertifikate das sachgerechte Verfahren zur Aufrechterhaltung der Vertrauenswürdigkeit ist.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/33",
+   "label": "text",
+   "text": "Die   Widerstandsfähigkeit   gegen   Angriffe   wurde   im   Rahmen   dieses   MaintenanceVerfahrens nicht neu bewertet. Aus diesem Grunde ist die Vertrauenswürdigkeitsaussage im Zertifizierungsreport  BSI-DSZ-CC-0862-V2-2021  bei der Verwendung des Produktes heranzuziehen.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/34",
+   "label": "section_header",
+   "text": "Zusätzliche Auflagen und Hinweise für die Verwendung des Produkts:",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/35",
+   "label": "text",
+   "text": "Alle   in   den   Sicherheitsvorgaben   beschriebenen   Aspekte   der   Anforderungen, Bedrohungen   und   organisatorischen   Sicherheitspolitiken,   welche   nicht   vom   EVG abgedeckt werden, müssen von der Einsatzumgebung erfüllt werden.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/36",
+   "label": "text",
+   "text": "Der Kunde beziehungsweise der Benutzer des Produkts muss die Zertifizierungsergebnisse im Rahmen des bei ihm realisierten Risikomanagementprozesses   individuell   bewerten.   Um   der   Weiterentwicklung   von Angriffsmethoden und -techniken entgegenzutreten, sollte der Kunde eine Zeitspanne definieren, ab der eine Neubewertung des EVGs erforderlich ist und daher vom Sponsor des Zertifikats verlangt werden wird.",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/37",
+   "label": "text",
+   "text": "Dieser Report ist ein Anhang zum Zertifizierungsreport [3].",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/38",
+   "label": "page_footer",
+   "text": "Maintenance Report V1.0 CC-MA-501_V3.2",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/39",
+   "label": "page_footer",
+   "text": "Seite 3 von 4",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": []
+}
