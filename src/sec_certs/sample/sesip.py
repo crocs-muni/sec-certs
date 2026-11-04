@@ -161,7 +161,7 @@ class SESIPCertificate(
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
         cert_lab: list[str] | None = field(default=None)
-        status: str | None = field(default=None)  # active, expired, withdrawn, terminated
+        status: str | None = field(default=None)  # active, archived, withdrawn, terminated
         prev_certificates: list[str] | None = field(default=None)
         next_certificates: list[str] | None = field(default=None)
         sesip_profiles: set[SESIPProfile] | None = field(default=None)
@@ -336,7 +336,7 @@ class SESIPCertificate(
             expiry = (self.pdf_data.cert_frontpage or {}).get("expiry_date") or ""
             try:
                 # same rule as EUCC - valid if the expiry date is in the future
-                self.heuristics.status = "active" if date.fromisoformat(expiry) > date.today() else "expired"
+                self.heuristics.status = "active" if date.fromisoformat(expiry) > date.today() else "archived"
             except (TypeError, ValueError):
                 self.heuristics.status = None
 
