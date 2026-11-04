@@ -64,12 +64,14 @@ _BARE_VERSION_RE: Final = re.compile(r"(?<![\d.])(\d+\.\d+)(?![\d.x])")
 _RELEASE_RE: Final = re.compile(r"[\s,]*(BETA|draft)?[\s,]*(?:REL\s*(\d+))?", re.IGNORECASE)
 
 
-def _profile_version(text: str, start: int) -> tuple[str | None, str | None]:
+def _profile_version(text: str, start: int, starts: list[int]) -> tuple[str | None, str | None]:
+    # up to the next profile
     end = m.start() if (m := _NEXT_PROFILE_RE.search(text, start)) else len(text)
-    tail = text[start:end]
-    version = _MARKED_VERSION_RE.search(tail) or _BARE_VERSION_RE.search(tail)
-    if not version:
+    tail = text[start : min([end] + [s for s in starts if s >= start])]
+    versions = [v for v in (_MARKED_VERSION_RE.search(tail), _BARE_VERSION_RE.search(tail)) if v]
+    if not versions:
         return None, None
+    version = min(versions, key=lambda v: v.start())
     stage, rel = r.groups() if (r := _RELEASE_RE.match(tail, version.end())) else (None, None)
     release = " ".join(x for x in (stage and stage.upper(), rel and f"REL {int(rel):02d}") if x)
     return version.group(1), release or None
@@ -342,11 +344,9 @@ class SESIPCertificate(
 
     def compute_heuristics_sesip_profiles(self) -> None:
         text = (self.pdf_data.cert_frontpage or {}).get("sesip_profile") or ""
-        found = {
-            SESIPProfile(name, *_profile_version(text, m.end()))
-            for name, profile in SESIP_PROFILES.items()
-            if (m := profile["pattern"].search(text))
-        }
+        matches = {name: m for name, profile in SESIP_PROFILES.items() if (m := profile["pattern"].search(text))}
+        starts = [m.start() for m in matches.values()]
+        found = {SESIPProfile(name, *_profile_version(text, m.end(), starts)) for name, m in matches.items()}
         if text and len(found) < max(1, len(_NEXT_PROFILE_RE.findall(text))):
             logger.warning(f"Cert dgst: {self.dgst} has an unknown SESIP profile: {text}")
         self.heuristics.sesip_profiles = found or None
