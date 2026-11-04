@@ -13,7 +13,9 @@ import requests
 
 from sec_certs import constants
 from sec_certs.cert_rules import sesip_rules
+from sec_certs.document.base import DocumentLayer
 from sec_certs.document.utils import get_view
+from sec_certs.heuristics.br1.chapter_parsing.mapper import is_heading_candidate
 from sec_certs.sample.certificate import Certificate, logger
 from sec_certs.sample.certificate import Heuristics as BaseHeuristics
 from sec_certs.sample.certificate import InternalState as BaseInternalState
@@ -28,6 +30,7 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
+    from sec_certs.document.base import DocumentView
 
 
 @dataclass
@@ -70,6 +73,41 @@ def _profile_version(text: str, start: int) -> tuple[str | None, str | None]:
     stage, rel = r.groups() if (r := _RELEASE_RE.match(tail, version.end())) else (None, None)
     release = " ".join(x for x in (stage and stage.upper(), rel and f"REL {int(rel):02d}") if x)
     return version.group(1), release or None
+
+
+# ST template for chapter parsing
+_ST_SECTIONS: Final[dict[str, re.Pattern[str]]] = {
+    key: re.compile(pattern, re.IGNORECASE)
+    for key, pattern in {
+        "introduction": r"introduction",
+        "st_reference": r"(security\s+target|st)\s+reference",
+        "profile_reference": r"sesip\s+profile\s+reference|(?<!other\s)conformance\s+claims?",
+        "platform_reference": r"(platform|toe)\s+references?",
+        "guidance": r"included\s+guidance",
+        "overview": r"(platform|toe)\b.{0,30}overview",
+        "objectives": r"security\s+objectives",
+        "requirements": r"security\s+requirements(\s+and\s+implementation)?$",
+        "sar": r"security\s+assurance\s+requirements",
+        "flaw_reporting": r"flaw\s+reporting",
+        "sfr": r"security\s+functional\s+requirements",
+        "rationales": r"mapping\s+and\s+sufficiency|sufficiency\s+rationale",
+    }.items()
+}
+_HEADING_NUMBER_RE: Final = re.compile(r"^\s*(?:D\.)?[\d.]*\s*")
+
+
+def _st_sections(view: DocumentView) -> dict[str, str] | None:
+    """First heading of each template section"""
+    found: dict[str, str] = {}
+    for block in view.iter_blocks({DocumentLayer.BODY}):
+        heading = block.text.strip()
+        title = _HEADING_NUMBER_RE.sub("", heading)
+        if not is_heading_candidate(block) or len(title) >= 90:
+            continue
+        for key, pattern in _ST_SECTIONS.items():
+            if key not in found and pattern.search(title):
+                found[key] = heading
+    return found or None
 
 
 class SESIPCertificate(
