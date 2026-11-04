@@ -347,7 +347,7 @@ class SESIPCertificate(
             for name, profile in SESIP_PROFILES.items()
             if (m := profile["pattern"].search(text))
         }
-        if text and not found:
+        if text and len(found) < max(1, len(_NEXT_PROFILE_RE.findall(text))):
             logger.warning(f"Cert dgst: {self.dgst} has an unknown SESIP profile: {text}")
         self.heuristics.sesip_profiles = found or None
 
