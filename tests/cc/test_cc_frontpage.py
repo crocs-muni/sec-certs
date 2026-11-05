@@ -683,8 +683,14 @@ def test_bsi_developer_stops_at_letterhead(bsi_parser: BSIFrontpageParser):
     assert items[constants.TAG_DEVELOPER] == "SUSE Software Solutions Germany GmbH"
 
 
-def test_bsi_report_without_cert_id_yields_only_the_lab(bsi_parser: BSIFrontpageParser, frontpage_dir: Path):
+def test_bsi_report_without_cert_id_yields_only_the_lab(bsi_parser: BSIFrontpageParser, tmp_path: Path):
     # The portal files some ANSSI reports under DE
-    items = bsi_parser.parse(frontpage_dir / "pdftotext" / "anssi_report_2012_fr.txt")
+    anssi_report = tmp_path / "anssi_report.txt"
+    anssi_report.write_text(
+        "PREMIER MINISTRE\nRapport de certification ANSSI-CC-2012/10\nCarte IAS ECC v1.0.1\nParis, le 12 juin 2012\n",
+        encoding="utf-8",
+    )
+
+    items = bsi_parser.parse(anssi_report)
 
     assert items == {constants.TAG_CERT_LAB: "BSI", constants.TAG_PARSE_STRATEGY: "text"}
