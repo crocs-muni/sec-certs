@@ -116,6 +116,16 @@
     "sphinx-copybutton",
     "ipython!=8.7.0",
   ]
+jupyter = [
+    "jupyterlab>=4.6.4",
+    "notebook>=7.6.3",
+    "pip>=26.2",
+]
+
+[tool.uv]
+# rapidocr pulls in opencv-python (GUI build, needs libGL); easyocr pulls in opencv-python-headless.
+# Both install the same cv2 module, so keep only the headless build.
+exclude-dependencies = ["opencv-python"]
 
 [tool.ruff]
   lint.select = [
