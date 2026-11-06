@@ -1,0 +1,42 @@
+Certification Report
+Bundesamt für Sicherheit in der Informationstechnik
+BSI-DSZ-CC-0225-2003
+for
+IBM LPAR for POWER 4
+for the IBM pSeries
+Firmware Releases:
+3R031021 (p630), 3K031021 (p650) and 3H031021 (p690)
+from
+IBM Corporation- Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
+Telefon +49 228 9582-0, Infoline +49 228 9582-111, Telefax +49 228 9582-455Bundesamt für Sicherheit in der Informationstechnik
+Godesberger Allee 185-189 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+Telefon (0228) 9582-0 - Telefax (0228) 9582-455 - Infoline (0228) 9582-111
+SOGIS-MRA
+BSI-DSZ-CC-0225-2003
+IBM LPAR for POWER 4
+for the IBM pSeries
+Firmware Releases:
+3R031021 (p630), 3K031021 (p650) and 3H031021 (p690)
+from
+IBM Corporation
+Common Criteria Arrangement
+The IT product identified in this certificate has been evaluated at an accredited and licensed/
+approved evaluation facility using the Common Methodology for IT Security Evaluation, Part 1
+Version 0.6, Part 2 Version 1.0, extended by CEM supplementation “ALC_FLR – Flaw
+remediation”, Version 1.1, February 2002, for conformance to the Common Criteria for IT Security
+Evaluation, Version 2.1 (ISO/IEC 15408:1999).
+Evaluation Results:
+Functionality: Product specific Security Target
+Common Criteria Part 2 conformant
+Assurance Package: Common Criteria Part 3 conformant
+EAL4 augmented by ALC_FLR.1 (Basic Flaw Remediation)
+This certificate applies only to the specific version and release of the product in its evaluated
+configuration and in conjunction with the complete Certification Report.
+The evaluation has been conducted in accordance with the provisions of the certification scheme
+of the German Federal Office for Information Security (BSI) and the conclusions of the evaluation
+facility in the evaluation technical report are consistent with the evidence adduced.
+The notes mentioned on the reverse side are part of this certificate.
+Bonn, 26. January 2004
+The President of the Federal Office
+for Information Security
+Dr. Helmbrecht L.S.

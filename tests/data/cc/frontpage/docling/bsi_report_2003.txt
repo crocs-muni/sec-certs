@@ -1,0 +1,120 @@
+## Certification Report
+
+## Bundesamt für Sicherheit in der Informationstechnik
+
+## BSI-DSZ-CC-0225-2003
+
+## for
+
+## IBM LPAR for POWER 4
+
+for the IBM pSeries Firmware Releases: 3R031021 (p630), 3K031021 (p650) and 3H031021 (p690)
+
+## from
+
+## IBM Corporation
+
+- Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
+
+Telefon +49 228 9582-0, Infoline +49 228 9582-111, Telefax +49 228 9582-455
+
+## BSI-DSZ-CC-0225-2003
+
+## IBM LPAR for POWER 4
+
+for the IBM pSeries
+
+Firmware Releases:
+
+3R031021 (p630), 3K031021 (p650) and 3H031021 (p690)
+
+from
+
+## IBM Corporation
+
+The  IT  product  identified  in  this  certificate  has  been  evaluated  at  an  accredited  and  licensed/ approved  evaluation  facility  using  the Common  Methodology  for  IT  Security  Evaluation,  Part 1 Version 0.6 , Part 2 Version 1.0 , extended by CEM  supplementation 'ALC_FLR -Flaw remediation', Version 1.1, February 2002, for conformance to the Common Criteria for IT Security Evaluation, Version 2.1 (ISO/IEC 15408:1999) .
+
+## Evaluation Results:
+
+Functionality:
+
+Product specific Security Target Common Criteria Part 2 conformant
+
+Assurance Package:
+
+Common Criteria Part 3 conformant
+
+EAL4 augmented by ALC_FLR.1 (Basic Flaw Remediation)
+
+This  certificate  applies  only  to  the  specific  version  and  release  of  the  product  in  its  evaluated configuration and in conjunction with the complete Certification Report.
+
+The evaluation has been conducted in accordance with the provisions of the certification scheme of the German Federal Office for Information Security (BSI) and the conclusions of the evaluation facility in the evaluation technical report are consistent with the evidence adduced.
+
+The notes mentioned on the reverse side are part of this certificate.
+
+Bonn, 26. January 2004
+
+The President of the Federal Office for Information Security
+
+Dr. Helmbrecht L.S.
+
+Common Criteria Arrangement
+
+SOGIS-MRA
+
+Bundesamt für Sicherheit in der Informationstechnik
+
+Godesberger Allee 185-189 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+
+Telefon (0228) 9582-0 - Telefax (0228) 9582-455 - Infoline (0228) 9582-111
+
+The rating of the strength of functions does not include the cryptoalgorithms suitable for encryption and decryption (see BSIG Section 4, Para. 3, Clause 2)
+
+This  certificate  is  not  an  endorsement  of  the  IT product  by  the  Federal  Office  for  Information Security or any other organisation that recognises or gives effect to this certificate, and no warranty of  the  IT product  by  the  Federal  Office  for  Information  Security  or  any  other  organisation  that recognises or gives effect to this certificate, is either expressed or implied.
+
+BSI-DSZ-CC-0225-2003
+
+Certification Report
+
+## Preliminary Remarks
+
+Under the BSIG 1 Act, the Federal Office for Information Security (BSI) has the task of issuing certificates for information technology products.
+
+Certification  of  a  product  is  carried  out  on  the  instigation  of  the  vendor  or  a distributor, hereinafter called the sponsor.
+
+A part of the procedure is the technical examination (evaluation) of the product according to the security criteria published by the BSI or generally recognised security criteria.
+
+The evaluation is normally carried out by an evaluation facility recognised by the BSI or by BSI itself.
+
+The result of the certification procedure is the present Certification Report. This report contains among others the certificate (summarised assessment) and the detailed Certification Results.
+
+The  Certification  Results  contain  the  technical  description  of  the  security functionality of the certified product, the details of the evaluation (strength and weaknesses) and instructions for the user.
+
+1 Act setting up the Federal Office for Information Security (BSI-Errichtungsgesetz, BSIG) of 17 December 1990, Bundesgesetzblatt I p. 2834
+
+V
+
+Certification Report
+
+BSI-DSZ-CC-0225-2003
+
+## Contents
+
+Part A:  Certification
+
+Part B:  Certification Results
+
+Part C:  Excerpts from the Criteria
+
+VI
+
+BSI-DSZ-CC-0225-2003
+
+Certification Report
+
+## A Certification
+
+## 1 Specifications of the Certification Procedure
+
+The certification body conducts the procedure according to the criteria laid down in the following:
+

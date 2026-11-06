@@ -278,106 +278,6 @@ def search_only_headers_anssi(filepath: Path):  # type: ignore # noqa: C901
 
 
 @no_type_check
-def search_only_headers_bsi(filepath: Path):  # type: ignore # noqa: C901
-    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
-    LINE_SEPARATOR_STRICT = " "
-    NUM_LINES_TO_INVESTIGATE = 15
-    rules_certificate_preface = [
-        "(BSI-DSZ-CC-.+?) (?:for|For) (.+?) from (.*)",
-        "(BSI-DSZ-CC-.+?) zu (.+?) der (.*)",
-    ]
-
-    items_found = {}  # type: ignore # noqa
-    no_match_yet = True
-
-    try:
-        # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
-            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
-        )
-
-        for rule in rules_certificate_preface:
-            rule_and_sep = rule + REGEXEC_SEP
-
-            for m in re.finditer(rule_and_sep, whole_text):
-                if no_match_yet:
-                    items_found[constants.TAG_HEADER_MATCH_RULES] = []
-                    no_match_yet = False
-
-                # insert rule if at least one match for it was found
-                if rule not in items_found[constants.TAG_HEADER_MATCH_RULES]:
-                    items_found[constants.TAG_HEADER_MATCH_RULES].append(rule)
-
-                match_groups = m.groups()
-                cert_id = match_groups[0]
-                certified_item = match_groups[1]
-                developer = match_groups[2]
-
-                FROM_KEYWORD_LIST = [" from ", " der "]
-                for from_keyword in FROM_KEYWORD_LIST:
-                    from_keyword_len = len(from_keyword)
-                    if certified_item.find(from_keyword) != -1:
-                        logger.warning(
-                            f"string {from_keyword} detected in certified item - shall not be here, fixing..."
-                        )
-                        certified_item_first = certified_item[: certified_item.find(from_keyword)]
-                        developer = certified_item[certified_item.find(from_keyword) + from_keyword_len :]
-                        certified_item = certified_item_first
-                        continue
-
-                end_pos = developer.find("\f-")
-                if end_pos == -1:
-                    end_pos = developer.find("\fBSI")
-                if end_pos == -1:
-                    end_pos = developer.find("Bundesamt")
-                if end_pos != -1:
-                    developer = developer[:end_pos]
-
-                items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
-                items_found[constants.TAG_CERT_ITEM] = normalize_match_string(certified_item)
-                items_found[constants.TAG_DEVELOPER] = normalize_match_string(developer)
-                items_found[constants.TAG_CERT_LAB] = "BSI"
-
-        # Process page with more detailed sample info
-        # PP Conformance, Functionality, Assurance
-        rules_certificate_third = ["PP Conformance: (.+)Functionality: (.+)Assurance: (.+)The IT Product identified"]
-
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(filepath)
-
-        for rule in rules_certificate_third:
-            rule_and_sep = rule + REGEXEC_SEP
-
-            for m in re.finditer(rule_and_sep, whole_text):
-                # check if previous rules had at least one match
-                if constants.TAG_CERT_ID not in items_found:
-                    logger.error(f"ERROR: front page not found for file: {filepath}")
-
-                match_groups = m.groups()
-                ref_protection_profiles = match_groups[0]
-                cc_version = match_groups[1]
-                cc_security_level = match_groups[2]
-
-                items_found[constants.TAG_REFERENCED_PROTECTION_PROFILES] = normalize_match_string(
-                    ref_protection_profiles
-                )
-                items_found[constants.TAG_CC_VERSION] = normalize_match_string(cc_version)
-                items_found[constants.TAG_CC_SECURITY_LEVEL] = normalize_match_string(cc_security_level)
-
-        # print('\n*** Certificates without detected preface:')
-        # for file_name in files_without_match:
-        #     print('No hits for {}'.format(file_name))
-        # print('Total no hits files: {}'.format(len(files_without_match)))
-        # print('\n**********************************')
-    except Exception as e:
-        relative_filepath = "/".join(str(filepath).split("/")[-4:])
-        error_msg = f"Failed to parse BSI headers from frontpage: {relative_filepath}; {e}"
-        logger.error(error_msg)
-        raise ValueError(error_msg) from e
-
-    return items_found
-
-
-@no_type_check
 def search_only_headers_niap(filepath: Path):  # type: ignore # noqa: C901
     # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
     LINE_SEPARATOR_STRICT = " "
@@ -641,6 +541,5 @@ def get_sums_for_rules_subset(dct: dict | None, path: str) -> dict[str, float]:
 
 scheme_frontpage_functions = {
     "FR": search_only_headers_anssi,
-    "DE": search_only_headers_bsi,
     "US": search_only_headers_niap,
 }

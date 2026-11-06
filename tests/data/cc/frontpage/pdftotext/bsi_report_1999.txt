@@ -1,0 +1,38 @@
+Certification Report
+BSI-DSZ-CC-0153-1999
+for
+Philips Smart Card Controller
+P8WE5032V0B
+from
+Philips Semiconductors Hamburg
+Unternehmensbereich der Philips GmbH
+Business Line Identification- Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
+Telefon +49 228 9582-0, Infoline +49 228 9582-111, Telefax +49 228 9582-455Bundesamt für Sicherheit in der Informationstechnik
+Godesberger Allee 183 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+Telefon (0228) 9582-0 - Telefax (0228) 9582-455 - Infoline (0228) 9582-111
+BSI-DSZ-CC-0153-1999
+Philips Smart Card Controller
+P8WE5032V0B
+from
+Philips Semiconductors Hamburg
+Unternehmensbereich der Philips GmbH
+Business Line Identification
+Common Criteria Arrangement
+The IT product identified in this certificate has been evaluated at an accredited and licensed/
+approved evaluation facility using the Common Methodology for IT Security Evaluation (CEM)
+Version 0.6 and CEM Part 2 Version 1.0 Annex B for conformance to the Common Criteria for IT
+Security Evaluation, Version 2.0 (CC).
+Evaluation Results:
+Functionality: Cryptographic support
+Protection of the TOE Security Functions
+Assurance Package: EAL3
+This certificate applies only to the specific version and release of the product in its evaluated
+configuration and in conjunction with the complete Certification Report.
+The evaluation has been conducted in accordance with the provisions of the certification scheme
+of the Bundesamt für Sicherheit in der Informationstechnik and the conclusions of the evaluation
+facility in the evaluation technical report are consistent with the evidence adduced.
+The remarks printed on the reverse side are part of this certificate.
+Bonn, 15 November 1999
+The President of the Bundesamt für
+Sicherheit in der Informationstechnik
+Dr. Henze L.S.

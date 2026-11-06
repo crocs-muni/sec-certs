@@ -1,0 +1,291 @@
+EUCC-3087-2026-0012
+Administration ID
+BSI-DSZ-CC-0904-V3-2026
+for
+TCOS FlexCert Version 2.0 Release 2/SLC52
+from
+Deutsche Telekom Security GmbH
+BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
+Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-11
+Certification Report V1.0 EUCC-Zert-327 EUCC V6.9
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+Contents
+A. Certification.....................................................................................................................4
+1. Preliminary Remarks....................................................................................................4
+2. Specifications of the Certification Procedure...............................................................4
+3. Recognition Agreements..............................................................................................5
+4. Performance of Evaluation and Certification................................................................5
+5. Publication...................................................................................................................7
+B. Certification Results........................................................................................................8
+1. Executive Summary.....................................................................................................9
+2. Identification of the TOE.............................................................................................11
+3. Security Policy...........................................................................................................14
+4. Assumptions and Clarification of Scope.....................................................................14
+5. Architectural Information............................................................................................15
+6. Supplementary Cybersecurity Information.................................................................16
+7. IT Product Testing......................................................................................................16
+8. Evaluated Configuration.............................................................................................17
+9. Results of the Evaluation...........................................................................................18
+10. Obligations and Notes for the Usage of the TOE.....................................................20
+11. Security Target.........................................................................................................23
+12. Regulation specific aspects (eIDAS, QES)..............................................................23
+13. Definitions................................................................................................................23
+14. Bibliography.............................................................................................................25
+C. Annexes........................................................................................................................ 29
+3 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+A. Certification
+1. Preliminary Remarks
+The Implementing Regulation (EU) 2024/482 of the European Parliament and of the
+Council of 31 January 2024 [EUCC-VO] establishes a Union-wide cybersecurity
+certification scheme for TOEs and Protection Profiles for conformity assessments using
+the requirements of Common Criteria.
+By implementing the Cybersecurity Act1
+, certification activities at assurance level ‘high’ and
+in duly justified cases at assurance level ‘substantial’ are reserved to the National
+Cybersecurity Certification Agency of a Member State.
+In accordance to BSIG2
+Act, the Federal Office for Information Security (BSI) issues
+certificates for information technology products.
+Certification of a product is carried out at the request of a developer, vendor or a
+distributor, hereinafter called the applicant.
+A part of the procedure is the technical examination (evaluation) of the product according
+to the security criteria referenced in the above mentioned Implementing Regulation (EU)
+2024/482 as well as relevant application notes and interpretations published by the
+certification body of the BSI.
+Evaluation facilities notified by the German National Cybersecurity Certification Authority
+carry out the evaluation.
+This Certification Report is the result of the certification activities carried out by the
+certification body of the BSI in conclusion of the technical evaluation. This report contains
+among others the certificate (summarised assessment) and the detailed Certification
+Results.
+The Certification Results contain the technical description of the security functionality of
+the certified product, the details of the evaluation (strength and weaknesses) and
+instructions for the user.
+2. Specifications of the Certification Procedure
+The certification body carries out its activities according to the criteria laid down in the
+following:
+● Implementing Regulation (EU) 2024/482 of the European Parliament and of the Council
+of 31 January 2024 laying down rules for the application of Regulation (EU) 2019/881 of
+the European Parliament and of the Council as regards the adoption of the European
+Common Criteria-based cybersecurity certification scheme (EUCC) [EUCC-VO]
+● EUCC state-of-the-art documents of relevance to the TOE [EUCC_SOTA]
+● Act on the Federal Office for Information Security2
+1
+Regulation (EU) 2019/881 of the European Parliament and of the Council of 17 April 2019 on ENISA
+(the European Union Agency for Cybersecurity) and on information and communications technology
+cybersecurity certification and repealing Regulation (EU) No 526/2013 (Cybersecurity Act)
+2
+Act on the Federal Office for Information Security (BSI-Gesetz - BSIG) of 2 December 2025, BGBl. 2025
+Nr. 301, S. 2
+4 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+● BSI Certification and Approval Ordinance3
+● BMI Regulations on Ex-parte Costs4
+● Special decrees issued by the Bundesministerium des Innern (Federal Ministry of the
+Interior and Community)
+● ISO/IEC 15408 (Common Criteria for IT Security Evaluation (CC), Version CC:2022 R1)
+[CC]
+● ISO/IEC 18045 (Common Methodology for IT Security Evaluation (CEM), Version
+CEM:2022 R1) [CEM]
+● DIN EN ISO/IEC 17065 standard
+● EUCC programme: Scheme documentation describing the certification process (EUCC)
+[EUCC_PROG]
+● BSI certification: Application Notes and Interpretation of the Scheme (AIS) [AIS]
+3. Recognition Agreements
+In order to avoid multiple certifications of the same product in different countries a mutual
+recognition of IT security certificates – as far as such certificates are based on ITSEC or
+CC – under certain conditions was agreed.
+3.1. International Recognition of CC – Certificates (CCRA)
+The international arrangement on the mutual recognition of certificates based on the CC
+(Common Criteria Recognition Arrangement, CCRA-2014) has been ratified on 08
+September 2014. It covers CC certificates based on collaborative Protection Profiles (cPP)
+(exact use), CC certificates based on assurance components up to and including EAL 2 or
+the assurance family Flaw Remediation (ALC_FLR) and CC certificates for Protection
+Profiles and for collaborative Protection Profiles (cPP).
+The current list of signatory nations and approved certification schemes can be seen on
+the website: https://www.commoncriteriaportal.org.
+The Common Criteria Recognition Arrangement logo printed on the certificate indicates
+that this certification is recognised under the terms of this agreement by the related bodies
+of the signatory nations. A disclaimer beneath the logo indicates the specific scope of
+recognition.
+This certificate is recognized according to the rules of CCRA-2014, i. e. up to and including
+CC part 5 EAL 2 and ALC_FLR components.
+4. Performance of Evaluation and Certification
+● The certification body monitors each individual evaluation to ensure a uniform
+application and interpretation of the criteria as well as uniform ratings.
+3
+Ordinance on the Procedure for Issuance of Security Certificates and approval by the Federal Office for
+Information Security (BSI-Zertifizierungs- und -Anerkennungsverordnung – BSIZertV) of 02 December
+2025, Bundesgesetzblatt 2025, no. 301
+4
+BMI Regulations on Ex-parte Costs - Besondere Gebührenverordnung des BMI für individuell
+zurechenbare öffentliche Leistungen in dessen Zuständigkeitsbereich (BMIBGebV), Abschnitt 7 (BSI-
+Gesetz) - dated 2 September 2019, Bundesgesetzblatt I p. 1365
+5 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+● The TOE TCOS FlexCert Version 2.0 Release 2/SLC52 has been previously certified by
+the certification body of the Federal Office for Information Security (BSI) based on
+administration ID BSI-DSZ-CC-0904-V2-2021 (including subsequent maintenance
+procedure). Specific results from the corresponding evaluation process were re-used.
+● The present evaluation of the product TCOS FlexCert Version 2.0 Release 2/SLC52 was
+carried out by SRC Security Research & Consulting GmbH, located at Emil-Nolde-
+Straße 7, 53113 Bonn, Germany.
+● The evaluation was completed on 19 June 2026. SRC Security Research & Consulting
+GmbH is a notified evaluation facility (ITSEF).
+● This certification was applied for: Deutsche Telekom Security GmbH.
+● The assessed TOE was developed by: Deutsche Telekom Security GmbH.
+● The certification activities are concluded with the comparability check and the production
+of this Certification Report. This work was completed by the certification body of the BSI.
+This Certification Report applies only to the version of the TOE as identified in this
+document. The confirmed assurance package is valid on the condition that
+● all statements and indications regarding generation, configuration and operation, as
+given in the following report, are observed,
+● the product is operated in an environment as specified in the following report and in the
+Security Target.
+For the meaning of the assurance components and assurance levels please refer to CC
+[CC] itself.
+The issued Certificate confirms the assurance of the product claimed in the Security Target
+[ST] on certificate’s issuance day. As attack methods evolve over time, the resistance of
+the certified version of the product against new attack methods needs to be re-assessed.
+Therefore, the holder of the Certificate should involve the assurance continuity program of
+the EUCC Certification Scheme (e.g. by a re-assessment or re-certification) in its
+obligations to monitor the certified product. Specifically, if certification results should be
+used in subsequent evaluation and certification procedures, in a system integration
+process or if a user's risk management needs regularly updated results, it is recommended
+to perform a re-assessment on a regular e.g. annual basis.
+In order to prevent an indefinite certificate usage where evolving attack methods justify a
+recent re-assessment of the product’s resistance, the maximum validity period of the
+certificate is limited. The certificate issued on 3 July 2026 is valid until 2 July 2031 and its
+validity can be renewed by certifying the TOE again.
+The holder of this certificate is obliged:
+● to meet the obligations from the Implementing Regulation (EU) 2024/482, in particular
+but not exclusively to respect the rules for certificate usage, to monitor the conformity of
+the certified TOE, to inform the certification body about subsequently detected
+vulnerabilities or irregularities with relevance to the security of the TOE and to maintain
+vulnerability management and disclosure procedures.
+Should changes be introduced into the certified version of the TOE, the validity period of its
+related certificate can be extended in order to cover the changed TOE, provided the holder
+of the certificate applies for measures under EUCC scheme’s assurance continuity (i.e. re-
+certification or maintenance) and the changed TOE then meets the assurance
+requirements.
+6 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+5. Publication
+The TOE TCOS FlexCert Version 2.0 Release 2/SLC52 has been notified to ENISA for
+publication on the website on European cybersecurity certification schemes and has also
+been included in BSI’s list of certified products, which is published regularly (see
+[EUCC_CERT]). Further information can be obtained from BSI-Infoline +49 228 9582-111.
+This holder of the certificate5
+has to publish on its website this Certification Report and
+supplementary information. The Certification Report may also be obtained in electronic
+form at the internet address stated above.
+5
+Deutsche Telekom Security GmbH
+Koblenzer Straße 87-93
+57072 Siegen
+Germany
+7 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+B. Certification Results
+The following chapters summarise the assessment results of
+● the applicant’s Security Target specified for the Target of Evaluation,
+● the relevant evaluation results from the evaluation facility, and
+● complementary notes, statements and indications from the certification body.
+8 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+1. Executive Summary
+The Target of Evaluation (TOE) is the product TCOS FlexCert Version 2.0 Release
+2/SLC52 developed by Deutsche Telekom Security GmbH.
+The TOE is a smart card product according to the G2-COS specification [Spec G2 COS]
+from gematik and is implemented on the hardware platform Infineon Security Controller
+IFX_CCI_000010h (SLC52GDA600A8 / SLC52GDA600A9) from Infineon Technologies
+AG (refer to [ST IC], [CertRep IC]).
+The TOE is intended to be used as a card operating system platform for cards of the card
+generation G2 in the framework of the German health care system.
+For this purpose, the TOE serves as secure data storage and secure cryptographic service
+provider for card applications running on the TOE and supports them for their specific
+security needs related to storage and cryptographic functionalities. In particular, these
+storage and cryptographic services are oriented on the different card types eHC (electronic
+Health Card), HPC (Health Professional Card), SMC-B (Security Module Card Type B),
+gSMC-K (gerätespezifische Security Module Card Type K for the so-called Konnektor) and
+gSMC-KT (gerätespezifische Security Module Card Type KT for Terminals) as currently
+specified for a card product of the generation G2 within the German health care system.
+These TOE's storage and cryptographic services that are provided by the TOE and
+invoked by the human users and components of the German health care system cover the
+following issues:
+• authentication of human users and external devices,
+• storage of and access control on user data,
+• key management and cryptographic functions,
+• management of TSF data including life cycle support,
+• export of non-sensitive TSF and user data of the object system if implemented.
+The TOE comprises
+• the circuitry of the dual-interface chip (i.e. contact-based and contactless chip)
+including all IC Dedicated Software being active in the Smart Card Initialisation
+Phase, Personalisation Phase and Usage Phase of the TOE (the integrated circuit,
+IC Infineon IFX_CCI_000010h (SLC52GDA600A8 / SLC52GDA600A9)),
+• the IC Embedded Software (TCOS FlexCert Version 2.0 Release 2/SLC52
+Operating System),
+• the so-called Wrapper (TOE specific SW tool for re-coding and interpretation of
+exported TSF and user data), and
+• the associated guidance documentation.
+The TOE is ready for the installation and personalisation of object systems (applications)
+on the TOE that match the G2-COS specification [Spec G2 COS], but does not contain
+itself any object systems (applications). However, the delivered product comprises beside
+the TOE also an object system already installed on the TOE.
+In functional view, the TOE with its IC Embedded Software (TCOS FlexCert Version 2.0
+Release 2/SLC52 Operating System) is implemented according to the G2-COS
+specification [Spec G2 COS] from gematik. Hereby, the TOE implements the mandatory
+part of the G2-COS specification [Spec G2 COS] with the base functionality of the
+9 / 37
+Certification Report
+EUCC-3087-2026-0012 BSI-DSZ-CC-0904-V3-2026
+operating system platform. In addition, the TOE implements the option RSA Key
+Generation (“Option_RSA_KeyGeneration”), the option Contactless
+(“Option_kontaktlose_Schnittstelle”), the option Crypto Box (“Option_Kryptobox”) and the
+option Logical Channel (“Option_logische_Kanäle“) as defined in the G2-COS specification
+[Spec G2 COS]. None of the further options PACE for Proximity Coupling Device
+(“Option_PACE_PCD”), USB (“Option_USB_Schnittstelle”) and RSA CVC
+(“Option_RSA_CVC”) defined in the G2-COS specification [Spec G2 COS] is implemented
+in the TOE.
+Furthermore, the TOE provides developer-specific administration commands for support of
+the TOE’s life cycle model (refer to the user guidance [Guide ADM], chapter 6 and [Guide
+OPE P2], chapter 4).
+The TOE's Wrapper is implemented according to the Wrapper specification [Spec
+Wrapper] from gematik.
+The product TCOS FlexCert Version 2.0 Release 2/SLC52 has been certified under the
+EUCC scheme in accordance to the provisions of the Implementing Regulation (EU)
+2024/482. This is a certification based on BSI administration ID BSI-DSZ-CC-0904-V2-
+2021 (including subsequent maintenance procedure). Specific results from the evaluation
+process BSI-DSZ-CC-0904-V2-2021 and subsequent maintenance procedure were re-
+used. The TOE deliverables are listed in table 1.
+The evaluation of the product TCOS FlexCert Version 2.0 Release 2/SLC52 was
+conducted by SRC Security Research & Consulting GmbH. The evaluation was completed
+on 19 June 2026. SRC Security Research & Consulting GmbH is
+a notified evaluation facility (ITSEF).
+The Evaluation Technical Report (ETR) [ETR] was provided by the ITSEF according to the
+Common Criteria [CC], the Methodology [CEM], the requirements of the Scheme [EUCC-
+VO] and [EUCC_PROG].
+The evaluation has confirmed:
+● CC Version and Release: see [CC] and [CEM]
+● PP Conformance: Card Operating System Generation 2 (PP COS G2),
+Version 2.1, 10 July 2019, BSI-CC-PP-0082-V4-2019
+[PP]
+● Assurance Level: EUCC High with component AVA_VAN.5
+● Assurance Package: EAL 4
+● Augmentation: ALC_DVS.2, ATE_DPT.2, AVA_VAN.5 and
+ALC_FLR.1
+The Security Target [ST] is the basis for this certification. It is based on the certified
+Protection Profile Card Operating System Generation 2 (PP COS G2), Version 2.1, 10 July
+2019, BSI-CC-PP-0082-V4-2019 [PP]. The Security Target [ST] uses the mandatory parts
+of the PP and the optional packages RSA Key Generation, Contactless, Crypto Box and
+Logical Channel defined in the PP. None of the PP’s further optional packages PACE for
+Proximity Coupling Device and RSA CVC is used.
+A detailed description of the security functionality, addressed threats, organisational

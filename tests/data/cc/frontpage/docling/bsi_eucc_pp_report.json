@@ -1,0 +1,158 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "EUCC-3087-2026-0006",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "for",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "Common Criteria Protection Profile Security Module Application for Electronic Record-keeping Systems (SMAERS) Version 3.0.2",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "issued by",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "text",
+   "text": "BSI",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "Administration ID:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "BSI-CC-PP-0105-V4-2026",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-11",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "page_footer",
+   "text": "Certification Report V1.0",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "page_footer",
+   "text": "EUCC-PP-414_V1.0",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "page_header",
+   "text": "Certification Report",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "page_header",
+   "text": "BSI-CC-PP-0105-V4-2026",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "section_header",
+   "text": "Contents",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "page_footer",
+   "text": "3 / 15",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "document_index",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ]
+}

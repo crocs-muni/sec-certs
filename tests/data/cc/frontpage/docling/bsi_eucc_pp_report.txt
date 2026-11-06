@@ -1,0 +1,120 @@
+## EUCC-3087-2026-0006
+
+for
+
+## Common Criteria Protection Profile Security Module Application for Electronic Record-keeping Systems (SMAERS) Version 3.0.2
+
+issued by
+
+BSI
+
+Administration ID:
+
+BSI-CC-PP-0105-V4-2026
+
+BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-11
+
+Certification Report V1.0
+
+EUCC-PP-414_V1.0
+
+Certification Report
+
+BSI-CC-PP-0105-V4-2026
+
+## Contents
+
+| A.                                                                                                                                     | Certification.......................................................................................................................4   |
+|----------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| 1. Preliminary Remarks.....................................................................................................4           |                                                                                                                                         |
+| 2. Specifications of the Certification Procedure................................................................4                      |                                                                                                                                         |
+| 3. Mutual Recognition........................................................................................................5         |                                                                                                                                         |
+| 4. Performance of Evaluation and Certification.................................................................6                       |                                                                                                                                         |
+| 5. Validity of the Certification Result..................................................................................6             |                                                                                                                                         |
+| 6. Publication.....................................................................................................................7   |                                                                                                                                         |
+| B. Certification Results..........................................................................................................8    |                                                                                                                                         |
+| 1. Protection Profile Overview...........................................................................................9             |                                                                                                                                         |
+| 2. Security Functional Requirements................................................................................9                   |                                                                                                                                         |
+| 3. Assurance Requirements..............................................................................................9               |                                                                                                                                         |
+| 4. Results of the PP-Evaluation......................................................................................10                |                                                                                                                                         |
+| 5. Obligations and notes for the usage...........................................................................10                    |                                                                                                                                         |
+| 6. Identification of the PP.................................................................................................11         |                                                                                                                                         |
+| 7. Protection Profile.........................................................................................................11       |                                                                                                                                         |
+| 8. Definitions....................................................................................................................11   |                                                                                                                                         |
+| 9. Bibliography.................................................................................................................12     |                                                                                                                                         |
+| C. Annexes..........................................................................................................................15 |                                                                                                                                         |
+
+3 / 15
+
+Certification Report
+
+EUCC-3087-2026-0006
+
+## A. Certification
+
+## 1. Preliminary Remarks
+
+The Implementing Regulation (EU) 2024/482 of the European Parliament and of the Council   of   31   January   2024   [IR]   establishes   a   Union-wide   cybersecurity   certification scheme for ICT products and Protection Profiles for conformity assessments using the requirements of Common Criteria.
+
+By implementing the Cybersecurity Act [CSA], certification activities at assurance level 'high'  and   in   duly   justified   cases   at   assurance   level   'substantial'  are   reserved   to   the National Cybersecurity Certification Agency of a Member State.
+
+In accordance to BSIG Act [BSIG], the Federal Office for Information Security (BSI) issues certificates for information technology products as well as for Protection Profiles (PP).
+
+A PP defines an implementation-independent set of IT security requirements for a category of products which are intended to meet common consumer needs for IT security. A PP claimed by a user, consumer or stakeholder for IT gives them the possibility to express their IT security needs without referring to a specific product. Product certifications can be based   on   Protection   Profiles.   For   products   which   have   been   certified   based   on   a Protection   Profile   an   individual   certificate   will   be   issued   but   the   results   from   a   PP certification can be re-used for the Security Target evaluation within a product evaluation when conformance to the PP has been claimed.
+
+Certification of the Protection Profile is carried out on the instigation of the BSI or a sponsor. A part of the procedure is the technical examination (evaluation) of the product according   to   the   security   criteria   referenced   in   the   above   mentioned   Implementing Regulation   (EU)   2024/482   as   well   as   relevant   application   notes   and   interpretations published by the certification body of the BSI. Evaluation facilities notified by the German National Cybersecurity Certification Authority carry out the evaluation.
+
+This Certification   Report   is   the   result   of   the   certification   activities   carried   out   by   the certification body of the BSI in conclusion of the technical evaluation. This report contains among others the certificate   (summarised   assessment)   and   the   detailed   Certification Results.
+
+The certification is not an endorsement of the Protection Profile by the Federal Office for Information Security or any other organisation that recognises or gives effect to this certificate, and no warranty of the Protection Profile by the Federal Office for Information Security or any other organisation that recognises or gives effect to this certificate, is either expressed or implied.
+
+## 2. Specifications of the Certification Procedure
+
+The certification body carries out its activities according to the criteria laid down in the following:
+
+- Implementing Regulation (EU) 2024/482 of the European Parliament and of the Council of 31 January 2024 laying down rules for the application of Regulation (EU) 2019/881 of the European Parliament and of the Council as regards the adoption of the European Common Criteria-based cybersecurity certification scheme (EUCC) [IR]
+
+4 / 15
+
+EUCC-3087-2026-0006
+
+Certification Report
+
+- EUCC state-of-the-art documents of relevance to the TOE [SotA]
+- Act on the Federal Office for Information Security [BSIG]
+- BSI Certification and Approval Ordinance [ZertV]
+- BMI Regulations on Ex-parte Costs [GebV]
+- Special decrees issued by the Bundesministerium des Innern (Federal Ministry of the Interior and Community)
+- ISO/IEC 15408 as published on the day of issuance of this certificate and as mirrored by the Common Criteria for IT Security Evaluation [CC]
+- ISO/IEC 18045 as published on the day of issuance of this certificate and as mirrored by the Common Methodology for IT Security Evaluation [CEM]
+- DIN EN ISO/IEC 17065 standard
+- EUCC programme: Scheme documentation describing the certification process (EUCC) [EUCC]
+- BSI certification: Application Notes and Interpretation of the Scheme (AIS) [AIS]
+
+## 3. Mutual Recognition
+
+## 3.1. EU Cybersecurity Certification Scheme on Common Criteria (EUCC)
+
+Certificates issued under EUCC are recognised according to Implementing Regulation (EU) 2024/482 [IR]. Details of EUCC can be found at
+
+[https://certification.enisa.europa.eu/certification-library/eucc-certification-scheme_en.](https://certification.enisa.europa.eu/certification-library/eucc-certification-scheme_en)
+
+## 3.2. International Recognition of CC - Certificates (CCRA)
+
+In order to avoid multiple certification of the same Protection Profile in different countries a mutual recognition of IT security certificates - as far as such certificates are based on CC under   certain   conditions   was   agreed.   Therefore,   the   results   of   this   evaluation   and certification procedure can be re-used by the product certificate issuing scheme in the evaluation of a Security Target within a subsequent product evaluation and certification procedure.
+
+The international Common Criteria Recognition Arrangement (CCRA) became effective in September 2014 in its current version. It defines the recognition of certificates for ITproducts based on collaborative Protection Profiles (cPP) (exact use), CC certificates based on assurance components up to and including EAL 2 or the assurance family Flaw Remediation (ALC_FLR) and CC certificates for Protection Profiles and for collaborative Protection Profiles (cPP).
+
+The Common Criteria Recognition Arrangement logo printed on the certificate indicates that this certification is recognised under the terms of this agreement by the related bodies of the signatory nations. A disclaimer beneath the logo indicates the specific scope of recognition.
+
+Details on recognition, the signatory nations and the agreement itself can be found at https://www.commoncriteriaportal.org.
+
+5 / 15
+
+Certification Report
+
+EUCC-3087-2026-0006
+
+## 4. Performance of Evaluation and Certification
+
+- The Protection Profile Common Criteria Protection Profile Security Module Application for   Electronic   Record-keeping  Systems (SMAERS) Version 3.0.2  has been certified under   the   EUCC   scheme   in   accordance   to   the   provisions   of   the   Implementing Regulation (EU) 2024/482. This is a re-certification based on BSI-CC-PP-0105-V3-2025. Specific results from the evaluation process BSI-CC-PP-0105-V3-2025 were re-used.

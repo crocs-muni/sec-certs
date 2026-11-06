@@ -8,7 +8,7 @@ import pytest
 import tests.data.cc.frontpage
 
 from sec_certs import constants
-from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
+from sec_certs.utils.frontpage import BSIFrontpageParser, CanadaFrontpageParser, NSCIBFrontpageParser
 from sec_certs.utils.frontpage import canada as canada_module
 from sec_certs.utils.frontpage.nscib import _organization_of
 
@@ -500,3 +500,197 @@ def test_canada_non_report_yields_nothing(canada_parser: CanadaFrontpageParser, 
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
 
     assert canada_parser.parse(not_a_report) == {}
+
+
+@pytest.fixture(scope="module")
+def bsi_parser() -> BSIFrontpageParser:
+    return BSIFrontpageParser()
+
+
+BSI_EUCC_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-0904-V3-2026",
+    constants.TAG_EUCC_CERT_ID: "EUCC-3087-2026-0012",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "TCOS FlexCert Version 2.0 Release 2/SLC52",
+    constants.TAG_DEVELOPER: "Deutsche Telekom Security GmbH",
+}
+
+BSI_1999_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-0153-1999",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "Philips Smart Card Controller P8WE5032V0B",
+    constants.TAG_DEVELOPER: "Philips Semiconductors Hamburg Unternehmensbereich der Philips GmbH Business Line Identification",
+}
+
+BSI_2003_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-0225-2003",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: (
+        "IBM LPAR for POWER 4 for the IBM pSeries Firmware Releases: 3R031021 (p630), 3K031021 (p650) "
+        "and 3H031021 (p690"
+    ),
+    constants.TAG_DEVELOPER: "IBM Corporation",
+}
+
+BSI_2020_DE_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-1063-2020",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "c-secure-ident, Version 2.0",
+    constants.TAG_DEVELOPER: "c-trace GmbH",
+}
+
+BSI_2020_SPONSOR_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-0831-V2-2020",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "SMGW, Version 1.1",
+    constants.TAG_DEVELOPER: "OpenLimit SignCubes GmbH",
+    constants.TAG_SPONSOR: "Power Plus Communications AG",
+}
+
+BSI_MAINTENANCE_2008_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-0386-2006-MA-04",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "ZKA SECCOS Sig v1.5.3",
+    constants.TAG_DEVELOPER: "Sagem Orga GmbH",
+}
+
+BSI_MAINTENANCE_2022_DE_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-0862-V2-2021-MA-02",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "POLYAS CORE, Version 2.5.4",
+    constants.TAG_DEVELOPER: "Polyas GmbH",
+}
+
+BSI_REASSESSMENT_2023_EXPECTED = {
+    constants.TAG_CERT_ID: "BSI-DSZ-CC-1188-2023-RA-02",
+    constants.TAG_CERT_LAB: "BSI",
+    constants.TAG_CERT_ITEM: "TCOS ID Version 3.0 Release 1/P71",
+    constants.TAG_DEVELOPER: "Deutsche Telekom Security GmbH",
+}
+
+# A protection profile report: no BSI-DSZ id and no product, only the EUCC id
+BSI_EUCC_PP_EXPECTED = {
+    constants.TAG_CERT_ID: "EUCC-3087-2026-0006",
+    constants.TAG_EUCC_CERT_ID: "EUCC-3087-2026-0006",
+    constants.TAG_CERT_LAB: "BSI",
+}
+
+BSI_REPORTS = [
+    ("bsi_eucc_report", BSI_EUCC_EXPECTED),
+    ("bsi_report_1999", BSI_1999_EXPECTED),
+    ("bsi_report_2003", BSI_2003_EXPECTED),
+    ("bsi_report_2020_de", BSI_2020_DE_EXPECTED),
+    ("bsi_report_2020_sponsor", BSI_2020_SPONSOR_EXPECTED),
+    ("bsi_maintenance_2008", BSI_MAINTENANCE_2008_EXPECTED),
+    ("bsi_maintenance_2022_de", BSI_MAINTENANCE_2022_DE_EXPECTED),
+    ("bsi_reassessment_2023", BSI_REASSESSMENT_2023_EXPECTED),
+    ("bsi_eucc_pp_report", BSI_EUCC_PP_EXPECTED),
+]
+
+
+@pytest.mark.parametrize(("name", "expected"), BSI_REPORTS)
+def test_bsi_text(bsi_parser: BSIFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    items = bsi_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == expected
+
+
+@pytest.mark.parametrize(("name", "expected"), BSI_REPORTS)
+def test_bsi_structured(bsi_parser: BSIFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    items = bsi_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == expected
+
+
+def test_bsi_report_without_title(bsi_parser: BSIFrontpageParser, frontpage_dir: Path):
+    items = bsi_parser.parse(frontpage_dir / "pdftotext" / "bsi_certificate_page.txt")
+
+    assert items == {
+        constants.TAG_CERT_ID: "BSI-DSZ-CC-1248-2026",
+        constants.TAG_CERT_LAB: "BSI",
+        constants.TAG_CERT_ITEM: "SUSE Linux Enterprise Server 15 SP4",
+        constants.TAG_DEVELOPER: "SUSE Software Solutions Germany GmbH",
+        constants.TAG_PARSE_STRATEGY: "text",
+    }
+
+
+def test_bsi_two_digit_version_in_administration_id(bsi_parser: BSIFrontpageParser):
+    document = _docling_document(
+        [
+            "EUCC-3087-2026-04-0005 Administration ID BSI-DSZ-CC-0827-V11-2026",
+            "for",
+            "Infineon Technologies Security Controller M9900 A22",
+            "from",
+            "Infineon Technologies AG",
+        ]
+    )
+
+    items = bsi_parser.parse_structured(document)
+
+    assert items[constants.TAG_CERT_ID] == "BSI-DSZ-CC-0827-V11-2026"
+    assert items[constants.TAG_EUCC_CERT_ID] == "EUCC-3087-2026-04-0005"
+
+
+def test_bsi_merged_heading_keeps_der_inside_developer(bsi_parser: BSIFrontpageParser):
+    document = _docling_document(
+        [
+            "BSI-DSZ-CC-0153-1999 for Philips Smart Card Controller P8WE5032V0B from Philips Semiconductors "
+            "Hamburg Unternehmensbereich der Philips GmbH"
+        ]
+    )
+
+    items = bsi_parser.parse_structured(document)
+
+    assert items[constants.TAG_CERT_ITEM] == "Philips Smart Card Controller P8WE5032V0B"
+    assert items[constants.TAG_DEVELOPER] == "Philips Semiconductors Hamburg Unternehmensbereich der Philips GmbH"
+
+
+@pytest.mark.parametrize(
+    "blocks",
+    [
+        ["BSI-DSZ-CC-0886-2013", "for", "TCOS Passport Version 2.1", "from T-Systems International GmbH"],
+        ["BSI-DSZ-CC-0886-2013", "zu", "TCOS Passport Version 2.1", "der T-Systems International GmbH"],
+        ["BSI-DSZ-CC-0886-2013", "for TCOS Passport Version 2.1 from", "T-Systems International GmbH"],
+        ["BSI-DSZ-CC-0886-2013", "TCOS Passport", "for Version 2.1", "from T-Systems International GmbH"],
+        ["TCOS Passport", "BSI-DSZ-CC-0886-2013 for Version 2.1 from T-Systems International GmbH"],
+    ],
+    ids=["glued-from", "glued-der", "glued-for-and-trailing-from", "for-inside-product", "product-above-id"],
+)
+def test_bsi_structured_reordered_by_docling(bsi_parser: BSIFrontpageParser, blocks: list[str]):
+    items = bsi_parser.parse_structured(_docling_document(blocks))
+
+    assert items[constants.TAG_CERT_ITEM] == "TCOS Passport Version 2.1"
+    assert items[constants.TAG_DEVELOPER] == "T-Systems International GmbH"
+
+
+def test_bsi_developer_stops_at_letterhead(bsi_parser: BSIFrontpageParser):
+    document = _docling_document(
+        [
+            "BSI-DSZ-CC-1248-2026",
+            "for",
+            "SUSE Linux Enterprise Server 15 SP4",
+            "from",
+            "SUSE Software Solutions Germany GmbH",
+            "BSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn",
+            "Certification Report V1.0 CC-Zert-327 V5.53",
+        ]
+    )
+
+    items = bsi_parser.parse_structured(document)
+
+    assert items[constants.TAG_DEVELOPER] == "SUSE Software Solutions Germany GmbH"
+
+
+def test_bsi_report_without_cert_id_yields_only_the_lab(bsi_parser: BSIFrontpageParser, tmp_path: Path):
+    # The portal files some ANSSI reports under DE
+    anssi_report = tmp_path / "anssi_report.txt"
+    anssi_report.write_text(
+        "PREMIER MINISTRE\nRapport de certification ANSSI-CC-2012/10\nCarte IAS ECC v1.0.1\nParis, le 12 juin 2012\n",
+        encoding="utf-8",
+    )
+
+    items = bsi_parser.parse(anssi_report)
+
+    assert items == {constants.TAG_CERT_LAB: "BSI", constants.TAG_PARSE_STRATEGY: "text"}
