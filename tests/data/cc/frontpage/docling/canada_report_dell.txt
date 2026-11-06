@@ -1,0 +1,317 @@
+UNCLASSIFIED
+
+UNCLASSIFIED
+
+## FOREWORD
+
+This certification report is an UNCLASSIFIED publication, issued under the authority of the Chief, Communications Security Establishment (CSE).
+
+The Information Technology (IT) product identified in this certification report, and its associated certificate, has been evaluated at an approved evaluation facility established under the Canadian Centre for Cyber Security (CCCS). This certification report, and its associated certificate, applies only to the identified version and release of the product in its evaluated configuration. The evaluation has been conducted in accordance with the provisions of the Canadian CC Scheme, and the conclusions of the evaluation facility in the evaluation report are consistent with the evidence adduced. This report, and its associated certificate, are not an endorsement of the IT product by Canadian Centre for Cyber Security, or any other organization that recognizes or gives effect to this report, and its associated certificate, and no warranty for the IT product by the Canadian Centre for Cyber Security, or any other organization that recognizes or gives effect to this report, and its associated certificate, is either expressed or implied.
+
+If your department has identified a requirement for this certification report based on business needs and would like more detailed information, please contact:
+
+Contact Centre and Information Services Edward Drake Building
+
+contact@cyber.gc.ca | 1-833-CYBER-88 (1-833-292-3788)
+
+UNCLASSIFIED
+
+## OVERVIEW
+
+The Canadian Common Criteria Scheme provides a third-party evaluation service for determining the trustworthiness of Information Technology (IT) security products. Evaluations are performed by a commercial Common Criteria Evaluation Facility (CCEF) under the oversight of the Certification Body, which is managed by the Canadian Centre for Cyber Security.
+
+A CCEF is a commercial facility that has been approved by the Certification Body to perform Common Criteria evaluations; a significant requirement for such approval is accreditation to the requirements of ISO/IEC 17025, the General Requirements for the Competence of Testing and Calibration Laboratories.
+
+By awarding a Common Criteria certificate, the Certification Body asserts that the product complies with the security requirements specified in the associated security target. A security target is a requirements specification document that defines the scope of the evaluation activities. The consumer of certified IT products should review the security target, in addition to this certification report, in order to gain an understanding of any assumptions made during the evaluation, the IT product's intended environment, the evaluated security functionality, and the testing and analysis conducted by the CCEF.
+
+The certification report, certificate of product evaluation and security target are listed on the Certified Products list (CPL) for the Canadian CC Scheme and posted on the Common Criteria portal (the official website of the International Common Criteria Project).
+
+UNCLASSIFIED
+
+## TABLE OF CONTENTS
+
+| EXECUTIVE SUMMARY ....................................................................................................................................          | EXECUTIVE SUMMARY ....................................................................................................................................             |   6 |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----|
+| 1 Identification of Target of Evaluation ...........................................................................................................            | 1 Identification of Target of Evaluation ...........................................................................................................               |   7 |
+| 1.1                                                                                                                                                             | Common Criteria Conformance ..........................................................................................................................             |   7 |
+| 1.2                                                                                                                                                             | TOE Description.................................................................................................................................................   |   7 |
+| 1.3                                                                                                                                                             | TOE Architecture ...............................................................................................................................................   |   7 |
+| 2 Security Policy .........................................................................................................................................     | 2 Security Policy .........................................................................................................................................        |   9 |
+| 2.1                                                                                                                                                             | Cryptographic Functionality ...............................................................................................................................        |   9 |
+| Assumptions and Clarification of Scope ......................................................................................................                   | Assumptions and Clarification of Scope ......................................................................................................                      |  10 |
+| 3.1                                                                                                                                                             | Usage and Environmental Assumptions .............................................................................................................                  |  10 |
+| 3.2                                                                                                                                                             | Clarification of Scope .......................................................................................................................................     |  10 |
+| 4 Evaluated Configuration ............................................................................................................................          | 4 Evaluated Configuration ............................................................................................................................             |  11 |
+| 4.1                                                                                                                                                             | Documentation .................................................................................................................................................    |  11 |
+| 5 Evaluation Analysis Activities ....................................................................................................................           | 5 Evaluation Analysis Activities ....................................................................................................................              |  12 |
+| 5.1                                                                                                                                                             | Development ....................................................................................................................................................   |  12 |
+| 5.2                                                                                                                                                             | Guidance Documents ........................................................................................................................................        |  12 |
+| 5.3                                                                                                                                                             | Life-Cycle Support ............................................................................................................................................    |  12 |
+| 6 Testing Activities ....................................................................................................................................       | 6 Testing Activities ....................................................................................................................................          |  13 |
+| 6.1                                                                                                                                                             | Assessment of Developer tests .........................................................................................................................            |  13 |
+| 6.2                                                                                                                                                             | Conduct of Testing ...........................................................................................................................................     |  13 |
+| 6.3                                                                                                                                                             | Independent Functional Testing ........................................................................................................................            |  13 |
+| 6.3.1 Functional Test Results ................................................................................................................................. | 6.3.1 Functional Test Results .................................................................................................................................    |  13 |
+| 6.4 Independent Penetration Testing .......................................................................................................................     | 6.4 Independent Penetration Testing .......................................................................................................................        |  14 |
+| 6.4.1 Penetration Test results ................................................................................................................................ | 6.4.1 Penetration Test results ................................................................................................................................    |  14 |
+| Results of the Evaluation ..........................................................................................................................            | Results of the Evaluation ..........................................................................................................................               |  15 |
+| 7.1                                                                                                                                                             | Recommendations/Comments ..........................................................................................................................                |  15 |
+| Supporting Content ..................................................................................................................................           | Supporting Content ..................................................................................................................................              |  16 |
+| 8.1                                                                                                                                                             | List of Abbreviations.........................................................................................................................................     |  16 |
+| 8.2                                                                                                                                                             | References ....................................................................................................................................................... |  16 |
+
+4
+
+UNCLASSIFIED
+
+## LIST OF FIGURES
+
+|          | TOE Architecture .................................................................................................................................................. 8   |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| LIST     | OF TABLES                                                                                                                                                               |
+| Table 1: | TOE Identification ................................................................................................................................................ 7   |
+| Table 2: | Cryptographic Implementation(s) ......................................................................................................................... 9             |
+
+UNCLASSIFIED
+
+## EXECUTIVE SUMMARY
+
+The Dell EMC™ Isilon with OneFS v8.2.0.0 (hereafter referred to as the Target of Evaluation, or TOE), from Dell EMC , was the subject of this Common Criteria evaluation. A description of the TOE can be found in Section 1.2.  The results of this evaluation demonstrate that the TOE meets the requirements of the conformance claim listed in Table 1 for the evaluated security functionality.
+
+EWA-Canada is the CCEF that conducted the evaluation. This evaluation was completed on 31 January 2020 and was carried out in accordance with the rules of the Canadian Common Criteria Scheme.
+
+The scope of the evaluation is defined by the Security Target, which identifies assumptions made during the evaluation, the intended environment for TOE, and the security functional/assurance requirements.  Consumers are advised to verify that their operating environment is consistent with that specified in the security target, and to give due consideration to the comments, observations and recommendations in this Certification Report.
+
+The Canadian Centre for Cyber Security, as the Certification Body, declares that this evaluation meets all the conditions of the Arrangement on the Recognition of Common Criteria Certificates and that the product is listed on the Certified Products list (CPL) for the Canadian CC Scheme and the Common Criteria portal (the official website of the International Common Criteria Project).
+
+UNCLASSIFIED
+
+## 1 IDENTIFICATION OF TARGET OF EVALUATION
+
+The Target of Evaluation (TOE) is identified as follows:
+
+Table 1:
+
+TOE Identification
+
+| TOE Name and Version   | Dell EMC™ Isilon with OneFS v8.2.0.0   |
+|------------------------|----------------------------------------|
+| Developer              | Dell EMC                               |
+
+## 1.1 COMMON CRITERIA CONFORMANCE
+
+The evaluation was conducted using the Common Methodology for Information Technology Security Evaluation, Version 3.1 Revision 5, for conformance to the Common Criteria for Information Technology Security Evaluation, Version 3.1 Revision 5.
+
+The TOE claims the following conformance;
+
+EAL 2+ (ALC_FLR.2)
+
+## 1.2 TOE DESCRIPTION
+
+The TOE is a data storage solution that combines the three layers of traditional storage architectures (file system, volume manager, and data protection) into a unified software layer, creating a single distributed file system that runs on an Isilon storage cluster, and eliminates the need for volume management.
+
+The TOE provides controlled access to data accessed over Server Message Block (SMB), Network File System (NFS) and Hadoop Distributed File System (HDFS) protocols. Physical and logical access may be restricted to identified groups or departments within the organization.
+
+UNCLASSIFIED
+
+## 1.3 TOE ARCHITECTURE
+
+A diagram of the TOE architecture is as follows:
+
+TOE Architecture
+
+UNCLASSIFIED
+
+## 2 SECURITY POLICY
+
+The TOE implements policies pertaining to the following security functional classes:
+
+-  Security Audit
+-  Cryptographic Support
+-  User Data Protection
+-  Identification and Authentication
+-  Security Management
+-  Protection of the TSF
+-  TOE Access
+-  Trusted Path/Channel
+
+Complete details of the security functional requirements (SFRs) can be found in the Security Target (ST) referenced in section 8.2.
+
+## 2.1 CRYPTOGRAPHIC FUNCTIONALITY
+
+The following cryptographic implementations have been evaluated by the CAVP/CMVP and are used by the TOE:
+
+| Cryptographic Module/Algorithm    | Certificate Number   |
+|-----------------------------------|----------------------|
+| OpenSSL FIPS Object Module v2.0.8 | #1747                |
+
+Table 2: Cryptographic Implementation(s)
+
+UNCLASSIFIED
+
+## 3 ASSUMPTIONS AND CLARIFICATION OF SCOPE
+
+Consumers of the TOE should consider assumptions about usage and environmental settings as requirements for the product's installation and its operating environment. This will ensure the proper and secure operation of the TOE.
+
+## 3.1 USAGE AND ENVIRONMENTAL ASSUMPTIONS
+
+The following assumptions are made regarding the use and deployment of the TOE:
+
+-  Data path users are identified and authenticated prior to gaining access to the TOE.
+-  The TOE will be located within controlled access facilities, which will prevent unauthorized physical access.
+-  There are one or more competent individuals assigned to manage the TOE. These administrators are not careless, wilfully negligent, or hostile, are appropriately trained and will follow the instructions provided by the TOE documentation.
+
+## 3.2 CLARIFICATION OF SCOPE
+
+The following features are supported, but were not examined as part of this evaluation:
+
+-  Support for NFS v4
+-  A description of how the access control decisions are executed in a mixed permission environment is available in the Isilon OneFS Version 8.2.0 Web Administration Guide; however, this is outside the scope of this evaluation
+
+UNCLASSIFIED
+
+## 4 EVALUATED CONFIGURATION
+
+The evaluated configuration for the TOE comprises:
+
+The TOE Firmware (8.2.0.0.011 with Patches 254792, 257595, and 257593) running on the following models;
+
+-  X210
+-  X410
+-  NL410
+-  HD400
+-  S210
+-  A200
+-  A2000
+-  H400
+-  H500
+-  H600
+-  F800
+
+With support from the environment for;
+
+-  Active Directory
+
+## 4.1 DOCUMENTATION
+
+The following documents are provided to the consumer to assist in the configuration and installation of the TOE:
+
+- a) Generation 6 Site Preparation and Planning Guide, June 2019
+- b) Isilon OneFS Version 8.2.0 CLI Administration Guide, June 2019
+- c) Isilon OneFS Version 8.2.0 Web Administration Guide, May 2019
+- d) Isilon OneFS 8.2.0 Security Configuration Guide, Version 8.2.0, Security Configuration Guide, May 2019
+- e) Isilon OneFS Version 8.2 Event Reference, May 2019
+
+UNCLASSIFIED
+
+## 5 EVALUATION ANALYSIS ACTIVITIES
+
+The evaluation analysis activities involved a structured evaluation of the TOE.  Documentation and process dealing with Development, Guidance Documents, and Life-Cycle Support were evaluated.
+
+## 5.1 DEVELOPMENT
+
+The evaluators analyzed the documentation provided by the vendor; they determined that the design completely and accurately describes the TOE security functionality (TSF) interfaces and how the TSF implements the security functional requirements. The evaluators determined that the initialization process is secure, that the security functions are protected against tamper and bypass, and that security domains are maintained.
+
+## 5.2 GUIDANCE DOCUMENTS
+
+The evaluators examined the TOE preparative user guidance and operational user guidance and determined that it sufficiently and unambiguously describes how to securely transform the TOE into its evaluated configuration and how to use and administer the product. The evaluators examined and tested the preparative and operational guidance, and determined that they are complete and sufficiently detailed to result in a secure configuration.
+
+Section 4.1 provides details on the guidance documents.
+
+## 5.3 LIFE-CYCLE SUPPORT
+
+An analysis of the TOE configuration management system and associated documentation was performed. The evaluators found that the TOE configuration items were clearly marked.
+
+The evaluators examined the delivery documentation and determined that it described all of the procedures required to maintain the integrity of the TOE during distribution to the consumer.
+
+UNCLASSIFIED
+
+## 6 TESTING ACTIVITIES
+
+Testing consists of the following three steps: assessing developer tests, performing independent functional tests, and performing penetration tests.
+
+## 6.1 ASSESSMENT OF DEVELOPER TESTS
+
+The evaluators verified that the developer has met their testing responsibilities by examining their test evidence, and reviewing their test results, as documented in the Evaluation Test Report (ETR). The correspondence between the tests identified in the developer's test documentation and the functional specification was complete.
+
+## 6.2 CONDUCT OF TESTING
+
+The TOE was subjected to a comprehensive suite of formally documented, independent functional and penetration tests. The detailed testing activities, including configurations, procedures, test cases, expected results and observed results are documented in a separate Test Results document.
+
+## 6.3 INDEPENDENT FUNCTIONAL TESTING
+
+During this evaluation, the evaluator developed independent functional tests by examining design and guidance documentation.
+
+All testing was planned and documented to a sufficient level of detail to allow repeatability of the testing procedures and results. The following testing activities were performed:
+
+- a. Repeat of Developer's Tests:  The evaluator repeated a subset of the developer's tests;
+- b. Verification of the cryptographic implementation:  The evaluator verified that the claimed cryptographic implementation was present in the TOE;
+- c. NFS shares access control:  The evaluator verified the access control permissions applied to exports are enforced; and
+- d. Cluster settings:  The evaluator verified that cluster changes are propagated to all nodes in the cluster.
+
+## 6.3.1 FUNCTIONAL TEST RESULTS
+
+T he developer's tests and the independent functional tests yielded the expected results, providing assurance that the TOE behaves as specified in its ST and functional specification.
+
+UNCLASSIFIED
+
+## 6.4 INDEPENDENT PENETRATION TESTING
+
+Subsequent to the independent review of public domain vulnerability databases and all evaluation deliverables, limited independent evaluator penetration testing was conducted. The penetration tests focused on:
+
+- a) Use of automated vulnerability scanning tools to discover potential network, platform and application layer vulnerabilities such as Heartbleed, Shellshock, FREAK, POODLE, and GHOST;
+
+## 6.4.1 PENETRATION TEST RESULTS
+
+The independent penetration testing did not uncover any exploitable vulnerabilities in the intended operating environment.
+
+UNCLASSIFIED
+
+## 7 RESULTS OF THE EVALUATION
+
+This evaluation has provided the basis for the conformance claim documented in Table 1. The overall verdict for this evaluation is PASS .  These results are supported by evidence in the ETR.
+
+The Information Technology (IT) product identified in this certification report, and its associated certificate, has been evaluated at an approved evaluation facility established under the Canadian Centre for Cyber Security (CCCS). This certification report, and its associated certificate, apply only to the specific version and release of the product in its evaluated configuration.
+
+The evaluation has been conducted in accordance with the provisions of the Canadian Common Criteria Scheme and the conclusions of the evaluation facility in the evaluation report are consistent with the evidence adduced. This is not an endorsement of the IT product by CCCS or by any other organization that recognizes or gives effect to this certificate, and no warranty of the IT product by CCCS or by any other organization that recognizes or gives effect to this certificate, is expressed or implied.
+
+## 7.1 RECOMMENDATIONS/COMMENTS
+
+It is recommended that all guidance outlined in Section 4.1 be followed to configure the TOE in the evaluated configuration.
+
+UNCLASSIFIED
+
+## 8 SUPPORTING CONTENT
+
+## 8.1 LIST OF ABBREVIATIONS
+
+| Term   | Definition                                 |
+|--------|--------------------------------------------|
+| CAVP   | Cryptographic Algorithm Validation Program |
+| CCEF   | Common Criteria Evaluation Facility        |
+| CM     | Configuration Management                   |
+| CMVP   | Cryptographic Module Validation Program    |
+| CSE    | Communications Security Establishment      |
+| CCCS   | Canadian Centre for Cyber Security         |
+| EAL    | Evaluation Assurance Level                 |
+| ETR    | Evaluation Technical Report                |
+| GC     | Government of Canada                       |
+| HDFS   | Hadoop Distributed File System             |
+| IT     | Information Technology                     |
+| ITS    | Information Technology Security            |
+| NFS    | Network File System                        |
+| PP     | Protection Profile                         |
+| SFR    | Security Functional Requirement            |
+| SMB    | Server Message Block                       |
+| ST     | Security Target                            |
+| TOE    | Target of Evaluation                       |
+| TSF    | TOE Security Function                      |
+
+## 8.2 REFERENCES
+
+| Reference                                                                                                   |
+|-------------------------------------------------------------------------------------------------------------|
+| Common Criteria for Information Technology Security Evaluation, Version 3.1 Revision 5, April 2017.         |
+| Common Methodology for Information Technology Security Evaluation, CEM, Version 3.1 Revision 5, April 2017. |
+| Security Target for Dell EMC™ Isilon with OneFS 8.2.0.0, v1.3, 22 October 2019 .                            |
+| Evaluation Technical Report for Dell EMC™ Isilon with OneFS 8.2.0. 0, v1.1, 31 January 2020.                |

@@ -1,3 +1,5 @@
+import importlib
+import locale
 from collections.abc import Generator
 from importlib.resources import as_file, files
 from pathlib import Path
@@ -6,7 +8,9 @@ import pytest
 import tests.data.cc.frontpage
 
 from sec_certs import constants
-from sec_certs.utils.frontpage import NSCIBFrontpageParser
+from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
+from sec_certs.utils.frontpage import canada as canada_module
+from sec_certs.utils.frontpage.nscib import _organization_of
 
 
 @pytest.fixture(scope="module")
@@ -76,7 +80,6 @@ def test_nscib_structured(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Pat
 
 
 def test_nscib_converters_agree_on_hyphenated_project_number(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path):
-    """Docling breaks ``NSCIB-2400046-01`` after the hyphen; the break must not reach the value."""
     pdftotext = nscib_parser.parse(frontpage_dir / "pdftotext" / "nscib_report_trustcb.txt")
     docling = nscib_parser.parse(frontpage_dir / "docling" / "nscib_report_trustcb.txt")
 
@@ -154,13 +157,12 @@ def test_nscib_colon_in_certified_item_is_not_a_label(nscib_parser: NSCIBFrontpa
         ("AKD D.O.O. Savska cesta 31, 10 000 Zagreb", "AKD D.O.O."),
         ("Cisco Systems, Inc. 170 West Tasman Drive 95134 San Jose, CA USA", "Cisco Systems, Inc."),
         ("SGS Brightsight B.V. Brassersplein 2 2612 CT Delft The Netherlands", "SGS Brightsight B.V."),
-        # No legal form to anchor on, and the house number is glued to the city name.
         ("Entrust Minneapolis1187 Park Place Shakopee, MN 55379 USA", "Entrust"),
         ("Brightsight", "Brightsight"),
     ],
 )
-def test_nscib_organisation_trimmed_off_merged_address(nscib_parser: NSCIBFrontpageParser, merged: str, expected: str):
-    assert nscib_parser._organisation_of(merged) == expected
+def test_nscib_organization_trimmed_off_merged_address(merged: str, expected: str):
+    assert _organization_of(merged) == expected
 
 
 def test_nscib_soft_hyphen_in_prose_is_dropped(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
@@ -184,7 +186,6 @@ def test_nscib_unbalanced_parenthesis_is_still_trimmed(nscib_parser: NSCIBFrontp
 
 
 def test_nscib_address_trimmed_when_label_and_value_share_a_block(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
-    """Docling sometimes merges the label, the organization and its address into one block."""
     report = tmp_path / "merged_label.txt"
     report.write_text(
         "\n".join(
@@ -229,8 +230,273 @@ def test_nscib_fields_survive_a_missing_cert_id(nscib_parser: NSCIBFrontpagePars
     assert items[constants.TAG_CERT_ITEM] == "Acme SecureCore"
 
 
+def test_nscib_scheme_prefixed_title_is_recognized(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "eucc_title.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "EUCC Certification Report",
+                "ZTE OTN Solution v1.10",
+                "Sponsor and developer: ZTE Corporation",
+                "Report number: EUCC-3110-2026-2500102-01",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    items = nscib_parser.parse(report)
+
+    assert items[constants.TAG_CERT_ITEM] == "ZTE OTN Solution v1.10"
+    assert items[constants.TAG_DEVELOPER] == "ZTE Corporation"
+
+
+def test_nscib_reference_line_is_not_a_title(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
+    report = tmp_path / "reference_line.txt"
+    report.write_text(
+        "\n".join(
+            [
+                "TNO CERTIFICATION",
+                "NSCIB-CC-05-6609 Certification Report",
+                "Laan van Westenenk 501 P.O. Box 541 7300 AM Apeldoorn",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert nscib_parser.parse(report) == {}
+
+
 def test_nscib_non_report_yields_nothing(nscib_parser: NSCIBFrontpageParser, tmp_path: Path):
     not_a_report = tmp_path / "empty.txt"
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
 
     assert nscib_parser.parse(not_a_report) == {}
+
+
+@pytest.fixture(scope="module")
+def canada_parser() -> CanadaFrontpageParser:
+    return CanadaFrontpageParser()
+
+
+CANADA_HSL_EXPECTED = {
+    constants.TAG_CERT_ID: "544-EWA",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: (
+        "High Sec Labs SK21PH-4, SK41PH-4, DK22PH-4, DK42PH-4, SK81PH-4, DK82PH-4, SX42PH-4, SX82PH-4 "
+        "Firmware Version 44404-E7E7 Peripheral Sharing Devices"
+    ),
+    constants.TAG_REPORT_DATE: "20 November 2023",
+}
+
+CANADA_THYCOTIC_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-445",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "Thycotic Secret Server Government Edition v10.0",
+    constants.TAG_REPORT_VERSION: "1.1",
+    constants.TAG_REPORT_DATE: "23 October 2018",
+}
+
+CANADA_MCAFEE_HERCULES_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-88-CR",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "McAfee® Hercules® Policy Auditor v4.5 and McAfee® Hercules® Remediation Manager v4.5",
+    constants.TAG_REPORT_VERSION: "1.1",
+    constants.TAG_REPORT_DATE: "11 April 2008",
+}
+
+CANADA_NETAPP_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-263-CR",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "NetApp Clustered Data ONTAP® 8.2.1",
+    constants.TAG_REPORT_VERSION: "1.0",
+    constants.TAG_REPORT_DATE: "5 January 2015",
+}
+
+CANADA_REPORTS = [
+    ("canada_report_hsl", CANADA_HSL_EXPECTED),
+    ("canada_report_thycotic", CANADA_THYCOTIC_EXPECTED),
+    ("canada_report_mcafee_hercules", CANADA_MCAFEE_HERCULES_EXPECTED),
+    ("canada_report_netapp", CANADA_NETAPP_EXPECTED),
+]
+
+
+@pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
+def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == expected
+
+
+@pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
+def test_canada_structured(
+    canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]
+):
+    items = canada_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == expected
+
+
+def test_canada_further_template(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_mcafee.txt")
+
+    assert items[constants.TAG_CERT_ID] == "383-4-396"
+    assert items[constants.TAG_CERT_LAB] == "CANADA"
+    assert items[constants.TAG_CERT_ITEM] == (
+        "McAfee Threat Intelligence Exchange 2.0.0 and Data Exchange Layer 3.0.0 with ePolicy Orchestrator 5.3.2"
+    )
+    assert items[constants.TAG_REPORT_VERSION] == "1.0"
+    assert items[constants.TAG_REPORT_DATE] == "30 November 2016"
+
+
+CANADA_DELL_EXPECTED = {
+    constants.TAG_CERT_ID: "383-4-480",
+    constants.TAG_CERT_LAB: "CANADA",
+    constants.TAG_CERT_ITEM: "Dell EMC™ Isilon with OneFS v8.2.0.0",
+    constants.TAG_DEVELOPER: "Dell EMC",
+    constants.TAG_REPORT_VERSION: "1.0",
+    constants.TAG_REPORT_DATE: "31 January 2020",
+}
+
+
+def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(
+        frontpage_dir / "docling" / "canada_report_dell.txt", frontpage_dir / "docling" / "canada_report_dell.json"
+    )
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == CANADA_DELL_EXPECTED
+
+
+def test_canada_text_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(frontpage_dir / "pdftotext" / "canada_report_dell.txt")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == CANADA_DELL_EXPECTED
+
+
+def test_canada_text_developer_under_wrapped_product_name(canada_parser: CanadaFrontpageParser):
+    text = (
+        "COMMON CRITERIA CERTIFICATION REPORT\nMarket Central SecureSwitch® Fiber Optic\nSwitch Models: A, B\n"
+        "Market Central, Inc.\n25 June 2020\n383-4-506\nV1.0\n"
+    )
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert items[constants.TAG_DEVELOPER] == "Market Central, Inc"
+    assert items[constants.TAG_CERT_ITEM] == "Market Central SecureSwitch® Fiber Optic Switch Models: A, B"
+
+
+def test_canada_text_wrapped_product_name_starting_like_it_is_not_a_developer(canada_parser: CanadaFrontpageParser):
+    text = (
+        "COMMON CRITERIA CERTIFICATION REPORT\nMcAfee Threat Intelligence Exchange 2.0.0 and\n"
+        "McAfee Data Exchange Layer\n30 November 2016\n383-4-396\n"
+    )
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert constants.TAG_DEVELOPER not in items
+    assert items[constants.TAG_CERT_ITEM] == (
+        "McAfee Threat Intelligence Exchange 2.0.0 and McAfee Data Exchange Layer"
+    )
+
+
+def test_canada_report_version_ignores_product_version(canada_parser: CanadaFrontpageParser):
+    text = "COMMON CRITERIA CERTIFICATION REPORT\nFortiManager 6.2\n7 November 2022\n573-LSS\n"
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert items[constants.TAG_CERT_ITEM] == "FortiManager 6.2"
+    assert constants.TAG_REPORT_VERSION not in items
+
+
+def _docling_document(blocks: list[str]) -> dict:
+    return {"texts": [{"text": block} for block in blocks]}
+
+
+def test_canada_title_keeps_all_caps_product_words(canada_parser: CanadaFrontpageParser):
+    text = "COMMON CRITERIA CERTIFICATION REPORT\nIBM Security QRadar 7.4\n31 January 2020\n383-4-480\n"
+
+    items = canada_parser.parse_text(text.replace("\n", " "), text)
+
+    assert items[constants.TAG_CERT_ITEM] == "IBM Security QRadar 7.4"
+    assert items[constants.TAG_REPORT_DATE] == "31 January 2020"
+
+
+def test_canada_structured_wrapped_product_name_is_not_a_developer(canada_parser: CanadaFrontpageParser):
+    items = canada_parser.parse_structured(
+        _docling_document(
+            [
+                "COMMON CRITERIA CERTIFICATION REPORT",
+                "High Sec Labs SK21PH-4, SK41PH-4",
+                "Firmware Version 44404-E7E7 Peripheral Sharing Devices",
+                "20 November 2023",
+                "544-EWA",
+            ]
+        )
+    )
+
+    assert constants.TAG_DEVELOPER not in items
+    assert items[constants.TAG_CERT_ITEM] == (
+        "High Sec Labs SK21PH-4, SK41PH-4 Firmware Version 44404-E7E7 Peripheral Sharing Devices"
+    )
+
+
+def test_canada_structured_developer_by_legal_form(canada_parser: CanadaFrontpageParser):
+    items = canada_parser.parse_structured(
+        _docling_document(
+            ["COMMON CRITERIA CERTIFICATION REPORT", "FortiGate 7.0", "Fortinet, Inc.", "31 January 2020", "383-4-480"]
+        )
+    )
+
+    assert items[constants.TAG_DEVELOPER] == "Fortinet, Inc"
+    assert items[constants.TAG_CERT_ITEM] == "FortiGate 7.0"
+
+
+def test_canada_structured_legacy_issued_by_is_not_a_developer(canada_parser: CanadaFrontpageParser):
+    items = canada_parser.parse_structured(
+        _docling_document(
+            [
+                "Certification Report",
+                "NetApp Clustered Data ONTAP® 8.2.1",
+                "Issued by:",
+                "Communications Security Establishment Certification Body Document number : 383-4-263-CR",
+            ]
+        )
+    )
+
+    assert constants.TAG_DEVELOPER not in items
+    assert items[constants.TAG_CERT_ITEM] == "NetApp Clustered Data ONTAP® 8.2.1"
+
+
+def test_canada_date_parsing_ignores_process_locale():
+    try:
+        locale.setlocale(locale.LC_ALL, "cs_CZ.UTF-8")
+    except locale.Error:
+        pytest.skip("cs_CZ.UTF-8 locale not installed")
+
+    try:
+        text = "COMMON CRITERIA CERTIFICATION REPORT\nThycotic Secret Server v10.0\n23 October 2018\n383-4-445\n"
+        items = importlib.reload(canada_module).CanadaFrontpageParser().parse_text(text.replace("\n", " "), text)
+    finally:
+        locale.setlocale(locale.LC_ALL, "C")
+        importlib.reload(canada_module)
+
+    assert items[constants.TAG_REPORT_DATE] == "23 October 2018"
+    assert items[constants.TAG_CERT_ITEM] == "Thycotic Secret Server v10.0"
+
+
+def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(frontpage_dir / "docling" / "canada_report_hsl.txt")
+
+    assert items == {}
+
+
+def test_canada_non_report_yields_nothing(canada_parser: CanadaFrontpageParser, tmp_path: Path):
+    not_a_report = tmp_path / "empty.txt"
+    not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
+
+    assert canada_parser.parse(not_a_report) == {}
