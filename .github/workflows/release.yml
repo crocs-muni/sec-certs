@@ -32,6 +32,13 @@ jobs:
       name: dockerhub
       url: https://hub.docker.com/r/seccerts/sec-certs/
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: slim
+            suffix: ""
+          - target: jupyter
+            suffix: "-jupyter"
     if: github.repository == 'crocs-muni/sec-certs'
     steps:
       - name: Check out the repo
@@ -52,6 +59,8 @@ jobs:
         uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: seccerts/sec-certs
+          flavor: |
+            suffix=${{ matrix.suffix }}, onlatest=true
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
@@ -60,8 +69,12 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: Dockerfile
           push: true
+          target: ${{ matrix.target }}
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS=${{ github.event.release.tag_name }}
       - name: Update dockerhub description
+        if: ${{ matrix.target == 'slim' }}
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
