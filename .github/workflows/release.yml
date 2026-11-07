@@ -60,8 +60,7 @@ jobs:
         with:
           images: seccerts/sec-certs
           flavor: |
-            suffix=${{ matrix.suffix }}
-            onlatest=true
+            suffix=${{ matrix.suffix }}, onlatest=true
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
