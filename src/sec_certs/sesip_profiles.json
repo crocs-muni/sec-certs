@@ -108,6 +108,17 @@
     "psa_rot_component": false
   },
   {
+    "family": "PSA Certified RoT Component Level 4",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?RoT\\s*Component\\s*Level\\s*4",
+    "issuer": "PSA Certified",
+    "doc_ids": [
+      "JSADEN023"
+    ],
+    "url": "https://www.psacertified.org/development-resources/certification-resources/",
+    "psa_level": 4,
+    "psa_rot_component": true
+  },
+  {
     "family": "PSA Certified RoT Component Level 2",
     "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?RoT\\s*Component\\s*Level\\s*2",
     "issuer": "PSA Certified",
