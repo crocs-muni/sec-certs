@@ -317,7 +317,7 @@ class SESIPCertificate(
         cert.pdf_data.st_sections = None
         try:
             cert.pdf_data.st_sections = _st_sections(get_view(cert.state.st))
-        except (OSError, ValueError) as e:
+        except Exception as e:
             logger.error(f"Cert dgst: {cert.dgst} failed to read the sections of the security target: {e}")
             cert.state.st.extract_ok = False
         return cert
