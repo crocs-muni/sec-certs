@@ -1,15 +1,16 @@
 import pytest
 
-from sec_certs.cert_rules import cc_rules, fips_rules, rules
+from sec_certs.cert_rules import cc_rules, fips_rules, rules, sesip_rules
 from sec_certs.utils.helpers import choose_lowest_eal
 
 
 def test_rules():
     assert "cc_cert_id" in cc_rules
     assert "fips_cert_id" in fips_rules
+    assert "cc_sar" in sesip_rules
     for rule_group in rules:
-        if rule_group not in ("cc_rules", "fips_rules", "cc_filename_cert_id", "eucc_cert_id"):
-            assert rule_group in cc_rules or rule_group in fips_rules
+        if rule_group not in ("cc_rules", "fips_rules", "sesip_rules", "cc_filename_cert_id", "eucc_cert_id"):
+            assert rule_group in cc_rules or rule_group in fips_rules or rule_group in sesip_rules
 
 
 @pytest.mark.parametrize(
