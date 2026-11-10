@@ -82,8 +82,8 @@ _ST_SECTIONS: Final[dict[str, re.Pattern[str]]] = {
     key: re.compile(pattern, re.IGNORECASE)
     for key, pattern in {
         "introduction": r"introduction",
-        "st_reference": r"(security\s+target|st)\s+reference",
-        "profile_reference": r"sesip\s+profile\s+reference|(?<!other\s)conformance\s+claims?",
+        "st_reference": r"(security\s+target|\bst)\s+reference",
+        "profile_reference": r"^(?:sesip\s+|protection\s+)?profile\s+(?:reference|and\s+conformance)|^conformance\s+claims?",
         "platform_reference": r"(platform|toe)\s+references?",
         "guidance": r"included\s+guidance",
         "overview": r"(platform|toe)\b.{0,30}overview",
