@@ -63,7 +63,7 @@
   },
   {
     "family": "PSA Certified Level 2",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*2(?!\\s*ARoT)|ARM PSA L2",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*2(?!\\s*A?RoT)|ARM PSA L2",
     "issuer": "PSA Certified",
     "doc_ids": [
       "JSADEN012",
@@ -75,7 +75,7 @@
   },
   {
     "family": "PSA Certified Level 3",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*3(?!\\s*iSE)",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?Level\\s*3(?!\\s*(?:iSE|RoT))",
     "issuer": "PSA Certified",
     "doc_ids": [
       "JSADEN011",
@@ -98,7 +98,7 @@
   },
   {
     "family": "PSA Certified Level 4 iSE/SE",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:\\w+\\W+)?Level\\s*4",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:\\w+\\W+)?Level\\s*4(?!\\s*RoT)",
     "issuer": "PSA Certified",
     "doc_ids": [
       "JSADEN023"
@@ -109,7 +109,7 @@
   },
   {
     "family": "PSA Certified RoT Component Level 4",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?RoT\\s*Component\\s*Level\\s*4",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:4\\W*)?(?:RoT\\s*Component\\s*Level\\s*4|Level\\s*4\\s*RoT\\s*Component)",
     "issuer": "PSA Certified",
     "doc_ids": [
       "JSADEN023"
@@ -120,7 +120,7 @@
   },
   {
     "family": "PSA Certified RoT Component Level 2",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?RoT\\s*Component\\s*Level\\s*2",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:RoT\\s*Component\\s*Level\\s*2|Level\\s*2\\s*RoT\\s*Component)",
     "issuer": "PSA Certified",
     "doc_ids": [
       "JSADEN017"
@@ -131,7 +131,7 @@
   },
   {
     "family": "PSA Certified RoT Component Level 3",
-    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:3\\W*)?RoT\\s*Component\\s*Level\\s*3",
+    "pattern": "PSA\\s*Certified\\W*(?:TM\\W*)?(?:3\\W*)?(?:RoT\\s*Component\\s*Level\\s*3|Level\\s*3\\s*RoT\\s*Component)",
     "issuer": "PSA Certified",
     "doc_ids": [
       "JSADEN018"
