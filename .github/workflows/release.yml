@@ -33,12 +33,15 @@ jobs:
       url: https://hub.docker.com/r/seccerts/sec-certs/
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - target: slim
             suffix: ""
           - target: jupyter
             suffix: "-jupyter"
+          - target: docling
+            suffix: "-docling"
     if: github.repository == 'crocs-muni/sec-certs'
     steps:
       - name: Check out the repo
