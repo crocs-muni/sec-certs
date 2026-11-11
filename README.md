@@ -24,7 +24,19 @@ Three publications accompany this project:
 
 ## Installation
 
-Use Docker with `docker pull seccerts/sec-certs` or just `pip install -U sec-certs && python -m spacy download en_core_web_sm`. For more elaborate description, see [docs](https://sec-certs.org/docs/installation.html).
+sec-certs requires Python 3.10+ and is published on [PyPI](https://pypi.org/project/sec-certs/), so you can install it with any Python package manager, e.g.:
+
+```bash
+pip install -U sec-certs   # pip
+uv add sec-certs           # uv, in a uv project
+```
+
+- One of the dependencies (`pdftotext`) is compiled during installation, so you need Poppler and a C++ compiler first, see [dependencies](https://sec-certs.org/docs/installation.html#dependencies).
+- To convert PDFs with [Docling](https://github.com/docling-project/docling) instead of pdftotext, install the `docling` extra (`sec-certs[docling]`).
+
+Alternatively, use Docker, where everything is already set up: `docker pull seccerts/sec-certs`. There are also variants with JupyterLab and the example notebooks (`seccerts/sec-certs:latest-jupyter`) and with Docling (`seccerts/sec-certs:latest-docling`).
+
+For more details, see the [installation docs](https://sec-certs.org/docs/installation.html).
 
 ## Usage
 
