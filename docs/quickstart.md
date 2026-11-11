@@ -3,7 +3,7 @@
 ::::{tab-set}
 
 :::{tab-item} Common Criteria
-1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
+1. Install sec-certs, e.g. with `pip install -U sec-certs` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
 from sec_certs.dataset.cc import CCDataset
@@ -16,7 +16,7 @@ to obtain the freshly processed dataset from [sec-certs.org](https://sec-certs.o
 :::
 
 :::{tab-item} FIPS 140
-1. Install the latest version with `pip install -U sec-certs && python -m spacy download en_core_web_sm` (see [installation](installation.md)).
+1. Install sec-certs, e.g. with `pip install -U sec-certs` (see [installation](installation.md)).
 2. In your Python interpreter, type
 ```python
 from sec_certs.dataset.fips import FIPSDataset
@@ -49,33 +49,57 @@ $ sec-certs fips all
 :::
 ::::
 
-This script takes a long time to run (few hours) and will create `./cc_dset` or `./fips_dset` directory. To see all options, call the entrypoint with `--help`.
+This takes a long time to run (a few hours) and stores the results in the `./dataset` directory; use `-o` to choose a different one. To see all options, run `sec-certs --help`.
 
-## Run sec-certs from docker
+## Run sec-certs from Docker
 
-If you installed the docker image (see [installation](installation.md)), use `docker run -it seccerts/sec-certs` to run the container interactively. From there, you can run the `sec-certs` CLI. Alternatively, you can serve a Jupyter notebook from the docker to use at your host machine and even write your scripts to some shared folder. Example of that use-case follows.
+If you installed the Docker image (see [installation](installation.md)), run the container interactively with
 
-### Persistent files with docker mounts
+```bash
+docker run -it seccerts/sec-certs
+```
 
-It may be handy to create a shared folder between your host machine and the docker image, especially for the artifacts of sec-certs analysis. This can be achieved either by [docker volumes](https://docs.docker.com/storage/volumes/) or [docker bind mounts](https://docs.docker.com/storage/bind-mounts/). An example follows that achieves a shared folder writable from the container.
+It starts a shell, from which you can run the `sec-certs` CLI. You can also run a single command directly, e.g.
+
+```bash
+docker run --rm seccerts/sec-certs sec-certs --help
+```
+
+### Persistent files with Docker mounts
+
+Files created in the container are lost when it's removed. To keep them, share a folder between your machine and the container with a [bind mount](https://docs.docker.com/storage/bind-mounts/) or a [volume](https://docs.docker.com/storage/volumes/):
 
 ```bash
 mkdir seccerts-data && \
-docker run -it \
+docker run -it -w /home/user/data \
 --mount type=bind,source="$(pwd)"/seccerts-data/,target=/home/user/data \
 seccerts/sec-certs
 ```
 
-The folder should be accessible on your machine on `./seccerts-data` path; from docker on `/home/user/data` path.
+The folder is available as `./seccerts-data` on your machine and as `/home/user/data` in the container. With `-w`, the container starts in that folder, so `sec-certs cc all` stores its `./dataset` directory and its log there.
 
-### Run jupyter notebook with sec-certs from Docker
+The container runs as a user with UID 1000. If your user on the host has a different UID and the container can't write to the folder, add `--user "$(id -u):$(id -g)"`. Keep the `-w /home/user/data` in that case, because that user can't write to `/home/user`.
 
-You can also use our docker image to serve `jupyter notebook` instance that you can access from your device. Run
+### Run JupyterLab with sec-certs from Docker
+
+The Jupyter variant of the image starts JupyterLab with sec-certs and the example notebooks. Run
 
 ```bash
-docker run --rm -it -p 8888:8888 \
-seccerts/sec-certs jupyter notebook \
---no-browser --ip 0.0.0.0 --NotebookApp.token='' --notebook-dir="/home/user/"
+docker run --rm -p 8888:8888 seccerts/sec-certs:latest-jupyter
 ```
 
-Now, you should be able to access the notebook at `localhost:8888` from your machine. Navigate to `/home/user/sec-certs/notebooks/examples` to see some example notebooks.
+and open the `http://127.0.0.1:8888/lab?token=...` link printed in the output. The example notebooks are in the `notebooks/examples` folder. If you need more packages for your analysis, install them with `%pip install` from a notebook.
+
+The container is removed when it stops (`--rm`), so to keep your work, add the `--mount` option from above and save your files in the `data` folder.
+
+### Convert PDFs with Docling from Docker
+
+The Docling variant of the image converts PDFs with [Docling](https://github.com/docling-project/docling) instead of pdftotext. Otherwise it's used the same way as the default image:
+
+```bash
+docker run -it seccerts/sec-certs:latest-docling
+```
+
+The Docling models are part of the image, so the conversion doesn't download anything and works offline. To switch back to pdftotext in this image, add `-e SECCERTS_PDF_CONVERTER=pdftotext` to the command.
+
+Docling runs on the CPU by default. On a Linux machine with an NVIDIA GPU, add `--gpus all` to the command to use the GPU. This needs the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) and an NVIDIA driver version 580 or newer. Docker on macOS can't use the GPU, so there the conversion always runs on the CPU.
