@@ -109,6 +109,9 @@ def _st_sections(view: DocumentView) -> dict[str, str] | None:
         for key, pattern in _ST_SECTIONS.items():
             if key not in found and pattern.search(title):
                 found[key] = heading
+                if key == "requirements":
+                    # SFRs are inside, not in overview
+                    found.pop("sfr", None)
     return found or None
 
 
