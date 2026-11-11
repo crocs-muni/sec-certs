@@ -29,9 +29,9 @@ Requirements are maintained via [uv](https://docs.astral.sh/uv/). The main ideas
 
 - Version string is not indexed in `git` but can be retreived maintained by `setuptools-scm` from git tags instead.
 - `setuptools-scm` will automatically, upon editable/real install of a package, infer its version and write it to `sec_certs/_version.py`. This file is not indexed as well. See more at [setuptools-scm GitHub](https://github.com/pypa/setuptools_scm)
-- On publishing a release, the tool is automatically published to [PyPi](https://pypi.org/project/sec-certs/) and [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs).
+- On publishing a release, the tool is automatically published to [PyPi](https://pypi.org/project/sec-certs/) and [DockerHub](https://hub.docker.com/repository/docker/seccerts/sec-certs) (images `<version>`, `<version>-jupyter` and `<version>-docling`, plus the matching `latest` tags).
 
-Note on single-sourcing the package version: More can be read [here](https://packaging.python.org/en/latest/guides/single-sourcing-package-version/). The downside of our approach is that `.git` folder and editable/real installation is needed to infer the version of the package. Releases can be inferred without installing the project.
+Note on single-sourcing the package version: More can be read [here](https://packaging.python.org/en/latest/guides/single-sourcing-package-version/). The downside of our approach is that `.git` folder and editable/real installation is needed to infer the version of the package. Releases can be inferred without installing the project. The Docker images are built without `.git`, so the release workflow passes the version as a build argument (`SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS`); local builds get `0.0.0+local`.
 
 ### Currently, the release process is as follows
 
