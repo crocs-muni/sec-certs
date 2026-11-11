@@ -13,7 +13,7 @@ import requests
 
 from sec_certs import constants
 from sec_certs.cert_rules import sesip_rules
-from sec_certs.document.base import DocumentLayer
+from sec_certs.document.base import BlockKind, DocumentLayer
 from sec_certs.document.utils import get_view
 from sec_certs.heuristics.br1.chapter_parsing.mapper import is_heading_candidate
 from sec_certs.sample.certificate import Certificate, logger
@@ -115,6 +115,45 @@ def _st_sections(view: DocumentView) -> dict[str, str] | None:
     return found or None
 
 
+_SFR_RULES: Final = {key: rxs for group in sesip_rules["sesip_sfr"].values() for key, rxs in group.items()}
+_HEADING_LEVEL_RE: Final = re.compile(r"^\s*(?:D\.)?(\d+(?:\.\d+)*)\.?\s")
+_SFR_SUBSECTION_RE: Final = re.compile(r"functional\s+requirements|\bSFRs?\b", re.IGNORECASE)
+_NOT_CLAIMED_RE: Final = re.compile(r"non-?conformance\s+rationale", re.IGNORECASE)
+
+
+def _sfr_of(title: str) -> str | None:
+    title = f" {' '.join(title.split())} "
+    found = [(len(m["match"]), key) for key, rxs in _SFR_RULES.items() for rx in rxs if (m := rx.search(title))]
+    return max(found)[1] if found else None
+
+
+def _level(heading: str) -> int:
+    return len(m.group(1).split(".")) if (m := _HEADING_LEVEL_RE.match(heading)) else 0
+
+
+def _st_claimed_sfrs(view: DocumentView, sections: dict[str, str] | None) -> set[str] | None:
+    if not sections or "sfr" not in sections:
+        return None
+    blocks = [(block, block.text.strip()) for block in view.iter_blocks({DocumentLayer.BODY})]
+    start = [text for _, text in blocks].index(sections["sfr"])
+    found: set[str] = set()
+    sfr = None
+    for block, text in blocks[start + 1 :]:
+        title = _HEADING_NUMBER_RE.sub("", text)
+        if sfr and _NOT_CLAIMED_RE.match(title):
+            found.discard(sfr)
+        if not is_heading_candidate(block) or len(title) >= 90:
+            continue
+        if block.kind is BlockKind.HEADING or _level(text) >= 2:
+            if 0 < _level(text) <= _level(sections["sfr"]) and not _SFR_SUBSECTION_RE.search(title):
+                break
+            if any(p.search(title) for key, p in _ST_SECTIONS.items() if key not in ("sfr", "requirements")):
+                break
+        if sfr := _sfr_of(title):
+            found.add(sfr)
+    return found or None
+
+
 class SESIPCertificate(
     Certificate["SESIPCertificate", "SESIPCertificate.Heuristics", "SESIPCertificate.PdfData", "InternalState"],
     ComplexSerializableType,
@@ -162,6 +201,7 @@ class SESIPCertificate(
         cert_frontpage: dict[str, Any] | None = field(default=None)
         st_keywords: dict[str, Any] | None = field(default=None)
         st_sections: dict[str, str] | None = field(default=None)
+        st_claimed_sfrs: set[str] | None = field(default=None)
 
     @dataclass
     class Heuristics(BaseHeuristics, ComplexSerializableType):
@@ -317,9 +357,11 @@ class SESIPCertificate(
     def extract_st_sections(cert: SESIPCertificate) -> SESIPCertificate:
         if not cert.state.st.is_ok_to_extract():
             return cert
-        cert.pdf_data.st_sections = None
+        cert.pdf_data.st_sections = cert.pdf_data.st_claimed_sfrs = None
         try:
-            cert.pdf_data.st_sections = _st_sections(get_view(cert.state.st))
+            view = get_view(cert.state.st)
+            cert.pdf_data.st_sections = _st_sections(view)
+            cert.pdf_data.st_claimed_sfrs = _st_claimed_sfrs(view, cert.pdf_data.st_sections)
         except Exception as e:
             logger.error(f"Cert dgst: {cert.dgst} failed to read the sections of the security target: {e}")
             cert.state.st.extract_ok = False

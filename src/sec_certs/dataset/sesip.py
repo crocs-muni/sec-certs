@@ -273,7 +273,7 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
             logger.warning(f"Skipping ST sections: the {config.pdf_converter} converter gives no document structure")
             for dgst in dgsts:
                 if self[dgst].state.st.is_ok_to_extract():
-                    self[dgst].pdf_data.st_sections = None
+                    self[dgst].pdf_data.st_sections = self[dgst].pdf_data.st_claimed_sfrs = None
             return
         processed = cert_processing.process_parallel(
             SESIPCertificate.extract_st_sections,
