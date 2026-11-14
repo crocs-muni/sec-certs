@@ -1,0 +1,177 @@
+[
+ {
+  "text": "Certificate ID SESIP- 2500092-01 Summarised: SESIP 3 with",
+  "expect": {
+   "cert_id": "SESIP-2500092-01",
+   "assurance_level": "SESIP3"
+  },
+  "why": "space inside the ID and the level"
+ },
+ {
+  "text": "SESIP-24000159-01 Summarised: SESIP6",
+  "expect": {
+   "cert_id": "SESIP-24000159-01",
+   "assurance_level": null
+  },
+  "why": "typo in the PDF (8 digits) is kept; only SESIP1-5 is a level"
+ },
+ {
+  "text": "Scheme 2026-03-28 Validity Date of Date of 2024-04-02",
+  "expect": {
+   "issue_date": "2024-04-02",
+   "expiry_date": "2026-03-28"
+  },
+  "why": "labels lost: the earlier of two dates is the issue"
+ },
+ {
+  "text": "Date of issue: Date of expiry: 2024-04-02 2026-03-28",
+  "expect": {
+   "issue_date": "2024-04-02",
+   "expiry_date": "2026-03-28"
+  },
+  "why": "pdftotext raw: both labels above both values"
+ },
+ {
+  "text": "Security Target dated 2024-02-20 Summarised 2024-04-02 ... 2026-03-28",
+  "expect": {
+   "issue_date": "2024-04-02",
+   "expiry_date": "2026-03-28"
+  },
+  "why": "the date of the security target is not a validity date"
+ },
+ {
+  "text": "declares that CMRT Root of Trust Core of Rambus Inc. complies to",
+  "expect": {
+   "cert_item": "CMRT Root of Trust Core",
+   "developer": "Rambus Inc."
+  },
+  "why": "the product may contain 'of'"
+ },
+ {
+  "text": "declares that SESIP-2000001-01 TrustCB B.V. declares that Product S32G2 Version 2.0 of of Sponsor NXP Semiconductors complies to",
+  "expect": {
+   "cert_item": "S32G2 Version 2.0",
+   "developer": "NXP Semiconductors"
+  },
+  "why": "docling repeats a merged cell"
+ },
+ {
+  "text": "declares that Foo, version of 2.2.0 ACME B.V. complies to",
+  "expect": {
+   "cert_item": "Foo, version 2.2.0",
+   "developer": "ACME B.V."
+  },
+  "why": "docling put the end of the product line after 'of'"
+ },
+ {
+  "text": "declares that Foo of 1NCE GmbH complies to",
+  "expect": {
+   "cert_item": "Foo",
+   "developer": "1NCE GmbH"
+  },
+  "why": "a developer starting with a digit is not a version"
+ },
+ {
+  "text": "declares that Foo of STMicroelectronics, 12 rue Jules Horowitz, 38000 Grenoble, FRANCE complies to",
+  "expect": {
+   "cert_item": "Foo",
+   "developer": "STMicroelectronics"
+  },
+  "why": "the postal address is cut"
+ },
+ {
+  "text": "evaluated by: As SGS Brightsight located in Delft",
+  "expect": {
+   "cert_lab": "SGS Brightsight"
+  },
+  "why": "docling moved the 'As'"
+ },
+ {
+  "text": "As evaluated by: Asure Labs located in Brno",
+  "expect": {
+   "cert_lab": "Asure Labs"
+  },
+  "why": "'As' is cut only as a whole word"
+ },
+ {
+  "text": "Security Evaluation Standard for IoT Platforms (SESIP) v1.0, GP_FST_070",
+  "expect": {
+   "standard": "GP_FST_070 v1.0",
+   "scheme_version": null
+  }
+ },
+ {
+  "text": "(SESIP), GP_FST_070, Public Release v1.2, July 2023, Scheme Procedures - SESIP v2.6",
+  "expect": {
+   "standard": "GP_FST_070 v1.2",
+   "scheme_version": "v2.6"
+  }
+ },
+ {
+  "text": "EN 17927:2023 : Security Evaluation for IoT Platforms (SESIP)",
+  "expect": {
+   "standard": "EN 17927:2023",
+   "scheme_version": null
+  }
+ },
+ {
+  "text": "TrustCB Scheme Procedures for SESIP V2.0 Security Evaluation Standard for IoT Platforms (SESIP) v1.3",
+  "expect": {
+   "standard": "SESIP v1.3",
+   "scheme_version": "v2.0"
+  }
+ },
+ {
+  "text": "Under scheme: v2.1 Date of 1st issuance: 2021-01-27 TrustCB Scheme Procedures SESIP",
+  "expect": {
+   "standard": null,
+   "scheme_version": "v2.1"
+  },
+  "why": "docling moved the version in front of the procedures"
+ },
+ {
+  "text": "Summarised: Assurance Package SESIP3 SESIP Profile for Secure MCUs and MPUs version 1.0 SESIP Profiles SESIP Profile for PSA Certified RoT Component Level 3 version 1.0 REL 01 As evaluated by: X",
+  "expect": {
+   "augmentations": null,
+   "sesip_profile": "SESIP Profile for Secure MCUs and MPUs version 1.0 SESIP Profile for PSA Certified RoT Component Level 3 version 1.0 REL 01"
+  },
+  "why": "two profiles are kept together"
+ },
+ {
+  "text": "Summarised: SESIP3 with Physical Attack Resistance Software Attacker Resistance: Isolation of Platform Parts Software Attacker Resistance: Isolation of Application Parts SESIP Profile None As evaluated by: X",
+  "expect": {
+   "augmentations": "Physical Attack Resistance Software Attacker Resistance: Isolation of Platform Parts Software Attacker Resistance: Isolation of Application Parts",
+   "sesip_profile": null
+  },
+  "why": "all augmentations up to the last one"
+ },
+ {
+  "text": "Summarised: SESIP2 (with source code review) with Software Attacker Resistance: Isolation of Platform As evaluated by: X",
+  "expect": {
+   "augmentations": "Software Attacker Resistance: Isolation of Platform",
+   "sesip_profile": null
+  },
+  "why": "source code review is not an augmentation"
+ },
+ {
+  "text": "described in Standard and ST Reference Version 3.1 Revision 5 (ISO/IEC 15408) ST Reference Foo ST, v1.2 Summarised:",
+  "expect": {
+   "st_reference": "Foo ST, v1.2"
+  },
+  "why": "the standard in front of the security target ends differently in each template"
+ },
+ {
+  "text": "described in Standard and ST Reference ISO/IEC 18045:2008, Common Criteria Evaluation Methodology (CEM) v3.1, rev 5 ST Reference Foo ST, v1.2 Summarised:",
+  "expect": {
+   "st_reference": "Foo ST, v1.2"
+  },
+  "why": "the standard in front of the security target ends differently in each template"
+ },
+ {
+  "text": "(ISO/IEC 15408-3) Foo with Secure Manager package v1.3 Package Summarised: SESIP3",
+  "expect": {
+   "st_reference": "Foo with Secure Manager package v1.3"
+  },
+  "why": "the Package label is dropped, a lowercase package is not"
+ }
+]

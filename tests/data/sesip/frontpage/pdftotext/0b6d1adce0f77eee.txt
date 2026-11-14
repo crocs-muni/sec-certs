@@ -1,0 +1,41 @@
+TrustCB B.V. | www.trustcb.com | trustcb@trustcb.com | Van den Berghlaan 48, 2132 AT Hoofddorp, The Netherlands
+Certificate ID SESIP-2400006-01
+TrustCB B.V. declares that
+Product CMRT RT-634 Root of Trust Core Version 2.2
+of
+Sponsor (and
+Developer)
+Rambus Inc. in San Jose, California, US
+complies to the requirements described in Standard and ST Reference
+Standard
+GlobalPlatform Technology, Security Evaluation Standard for IoT
+Platforms (SESIP), GP_FST_070, Public Release v1.2, July 2023
+Based on
+ISO/IEC 15408-1:2009, -2 :2008, -3:2008, Common Criteria for
+Information Technology Security Evaluation (CC) v3.1, rev 5, and
+ISO/IEC 18045:2008, Common Criteria Evaluation Methodology
+for Information Security Evaluation (CEM) v3.1, rev 5
+ST Reference
+SESIP Security Target for PSA Certified RoT Component
+Level 2 CMRT RT-634, version F dated 2024-02-20
+Summarised:
+Assurance Package
+SESIP2
+with
+Software Attacker Resistance: Isolation of Platform
+SESIP Profile
+SESIP Profile for PSA Certified RoT Component Level 2
+version 1.0 REL 02
+As evaluated by:
+Evaluation Facility Riscure B.V. located in Delft, The Netherlands
+Under scheme:
+Scheme
+SESIP
+As described in
+TrustCB Scheme Procedures v2.3
+Validity
+Date of issue: 2024-04-02
+Date of expiry: 2026-03-28
+Certification Mark
+Signatory Wouter Slegers, CEO
+

@@ -1,0 +1,69 @@
+a
+TRUSTCB TRUST AND VERIFY
+
+Certificate ID
+
+Product
+
+Sponsor (and
+developer)
+
+Standard
+
+ST Reference
+
+Assurance
+Package
+
+Protection Profile
+
+Evaluation Facility
+
+Validity
+
+SESIP-1900002-01
+
+TrustCB B.V. declares that
+
+i.MX 7ULP, version Rev. A and Rev. B
+
+of
+
+NXP Semiconductors
+
+in Hamburg, Germany
+
+complies to the requirements described in the standard and ST
+
+Common Criteria for Information Technology on
+
+Security Evaluation (CC) Version 3.1
+Revision 5 (ISO/IEC 15408)
+
+COMMON
+CRITERIA
+i.MX 7ULP, SESIP Security Target, version 1.2
+Summarized:
+SESIP1 Nos
+SESIP!
+
+As evaluated by:
+Brightsight B.V. located in Delft, The Netherlands
+
+Under scheme:
+
+Security Evaluation Scheme for
+IoT Platforms v1.1
+
+S
+
+SESIP
+
+Date of 1st issuance: 2019-02-27
+Date of expiry: 2021-02-26
+
+Wouter Slegers,
+CEO TrustCB B.V.
+
+TrustCB B.V. | @ www.trustcb.com | @ trustcb@trustcb.com
+Van den Berghlaan 48 | 2132 AT Hoofddorp | The Netherlands

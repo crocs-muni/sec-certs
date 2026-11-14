@@ -1,0 +1,59 @@
+Certificate ID
+
+HSESIP-190000201
+
+Product
+
+,
+
+TrustCB B.V. declares that
+
+i.MX 7ULP, version Rev. A and Rev. B
+
+,
+
+0,"
+
+Sponsor (and developer)
+
+Standard
+
+5T Reference
+
+Assurance Package NXP Semiconductors inHamburg, Germany complies to the requirements described in the standard and ST
+
+Common Criteria for Information Technology Security Evaluation (CC) Version 3.1 Revision 5 (ISO/IEC 15408)
+
+i.MX 7ULP, SESIP Security Target, version 1.2
+
+Summarized:
+
+SESIP1
+
+Protection Profile
+
+-
+
+As evaluated by:
+
+Eva'uation Fad'itv Brightsight B.V. located inDelft, The Netherlands Under scheme:
+
+7 ribate of l s t issuance:
+
+2019-0i-27
+
+Security Evaluation Scheme for I o T Platforms v1.1
+
+fl
+
+Date of expiry:
+
+2021-02-26
+
+r IfrWouter Slegers, CEO TrustCB B.V.
+
+SESIP1
+
+Validity
+
+TrustCB BVC i O www.1rustcbicom I Itrustcb@trustcb.com Van den Berghlaan 48 l 2132 AT Hoofddorp | The Netherlands

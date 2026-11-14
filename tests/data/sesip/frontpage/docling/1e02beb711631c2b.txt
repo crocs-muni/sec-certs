@@ -1,0 +1,11 @@
+Certificate ID SESIP-2000010-01 TrustCB B.V. declares that 
+Product SpiFlash ® TrustME™ Secure Flash Memory , of version A
+Sponsor (and developer) Winbond Electronics Corporation in Taichung City, Taiwan the standard and ST
+Standard complies to the requirements described in Common Criteria for Information Technology Security Evaluation (CC) Version 3.1 Revision 5 (ISO/IEC 15408) 
+ST Reference Assurance Security Target for W75F32WWJB Secure Flash Memory, version 1.3 Summarized: W75F32WWJC
+Package Protection Profile SESIP 3 with Physical attack resistance and Software Attacker Resistance: Isolation of Platform 
+Evaluation Facility Validity None As evaluated by: Applus located in Barcelona, Spain Under scheme: Date of 1st issuance: 2020-10-19 Date of 2nd issuance: 2021-01-19 Date of expiry: 2022-10-19 TrustCB Scheme Procedures for SESIP V2.1 Security Evaluation Standard for IoT Platforms (SESIP) v1.0, GP_FST_070 (typographical changes only) Wouter Slegers, CEO
+
+TrustCB B.V.  | www.trustcb.com  | trustcb@trustcb.com
+
+Van den Berghlaan 48  |  2132 AT  Hoofddorp  |  The Netherlands
