@@ -30,7 +30,7 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
-    from sec_certs.document.base import DocumentView
+    from sec_certs.document.base import DocumentBlock, DocumentView
 
 
 @dataclass
@@ -131,21 +131,33 @@ def _level(heading: str) -> int:
     return len(m.group(1).split(".")) if (m := _HEADING_LEVEL_RE.match(heading)) else 0
 
 
+def _next_heading_is_sfr(blocks: list[tuple[DocumentBlock, str]]) -> bool:
+    for block, text in blocks:
+        title = _HEADING_NUMBER_RE.sub("", text)
+        if is_heading_candidate(block) and len(title) < 90:
+            return _sfr_of(title) is not None
+    return False
+
+
 def _st_claimed_sfrs(view: DocumentView, sections: dict[str, str] | None) -> set[str] | None:
     if not sections or "sfr" not in sections:
         return None
     blocks = [(block, block.text.strip()) for block in view.iter_blocks({DocumentLayer.BODY})]
     start = [text for _, text in blocks].index(sections["sfr"])
+    level = _level(sections["sfr"])
     found: set[str] = set()
     sfr = None
-    for block, text in blocks[start + 1 :]:
+    rest = blocks[start + 1 :]
+    for i, (block, text) in enumerate(rest):
         title = _HEADING_NUMBER_RE.sub("", text)
         if sfr and _NOT_CLAIMED_RE.match(title):
             found.discard(sfr)
         if not is_heading_candidate(block) or len(title) >= 90:
             continue
         if block.kind is BlockKind.HEADING or _level(text) >= 2:
-            if 0 < _level(text) <= _level(sections["sfr"]) and not _SFR_SUBSECTION_RE.search(title):
+            # chapter with more SFRs "3.6 Product Life Cycle"
+            sibling = _level(text) == level and _next_heading_is_sfr(rest[i + 1 :])
+            if 0 < _level(text) <= level and not _SFR_SUBSECTION_RE.search(title) and not sibling:
                 break
             if any(p.search(title) for key, p in _ST_SECTIONS.items() if key not in ("sfr", "requirements")):
                 break
