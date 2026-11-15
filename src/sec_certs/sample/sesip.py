@@ -344,7 +344,7 @@ class SESIPCertificate(
         cert.pdf_data.cert_frontpage = None
         try:
             cert.pdf_data.cert_frontpage = parse_sesip_frontpage(get_view(cert.state.cert).get_full_text())
-        except (OSError, ValueError) as e:
+        except Exception as e:
             logger.error(f"Cert dgst: {cert.dgst} failed to parse the certificate frontpage: {e}")
             cert.state.cert.extract_ok = False
         return cert
