@@ -1,0 +1,3104 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.10.0",
+  "name": "2500125",
+  "origin": {
+    "mimetype": "application/pdf",
+    "binary_hash": 11003516406649268468,
+    "filename": "2500125.pdf"
+  },
+  "furniture": {
+    "self_ref": "#/furniture",
+    "children": [],
+    "content_layer": "furniture",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "body": {
+    "self_ref": "#/body",
+    "children": [
+      {
+        "$ref": "#/texts/0"
+      },
+      {
+        "$ref": "#/texts/1"
+      },
+      {
+        "$ref": "#/texts/2"
+      },
+      {
+        "$ref": "#/texts/3"
+      },
+      {
+        "$ref": "#/tables/0"
+      },
+      {
+        "$ref": "#/texts/4"
+      },
+      {
+        "$ref": "#/texts/5"
+      },
+      {
+        "$ref": "#/texts/6"
+      },
+      {
+        "$ref": "#/texts/7"
+      },
+      {
+        "$ref": "#/texts/8"
+      },
+      {
+        "$ref": "#/tables/1"
+      },
+      {
+        "$ref": "#/texts/10"
+      },
+      {
+        "$ref": "#/tables/2"
+      },
+      {
+        "$ref": "#/texts/12"
+      },
+      {
+        "$ref": "#/tables/3"
+      },
+      {
+        "$ref": "#/texts/14"
+      },
+      {
+        "$ref": "#/texts/15"
+      },
+      {
+        "$ref": "#/texts/16"
+      },
+      {
+        "$ref": "#/texts/17"
+      },
+      {
+        "$ref": "#/texts/18"
+      },
+      {
+        "$ref": "#/texts/19"
+      },
+      {
+        "$ref": "#/texts/20"
+      },
+      {
+        "$ref": "#/groups/0"
+      },
+      {
+        "$ref": "#/texts/24"
+      },
+      {
+        "$ref": "#/pictures/0"
+      },
+      {
+        "$ref": "#/texts/26"
+      },
+      {
+        "$ref": "#/texts/27"
+      },
+      {
+        "$ref": "#/texts/28"
+      },
+      {
+        "$ref": "#/texts/29"
+      },
+      {
+        "$ref": "#/texts/30"
+      },
+      {
+        "$ref": "#/texts/31"
+      },
+      {
+        "$ref": "#/texts/32"
+      },
+      {
+        "$ref": "#/texts/33"
+      },
+      {
+        "$ref": "#/groups/1"
+      },
+      {
+        "$ref": "#/texts/44"
+      },
+      {
+        "$ref": "#/texts/45"
+      },
+      {
+        "$ref": "#/groups/2"
+      },
+      {
+        "$ref": "#/texts/47"
+      },
+      {
+        "$ref": "#/texts/48"
+      },
+      {
+        "$ref": "#/texts/49"
+      },
+      {
+        "$ref": "#/tables/4"
+      },
+      {
+        "$ref": "#/texts/51"
+      },
+      {
+        "$ref": "#/groups/3"
+      },
+      {
+        "$ref": "#/texts/53"
+      },
+      {
+        "$ref": "#/texts/54"
+      },
+      {
+        "$ref": "#/texts/55"
+      },
+      {
+        "$ref": "#/texts/56"
+      },
+      {
+        "$ref": "#/texts/57"
+      },
+      {
+        "$ref": "#/texts/58"
+      },
+      {
+        "$ref": "#/texts/59"
+      },
+      {
+        "$ref": "#/texts/60"
+      },
+      {
+        "$ref": "#/groups/4"
+      },
+      {
+        "$ref": "#/texts/65"
+      },
+      {
+        "$ref": "#/texts/66"
+      },
+      {
+        "$ref": "#/texts/67"
+      },
+      {
+        "$ref": "#/texts/68"
+      },
+      {
+        "$ref": "#/texts/69"
+      },
+      {
+        "$ref": "#/tables/5"
+      },
+      {
+        "$ref": "#/texts/71"
+      },
+      {
+        "$ref": "#/texts/72"
+      },
+      {
+        "$ref": "#/texts/73"
+      },
+      {
+        "$ref": "#/texts/74"
+      },
+      {
+        "$ref": "#/texts/75"
+      },
+      {
+        "$ref": "#/texts/76"
+      },
+      {
+        "$ref": "#/groups/5"
+      },
+      {
+        "$ref": "#/texts/79"
+      },
+      {
+        "$ref": "#/texts/80"
+      },
+      {
+        "$ref": "#/groups/6"
+      },
+      {
+        "$ref": "#/texts/84"
+      },
+      {
+        "$ref": "#/texts/85"
+      },
+      {
+        "$ref": "#/texts/86"
+      },
+      {
+        "$ref": "#/texts/87"
+      },
+      {
+        "$ref": "#/texts/88"
+      },
+      {
+        "$ref": "#/texts/89"
+      },
+      {
+        "$ref": "#/texts/90"
+      },
+      {
+        "$ref": "#/texts/91"
+      },
+      {
+        "$ref": "#/texts/92"
+      },
+      {
+        "$ref": "#/texts/93"
+      },
+      {
+        "$ref": "#/groups/7"
+      },
+      {
+        "$ref": "#/texts/98"
+      },
+      {
+        "$ref": "#/texts/99"
+      },
+      {
+        "$ref": "#/tables/6"
+      },
+      {
+        "$ref": "#/texts/101"
+      },
+      {
+        "$ref": "#/texts/102"
+      },
+      {
+        "$ref": "#/texts/103"
+      },
+      {
+        "$ref": "#/texts/104"
+      },
+      {
+        "$ref": "#/pictures/1"
+      },
+      {
+        "$ref": "#/texts/106"
+      },
+      {
+        "$ref": "#/texts/107"
+      },
+      {
+        "$ref": "#/texts/108"
+      },
+      {
+        "$ref": "#/texts/109"
+      },
+      {
+        "$ref": "#/texts/110"
+      },
+      {
+        "$ref": "#/texts/111"
+      },
+      {
+        "$ref": "#/texts/112"
+      },
+      {
+        "$ref": "#/texts/113"
+      },
+      {
+        "$ref": "#/texts/114"
+      },
+      {
+        "$ref": "#/texts/115"
+      },
+      {
+        "$ref": "#/texts/116"
+      },
+      {
+        "$ref": "#/texts/117"
+      },
+      {
+        "$ref": "#/tables/7"
+      },
+      {
+        "$ref": "#/texts/119"
+      },
+      {
+        "$ref": "#/texts/120"
+      },
+      {
+        "$ref": "#/texts/121"
+      },
+      {
+        "$ref": "#/texts/122"
+      },
+      {
+        "$ref": "#/texts/123"
+      },
+      {
+        "$ref": "#/texts/124"
+      },
+      {
+        "$ref": "#/texts/125"
+      },
+      {
+        "$ref": "#/texts/126"
+      },
+      {
+        "$ref": "#/texts/127"
+      },
+      {
+        "$ref": "#/texts/128"
+      },
+      {
+        "$ref": "#/texts/129"
+      },
+      {
+        "$ref": "#/texts/130"
+      },
+      {
+        "$ref": "#/texts/131"
+      },
+      {
+        "$ref": "#/texts/132"
+      },
+      {
+        "$ref": "#/texts/133"
+      },
+      {
+        "$ref": "#/texts/134"
+      },
+      {
+        "$ref": "#/texts/135"
+      },
+      {
+        "$ref": "#/texts/136"
+      },
+      {
+        "$ref": "#/texts/137"
+      },
+      {
+        "$ref": "#/texts/138"
+      },
+      {
+        "$ref": "#/texts/139"
+      },
+      {
+        "$ref": "#/texts/140"
+      },
+      {
+        "$ref": "#/texts/141"
+      },
+      {
+        "$ref": "#/texts/142"
+      },
+      {
+        "$ref": "#/tables/8"
+      },
+      {
+        "$ref": "#/texts/143"
+      },
+      {
+        "$ref": "#/tables/9"
+      },
+      {
+        "$ref": "#/texts/145"
+      },
+      {
+        "$ref": "#/texts/146"
+      },
+      {
+        "$ref": "#/tables/10"
+      },
+      {
+        "$ref": "#/texts/147"
+      },
+      {
+        "$ref": "#/texts/148"
+      },
+      {
+        "$ref": "#/texts/149"
+      },
+      {
+        "$ref": "#/tables/11"
+      },
+      {
+        "$ref": "#/texts/150"
+      },
+      {
+        "$ref": "#/texts/151"
+      },
+      {
+        "$ref": "#/tables/12"
+      },
+      {
+        "$ref": "#/texts/152"
+      },
+      {
+        "$ref": "#/texts/153"
+      },
+      {
+        "$ref": "#/texts/154"
+      },
+      {
+        "$ref": "#/tables/13"
+      },
+      {
+        "$ref": "#/texts/155"
+      }
+    ],
+    "content_layer": "body",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "groups": [
+    {
+      "self_ref": "#/groups/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/21"
+        },
+        {
+          "$ref": "#/texts/22"
+        },
+        {
+          "$ref": "#/texts/23"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/34"
+        },
+        {
+          "$ref": "#/texts/35"
+        },
+        {
+          "$ref": "#/texts/36"
+        },
+        {
+          "$ref": "#/texts/37"
+        },
+        {
+          "$ref": "#/texts/38"
+        },
+        {
+          "$ref": "#/texts/39"
+        },
+        {
+          "$ref": "#/texts/40"
+        },
+        {
+          "$ref": "#/texts/41"
+        },
+        {
+          "$ref": "#/texts/42"
+        },
+        {
+          "$ref": "#/texts/43"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/46"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/52"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/61"
+        },
+        {
+          "$ref": "#/texts/62"
+        },
+        {
+          "$ref": "#/texts/63"
+        },
+        {
+          "$ref": "#/texts/64"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/77"
+        },
+        {
+          "$ref": "#/texts/78"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/6",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/81"
+        },
+        {
+          "$ref": "#/texts/82"
+        },
+        {
+          "$ref": "#/texts/83"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    },
+    {
+      "self_ref": "#/groups/7",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/94"
+        },
+        {
+          "$ref": "#/texts/95"
+        },
+        {
+          "$ref": "#/texts/96"
+        },
+        {
+          "$ref": "#/texts/97"
+        }
+      ],
+      "content_layer": "body",
+      "name": "list",
+      "label": "list"
+    }
+  ],
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Security Target for SQ713x Series Secure Element Version 1.7, Dated 2026-04-10",
+      "text": "Security Target for SQ713x Series Secure Element Version 1.7, Dated 2026-04-10",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "iMQ Technology Inc.",
+      "text": "iMQ Technology Inc.",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "1 of 17",
+      "text": "1 of 17"
+    },
+    {
+      "self_ref": "#/texts/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Table of Contents",
+      "text": "Table of Contents",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "2 of 17",
+      "text": "2 of 17"
+    },
+    {
+      "self_ref": "#/texts/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1 Introduction",
+      "text": "1 Introduction",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/6",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.1 ST Reference",
+      "text": "1.1 ST Reference",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/7",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "This ST's title is 'SQ713x Series Secure Element' version 1.7 dated 2026-04-10.",
+      "text": "This ST's title is 'SQ713x Series Secure Element' version 1.7 dated 2026-04-10."
+    },
+    {
+      "self_ref": "#/texts/8",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.2 SESIP Profile Reference",
+      "text": "1.2 SESIP Profile Reference",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/9",
+      "parent": {
+        "$ref": "#/tables/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 1 SESIP Profile Reference and Conformance Claims",
+      "text": "Table 1 SESIP Profile Reference and Conformance Claims"
+    },
+    {
+      "self_ref": "#/texts/10",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.3 Platform Reference",
+      "text": "1.3 Platform Reference",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/11",
+      "parent": {
+        "$ref": "#/tables/2"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 2 Platform Reference",
+      "text": "Table 2 Platform Reference"
+    },
+    {
+      "self_ref": "#/texts/12",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.4 Included Guidance Documents",
+      "text": "1.4 Included Guidance Documents",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/13",
+      "parent": {
+        "$ref": "#/tables/3"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 3 Guidance Documents",
+      "text": "Table 3 Guidance Documents"
+    },
+    {
+      "self_ref": "#/texts/14",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "All these guidance documents are available to authorized users via secure request.",
+      "text": "All these guidance documents are available to authorized users via secure request."
+    },
+    {
+      "self_ref": "#/texts/15",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.5 Platform Functional Overview and Description",
+      "text": "1.5 Platform Functional Overview and Description",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/16",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "3 of 17",
+      "text": "3 of 17"
+    },
+    {
+      "self_ref": "#/texts/17",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.5.1 Platform Type",
+      "text": "1.5.1 Platform Type",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/18",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The TOE  is a Secure Element which can be used as a Trustable System-on-Chip (TSoC) for providing cryptographic services to a secure connected IOT device. The iMQ SQ713x series platform IC is built on iMQ's proprietary 16-bit CPU core, the 870E, derived from Toshiba's 8-bit TLCS-870/C1 core. The 870E core retains the same instruction set architecture (ISA) as the 870C1. However, its internal general-purpose registers, as well as the address, instruction, and data buses, have been upgraded from 8-bit to 16-bit. The usage and security features of the SE is further described in section 1.5.3.",
+      "text": "The TOE  is a Secure Element which can be used as a Trustable System-on-Chip (TSoC) for providing cryptographic services to a secure connected IOT device. The iMQ SQ713x series platform IC is built on iMQ's proprietary 16-bit CPU core, the 870E, derived from Toshiba's 8-bit TLCS-870/C1 core. The 870E core retains the same instruction set architecture (ISA) as the 870C1. However, its internal general-purpose registers, as well as the address, instruction, and data buses, have been upgraded from 8-bit to 16-bit. The usage and security features of the SE is further described in section 1.5.3."
+    },
+    {
+      "self_ref": "#/texts/19",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.5.2 Physical Scope",
+      "text": "1.5.2 Physical Scope",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/20",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The proposed TOE is composed of hardware design, embedded firmware, and guidance documents:",
+      "text": "The proposed TOE is composed of hardware design, embedded firmware, and guidance documents:"
+    },
+    {
+      "self_ref": "#/texts/21",
+      "parent": {
+        "$ref": "#/groups/0"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Hardware: iMQ SQ713x series IC is the secure element dedicated for network security and authentication. iMQ proprietary Trust Computing Engine, hereinafter will be referred to as 'iMQ_TCE,\" is a physical hardware implemented design with high security strength compliant with NIST standard FIPS 140-3 level 3. iMQ_TCE_V1_06 hardware design includes hash, symmetric and asymmetric cryptographic algorithms, secure boot loader as well as anti-tamper physical layer protection. The relevant security function claimed in [Datasheet] section 3.3.",
+      "text": "\uf0b7 Hardware: iMQ SQ713x series IC is the secure element dedicated for network security and authentication. iMQ proprietary Trust Computing Engine, hereinafter will be referred to as 'iMQ_TCE,\" is a physical hardware implemented design with high security strength compliant with NIST standard FIPS 140-3 level 3. iMQ_TCE_V1_06 hardware design includes hash, symmetric and asymmetric cryptographic algorithms, secure boot loader as well as anti-tamper physical layer protection. The relevant security function claimed in [Datasheet] section 3.3.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/22",
+      "parent": {
+        "$ref": "#/groups/0"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Embedded firmware: iMQ specific firmware stack and crypto library are tailored for encryption/decryption application. iMQ_FW_2_1_00 software design includes iMQ proprietary secure boot, command handler and self-test on health as well as exception and zeroization procedure.",
+      "text": "\uf0b7 Embedded firmware: iMQ specific firmware stack and crypto library are tailored for encryption/decryption application. iMQ_FW_2_1_00 software design includes iMQ proprietary secure boot, command handler and self-test on health as well as exception and zeroization procedure.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/23",
+      "parent": {
+        "$ref": "#/groups/0"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Guidance documents: refer to Section 1.4.",
+      "text": "\uf0b7 Guidance documents: refer to Section 1.4.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/24",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.5.3 Logical Scope of the Platform",
+      "text": "1.5.3 Logical Scope of the Platform",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/25",
+      "parent": {
+        "$ref": "#/pictures/0"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Figure 2 Logical Scope of TOE",
+      "text": "Figure 2 Logical Scope of TOE"
+    },
+    {
+      "self_ref": "#/texts/26",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The logical scope of the platform is illustrated within the red box of Figure 2. The logical scope includes: SE Hardware (V1.06) and Firmware (V2.1.00). The scope for the Security evaluation is the combination of the trusted hardware and firmware components implementing a secure element environment with the Security Functional Requirements stated in this document. The SQ713x secure element includes the embedded firmware 'iMQ_FW' and the circuit implemented cryptographic accelerator 'iMQ_TCE.' The secure boot loader is bundled in the iMQ_TCE design to check the digest from firmware image. Within iMQ_FW, the major two portions are a compact 'Crypto Library' which is based on the supported cryptographic algorithms in iMQ_TCE and a proprietary 'Command Parser' used to handle the command request from platform host. The security functions built inside iMQ_FW are only accessible if the data of firmware passes the integrity validation by boot loader during startup. If the validation fails during the boot stage, subsequent command requests from platform host will be rejected by iMQ_FW, which instead returns an error status.",
+      "text": "The logical scope of the platform is illustrated within the red box of Figure 2. The logical scope includes: SE Hardware (V1.06) and Firmware (V2.1.00). The scope for the Security evaluation is the combination of the trusted hardware and firmware components implementing a secure element environment with the Security Functional Requirements stated in this document. The SQ713x secure element includes the embedded firmware 'iMQ_FW' and the circuit implemented cryptographic accelerator 'iMQ_TCE.' The secure boot loader is bundled in the iMQ_TCE design to check the digest from firmware image. Within iMQ_FW, the major two portions are a compact 'Crypto Library' which is based on the supported cryptographic algorithms in iMQ_TCE and a proprietary 'Command Parser' used to handle the command request from platform host. The security functions built inside iMQ_FW are only accessible if the data of firmware passes the integrity validation by boot loader during startup. If the validation fails during the boot stage, subsequent command requests from platform host will be rejected by iMQ_FW, which instead returns an error status."
+    },
+    {
+      "self_ref": "#/texts/27",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "4 of 17",
+      "text": "4 of 17"
+    },
+    {
+      "self_ref": "#/texts/28",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The 'Crypto Library' is primarily designed to bride the computing efforts between software-based cryptographic procedures and the hardware-implemented trusted computing engine, iMQ_TCE. iMQ_TCE consists of the comprehensive cryptographic accelerators that assist with the computation of cryptographic operations - such as hashing, symmetric, and asymmetric algorithms-all of which are software-programmable.",
+      "text": "The 'Crypto Library' is primarily designed to bride the computing efforts between software-based cryptographic procedures and the hardware-implemented trusted computing engine, iMQ_TCE. iMQ_TCE consists of the comprehensive cryptographic accelerators that assist with the computation of cryptographic operations - such as hashing, symmetric, and asymmetric algorithms-all of which are software-programmable."
+    },
+    {
+      "self_ref": "#/texts/29",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The only means of communication between the platform host and the proposed TOE is through the command interface. The platform host can request the activation of relevant security functions by adhering to the iMQ proprietary command set protocol. Common serial interfaces such as I2C, SPI, and SWI are supported.",
+      "text": "The only means of communication between the platform host and the proposed TOE is through the command interface. The platform host can request the activation of relevant security functions by adhering to the iMQ proprietary command set protocol. Common serial interfaces such as I2C, SPI, and SWI are supported."
+    },
+    {
+      "self_ref": "#/texts/30",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "Applications built on top of the platform host are well-suited for network communication equipment due to the implementation of cryptographic features, such as compliance with Internet protocols TLS 1.2 and 1.3 and X.509 certificate, and support for signing and verification operations. Additionally, the proposed TOE is an ideal fit for specific applications like accessory authentication and industrial-grade function switches that require secure control.",
+      "text": "Applications built on top of the platform host are well-suited for network communication equipment due to the implementation of cryptographic features, such as compliance with Internet protocols TLS 1.2 and 1.3 and X.509 certificate, and support for signing and verification operations. Additionally, the proposed TOE is an ideal fit for specific applications like accessory authentication and industrial-grade function switches that require secure control."
+    },
+    {
+      "self_ref": "#/texts/31",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.5.4 Usage and Major Security Features",
+      "text": "1.5.4 Usage and Major Security Features",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/32",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The TOE is a Secure Element implemented as a discrete hardware component in an SOP8 or 8-Lead DFN package. The TOE operates as an independent security component that interfaces with a Trustable System-on-Chip (TSoC), which is to be further used in Internet of Things (IoT) endpoint. The aim is to provide enhanced security, fast, and low power consumption.",
+      "text": "The TOE is a Secure Element implemented as a discrete hardware component in an SOP8 or 8-Lead DFN package. The TOE operates as an independent security component that interfaces with a Trustable System-on-Chip (TSoC), which is to be further used in Internet of Things (IoT) endpoint. The aim is to provide enhanced security, fast, and low power consumption."
+    },
+    {
+      "self_ref": "#/texts/33",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "TOE provides the following features for the purpose of PSA Level 3 security evaluation:",
+      "text": "TOE provides the following features for the purpose of PSA Level 3 security evaluation:"
+    },
+    {
+      "self_ref": "#/texts/34",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 I2C, SPI, and SWI interface with integrity protection",
+      "text": "\uf0b7 I2C, SPI, and SWI interface with integrity protection",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/35",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Cryptographic store for keys and data with confidentiality protection",
+      "text": "\uf0b7 Cryptographic store for keys and data with confidentiality protection",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/36",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Each key and data slot has its own access and usage permissions",
+      "text": "\uf0b7 Each key and data slot has its own access and usage permissions",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/37",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Cryptographic  support:",
+      "text": "\uf0b7 Cryptographic  support:",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/38",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "- ECDH, ECDSA, ECC signature generation/verification,  key generation; supported curves:",
+      "text": "ECDH, ECDSA, ECC signature generation/verification,  key generation; supported curves:",
+      "enumerated": false,
+      "marker": "-"
+    },
+    {
+      "self_ref": "#/texts/39",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "o NIST P-256/384",
+      "text": "o NIST P-256/384",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/40",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "o NIST SP800-90B/NIST SP800-90A",
+      "text": "o NIST SP800-90B/NIST SP800-90A",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/41",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "- AES 128/256 encryption/decryption/MAC generation/verification: ECB, GFM",
+      "text": "AES 128/256 encryption/decryption/MAC generation/verification: ECB, GFM",
+      "enumerated": false,
+      "marker": "-"
+    },
+    {
+      "self_ref": "#/texts/42",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "- HMAC generation/verification  based on SHA-256",
+      "text": "HMAC generation/verification  based on SHA-256",
+      "enumerated": false,
+      "marker": "-"
+    },
+    {
+      "self_ref": "#/texts/43",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "- Key Derivation Function (KDF) derives one or more secret keys: KDF-PRF, KDF-HKDF",
+      "text": "Key Derivation Function (KDF) derives one or more secret keys: KDF-PRF, KDF-HKDF",
+      "enumerated": false,
+      "marker": "-"
+    },
+    {
+      "self_ref": "#/texts/44",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "1.5.5 Required Hardware/Software/Firmware",
+      "text": "1.5.5 Required Hardware/Software/Firmware",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/45",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "No additional hardware, software, or firmware are required to utilize the platform.",
+      "text": "No additional hardware, software, or firmware are required to utilize the platform."
+    },
+    {
+      "self_ref": "#/texts/46",
+      "parent": {
+        "$ref": "#/groups/2"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "- RNG:",
+      "text": "RNG:",
+      "enumerated": false,
+      "marker": "-"
+    },
+    {
+      "self_ref": "#/texts/47",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "5 of 17",
+      "text": "5 of 17"
+    },
+    {
+      "self_ref": "#/texts/48",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "2 Security Objectives for the Operational Environment",
+      "text": "2 Security Objectives for the Operational Environment",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/49",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "For the platform to fulfill its security requirements, the operational environment (technical  or procedural)  must fulfill the following objectives:",
+      "text": "For the platform to fulfill its security requirements, the operational environment (technical  or procedural)  must fulfill the following objectives:"
+    },
+    {
+      "self_ref": "#/texts/50",
+      "parent": {
+        "$ref": "#/tables/4"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 4 Platform Objectives for the Operational Environment",
+      "text": "Table 4 Platform Objectives for the Operational Environment"
+    },
+    {
+      "self_ref": "#/texts/51",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Note:",
+      "text": "Note:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/52",
+      "parent": {
+        "$ref": "#/groups/3"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 UNIQUE_ID is not a security objective for this platform, because identification  data is already added before customer delivery  by the developer of this TOE.",
+      "text": "\uf0b7 UNIQUE_ID is not a security objective for this platform, because identification  data is already added before customer delivery  by the developer of this TOE.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/53",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "6 of 17",
+      "text": "6 of 17"
+    },
+    {
+      "self_ref": "#/texts/54",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3 Security Requirements and Implementation",
+      "text": "3 Security Requirements and Implementation",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/55",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.1 Security Assurance Requirements",
+      "text": "3.1 Security Assurance Requirements",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/56",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The  claimed  assurance  requirements  package  is  SESIP3, as described in Section 4.1.",
+      "text": "The  claimed  assurance  requirements  package  is  SESIP3, as described in Section 4.1."
+    },
+    {
+      "self_ref": "#/texts/57",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.2 Flaw Reporting Procedure (ALC_FLR.2)",
+      "text": "3.2 Flaw Reporting Procedure (ALC_FLR.2)",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/58",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "As the TOE consists of MCU hardware with immutable firmware (firmware storage is permanently locked), the platform's SFR secure update is not applicable, since post-deployment updates are not technically feasible.",
+      "text": "As the TOE consists of MCU hardware with immutable firmware (firmware storage is permanently locked), the platform's SFR secure update is not applicable, since post-deployment updates are not technically feasible."
+    },
+    {
+      "self_ref": "#/texts/59",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "In accordance with the requirement for a flaw reporting procedure (ALC_FLR.2), including a process to generate any needed update and distribute it, the developer has defined the following procedure.",
+      "text": "In accordance with the requirement for a flaw reporting procedure (ALC_FLR.2), including a process to generate any needed update and distribute it, the developer has defined the following procedure."
+    },
+    {
+      "self_ref": "#/texts/60",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "iMQ has defined a Software and Hardware Security Incident Response Procedure (SHSIRP), implemented by a dedicated team (Technical Support). This process provides a publicly available interface (https://www.imqtech.com/en/tools/pss) and includes 4 steps:",
+      "text": "iMQ has defined a Software and Hardware Security Incident Response Procedure (SHSIRP), implemented by a dedicated team (Technical Support). This process provides a publicly available interface (https://www.imqtech.com/en/tools/pss) and includes 4 steps:"
+    },
+    {
+      "self_ref": "#/texts/61",
+      "parent": {
+        "$ref": "#/groups/4"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Reporting. The process begins when Technical Support becomes aware of a potential security vulnerability in an iMQ product. Upon receiving a report, Technical Support provides an acknowledgment to the reporter and ensures timely updates throughout the investigation and resolution process.",
+      "text": "\uf0b7 Reporting. The process begins when Technical Support becomes aware of a potential security vulnerability in an iMQ product. Upon receiving a report, Technical Support provides an acknowledgment to the reporter and ensures timely updates throughout the investigation and resolution process.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/62",
+      "parent": {
+        "$ref": "#/groups/4"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Evaluation. Technical Support evaluates the reported issue to confirm its validity, assesses associated risks, determines potential impacts, and assigns an appropriate processing priority. This step is critical to ensure that the response is proportionate to the threat level and product context.",
+      "text": "\uf0b7 Evaluation. Technical Support evaluates the reported issue to confirm its validity, assesses associated risks, determines potential impacts, and assigns an appropriate processing priority. This step is critical to ensure that the response is proportionate to the threat level and product context.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/63",
+      "parent": {
+        "$ref": "#/groups/4"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Solution. Once the issue is confirmed, Technical Support collaborates with the relevant product teams to develop an appropriate mitigation strategy. The nature of the solution may vary depending on the type and severity of the vulnerability.",
+      "text": "\uf0b7 Solution. Once the issue is confirmed, Technical Support collaborates with the relevant product teams to develop an appropriate mitigation strategy. The nature of the solution may vary depending on the type and severity of the vulnerability.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/64",
+      "parent": {
+        "$ref": "#/groups/4"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Communication. The communication on the vulnerability and solutions will in most cases be done directly towards the affected customers.",
+      "text": "\uf0b7 Communication. The communication on the vulnerability and solutions will in most cases be done directly towards the affected customers.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/65",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3 Security Functional Requirements",
+      "text": "3.3 Security Functional Requirements",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/66",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.1 Verification  of  Platform Identity",
+      "text": "3.3.1 Verification  of  Platform Identity",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/67",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform provides a unique identification  of the platform, including all its parts and their versions.",
+      "text": "The platform provides a unique identification  of the platform, including all its parts and their versions."
+    },
+    {
+      "self_ref": "#/texts/68",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale :",
+      "text": "Conformance rationale :",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/69",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform referenced in Section 1.3 provides the identifiers listed in Table 5. And the platform implements 'Info - Revision' command which can reads back the FW revision, device name and silicon revision of the device as described in [Datasheet] section 8.2.1 'Info - Revision.'",
+      "text": "The platform referenced in Section 1.3 provides the identifiers listed in Table 5. And the platform implements 'Info - Revision' command which can reads back the FW revision, device name and silicon revision of the device as described in [Datasheet] section 8.2.1 'Info - Revision.'"
+    },
+    {
+      "self_ref": "#/texts/70",
+      "parent": {
+        "$ref": "#/tables/5"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 5 Platform identifiers",
+      "text": "Table 5 Platform identifiers"
+    },
+    {
+      "self_ref": "#/texts/71",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.2 Secure Initialization of Platform",
+      "text": "3.3.2 Secure Initialization of Platform",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/72",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "7 of 17",
+      "text": "7 of 17"
+    },
+    {
+      "self_ref": "#/texts/73",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform ensures its authenticity and integrity during the platform initialization. If the platform authenticity or integrity cannot be ensured, the platform will enter a state where it cannot perform any other commands except responding to Info Command and providing information such as revision and error status.",
+      "text": "The platform ensures its authenticity and integrity during the platform initialization. If the platform authenticity or integrity cannot be ensured, the platform will enter a state where it cannot perform any other commands except responding to Info Command and providing information such as revision and error status."
+    },
+    {
+      "self_ref": "#/texts/74",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/75",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform implements a robust secure initialization mechanism to ensure the authenticity and integrity of the execution environment during the boot phase. If firmware verification fails or the platform enters an abnormal state, a default security failure response is triggered-such as system reset, halt, or firmware erasure-to prevent execution of unauthorized or potentially malicious code.",
+      "text": "The platform implements a robust secure initialization mechanism to ensure the authenticity and integrity of the execution environment during the boot phase. If firmware verification fails or the platform enters an abnormal state, a default security failure response is triggered-such as system reset, halt, or firmware erasure-to prevent execution of unauthorized or potentially malicious code."
+    },
+    {
+      "self_ref": "#/texts/76",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The Secure Boot process is fulfilled by the BootROM and executes the corresponding verification process according to the BootOPT mode locked by the NVR and prevents subsequent rewriting through NVR locking mechanism. Depending on the selected mode, the platform applies SHA256 hash or CRC16 algorithms, optionally combined with a 32-byte Boot Key and a device Unique Identifier (UID), to achieve the following functions:",
+      "text": "The Secure Boot process is fulfilled by the BootROM and executes the corresponding verification process according to the BootOPT mode locked by the NVR and prevents subsequent rewriting through NVR locking mechanism. Depending on the selected mode, the platform applies SHA256 hash or CRC16 algorithms, optionally combined with a 32-byte Boot Key and a device Unique Identifier (UID), to achieve the following functions:"
+    },
+    {
+      "self_ref": "#/texts/77",
+      "parent": {
+        "$ref": "#/groups/5"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\u00b7 Utilize SHA256 to generate a digest for the specified firmware segment to verify its integrity.",
+      "text": "Utilize SHA256 to generate a digest for the specified firmware segment to verify its integrity.",
+      "enumerated": false,
+      "marker": "\u00b7"
+    },
+    {
+      "self_ref": "#/texts/78",
+      "parent": {
+        "$ref": "#/groups/5"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\u00b7 Incorporate the BootKey and UID into the SHA256 calculation to strengthen device binding and authorization verification.",
+      "text": "Incorporate the BootKey and UID into the SHA256 calculation to strengthen device binding and authorization verification.",
+      "enumerated": false,
+      "marker": "\u00b7"
+    },
+    {
+      "self_ref": "#/texts/79",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "All key parameters involved in authentication (such as BootOPT, ACTION, Digest, BootKey) are stored in a Flash security area  with  hardware  access  control  and  are  prevented  from  being  rewritten  through  an  NVR  locking  mechanism. Verification  operations  are  all  performed  in  SRAM,  and  sensitive  data  is  cleared  to  prevent  data  remanence  after verification is completed.",
+      "text": "All key parameters involved in authentication (such as BootOPT, ACTION, Digest, BootKey) are stored in a Flash security area  with  hardware  access  control  and  are  prevented  from  being  rewritten  through  an  NVR  locking  mechanism. Verification  operations  are  all  performed  in  SRAM,  and  sensitive  data  is  cleared  to  prevent  data  remanence  after verification is completed."
+    },
+    {
+      "self_ref": "#/texts/80",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "If verification fails, the system will take one of the following security actions based on the ACTION field setting:",
+      "text": "If verification fails, the system will take one of the following security actions based on the ACTION field setting:"
+    },
+    {
+      "self_ref": "#/texts/81",
+      "parent": {
+        "$ref": "#/groups/6"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\u00b7 Reset: Restart the system immediately",
+      "text": "Reset: Restart the system immediately",
+      "enumerated": false,
+      "marker": "\u00b7"
+    },
+    {
+      "self_ref": "#/texts/82",
+      "parent": {
+        "$ref": "#/groups/6"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\u00b7 Erase: Clear the firmware image to prevent improper use",
+      "text": "Erase: Clear the firmware image to prevent improper use",
+      "enumerated": false,
+      "marker": "\u00b7"
+    },
+    {
+      "self_ref": "#/texts/83",
+      "parent": {
+        "$ref": "#/groups/6"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\u00b7 Hold: The system is stopped and waiting for external processing",
+      "text": "Hold: The system is stopped and waiting for external processing",
+      "enumerated": false,
+      "marker": "\u00b7"
+    },
+    {
+      "self_ref": "#/texts/84",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "Once Secure Boot is set and locked, it forms a fixed and unique root of trust that cannot be modified. If verification fails or the system is abnormal, the platform will enter a security protection state, such as pausing execution, restarting, or forcibly erasing the firmware image, and record the failure information in DIGEST_LOG to prevent circumventing the platform initialization security line through brute force.",
+      "text": "Once Secure Boot is set and locked, it forms a fixed and unique root of trust that cannot be modified. If verification fails or the system is abnormal, the platform will enter a security protection state, such as pausing execution, restarting, or forcibly erasing the firmware image, and record the failure information in DIGEST_LOG to prevent circumventing the platform initialization security line through brute force."
+    },
+    {
+      "self_ref": "#/texts/85",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.3 Secure Update of Platform",
+      "text": "3.3.3 Secure Update of Platform",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/86",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform does not support this update.",
+      "text": "The platform does not support this update."
+    },
+    {
+      "self_ref": "#/texts/87",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Non-conformance rationale:",
+      "text": "Non-conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/88",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The absence of this functionality is justified in Section 3.2: Flaw reporting procedure (ALC_FLR.2).",
+      "text": "The absence of this functionality is justified in Section 3.2: Flaw reporting procedure (ALC_FLR.2)."
+    },
+    {
+      "self_ref": "#/texts/89",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.4 Physical Attacker Resistance",
+      "text": "3.3.4 Physical Attacker Resistance",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/90",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform detects or prevents attacks by an attacker with physical access before the attacker compromises any of the other functional requirements.",
+      "text": "The platform detects or prevents attacks by an attacker with physical access before the attacker compromises any of the other functional requirements."
+    },
+    {
+      "self_ref": "#/texts/91",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/92",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The TOE implemented the following protection mechanisms to resist against both side channel and fault injection physical attacks:",
+      "text": "The TOE implemented the following protection mechanisms to resist against both side channel and fault injection physical attacks:"
+    },
+    {
+      "self_ref": "#/texts/93",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "8 of 17",
+      "text": "8 of 17"
+    },
+    {
+      "self_ref": "#/texts/94",
+      "parent": {
+        "$ref": "#/groups/7"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Exceed High Voltage Detection and Top Metal Shielding",
+      "text": "\uf0b7 Exceed High Voltage Detection and Top Metal Shielding",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/95",
+      "parent": {
+        "$ref": "#/groups/7"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf075 Either high voltage detection or top metal shielding is enabled by user configurable. User shall follow secure use guidance as described in [Datasheet] section 8.15\"Tamper Command (0x92)\" to correctly configure the TOE in a secure state so that these mechanisms would take effect.",
+      "text": "\uf075 Either high voltage detection or top metal shielding is enabled by user configurable. User shall follow secure use guidance as described in [Datasheet] section 8.15\"Tamper Command (0x92)\" to correctly configure the TOE in a secure state so that these mechanisms would take effect.",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/96",
+      "parent": {
+        "$ref": "#/groups/7"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 DPA Countermeasure",
+      "text": "\uf0b7 DPA Countermeasure",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/97",
+      "parent": {
+        "$ref": "#/groups/7"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "list_item",
+      "prov": [],
+      "orig": "\uf0b7 Redundant/hardened code against Fault Injection",
+      "text": "\uf0b7 Redundant/hardened code against Fault Injection",
+      "enumerated": false,
+      "marker": ""
+    },
+    {
+      "self_ref": "#/texts/98",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.5 Cryptographic Operation",
+      "text": "3.3.5 Cryptographic Operation",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/99",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform provides Operations in Table 6 functionality with algorithms in Table 6 as specified in specifications in Table 6 for key lengths described in Table 6 and modes described in Table 6.",
+      "text": "The platform provides Operations in Table 6 functionality with algorithms in Table 6 as specified in specifications in Table 6 for key lengths described in Table 6 and modes described in Table 6."
+    },
+    {
+      "self_ref": "#/texts/100",
+      "parent": {
+        "$ref": "#/tables/6"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 6 Cryptographic Operations",
+      "text": "Table 6 Cryptographic Operations"
+    },
+    {
+      "self_ref": "#/texts/101",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/102",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "These cryptographic claims are partly implemented by the cryptographic libraries of the hardware and partly by the firmware. The firmware uses the cryptographic libraries for provisioning cryptographic commands in a harmonized interface to the application. The application then uses these cryptographic commands to implement cryptographic protocols like the Shielded connection with pre-shared secret, or provides APIs to use the cryptographic commands directly. In total, these were designed to meet the requirements mentioned in specification column in Table 6.",
+      "text": "These cryptographic claims are partly implemented by the cryptographic libraries of the hardware and partly by the firmware. The firmware uses the cryptographic libraries for provisioning cryptographic commands in a harmonized interface to the application. The application then uses these cryptographic commands to implement cryptographic protocols like the Shielded connection with pre-shared secret, or provides APIs to use the cryptographic commands directly. In total, these were designed to meet the requirements mentioned in specification column in Table 6."
+    },
+    {
+      "self_ref": "#/texts/103",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.6 Physical Scope of the Platform",
+      "text": "3.3.6 Physical Scope of the Platform",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/104",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "9 of 17",
+      "text": "9 of 17"
+    },
+    {
+      "self_ref": "#/texts/105",
+      "parent": {
+        "$ref": "#/pictures/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Figure 1 Physical Scope of TOE",
+      "text": "Figure 1 Physical Scope of TOE"
+    },
+    {
+      "self_ref": "#/texts/106",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The physical scope of the platform is defined by the red box shown in Figure 1.",
+      "text": "The physical scope of the platform is defined by the red box shown in Figure 1."
+    },
+    {
+      "self_ref": "#/texts/107",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "Within the boundary, two major functional blocks-Analog Intellectual Property (AIP) and Digital Intellectual Property (DIP)-are separated and classified based on their circuit design characteristics.",
+      "text": "Within the boundary, two major functional blocks-Analog Intellectual Property (AIP) and Digital Intellectual Property (DIP)-are separated and classified based on their circuit design characteristics."
+    },
+    {
+      "self_ref": "#/texts/108",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "AIP customized all the analog circuitry required in the TOE, including multiple clock sources (CLK), an internal low-dropout regulator (LDO) as the power supply (PWR), input/output circuits (I/O) for communication with the host via the command interface (CMD_IF) and environmental sensors (SENSOR) to protect key information from tampering.",
+      "text": "AIP customized all the analog circuitry required in the TOE, including multiple clock sources (CLK), an internal low-dropout regulator (LDO) as the power supply (PWR), input/output circuits (I/O) for communication with the host via the command interface (CMD_IF) and environmental sensors (SENSOR) to protect key information from tampering."
+    },
+    {
+      "self_ref": "#/texts/109",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "DIP designed the required digital circuitry for the TOE, including cryptographic hardware accelerators such as the Trusted Computing Engine (TCE) and the embedded True Random Number Generator (TRNG), as well as essential system-on-chip (SoC) components. These include the processor core (CPU), on-chip debug port (OCD), boot ROM, data memory (RAM), nonvolatile program memory (NVM), interrupt controller (INTC), timers, interface peripherals (SPI/I2C/SWI), and a Direct Memory Access (DMA) module to accelerate data movement tasks within the chip.",
+      "text": "DIP designed the required digital circuitry for the TOE, including cryptographic hardware accelerators such as the Trusted Computing Engine (TCE) and the embedded True Random Number Generator (TRNG), as well as essential system-on-chip (SoC) components. These include the processor core (CPU), on-chip debug port (OCD), boot ROM, data memory (RAM), nonvolatile program memory (NVM), interrupt controller (INTC), timers, interface peripherals (SPI/I2C/SWI), and a Direct Memory Access (DMA) module to accelerate data movement tasks within the chip."
+    },
+    {
+      "self_ref": "#/texts/110",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The proposed TOE is a secure element IC with built-in key protection and management capabilities. It integrates proprietary firmware running on the processor, cryptographic algorithms implemented in digital circuitry, and analog sensors designed to detect and resist tampering attempts. The scope also includes the firmware running on the SE. The SE firmware is preinstalled in the chip.",
+      "text": "The proposed TOE is a secure element IC with built-in key protection and management capabilities. It integrates proprietary firmware running on the processor, cryptographic algorithms implemented in digital circuitry, and analog sensors designed to detect and resist tampering attempts. The scope also includes the firmware running on the SE. The SE firmware is preinstalled in the chip."
+    },
+    {
+      "self_ref": "#/texts/111",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.7 Cryptographic Random Number Generation",
+      "text": "3.3.7 Cryptographic Random Number Generation",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/112",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform provides a way based on several oscillator rings to generate random numbers as specified in NIST SP80090A [N800-90A] and NIST SP800-90B [N800-90B].",
+      "text": "The platform provides a way based on several oscillator rings to generate random numbers as specified in NIST SP80090A [N800-90A] and NIST SP800-90B [N800-90B]."
+    },
+    {
+      "self_ref": "#/texts/113",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/114",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "10 of 17",
+      "text": "10 of 17"
+    },
+    {
+      "self_ref": "#/texts/115",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The entropy sources are provided by the hard-macro, and the post-processing algorithm for random number generation is implemented by firmware and cryptographic operation. The platform implements random number generation by utilizing the True Random Number Generation capability of the security engine. The TRNG implementation consists of an SP800-90A compliant DRBG that is fed by an SP800-90B compliant seed, which is generated from an entropy source. Each TRNG request generates a 128-bit random number.",
+      "text": "The entropy sources are provided by the hard-macro, and the post-processing algorithm for random number generation is implemented by firmware and cryptographic operation. The platform implements random number generation by utilizing the True Random Number Generation capability of the security engine. The TRNG implementation consists of an SP800-90A compliant DRBG that is fed by an SP800-90B compliant seed, which is generated from an entropy source. Each TRNG request generates a 128-bit random number."
+    },
+    {
+      "self_ref": "#/texts/116",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.8 Cryptographic Key Generation",
+      "text": "3.3.8 Cryptographic Key Generation",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/117",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform provides a way to generate cryptographic keys for use in cryptographic algorithms in Table 7 as specified in specifications in Table 7 for key lengths described in Table 7.",
+      "text": "The platform provides a way to generate cryptographic keys for use in cryptographic algorithms in Table 7 as specified in specifications in Table 7 for key lengths described in Table 7."
+    },
+    {
+      "self_ref": "#/texts/118",
+      "parent": {
+        "$ref": "#/tables/7"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 7  Cryptographic  Key Generation",
+      "text": "Table 7  Cryptographic  Key Generation"
+    },
+    {
+      "self_ref": "#/texts/119",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/120",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The firmware provides the cryptographic key generation commands as described in [Datasheet] section 5.2 \" Data Slot and Access Policies \" and section 10.4 \" KDF Command (0x56) \"",
+      "text": "The firmware provides the cryptographic key generation commands as described in [Datasheet] section 5.2 \" Data Slot and Access Policies \" and section 10.4 \" KDF Command (0x56) \""
+    },
+    {
+      "self_ref": "#/texts/121",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.3.9 Cryptographic KeyStore",
+      "text": "3.3.9 Cryptographic KeyStore",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/122",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform provides a way to store cryptographic keys and other protected data objects such that not even the application can compromise the confidentiality of this data. This data can be used for the cryptographic operations: ECDSA, AES, HMAC.",
+      "text": "The platform provides a way to store cryptographic keys and other protected data objects such that not even the application can compromise the confidentiality of this data. This data can be used for the cryptographic operations: ECDSA, AES, HMAC."
+    },
+    {
+      "self_ref": "#/texts/123",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/124",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "TOE provides a complete key storage and usage protection mechanism to ensure that even if the key is stored within the platform, sensitive information will not be leaked due to access by applications or unauthorized entities.",
+      "text": "TOE provides a complete key storage and usage protection mechanism to ensure that even if the key is stored within the platform, sensitive information will not be leaked due to access by applications or unauthorized entities."
+    },
+    {
+      "self_ref": "#/texts/125",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "TOE supports AES-128, AES-256, ECC-P256, and ECC-P384 encryption keys. The method of generating and importing keys depends on the type and usage scenario. For example, the ECC private key is randomly generated internally by the TOE based on the GenKey command sent by the Host and stored in a controlled secure area; while the AES key can be imported by the Host in plain text, encrypted format, or generated through the ECDH algorithm or KDF key derivation mechanism.",
+      "text": "TOE supports AES-128, AES-256, ECC-P256, and ECC-P384 encryption keys. The method of generating and importing keys depends on the type and usage scenario. For example, the ECC private key is randomly generated internally by the TOE based on the GenKey command sent by the Host and stored in a controlled secure area; while the AES key can be imported by the Host in plain text, encrypted format, or generated through the ECDH algorithm or KDF key derivation mechanism."
+    },
+    {
+      "self_ref": "#/texts/126",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "All keys are stored in TOE's dedicated EEPROM or SRAM space, which has access restrictions and hardware isolation design. The host cannot read the key plaintext in any way and that can only be used in a controlled manner through an authorization mechanism.",
+      "text": "All keys are stored in TOE's dedicated EEPROM or SRAM space, which has access restrictions and hardware isolation design. The host cannot read the key plaintext in any way and that can only be used in a controlled manner through an authorization mechanism."
+    },
+    {
+      "self_ref": "#/texts/127",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "To ensure the confidentiality and resistance against analysis of keys during storage, the TOE applies a scrambling process to the key content. The scrambling uses a random seed uniquely stored in NVR, ensuring that even when identical keys are stored on different chips, the actual data representation in memory differs. This further enhances security against physical attacks.",
+      "text": "To ensure the confidentiality and resistance against analysis of keys during storage, the TOE applies a scrambling process to the key content. The scrambling uses a random seed uniquely stored in NVR, ensuring that even when identical keys are stored on different chips, the actual data representation in memory differs. This further enhances security against physical attacks."
+    },
+    {
+      "self_ref": "#/texts/128",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "In addition, if the internal CPU needs to perform key import operations, this must be processed through a dedicated hardware encryption engine to ensure that the generation, input, storage and use of keys throughout their entire life cycle are completed within a trusted boundary, thereby achieving the goal of protecting the confidentiality and integrity of the keys.",
+      "text": "In addition, if the internal CPU needs to perform key import operations, this must be processed through a dedicated hardware encryption engine to ensure that the generation, input, storage and use of keys throughout their entire life cycle are completed within a trusted boundary, thereby achieving the goal of protecting the confidentiality and integrity of the keys."
+    },
+    {
+      "self_ref": "#/texts/129",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.4",
+      "text": "3.4",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/130",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "Additional Security Functional Requirements",
+      "text": "Additional Security Functional Requirements"
+    },
+    {
+      "self_ref": "#/texts/131",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "11 of 17",
+      "text": "11 of 17"
+    },
+    {
+      "self_ref": "#/texts/132",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.4.1 Secure Communication Support",
+      "text": "3.4.1 Secure Communication Support",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/133",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The platform provides one secure communication channel.",
+      "text": "The platform provides one secure communication channel."
+    },
+    {
+      "self_ref": "#/texts/134",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The secure communication channel authenticates Host Platform and protects against disclosure, modification, replay, erasure of messages between the endpoints, using self-defined protocols and measures.",
+      "text": "The secure communication channel authenticates Host Platform and protects against disclosure, modification, replay, erasure of messages between the endpoints, using self-defined protocols and measures."
+    },
+    {
+      "self_ref": "#/texts/135",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Conformance rationale:",
+      "text": "Conformance rationale:",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/136",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The TOE and the host application exchange session public keys, random nonce, and signatures. Based on these parameters and their respective private keys, a shared session key is generated. This key is used to protect the confidentiality (AES-256 CBC) and integrity (MAC) of data during secure communication. For more information, please refer to Section 11.1 \"Authentication\" and Section 11.2 \"Secure Communication\" in the [Datasheet].",
+      "text": "The TOE and the host application exchange session public keys, random nonce, and signatures. Based on these parameters and their respective private keys, a shared session key is generated. This key is used to protect the confidentiality (AES-256 CBC) and integrity (MAC) of data during secure communication. For more information, please refer to Section 11.1 \"Authentication\" and Section 11.2 \"Secure Communication\" in the [Datasheet]."
+    },
+    {
+      "self_ref": "#/texts/137",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "3.5 Optional Security Functional Requirements",
+      "text": "3.5 Optional Security Functional Requirements",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/138",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The TOE does not implement any of the optional security functional requirements.",
+      "text": "The TOE does not implement any of the optional security functional requirements."
+    },
+    {
+      "self_ref": "#/texts/139",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "12 of 17",
+      "text": "12 of 17"
+    },
+    {
+      "self_ref": "#/texts/140",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "4 Mapping  and  Sufficiency Rationales",
+      "text": "4 Mapping  and  Sufficiency Rationales",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/141",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "4.1 Assurance",
+      "text": "4.1 Assurance",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/142",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "The assurance activities  defined in [PSA-EM-L3] fulfil the SESIP3 activities.  In particular, the required source code review, vulnerability analysis and testing of the [PSA-EM-L3] is applicable.",
+      "text": "The assurance activities  defined in [PSA-EM-L3] fulfil the SESIP3 activities.  In particular, the required source code review, vulnerability analysis and testing of the [PSA-EM-L3] is applicable."
+    },
+    {
+      "self_ref": "#/texts/143",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "13 of 17",
+      "text": "13 of 17"
+    },
+    {
+      "self_ref": "#/texts/144",
+      "parent": {
+        "$ref": "#/tables/9"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "caption",
+      "prov": [],
+      "orig": "Table 8 Assurance - Evidence Mapping",
+      "text": "Table 8 Assurance - Evidence Mapping"
+    },
+    {
+      "self_ref": "#/texts/145",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "4.2 PSA Security Functions Mapping",
+      "text": "4.2 PSA Security Functions Mapping",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/146",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "This section shows the platform mapping to the PSA Security Functions.",
+      "text": "This section shows the platform mapping to the PSA Security Functions."
+    },
+    {
+      "self_ref": "#/texts/147",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "Table 9 Functionality Mapping and Sufficiency Rationales",
+      "text": "Table 9 Functionality Mapping and Sufficiency Rationales"
+    },
+    {
+      "self_ref": "#/texts/148",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "14 of 17",
+      "text": "14 of 17"
+    },
+    {
+      "self_ref": "#/texts/149",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "5 Glossary",
+      "text": "5 Glossary",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/150",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "15 of 17",
+      "text": "15 of 17"
+    },
+    {
+      "self_ref": "#/texts/151",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "6 References",
+      "text": "6 References",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/152",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "16 of 17",
+      "text": "16 of 17"
+    },
+    {
+      "self_ref": "#/texts/153",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "7",
+      "text": "7",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/154",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [],
+      "orig": "Revision History",
+      "text": "Revision History",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/155",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [],
+      "orig": "17 of 17",
+      "text": "17 of 17"
+    }
+  ],
+  "pictures": [
+    {
+      "self_ref": "#/pictures/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/25"
+        }
+      ],
+      "content_layer": "body",
+      "label": "picture",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/25"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "annotations": []
+    },
+    {
+      "self_ref": "#/pictures/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/105"
+        }
+      ],
+      "content_layer": "body",
+      "label": "picture",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/105"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "annotations": []
+    }
+  ],
+  "tables": [
+    {
+      "self_ref": "#/tables/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "document_index",
+      "prov": [],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/9"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/9"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/11"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/11"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/13"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/13"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/50"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/50"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/70"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/70"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/6",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/100"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/100"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/7",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/118"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/118"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/8",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/9",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/144"
+        }
+      ],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [
+        {
+          "$ref": "#/texts/144"
+        }
+      ],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/10",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/11",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/12",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    },
+    {
+      "self_ref": "#/tables/13",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "table",
+      "prov": [],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "data": {
+        "table_cells": [],
+        "num_rows": 0,
+        "num_cols": 0
+      },
+      "annotations": []
+    }
+  ],
+  "key_value_items": [],
+  "form_items": [],
+  "pages": {
+    "1": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 1
+    },
+    "2": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 2
+    },
+    "3": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 3
+    },
+    "4": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 4
+    },
+    "5": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 5
+    },
+    "6": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 6
+    },
+    "7": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 7
+    },
+    "8": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 8
+    },
+    "9": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 9
+    },
+    "10": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 10
+    },
+    "11": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 11
+    },
+    "12": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 12
+    },
+    "13": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 13
+    },
+    "14": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 14
+    },
+    "15": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 15
+    },
+    "16": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 16
+    },
+    "17": {
+      "size": {
+        "width": 595.56,
+        "height": 842.04
+      },
+      "page_no": 17
+    }
+  }
+}

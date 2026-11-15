@@ -1,0 +1,208 @@
+{
+ "groups": [
+  {
+   "group": "standard_id",
+   "text": "compliant with EN 17927:2023.",
+   "expect": {
+    "EN": [
+     "EN 17927:2023"
+    ]
+   }
+  },
+  {
+   "group": "standard_id",
+   "text": "IEC 62443-4-2:2019 and IEC 62443-4-1",
+   "expect": {
+    "IEC": [
+     "IEC 62443-4-1",
+     "IEC 62443-4-2:2019"
+    ]
+   }
+  },
+  {
+   "group": "standard_id",
+   "text": "ISO/SAE 21434:2021 and ISO/SAE21434",
+   "expect": {
+    "ISO": [
+     "ISO/SAE 21434:2021",
+     "ISO/SAE21434"
+    ]
+   }
+  },
+  {
+   "group": "standard_id",
+   "text": "NIST IR 8425, NISTIR 8259A and NIST 8425",
+   "expect": {
+    "NIST": [
+     "NIST 8425",
+     "NIST IR 8425",
+     "NISTIR 8259A"
+    ]
+   }
+  },
+  {
+   "group": "standard_id",
+   "text": "random bits as in ISO/IEC 18031",
+   "expect": {
+    "EN": [],
+    "IEC": []
+   },
+   "why": "must not match"
+  },
+  {
+   "group": "standard_id",
+   "text": "ISO/IEC 15408 and ISO/IEC 18031",
+   "expect": {
+    "ISO": [
+     "ISO/IEC 15408",
+     "ISO/IEC 18031"
+    ],
+    "EN": []
+   },
+   "why": "ISO/IEC stays one ISO value"
+  },
+  {
+   "group": "os_name",
+   "text": "it uses FreeRTOS v10.4.3 as the kernel",
+   "expect": {
+    "FreeRTOS": [
+     "FreeRTOS v10.4.3"
+    ],
+    "Zephyr": []
+   }
+  },
+  {
+   "group": "sesip_document_id",
+   "text": "[SESIP] GP_FST_070 and [PP] GPT_SPE_150.",
+   "expect": {
+    "GlobalPlatform": [
+     "GPT_SPE_150",
+     "GP_FST_070"
+    ]
+   }
+  },
+  {
+   "group": "sesip_document_id",
+   "text": "JSADEN018, JSADEN0001 and JSADEN14",
+   "expect": {
+    "PSA": [
+     "JSADEN0001",
+     "JSADEN018",
+     "JSADEN14"
+    ]
+   }
+  },
+  {
+   "group": "sesip_document_id",
+   "text": "EN 17927:2023 Security Evaluation Standard for IoT Platforms",
+   "expect": {
+    "GlobalPlatform": [],
+    "PSA": [],
+    "Arm": []
+   },
+   "why": "EN 17927 is only a standard"
+  },
+  {
+   "group": "other_certification_id",
+   "text": "Scheme PSA Certified Level One Certification body TrustCB Certification number 0716053549754-10010",
+   "expect": {
+    "PSA": [
+     "0716053549754-10010"
+    ]
+   }
+  },
+  {
+   "group": "other_certification_id",
+   "text": "Certification body NIST Certification number A5258 https://csrc.nist.gov",
+   "expect": {
+    "CAVP": [
+     "A5258"
+    ]
+   }
+  },
+  {
+   "group": "regulation",
+   "text": "compliant to DIRECTIVE 2014/53/EU, Article 3",
+   "expect": {
+    "RED": [
+     "2014/53/EU"
+    ],
+    "CRA": []
+   }
+  }
+ ],
+ "sfr_names": [
+  {
+   "text": "Software Attacker Resistance: Isolation of Platform (between SPE and NSPE)",
+   "expect": [
+    "isolation_of_platform"
+   ]
+  },
+  {
+   "text": "Software Attacker Resistance: Isolation of Platform Parts",
+   "expect": [
+    "isolation_of_platform_parts"
+   ]
+  },
+  {
+   "text": "Physical Attacker Resistance and Physical Attack Resistance",
+   "expect": [
+    "physical_attacker_resistance"
+   ]
+  },
+  {
+   "text": "Cryptographic KeyStore, Cryptographic Key Store",
+   "expect": [
+    "cryptographic_keystore"
+   ]
+  },
+  {
+   "text": "Secure Trusted Storage",
+   "expect": [
+    "secure_trusted_storage"
+   ]
+  },
+  {
+   "text": "Secure Recovery and Secure Backup and Restore",
+   "expect": [
+    "secure_backup_and_restore",
+    "secure_recovery"
+   ]
+  },
+  {
+   "text": "Identification of Platform Type",
+   "expect": [
+    "verification_of_platform_identity"
+   ]
+  },
+  {
+   "text": "Verification of\nPlatform Instance\nIdentity",
+   "expect": [
+    "verification_of_platform_instance_identity"
+   ],
+   "why": "split over lines"
+  },
+  {
+   "text": "keys are kept in secure storage",
+   "expect": [],
+   "why": "too generic"
+  },
+  {
+   "text": "Secure Update of Platform. secure update of the platform, SECURE UPDATE OF PLATFORM.",
+   "expect": [
+    "secure_update_of_platform"
+   ],
+   "why": "case variants are one SFR"
+  },
+  {
+   "text": "Secure Storage (internal storage)",
+   "expect": [
+    "secure_storage"
+   ]
+  },
+  {
+   "text": "PSA Secure Storage API and the Secure Storage service",
+   "expect": []
+  }
+ ]
+}

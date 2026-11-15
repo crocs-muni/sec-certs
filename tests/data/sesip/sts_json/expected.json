@@ -1,0 +1,30 @@
+{
+ "SESIP-2500183-01": {
+  "sfr": "3.2 Security functional requirements (SFRs)",
+  "claimed": [
+   "cryptographic_keystore",
+   "cryptographic_operation",
+   "cryptographic_random_number_generation",
+   "isolation_of_platform",
+   "physical_attacker_resistance",
+   "residual_information_purging",
+   "secure_initialization_of_platform",
+   "verification_of_platform_identity"
+  ],
+  "has_profile_reference": false
+ },
+ "SESIP-2500125-01": {
+  "sfr": "3.3 Security Functional Requirements",
+  "claimed": [
+   "cryptographic_key_generation",
+   "cryptographic_keystore",
+   "cryptographic_operation",
+   "cryptographic_random_number_generation",
+   "physical_attacker_resistance",
+   "secure_communication_support",
+   "secure_initialization_of_platform",
+   "verification_of_platform_identity"
+  ],
+  "has_profile_reference": true
+ }
+}
