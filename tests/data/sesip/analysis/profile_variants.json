@@ -1,0 +1,40 @@
+{
+ "SESIP Profile for PSA Certified TM Level 3 v1.0": {
+  "PSA Certified Level 3": "1.0"
+ },
+ "SESIP Profile for PSA Certified RoT Component Level v1.0 REL02": {},
+ "PSA Certified Level 2 ARoT’less SESIP Profile JSADEN019 v2.0": {
+  "PSA Certified Level 2 ARoT-less": "2.0"
+ },
+ "PSA Certified Level 2 SESIP Profile v1.0 GPS_SPE_112 (Previously JSADEN012)": {
+  "PSA Certified Level 2": "1.0"
+ },
+ "SESIP Profile for PSA Certified Level 4 RoT Component v2.0": {
+  "PSA Certified RoT Component Level 4": "2.0"
+ },
+ "SESIP Profile for PSA Certified Level 3 RoT Component v1.0": {
+  "PSA Certified RoT Component Level 3": "1.0"
+ },
+ "SESIP Profile for PSA Certified 4™ RoT Component Level 4": {
+  "PSA Certified RoT Component Level 4": null
+ },
+ "SESIP Profile for PSA Certified Level 4 iSE/SE and RoT Component": {
+  "PSA Certified Level 4 iSE/SE": null
+ },
+ "SESIP Profile for PSA Certified Level 2 version 1.0 Rel 2": {
+  "PSA Certified Level 2": "1.0 REL 02"
+ },
+ "SESIP Profile for PSA Certified Level 2 v1.0REL01": {
+  "PSA Certified Level 2": "1.0 REL 01"
+ },
+ "SESIP profile for DTSec Connected Diabetes Devices, version 1.0 draft, February 2021": {
+  "DTSec Connected Diabetes Devices": "1.0 DRAFT"
+ },
+ "SESIP Profile for PSA Certified Level 2 1.0 REL 02 As described in TrustCB Procedures v2.3": {
+  "PSA Certified Level 2": "1.0 REL 02"
+ },
+ "SESIP Profile for Secure MCUs and MPUs and PSA Certified Level 3 v1.0": {
+  "Secure MCUs and MPUs": null,
+  "PSA Certified Level 3": "1.0"
+ }
+}
