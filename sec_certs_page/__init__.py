@@ -167,6 +167,7 @@ from .eucc import eucc as eucc_bp
 from .fips import fips as fips_bp
 from .notifications import notifications as notifications_bp
 from .pp import pp as pp_bp
+from .sesip import sesip as sesip_bp
 from .user import user as user_bp
 from .vuln import vuln as vuln_bp
 
@@ -182,6 +183,7 @@ with app.app_context():
     app.register_blueprint(about_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(eucc_bp)
+    app.register_blueprint(sesip_bp)
 
     # Setup GitHub OAuth if enabled and configured
     if app.config.get("GITHUB_OAUTH_ENABLED", False):
