@@ -119,6 +119,7 @@ _SFR_RULES: Final = {key: rxs for group in sesip_rules["sesip_sfr"].values() for
 _HEADING_LEVEL_RE: Final = re.compile(r"^\s*(?:D\.)?(\d+(?:\.\d+)*)\.?\s")
 _SFR_SUBSECTION_RE: Final = re.compile(r"functional\s+requirements|\bSFRs?\b", re.IGNORECASE)
 _NOT_CLAIMED_RE: Final = re.compile(r"non-?conformance\s+rationale", re.IGNORECASE)
+_NUMBER_ONLY_RE: Final = re.compile(r"(?:D\.)?\d+(?:\.\d+)+\.?")
 
 
 def _sfr_of(title: str) -> str | None:
@@ -149,12 +150,15 @@ def _st_claimed_sfrs(view: DocumentView, sections: dict[str, str] | None) -> set
     sfr = None
     rest = blocks[start + 1 :]
     for i, (block, text) in enumerate(rest):
+        # only number -> join with the next text into a valid heading
+        if _NUMBER_ONLY_RE.fullmatch(text) and i + 1 < len(rest):
+            text = f"{text} {rest[i + 1][1]}"
         title = _HEADING_NUMBER_RE.sub("", text)
         if sfr and _NOT_CLAIMED_RE.match(title):
             found.discard(sfr)
-        if not is_heading_candidate(block) or len(title) >= 90:
+        if not is_heading_candidate(block) or (len(title) >= 90 and block.kind is not BlockKind.HEADING):
             continue
-        if block.kind is BlockKind.HEADING or _level(text) >= 2:
+        if len(title) < 90 and (block.kind is BlockKind.HEADING or _level(text) >= 2):
             # chapter with more SFRs "3.6 Product Life Cycle"
             sibling = _level(text) == level and _next_heading_is_sfr(rest[i + 1 :])
             if 0 < _level(text) <= level and not _SFR_SUBSECTION_RE.search(title) and not sibling:
