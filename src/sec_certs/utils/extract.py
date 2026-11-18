@@ -429,7 +429,6 @@ def search_only_headers_niap(filepath: Path):  # type: ignore # noqa: C901
     return items_found
 
 
-@no_type_check
 def flatten_matches(dct: dict) -> dict:
     """
     Function to flatten dictionary of matches.

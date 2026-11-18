@@ -1,10 +1,11 @@
 """
 Shared code for the scheme-specific certification report frontpage parsers.
 
-Every report reaches a parser in up to two renderings: the serialized Docling document, in which
-page one is a list of text blocks, and the pdftotext output, in which page one is the text before
-the first form feed. A parser implements both `parse_structured` and `parse_text`; `parse` tries the
-structured rendering first and falls back to the text one.
+A report reaches a parser in the rendering of the configured PDF converter: the serialized Docling
+document, in which page one is a list of text blocks, or the pdftotext output, in which page one is
+the text before the first form feed. A parser implements both `parse_structured` and `parse_text`;
+`parse` picks the one that matches `config.pdf_converter`. The Markdown that Docling writes to the
+text file has no page breaks, so it is never parsed as text.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from typing import Any
 
 from sec_certs import constants
 from sec_certs.cert_rules import rules
+from sec_certs.configuration import config
 from sec_certs.utils.extract import load_text_file, normalize_match_string
 
 logger = logging.getLogger(__name__)
@@ -87,24 +89,29 @@ class FrontpageParser(ABC):
 
     def parse(self, txt_path: Path, json_path: Path | None = None) -> dict[str, Any]:
         """
-        Extract the frontpage fields.
+        Extract the frontpage fields from the rendering of the configured PDF converter.
+
+        With Docling, only the serialized document is parsed; without it, nothing is extracted.
 
         :param txt_path: Path to the text rendering of the report.
         :param json_path: Path to the serialized docling document, if the converter produced one.
         :return: The extracted fields, empty if nothing could be extracted.
         :raises ValueError: If parsing fails unexpectedly.
         """
-        if json_path is not None and json_path.exists():
+        if config.pdf_converter == "docling":
+            if json_path is None or not json_path.exists():
+                logger.warning(f"Docling document missing for {txt_path}, skipping frontpage parsing.")
+                return {}
+            source, strategy = json_path, "structured"
             items_found = self._parse_structured_file(json_path)
-            if items_found:
-                items_found[constants.TAG_PARSE_STRATEGY] = "structured"
-                return items_found
-
-        items_found = self._parse_text_file(txt_path)
-        if items_found:
-            items_found[constants.TAG_PARSE_STRATEGY] = "text"
         else:
-            logger.error(f"Front page not found for file: {txt_path}")
+            source, strategy = txt_path, "text"
+            items_found = self._parse_text_file(txt_path)
+
+        if items_found:
+            items_found[constants.TAG_PARSE_STRATEGY] = strategy
+        else:
+            logger.warning(f"Front page not found for file: {source}")
         return items_found
 
     @abstractmethod
@@ -132,11 +139,8 @@ class FrontpageParser(ABC):
                 document = json.load(handle)
             items_found = self.parse_structured(document)
         except Exception as e:
-            logger.warning(f"Structured frontpage parsing failed for {json_path}: {e}, falling back to text.")
+            logger.warning(f"Structured frontpage parsing failed for {json_path}: {e}.")
             return {}
-
-        if not items_found:
-            logger.warning(f"Structured frontpage parsing yielded nothing for {json_path}, falling back to text.")
         return items_found
 
     def _parse_text_file(self, txt_path: Path) -> dict[str, Any]:

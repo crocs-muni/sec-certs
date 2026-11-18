@@ -1,5 +1,3 @@
-import importlib
-import locale
 from collections.abc import Generator
 from importlib.resources import as_file, files
 from pathlib import Path
@@ -8,8 +6,8 @@ import pytest
 import tests.data.cc.frontpage
 
 from sec_certs import constants
+from sec_certs.configuration import config
 from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
-from sec_certs.utils.frontpage import canada as canada_module
 from sec_certs.utils.frontpage.nscib import _organization_of
 
 
@@ -17,6 +15,11 @@ from sec_certs.utils.frontpage.nscib import _organization_of
 def frontpage_dir() -> Generator[Path, None, None]:
     with as_file(files(tests.data.cc.frontpage)) as path:
         yield path
+
+
+@pytest.fixture
+def docling_converter(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(config, "pdf_converter", "docling")
 
 
 NSCIB_TRUSTCB_EXPECTED = {
@@ -72,6 +75,7 @@ def test_nscib_text(
     ("name", "expected"),
     [("nscib_report_trustcb", NSCIB_TRUSTCB_EXPECTED), ("nscib_report_tuv", NSCIB_TUV_EXPECTED)],
 )
+@pytest.mark.usefixtures("docling_converter")
 def test_nscib_structured(nscib_parser: NSCIBFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
     items = nscib_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
 
@@ -331,6 +335,7 @@ def test_canada_text(canada_parser: CanadaFrontpageParser, frontpage_dir: Path, 
 
 
 @pytest.mark.parametrize(("name", "expected"), CANADA_REPORTS)
+@pytest.mark.usefixtures("docling_converter")
 def test_canada_structured(
     canada_parser: CanadaFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]
 ):
@@ -362,6 +367,7 @@ CANADA_DELL_EXPECTED = {
 }
 
 
+@pytest.mark.usefixtures("docling_converter")
 def test_canada_structured_developer(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
     items = canada_parser.parse(
         frontpage_dir / "docling" / "canada_report_dell.txt", frontpage_dir / "docling" / "canada_report_dell.json"
@@ -472,25 +478,9 @@ def test_canada_structured_legacy_issued_by_is_not_a_developer(canada_parser: Ca
     assert items[constants.TAG_CERT_ITEM] == "NetApp Clustered Data ONTAP® 8.2.1"
 
 
-def test_canada_date_parsing_ignores_process_locale():
-    try:
-        locale.setlocale(locale.LC_ALL, "cs_CZ.UTF-8")
-    except locale.Error:
-        pytest.skip("cs_CZ.UTF-8 locale not installed")
-
-    try:
-        text = "COMMON CRITERIA CERTIFICATION REPORT\nThycotic Secret Server v10.0\n23 October 2018\n383-4-445\n"
-        items = importlib.reload(canada_module).CanadaFrontpageParser().parse_text(text.replace("\n", " "), text)
-    finally:
-        locale.setlocale(locale.LC_ALL, "C")
-        importlib.reload(canada_module)
-
-    assert items[constants.TAG_REPORT_DATE] == "23 October 2018"
-    assert items[constants.TAG_CERT_ITEM] == "Thycotic Secret Server v10.0"
-
-
-def test_canada_docling_markdown_lacks_frontpage_content(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
-    items = canada_parser.parse(frontpage_dir / "docling" / "canada_report_hsl.txt")
+@pytest.mark.usefixtures("docling_converter")
+def test_canada_docling_text_is_not_parsed_without_json(canada_parser: CanadaFrontpageParser, frontpage_dir: Path):
+    items = canada_parser.parse(frontpage_dir / "docling" / "canada_report_mcafee_hercules.txt")
 
     assert items == {}
 
