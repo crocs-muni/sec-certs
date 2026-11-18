@@ -1,0 +1,295 @@
+UNCLASSIFIED
+© Government of Canada. This document is the property of the Government of Canada. It shall not be altered,
+distributed beyond its intended audience, produced, reproduced or published, in whole or in any substantial part
+thereof, without the express permission of CSE.
+COMMON CRITERIA
+CERTIFICATION REPORT
+Thycotic Secret Server Government Edition v10.0
+23 October 2018
+383-4-445
+V1.1UNCLASSIFIED
+FOREWORD
+This certification report is an UNCLASSIFIED publication, issued under the authority of the Chief,
+Communications Security Establishment (CSE). Suggestions for amendments should be forwarded through
+departmental communications security channels to your Client Services Representative at CSE.
+The Information Technology (IT) product identified in this certification report, and its associated certificate, has
+been evaluated at an approved evaluation facility – established under the Canadian Common Criteria Scheme –
+using the Common Methodology for Information Technology Security Evaluation, Version 3.1 Revision 4, for
+conformance to the Common Criteria for Information Technology Security Evaluation, Version 3.1 Revision 4.
+This certification report, and its associated certificate, applies only to the identified version and release of the
+product in its evaluated configuration. The evaluation has been conducted in accordance with the provisions of
+the Canadian CC Scheme, and the conclusions of the evaluation facility in the evaluation report are consistent
+with the evidence adduced. This report, and its associated certificate, are not an endorsement of the IT product
+by the Communications Security Establishment, or any other organization that recognizes or gives effect to this
+report, and its associated certificate, and no warranty for the IT product by the Communications Security
+Establishment, or any other organization that recognizes or gives effect to this report, and its associated
+certificate, is either expressed or implied.
+If your department has identified a requirement for this certification report based on business needs and would
+like more detailed information, please contact:
+ITS Client Services
+Telephone: (613) 991-7654
+E-mail: itsclientservices@cse-cst.gc.caUNCLASSIFIED
+OVERVIEW
+The Canadian Common Criteria Scheme provides a third-party evaluation service for determining the
+trustworthiness of Information Technology (IT) security products. Evaluations are performed by a commercial
+Common Criteria Evaluation Facility (CCEF) under the oversight of the Certification Body, which is managed by
+the Communications Security Establishment.
+A CCEF is a commercial facility that has been approved by the Certification Body to perform Common Criteria
+evaluations; a significant requirement for such approval is accreditation to the requirements of ISO/IEC
+17025:2005, the General Requirements for the Competence of Testing and Calibration Laboratories.
+By awarding a Common Criteria certificate, the Certification Body asserts that the product complies with the
+security requirements specified in the associated security target. A security target is a requirements specification
+document that defines the scope of the evaluation activities. The consumer of certified IT products should
+review the security target, in addition to this certification report, in order to gain an understanding of any
+assumptions made during the evaluation, the IT product's intended environment, the evaluated security
+functionality, and the testing and analysis conducted by the CCEF.
+The certification report, certificate of product evaluation and security target are posted to the Certified Products
+list (CPL) for the Canadian CC Scheme and to the Common Criteria portal (the official website of the
+International Common Criteria Project).UNCLASSIFIED
+TABLE OF CONTENTS
+Executive Summary........................................................................................................................................1
+1 Identification of Target of Evaluation......................................................................................................2
+1.1 Common Criteria Conformance..................................................................................................................2
+1.2 TOE Description..........................................................................................................................................2
+1.3 TOE Architecture ........................................................................................................................................2
+2 Security Policy .......................................................................................................................................3
+2.1 Cryptographic Functionality.......................................................................................................................3
+3 Assumptions and Clarifications of Scope.................................................................................................4
+3.1 Usage and Environmental Assumptions.....................................................................................................4
+3.2 Clarification of Scope..................................................................................................................................4
+4 Evaluated Configuration.........................................................................................................................5
+4.1 Documentation...........................................................................................................................................5
+5 Evaluation Analysis Activities .................................................................................................................6
+5.1 Development..............................................................................................................................................6
+5.2 Guidance Documents.................................................................................................................................6
+5.3 Life-cycle Support.......................................................................................................................................6
+6 Testing Activities....................................................................................................................................7
+6.1 Assessment of Developer Tests..................................................................................................................7
+6.2 Conduct of Testing......................................................................................................................................7
+6.3 Independent Functional Testing.................................................................................................................7
+6.4 Independent Penetration Testing ..............................................................................................................8
+7 Results of the Evaluation........................................................................................................................9
+7.1 Recommendations/Comments...................................................................................................................9
+8 Supporting Content..............................................................................................................................10
+8.1 List of Abbreviations................................................................................................................................ 10
+8.2 References............................................................................................................................................... 11UNCLASSIFIED
+LIST OF FIGURES
+Figure 1 TOE Architecture ....................................................................................................................................2
+LIST OF TABLES
+Table 1 TOE Identification.......................................................................................................................................2
+Table 2 Cryptographic Algorithm(s)........................................................................................................................3UNCLASSIFIED
+V1.1 1
+EXECUTIVE SUMMARY
+Thycotic Secret Server Government Edition v10.0 (hereafter referred to as the Target of Evaluation, or TOE),
+from Thycotic, was the subject of this Common Criteria evaluation. A description of the TOE can be found in
+Section 1.2. The results of this evaluation demonstrate that TOE meets the requirements of the conformance
+claim listed in Table 1 for the evaluated security functionality.
+CygnaCom Solutions is the CCEF that conducted the evaluation. This evaluation was completed 23 October 2018
+and was carried out in accordance with the rules of the Canadian Common Criteria Scheme.
+The scope of the evaluation is defined by the security target, which identifies assumptions made during the
+evaluation, the intended environment for TOE, and the security functional/assurance requirements. Consumers
+are advised to verify that their operating environment is consistent with that specified in the security target, and
+to give due consideration to the comments, observations and recommendations in this certification report.
+Communications Security Establishment, as the Certification Body, declares that the TOE evaluation meets all
+the conditions of the Arrangement on the Recognition of Common Criteria Certificates and that the product will
+be listed on the Canadian Certified Products list (CPL) and the Common Criteria portal (the official website of the
+International Common Criteria Project).UNCLASSIFIED
+V1.1 2
+1 IDENTIFICATION OF TARGET OF EVALUATION
+The Target of Evaluation (TOE) is identified as follows:
+Table 1 TOE Identification
+TOE Name and Version Thycotic Secret Server Government Edition v10.0
+Developer Thycotic
+Conformance Claim Protection Profile for Enterprise Security Management - Identity and Credential
+Management, version 2.1, 24 October 2013
+1.1 COMMON CRITERIA CONFORMANCE
+The evaluation was conducted using the Common Methodology for Information Technology Security Evaluation,
+Version 3.1 Revision 4, for conformance to the Common Criteria for Information Technology Security Evaluation,
+Version 3.1 Revision 4.
+1.2 TOE DESCRIPTION
+The TOE is an enterprise identity and credential management application. The TOE is used as an enterprise
+credential manager, where the association of attributes of an individual user with specific credentials can be
+understood as identity management and the ability to change and revoke credentials as a credential
+management.
+The TOE is used in enterprise settings to define and maintain user credentials within a large organization. The
+TOE is responsible for associating users with different sets of privileges with the access to the operational
+environment resources and services.
+1.3 TOE ARCHITECTURE
+A diagram of the TOE architecture is as follows:
+Figure 1 TOE ArchitectureUNCLASSIFIED
+V1.1 3
+2 SECURITY POLICY
+The TOE implements policies pertaining to the following security functional classes:
+ Enterprise Security Management
+ Security Audit
+ Cryptographic Support
+ Identification and Authentication
+ Security Management
+ Protection of the TSF
+ TOE Access
+ Trusted Path/Channels
+Complete details of the security functional requirements (SFRs) can be found in the Security Target (ST)
+referenced in section 8.2.
+2.1 CRYPTOGRAPHIC FUNCTIONALITY
+The following Government of Canada approved cryptographic algorithms were evaluated by the CAVP and used
+by the TOE:
+Table 2 Cryptographic Algorithm(s)
+Cryptographic Algorithm Standard Certificate Number
+Advanced Encryption Standard (AES) FIPS 197 #2832
+Rivest Shamir Adleman (RSA) FIPS 186-4 #1487
+Secure Hash Algorithm (SHS) FIPS 180-3 #2373
+Keyed-Hash Message Authentication Code (HMAC) FIPS 198 #1773
+Deterministic Random Bit Generation (DRBG) SP 800-90A #489
+Component Validation List SP 800-135 #323UNCLASSIFIED
+V1.1 4
+3 ASSUMPTIONS AND CLARIFICATIONS OF SCOPE
+Consumers of the TOE should consider assumptions about usage and environmental settings as requirements
+for the product’s installation and its operating environment. This will ensure the proper and secure operation of
+the TOE.
+3.1 USAGE AND ENVIRONMENTAL ASSUMPTIONS
+The following assumptions are made regarding the use and deployment of the TOE:
+ The TOE will use cryptographic primitives provided by the Operational Environment to perform
+cryptographic services;
+ There will be a defined enrollment process that confirms user identity before the assignment of
+credentials;
+ The TOE will be able to establish connectivity to other ESM products in order to share security data;
+ Third-party entities that exchange attribute data with the TOE are assumed to be trusted;
+ There will be one or more competent individuals assigned to install, configure, and operate the TOE; and
+ The TOE will receive reliable time data from the Operational Environment.
+3.2 CLARIFICATION OF SCOPE
+The TOE incorporates CAVP validated cryptography and was not subjected to a CMVP validation.
+With regards to TLS, the TOE does not log failure to establish a session and relies on the underlying platform
+(Windows). Windows does not however capture the IP address or forward the requests when it detects a TLS
+error. This issue was raised with the ESM Technical Rapid Response Team and determined to be acceptable.
+The TOE supports a number of features that are not part of the core functionality. Those features are excluded
+from scope of the evaluation:
+ Use of the SMTP is not evaluated
+ Use of SAML is not evaluated
+ Integration with HSM is not evaluated
+ Use of automatic account discovery is not evaluated
+ Use of remote password changing functionality is not evaluated, except for Unix Account SSH Secrets
+ Use of session launcher is not evaluated, except for Putty Launcher used with Unix Account SSH Secrets
+ Use of automatic patching is not evaluated
+ Use of remote database server is not evaluated, in the evaluated configuration database installed locally
+ High availability deployments and backup functionality are not evaluatedUNCLASSIFIED
+V1.1 5
+4 EVALUATED CONFIGURATION
+The evaluated configuration for the TOE comprises:
+ The TOE (Thycotic Secret Server Government Edition v10.0, build 104.000003) installed on a platform
+running
+o Microsoft Windows Server 2012 R2 (x64)
+o Microsoft .NET Framework 4.5.1
+o Microsoft SQL Server 2016
+With support from the Operating environment for:
+ Syslog Server
+ Active Directory Server
+ CRL Server
+4.1 DOCUMENTATION
+The following documents are provided to the consumer to assist in the configuration and installation of the TOE:
+a. Secret Server User Guide, document version 1.1, July 2018
+b. Secret Server Getting Started Guide, document version 1.1, July 2018
+c. Thycotic Secret Server Functional Specification, document version 0.3, 14 March 2018
+d. Common Criteria Hardening Guide, Secret Server v10.0, document version 1.011, August 2018UNCLASSIFIED
+V1.1 6
+5 EVALUATION ANALYSIS ACTIVITIES
+The evaluation analysis activities involved a structured evaluation of the TOE. Documentation and process
+dealing with Development, Guidance Documents, and Life-Cycle Support were evaluated.
+5.1 DEVELOPMENT
+The evaluators analyzed the documentation provided by the vendor; they determined that the design
+completely and accurately describes the TOE security functionality (TSF) interfaces and how the TSF implements
+the security functional requirements (SFRs). The evaluators determined that the initialization process is secure,
+that the security functions are protected against tamper and bypass, and that security domains are maintained.
+5.2 GUIDANCE DOCUMENTS
+The evaluators examined the TOE preparative user guidance and operational user guidance and determined that
+it sufficiently and unambiguously describes how to securely transform the TOE into its evaluated configuration
+and how to use and administer the product. The evaluators examined and tested the preparative and
+operational guidance, and determined that they are complete and sufficiently detailed to result in a secure
+configuration.
+Section 4.1 provides details on the guidance documents.
+5.3 LIFE-CYCLE SUPPORT
+An analysis of the TOE configuration management system and associated documentation was performed. The
+evaluators found that the TOE configuration items were clearly marked.
+The evaluators examined the delivery documentation and determined that it described all of the procedures
+required to maintain the integrity of the TOE during distribution to the consumer.UNCLASSIFIED
+V1.1 7
+6 TESTING ACTIVITIES
+Testing consists of the following three steps: assessing developer tests, performing independent functional tests,
+and performing penetration tests.
+6.1 ASSESSMENT OF DEVELOPER TESTS
+The evaluators verified that the developer has met their testing responsibilities by examining their test evidence,
+and reviewing their test results, as documented in the ETR. The correspondence between the tests identified in
+the developer’s test documentation and the functional specification was complete.
+6.2 CONDUCT OF TESTING
+The TOE was subjected to a comprehensive suite of formally documented, independent functional and
+penetration tests. The detailed testing activities, including configurations, procedures, test cases, expected
+results and observed results are documented in a separate Test Results document.
+6.3 INDEPENDENT FUNCTIONAL TESTING
+During this evaluation, the evaluator developed independent functional tests by examining design and guidance
+documentation.
+All testing was planned and documented to a sufficient level of detail to allow repeatability of the testing
+procedures and results. The following testing activity was performed:
+a. PP Assurance Activities: The evaluator performed the assurance activities listed in the claimed PP.
+6.3.1 FUNCTIONAL TEST RESULTS
+The developer’s tests and the independent functional tests yielded the expected results, providing assurance
+that the TOE behaves as specified in its ST and functional specification.UNCLASSIFIED
+V1.1 8
+6.4 INDEPENDENT PENETRATION TESTING
+Subsequent to the independent review of public domain vulnerability databases and all evaluation deliverables,
+limited independent evaluator penetration testing was conducted. The penetration tests focused on:
+a. Use of automated vulnerability scanning tools to discover potential network, platform and application
+layer vulnerabilities such as Heartbleed, Shellshock, FREAK, POODLE, and GHOST; and
+b. Login field overflow: This test case explored how the TOE handles long usernames and passwords; and
+c. Session cookie hijacking: This test case attempts to takeover an admin session through the use of
+session cookies.
+6.4.1 PENETRATION TEST RESULTS
+The independent penetration testing did not uncover any exploitable vulnerabilities in the intended operating
+environment.UNCLASSIFIED
+V1.1 9
+7 RESULTS OF THE EVALUATION
+This evaluation has provided the basis for the conformance claim documented in Table 1. The overall verdict for
+this evaluation is PASS. These results are supported by evidence in the ETR.
+The IT product identified in this report has been evaluated at an approved evaluation facility established under
+the Canadian Common Criteria Scheme using the Common Methodology for IT Security Evaluation, Version 3.1
+Revision 4, for conformance to the Common Criteria for IT Security Evaluation, Version 3.1 Revision 4. These
+evaluation results apply only to the specific version and release of the product in its evaluated configuration and
+in conjunction with the complete certification report.
+The evaluation has been conducted in accordance with the provisions of the Canadian Common Criteria Scheme
+and the conclusions of the evaluation facility in the evaluation report are consistent with the evidence adduced.
+This is not an endorsement of the IT product by CSE or by any other organization that recognizes or gives effect
+to this certificate, and no warranty of the IT product by CSE or by any other organization that recognizes or gives
+effect to this certificate, is expressed or implied.
+7.1 RECOMMENDATIONS/COMMENTS
+It is recommended that all guidance outlined in Section 4.1 be followed to configure the TOE in the evaluated
+configuration.UNCLASSIFIED
+V1.1 10
+8 SUPPORTING CONTENT
+8.1 LIST OF ABBREVIATIONS
+Term Definition
+CAVP Cryptographic Algorithm Validation Program
+CCEF Common Criteria Evaluation Facility
+CM Configuration Management
+CMVP Cryptographic Module Validation Program
+CRL Certificate Revocation List
+CSE Communications Security Establishment
+EAL Evaluation Assurance Level
+ETR Evaluation Technical Report
+GC Government of Canada
+IT Information Technology
+ITS Information Technology Security
+PP Protection Profile
+SFR Security Functional Requirement
+ST Security Target
+TOE Target of Evaluation
+TSF TOE Security FunctionUNCLASSIFIED
+V1.1 11
+8.2 REFERENCES
+Reference
+Common Criteria for Information Technology Security Evaluation, Version 3.1 Revision 4, September
+2012.
+Common Methodology for Information Technology Security Evaluation, CEM, Version 3.1 Revision 4,
+September 2012.
+Security target for Thycotic Secret Server Government Edition v10.0, v1.5, 22 October 2018.
+Evaluation technical report for Thycotic Secret Server Government Edition v10.0, v1.2, 23 October
+2018.
+Assurance activity report for Thycotic Secret Server Government Edition v10.0, v1.7, 23 October
+2018.
