@@ -1,0 +1,118 @@
+CCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT
+1
+ASSURANCE CONTINUITY MAINTENANCE REPORT FOR Veeam Backup &
+Replication v12.3.2
+Veeam Backup & Replication v12.3.2
+Maintenance Report Number: CCEVS-VR-VID11370-2025
+Date of Activity: 11 August 2025
+References:
+• Common Criteria Evaluation and Validation Scheme Publication #6, Assurance Continuity:
+Guidance for Maintenance and Re-evaluation, version 3.0, September 12, 2016
+• Veeam Backup & Replication v12.3.2 Impact Analysis Report, Version 1.0, 14 July 2025
+• Veeam Backup & Replication v12 Security Target, Version 1.7, 8 July 2025
+• Veeam Backup and Replication v12 Common Criteria Evaluated Configuration Guide
+(CCECG), Version 1.1, 8 July 2025
+• Veeam Backup & Replication Version 12 Quick Start Guide for VMware vSphere, July 2025
+• Veeam Backup & Replication Version 12 User Guide for VMware vSphere, July 2025
+• Protection Profile for Application Software, Version 1.4, 7 October 2021 [APP_PP]
+Assurance Continuity Maintenance Report:
+Leidos submitted an Impact Analysis Report (IAR) and Assurance Continuity Maintenance
+package to the Common Criteria Evaluation Validation Scheme (CCEVS) for approval on July 18,
+2025 on behalf of Veeam Software. The IAR is intended to satisfy requirements outlined in
+Common Criteria Evaluation and Validation Scheme Publication #6, Assurance Continuity:
+Guidance for Maintenance and Re-evaluation, version 3.0. In accordance with those requirements,
+the IAR describes the changes made to the certified TOE, the evidence updated because of the
+changes, and the security impact of the changes.
+The evaluation evidence submitted for consideration consists of the Security Target (ST), the
+Administrator’s Guides, and the Impact Analysis Report (IAR). The ST and CC Admin Guide were
+updated.
+®
+TMCCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT
+2
+Documentation updated:
+Previous CC Evaluation Evidence Evidence Change Summary
+Security Target:
+Veeam Backup & Replication v12 Security
+Target, Version 1.6, 9 July 2023
+Maintained Security Target:
+See references above.
+• Updated document version and date on
+cover page
+• Section 2.4 – Updated TOE
+documentation references
+• Appendix A – updated list of third-party
+libraries.
+Design Documentation:
+See Security Target and Guidance
+Minor changes required
+Guidance Documentation:
+Veeam Backup & Replication v12 Common
+Criteria Evaluated Configuration Guide
+(CCECG), Version 1.0, 9 July 2023
+Maintained Guidance Documentation:
+See references above.
+• Updated document version and date on
+cover page
+• “Document Purpose and Scope” – updated
+TOE version number and TOE
+documentation references.
+Supplementary Guidance Documentation
+Veeam Backup & Replication Version 12
+Quick Start Guide for VMware vSphere,
+February, 2023
+Veeam Backup & Replication Version 12
+User Guide for VMware vSphere, July, 2023
+Maintained Supplementary Guidance
+Documentation:
+See references above.
+Quick Start Guide:
+• Updated document date on cover page.
+• New section “Exporting Disks”.
+User Guide:
+• Updated document date on cover page.
+• Reorganized some information in section
+“Planning and Preparation”.
+• Added information on new/enhanced
+features: Malware Detection; Security &
+Compliance Analyzer.
+• Reorganized information in sections
+“Deployment” and “Getting Started with
+Veeam Backup & Replication”
+• Reorganizedinstallationandconfiguration
+guidance.
+• Added section “Unstructured DataCCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT
+3
+Previous CC Evaluation Evidence Evidence Change Summary
+Backup”
+These changes are considered minor, as they
+describe capabilities outside the scope of
+evaluation.
+Lifecycle:
+None
+No changes required.
+Testing:
+Vendor regression testing
+Vendor regression test results were produced and
+found consistent with the previous test results.
+Veeam performs extensive regression testing for
+every release including 12.3.2.
+Vulnerability Assessment:
+Contained within IAR
+Maintained Vulnerability Assessment
+Documentation:
+A new search was performed for public
+vulnerabilities from the time of the current
+validated release of the TOE (21 July 2023) to 15
+July 2025. The results of the vulnerability
+assessment were included in the IAR. No new
+TOE vulnerabilities were detected. Any
+outstanding CVEs discovered in versions prior to
+12.3.2 have been addressed.
+The search was conducted against:
+• CVE (Common Vulnerabilities and
+Exposures) (https://cve.mitre.org/).
+The search covered the following:
+• “Veeam” – TOE vendor
+• “Backup and replication” – TOE name
+• Third Party Libraries identified in
+Appendix A of the Security Target.

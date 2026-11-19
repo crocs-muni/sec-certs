@@ -1,0 +1,287 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "text",
+   "text": "TM",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "®",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "ASSURANCE CONTINUITY MAINTENANCE REPORT FOR Veeam Backup & Replication v12.3.2",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "section_header",
+   "text": "Veeam Backup & Replication v12.3.2",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "text",
+   "text": "Maintenance Report Number:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "CCEVS-VR-VID11370-2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "Date of Activity",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": ": 11 August 2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "section_header",
+   "text": "References:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "list_item",
+   "text": "Common Criteria Evaluation and Validation Scheme Publication #6, Assurance Continuity: Guidance for Maintenance and Re-evaluation , version 3.0, September 12, 2016",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "list_item",
+   "text": "Veeam Backup & Replication v12.3.2 Impact Analysis Report , Version 1.0, 14 July 2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "list_item",
+   "text": "Veeam Backup & Replication v12 Security Target , Version 1.7, 8 July 2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "list_item",
+   "text": "Veeam Backup and Replication v12 Common Criteria Evaluated Configuration Guide (CCECG), Version 1.1, 8 July 2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "list_item",
+   "text": "Veeam Backup & Replication Version 12 Quick Start Guide for VMware vSphere , July 2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "list_item",
+   "text": "Veeam Backup & Replication Version 12 User Guide for VMware vSphere , July 2025",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "list_item",
+   "text": "Protection Profile for Application Software , Version 1.4, 7 October 2021 [APP_PP]",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "Assurance Continuity Maintenance Report:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "Leidos submitted an Impact Analysis Report (IAR) and Assurance Continuity Maintenance package to the Common Criteria Evaluation Validation Scheme (CCEVS) for approval on July 18, 2025 on behalf of Veeam Software. The IAR is intended to satisfy requirements outlined in Common Criteria Evaluation and Validation Scheme Publication #6, Assurance Continuity: Guidance for Maintenance and Re-evaluation , version 3.0. In accordance with those requirements, the IAR describes the changes made to the certified TOE, the evidence updated because of the changes, and the security impact of the changes.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "The evaluation evidence submitted for consideration consists of the Security Target (ST), the Administrator's Guides, and the Impact Analysis Report (IAR). The ST and CC Admin Guide were updated.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "section_header",
+   "text": "CCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "page_footer",
+   "text": "1",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "section_header",
+   "text": "CCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "section_header",
+   "text": "Documentation updated:",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "page_footer",
+   "text": "2",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "section_header",
+   "text": "CCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "page_footer",
+   "text": "3",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "table",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/tables/1",
+   "label": "table",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ]
+}

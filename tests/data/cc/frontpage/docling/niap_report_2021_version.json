@@ -1,0 +1,198 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "National Information Assurance Partnership",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "section_header",
+   "text": "Common Criteria Evaluation and Validation Scheme",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "text",
+   "text": "®",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "TM",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "section_header",
+   "text": "Validation Report for the Splunk Enterprise 8.1",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "section_header",
+   "text": "Version 1.2",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "Report Number: CCEVS-VRVID 11108-2021 Dated: January 26, 2021 Version: 1.2",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "National Institute of Standards and Technology Department of Defense Information Technology Laboratory ATTN: NIAP, SUITE: 6982 100 Bureau Drive 9800 Savage Road Gaithersburg, MD 20899 Fort Meade, MD 20755-6982",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "section_header",
+   "text": "ACKNOWLEDGEMENTS",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "section_header",
+   "text": "Validation Team",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "text",
+   "text": "Paul Bicknell Lisa Mitchell",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "section_header",
+   "text": "Randy J. Heimann Linda E. Morrison Clare Olin The MITRE Corporation",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "section_header",
+   "text": "Farid Ahmed Peter Kruss John Hopkins, APL",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "section_header",
+   "text": "Common Criteria Testing Laboratory",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "section_header",
+   "text": "Danielle Canoles Prasad Pandit Dayanandini Pathmanathan Acumen Security, LLC.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "page_footer",
+   "text": "2",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "Table of Contents",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "page_footer",
+   "text": "3",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "document_index",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ]
+}

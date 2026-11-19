@@ -1,0 +1,35 @@
+## National Information Assurance Partnership Common Criteria Evaluation and Validation Scheme
+
+## Validation Report
+
+## for
+
+## ATEN Secure KVM Switch Series (CAC Models)
+
+Report Number:
+
+CCEVS-VR-VID11221-2022
+
+Dated:
+
+March 10, 2022
+
+Version:
+
+1.0
+
+National Institute of Standards and Technology
+
+Department of Defense
+
+Information Technology Laboratory
+
+Attn: NIAP, Suite 6982
+
+100 Bureau Drive
+
+9800 Savage Road
+
+Gaithersburg, MD 20899
+
+Fort Meade, MD 20755-6982
