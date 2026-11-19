@@ -1,0 +1,54 @@
+BSI-DSZ-CC-0831-V2-2020
+for
+SMGW, Version 1.1
+from
+OpenLimit SignCubes GmbH
+sponsored by
+Power Plus Communications AGBSI - Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
+Phone +49 (0)228 99 9582-0, Fax +49 (0)228 9582-5477, Infoline +49 (0)228 99 9582-111
+Certification Report V1.0 CC-Zert-327 V5.3BSI-DSZ-CC-0831-V2-2020 (*)
+Smart Meter Gateway
+SMGW, Version 1.1
+from OpenLimit SignCubes GmbH
+sponsored by Power Plus Communications AG
+PP Conformance: Protection Profile for the Gateway of a Smart
+Metering System, Version 1.3, 31 March 2014, BSI-
+CC-PP-0073-2014
+Functionality: PP conformant
+Common Criteria Part 2 extended
+Assurance: Common Criteria Part 3 conformant
+EAL 4 augmented by AVA_VAN.5 and ALC_FLR.2
+The IT Product identified in this certificate has been evaluated at an approved evaluation
+facility using the Common Methodology for IT Security Evaluation (CEM), Version 3.1
+extended by Scheme Interpretations and by advice of the Certification Body for
+components beyond EAL 5 as listed in the Certification Report for conformance to the
+Common Criteria for IT Security Evaluation (CC), Version 3.1. CC and CEM are also
+published as ISO/IEC 15408 and ISO/IEC 18045.
+(*) This certificate applies only to the specific version and release of the product in its
+evaluated configuration and in conjunction with the complete Certification Report and
+Notification. For details on the validity see Certification Report part A chapter 5.
+The evaluation has been conducted in accordance with the provisions of the certification
+scheme of the German Federal Office for Information Security (BSI) and the conclusions
+of the evaluation facility in the evaluation technical report are consistent with the
+evidence adduced.
+This certificate is not an endorsement of the IT Product by the Federal Office for
+Information Security or any other organisation that recognises or gives effect to this
+certificate, and no warranty of the IT Product by the Federal Office for Information
+Security or any other organisation that recognises or gives effect to this certificate, is
+either expressed or implied.
+Bonn, 30 October 2020
+For the Federal Office for Information Security
+Sandro Amendola L.S.
+Head of Division
+SOGIS
+RecognitionAgreement
+for components up to
+EAL 4
+Common Criteria
+Recognition Arrangement
+recognition for components
+up to EAL 2 and ALC_FLR
+only
+Bundesamt für Sicherheit in der Informationstechnik
+Godesberger Allee 185-189 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+Phone +49 (0)228 99 9582-0 - Fax +49 (0)228 9582-5477 - Infoline +49 (0)228 99 9582-111

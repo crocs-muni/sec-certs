@@ -1,0 +1,76 @@
+Bundesamt für Sicherheit in der Informationstechnik
+Godesberger Allee 185-189 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+Phone +49 228 9582-0 - Fax +49 228 9582-455 - Infoline +49 228 9582-111
+Assurance Continuity Maintenance Report
+BSI-DSZ-CC-0386-2006-MA-04
+ZKA SECCOS Sig v1.5.3
+from
+Sagem Orga GmbH Common Criteria Arrangement
+for components up to EAL4
+The IT product identified in this report was assessed according to the Assurance
+Continuity: CCRA Requirements, version 1.0, February 2004 and the developers Impact
+Analysis Report (IAR). The baseline for this assessment was the Certification Report,
+the Security Target and the Evaluation Technical Report of the product certified by the
+Federal Office for Information Security (BSI) under BSI-DSZ-CC-0386-2006.
+The change to the certified product is at the level of two additional Initialisation Tables
+added. These changes have no effect on assurance.
+Consideration of the nature of the change leads to the conclusion that it is classified as a
+minor change and that certificate maintenance is the correct path to continuity of
+assurance.
+Therefore, the assurance as outlined in the Certification Report BSI-DSZ-CC-0386-2006
+is maintained for this version of the product. Details can be found on the following
+pages.
+This report is an addendum to the Certification Report BSI-DSZ-CC-0386-2006.
+Bonn, 30. November 2006Assurance Continuity Maintenance Report BSI-DSZ-CC-0386-2006-MA-04
+Assessment
+The IT product identified in this report was assessed according to the Assurance
+Continuity: CCRA Requirements [1] and the Impact Analysis Report (IAR) [2]. The
+baseline for this assessment was the Certification Report of the certified TOE [3], the
+Security Target [4] and the Evaluation Technical Report as outlined in [3].
+The vendor for the ZKA SECCOS Sig v1.5.3, Sagem Orga GmbH, submitted an IAR [2]
+to the BSI for approval. The IAR is intended to satisfy requirements outlined in the
+document Assurance Continuity: CCRA Requirements [1]. In accordance with those
+requirements, the IAR describes the changes made to the certified TOE, the evidence
+updated as a result of the changes and the security impact of the changes.
+The ZKA SECCOS Sig v1.5.3 was changed due to two additional Initialisation Tables,
+SDR0O1G0.A_B and SWR0O1H0.A_5. Both Initialisation Tables are added to the
+certified TOE.
+Those changes are not significant from the standpoint of security.
+Conclusion
+The change to the TOE is at the level of two additional Initialisation, the changes have
+no effect on assurance. Examination of the evidence indicates that the changes required
+are limited to the inclusion of two additional Initialisation Tables SDR0O1G0.A_B and
+SWR0O1H0.A_5. Therefore, the Configuration List has been updated taking those
+changes into account, see [5]. Additionally, the Appendix to the Configuration List was
+supplemented with a reference to the test scenarios relevant for the changes, see [6],
+and new Data Sheets related to the new Initialisation Tables have also been created,
+see [7] and [8]. The Security Target [4] is still valid for the changed TOE. Consideration
+of the nature of the change leads to the conclusion that it is classified as a minor change
+and that certificate maintenance is the correct path to continuity of assurance.
+Therefore, BSI agrees that the assurance as outlined in the Certification Report [3] is
+maintained for this version of the product. This report is an addendum to the Certification
+Report [3].
+References
+[1] Common Criteria document CCIMB-2004-02-009 “Assurance Continuity:
+CCRA Requirements”, version 1.0, February 2004
+[2] Sagem ORGA GmbH; ZKA SECCOS Sig v1.5.3; Impact Analysis Report;
+Version: V1.00; Date: 23 October 2006 (confidential document)
+[3] Certification Report BSI-DSZ-CC-0386-2006 for ZKA SECCOS Sig v1.5.3
+from Sagem Orga GmbH, Bundesamt für Sicherheit in der
+Informationstechnik, 08. September 2006
+[4] Security Target BSI-DSZ-CC-0386-2006, Version V1.01, 21 June 2006,
+Sagem Orga GmbH; ZKA SECCOS Sig v1.5.3; ST-Lite (sanitized public
+document)
+Maintenance Report V1.0
+ZS_01_02_F_201_V105 Page 2 of 3Assurance Continuity Maintenance Report BSI-DSZ-CC-0386-2006-MA-04
+[5] ZKA SECCOS Sig v1.5.3 – Configuration List; Version: V1.09; Date: 23
+October 2006; Sagem Orga GmbH (confidential document)
+[6] Sagem ORGA GmbH; ZKA SECCOS Sig v1.5.3 - Configuration List -
+Appendix; Systemelement Test Description; Version: V1.07; Date: 23
+October 2006 (confidential document)
+[7] ZKA SECCOS Sig v1.5.3; Data Sheet; 23.10.2006; V1.07; Sagem ORGA
+(confidential document)
+[8] ZKA SECCOS Sig v1.5.3; Data Sheet; 23.10.2006; V1.08; Sagem ORGA
+(confidential document)
+Maintenance Report V1.0
+ZS_01_02_F_201_V105 Page 3 of 3

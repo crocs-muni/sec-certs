@@ -1,0 +1,120 @@
+## BSI-DSZ-CC-0153-1999
+
+## for
+
+## Philips Smart Card Controller P8WE5032V0B
+
+## from
+
+## Philips Semiconductors Hamburg Unternehmensbereich der Philips GmbH Business Line Identification
+
+## Certification Report
+
+- Bundesamt für Sicherheit in der Informationstechnik, Postfach 20 03 63, D-53133 Bonn
+
+Telefon +49 228 9582-0, Infoline +49 228 9582-111, Telefax +49 228 9582-455
+
+## BSI-DSZ-CC-0153-1999
+
+## Philips Smart Card Controller P8WE5032V0B
+
+from
+
+## Philips Semiconductors Hamburg Unternehmensbereich der Philips GmbH Business Line Identification
+
+Common Criteria Arrangement
+
+The  IT  product  identified  in  this  certificate  has  been  evaluated  at  an  accredited  and  licensed/ approved  evaluation  facility  using  the Common  Methodology  for  IT  Security  Evaluation  (CEM) Version 0.6 and CEM Part 2 Version 1.0 Annex B for conformance to the Common Criteria for IT Security Evaluation, Version 2.0 (CC) .
+
+## Evaluation Results:
+
+Functionality:
+
+Cryptographic support Protection of the TOE Security Functions
+
+Assurance Package:
+
+EAL3
+
+This  certificate  applies  only  to  the  specific  version  and  release  of  the  product  in  its  evaluated configuration and in conjunction with the complete Certification Report.
+
+The evaluation has been conducted in accordance with the provisions of the certification scheme of the Bundesamt für Sicherheit in der Informationstechnik and the conclusions of the evaluation facility in the evaluation technical report are consistent with the evidence adduced.
+
+The remarks printed on the reverse side are part of this certificate.
+
+Bonn, 15 November 1999
+
+The President of the Bundesamt für Sicherheit in der Informationstechnik
+
+Dr. Henze L.S.
+
+Bundesamt für Sicherheit in der Informationstechnik Godesberger Allee 183 - D-53175 Bonn - Postfach 20 03 63 - D-53133 Bonn
+
+Telefon (0228) 9582-0 - Telefax (0228) 9582-455 - Infoline (0228) 9582-111
+
+In accordance with a decree issued by the Bundesministerium des Innern (German Ministry of the Interior),  the  Common  Criteria  and  the  application  for  this  certificate,  the  strength  of  the cryptoalgorithms suitable for encryption and decryption was not evaluated.
+
+This  certificate  is  not  an  endorsement  of  the  IT product  by  the  Bundesamt  für  Sicherheit  in  der Informationstechnik or any other organisation that recognises or gives effect to this certificate, and no warranty of the IT product by Bundesamt für Sicherheit in der Informationstechnik or any other organisation that recognises or gives effect to this certificate, is either expressed or implied.
+
+BSI-DSZ-CC-0153-1999
+
+Certification Report
+
+## Preliminary Remarks
+
+Under the BSIG 1 Act, the Bundesamt für Sicherheit in der Informationstechnik (BSI) has the task of issuing certificates for information technology products.
+
+Certification  of  a  product  is  carried  out  on  the  instigation  of  the  vendor  or  a distributor, hereinafter called the sponsor.
+
+A part of the procedure is the technical examination (evaluation) of the product according to the security criteria published by the BSI or generally recognised security criteria.
+
+The evaluation is normally carried out by an evaluation facility recognised by the BSI or by BSI itself.
+
+The result of the certification procedure is the present Certification Report. This report contains among others the certificate (summarised assessment) and the detailed Certification Results.
+
+The  Certification  Results  contain  the  technical  description  of  the  security functionality of the certified product, the details of the evaluation (strength and weaknesses) and instructions for the user.
+
+1 Act setting up the Bundesamt für Sicherheit in der Informationstechnik (BSIErrichtungsgesetz, BSIG) of 17 December 1990, Bundesgesetzblatt I p. 2834
+
+V
+
+Certification Report
+
+BSI-DSZ-CC-0153-1999
+
+## Contents
+
+Part A:  Certification
+
+Part B:  Certification Results
+
+Part C:  Excerpts from the Criteria
+
+VI
+
+BSI-DSZ-CC-0153-1999
+
+Certification Report
+
+## A Certification
+
+## 1 Specifications of the Certification Procedure
+
+The certification body conducts the procedure according to the criteria laid down in the following:
+
+- BSIG 2
+- BSI Certification Ordinance 3
+- BSI Schedule of Costs 4
+- Special  decrees  issued  by  the  Bundesministerium  des  Innern  (Federal Ministry of the Interior)
+- DIN EN 45011
+- BSI Certification - Description of the Procedure [BSI 7125]
+- Common Criteria  for  Information  Technology  Security  Evaluation  [CC], Version 2.0 5
+- Common Methodology for IT Security Evaluation [CEM], Part 1 Version 0.6, Part 2 Version 0.6, Part 2 Version 1.0 Annex B
+
+2 Act setting up the Bundesamtes für Sicherheit in der Informationstechnik (BSIErrichtungsgesetz, BSIG) of 17 December 1990, Bundesgesetzblatt I p. 2834
+
+3 Ordinance  on  the  Procedure  for  Issuance  of  a  Certificate  by  the  Bundesamtes  für Sicherheit  in  der  Informationstechnik  (BSI-Zertifizierungsverordnung,  BSIZertV)  of  7  July 1992, Bundesgesetzblatt I p. 1230
+
+4 Schedule  of Cost  for Official Procedures  of the Bundesamt  für  Sicherheit in  der Informationstechnik (BSI-Kostenverordnung, BSI-KostV) of 29th 1992, Bundesgesetzblatt I p. 1838
+
+5 Proclamation  of  the  Bundesministeriums  des  Innern  of  16th  February  1999  in  the Gemeinsames Ministerialblatt p. 1945
