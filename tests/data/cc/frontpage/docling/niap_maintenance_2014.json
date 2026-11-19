@@ -1,0 +1,328 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "text",
+   "text": "®",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "TM",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "CCEVS VALIDATION VID10394",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "Record ID:  VID10394-VR-VID10394-2014",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "section_header",
+   "text": "CCEVS Approved Assurance Continuity Maintenance Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "Product:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "IBM Global Security Kit (GSKit) 8.0.14.42",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "EAL:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "text",
+   "text": "EAL4 augmented with ALC_FLR.1.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "text",
+   "text": "Date of Activity:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "text",
+   "text": "07 April 2014",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "text",
+   "text": "References:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "Common Criteria Evaluation and Validation Scheme - Assurance Continuity: Guidance for Maintenance and Re-evaluation, Version 2.0, September 8, 2008 GSKit version 8.0.14.42 Impact Analysis Report, Version 1.2, 2013-12-04",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "Documentation",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "text",
+   "text": "Updated:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "text",
+   "text": "Global Security Kit Common Criteria Mode Operating Guidance Version 8, December 4, 2013 IBM Global Security Kit, Secure Socket Layer for C Programmer's GuideVersion 8, June 20, 2013 IBM Global Security Kit Key Management for C Programmer's GuideVersion 8 July 19, 2011 IBM Global Security Kit Global Security Kit Install and Packaging GuideVersion 8 June 21, 2011 IBM Global Security Kit (GSKit) 8.0.14 - Common Criteria Evaluation and Validation Scheme Validation ReportVersion1.0 2012-06-03 IBM Global Security Kit GSKCapiCmd User's Guide, Version 8 November 28, 2011 IBM® Crypto for C version 8.2.2.0 FIPS 140-2 Non-Proprietary Security PolicyVersion1.7Date2013-07- 24Locationhttp://csrc.nist.gov/groups/STM/cmvp/documents/140- 1/140sp/140sp1994.pdf IBM Global Security Kit (GSKit) - Assurance Continuation 8.0.14.42, 2013-04",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "I. Introduction",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "On 04 December 2013, atsec submitted an Impact Analysis Report (IAR) for IBM Global Security Kit (GSKit) to CCEVS for approval.  The IAR is intended to satisfy requirements outlined in Common Criteria Evaluation and Validation Scheme Assurance Continuity: Guidance for Maintenance and Re-evaluation, Version 2.0, September 8, 2008.  In accordance with those requirements, the IAR describes the changes made to the certified TOE, the evidence updated as a result of the changes, and the security impact of the changes.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "page_footer",
+   "text": "1",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "page_footer",
+   "text": "CCEVS VALIDATION VID10394",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "page_header",
+   "text": "CCEVS VALIDATION VID10394",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "section_header",
+   "text": "II. Changes to the TOE",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "text",
+   "text": "The primary reason for the Assurance Continuity activity for Global Security Kit is to address bugs and flaws identified in the evaluated product and provide some security enhancements.  The table below summarizes these changes.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "section_header",
+   "text": "III. Analysis and Testing",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "text",
+   "text": "The test cases used for the original evaluation were successfully re-run with slight modifications to cover issues identified in the table above.  The vendor analysis shown in Section 3 of the IAR supports the conclusion that only minor security affects to the evaluated configuration have resulted from the product updates.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/25",
+   "label": "section_header",
+   "text": "IV. Conclusion",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/26",
+   "label": "text",
+   "text": "This maintenance activity covers the assessment of the evaluation impact of the changes applied to IBM Global Security Kit (GSKit) 8.0.14.42.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/27",
+   "label": "text",
+   "text": "The listed changes for IBM Global Security Kit (GSKit) 8.0.14.42 show that small changes to the I&A functionality (none of which affect the security functional requirements) and remediation of security flaws and vulnerabilities have minimal effect on the evaluated configuration.  Therefore the conclusion is that the changes identified are all minor changes, and thus are acceptable under the assurance maintenance program.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/28",
+   "label": "text",
+   "text": "In addition, it is important for any user of this product to review the original Validation Report Sections 4 and 10 and the new ST to understand the limitations on the evaluated configuration.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/29",
+   "label": "page_footer",
+   "text": "2",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/30",
+   "label": "page_footer",
+   "text": "CCEVS VALIDATION VID10394",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "table",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  }
+ ]
+}

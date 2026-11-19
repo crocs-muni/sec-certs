@@ -1,0 +1,73 @@
+CCEVS VALIDATION VID10394
+1
+CCEVS VALIDATION VID10394
+Record ID: VID10394-VR-VID10394-2014
+CCEVS Approved Assurance Continuity Maintenance Report
+Product: IBM Global Security Kit (GSKit) 8.0.14.42
+EAL: EAL4 augmented with ALC_FLR.1.
+Date of Activity: 07 April 2014
+References: Common Criteria Evaluation and Validation Scheme - Assurance
+Continuity: Guidance for Maintenance and Re-evaluation, Version
+2.0, September 8, 2008
+GSKit version 8.0.14.42 Impact Analysis Report, Version 1.2,
+2013-12-04
+Documentation
+Updated: Global Security Kit Common Criteria Mode Operating Guidance
+Version 8, December 4, 2013
+IBM Global Security Kit, Secure Socket Layer for C
+Programmer’s GuideVersion 8, June 20, 2013
+IBM Global Security Kit Key Management for C Programmer's
+GuideVersion 8 July 19, 2011
+IBM Global Security Kit Global Security Kit Install and Packaging
+GuideVersion 8 June 21, 2011
+IBM Global Security Kit (GSKit) 8.0.14 - Common Criteria
+Evaluation and Validation Scheme Validation ReportVersion1.0
+2012-06-03
+IBM Global Security Kit GSKCapiCmd User’s Guide, Version 8
+November 28, 2011
+IBM® Crypto for C version 8.2.2.0 FIPS 140-2 Non-Proprietary
+Security PolicyVersion1.7Date2013-07-
+24Locationhttp://csrc.nist.gov/groups/STM/cmvp/documents/140-
+1/140sp/140sp1994.pdf
+IBM Global Security Kit (GSKit) - Assurance Continuation
+8.0.14.42, 2013-04
+I. Introduction
+On 04 December 2013, atsec submitted an Impact Analysis Report (IAR) for IBM
+Global Security Kit (GSKit) to CCEVS for approval. The IAR is intended to satisfy
+requirements outlined in Common Criteria Evaluation and Validation Scheme -
+Assurance Continuity: Guidance for Maintenance and Re-evaluation, Version 2.0,
+September 8, 2008. In accordance with those requirements, the IAR describes the
+changes made to the certified TOE, the evidence updated as a result of the changes,
+and the security impact of the changes.
+®
+TMCCEVS VALIDATION VID10394
+2
+CCEVS VALIDATION VID10394
+II. Changes to the TOE
+The primary reason for the Assurance Continuity activity for Global Security Kit is to
+address bugs and flaws identified in the evaluated product and provide some security
+enhancements. The table below summarizes these changes.
+Issue Type Count
+Defects 26
+Security related defects (flaws) 15
+Security vulnerabilities (flaws) 6
+Security related enhancements 4
+Others 19
+Total 70
+III. Analysis and Testing
+The test cases used for the original evaluation were successfully re-run with slight
+modifications to cover issues identified in the table above. The vendor analysis
+shown in Section 3 of the IAR supports the conclusion that only minor security
+affects to the evaluated configuration have resulted from the product updates.
+IV. Conclusion
+This maintenance activity covers the assessment of the evaluation impact of the
+changes applied to IBM Global Security Kit (GSKit) 8.0.14.42.
+The listed changes for IBM Global Security Kit (GSKit) 8.0.14.42 show that small
+changes to the I&A functionality (none of which affect the security functional
+requirements) and remediation of security flaws and vulnerabilities have minimal
+effect on the evaluated configuration. Therefore the conclusion is that the changes
+identified are all minor changes, and thus are acceptable under the assurance
+maintenance program.
+In addition, it is important for any user of this product to review the original
+Validation Report Sections 4 and 10 and the new ST to understand the limitations on
+the evaluated configuration.

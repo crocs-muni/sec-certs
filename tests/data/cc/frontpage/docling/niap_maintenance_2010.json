@@ -1,0 +1,198 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "text",
+   "text": "TM",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "section_header",
+   "text": "CCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "section_header",
+   "text": "ASSURANCE CONTINUITY MAINTENANCE REPORT FOR",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "text",
+   "text": "Interactive Link Data Diode Device, 100MB Version 2.4",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "text",
+   "text": "Maintenance Report Number: CCEVS-VR-05-0119b",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "text",
+   "text": "Date of Activity :",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "03/25/2010",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "References:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "text",
+   "text": "Common Criteria document CCIMB-2004-02-009 'Assurance Continuity: CCRA Requirements', version 1.0, February 2004;",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "text",
+   "text": "Impact  Analysis  Report,  ' Impact  Analysis  Report  IAR-IL-DDD-007  for  the  Interactive Link, Data Diode Device,' version 1.0 dated 22 January 2010",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "section_header",
+   "text": "Documentation Updated:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "text",
+   "text": "Interactive Link Data Diode Device Installation and Administration Guide",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "Interactive Link Data Diode Device developer evidence",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "section_header",
+   "text": "Assurance Continuity Maintenance Report:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "text",
+   "text": "The vendor for the Interactive Link Data Diode Device, 100MB version submitted an Impact Analysis Report (IAR) to CCEVS for approval on 22 January 2010. The IAR is intended to satisfy requirements outlined in Common Criteria document CCIMB-2004-02-009, 'Assurance Continuity: CCRA Requirements', version 1.0, February 2004. In accordance with those requirements, the IAR describes the changes made to the certified TOE, the evidence updated as a result of the changes and the security impact of the changes.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "section_header",
+   "text": "Changes to TOE:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "text",
+   "text": "The changes described in the Impact Analysis Report are limited to the selection of RoHScompliant metal finish materials and processes, the use of a more readily available external power supply plugpack, and the use of ROHS-compliant versions of electronic components.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "section_header",
+   "text": "Conclusion:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "The changes to the TOE environment were analyzed and found to have no effect on the evaluated TOE. The non-security relevance of the changes leads to the conclusion that the updates can be classified as a minor change and that certificate maintenance is the correct path to continuity of assurance.",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  }
+ ],
+ "tables": []
+}

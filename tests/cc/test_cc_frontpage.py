@@ -7,7 +7,7 @@ import tests.data.cc.frontpage
 
 from sec_certs import constants
 from sec_certs.configuration import config
-from sec_certs.utils.frontpage import CanadaFrontpageParser, NSCIBFrontpageParser
+from sec_certs.utils.frontpage import CanadaFrontpageParser, NIAPFrontpageParser, NSCIBFrontpageParser
 from sec_certs.utils.frontpage.nscib import _organization_of
 
 
@@ -490,3 +490,244 @@ def test_canada_non_report_yields_nothing(canada_parser: CanadaFrontpageParser, 
     not_a_report.write_text("Lorem ipsum dolor sit amet.\n", encoding="utf-8")
 
     assert canada_parser.parse(not_a_report) == {}
+
+
+@pytest.fixture(scope="module")
+def niap_parser() -> NIAPFrontpageParser:
+    return NIAPFrontpageParser()
+
+
+NIAP_REPORTS = [
+    (
+        "niap_report_2004",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-04-0082",
+            constants.TAG_CERT_ITEM: "IBM WebSphere Application Server",
+            constants.TAG_REPORT_DATE: "December 2, 2004",
+            constants.TAG_REPORT_VERSION: "1.3",
+        },
+    ),
+    (
+        "niap_report_2011_address",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-VID10429-2011",
+            constants.TAG_DEVELOPER: "Cisco Systems, Inc",
+            constants.TAG_CERT_ITEM: "Cisco 5940 Series Embedded Services Router",
+            constants.TAG_REPORT_DATE: "5 July 2011",
+            constants.TAG_REPORT_VERSION: "1.0",
+        },
+    ),
+    (
+        "niap_report_2016",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-VID10705-2016",
+            constants.TAG_CERT_ITEM: "Emerson Secure KVM (identified 2, 4, 8, 16 port models",
+            constants.TAG_REPORT_DATE: "March 24, 2016",
+            constants.TAG_REPORT_VERSION: "1.0",
+        },
+    ),
+    (
+        "niap_report_2021_vendor",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-11226-2021",
+            constants.TAG_DEVELOPER: "Cisco Systems, Inc",
+            constants.TAG_CERT_ITEM: "Cisco AnyConnect Secure Mobility Client v4.10 for Windows 10",
+            constants.TAG_REPORT_DATE: "December 29, 2021",
+            constants.TAG_REPORT_VERSION: "1.0",
+        },
+    ),
+    (
+        "niap_report_2021_version",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-VID 11108-2021",
+            constants.TAG_CERT_ITEM: "Splunk Enterprise 8.1 Version 1.2",
+            constants.TAG_REPORT_DATE: "January 26, 2021",
+            constants.TAG_REPORT_VERSION: "1.2",
+        },
+    ),
+    (
+        "niap_report_vid11221",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-VID11221-2022",
+            constants.TAG_CERT_ITEM: "ATEN Secure KVM Switch Series (CAC Models",
+            constants.TAG_REPORT_DATE: "March 10, 2022",
+            constants.TAG_REPORT_VERSION: "1.0",
+        },
+    ),
+    ("niap_report_2009_lab", {}),
+    (
+        "niap_maintenance_2010",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-05-0119",
+            constants.TAG_CERT_ITEM: "Interactive Link Data Diode Device, 100MB Version 2.4",
+            constants.TAG_REPORT_DATE: "03/25/2010",
+        },
+    ),
+    (
+        "niap_maintenance_2014",
+        {
+            constants.TAG_CERT_ITEM: "IBM Global Security Kit (GSKit) 8.0.14.42",
+            constants.TAG_REPORT_DATE: "07 April 2014",
+        },
+    ),
+    (
+        "niap_maintenance_2025",
+        {
+            constants.TAG_CERT_ID: "CCEVS-VR-VID11370-2025",
+            constants.TAG_CERT_ITEM: "Veeam Backup & Replication v12.3.2",
+            constants.TAG_REPORT_DATE: "11 August 2025",
+        },
+    ),
+]
+
+
+# pdftotext glues "Cisco AnyConnect" on the 2021 vendor cover
+NIAP_PDFTOTEXT_DIFFERENCES = {
+    "niap_report_2021_vendor": {
+        constants.TAG_CERT_ITEM: "CiscoAnyConnect Secure Mobility Client v4.10 for Windows 10",
+    }
+}
+
+
+@pytest.mark.parametrize(("name", "expected"), NIAP_REPORTS)
+def test_niap_text(niap_parser: NIAPFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    items = niap_parser.parse(frontpage_dir / "pdftotext" / f"{name}.txt")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "text"
+    assert items == {constants.TAG_CERT_LAB: "US NIAP", **expected, **NIAP_PDFTOTEXT_DIFFERENCES.get(name, {})}
+
+
+# Docling drops the line break inside the Splunk id ("CCEVS-VR- VID 11108-2021"), which canonicalizes the same
+NIAP_DOCLING_DIFFERENCES = {"niap_report_2021_version": {constants.TAG_CERT_ID: "CCEVS-VRVID 11108-2021"}}
+
+
+@pytest.mark.parametrize(("name", "expected"), NIAP_REPORTS)
+@pytest.mark.usefixtures("docling_converter")
+def test_niap_structured(niap_parser: NIAPFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
+    items = niap_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
+
+    assert items.pop(constants.TAG_PARSE_STRATEGY) == "structured"
+    assert items == {constants.TAG_CERT_LAB: "US NIAP", **expected, **NIAP_DOCLING_DIFFERENCES.get(name, {})}
+
+
+@pytest.mark.parametrize(
+    ("lines", "expected"),
+    [
+        pytest.param(
+            [
+                "Acme Validation Report Page 1",
+                "Validation Report",
+                "For",
+                "Acme Gateway 2.0",
+                "Report Number: CCEVS-VR-VID11001-2020",
+            ],
+            {constants.TAG_CERT_ID: "CCEVS-VR-VID11001-2020", constants.TAG_CERT_ITEM: "Acme Gateway 2.0"},
+            id="running header and capitalised connector",
+        ),
+        pytest.param(
+            ["Validation Report", "Acme Gateway 2.0", "Report Number: [To be completed by CCEVS]", "Dated: May 2013"],
+            {constants.TAG_CERT_ITEM: "Acme Gateway 2.0", constants.TAG_REPORT_DATE: "May 2013"},
+            id="report number not yet assigned",
+        ),
+        pytest.param(
+            ["Validation Report", "Acme Gateway 2.0", "Report Number: CCEVS-VR-VID11362-2023", "Dated: June 16 , 2023"],
+            {
+                constants.TAG_CERT_ID: "CCEVS-VR-VID11362-2023",
+                constants.TAG_CERT_ITEM: "Acme Gateway 2.0",
+                constants.TAG_REPORT_DATE: "June 16 , 2023",
+            },
+            id="space before the date comma",
+        ),
+        pytest.param(
+            [
+                "ASSURANCE CONTINUITY MAINTENANCE REPORT FOR ACME GATEWAY 2.0",
+                "Maintenance Update of Acme Gateway 1.0",
+                "Maintenance Report Number: CCEVS-VR-VID11001-2020a",
+                "Date of Activity: 19 August 2020",
+                "References: Assurance Continuity, version 3.0",
+            ],
+            {
+                constants.TAG_CERT_ID: "CCEVS-VR-VID11001-2020",
+                constants.TAG_CERT_ITEM: "ACME GATEWAY 2.0",
+                constants.TAG_REPORT_DATE: "19 August 2020",
+            },
+            id="maintenance update line and reference versions",
+        ),
+        pytest.param(
+            [
+                "Validation Report",
+                "LG Electronics Inc.",
+                "20 Yoido-dong, Youngdungpogu",
+                "Seoul 152-721, Korea",
+                "LGV20 and G5 Smartphones",
+                "Report Number: CCEVS-VR-10758-2016",
+            ],
+            {
+                constants.TAG_CERT_ID: "CCEVS-VR-10758-2016",
+                constants.TAG_DEVELOPER: "LG Electronics Inc",
+                constants.TAG_CERT_ITEM: "LGV20 and G5 Smartphones",
+            },
+            id="vendor address",
+        ),
+    ],
+)
+def test_niap_cover_variants(niap_parser: NIAPFrontpageParser, lines: list[str], expected: dict[str, str]):
+    text = "\n".join(lines) + "\n"
+
+    assert niap_parser.parse_text(text.replace("\n", " "), text) == {constants.TAG_CERT_LAB: "US NIAP", **expected}
+    assert niap_parser.parse_structured(_docling_document(lines)) == {constants.TAG_CERT_LAB: "US NIAP", **expected}
+
+
+def test_niap_structured_split_labels(niap_parser: NIAPFrontpageParser):
+    items = niap_parser.parse_structured(
+        _docling_document(
+            [
+                "National Information Assurance Partnership Common Criteria Evaluation and Validation Scheme",
+                "Validation Report",
+                "for",
+                "Acme Gateway 2.0",
+                "Report Number:",
+                "CCEVS-VR- VID 11001-2020",
+                "Dated:",
+                "March 10, 2022",
+                "Version:",
+                "1.0",
+            ]
+        )
+    )
+
+    assert items == {
+        constants.TAG_CERT_LAB: "US NIAP",
+        constants.TAG_CERT_ID: "CCEVS-VR-VID 11001-2020",
+        constants.TAG_CERT_ITEM: "Acme Gateway 2.0",
+        constants.TAG_REPORT_DATE: "March 10, 2022",
+        constants.TAG_REPORT_VERSION: "1.0",
+    }
+
+
+def test_niap_other_scheme_yields_nothing(niap_parser: NIAPFrontpageParser, tmp_path: Path):
+    report = tmp_path / "report.txt"
+    report.write_text(
+        "COMMON CRITERIA CERTIFICATION REPORT\nFortiManager 6.2\n7 November 2022\n573-LSS\n", encoding="utf-8"
+    )
+
+    assert niap_parser.parse(report) == {}
+
+
+def test_niap_structured_product_line_lifted_above_title(niap_parser: NIAPFrontpageParser):
+    items = niap_parser.parse_structured(
+        _docling_document(
+            [
+                "National Information Assurance Partnership Common Criteria Evaluation and Validation Scheme",
+                "®",
+                "TM",
+                "Acme Secure Gateway for",
+                "Validation Report Acme, Inc. Windows 10",
+                "Report Number:",
+                "CCEVS-VR-VID11001-2020",
+            ]
+        )
+    )
+
+    assert items[constants.TAG_DEVELOPER] == "Acme, Inc"
+    assert items[constants.TAG_CERT_ITEM] == "Acme Secure Gateway for Windows 10"
