@@ -25,7 +25,7 @@ _MAINTENANCE_REPORT_RE = re.compile(r"(?i:Assurance Continuity Maintenance Repor
 # Not calendar.month_name, which follows the process locale
 _MONTH = "January|February|March|April|May|June|July|August|September|October|November|December"
 _DATE_RE = re.compile(
-    rf"(?i:(?:{_MONTH})\s*\d{{1,2}},?\s*\d{{4}}|\d{{1,2}}\s+(?:{_MONTH}),?\s+\d{{4}}|(?:{_MONTH})\s+\d{{4}})"
+    rf"(?i:(?:{_MONTH})\s*\d{{1,2}}\s*,?\s*\d{{4}}|\d{{1,2}}\s+(?:{_MONTH}),?\s+\d{{4}}|(?:{_MONTH})\s+\d{{4}})"
     r"|\b\d{1,2}/\d{1,2}/\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b"
 )
 _REPORT_VERSION_RE = re.compile(r"(?i:\bVersion):?\s*(\d+(?:\.\d+)*)\b")

@@ -630,6 +630,15 @@ def test_niap_structured(niap_parser: NIAPFrontpageParser, frontpage_dir: Path, 
             id="report number not yet assigned",
         ),
         pytest.param(
+            ["Validation Report", "Acme Gateway 2.0", "Report Number: CCEVS-VR-VID11362-2023", "Dated: June 16 , 2023"],
+            {
+                constants.TAG_CERT_ID: "CCEVS-VR-VID11362-2023",
+                constants.TAG_CERT_ITEM: "Acme Gateway 2.0",
+                constants.TAG_REPORT_DATE: "June 16 , 2023",
+            },
+            id="space before the date comma",
+        ),
+        pytest.param(
             [
                 "ASSURANCE CONTINUITY MAINTENANCE REPORT FOR ACME GATEWAY 2.0",
                 "Maintenance Update of Acme Gateway 1.0",
