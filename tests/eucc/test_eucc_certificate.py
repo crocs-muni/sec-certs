@@ -96,11 +96,31 @@ def test_parse_package(input_text, expected_output):
         ("EUCC-3089-2026-001-00000 ", "SE"),
         # ENISA NL form: seq + scheme revision + ENISA revision
         ("EUCC-3110-2025-2500051-01-00000", "NL"),
+        ("EUCC-3206-2026-0002", "DE"),
+        ("EUCC-3090-2026-000057-I-00", "FR"),
+        ("EUCC-3090-2026-PP-000026-I-00", "FR"),
+        ("EUCC-3135-2026-000001-I-00", "SE"),
+        ("EUCC-3096-2026-000001-I-00", "ES"),
+        ("EUCC-3087-2026-EUCC-3087-2026-04-0005-00000", "DE"),
+        ("2500093", ""),
     ],
 )
 def test_get_scheme_from_cert_id(cert_id, expected_output):
     result = EUCCCertificate._get_scheme_from_cert_id(cert_id)
     assert result == expected_output
+
+
+@pytest.mark.parametrize(
+    "nando_id, expected_output",
+    [("3110", "NL"), (" 3087 ", "DE"), ("3206", "DE"), ("9999", ""), ("", ""), (None, "")],
+)
+def test_get_scheme_from_nando_id(nando_id, expected_output):
+    assert EUCCCertificate._get_scheme_from_nando_id(nando_id) == expected_output
+
+
+def test_scheme_falls_back_to_nando_id_for_bare_cert_id():
+    cert = EUCCCertificate._from_metadata_dict("2500093", {"nando_id": "3110"}, {})
+    assert cert.scheme == "NL"
 
 
 def _make_eucc_cert(cert_id: str) -> EUCCCertificate:
@@ -134,6 +154,10 @@ def _make_eucc_cert(cert_id: str) -> EUCCCertificate:
         ("EUCC-3087-2026-0000000004-00000", "EUCC-3087-2026-4"),
         # body with no dedicated scheme rules is still canonicalized
         ("EUCC-3100-2026-0007001701-00000", "EUCC-3100-2026-7001701"),
+        ("EUCC-3090-2026-000057-I-00", "EUCC-3090-2026-57"),
+        ("EUCC-3090-2026-PP-000026-I-00", "EUCC-3090-2026-PP-26"),
+        ("EUCC-3206-2026-0002", "EUCC-3206-2026-2"),
+        ("EUCC-3087-2026-EUCC-3087-2026-04-0005-00000", "EUCC-3087-2026-5"),
     ],
 )
 def test_compute_heuristics_cert_id(cert_id, expected):
