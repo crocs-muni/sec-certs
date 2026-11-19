@@ -227,8 +227,11 @@ class SESIPCertificate(
         next_certificates: list[str] | None = field(default=None)
         sesip_profiles: set[SESIPProfile] | None = field(default=None)
         # against a PSA profile, not PSA certificate
-        psa_profile_level: int | None = field(default=None)
-        psa_rot_component_profile_level: int | None = field(default=None)
+        psa_profile_levels: dict[str, int] | None = field(default=None)
+
+        @classmethod
+        def from_dict(cls, dct: dict) -> SESIPCertificate.Heuristics:
+            return cls(**{f.name: dct[f.name] for f in fields(cls) if f.name in dct})
 
     def __init__(
         self,
@@ -413,10 +416,13 @@ class SESIPCertificate(
         self.heuristics.sesip_profiles = found or None
 
     def compute_heuristics_psa_profile_levels(self) -> None:
-        entries = [e for p in self.heuristics.sesip_profiles or [] if (e := SESIP_PROFILES.get(p.family))]
-        levels = [(e["psa_level"], e["psa_rot_component"]) for e in entries if e["psa_level"]]
-        self.heuristics.psa_profile_level = min((lvl for lvl, rot in levels if not rot), default=None)
-        self.heuristics.psa_rot_component_profile_level = min((lvl for lvl, rot in levels if rot), default=None)
+        levels: dict[str, int] = {}
+        for profile in self.heuristics.sesip_profiles or []:
+            entry = SESIP_PROFILES.get(profile.family)
+            if entry and entry["psa_level"]:
+                scope, level = entry["psa_scope"], entry["psa_level"]
+                levels[scope] = min(levels.get(scope, level), level)
+        self.heuristics.psa_profile_levels = levels or None
 
     def set_local_paths(self, cert_dir: str | Path, st_dir: str | Path) -> None:
         for doc, folder in ((self.state.cert, Path(cert_dir)), (self.state.st, Path(st_dir))):

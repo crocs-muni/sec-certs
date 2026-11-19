@@ -8,7 +8,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-mcus-and-mpus-gpt_spe_150/",
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "Secure External Memories",
@@ -19,7 +19,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/globalplatform-technology-sesip-profile-for-secure-external-memories/",
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "WPC Qi Secure Storage Subsystem",
@@ -30,7 +30,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/sesip-profile-for-wpc-qi-gpt_spe_153/",
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "DTSec Connected Diabetes Devices",
@@ -41,7 +41,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/sesip-profile-for-dtsec-cdd-platform/",
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "UWB module",
@@ -50,7 +50,7 @@
     "doc_ids": [],
     "url": null,
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "ICA IoT Security Requirements",
@@ -59,7 +59,7 @@
     "doc_ids": [],
     "url": null,
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "PSA Certified Level 2",
@@ -71,7 +71,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-2-gps_spe_112/",
     "psa_level": 2,
-    "psa_rot_component": false
+    "psa_scope": "psa_whole"
   },
   {
     "family": "PSA Certified Level 3",
@@ -83,7 +83,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/sesip-profile-psa-cert-lvl-3-gps_spe_111/",
     "psa_level": 3,
-    "psa_rot_component": false
+    "psa_scope": "psa_whole"
   },
   {
     "family": "PSA Certified Level 3 iSE/SE + RoT Component",
@@ -94,7 +94,7 @@
     ],
     "url": "https://www.psacertified.org/development-resources/certification-resources/",
     "psa_level": 3,
-    "psa_rot_component": false
+    "psa_scope": "ise_se_or_rot_component"
   },
   {
     "family": "PSA Certified Level 4 iSE/SE",
@@ -105,7 +105,7 @@
     ],
     "url": "https://www.psacertified.org/development-resources/certification-resources/",
     "psa_level": 4,
-    "psa_rot_component": false
+    "psa_scope": "ise_se_or_rot_component"
   },
   {
     "family": "PSA Certified RoT Component Level 4",
@@ -116,7 +116,7 @@
     ],
     "url": "https://www.psacertified.org/development-resources/certification-resources/",
     "psa_level": 4,
-    "psa_rot_component": true
+    "psa_scope": "rot_component"
   },
   {
     "family": "PSA Certified RoT Component Level 2",
@@ -127,7 +127,7 @@
     ],
     "url": "https://www.psacertified.org/development-resources/certification-resources/",
     "psa_level": 2,
-    "psa_rot_component": true
+    "psa_scope": "rot_component"
   },
   {
     "family": "PSA Certified RoT Component Level 3",
@@ -138,7 +138,7 @@
     ],
     "url": "https://www.psacertified.org/development-resources/certification-resources/",
     "psa_level": 3,
-    "psa_rot_component": true
+    "psa_scope": "rot_component"
   },
   {
     "family": "PSA Certified Level 2 ARoT-less",
@@ -149,7 +149,7 @@
     ],
     "url": "https://www.psacertified.org/development-resources/certification-resources/",
     "psa_level": 2,
-    "psa_rot_component": false
+    "psa_scope": "psa_whole"
   },
   {
     "family": "Code Update Mechanism",
@@ -160,7 +160,7 @@
     ],
     "url": "https://globalplatform.org/specs-library/sesip-profile-for-code-update-mechanism-gps_spe_026/",
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   },
   {
     "family": "ECN",
@@ -171,6 +171,6 @@
     ],
     "url": "https://globalplatform.org/specs-library/sesip-profile-for-ecn-gpt_spe_152/",
     "psa_level": null,
-    "psa_rot_component": false
+    "psa_scope": null
   }
 ]

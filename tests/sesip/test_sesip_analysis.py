@@ -20,6 +20,7 @@ KNOWN_TEXTS |= json.loads((files(tests.data.sesip.analysis) / "profile_variants.
 MCU, PSA2, PSA3 = "Secure MCUs and MPUs", "PSA Certified Level 2", "PSA Certified Level 3"
 ROT3, ISE4 = "PSA Certified RoT Component Level 3", "PSA Certified Level 4 iSE/SE"
 ISE3 = "PSA Certified Level 3 iSE/SE + RoT Component"
+PSA_SCOPES = ("psa_whole", "rot_component", "ise_se_or_rot_component")
 
 
 def make_cert(frontpage: dict | None = None, **index) -> SESIPCertificate:
@@ -115,33 +116,36 @@ def test_profile_catalog_is_well_formed():
     raw = json.loads((Path(sesip.__file__).parent.parent / "sesip_profiles.json").read_text(encoding="utf-8"))
     assert [p["family"] for p in raw] == list(SESIP_PROFILES), "no family twice"
     for entry in raw:
-        assert set(entry) == {"family", "pattern", "issuer", "doc_ids", "url", "psa_level", "psa_rot_component"}
+        assert set(entry) == {"family", "pattern", "issuer", "doc_ids", "url", "psa_level", "psa_scope"}
         assert entry["issuer"] in ("GlobalPlatform", "PSA Certified", None)
         assert all(re.fullmatch(r"GP[A-Z]?_[A-Z]{3}_\d{3}|JSADEN\d{3}", doc_id) for doc_id in entry["doc_ids"])
         assert entry["url"] is None or entry["url"].startswith("https://")
         assert (entry["psa_level"] in (2, 3, 4)) is ("PSA" in entry["family"])
-        assert entry["psa_rot_component"] is entry["family"].startswith("PSA Certified RoT Component")
+        assert entry["psa_scope"] in ((None,) if entry["psa_level"] is None else PSA_SCOPES)
 
 
 @pytest.mark.parametrize(
-    "families, level, rot_component_level",
+    "families, expected",
     [
-        ([PSA2], 2, None),
-        ([ROT3], None, 3),  # a building block
-        ([MCU, PSA3, ISE3], 3, None),
-        ([PSA2, ISE4], 2, None),  # the lowest, as with EAL
-        ([PSA2, ROT3], 2, 3),
-        (["Family renamed since"], None, None),
-        ([], None, None),
+        ([PSA2], {"psa_whole": 2}),
+        ([ROT3], {"rot_component": 3}),  # a building block
+        ([MCU, PSA3, ISE3], {"psa_whole": 3, "ise_se_or_rot_component": 3}),  # a chip and its enclave
+        ([PSA3, PSA2, ISE4], {"psa_whole": 2, "ise_se_or_rot_component": 4}),  # the lowest, as with EAL
+        (["Family renamed since"], None),
+        ([], None),
     ],
 )
-def test_psa_profile_levels(families, level, rot_component_level):
+def test_psa_profile_levels(families, expected):
     cert = make_cert()
     cert.heuristics.sesip_profiles = {SESIPProfile(family) for family in families} or None
-    cert.heuristics.psa_profile_level = cert.heuristics.psa_rot_component_profile_level = 99
+    cert.heuristics.psa_profile_levels = {"stale": 1}
     cert.compute_heuristics_psa_profile_levels()
-    assert cert.heuristics.psa_profile_level == level
-    assert cert.heuristics.psa_rot_component_profile_level == rot_component_level
+    assert cert.heuristics.psa_profile_levels == expected
+
+
+def test_heuristics_from_an_older_json_load():
+    old = {"status": "active", "psa_profile_level": 3, "psa_rot_component_profile_level": None}
+    assert SESIPCertificate.Heuristics.from_dict(old) == SESIPCertificate.Heuristics(status="active")
 
 
 def test_heuristics_on_the_dataset_survive_json(dset):
@@ -151,6 +155,6 @@ def test_heuristics_on_the_dataset_survive_json(dset):
     assert any(c.heuristics.cert_lab for c in dset)
     assert {c.heuristics.status for c in dset} <= {"active", "archived", "withdrawn", "terminated", None}
     assert first.heuristics.sesip_profiles == {SESIPProfile(MCU, "1.0"), SESIPProfile(PSA3, "1.0", "REL 02")}
-    assert first.heuristics.psa_profile_level == 3
+    assert first.heuristics.psa_profile_levels == {"psa_whole": 3}
     restored = SESIPDataset.from_json(dset.json_path)
     assert all(restored[c.dgst].heuristics == c.heuristics for c in dset)
