@@ -587,6 +587,7 @@ def test_bsi_text(bsi_parser: BSIFrontpageParser, frontpage_dir: Path, name: str
 
 
 @pytest.mark.parametrize(("name", "expected"), BSI_REPORTS)
+@pytest.mark.usefixtures("docling_converter")
 def test_bsi_structured(bsi_parser: BSIFrontpageParser, frontpage_dir: Path, name: str, expected: dict[str, str]):
     items = bsi_parser.parse(frontpage_dir / "docling" / f"{name}.txt", frontpage_dir / "docling" / f"{name}.json")
 
