@@ -57,6 +57,8 @@ def test_canonicalize_us(n):
     assert canonicalize_n(n, "CCEVS-VR-VID10015-2008", "US") == "CCEVS-VR-VID-10015-2008"
     assert canonicalize_n(n, "CCEVS-VR-10880-2018", "US") == "CCEVS-VR-10880-2018"
     assert canonicalize_n(n, "CCEVS-VR-04-0082", "US") == "CCEVS-VR-0082-2004"
+    assert canonicalize_n(n, "CCEVS-VR-VID 11108-2021", "US") == "CCEVS-VR-VID-11108-2021"
+    assert canonicalize_n(n, "CCEVS-VRVID 11108-2021", "US") == "CCEVS-VR-VID-11108-2021"
 
 
 @pytest.mark.parametrize("n", [1, 2])
