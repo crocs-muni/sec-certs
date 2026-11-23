@@ -18,9 +18,15 @@ class SESIPProfileDataset(JSONPathDataset, ComplexSerializableType):
 
     BUNDLED_PATH: ClassVar[Path] = Path(__file__).parent.parent / "sesip_profiles.json"
 
-    def __init__(self, profiles: dict[str, dict[str, Any]], json_path: str | Path | None = None):
+    def __init__(
+        self,
+        profiles: dict[str, dict[str, Any]],
+        page_hashes: dict[str, str] | None = None,
+        json_path: str | Path | None = None,
+    ):
         super().__init__(json_path)
         self.profiles = profiles
+        self.page_hashes = page_hashes
 
     def __iter__(self) -> Iterator[dict[str, Any]]:
         yield from self.profiles.values()
@@ -35,11 +41,11 @@ class SESIPProfileDataset(JSONPathDataset, ComplexSerializableType):
         return len(self.profiles)
 
     def to_dict(self) -> dict[str, Any]:
-        return {"profiles": self.profiles}
+        return {"profiles": self.profiles, "page_hashes": self.page_hashes}
 
     @classmethod
     def from_dict(cls, dct: Mapping) -> SESIPProfileDataset:
-        return cls(dct["profiles"])
+        return cls(dct["profiles"], dct.get("page_hashes"))
 
     @classmethod
     def from_bundled(cls, json_path: str | Path | None = None) -> SESIPProfileDataset:

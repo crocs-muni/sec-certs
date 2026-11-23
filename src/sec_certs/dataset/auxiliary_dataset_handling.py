@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import itertools
 import json
 import logging
@@ -327,7 +328,9 @@ class SESIPProfileDatasetHandler(AuxiliaryDatasetHandler):
     def load_dataset(self) -> None:
         self.dset = SESIPProfileDataset.from_bundled(self.dset_path)
         if self.dset_path.exists():
-            self.dset.profiles = SESIPProfileDataset.from_json(self.dset_path).profiles | self.dset.profiles
+            saved = SESIPProfileDataset.from_json(self.dset_path)
+            self.dset.profiles = saved.profiles | self.dset.profiles
+            self.dset.page_hashes = saved.page_hashes
 
     @staged(logger, "Processing SESIP profiles")
     def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
@@ -335,4 +338,16 @@ class SESIPProfileDatasetHandler(AuxiliaryDatasetHandler):
             self.dset = SESIPProfileDataset.from_bundled(self.dset_path)
         else:
             self.load_dataset()
+        if mode != ProcessingMode.LOAD:
+            self._check_profile_pages()
         self.dset.to_json()
+
+    def _check_profile_pages(self) -> None:
+        try:
+            texts = SESIPProfileDataset.download_page_texts()
+        except requests.RequestException as e:
+            logger.warning(f"Could not download the SESIP profile pages: {e}")
+            return
+        hashes = {name: hashlib.sha256(text.encode()).hexdigest() for name, text in texts.items()}
+        if hashes != self.dset.page_hashes:
+            logger.warning("SESIP profile pages changed since the catalog was last checked, it may miss new profiles.")
