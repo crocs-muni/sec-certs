@@ -4,7 +4,7 @@ import json
 import time
 from collections.abc import Iterator, Mapping
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Final
 
 import requests
 from bs4 import BeautifulSoup
@@ -13,6 +13,26 @@ from sec_certs.configuration import config
 from sec_certs.constants import SESIP_PROFILES_GP_URL, SESIP_PROFILES_PSA_URL
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.serialization.json import ComplexSerializableType
+
+_LLM_RULES: Final = """You maintain a catalog of SESIP profiles for the sec-certs library. You get the catalog \
+(JSON list) and the text of two official pages: the GlobalPlatform specification library (SESIP) and \
+PSA Certified certification resources. Links are written as <url> after the link text. Compare them.
+Rules:
+- One catalog entry = one profile family. Versions are not stored: a new version of a known profile \
+is not a new profile, only report its new document ID in "updates".
+- Only SESIP profiles. Ignore the methodology, FAQ, mapping documents, questionnaires and guides.
+- Every "quote" is copied exactly from the page text. Document IDs and URLs must appear on the pages.
+- "pattern" is a case-insensitive Python regex for the profile name as written in certificates, in \
+the style of the existing patterns.
+- "psa_level" is 2, 3 or 4 for PSA Certified profiles, otherwise null.
+- "psa_scope" says what a PSA Certified profile evaluates, judged by its name: "psa_whole" for a whole \
+PSA Root of Trust (e.g. "PSA Certified Level 3"), "ise_se_or_rot_component" for iSE/SE profiles, which \
+can also be used for a RoT Component (e.g. "Level 4 iSE/SE (Includes Level 4 RoT Component)"), \
+"rot_component" for RoT Component only profiles, null for profiles that are not PSA Certified.
+Answer with one JSON object only:
+{"unchanged": [family], "updates": [{"family", "add_doc_ids", "url", "quote"}], "new_profiles": \
+[{"family", "pattern", "issuer", "doc_ids", "url", "psa_level", "psa_scope", "quote"}], \
+"not_on_pages": [family], "notes": [text]}"""
 
 
 class SESIPProfileDataset(JSONPathDataset, ComplexSerializableType):
@@ -65,6 +85,13 @@ class SESIPProfileDataset(JSONPathDataset, ComplexSerializableType):
                 break
             gp_pages.append(html)
         return {"gp": _page_text("\n".join(gp_pages)), "psa": _page_text(_download(SESIP_PROFILES_PSA_URL))}
+
+    def ask_llm(self, texts: dict[str, str]) -> dict[str, Any]:
+        """Changes of the catalog the Ai finds on the pages"""
+        pages = f"GLOBALPLATFORM PAGE:\n{texts['gp']}\n\nPSA CERTIFIED PAGE:\n{texts['psa']}"
+        user = f"CATALOG:\n{json.dumps(list(self), indent=1)}\n\n{pages}"
+        answer = _ask_llm([{"role": "system", "content": _LLM_RULES}, {"role": "user", "content": user}])
+        return json.loads(answer[answer.index("{") : answer.rindex("}") + 1])
 
 
 def _download(url: str, form: dict[str, Any] | None = None) -> str:
