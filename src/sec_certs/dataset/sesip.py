@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup, Tag
 
 from sec_certs.configuration import config
 from sec_certs.constants import SESIP_INDEX_URL
+from sec_certs.dataset.auxiliary_dataset_handling import AuxiliaryDatasetHandler, SESIPProfileDatasetHandler
 from sec_certs.dataset.dataset import Dataset
 from sec_certs.document.utils import get_view_cls
 from sec_certs.sample.sesip import SESIPCertificate
@@ -111,6 +112,23 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
     @only_backed(throw=False)
     def index_path(self) -> Path:
         return self.web_dir / self.INDEX_HTML
+
+    def __init__(
+        self,
+        certs: dict[str, SESIPCertificate] | None = None,
+        root_dir: str | Path | None = None,
+        name: str | None = None,
+        description: str = "",
+        state: Dataset.DatasetInternalState | None = None,
+        aux_handlers: dict[type[AuxiliaryDatasetHandler], AuxiliaryDatasetHandler] | None = None,
+    ):
+        super().__init__(certs, root_dir, name, description, state, aux_handlers)
+        if aux_handlers is None:
+            self.aux_handlers = {
+                SESIPProfileDatasetHandler: SESIPProfileDatasetHandler(
+                    self.auxiliary_datasets_dir if self.is_backed else None
+                ),
+            }
 
     def __getitem__(self, item: str) -> SESIPCertificate:
         try:
@@ -285,11 +303,12 @@ class SESIPDataset(Dataset[SESIPCertificate], ComplexSerializableType):
 
     @staged(logger, "Computing heuristics of SESIP certificates")
     def _compute_heuristics_body(self) -> None:
+        catalog = self.aux_handlers[SESIPProfileDatasetHandler].dset
         for cert in self:
             cert.compute_heuristics_cert_lab()
             cert.compute_heuristics_status()
-            cert.compute_heuristics_sesip_profiles()
-            cert.compute_heuristics_psa_profile_levels()
+            cert.compute_heuristics_sesip_profiles(catalog)
+            cert.compute_heuristics_psa_profile_levels(catalog)
         self._compute_cert_versions()
 
     # won't be used at production for now

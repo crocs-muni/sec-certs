@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass, field, fields
 from datetime import date
@@ -30,6 +29,7 @@ from sec_certs.utils.pdf import extract_pdf_metadata
 
 if TYPE_CHECKING:
     from sec_certs.converter import PDFConverter
+    from sec_certs.dataset.sesip_profile import SESIPProfileDataset
     from sec_certs.document.base import DocumentBlock, DocumentView
 
 
@@ -54,10 +54,6 @@ class SESIPProfile(ComplexSerializableType):
         )
 
 
-with (Path(__file__).parent.parent / "sesip_profiles.json").open(encoding="utf-8") as f:
-    SESIP_PROFILES: Final[dict[str, dict[str, Any]]] = {
-        p["family"]: {**p, "pattern": re.compile(p["pattern"], re.IGNORECASE)} for p in json.load(f)
-    }
 _NEXT_PROFILE_RE: Final = re.compile(r"profile\s+for", re.IGNORECASE)
 _MARKED_VERSION_RE: Final = re.compile(r"(?:version|\bv)\s*\.?\s*(\d+\.\d+(?:\.\d+)?)", re.IGNORECASE)
 _BARE_VERSION_RE: Final = re.compile(r"(?<![\d.])(\d+\.\d+)(?![\d.x])")
@@ -406,19 +402,19 @@ class SESIPCertificate(
             except (TypeError, ValueError):
                 self.heuristics.status = None
 
-    def compute_heuristics_sesip_profiles(self) -> None:
+    def compute_heuristics_sesip_profiles(self, catalog: SESIPProfileDataset) -> None:
         text = (self.pdf_data.cert_frontpage or {}).get("sesip_profile") or ""
-        matches = {name: m for name, profile in SESIP_PROFILES.items() if (m := profile["pattern"].search(text))}
+        matches = {e["family"]: m for e in catalog if (m := re.search(e["pattern"], text, re.IGNORECASE))}
         starts = [m.start() for m in matches.values()]
         found = {SESIPProfile(name, *_profile_version(text, m.end(), starts)) for name, m in matches.items()}
         if text and len(found) < max(1, len(_NEXT_PROFILE_RE.findall(text))):
             logger.warning(f"Cert dgst: {self.dgst} has an unknown SESIP profile: {text}")
         self.heuristics.sesip_profiles = found or None
 
-    def compute_heuristics_psa_profile_levels(self) -> None:
+    def compute_heuristics_psa_profile_levels(self, catalog: SESIPProfileDataset) -> None:
         levels: dict[str, int] = {}
         for profile in self.heuristics.sesip_profiles or []:
-            entry = SESIP_PROFILES.get(profile.family)
+            entry = catalog.profiles.get(profile.family)
             if entry and entry["psa_level"]:
                 scope, level = entry["psa_scope"], entry["psa_level"]
                 levels[scope] = min(levels.get(scope, level), level)
