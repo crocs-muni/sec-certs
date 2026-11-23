@@ -101,17 +101,20 @@ class SESIPProfileDataset(JSONPathDataset, ComplexSerializableType):
     def update_with_llm(self, texts: dict[str, str]) -> list[str]:
         """Writes what the Ai found on the pages and passed the checks"""
         answer = self.ask_llm(texts)
-        pages = " ".join([*texts.values(), SESIP_PROFILES_PSA_URL]).translate(_PLAIN)
+        pages = " ".join([*texts.values(), f"<{SESIP_PROFILES_PSA_URL}>"]).translate(_PLAIN)
         written = []
-        for item in answer.get("updates", []) + answer.get("new_profiles", []):
-            family = item.get("family")
+        for item in _answer_items(answer, "updates") + _answer_items(answer, "new_profiles"):
+            family = str(item.get("family"))
             if problems := _llm_problems(item, pages):
                 logger.warning(f"Not written {family}: {problems}")
             elif "pattern" in item and family not in self:
-                self.profiles[family] = {key: item.get(key) for key in _FIELDS}
+                doc_ids = list(dict.fromkeys(item["doc_ids"]))
+                self.profiles[family] = {key: item.get(key) for key in _FIELDS} | {"doc_ids": doc_ids}
                 written.append(f"new profile {family}")
             elif "pattern" not in item and family in self:
-                new_ids = [doc_id for doc_id in item.get("add_doc_ids") or [] if doc_id not in self[family]["doc_ids"]]
+                new_ids = [
+                    doc_id for doc_id in dict.fromkeys(item["add_doc_ids"]) if doc_id not in self[family]["doc_ids"]
+                ]
                 self[family]["doc_ids"] += new_ids
                 written += [f"{family} + {doc_id}" for doc_id in new_ids]
         return written
@@ -154,6 +157,7 @@ def _ask_llm(messages: list[dict[str, str]]) -> str:
     return answer
 
 
+_DOC_ID_RE: Final = re.compile(r"GP[A-Z]?_[A-Z]{3}_\d{3}|JSADEN\d{3}")
 _PLAIN: Final = str.maketrans("\u2018\u2019\u2010\u2011\u2013\u2014", "''----")
 
 
@@ -166,20 +170,26 @@ def _psa_scope_by_name(item: dict[str, Any]) -> str | None:
     return "rot_component" if "RoT Component" in family else "psa_whole"
 
 
+def _answer_items(answer: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    items = answer.get(key)
+    return [item for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+
+
 def _llm_problems(item: dict[str, Any], pages: str) -> list[str]:
     """Ai correctness check"""
-    claims = [item.get("quote"), item.get("url"), *(item.get("add_doc_ids") or []), *(item.get("doc_ids") or [])]
-    problems = [f"not on the pages: {c}" for c in claims if c and str(c).translate(_PLAIN) not in pages]
-    if "pattern" in item:
+    new = "pattern" in item
+    quote, url, doc_ids = item.get("quote"), item.get("url"), item.get("doc_ids" if new else "add_doc_ids")
+    if not (isinstance(item.get("family"), str) and isinstance(quote, str) and len(quote) >= 20):
+        return ["family or quote of 20+ characters missing"]
+    if not (isinstance(doc_ids, list) and all(isinstance(d, str) and _DOC_ID_RE.fullmatch(d) for d in doc_ids)):
+        return [f"not a list of document IDs: {doc_ids}"]
+    claims = [quote, *doc_ids, *([f"<{url}>"] if url else [])]
+    problems = [f"not on the pages: {c}" for c in claims if c.translate(_PLAIN) not in pages]
+    if new:
         try:
             re.compile(item["pattern"], re.IGNORECASE)
         except (re.error, TypeError) as e:
             problems.append(f"pattern does not compile: {e}")
-        if not (
-            isinstance(item.get("family"), str)
-            and isinstance(item.get("doc_ids"), list)
-            and item.get("psa_level") in (None, 2, 3, 4)
-            and item.get("psa_scope") == _psa_scope_by_name(item)
-        ):
-            problems.append("bad family, doc_ids, psa_level or psa_scope")
+        if not (item.get("psa_level") in (None, 2, 3, 4) and item.get("psa_scope") == _psa_scope_by_name(item)):
+            problems.append("bad psa_level or psa_scope")
     return problems
