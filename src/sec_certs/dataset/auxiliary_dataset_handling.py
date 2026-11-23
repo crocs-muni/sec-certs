@@ -18,6 +18,7 @@ from sec_certs.dataset.cc_scheme import CCSchemeDataset
 from sec_certs.dataset.cpe import CPEDataset
 from sec_certs.dataset.cve import CVEDataset
 from sec_certs.dataset.fips_algorithm import FIPSAlgorithmDataset
+from sec_certs.dataset.sesip_profile import SESIPProfileDataset
 from sec_certs.sample.cc import CCCertificate
 from sec_certs.sample.cc_maintenance_update import CCMaintenanceUpdate
 from sec_certs.utils import helpers
@@ -316,3 +317,22 @@ class ProtectionProfileDatasetHandler(AuxiliaryDatasetHandler):
         self.dset.download_all_artifacts()
         self.dset.convert_all_pdfs()
         self.dset.analyze_certificates()
+
+
+class SESIPProfileDatasetHandler(AuxiliaryDatasetHandler):
+    @property
+    def dset_path(self) -> Path:
+        return self.root_dir / "sesip_profiles.json"
+
+    def load_dataset(self) -> None:
+        self.dset = SESIPProfileDataset.from_bundled(self.dset_path)
+        if self.dset_path.exists():
+            self.dset.profiles = SESIPProfileDataset.from_json(self.dset_path).profiles | self.dset.profiles
+
+    @staged(logger, "Processing SESIP profiles")
+    def _process_dataset_body(self, mode: ProcessingMode = ProcessingMode.LOAD) -> None:
+        if mode == ProcessingMode.REBUILD:
+            self.dset = SESIPProfileDataset.from_bundled(self.dset_path)
+        else:
+            self.load_dataset()
+        self.dset.to_json()
