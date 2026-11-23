@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from collections.abc import Iterator, Mapping
 from pathlib import Path
@@ -129,3 +130,34 @@ def _ask_llm(messages: list[dict[str, str]]) -> str:
                 for choice in json.loads(line[6:]).get("choices", []):
                     answer += choice.get("delta", {}).get("content") or ""
     return answer
+
+
+_PLAIN: Final = str.maketrans("\u2018\u2019\u2010\u2011\u2013\u2014", "''----")
+
+
+def _psa_scope_by_name(item: dict[str, Any]) -> str | None:
+    family = item.get("family") or ""
+    if not item.get("psa_level"):
+        return None
+    if "iSE/SE" in family:
+        return "ise_se_or_rot_component"
+    return "rot_component" if "RoT Component" in family else "psa_whole"
+
+
+def _llm_problems(item: dict[str, Any], pages: str) -> list[str]:
+    """Ai correctness check"""
+    claims = [item.get("quote"), item.get("url"), *(item.get("add_doc_ids") or []), *(item.get("doc_ids") or [])]
+    problems = [f"not on the pages: {c}" for c in claims if c and str(c).translate(_PLAIN) not in pages]
+    if "pattern" in item:
+        try:
+            re.compile(item["pattern"], re.IGNORECASE)
+        except (re.error, TypeError) as e:
+            problems.append(f"pattern does not compile: {e}")
+        if not (
+            isinstance(item.get("family"), str)
+            and isinstance(item.get("doc_ids"), list)
+            and item.get("psa_level") in (None, 2, 3, 4)
+            and item.get("psa_scope") == _psa_scope_by_name(item)
+        ):
+            problems.append("bad family, doc_ids, psa_level or psa_scope")
+    return problems
