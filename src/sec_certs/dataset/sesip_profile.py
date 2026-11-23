@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any, ClassVar
@@ -8,6 +9,7 @@ from typing import Any, ClassVar
 import requests
 from bs4 import BeautifulSoup
 
+from sec_certs.configuration import config
 from sec_certs.constants import SESIP_PROFILES_GP_URL, SESIP_PROFILES_PSA_URL
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.serialization.json import ComplexSerializableType
@@ -81,3 +83,22 @@ def _page_text(html: str) -> str:
         if not link["href"].startswith("#"):
             link.append(f" <{link['href']}>")
     return " ".join(soup.get_text(" ").split())
+
+
+def _ask_llm(messages: list[dict[str, str]]) -> str:
+    with requests.post(
+        f"{config.llm_api_url}/chat/completions",
+        headers={"Authorization": f"Bearer {config.llm_api_key}"},
+        json={"model": config.llm_model, "messages": messages, "temperature": 0, "stream": True},
+        stream=True,
+        timeout=(30, 600),
+    ) as response:
+        response.raise_for_status()
+        answer, deadline = "", time.monotonic() + config.llm_timeout
+        for line in response.iter_lines():
+            if time.monotonic() > deadline:
+                raise TimeoutError(f"No whole answer from {config.llm_model} in {config.llm_timeout} s")
+            if line.startswith(b"data: {"):
+                for choice in json.loads(line[6:]).get("choices", []):
+                    answer += choice.get("delta", {}).get("content") or ""
+    return answer

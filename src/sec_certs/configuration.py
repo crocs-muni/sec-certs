@@ -154,6 +154,13 @@ class Configuration(BaseSettings):
         + " If set to `origin`, will fetch these resources from their origin URL. It is advised to set an"
         + " `nvd_api_key` when setting this to `origin`.",
     )
+    llm_api_url: str = Field(
+        "https://llm.ai.e-infra.cz/v1",
+        description="OpenAI compatible API that keeps the SESIP profile catalog updated",
+    )
+    llm_api_key: str | None = Field(None, description="Key for `llm_api_url`")
+    llm_model: str = Field("glm-5.3", description="Model asked at `llm_api_url`")
+    llm_timeout: int = Field(1800, description="Seconds to wait for a whole answer of the LLM")
     pdf_converter: Literal["pdftotext", "docling"] = Field(
         "pdftotext", description="PDF converter used for all PDF conversions"
     )
