@@ -329,6 +329,11 @@ class SESIPProfileDatasetHandler(AuxiliaryDatasetHandler):
         self.dset = SESIPProfileDataset.from_bundled(self.dset_path)
         if self.dset_path.exists():
             saved = SESIPProfileDataset.from_json(self.dset_path)
+            for family, entry in self.dset.profiles.items():
+                if family in saved:
+                    entry["doc_ids"] += [
+                        doc_id for doc_id in saved[family]["doc_ids"] if doc_id not in entry["doc_ids"]
+                    ]
             self.dset.profiles = saved.profiles | self.dset.profiles
             self.dset.page_hashes = saved.page_hashes
 
@@ -349,5 +354,15 @@ class SESIPProfileDatasetHandler(AuxiliaryDatasetHandler):
             logger.warning(f"Could not download the SESIP profile pages: {e}")
             return
         hashes = {name: hashlib.sha256(text.encode()).hexdigest() for name, text in texts.items()}
-        if hashes != self.dset.page_hashes:
+        if hashes == self.dset.page_hashes:
+            return
+        if not config.llm_api_key:
             logger.warning("SESIP profile pages changed since the catalog was last checked, it may miss new profiles.")
+            return
+        try:
+            written = self.dset.update_with_llm(texts)
+        except Exception as e:
+            logger.warning(f"The LLM could not update the SESIP profile catalog: {e}")
+            return
+        self.dset.page_hashes = hashes
+        logger.info(f"SESIP profile catalog checked by {config.llm_model}: {written or 'no change'}")

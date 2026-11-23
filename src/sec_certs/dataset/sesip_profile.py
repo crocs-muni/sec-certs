@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import time
 from collections.abc import Iterator, Mapping
@@ -15,6 +16,9 @@ from sec_certs.constants import SESIP_PROFILES_GP_URL, SESIP_PROFILES_PSA_URL
 from sec_certs.dataset.json_path_dataset import JSONPathDataset
 from sec_certs.serialization.json import ComplexSerializableType
 
+logger = logging.getLogger(__name__)
+
+_FIELDS: Final = ("family", "pattern", "issuer", "doc_ids", "url", "psa_level", "psa_scope")
 _LLM_RULES: Final = """You maintain a catalog of SESIP profiles for the sec-certs library. You get the catalog \
 (JSON list) and the text of two official pages: the GlobalPlatform specification library (SESIP) and \
 PSA Certified certification resources. Links are written as <url> after the link text. Compare them.
@@ -93,6 +97,24 @@ class SESIPProfileDataset(JSONPathDataset, ComplexSerializableType):
         user = f"CATALOG:\n{json.dumps(list(self), indent=1)}\n\n{pages}"
         answer = _ask_llm([{"role": "system", "content": _LLM_RULES}, {"role": "user", "content": user}])
         return json.loads(answer[answer.index("{") : answer.rindex("}") + 1])
+
+    def update_with_llm(self, texts: dict[str, str]) -> list[str]:
+        """Writes what the Ai found on the pages and passed the checks"""
+        answer = self.ask_llm(texts)
+        pages = " ".join([*texts.values(), SESIP_PROFILES_PSA_URL]).translate(_PLAIN)
+        written = []
+        for item in answer.get("updates", []) + answer.get("new_profiles", []):
+            family = item.get("family")
+            if problems := _llm_problems(item, pages):
+                logger.warning(f"Not written {family}: {problems}")
+            elif "pattern" in item and family not in self:
+                self.profiles[family] = {key: item.get(key) for key in _FIELDS}
+                written.append(f"new profile {family}")
+            elif "pattern" not in item and family in self:
+                new_ids = [doc_id for doc_id in item.get("add_doc_ids") or [] if doc_id not in self[family]["doc_ids"]]
+                self[family]["doc_ids"] += new_ids
+                written += [f"{family} + {doc_id}" for doc_id in new_ids]
+        return written
 
 
 def _download(url: str, form: dict[str, Any] | None = None) -> str:
