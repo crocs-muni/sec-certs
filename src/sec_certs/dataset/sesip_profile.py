@@ -157,6 +157,7 @@ def _ask_llm(messages: list[dict[str, str]]) -> str:
     return answer
 
 
+_UNKNOWN_PROFILE: Final = "SESIP Profile for Example Devices version 1.0 REL 01"
 _DOC_ID_RE: Final = re.compile(r"GP[A-Z]?_[A-Z]{3}_\d{3}|JSADEN\d{3}")
 _PLAIN: Final = str.maketrans("\u2018\u2019\u2010\u2011\u2013\u2014", "''----")
 
@@ -187,9 +188,12 @@ def _llm_problems(item: dict[str, Any], pages: str) -> list[str]:
     problems = [f"not on the pages: {c}" for c in claims if c.translate(_PLAIN) not in pages]
     if new:
         try:
-            re.compile(item["pattern"], re.IGNORECASE)
+            pattern = re.compile(item["pattern"], re.IGNORECASE)
         except (re.error, TypeError) as e:
             problems.append(f"pattern does not compile: {e}")
+        else:
+            if pattern.search(_UNKNOWN_PROFILE) or not pattern.search(item["family"]):
+                problems.append("pattern matches any profile or not its own family")
         if not (item.get("psa_level") in (None, 2, 3, 4) and item.get("psa_scope") == _psa_scope_by_name(item)):
             problems.append("bad psa_level or psa_scope")
     return problems
