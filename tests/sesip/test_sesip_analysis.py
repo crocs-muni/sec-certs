@@ -6,14 +6,13 @@ import json
 import re
 from datetime import date, timedelta
 from importlib.resources import files
-from pathlib import Path
 
 import pytest
 import tests.data.sesip.analysis
 
 from sec_certs.dataset.sesip import SESIPDataset
-from sec_certs.sample import sesip
-from sec_certs.sample.sesip import SESIP_PROFILES, SESIPCertificate, SESIPProfile
+from sec_certs.dataset.sesip_profile import SESIPProfileDataset
+from sec_certs.sample.sesip import SESIPCertificate, SESIPProfile
 
 KNOWN_TEXTS = json.loads((files(tests.data.sesip.analysis) / "profile_versions.json").read_text(encoding="utf-8"))
 KNOWN_TEXTS |= json.loads((files(tests.data.sesip.analysis) / "profile_variants.json").read_text(encoding="utf-8"))
@@ -21,6 +20,7 @@ MCU, PSA2, PSA3 = "Secure MCUs and MPUs", "PSA Certified Level 2", "PSA Certifie
 ROT3, ISE4 = "PSA Certified RoT Component Level 3", "PSA Certified Level 4 iSE/SE"
 ISE3 = "PSA Certified Level 3 iSE/SE + RoT Component"
 PSA_SCOPES = ("psa_whole", "rot_component", "ise_se_or_rot_component")
+CATALOG = SESIPProfileDataset.from_bundled()
 
 
 def make_cert(frontpage: dict | None = None, **index) -> SESIPCertificate:
@@ -33,7 +33,7 @@ def profiles_in(text: str | None) -> dict[str, str | None] | None:
     """family -> 'version release' of the profiles found in the frontpage text"""
     cert = make_cert({"sesip_profile": text})
     cert.heuristics.sesip_profiles = {SESIPProfile("stale")}
-    cert.compute_heuristics_sesip_profiles()
+    cert.compute_heuristics_sesip_profiles(CATALOG)
     if cert.heuristics.sesip_profiles is None:
         return None
     return {p.family: " ".join(x for x in (p.version, p.release) if x) or None for p in cert.heuristics.sesip_profiles}
@@ -113,8 +113,8 @@ def test_unknown_profile_is_logged(caplog, text, expected, logged):
 
 
 def test_profile_catalog_is_well_formed():
-    raw = json.loads((Path(sesip.__file__).parent.parent / "sesip_profiles.json").read_text(encoding="utf-8"))
-    assert [p["family"] for p in raw] == list(SESIP_PROFILES), "no family twice"
+    raw = json.loads(SESIPProfileDataset.BUNDLED_PATH.read_text(encoding="utf-8"))
+    assert len(raw) == len(CATALOG), "no family twice"
     for entry in raw:
         assert set(entry) == {"family", "pattern", "issuer", "doc_ids", "url", "psa_level", "psa_scope"}
         assert entry["issuer"] in ("GlobalPlatform", "PSA Certified", None)
@@ -139,7 +139,7 @@ def test_psa_profile_levels(families, expected):
     cert = make_cert()
     cert.heuristics.sesip_profiles = {SESIPProfile(family) for family in families} or None
     cert.heuristics.psa_profile_levels = {"stale": 1}
-    cert.compute_heuristics_psa_profile_levels()
+    cert.compute_heuristics_psa_profile_levels(CATALOG)
     assert cert.heuristics.psa_profile_levels == expected
 
 
