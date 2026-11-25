@@ -1,0 +1,35 @@
+## CCEVS APPROVED ASSURANCE CONTINUITY MAINTENANCE REPORT
+
+## ASSURANCE CONTINUITY MAINTENANCE REPORT FOR
+
+Interactive Link Data Diode Device, 100MB Version 2.4
+
+Maintenance Report Number: CCEVS-VR-05-0119b
+
+Date of Activity :
+
+03/25/2010
+
+References:
+
+Common Criteria document CCIMB-2004-02-009 'Assurance Continuity: CCRA Requirements', version 1.0, February 2004;
+
+Impact  Analysis  Report,  ' Impact  Analysis  Report  IAR-IL-DDD-007  for  the  Interactive Link, Data Diode Device,' version 1.0 dated 22 January 2010
+
+## Documentation Updated:
+
+Interactive Link Data Diode Device Installation and Administration Guide
+
+Interactive Link Data Diode Device developer evidence
+
+## Assurance Continuity Maintenance Report:
+
+The vendor for the Interactive Link Data Diode Device, 100MB version submitted an Impact Analysis Report (IAR) to CCEVS for approval on 22 January 2010. The IAR is intended to satisfy requirements outlined in Common Criteria document CCIMB-2004-02-009, 'Assurance Continuity: CCRA Requirements', version 1.0, February 2004. In accordance with those requirements, the IAR describes the changes made to the certified TOE, the evidence updated as a result of the changes and the security impact of the changes.
+
+## Changes to TOE:
+
+The changes described in the Impact Analysis Report are limited to the selection of RoHScompliant metal finish materials and processes, the use of a more readily available external power supply plugpack, and the use of ROHS-compliant versions of electronic components.
+
+## Conclusion:
+
+The changes to the TOE environment were analyzed and found to have no effect on the evaluated TOE. The non-security relevance of the changes leads to the conclusion that the updates can be classified as a minor change and that certificate maintenance is the correct path to continuity of assurance.

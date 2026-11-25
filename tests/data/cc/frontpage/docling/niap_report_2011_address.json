@@ -1,0 +1,268 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "National Information Assurance Partnership",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "®",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "text",
+   "text": "TM",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "section_header",
+   "text": "Common Criteria Evaluation and Validation Scheme Validation Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "section_header",
+   "text": "Cisco Systems, Inc, 170 West Tasman Dr., San Jose, CA 95134",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "section_header",
+   "text": "Cisco 5940 Series Embedded Services Router",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "Report Number:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "CCEVS-VR-VID10429-2011",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "text",
+   "text": "Dated:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "text",
+   "text": "5 July 2011",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "text",
+   "text": "Version:",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "text",
+   "text": "1.0",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "National Institute of Standards and Technology Information Technology Laboratory 100 Bureau Drive Gaithersburg, MD  20899",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "National Security Agency Information Assurance Directorate 9800 Savage Road STE 6940 Fort George G. Meade, MD  20755-6940",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "section_header",
+   "text": "ACKNOWLEDGEMENTS",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "section_header",
+   "text": "Validation Team",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "text",
+   "text": "Jandria Alexander Aerospace Corporation",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "text",
+   "text": "Columbia, MD",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/18",
+   "label": "text",
+   "text": "Ralph Broom Noblis, Inc. Falls Church, VA",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/19",
+   "label": "section_header",
+   "text": "Common Criteria Testing Laboratory",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/20",
+   "label": "text",
+   "text": "Tammy Compton Julie Cowan Quang Trinh Science Applications International Corporation",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/21",
+   "label": "text",
+   "text": "Columbia, Maryland",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/22",
+   "label": "page_footer",
+   "text": "ii",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/23",
+   "label": "section_header",
+   "text": "Table of Contents",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/24",
+   "label": "page_footer",
+   "text": "iii",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "document_index",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ]
+}

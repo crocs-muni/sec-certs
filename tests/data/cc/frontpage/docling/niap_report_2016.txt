@@ -1,0 +1,120 @@
+Emerson Secure KVM Validation Report, Version 1.0
+
+## National Information Assurance Partnership
+
+## Common Criteria Evaluation and Validation Scheme Validation Report
+
+Emerson Secure KVM (identified 2, 4, 8, 16 port models)
+
+Report Number:   CCEVS-VR-VID10705-2016
+
+Dated:  March 24, 2016
+
+Version: 1.0
+
+National Institute of Standards and Technology
+
+Department of Defense
+
+Information Technology Laboratory
+
+National Security Agency
+
+100 Bureau Drive
+
+9800 Savage Road
+
+Gaithersburg, MD  20899
+
+Fort Meade, MD  20755-6940
+
+Emerson Secure KVM Validation Report, Version 1.0
+
+## ACKNOWLEDGEMENTS
+
+## Validation Team
+
+Chris Thorpe
+
+Daniel Faigin
+
+Ken Stutterheim
+
+Tony Chew
+
+Brad O'Neill
+
+## Common Criteria Testing Laboratory
+
+CSC Global Cybersecurity, Computer Sciences Corporation 7459A Candlewood Drive Hanover, Maryland 21076
+
+Emerson Secure KVM Validation Report, Version 1.0
+
+## 1. EXECUTIVE SUMMARY
+
+This report is intended to assist the end-user of this product and any security certification Agent for the end-user with determining the suitability of this Information Technology (IT)  product  in  their  environment.    End-users  should  review  both  the  Security  Target (ST),  which  is  where  specific  security  claims  are  made,  in  conjunction  with  this Validation Report (VR), which describes how those security claims were evaluated.
+
+This report documents the assessment by the National Information Assurance Partnership (NIAP) validation team  of  the  evaluation  of  the  Emerson  Secure  KVM  Combiner,  the Target of Evaluation (TOE), performed by CSC Global Cybersecurity, Security Testing &amp;  Certification  Lab.  It  presents  the  evaluation  results,  their  justifications,  and  the conformance results.  This report is not an endorsement of the TOE by any agency of the U.S. government, and no warranty is either expressed or implied.
+
+The  evaluation  was  performed  by  CSC  Global  Cybersecurity,  Security  Testing  &amp; Certification  Lab  of  Hanover,  MD  in  accordance  with  the  United  States  evaluation scheme and completed on February 26, 2016.  The information in this report is largely derived from the ST, the Evaluation Technical Report (ETR) and the functional testing report.  The evaluation was performed to conform to the requirements of the Common Criteria for Information Technology Security Evaluation, Version 3.1, Revision 4, dated September  2012;  the  Common  Evaluation  Methodology  for  IT  Security  Evaluation (CEM),  Version  3.1,  Revision  4,  September  2012;  and  the  NIAP  Peripheral  Sharing Switch (PSS) Protection Profile (PSSPP) version 3.0.
+
+The Emerson Secure Peripheral Sharing Switches (PSS) allows the secure sharing of a single set of peripheral components such as keyboard, Video Display and Mouse/Pointing devices among multiple computers through standard USB, DVI, HDMI, and DisplayPort interfaces.
+
+The  Evaluation  Team  performed  an  analysis  of  the  NIAP  Technical  Decisions  and determined that Technical Decisions TD0083 and TD0086 apply to this TOE or PP.
+
+The TOE is also compliant with all International interpretations with effective dates on or before April 28, 2015.
+
+Emerson Secure KVM Validation Report, Version 1.0
+
+## 2. IDENTIFICATION
+
+The  CCEVS  is  a  joint  National  Security  Agency  (NSA)  and  National  Institute  of Standards  and  Technology  (NIST)  effort  to  establish  commercial  facilities  to  perform trusted product evaluations.  Under this program, commercial testing laboratories called Common  Criteria Testing Laboratories (CCTLs) using the Common  Evaluation Methodology (CEM) and NIAP approved Protection Profiles in accordance with National Voluntary  Laboratory  Assessment  Program  (NVLAP)  accreditation  conduct  security evaluations.
+
+The NIAP Validation Body assigns Validators to monitor the CCTLs to ensure quality and  consistency  across  evaluations.    Developers  of  IT  products  desiring  a  security evaluation  contract  with  a  CCTL  and  pay  a  fee  for  their  product's  evaluation.    Upon successful  completion  of  the  evaluation,  the  product  is  added  to  NIAP's  Validated Products List.
+
+Table 1 provides information needed to completely identify the product, including:
+
+-  The Target of Evaluation (TOE): the fully qualified identifier of the product as evaluated;
+-  The Security Target (ST), describing the security features, claims, and assurances of the product;
+-  The conformance result of the evaluation;
+-  Any Protection Profile to which the product is conformant;
+-  The organizations participating in the evaluation.
+
+Emerson Secure KVM Validation Report, Version 1.0
+
+Table 1: Evaluation Identifiers
+
+| Item                        | Identifier                                                                                                                                                                 |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Evaluation Scheme           | United States NIAP Common Criteria Evaluation and Validation Scheme                                                                                                        |
+| Target of Evaluation        | Emerson Secure KVM, selected 2, 4, 8 and 16 port models                                                                                                                    |
+| Protection Profile          | NIAP Peripheral Sharing Switch for Human Interface Devices Protection Profile, Version 3.0, February 13, 2015                                                              |
+| Security Target             | Emerson. Emerson Network Power Secure KVM and Matrix Security Target , Document Number HDC11602, Rev 3.18, January 28, 2016                                                |
+| Dates of evaluation         | April 28, 2015 - February 26, 2016                                                                                                                                         |
+| Evaluation Technical Report | Emerson Evaluation Technical Report: Emerson Secure KVM Switch , Document version 1.0, February 17, 2016                                                                   |
+| Assurance Activity Report   | Assurance Activity Report: Emerson Network Power Secure KVM and Matrix , Document Version 1.0, February 26, 2016                                                           |
+| Conformance Result          | This evaluation has the following CC conformance claims:  Part 2 extended                                                                                                 |
+| Common Criteria version     | Common Criteria for Information Technology Security Evaluation Version 3.1, Revision 4, September 2012: 1. Common Criteria for Information Technology Security Evaluation, |
+|                             | Part 1: Introduction and General Model, CCMB-2012-09-001, Version 3.1 Revision 4, September 2012.                                                                          |
+| Common Evaluation           | Common Methodology for Information Technology Security Evaluation, Evaluation Methodology, CCMB-2012-09-004, Version 3.1, Revision 4, September 2012.                      |
+| Methodology (CEM) version   |                                                                                                                                                                            |
+| Sponsor                     | Emerson Network Power                                                                                                                                                      |
+| Developer                   | Emerson Network Power                                                                                                                                                      |
+| Evaluators                  | CSC Global Cybersecurity, Security Testing & Certification Lab : Brian Pleffner, John F. Daniels, Cheryl Dugan, Brittany Conti                                             |
+| Validation Team             | The Aerospace Corporation: Daniel Faigin, Tony Chew, Kenneth Stutterheim The MITRE Corporation: Chris Thorpe, Brad O'Neill                                                 |
+
+Emerson Secure KVM Validation Report, Version 1.0
+
+## 3. SECURITY POLICY
+
+The TOE implements the Data Separation Security Function Policy (SFP) as outlined in Section 4 of the claimed Protection Profile. Isolated USB device emulators are used for the  keyboard  and  mouse.  There  is  one  USB  device  emulator  per  each  connected computer. The use of isolated USB device emulators assures that connected computers will not interact electrically or logically with shared TOE or peripheral resources. Data exchange  from  computer  emulators  to  device  emulators  is  uses  a  proprietary  protocol called UNIDIR. The UNIDIR protocol is limited to basic HID transactions. No other data may flow between emulators as it is not supported by the limited protocol. Keyboard and mouse  data  flows  are  not  combined  or  connected  to  any  other  TOE  data  flow.  The keyboard and mouse functions are completely isolated from all other functions (audio, video etc.). There are no shared microcontrollers or any other electronic components. No other external interfaces are coupled to the keyboard and mouse data flow paths.
+
+- a. Wireless keyboards are not allowed per applicable user guidance.
+- b. Wireless mice are not allowed per applicable user guidance.
+- c. TOE Keyboard and mouse USB console ports are interchangeable.
+
+Emerson Secure KVM Validation Report, Version 1.0
+
+## 4. ARCHITECTURAL INFORMATION
+
+## 4.1. Logical Scope and Boundary

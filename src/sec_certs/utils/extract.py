@@ -377,58 +377,6 @@ def search_only_headers_bsi(filepath: Path):  # type: ignore # noqa: C901
     return items_found
 
 
-@no_type_check
-def search_only_headers_niap(filepath: Path):  # type: ignore # noqa: C901
-    # TODO: Please, refactor me. I reallyyyyyyyyyyyyy need it!!!!!!
-    LINE_SEPARATOR_STRICT = " "
-    NUM_LINES_TO_INVESTIGATE = 15
-    items_found: dict[str, str] = {}
-
-    try:
-        # Process front page with info: cert_id, certified_item and developer
-        whole_text, whole_text_with_newlines, was_unicode_decode_error = load_text_file(
-            filepath, NUM_LINES_TO_INVESTIGATE, LINE_SEPARATOR_STRICT
-        )
-
-        certified_item = ""
-        cert_id = ""
-
-        lines = whole_text_with_newlines.splitlines()
-        no_match_yet = True
-        item_offset = -1
-
-        for line_index in range(0, len(lines)):
-            line = lines[line_index]
-
-            if "Validation Report" in line:
-                item_offset = line_index + 1
-
-            REPORTNUM_STR = "Report Number:"
-            if REPORTNUM_STR in line:
-                if no_match_yet:
-                    items_found = {}
-                    no_match_yet = False
-
-                # all lines above till 'Certification Report' or 'Assurance Continuity Maintenance Report'
-                certified_item = ""
-                for name_index in range(item_offset, line_index):
-                    certified_item += lines[name_index] + " "
-                cert_id = line[line.find(REPORTNUM_STR) + len(REPORTNUM_STR) :]
-                break
-
-        if not no_match_yet:
-            items_found[constants.TAG_CERT_ID] = normalize_match_string(cert_id)
-            items_found[constants.TAG_CERT_ITEM] = normalize_match_string(certified_item)
-            items_found[constants.TAG_CERT_LAB] = "US NIAP"
-
-    except Exception as e:
-        error_msg = f"Failed to parse NIAP headers from frontpage: {filepath}; {e}"
-        logger.error(error_msg)
-        raise ValueError(error_msg) from e
-
-    return items_found
-
-
 def flatten_matches(dct: dict) -> dict:
     """
     Function to flatten dictionary of matches.
@@ -641,5 +589,4 @@ def get_sums_for_rules_subset(dct: dict | None, path: str) -> dict[str, float]:
 scheme_frontpage_functions = {
     "FR": search_only_headers_anssi,
     "DE": search_only_headers_bsi,
-    "US": search_only_headers_niap,
 }

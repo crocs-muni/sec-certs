@@ -1,0 +1,73 @@
+Validation Report
+Belkin Corporation
+Belkin OmniView Secure KVM Switch
+(F1DN102U, F1DN104U, F1DN108U)
+Document ID: 09-1832-R-0026 V1.0
+February 25, 20092
+Table of Contents
+1 Executive Summary................................................................................................................ 3
+2 Identification of the TOE........................................................................................................ 4
+3 Interpretations......................................................................................................................... 5
+4 Security Policy........................................................................................................................ 5
+5 TOE Security Environment .................................................................................................... 6
+5.1 Secure Usage Assumptions.............................................................................................. 6
+5.2 Threats Countered and Not Countered............................................................................. 6
+5.3 Organizational Security Policies...................................................................................... 7
+6 Architectural Information....................................................................................................... 7
+6.1.1 Data Separation......................................................................................................... 7
+6.1.2 Switch Management.................................................................................................. 7
+6.2 TOE Boundaries............................................................................................................... 7
+7 Documentation........................................................................................................................ 9
+7.1 Design Documentation..................................................................................................... 9
+7.2 Guidance Documentation............................................................................................... 10
+7.3 Configuration Management and Lifecycle..................................................................... 10
+7.4 Test Documentation ....................................................................................................... 10
+7.5 Vulnerability Assessment Documentation..................................................................... 10
+7.6 Security Target............................................................................................................... 11
+7.7 Site Audit........................................................................................................................ 11
+8 IT Product Testing................................................................................................................ 11
+8.1 Developer Testing.......................................................................................................... 11
+8.2 Evaluation Team Independent Testing........................................................................... 11
+8.3 Vulnerability Analysis.................................................................................................... 12
+9 Evaluated Configuration....................................................................................................... 12
+10 Results of the Evaluation...................................................................................................... 12
+11 Validator Comments/Recommendations.............................................................................. 12
+12 Annexes ................................................................................................................................ 13
+13 Security Target...................................................................................................................... 13
+14 Glossary................................................................................................................................ 13
+15 Bibliography......................................................................................................................... 143
+1 Executive Summary
+This report is intended to assist the end-user of this product with determining the suitability of
+this IT product in their environment. End-users should review both the Security Target (ST),
+which is where specific security claims are made, in conjunction with this Validation Report
+(VR), which describes how those security claims were evaluated.
+This report documents the assessment of the National Information Assurance Partnership (NIAP)
+validation team of the evaluation of the Belkin® OmniView™ Secure KVM Switch, the target of
+evaluation (TOE). It presents the evaluation results, their justifications, and the conformance
+results. This report is not an endorsement of the TOE by any agency of the U.S. government,
+and no warranty is either expressed or implied.
+The re-evaluation of the Belkin® OmniView™ Secure KVM Switch product was performed by
+InfoGard Laboratories, Inc., in San Luis Obispo, CA in the United States and was completed in
+January 2009. The information in this report is largely derived from the Security Target (ST),
+Evaluation Technical Report (ETR), and the functional testing report. The ST was written by
+InfoGard Laboratories. The evaluation was conducted in accordance with the requirements of
+the Common Criteria for Information Technology Security Evaluation, Version 3.1 September
+2007, Evaluation Assurance Level 4 (EAL 4) and the Common Evaluation Methodology for IT
+Security Evaluation (CEM), Version 3.1 r.2, September 2007.
+The Belkin® OmniView™ Secure KVM Switch allows the sharing of a single set of peripheral
+components such as keyboard video monitor, and mouse/pointer devices among multiple
+computers through a standard USB interface. The OmniView Secure KVM offers isolation
+among the switchable channels to ensure that computers are thoroughly isolated within the
+Belkin Secure KVM and ensures that only a single computer can access the shared peripheral
+resource set at one time. Dedicated manual switches with LED “switched state” indicators for
+each channel assure that the channel selection is unambiguously indicated. The Belkin®
+OmniView™ Secure KVM Switch requests the connected peripherals for “plug and play”
+settings and stores this data internal to the KVM switch, to assure the host computer can quickly
+access the needed configuration data. In addition, an on-board keyboard/mouse emulator assures
+that connected computers boot uninterrupted regardless of switched status. The KVM Switch is
+available in 2, 4, or 8 port models offering switchable connections to 2, 4, or 8 computers
+through a USB connection. The Belkin OmniView Secure KVM Switch conforms to the
+Peripheral Sharing Switch (PSS) for Human Interface Devices Protection Profile Version 1.2
+dated 21 August 2008.
+The Belkin® OmniView™ Secure KVM Switch product consists of the following hardware and
+software components:

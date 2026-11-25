@@ -1,0 +1,120 @@
+## National Information Assurance Partnership Common Criteria Evaluation and Validation Scheme
+
+## Cisco AnyConnect Secure Mobility Client v4.10 for
+
+## Validation Report Cisco Systems, Inc. Windows 10
+
+Report Number:
+
+CCEVS-VR-11226-2021
+
+Dated:
+
+December 29, 2021
+
+Version:
+
+1.0
+
+National Institute of Standards and Technology Information Technology Laboratory 100 Bureau Drive Gaithersburg, MD  20899
+
+Department of Defense ATTN: NIAP, Suite 6982 9800 Savage Road Fort Meade, MD 20755-6982
+
+Cisco AnyConnect Secure Mobility Client for Windows 10
+
+Validation Report
+
+Version 1.0, December 29, 2021
+
+## ACKNOWLEDGEMENTS
+
+## Validation Team
+
+Jerome Myers Meredith Hennan Elizabeth Scruggs The Aerospace Corporation
+
+## Common Criteria Testing Laboratory
+
+Gossamer Security Solutions, Inc. Columbia, MD
+
+ii
+
+Cisco AnyConnect Secure Mobility Client for Windows 10
+
+Validation Report
+
+Version 1.0, December 29, 2021
+
+## Table of Contents
+
+| 1 Executive Summary .................................................................................................... 2 Identification ...............................................................................................................   | 1 Executive Summary .................................................................................................... 2 Identification ...............................................................................................................   | 1                   |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| 3 Architectural Information ...........................................................................................                                                                                                                                     | 3 Architectural Information ...........................................................................................                                                                                                                                     |                     |
+|                                                                                                                                                                                                                                                             |                                                                                                                                                                                                                                                             | 3                   |
+| 3.1 TOE Description .................................................................................................                                                                                                                                       | 3.1 TOE Description .................................................................................................                                                                                                                                       | 3                   |
+| 3.2 TOE Evaluated Configuration ............................................................................                                                                                                                                                | 3.2 TOE Evaluated Configuration ............................................................................                                                                                                                                                | 3                   |
+| 3.3 Physical Scope of the TOE .................................................................................                                                                                                                                             | 3.3 Physical Scope of the TOE .................................................................................                                                                                                                                             | 3                   |
+| 4 Security Policy ............................................................................................................                                                                                                                              | 4 Security Policy ............................................................................................................                                                                                                                              | 3                   |
+| 4.1 Cryptographic support ........................................................................................                                                                                                                                          | 4.1 Cryptographic support ........................................................................................                                                                                                                                          | 4                   |
+| 4.2 User data protection ............................................................................................                                                                                                                                       | 4.2 User data protection ............................................................................................                                                                                                                                       | 4                   |
+| 4.3 Identification and authentication.........................................................................                                                                                                                                              | 4.3 Identification and authentication.........................................................................                                                                                                                                              | 4                   |
+| 4.4 Security management ..........................................................................................                                                                                                                                          | 4.4 Security management ..........................................................................................                                                                                                                                          | 4                   |
+| 4.5 Privacy ................................................................................................................                                                                                                                                | 4.5 Privacy ................................................................................................................                                                                                                                                | 4                   |
+| 4.6 Protection of the TSF ..........................................................................................                                                                                                                                        | 4.6 Protection of the TSF ..........................................................................................                                                                                                                                        | 4                   |
+| 4.7 Trusted channels .................................................................................................                                                                                                                                      | 4.7 Trusted channels .................................................................................................                                                                                                                                      | 5                   |
+| 5                                                                                                                                                                                                                                                           | Assumptions ................................................................................................................                                                                                                                                | 5                   |
+| 6                                                                                                                                                                                                                                                           | .................................................................................................                                                                                                                                                           | 5                   |
+| 7                                                                                                                                                                                                                                                           | Clarification of Scope                                                                                                                                                                                                                                      | 6                   |
+| Documentation ............................................................................................................ 8 IT Product Testing ......................................................................................................      | Documentation ............................................................................................................ 8 IT Product Testing ......................................................................................................      | 6                   |
+| 8.1 Developer Testing ...............................................................................................                                                                                                                                       | 8.1 Developer Testing ...............................................................................................                                                                                                                                       | 6                   |
+| 8.2 Evaluation Team Independent Testing ...............................................................                                                                                                                                                     | 8.2 Evaluation Team Independent Testing ...............................................................                                                                                                                                                     | 6                   |
+| 9                                                                                                                                                                                                                                                           | Evaluated Configuration .............................................................................................                                                                                                                                       | 6                   |
+| 10 Results of the Evaluation ............................................................................................                                                                                                                                   | 10 Results of the Evaluation ............................................................................................                                                                                                                                   | 6                   |
+| 10.1 Evaluation of the Security Target (ASE) ............................................................                                                                                                                                                   | 10.1 Evaluation of the Security Target (ASE) ............................................................                                                                                                                                                   | 7                   |
+| 10.2                                                                                                                                                                                                                                                        |                                                                                                                                                                                                                                                             | 7                   |
+|                                                                                                                                                                                                                                                             | Evaluation of the Development (ADV) ..............................................................                                                                                                                                                          | 7                   |
+| 10.3 Evaluation of the Guidance Documents (AGD) .................................................                                                                                                                                                           | 10.3 Evaluation of the Guidance Documents (AGD) .................................................                                                                                                                                                           | 8                   |
+| 10.4 Evaluation of the Life Cycle Support Activities (ALC) ..................................... 10.5                                                                                                                                                       | Evaluation of the Test Documentation and the Test Activity (ATE)                                                                                                                                                                                            | ................. 8 |
+| 10.6 Vulnerability Assessment Activity (VAN) .........................................................                                                                                                                                                      | 10.6 Vulnerability Assessment Activity (VAN) .........................................................                                                                                                                                                      | 8                   |
+| 10.7 Summary of Evaluation Results..........................................................................                                                                                                                                                | 10.7 Summary of Evaluation Results..........................................................................                                                                                                                                                | 8                   |
+| 11 Validator Comments/Recommendations ....................................................................                                                                                                                                                  | 11 Validator Comments/Recommendations ....................................................................                                                                                                                                                  | 9                   |
+| 12                                                                                                                                                                                                                                                          | Annexes.......................................................................................................................                                                                                                                              | 9                   |
+| 13                                                                                                                                                                                                                                                          | Security Target ............................................................................................................                                                                                                                                | 9                   |
+| 14 Glossary ......................................................................................................................                                                                                                                          | 14 Glossary ......................................................................................................................                                                                                                                          | 9                   |
+| 15 Bibliography .............................................................................................................                                                                                                                               | 15 Bibliography .............................................................................................................                                                                                                                               | 10                  |
+
+iii
+
+Cisco AnyConnect Secure Mobility Client for Windows 10
+
+Validation Report
+
+Version 1.0, December 29, 2021
+
+## 1 Executive Summary
+
+This report documents the assessment of the National Information Assurance Partnership (NIAP) validation team of the evaluation of Cisco AnyConnect Secure Mobility Client v4.10 for Windows 10 solution provided by Cisco Systems, Inc.  It presents the evaluation results, their  justifications,  and  the  conformance  results.    This  Validation  Report  is  not  an endorsement of the Target of Evaluation by any agency of the U.S. government, and no warranty is either expressed or implied.
+
+The evaluation was performed by the Gossamer Security Solutions (Gossamer) Common Criteria Testing Laboratory (CCTL) in Columbia, MD, United States of America, and was completed in December 2021. The information in this report is largely derived from the Evaluation  Technical  Report  (ETR)  and  associated  test  reports,  all  written  by  Gossamer Security Solutions.  The evaluation determined that the product is both Common Criteria Part  2  Extended  and  Part  3  Conformant,  and  meets  the  assurance  requirements  of  the Protection Profile for Application Software, Version 1.3, 1 March 2019 and the PP-Module for Virtual Private Network (VPN) Clients, Version 2.3, 10 August 2021.
+
+The Target of Evaluation (TOE) is the Cisco AnyConnect Secure Mobility Client v4.10 for Windows 10.
+
+The Target of Evaluation (TOE) identified in this Validation Report has been evaluated at a NIAP approved Common Criteria Testing Laboratory using the Common Methodology for IT Security Evaluation (Version 3.1, Rev 5) for conformance to the Common Criteria for IT Security Evaluation (Version 3.1, Rev 5). This Validation Report applies only to the specific version of the TOE as evaluated.  The evaluation has been conducted in accordance with the provisions  of  the  NIAP  Common  Criteria  Evaluation  and  Validation  Scheme  and  the conclusions of the testing laboratory in the evaluation technical report are consistent with the evidence provided.
+
+The validation team monitored the activities of the evaluation team, provided guidance on technical  issues  and  evaluation  processes,  and  reviewed  the  individual  work  units  and successive versions of the ETR. The validation team found that the evaluation showed that the product satisfies all of the functional requirements and assurance requirements stated in the  Security  Target  (ST).  Therefore  the  validation  team  concludes  that  the  testing laboratory's findings are accurate, the conclusions justified, and the conformance results are correct.  The  conclusions  of  the  testing  laboratory  in  the  evaluation  technical  report  are consistent with the evidence produced.
+
+The technical information included in this report was obtained from the Cisco AnyConnect Secure Mobility Client v4.10 for Windows 10 Security Target, version 0.4, December 6, 2021 and analysis performed by the Validation Team.
+
+## 2 Identification
+
+The CCEVS is a joint National Security Agency (NSA) and National Institute of Standards and Technology (NIST) effort to establish commercial facilities to perform trusted product evaluations.  Under this program, security evaluations are conducted by commercial testing laboratories  called  Common  Criteria  Testing  Laboratories  (CCTLs)  using  the  Common Evaluation  Methodology  (CEM)  in  accordance  with  National  Voluntary  Laboratory Assessment Program (NVLAP) accreditation.
+
+1
+
+Cisco AnyConnect Secure Mobility Client for Windows 10
+
+Validation Report
+
+Version 1.0, December 29, 2021
+
+The NIAP Validation Body assigns Validators to monitor the CCTLs to ensure quality and consistency across evaluations.  Developers of information technology products desiring a security evaluation contract with a CCTL and pay a fee for their product's evaluation.  Upon successful completion of the evaluation, the product is added to NIAP's Validated Products List.
+

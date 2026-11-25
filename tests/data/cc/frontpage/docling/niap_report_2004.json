@@ -1,0 +1,198 @@
+{
+ "schema_name": "DoclingDocument",
+ "version": "1.10.0",
+ "name": "cert_report",
+ "texts": [
+  {
+   "self_ref": "#/texts/0",
+   "label": "section_header",
+   "text": "National Information Assurance Partnership",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/1",
+   "label": "text",
+   "text": "®",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/2",
+   "label": "text",
+   "text": "TM",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/3",
+   "label": "section_header",
+   "text": "Common Criteria Evaluation and Validation Scheme Validation Report",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/4",
+   "label": "section_header",
+   "text": "IBM WebSphere Application Server",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/5",
+   "label": "section_header",
+   "text": "Report Number: CCEVS-VR-04-0082 Dated: December 2, 2004 Version: 1.3",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/6",
+   "label": "text",
+   "text": "National Institute of Standards and Technology Information Technology laboratory 100 Bureau Drive Gaithersburg, Maryland 20899",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/7",
+   "label": "text",
+   "text": "National Security agency Information Assurance Directorate 9600 Savage Road Suite 6740 Fort George G. Meade, MD 20755-6740",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/8",
+   "label": "page_footer",
+   "text": "i",
+   "prov": [
+    {
+     "page_no": 1
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/9",
+   "label": "section_header",
+   "text": "Acknowledgements:",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/10",
+   "label": "section_header",
+   "text": "The TOE evaluation was sponsored by:",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/11",
+   "label": "text",
+   "text": "IBM Corporation New Orchard Road Armonk, NY 10504 USA",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/12",
+   "label": "text",
+   "text": "Evaluation Personnel: SAIC Common Criteria Testing Laboratory, Columbia, Maryland Reese, Cynthia Diaz, Terrie Pierre, Marie E.",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/13",
+   "label": "text",
+   "text": "Validation Personnel:",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/14",
+   "label": "text",
+   "text": "Santosh Chokhani, Orion Security Solutions",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/15",
+   "label": "page_footer",
+   "text": "ii",
+   "prov": [
+    {
+     "page_no": 2
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/16",
+   "label": "section_header",
+   "text": "Table of Contents",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  },
+  {
+   "self_ref": "#/texts/17",
+   "label": "page_footer",
+   "text": "iii",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ],
+ "tables": [
+  {
+   "self_ref": "#/tables/0",
+   "label": "document_index",
+   "prov": [
+    {
+     "page_no": 3
+    }
+   ]
+  }
+ ]
+}
