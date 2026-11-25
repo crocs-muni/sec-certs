@@ -3,6 +3,9 @@ on:
   release:
     types: [published]
 
+env:
+  IMAGE: seccerts/sec-certs
+
 jobs:
   pypi_release:
     name: Release on PyPi
@@ -26,12 +29,82 @@ jobs:
         run: uv build
       - name: Publish package to PyPI
         run: uv publish
-  docker_release:
-    name: Release on DockerHub
+
+  # Docker release runs in two stages:
+  # 1. docker_release_build (6 jobs = 3 targets x 2 platforms) builds each
+  #    image natively (amd64 on ubuntu-latest, arm64 on ubuntu-24.04-arm),
+  #    pushes it by digest without a tag and uploads the digest as an artifact.
+  # 2. docker_release_publish (3 jobs, one per target) runs after all builds,
+  #    downloads the two digests of its target and creates the multi-arch tags.
+  #    A target is published only if both platforms were built; otherwise its
+  #    tags (including latest-<target>) stay on the previous release.
+  # The dockerhub environment needs one approval before the builds start.
+  docker_release_build:
+    name: Docker Build ${{ matrix.target }} (${{ matrix.arch }})
+    if: github.repository == 'crocs-muni/sec-certs'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
     environment:
       name: dockerhub
       url: https://hub.docker.com/r/seccerts/sec-certs/
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [slim, jupyter, docling]
+        platform: [linux/amd64, linux/arm64]
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            arch: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            arch: arm64
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      - name: Login to DockerHub
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Disk usage before build
+        run: df -h /
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: .
+          file: Dockerfile
+          target: ${{ matrix.target }}
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS=${{ github.event.release.tag_name }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+      - name: Disk usage after build
+        if: always()
+        run: df -h /
+      - name: Export digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+      - name: Upload digest
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: digest-${{ matrix.target }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  docker_release_publish:
+    name: Docker Publish ${{ matrix.target }}
+    needs: docker_release_build
+    if: ${{ !cancelled() && github.repository == 'crocs-muni/sec-certs' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -42,14 +115,21 @@ jobs:
             suffix: "-jupyter"
           - target: docling
             suffix: "-docling"
-    if: github.repository == 'crocs-muni/sec-certs'
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+      - name: Download digests
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          image: tonistiigi/binfmt:qemu-v7.0.0
+          path: ${{ runner.temp }}/digests
+          pattern: digest-${{ matrix.target }}-*
+          merge-multiple: true
+      - name: Check that both platforms were built
+        run: |
+          count=$(find "$RUNNER_TEMP/digests" -type f 2>/dev/null | wc -l)
+          echo "digests found: $count"
+          if [ "$count" -ne 2 ]; then
+            echo "::error::Expected 2 digests for ${{ matrix.target }}, found $count. Not publishing."
+            exit 1
+          fi
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
       - name: Login to DockerHub
@@ -57,29 +137,36 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata (tags) for Docker
         id: meta
         uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
-          images: seccerts/sec-certs
+          images: ${{ env.IMAGE }}
           flavor: |
             suffix=${{ matrix.suffix }}, onlatest=true
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+      - name: Create multi-arch tags
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          mapfile -t tag_args < <(jq -r '.tags[] | "-t", .' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          sources=()
+          for digest in *; do
+            sources+=("$IMAGE@sha256:$digest")
+          done
+          docker buildx imagetools create "${tag_args[@]}" "${sources[@]}"
+      - name: Inspect published image
+        run: |
+          tag=$(jq -r '.tags[0]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          docker buildx imagetools inspect "$tag"
+      - name: Check out README for the description
+        if: ${{ matrix.target == 'slim' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          file: Dockerfile
-          push: true
-          target: ${{ matrix.target }}
-          tags: ${{ steps.meta.outputs.tags }}
-          build-args: |
-            SETUPTOOLS_SCM_PRETEND_VERSION_FOR_SEC_CERTS=${{ github.event.release.tag_name }}
+          sparse-checkout: README.md
+          sparse-checkout-cone-mode: false
       - name: Update dockerhub description
         if: ${{ matrix.target == 'slim' }}
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: seccerts/sec-certs
+          repository: ${{ env.IMAGE }}
