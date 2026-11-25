@@ -10,7 +10,7 @@ from typing import Any
 import yaml
 from dateutil.relativedelta import relativedelta
 
-from sec_certs.sample.cc_certificate_id import canonicalize_eucc
+from sec_certs.sample.cc_certificate_id import canonicalize_eucc, strip_duplicated_eucc_prefix
 from sec_certs.sample.cc_eucc_common import (
     Heuristics,
     InternalState,
@@ -262,7 +262,7 @@ class EUCCCertificate(
         Returns the country code (2-letter) for a given certificate ID
         based on the regex rules in cc_cert_id.yaml.
         """
-        cert_id = cert_id.strip()
+        cert_id = strip_duplicated_eucc_prefix(cert_id)
         cert_id = re.sub(r"^CERTIFICATE[- ]?", "", cert_id, flags=re.IGNORECASE)
 
         for country, regex_list in cc_cert_id_rules.get("cc_cert_id", {}).items():
@@ -270,6 +270,12 @@ class EUCCCertificate(
                 if re.fullmatch(pattern, cert_id):
                     return country
         return ""
+
+    @staticmethod
+    def _get_scheme_from_nando_id(nando_id: str | None) -> str:
+        if not nando_id or not re.fullmatch(r"[0-9]{4}", nando_id.strip()):
+            return ""
+        return EUCCCertificate._get_scheme_from_cert_id(f"EUCC-{nando_id.strip()}-2000-1")
 
     @staticmethod
     def _get_not_valid_before(issuance_date_full: str | None) -> date | None:
@@ -332,7 +338,9 @@ class EUCCCertificate(
         product_type = metadata.get("product_type", "").upper()
         product_name = metadata.get("product_name", "")
         holder_name = metadata.get("holder_name", "")
-        scheme = EUCCCertificate._get_scheme_from_cert_id(certificate_id)
+        scheme = EUCCCertificate._get_scheme_from_cert_id(certificate_id) or EUCCCertificate._get_scheme_from_nando_id(
+            metadata.get("nando_id")
+        )
         security_level = EUCCCertificate._extract_first_eal(metadata.get("package", ""))
         not_valid_before = EUCCCertificate._get_not_valid_before(metadata.get("issuance_date_full"))
         not_valid_after = EUCCCertificate._get_not_valid_after(metadata.get("issuance_date_full"))

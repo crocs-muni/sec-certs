@@ -19,12 +19,17 @@ def _parse_year(year: str | None) -> int | None:
         return y
 
 
+def strip_duplicated_eucc_prefix(cert_id: str) -> str:
+    return re.sub(r"^(?:CERTIFICATE[ -])?EUCC-[0-9]{4}-20[0-9]{2}-(?=EUCC-)", "", cert_id.strip())
+
+
 def _eucc_id(meta) -> str | None:
     if not meta.get("eucc"):
         return None
     if meta.get("anssi"):
         return f"EUCC-ANSSI-{meta['year']}-{meta['month']}-{meta['day']}"
-    return f"EUCC-{meta['cb']}-{meta['year']}-{int(meta['seq'])}"
+    pp = "PP-" if meta.get("pp") else ""
+    return f"EUCC-{meta['cb']}-{meta['year']}-{pp}{int(meta['seq'])}"
 
 
 def FR(meta) -> str:
@@ -286,6 +291,6 @@ def canonicalize(cert_id_str: str, scheme: str) -> str:
 
 
 def canonicalize_eucc(cert_id: str) -> str | None:
-    if match := re.match(rules["eucc_cert_id"], cert_id.strip()):
+    if match := re.match(rules["eucc_cert_id"], strip_duplicated_eucc_prefix(cert_id)):
         return _eucc_id(match.groupdict())
     return None
